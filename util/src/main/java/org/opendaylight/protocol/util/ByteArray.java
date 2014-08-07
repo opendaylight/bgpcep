@@ -91,13 +91,20 @@ public final class ByteArray {
      * @return a new byte array that is a sub-array of the original
      */
     public static byte[] subByte(final byte[] bytes, final int startIndex, final int length) {
-        if (bytes.length == 0 || length < 0 || length > bytes.length || startIndex < 0 || startIndex > bytes.length
-            || startIndex + length > bytes.length) {
+        if (!checkLength(bytes, length) || !checkStartIndex(bytes, startIndex, length)) {
             throw new IllegalArgumentException("Cannot create subByte, invalid arguments: Length: " + length + " startIndex: " + startIndex);
         }
         final byte[] res = new byte[length];
         System.arraycopy(bytes, startIndex, res, 0, length);
         return res;
+    }
+
+    private static boolean checkLength(final byte[] bytes, final int length) {
+        return length > 0 && bytes.length > 0 && length <= bytes.length;
+    }
+
+    private static boolean checkStartIndex(final byte[] bytes, final int startIndex, final int length) {
+        return startIndex >= 0 && startIndex < bytes.length && (startIndex + length <= bytes.length);
     }
 
     /**

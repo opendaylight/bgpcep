@@ -66,7 +66,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
      */
     @Override
     public void serializeMessage(final Notification msg, final ByteBuf bytes) {
-        Preconditions.checkArgument(msg != null && msg instanceof Open, "BGP Open message cannot be null");
+        Preconditions.checkArgument(msg instanceof Open, "BGP Open message cannot be null");
         LOG.trace("Started serializing open message: {}", msg);
         final Open open = (Open) msg;
         final ByteBuf msgBody = Unpooled.buffer();
