@@ -10,12 +10,9 @@ package org.opendaylight.protocol.pcep.spi;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-
 import java.util.List;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.tlvs.VendorInformationTlv;
@@ -83,7 +80,7 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
         // FIXME: No TLVs by default, fallback to augments
     }
 
-    abstract protected void addVendorInformationTlvs(final T builder, final List<VendorInformationTlv> tlvs);
+    protected abstract void addVendorInformationTlvs(final T builder, final List<VendorInformationTlv> tlvs);
 
     protected final void serializeVendorInformationTlvs(final List<VendorInformationTlv> tlvs, final ByteBuf buffer) {
         if (tlvs != null && !tlvs.isEmpty()) {

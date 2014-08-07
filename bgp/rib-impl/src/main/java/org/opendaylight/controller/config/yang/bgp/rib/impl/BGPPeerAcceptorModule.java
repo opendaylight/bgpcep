@@ -16,6 +16,9 @@ import org.opendaylight.protocol.bgp.rib.impl.BGPServerSessionValidator;
 * BGP peer acceptor that handles incoming bgp connections.
 */
 public class BGPPeerAcceptorModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPPeerAcceptorModule {
+
+    private static final int PRIVILEGED_PORTS = 1024;
+
     public BGPPeerAcceptorModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
@@ -27,7 +30,7 @@ public class BGPPeerAcceptorModule extends org.opendaylight.controller.config.ya
     @Override
     public void customValidation() {
         // check if unix root user
-        if (!PlatformDependent.isWindows() && !PlatformDependent.isRoot() && getBindingPort().getValue() < 1024) {
+        if (!PlatformDependent.isWindows() && !PlatformDependent.isRoot() && getBindingPort().getValue() < PRIVILEGED_PORTS) {
             throw new AccessControlException("Unable to bind port " + getBindingPort().getValue() + " while running as non-root user.");
         }
         // Try to parse address

@@ -607,14 +607,12 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
             // TODO: what should we do with in.getOspfRouterId()?
             // final OspfNode in = ((OspfNodeCase) ri).getOspfNode();
 
-            if (na != null) {
+            if (na != null && na.getNodeFlags() != null) {
                 final NodeFlagBits nf = na.getNodeFlags();
-                if (nf != null) {
-                    if (nf.isAbr()) {
-                        ab.setRouterType(new AbrBuilder().setAbr(Boolean.TRUE).build());
-                    } else if (!nf.isExternal()) {
-                        ab.setRouterType(new InternalBuilder().setInternal(Boolean.TRUE).build());
-                    }
+                if (nf.isAbr()) {
+                    ab.setRouterType(new AbrBuilder().setAbr(Boolean.TRUE).build());
+                } else if (!nf.isExternal()) {
+                    ab.setRouterType(new InternalBuilder().setInternal(Boolean.TRUE).build());
                 }
             }
         }
