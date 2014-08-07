@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.pcep.segment.routing02;
 
+import com.google.common.base.Optional;
 import io.netty.buffer.ByteBuf;
 import java.util.List;
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07PCUpdateRequestMessageParser;
@@ -23,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
 
 public class SrPcUpdMessageParser extends Stateful07PCUpdateRequestMessageParser {
 
@@ -58,7 +60,7 @@ public class SrPcUpdMessageParser extends Stateful07PCUpdateRequestMessageParser
                 builder.setLsp((Lsp) objects.get(0));
                 objects.remove(0);
             } else {
-                errors.add(createErrorMsg(PCEPErrors.LSP_MISSING));
+                errors.add(createErrorMsg(PCEPErrors.LSP_MISSING, Optional.<Rp>absent()));
                 isValid = false;
             }
 
@@ -67,14 +69,14 @@ public class SrPcUpdMessageParser extends Stateful07PCUpdateRequestMessageParser
                 final Ero ero = (Ero) obj;
                 final PCEPErrors error = SrEroUtil.validateSrEroSubobjects(ero);
                 if (error != null) {
-                    errors.add(createErrorMsg(error));
+                    errors.add(createErrorMsg(error, Optional.<Rp>absent()));
                     isValid = false;
                 } else {
                     builder.setPath(new PathBuilder().setEro(ero).build());
                     objects.remove(0);
                 }
             } else {
-                errors.add(createErrorMsg(PCEPErrors.ERO_MISSING));
+                errors.add(createErrorMsg(PCEPErrors.ERO_MISSING, Optional.<Rp>absent()));
                 isValid = false;
             }
             if (isValid) {

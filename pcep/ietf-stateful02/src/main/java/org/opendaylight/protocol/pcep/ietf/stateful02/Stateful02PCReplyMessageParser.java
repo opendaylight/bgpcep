@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful02;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
@@ -112,7 +113,7 @@ public final class Stateful02PCReplyMessageParser extends PCEPReplyMessageParser
     @Override
     protected Replies getValidReply(final List<Object> objects, final List<Message> errors) {
         if (!(objects.get(0) instanceof Rp)) {
-            errors.add(createErrorMsg(PCEPErrors.RP_MISSING));
+            errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.<Rp>absent()));
             return null;
         }
         final Rp rp = (Rp) objects.get(0);

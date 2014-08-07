@@ -11,14 +11,12 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.List;
-
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
@@ -117,24 +115,16 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
         return objs;
     }
 
-    public static Message createErrorMsg(final PCEPErrors e) {
-        final PCEPErrorMapping maping = PCEPErrorMapping.getInstance();
+    public static Message createErrorMsg(final PCEPErrors e, final Optional<Rp> rp) {
+        final PcerrMessageBuilder msgBuilder = new PcerrMessageBuilder();
+        if (rp.isPresent()) {
+            new RequestCaseBuilder().setRequest(new RequestBuilder().setRps(Collections.singletonList(new RpsBuilder().setRp(
+                    rp.get()).build())).build()).build();
+        }
         return new PcerrBuilder().setPcerrMessage(
-                new PcerrMessageBuilder().setErrors(
-                        Arrays.asList(new ErrorsBuilder().setErrorObject(
-                                new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e).getType()).setValue(
-                                        maping.getFromErrorsEnum(e).getValue()).build()).build())).build()).build();
-    }
-
-    public static Message createErrorMsg(final PCEPErrors e, final Rp rp) {
-        final PCEPErrorMapping maping = PCEPErrorMapping.getInstance();
-        return new PcerrBuilder().setPcerrMessage(
-                new PcerrMessageBuilder().setErrorType(
-                        new RequestCaseBuilder().setRequest(
-                                new RequestBuilder().setRps(Lists.newArrayList(new RpsBuilder().setRp(rp).build())).build()).build()).setErrors(
-                                        Arrays.asList(new ErrorsBuilder().setErrorObject(
-                                                new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e).getType()).setValue(
-                                                        maping.getFromErrorsEnum(e).getValue()).build()).build())).build()).build();
+                msgBuilder.setErrors(Arrays.asList(new ErrorsBuilder().setErrorObject(
+                        new ErrorObjectBuilder().setType(e.getErrorType()).setValue(
+                                e.getErrorValue()).build()).build())).build()).build();
     }
 
     protected abstract Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException;

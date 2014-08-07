@@ -8,10 +8,8 @@
 package org.opendaylight.protocol.pcep.spi;
 
 import com.google.common.base.Preconditions;
-
 import java.util.Arrays;
 import java.util.List;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.Errors;
@@ -34,10 +32,9 @@ public final class UnknownObject implements Object {
     public UnknownObject(final PCEPErrors error, final Object invalidObject) {
         this.e = Preconditions.checkNotNull(error);
 
-        final PCEPErrorMapping mapping = PCEPErrorMapping.getInstance();
         this.error = new ErrorsBuilder().setErrorObject(
-                new ErrorObjectBuilder().setType(mapping.getFromErrorsEnum(error).getType()).setValue(
-                        mapping.getFromErrorsEnum(error).getValue()).build()).build();
+                new ErrorObjectBuilder().setType(error.getErrorType()).setValue(
+                        error.getErrorValue()).build()).build();
         this.invalidObject = invalidObject;
     }
 

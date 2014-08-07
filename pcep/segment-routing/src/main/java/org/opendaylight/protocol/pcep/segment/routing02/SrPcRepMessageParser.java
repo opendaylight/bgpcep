@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.pcep.segment.routing02;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import java.util.List;
@@ -56,7 +57,7 @@ public class SrPcRepMessageParser extends PCEPReplyMessageParser {
     @Override
     protected Replies getValidReply(List<Object> objects, List<Message> errors) {
         if (!(objects.get(0) instanceof Rp)) {
-            errors.add(createErrorMsg(PCEPErrors.RP_MISSING));
+            errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.<Rp>absent()));
             return null;
         }
         final Rp rp = (Rp) objects.get(0);
@@ -73,7 +74,7 @@ public class SrPcRepMessageParser extends PCEPReplyMessageParser {
                         final Ero ero = (Ero) object;
                         final PCEPErrors error = SrEroUtil.validateSrEroSubobjects(ero);
                         if (error != null) {
-                            errors.add(createErrorMsg(error));
+                            errors.add(createErrorMsg(error, Optional.<Rp>absent()));
                             return null;
                         } else {
                             paths.add(pBuilder.setEro(ero).build());

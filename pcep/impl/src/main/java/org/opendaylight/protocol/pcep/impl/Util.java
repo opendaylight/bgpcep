@@ -8,9 +8,6 @@
 package org.opendaylight.protocol.pcep.impl;
 
 import java.util.Arrays;
-
-import org.opendaylight.protocol.pcep.spi.PCEPErrorMapping;
-import org.opendaylight.protocol.pcep.spi.PCEPErrorMapping.PCEPErrorIdentifier;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -33,9 +30,7 @@ public final class Util {
 
     public static Message createErrorMessage(final PCEPErrors e, final Open t) {
         final PcerrBuilder errMessageBuilder = new PcerrBuilder();
-        final PCEPErrorMapping mapping = PCEPErrorMapping.getInstance();
-        final PCEPErrorIdentifier id = mapping.getFromErrorsEnum(e);
-        final ErrorObject err = new ErrorObjectBuilder().setType(id.getType()).setValue(id.getValue()).build();
+        final ErrorObject err = new ErrorObjectBuilder().setType(e.getErrorType()).setValue(e.getErrorValue()).build();
         if (t == null) {
             return errMessageBuilder.setPcerrMessage(
                     new PcerrMessageBuilder().setErrors(Arrays.asList(new ErrorsBuilder().setErrorObject(err).build())).build()).build();
