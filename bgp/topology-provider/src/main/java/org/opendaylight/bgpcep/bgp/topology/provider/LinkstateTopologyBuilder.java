@@ -346,7 +346,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         return buildTp(id, t);
     }
 
-    private InstanceIdentifier<Link> buildLinkIdentifier(final UriBuilder base, final LinkId id) {
+    private InstanceIdentifier<Link> buildLinkIdentifier(final LinkId id) {
         return getInstanceIdentifier().child(
                 org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link.class,
                 new LinkKey(id));
@@ -512,7 +512,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         LOG.debug("Created TP {} as link destination", dstTp);
         putNode(trans, dnh);
 
-        final InstanceIdentifier<Link> lid = buildLinkIdentifier(base, lb.getLinkId());
+        final InstanceIdentifier<Link> lid = buildLinkIdentifier(lb.getLinkId());
         final Link link = lb.build();
 
         trans.put(LogicalDatastoreType.OPERATIONAL, lid, link);
@@ -532,7 +532,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 
     private void removeLink(final WriteTransaction trans, final UriBuilder base, final LinkCase l) {
         final LinkId id = buildLinkId(base, l);
-        final InstanceIdentifier<?> lid = buildLinkIdentifier(base, id);
+        final InstanceIdentifier<?> lid = buildLinkIdentifier(id);
         trans.delete(LogicalDatastoreType.OPERATIONAL, lid);
         LOG.debug("Removed link {}", lid);
 

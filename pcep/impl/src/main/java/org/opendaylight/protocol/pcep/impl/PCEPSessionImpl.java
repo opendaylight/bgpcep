@@ -59,8 +59,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
      */
     private long lastMessageReceivedAt;
 
-    @VisibleForTesting
-    protected final Queue<Long> unknownMessagesTimes = new LinkedList<Long>();
+    private final Queue<Long> unknownMessagesTimes = new LinkedList<Long>();
 
     private final PCEPSessionListener listener;
 
@@ -383,5 +382,10 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
     @Override
     public String getNodeIdentifier() {
         return "";
+    }
+
+    @VisibleForTesting
+    protected final Queue<Long> getUnknownMessagesTimes() {
+        return this.unknownMessagesTimes;
     }
 }

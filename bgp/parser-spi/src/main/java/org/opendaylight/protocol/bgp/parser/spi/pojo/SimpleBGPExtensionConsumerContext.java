@@ -7,56 +7,49 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
-import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
-import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
-import org.opendaylight.protocol.bgp.parser.spi.CapabilityRegistry;
-import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
-import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
-import org.opendaylight.protocol.bgp.parser.spi.ParameterRegistry;
-import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 
 class SimpleBGPExtensionConsumerContext implements BGPExtensionConsumerContext {
-    protected final SimpleAddressFamilyRegistry afiReg = new SimpleAddressFamilyRegistry();
-    protected final SimpleAttributeRegistry attrReg = new SimpleAttributeRegistry();
-    protected final SimpleCapabilityRegistry capReg = new SimpleCapabilityRegistry();
-    protected final SimpleMessageRegistry msgReg = new SimpleMessageRegistry();
-    protected final SimpleSubsequentAddressFamilyRegistry safiReg = new SimpleSubsequentAddressFamilyRegistry();
-    protected final SimpleParameterRegistry paramReg = new SimpleParameterRegistry();
-    protected final SimpleNlriRegistry nlriReg = new SimpleNlriRegistry(this.afiReg, this.safiReg);
+    private final SimpleAddressFamilyRegistry afiReg = new SimpleAddressFamilyRegistry();
+    private final SimpleAttributeRegistry attrReg = new SimpleAttributeRegistry();
+    private final SimpleCapabilityRegistry capReg = new SimpleCapabilityRegistry();
+    private final SimpleMessageRegistry msgReg = new SimpleMessageRegistry();
+    private final SimpleSubsequentAddressFamilyRegistry safiReg = new SimpleSubsequentAddressFamilyRegistry();
+    private final SimpleParameterRegistry paramReg = new SimpleParameterRegistry();
+    private final SimpleNlriRegistry nlriReg = new SimpleNlriRegistry(this.afiReg, this.safiReg);
 
     @Override
-    public final AddressFamilyRegistry getAddressFamilyRegistry() {
+    public final SimpleAddressFamilyRegistry getAddressFamilyRegistry() {
         return this.afiReg;
     }
 
     @Override
-    public final AttributeRegistry getAttributeRegistry() {
+    public final SimpleAttributeRegistry getAttributeRegistry() {
         return this.attrReg;
     }
 
     @Override
-    public final CapabilityRegistry getCapabilityRegistry() {
+    public final SimpleCapabilityRegistry getCapabilityRegistry() {
         return this.capReg;
     }
 
     @Override
-    public final MessageRegistry getMessageRegistry() {
+    public final SimpleMessageRegistry getMessageRegistry() {
         return this.msgReg;
     }
 
     @Override
-    public final NlriRegistry getNlriRegistry() {
+    public final SimpleNlriRegistry getNlriRegistry() {
         return this.nlriReg;
     }
 
     @Override
-    public final ParameterRegistry getParameterRegistry() {
+    public final SimpleParameterRegistry getParameterRegistry() {
         return this.paramReg;
     }
 
     @Override
-    public final SubsequentAddressFamilyRegistry getSubsequentAddressFamilyRegistry() {
+    public final SimpleSubsequentAddressFamilyRegistry getSubsequentAddressFamilyRegistry() {
         return this.safiReg;
     }
 }

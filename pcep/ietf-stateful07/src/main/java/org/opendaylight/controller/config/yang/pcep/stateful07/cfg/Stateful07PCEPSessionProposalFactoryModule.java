@@ -8,9 +8,7 @@
 package org.opendaylight.controller.config.yang.pcep.stateful07.cfg;
 
 import com.google.common.base.Preconditions;
-
 import java.net.InetSocketAddress;
-
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.ietf.initiated00.Stateful07SessionProposalFactory;
@@ -24,6 +22,10 @@ import org.slf4j.LoggerFactory;
 public final class Stateful07PCEPSessionProposalFactoryModule extends
         org.opendaylight.controller.config.yang.pcep.stateful07.cfg.AbstractStateful07PCEPSessionProposalFactoryModule {
     private static final Logger LOG = LoggerFactory.getLogger(Stateful07PCEPSessionProposalFactoryModule.class);
+
+    private static final String VALUE_IS_NOT_SET = "value is not set.";
+
+    private static final int DT_KA_RATIO = 4;
 
     public Stateful07PCEPSessionProposalFactoryModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
             final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -39,14 +41,14 @@ public final class Stateful07PCEPSessionProposalFactoryModule extends
 
     @Override
     protected void customValidation() {
-        JmxAttributeValidationException.checkNotNull(getActive(), "value is not set.", activeJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getInitiated(), "value is not set.", initiatedJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getDeadTimerValue(), "value is not set.", deadTimerValueJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getKeepAliveTimerValue(), "value is not set.", keepAliveTimerValueJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getActive(), VALUE_IS_NOT_SET, activeJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getInitiated(), VALUE_IS_NOT_SET, initiatedJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getDeadTimerValue(), VALUE_IS_NOT_SET, deadTimerValueJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getKeepAliveTimerValue(), VALUE_IS_NOT_SET, keepAliveTimerValueJmxAttribute);
         if (getKeepAliveTimerValue() != 0) {
             JmxAttributeValidationException.checkCondition(getKeepAliveTimerValue() >= 1, "minimum value is 1.",
                     keepAliveTimerValueJmxAttribute);
-            if (getDeadTimerValue() != 0 && (getDeadTimerValue() / getKeepAliveTimerValue() != 4)) {
+            if (getDeadTimerValue() != 0 && (getDeadTimerValue() / getKeepAliveTimerValue() != DT_KA_RATIO)) {
                 LOG.warn("DeadTimerValue should be 4 times greater than KeepAliveTimerValue");
             }
         }

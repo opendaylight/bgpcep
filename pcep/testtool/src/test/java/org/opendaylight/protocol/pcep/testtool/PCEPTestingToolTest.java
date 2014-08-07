@@ -25,10 +25,10 @@ public class PCEPTestingToolTest {
         ssl.onMessage(null, new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build());
         assertEquals(1, ssl.messages().size());
         assertTrue(ssl.messages().get(0) instanceof KeepaliveMessage);
-        assertFalse(ssl.up);
+        assertFalse(ssl.isUp());
         ssl.onSessionUp(null);
-        assertTrue(ssl.up);
+        assertTrue(ssl.isUp());
         ssl.onSessionDown(null, null);
-        assertFalse(ssl.up);
+        assertFalse(ssl.isUp());
     }
 }
