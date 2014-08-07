@@ -43,7 +43,7 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
      */
     @Override
     public void serializeMessage(final Notification msg, final ByteBuf bytes) {
-        Preconditions.checkArgument(msg != null && msg instanceof Notify, "BGP Notification message cannot be null");
+        Preconditions.checkArgument(msg instanceof Notify, "BGP Notification message cannot be null");
         final Notify ntf = (Notify) msg;
         LOG.trace("Started serializing Notification message: {}", ntf);
 

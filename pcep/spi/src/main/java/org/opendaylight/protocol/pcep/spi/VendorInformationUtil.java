@@ -8,7 +8,7 @@
 
 package org.opendaylight.protocol.pcep.spi;
 
-public class VendorInformationUtil {
+public final class VendorInformationUtil {
 
     public static final int VENDOR_INFORMATION_TLV_TYPE = 7;
 

@@ -8,9 +8,7 @@
 package org.opendaylight.protocol.pcep.testtool;
 
 import com.google.common.collect.Lists;
-
 import java.util.List;
-
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
@@ -23,7 +21,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SimpleSessionListener implements PCEPSessionListener {
 
-    public List<Message> messages = Lists.newArrayList();
+    private List<Message> messages = Lists.newArrayList();
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleSessionListener.class);
 
