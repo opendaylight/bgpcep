@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful02;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import java.util.List;
@@ -177,7 +178,7 @@ public final class Stateful02PCRequestMessageParser extends PCEPRequestMessagePa
                 if (obj instanceof ClassType) {
                     final ClassType classType = (ClassType) obj;
                     if (!classType.isProcessingRule()) {
-                        errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, rp));
+                        errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.of(rp)));
                     } else {
                         builder.setClassType(classType);
                     }
@@ -201,7 +202,7 @@ public final class Stateful02PCRequestMessageParser extends PCEPRequestMessagePa
                 && builder.getBandwidth() != null
                 && builder.getReportedRoute().getBandwidth().getBandwidth() != new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth(new byte[] { 0 })
                 && builder.getReportedRoute().getRro() == null) {
-            errors.add(createErrorMsg(PCEPErrors.RRO_MISSING, rp));
+            errors.add(createErrorMsg(PCEPErrors.RRO_MISSING, Optional.of(rp)));
             return null;
         }
         return new SegmentComputationBuilder().setP2p(builder.build()).build();

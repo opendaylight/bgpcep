@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
@@ -35,6 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.MetricsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.Metric;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
 
 /**
  * Parser for {@link Pcupd}
@@ -112,14 +114,14 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
             builder.setSrp((Srp) objects.get(0));
             objects.remove(0);
         } else {
-            errors.add(createErrorMsg(PCEPErrors.SRP_MISSING));
+            errors.add(createErrorMsg(PCEPErrors.SRP_MISSING, Optional.<Rp>absent()));
             isValid = false;
         }
         if (objects.get(0) instanceof Lsp) {
             builder.setLsp((Lsp) objects.get(0));
             objects.remove(0);
         } else {
-            errors.add(createErrorMsg(PCEPErrors.LSP_MISSING));
+            errors.add(createErrorMsg(PCEPErrors.LSP_MISSING, Optional.<Rp>absent()));
             isValid = false;
         }
         if (!objects.isEmpty()) {
@@ -128,7 +130,7 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
                 pBuilder.setEro((Ero) objects.get(0));
                 objects.remove(0);
             } else {
-                errors.add(createErrorMsg(PCEPErrors.ERO_MISSING));
+                errors.add(createErrorMsg(PCEPErrors.ERO_MISSING, Optional.<Rp>absent()));
                 isValid = false;
             }
             parsePath(objects, pBuilder);

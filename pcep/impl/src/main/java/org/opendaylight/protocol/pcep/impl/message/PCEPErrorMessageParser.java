@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.impl.message;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -98,7 +99,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
         } else if (obj instanceof Rp) {
             final Rp o = (Rp) obj;
             if (o.isProcessingRule()) {
-                errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET));
+                errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.<Rp>absent()));
                 return null;
             }
             requestParameters.add(new RpsBuilder().setRp(o).build());

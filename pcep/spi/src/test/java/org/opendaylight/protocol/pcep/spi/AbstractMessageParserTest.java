@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.spi;
 
 import static org.junit.Assert.assertEquals;
 
+import com.google.common.base.Optional;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Collections;
@@ -18,12 +19,12 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.protocol.pcep.spi.PCEPErrorMapping.PCEPErrorIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcerr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
 
 public class AbstractMessageParserTest {
 
@@ -44,10 +45,9 @@ public class AbstractMessageParserTest {
 
         @Override
         protected Message validate(List<Object> objects, List<Message> errors) throws PCEPDeserializerException {
-            short type = ((ErrorObject)objects.get(0)).getType();
-            short value = ((ErrorObject)objects.get(0)).getValue();
-            final PCEPErrorMapping map = PCEPErrorMapping.getInstance();
-            return createErrorMsg(map.getFromErrorIdentifier(new PCEPErrorIdentifier(type, value)));
+            final short errorType = ((ErrorObject) objects.get(0)).getType();
+            final short errorValue = ((ErrorObject) objects.get(0)).getValue();
+            return createErrorMsg(PCEPErrors.forValue(errorType, errorValue), Optional.<Rp>absent());
         }
     };
 

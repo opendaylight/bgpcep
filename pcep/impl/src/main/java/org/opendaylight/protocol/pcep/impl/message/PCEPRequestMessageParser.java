@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.impl.message;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
@@ -169,13 +170,13 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 rpObj = (Rp) objects.get(0);
                 objects.remove(0);
                 if (!rpObj.isProcessingRule()) {
-                    errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET));
+                    errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.<Rp>absent()));
                 } else {
                     rBuilder.setRp(rpObj);
                 }
             } else {
                 // if RP obj is missing return error only
-                errors.add(createErrorMsg(PCEPErrors.RP_MISSING));
+                errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.<Rp>absent()));
                 return null;
             }
             final List<VendorInformationObject> vendorInfo = addVendorInformationObjects(objects);
@@ -196,12 +197,12 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 final EndpointsObj ep = (EndpointsObj) objects.get(0);
                 objects.remove(0);
                 if (!ep.isProcessingRule()) {
-                    errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, rpObj));
+                    errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.of(rpObj)));
                 } else {
                     p2pBuilder.setEndpointsObj(ep);
                 }
             } else {
-                errors.add(createErrorMsg(PCEPErrors.END_POINTS_MISSING, rpObj));
+                errors.add(createErrorMsg(PCEPErrors.END_POINTS_MISSING, Optional.of(rpObj)));
                 return null;
             }
             // p2p
@@ -313,7 +314,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 if (obj instanceof ClassType) {
                     final ClassType classType = (ClassType) obj;
                     if (!classType.isProcessingRule()) {
-                        errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, rp));
+                        errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.of(rp)));
                     } else {
                         builder.setClassType(classType);
                     }
@@ -341,7 +342,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 && builder.getReportedRoute().getBandwidth().getBandwidth() !=
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth(new byte[] { 0 })
                 && builder.getReportedRoute().getRro() == null) {
-            errors.add(createErrorMsg(PCEPErrors.RRO_MISSING, rp));
+            errors.add(createErrorMsg(PCEPErrors.RRO_MISSING, Optional.of(rp)));
             return null;
         }
         return new SegmentComputationBuilder().setP2p(builder.build()).build();

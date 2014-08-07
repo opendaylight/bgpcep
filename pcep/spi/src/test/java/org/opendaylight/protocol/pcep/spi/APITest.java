@@ -13,7 +13,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.opendaylight.protocol.pcep.spi.PCEPErrorMapping.PCEPErrorIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CCloseBuilder;
 
@@ -46,9 +45,7 @@ public class APITest {
         assertFalse(un.isIgnore());
         assertFalse(un.isProcessingRule());
         assertEquals(PCEPErrors.CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS, un.getError());
-        final PCEPErrorMapping mapping = PCEPErrorMapping.getInstance();
-        final PCEPErrorIdentifier id = mapping.getFromErrorsEnum(PCEPErrors.CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS);
-        assertEquals(id.getType(), un.getErrors().get(0).getErrorObject().getType().shortValue());
+        assertEquals(PCEPErrors.CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS.getErrorType(), un.getErrors().get(0).getErrorObject().getType().shortValue());
 
         final Object o = new CCloseBuilder().build();
         UnknownObject unknown = new UnknownObject(PCEPErrors.LSP_RSVP_ERROR, o);

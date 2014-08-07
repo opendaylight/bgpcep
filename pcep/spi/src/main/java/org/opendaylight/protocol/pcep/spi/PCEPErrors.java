@@ -7,6 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
+import com.google.common.collect.Maps;
+import java.util.Map;
+
+
+
+
 /**
  * Possible errors listed in RFC5440, RFC 5455 and stateful draft.
  *
@@ -16,252 +22,339 @@ package org.opendaylight.protocol.pcep.spi;
  *      "http://www.ietf.org/id/draft-crabbe-pce-pce-initiated-lsp-00.txt#section-7.1" >PCEP-Error Object</a>
  */
 public enum PCEPErrors {
+
     /**
      * Reception of an invalid Open message or a non Open message.
      */
-    NON_OR_INVALID_OPEN_MSG,
+    NON_OR_INVALID_OPEN_MSG(1, 1),
     /**
      * No Open message received before the expiration of the OpenWait timer.
      */
-    NO_OPEN_BEFORE_EXP_OPENWAIT,
+    NO_OPEN_BEFORE_EXP_OPENWAIT(1, 2),
     /**
      * Unacceptable and non-negotiable session characteristics.
      */
-    NON_ACC_NON_NEG_SESSION_CHAR,
+    NON_ACC_NON_NEG_SESSION_CHAR(1, 3),
     /**
      * Unacceptable but negotiable session characteristics.
      */
-    NON_ACC_NEG_SESSION_CHAR,
+    NON_ACC_NEG_SESSION_CHAR(1, 4),
     /**
      * Reception of a second Open message with still unacceptable session characteristics.
      */
-    SECOND_OPEN_MSG,
+    SECOND_OPEN_MSG(1, 5),
     /**
      * Reception of a PCErr message proposing unacceptable session characteristics.
      */
-    PCERR_NON_ACC_SESSION_CHAR,
+    PCERR_NON_ACC_SESSION_CHAR(1, 6),
     /**
      * No Keepalive or PCErr message received before the expiration of the KeepWait timer.
      */
-    NO_MSG_BEFORE_EXP_KEEPWAIT,
+    NO_MSG_BEFORE_EXP_KEEPWAIT(1, 7),
     /**
      * Capability not supported.
      */
-    CAPABILITY_NOT_SUPPORTED,
+    CAPABILITY_NOT_SUPPORTED(2, 0),
     /**
      * PCEP version not supported.
      */
-    PCEP_VERSION_NOT_SUPPORTED,
+    PCEP_VERSION_NOT_SUPPORTED(1, 8),
     /**
      * Unrecognized object class.
      */
-    UNRECOGNIZED_OBJ_CLASS,
+    UNRECOGNIZED_OBJ_CLASS(3, 1),
     /**
      * Unrecognized object Type.
      */
-    UNRECOGNIZED_OBJ_TYPE,
+    UNRECOGNIZED_OBJ_TYPE(3, 2),
     /**
      * Not supported object class.
      */
-    NOT_SUPPORTED_OBJ_CLASS,
+    NOT_SUPPORTED_OBJ_CLASS(4, 1),
     /**
      * Not supported object Type.
      */
-    NOT_SUPPORTED_OBJ_TYPE,
+    NOT_SUPPORTED_OBJ_TYPE(4, 2),
     /**
      * C bit of the METRIC object set (request rejected).
      */
-    C_BIT_SET,
+    C_BIT_SET(5, 1),
     /**
      * O bit of the RP object cleared (request rejected).
      */
-    O_BIT_SET,
+    O_BIT_SET(5, 2),
     /**
      * Objective function not allowed (request rejected)
      */
-    OF_NOT_ALLOWED,
+    OF_NOT_ALLOWED(5, 3),
     /**
      * OF bit of the RP object set (request rejected)
      */
-    OF_BIT_SET,
+    OF_BIT_SET(5, 4),
     /**
      * Global concurrent optimization not allowed (GCO extension)
      */
-    GCO_NOT_ALLOWED,
+    GCO_NOT_ALLOWED(5, 5),
     /**
      * P2MP Path computation is not allowed
      */
-    P2MP_COMPUTATION_NOT_ALLOWED,
+    P2MP_COMPUTATION_NOT_ALLOWED(5, 7),
     /**
      * RP object missing
      */
-    RP_MISSING,
+    RP_MISSING(6, 1),
     /**
      * RRO missing for a reoptimization request (R bit of the RP object set).
      */
-    RRO_MISSING,
+    RRO_MISSING(6, 2),
     /**
      * END-POINTS object missing
      */
-    END_POINTS_MISSING,
+    END_POINTS_MISSING(6, 3),
     /**
      * LSP cleanup TLV missing
      */
-    LSP_CLEANUP_TLV_MISSING,
+    LSP_CLEANUP_TLV_MISSING(6, 13),
     /**
      * SYMBOLIC-PATH-NAME TLV missing
      */
-    SYMBOLIC_PATH_NAME_MISSING,
+    SYMBOLIC_PATH_NAME_MISSING(6, 14),
     /**
      * Synchronized path computation request missing.
      */
-    SYNC_PATH_COMP_REQ_MISSING,
+    SYNC_PATH_COMP_REQ_MISSING(7, 0),
     /**
      * Unknown request reference
      */
-    UNKNOWN_REQ_REF,
+    UNKNOWN_REQ_REF(8, 0),
     /**
      * Attempt to establish a second PCEP session.
      */
-    ATTEMPT_2ND_SESSION,
+    ATTEMPT_2ND_SESSION(9, 0),
     /**
      * LSP Object missing.
      */
-    LSP_MISSING,
+    LSP_MISSING(6, 8),
     /**
      * ERO Object missing for a path in an LSP Update Request where TE-LSP setup is requested.
      */
-    ERO_MISSING,
+    ERO_MISSING(6, 9),
     /**
      * Srp Object missing for a path in an LSP Update Request where TE-LSP setup is requested.
      */
-    SRP_MISSING,
+    SRP_MISSING(6, 10),
     /**
      * LSP-IDENTIFIERS TLV missing for a path in an LSP Update Request where TE-LSP setup is requested.
      */
-    LSP_IDENTIFIERS_TLV_MISSING,
+    LSP_IDENTIFIERS_TLV_MISSING(6, 11),
     /**
      * Reception of an object with P flag not set although the P flag must be set according to this specification.
      */
-    P_FLAG_NOT_SET,
+    P_FLAG_NOT_SET(10, 1),
     /**
      * Insufficient memory (GCO extension)
      */
-    INSUFFICIENT_MEMORY,
+    INSUFFICIENT_MEMORY(15, 1),
     /**
      * Global concurrent optimization not supported (GCO extension)
      */
-    GCO_NOT_SUPPORTED,
+    GCO_NOT_SUPPORTED(15, 2),
     /**
      * Diffserv-aware TE error: Unsupported Class-Type.
      */
-    UNSUPPORTED_CT,
+    UNSUPPORTED_CT(12, 1),
     /**
      * Diffserv-aware TE error: Invalid Class-Type.
      */
-    INVALID_CT,
+    INVALID_CT(12, 2),
     /**
      * Diffserv-aware TE error: Class-Type and setup priority do not form a configured TE-class.
      */
-    CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS,
+    CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS(12, 3),
 
     /**
      * The PCE cannot satisfy the request due to insufficient memory
      */
-    CANNOT_SATISFY_P2MP_REQUEST_DUE_TO_INSUFFISIENT_MEMMORY,
+    CANNOT_SATISFY_P2MP_REQUEST_DUE_TO_INSUFFISIENT_MEMMORY(16, 1),
     /**
      * The PCE is not capable of P2MP computation
      */
-    NOT_CAPPABLE_P2MP_COMPUTATION,
+    NOT_CAPPABLE_P2MP_COMPUTATION(16, 2),
     /**
      * The PCE is not capable to satisfy the request due to no END-POINTS with leaf type 2
      */
-    P2MP_NOT_CAPPABLE_SATISFY_REQ_DUE_LT2,
+    P2MP_NOT_CAPPABLE_SATISFY_REQ_DUE_LT2(17, 1),
     /**
      * The PCE is not capable to satisfy the request due to no END-POINTS with leaf type 3
      */
-    P2MP_NOT_CAPPABLE_SATISFY_REQ_DUE_LT3,
+    P2MP_NOT_CAPPABLE_SATISFY_REQ_DUE_LT3(17, 2),
     /**
      * The PCE is not capable to satisfy the request due to no END-POINTS with leaf type 4
      */
-    P2MP_NOT_CAPPABLE_SATISFY_REQ_DUE_LT4,
+    P2MP_NOT_CAPPABLE_SATISFY_REQ_DUE_LT4(17, 3),
     /**
      * The PCE is not capable to satisfy the request due to inconsistent END-POINTS
      */
-    P2MP_NOT_CAPPABLE_SATISFY_REQ_DUE_INCONSISTENT_EP,
+    P2MP_NOT_CAPPABLE_SATISFY_REQ_DUE_INCONSISTENT_EP(17, 4),
     /**
      * P2MP Fragmented request failure
      */
-    P2MP_FRAGMENTATION_FAILRUE,
+    P2MP_FRAGMENTATION_FAILRUE(18, 1),
     /**
      * Attempted LSP Update Request for a non- delegated LSP. The PCEP-ERROR Object is followed by the LSP Object that
      * identifies the LSP.
      */
-    UPDATE_REQ_FOR_NON_LSP,
+    UPDATE_REQ_FOR_NON_LSP(19, 1),
     /**
      * Attempted LSP Update Request if active stateful PCE capability was not negotiated active PCE.
      */
-    UPDATE_REQ_FOR_NO_STATEFUL,
+    UPDATE_REQ_FOR_NO_STATEFUL(19, 2),
     /**
      * Attempted LSP Update Request for an LSP identified by an unknown PLSP-ID.
      */
-    UNKNOWN_PLSP_ID,
+    UNKNOWN_PLSP_ID(19, 3),
     /**
      * A PCE indicates to a PCC that it has exceeded the resource limit allocated for its state, and thus it cannot
      * accept and process its LSP State Report message.
      */
-    RESOURCE_LIMIT_EXCEEDED,
+    RESOURCE_LIMIT_EXCEEDED(19, 4),
     /**
      * PCE-initiated LSP limit reached
      */
-    LSP_LIMIT_EXCEEDED,
+    LSP_LIMIT_EXCEEDED(19, 6),
     /**
      * Delegation for PCE-initiated LSP cannot be revoked
      */
-    DELEGATION_NON_REVOKABLE,
+    DELEGATION_NON_REVOKABLE(19, 7),
     /**
      * Non-zero PLSP-ID in LSP initiation request
      */
-    NON_ZERO_PLSPID,
+    NON_ZERO_PLSPID(19, 8),
     /**
      * A PCE indicates to a PCC that it can not process (an otherwise valid) LSP State Report. The PCEP-ERROR Object is
      * followed by the LSP Object that identifies the LSP.
      */
-    CANNOT_PROCESS_STATE_REPORT,
+    CANNOT_PROCESS_STATE_REPORT(20, 1),
     /**
      * LSP Database version mismatch.
      */
-    LSP_DB_VERSION_MISMATCH,
+    LSP_DB_VERSION_MISMATCH(20, 2),
     /**
      * The LSP-DB-VERSION TLV Missing when State Synchronization Avoidance enabled.
      */
-    DB_VERSION_TLV_MISSING_WHEN_SYNC_ALLOWED,
+    DB_VERSION_TLV_MISSING_WHEN_SYNC_ALLOWED(20, 3),
     /**
      * A PCC indicates to a PCE that it can not complete the state synchronization,
      */
-    CANNOT_COMPLETE_STATE_SYNC,
+    CANNOT_COMPLETE_STATE_SYNC(20, 5),
     /**
      * SYMBOLIC-PATH-NAME in use
      */
-    USED_SYMBOLIC_PATH_NAME,
+    USED_SYMBOLIC_PATH_NAME(23, 1),
     /**
      * LSP instantiation error: Unacceptable instantiation parameters
      */
-    LSP_UNACC_INST_PARAMS,
+    LSP_UNACC_INST_PARAMS(24, 1),
     /**
      * LSP instantiation error: Internal error
      */
-    LSP_INTERNAL_ERROR,
+    LSP_INTERNAL_ERROR(24, 2),
     /**
      * LSP instantiation error: RSVP signaling error
      */
-    LSP_RSVP_ERROR,
+    LSP_RSVP_ERROR(24, 3),
     /**
      * Segment Routing error: Non-identical ERO subobjects
      */
-    NON_IDENTICAL_ERO_SUBOBJECTS,
+    NON_IDENTICAL_ERO_SUBOBJECTS(10, 5),
     /**
      * Segment Routing error: ERO subobject with invalid SID value;
      * */
-    BAD_LABEL_VALUE,
+    BAD_LABEL_VALUE(10, 2);
+
+    private PCEPErrorIdentifier errorId;
+    private static final Map<PCEPErrorIdentifier, PCEPErrors> VALUE_MAP;
+
+    static {
+        VALUE_MAP = Maps.newHashMap();
+        for (final PCEPErrors enumItem : PCEPErrors.values()) {
+            VALUE_MAP.put(enumItem.getErrorIdentifier(), enumItem);
+        }
+    }
+
+    public static PCEPErrors forValue(final short errorType, final short errorValue) {
+        return VALUE_MAP.get(new PCEPErrorIdentifier(errorType, errorValue));
+    }
+
+    private PCEPErrors(final int type, final int value) {
+        this.errorId = new PCEPErrorIdentifier((short) type, (short) value);
+    }
+
+    private PCEPErrorIdentifier getErrorIdentifier() {
+        return this.errorId;
+    }
+
+    public short getErrorType() {
+        return this.errorId.getType();
+    }
+
+    public short getErrorValue() {
+        return this.errorId.getValue();
+    }
+
+    /**
+     * Caret for combination of Error-type and Error-value
+     */
+    private static final class PCEPErrorIdentifier {
+        private final short type;
+        private final short value;
+
+        PCEPErrorIdentifier(final short type, final short value) {
+            this.type = type;
+            this.value = value;
+        }
+
+        public short getType() {
+            return this.type;
+        }
+
+        public short getValue() {
+            return this.value;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + this.type;
+            result = prime * result + this.value;
+            return result;
+        }
+
+        @Override
+        public boolean equals(final java.lang.Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (this.getClass() != obj.getClass()) {
+                return false;
+            }
+            final PCEPErrorIdentifier other = (PCEPErrorIdentifier) obj;
+            if (this.type != other.type) {
+                return false;
+            }
+            if (this.value != other.value) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return "type " + this.type + " value " + this.value;
+        }
+    }
 }
