@@ -11,12 +11,10 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-
 import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
@@ -131,10 +129,14 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
         }
 
         final Map<InstanceIdentifier<?>, ? extends DataObject> o = event.getOriginalData();
-        final Map<InstanceIdentifier<?>, DataObject> n = event.getUpdatedData();
+        final Map<InstanceIdentifier<?>, DataObject> u = event.getUpdatedData();
+        final Map<InstanceIdentifier<?>, DataObject> c = event.getCreatedData();
         for (final InstanceIdentifier<T> i : ids) {
             final T oldValue = this.idClass.cast(o.get(i));
-            final T newValue = this.idClass.cast(n.get(i));
+            T newValue = this.idClass.cast(u.get(i));
+            if (newValue == null) {
+                newValue = this.idClass.cast(c.get(i));
+            }
 
             LOG.debug("Updating object {} value {} -> {}", i, oldValue, newValue);
             if (oldValue != null) {
