@@ -61,14 +61,16 @@ public final class PCEPHexDumpParser {
             final int lengthIdx = idx + LENGTH.length();
             final int messageIdx = content.indexOf('.', lengthIdx);
             final int length = Integer.parseInt(content.substring(lengthIdx, messageIdx));
-            final int messageEndIdx = messageIdx + (length * 2) + 1;    // dot
+            // dot
+            final int messageEndIdx = messageIdx + (length * 2) + 1;
 
             // Assert that message is longer than minimum 4(header.length == 4)
             // If length in PCEP message would be 0, loop would never end
             Preconditions.checkArgument(length >= MINIMAL_LENGTH, "Invalid message at index " + idx + ", length atribute is lower than "
                 + MINIMAL_LENGTH);
 
-            final String hexMessage = content.substring(messageIdx + 1, messageEndIdx); // dot
+            // dot
+            final String hexMessage = content.substring(messageIdx + 1, messageEndIdx);
             byte[] message = null;
             try {
                 message = Hex.decodeHex(hexMessage.toCharArray());

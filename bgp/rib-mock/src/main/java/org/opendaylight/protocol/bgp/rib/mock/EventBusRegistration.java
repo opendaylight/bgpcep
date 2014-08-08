@@ -10,10 +10,8 @@ package org.opendaylight.protocol.bgp.rib.mock;
 import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-
 import java.util.List;
 import java.util.Set;
-
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
@@ -80,6 +78,8 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
 
             listener.onSessionUp(new BGPSession() {
 
+                private static final long AS = 30L;
+
                 @Override
                 public void close() {
                     LOG.debug("Session {} closed", this);
@@ -97,7 +97,7 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
 
                 @Override
                 public AsNumber getAsNumber() {
-                    return new AsNumber(30L);
+                    return new AsNumber(AS);
                 }
             });
         } else if (!(message instanceof Keepalive)) {

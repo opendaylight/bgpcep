@@ -7,6 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.parser;
 
+import com.google.common.collect.Maps;
+import java.util.Map;
+
+
 /**
  * Possible errors from implemented RFCs and drafts. Each error consists of error code and error subcode (code/subcode
  * in comments).
@@ -103,91 +107,94 @@ public enum BGPError {
      */
     CEASE((short) 6, (short) 0);
 
-    private final short code;
+    private static final Map<BGPErrorIdentifier, BGPError> VALUE_MAP;
 
-    private final short subcode;
+    static {
+        VALUE_MAP = Maps.newHashMap();
+        for (final BGPError enumItem : BGPError.values()) {
+            VALUE_MAP.put(enumItem.getErrorIdentifier(), enumItem);
+        }
+    }
+
+    private final BGPErrorIdentifier errorId;
 
     BGPError(final short code, final short subcode) {
-        this.code = code;
-        this.subcode = subcode;
+        this.errorId = new BGPErrorIdentifier(code, subcode);
     }
 
     public short getCode() {
-        return this.code;
+        return this.errorId.getCode();
     }
 
     public short getSubcode() {
-        return this.subcode;
+        return this.errorId.getSubCode();
     }
 
-    public static BGPError forValue(final int e, final int s) {
-        if (e == 1) {
-            if (s == 1) {
-                return BGPError.CONNECTION_NOT_SYNC;
-            }
-            if (s == 2) {
-                return BGPError.BAD_MSG_LENGTH;
-            }
-            if (s == 3) {
-                return BGPError.BAD_MSG_TYPE;
-            }
-        } else if (e == 2) {
-            if (s == 0) {
-                return BGPError.UNSPECIFIC_OPEN_ERROR;
-            }
-            if (s == 1) {
-                return BGPError.VERSION_NOT_SUPPORTED;
-            }
-            if (s == 2) {
-                return BGPError.BAD_PEER_AS;
-            }
-            if (s == 3) {
-                return BGPError.BAD_BGP_ID;
-            }
-            if (s == 4) {
-                return BGPError.OPT_PARAM_NOT_SUPPORTED;
-            }
-            if (s == 6) {
-                return BGPError.HOLD_TIME_NOT_ACC;
-            }
-        } else if (e == 3) {
-            if (s == 1) {
-                return BGPError.MALFORMED_ATTR_LIST;
-            }
-            if (s == 2) {
-                return BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED;
-            }
-            if (s == 3) {
-                return BGPError.WELL_KNOWN_ATTR_MISSING;
-            }
-            if (s == 4) {
-                return BGPError.ATTR_FLAGS_MISSING;
-            }
-            if (s == 5) {
-                return BGPError.ATTR_LENGTH_ERROR;
-            }
-            if (s == 6) {
-                return BGPError.ORIGIN_ATTR_NOT_VALID;
-            }
-            if (s == 8) {
-                return BGPError.NEXT_HOP_NOT_VALID;
-            }
-            if (s == 9) {
-                return BGPError.OPT_ATTR_ERROR;
-            }
-            if (s == 10) {
-                return BGPError.NETWORK_NOT_VALID;
-            }
-            if (s == 11) {
-                return BGPError.AS_PATH_MALFORMED;
-            }
-        } else if (e == 4) {
-            return BGPError.HOLD_TIMER_EXPIRED;
-        } else if (e == 5) {
-            return BGPError.FSM_ERROR;
-        } else if (e == 6) {
-            return BGPError.CEASE;
+    private BGPErrorIdentifier getErrorIdentifier() {
+        return this.errorId;
+    }
+
+    /**
+     * Caret for combination of Error-type and Error-value
+     */
+    private static final class BGPErrorIdentifier {
+        private final short code;
+        private final short subcode;
+
+        BGPErrorIdentifier(final short code, final short subcode) {
+            this.code = code;
+            this.subcode = subcode;
         }
-        throw new IllegalArgumentException("BGP Error code " + e + " and subcode " + s + " not recognized.");
+
+        public short getCode() {
+            return this.code;
+        }
+
+        public short getSubCode() {
+            return this.subcode;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + this.code;
+            result = prime * result + this.subcode;
+            return result;
+        }
+
+        @Override
+        public boolean equals(final java.lang.Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (this.getClass() != obj.getClass()) {
+                return false;
+            }
+            final BGPErrorIdentifier other = (BGPErrorIdentifier) obj;
+            if (this.code != other.code) {
+                return false;
+            }
+            if (this.subcode != other.subcode) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return "type " + this.code + " value " + this.subcode;
+        }
+    }
+
+    public static BGPError forValue(final int code, final int subcode) {
+        final BGPError e = VALUE_MAP.get(new BGPErrorIdentifier((short) code, (short) subcode));
+        if (e != null) {
+            return e;
+        }
+        throw new IllegalArgumentException("BGP Error code " + code + " and subcode " + subcode + " not recognized.");
     }
 }
