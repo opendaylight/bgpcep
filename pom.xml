@@ -46,6 +46,7 @@
 
         <!-- Parents -->
         <module>commons/parent</module>
+
     </modules>
 
     <build>

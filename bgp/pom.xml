@@ -49,6 +49,8 @@
         <module>util</module>
 
         <module>controller-config</module>
+        <module>feature</module>
+
     </modules>
 
     <dependencyManagement>
