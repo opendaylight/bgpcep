@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_f2a742bb",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful02TopologySessionListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-08-08T14:14:09Z",
+      "side": 1,
+      "message": "Move it to AbstractTopologySessionListener, so that both (2 and 7) listeners have access to it.",
+      "revId": "63c13d440a49553ea5ca654b24fddb35f71e55c2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
