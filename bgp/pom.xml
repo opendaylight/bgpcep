@@ -35,6 +35,7 @@
 
     <modules>
         <module>concepts</module>
+        <module>feature</module>
         <module>linkstate</module>
         <module>parser-api</module>
         <module>parser-spi</module>
