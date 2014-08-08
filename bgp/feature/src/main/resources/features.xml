@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<features>
+
+  <repository>mvn:org.opendaylight.controller/netconf-features/0.2.5-SNAPSHOT/xml/features</repository>
+
+    <feature name='odl-bgpcep-all' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-dependencies</feature>
+        <feature version='${project.version}'>odl-bgpcep-concepts</feature>
+        <feature version='${project.version}'>odl-bgpcep-linkstate</feature>
+        <feature version='${project.version}'>odl-bgpcep-parser</feature>
+        <feature version='${project.version}'>odl-bgpcep-rib</feature>
+        <feature version='${project.version}'>odl-bgpcep-testtool</feature>
+        <feature version='${project.version}'>odl-bgpcep-topology</feature>
+        <feature version='${project.version}'>odl-bgpcep-util</feature>
+        <feature version='${project.version}'>odl-bgpcep-update</feature>
+        <feature version='${project.version}'>odl-bgpcep-controller-config</feature>
+    </feature>
+
+    <feature name='odl-bgpcep-dependencies' version='${project.version}'>
+        <bundle>mvn:org.opendaylight.yangtools/concepts/0.6.2-SNAPSHOT</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-concepts' version='${project.version}'>
+        <bundle>mvn:org.opendaylight.controller/config-api/0.2.5-SNAPSHOT</bundle>
+        <!-- Do we need a netconf all target? Need to verify that all net
+             conf targets are collected. We may need to include a netconf
+             version, and repo here -->
+        <feature version='${project.version}'>odl-netconf-api</feature>
+        <feature version='${project.version}'>odl-netconf-util</feature>
+        <feature version='${project.version}'>odl-netconf-impl</feature>
+        <feature version='${project.version}'>odl-yangtools-common</feature>
+        <feature version='${project.version}'>odl-yangtools-data-binding</feature>
+        <feature version='${project.version}'>odl-yangtools-models</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-concepts/0.3.1-SNAPSHOT</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-linkstate' version='${project.version}'>
+        <bundle>mvn:org.opendaylight.controller/sal-binding-api/1.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.controller/sal-common-api/1.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/concepts/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/util/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:commons-codec/commons-codec/1.7</bundle>
+        <feature version='${project.version}'>odl-bgpcep-parser</feature>
+        <feature version='${project.version}'>odl-bgpcep-rib</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/rsvp-api/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-linkstate/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-linkstate-config/0.3.1-SNAPSHOT</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-parser' version='${project.version}'>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-api/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-spi/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-spi-config/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-impl/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-mock/0.3.1-SNAPSHOT</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-rib' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-parser</feature>
+        <bundle>mvn:org.opendaylight.controller/sal-binding-config/1.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-impl-config/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-api/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-api-config/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-impl/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-mock/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-spi/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-spi-config/0.3.1-SNAPSHOT</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-testtool' version='${project.version}'>
+        <bundle>wrap:mvn:org.opendaylight.bgpcep/bgp-testtool/0.3.1-SNAPSHOT</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-topology' version='${project.version}'>
+        <bundle>mvn:org.opendaylight.yangtools.model/ietf-topology-isis/2013.10.21.2-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.yangtools.model/ietf-ted/2013.10.21.2-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.yangtools.model/ietf-topology-l3-unicast-igp/2013.10.21.2-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.yangtools.model/ietf-topology-ospf/2013.10.21.2-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-topology-provider-config/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-topology-provider/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/topology-tunnel-api/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/topology-segment-routing/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/topology-api-config/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/topology-api/0.3.1-SNAPSHOT</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-util' version='${project.version}'>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-util/0.3.1-SNAPSHOT</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-update' version='${project.version}'>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-update-api-config/0.3.1-SNAPSHOT</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-controller-config' version='${project.version}'>
+        <bundle>wrap:mvn:org.opendaylight.bgpcep/bgp-controller-config/0.3.1-SNAPSHOT</bundle>
+    </feature>
+
+
+    <feature name='odl-bgpcep-pcep-all' version='${project.version}'>
+        <feature version='${project.version}'>odl-pcep-impl</feature>
+        <feature version='${project.version}'>odl-pcep-tunnel</feature>
+        <feature version='${project.version}'>odl-pcep-topology</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-ietf-stateful02/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-ietf-stateful07/0.3.1-SNAPSHOT</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-pcep-api' version='${project.version}'>
+        <!-- dependency on non pcep start -->
+        <feature version='${project.version}'>odl-yangtools-common</feature>
+        <feature version='${project.version}'>odl-yangtools-models</feature>
+        <bundle>mvn:org.opendaylight.controller/protocol-framework/0.5.0-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.controller/config-api/0.2.5-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/concepts/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.yangtools/yang-binding/0.6.2-SNAPSHOT</bundle>
+        <!-- third party -->
+        <bundle>wrap:mvn:io.netty/netty-buffer/4.0.10.Final</bundle>
+        <bundle>wrap:mvn:io.netty/netty-codec/4.0.10.Final</bundle>
+        <bundle>wrap:mvn:io.netty/netty-transport/4.0.10.Final</bundle>
+        <bundle>wrap:mvn:io.netty/netty-common/4.0.10.Final</bundle>
+        <bundle>wrap:mvn:io.netty/netty-handler/4.0.10.Final</bundle>
+        <bundle>wrap:mvn:io.netty/netty-codec-http/4.0.10.Final</bundle>
+        <bundle>wrap:mvn:com.google.guava/guava/14.0</bundle>
+        <bundle>mvn:commons-codec/commons-codec/1.7</bundle>
+        <!-- pcep -->
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-api/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-api-config/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/rsvp-api/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/util/0.3.1-SNAPSHOT</bundle>
+
+
+    </feature>
+
+    <feature name='odl-bgpcep-pcep-api' version='${project.version}'>
+        <!-- I stepped thru this one by one and it had all the same as API
+               plus the API itself -->
+        <feature version='${project.version}'>odl-pcep-api</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-spi/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-spi-config/0.3.1-SNAPSHOT</bundle>
+
+    </feature>
+
+    <feature name='odl-bgpcep-pcep-impl' version='${project.version}'>
+        <!-- I stepped thru this one by one and it had all the same as API
+               plus the API itself -->
+        <feature version='${project.version}'>odl-pcep-spi</feature>
+        <bundle>mvn:org.opendaylight.controller/netty-config-api/0.2.5-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-impl/0.3.1-SNAPSHOT</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-programming' version='${project.version}'>
+        <bundle>wrap:mvn:com.google.guava/guava/14.0</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/programming-api/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/programming-spi/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/topology-api/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/programming-topology-api/0.3.1-SNAPSHOT</bundle>
+
+    </feature>
+
+    <feature name='odl-pcep-topology' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-programming</feature>
+
+        <bundle>mvn:org.opendaylight.controller/sal-binding-api/1.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.controller/sal-common-api/1.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.yangtools/yang-binding/0.6.2-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.yangtools/yang-common/0.6.2-SNAPSHOT</bundle>
+
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-topology-api/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-topology-provider/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-topology-spi/0.3.1-SNAPSHOT</bundle>
+
+    </feature>
+
+    <feature name='odl-pcep-tunnel' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-programming</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/topology-tunnel-api/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/programming-tunnel-api/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-tunnel-api/0.3.1-SNAPSHOT</bundle>
+    </feature>
+
+    <feature name='odl-pcep-api' version='${project.version}'>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-api/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-api-config/0.3.1-SNAPSHOT</bundle>
+    </feature>
+
+    <feature name='odl-pcep-spi' version='${project.version}'>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-spi/0.3.1-SNAPSHOT</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-spi-config/0.3.1-SNAPSHOT</bundle>
+    </feature>
+
+    <feature name='odl-pcep-impl' version='${project.version}'>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-impl/0.3.1-SNAPSHOT</bundle>
+    </feature>
+
+</features>
