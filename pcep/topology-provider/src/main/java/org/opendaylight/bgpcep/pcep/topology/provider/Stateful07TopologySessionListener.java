@@ -14,17 +14,18 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
-
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.PcinitiateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.PcinitiateMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.pcinitiate.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.pcinitiate.message.RequestsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Arguments1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Arguments2;
@@ -93,7 +94,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
                 pccBuilder.setReportedLsp(Collections.<ReportedLsp> emptyList());
                 pccBuilder.setStateSync(PccSyncState.InitialResync);
                 pccBuilder.setStatefulTlv(new StatefulTlvBuilder().addAugmentation(StatefulTlv1.class,
-                        new StatefulTlv1Builder(tlvs.getAugmentation(Tlvs1.class)).build()).build());
+                    new StatefulTlv1Builder(tlvs.getAugmentation(Tlvs1.class)).build()).build());
             } else {
                 LOG.debug("Peer {} does not advertise stateful TLV", peerAddress);
             }
@@ -235,21 +236,21 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 
                 final TlvsBuilder tlvsBuilder = new TlvsBuilder();
                 tlvsBuilder.setSymbolicPathName(
-                        new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(input.getName().getBytes(Charsets.UTF_8))).build());
+                    new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(input.getName().getBytes(Charsets.UTF_8))).build());
                 if (inputLsp.getTlvs() != null) {
                     tlvsBuilder.setVsTlv(inputLsp.getTlvs().getVsTlv());
                 }
 
                 rb.setSrp(new SrpBuilder().setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE).build());
                 rb.setLsp(new LspBuilder().setAdministrative(inputLsp.isAdministrative()).setDelegate(inputLsp.isDelegate()).setPlspId(
-                        new PlspId(0L)).setTlvs(tlvsBuilder.build()).build());
+                    new PlspId(0L)).setTlvs(tlvsBuilder.build()).build());
 
                 final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
                 ib.setRequests(Collections.singletonList(rb.build()));
 
                 // Send the message
                 return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), rb.getSrp().getOperationId(),
-                        input.getArguments().getMetadata());
+                    input.getArguments().getMetadata());
             }
         });
     }
@@ -310,22 +311,42 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
                 final Lsp reportedLsp = ra.getLsp();
                 Preconditions.checkState(reportedLsp != null, "Reported LSP does not contain LSP object.");
 
-                // Build the PCUpd request and send it
-                final UpdatesBuilder rb = new UpdatesBuilder();
-                rb.setSrp(new SrpBuilder().setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE).build());
+                // create mandatory objects
+                final Srp srp = new SrpBuilder().setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE).build();
+
                 final Lsp inputLsp = input.getArguments().getAugmentation(Arguments3.class).getLsp();
+                Lsp lsp = null;
                 if (inputLsp != null) {
-                    rb.setLsp(new LspBuilder().setPlspId(reportedLsp.getPlspId()).setDelegate((inputLsp.isDelegate() != null) ? inputLsp.isDelegate() : false).setTlvs(inputLsp.getTlvs()).setAdministrative((inputLsp.isAdministrative() != null) ? inputLsp.isAdministrative() : false).build());
+                    lsp = new LspBuilder().setPlspId(reportedLsp.getPlspId()).setDelegate((inputLsp.isDelegate() != null) ? inputLsp.isDelegate() : false).setTlvs(inputLsp.getTlvs()).setAdministrative((inputLsp.isAdministrative() != null) ? inputLsp.isAdministrative() : false).build();
                 } else {
-                    rb.setLsp(new LspBuilder().setPlspId(reportedLsp.getPlspId()).build());
+                    lsp = new LspBuilder().setPlspId(reportedLsp.getPlspId()).build();
                 }
-                final PathBuilder pb = new PathBuilder();
-                pb.fieldsFrom(input.getArguments());
-                rb.setPath(pb.build());
-                final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
-                ub.setUpdates(Collections.singletonList(rb.build()));
-                return sendMessage(new PcupdBuilder().setPcupdMessage(ub.build()).build(), rb.getSrp().getOperationId(),
-                        input.getArguments().getMetadata());
+                Message msg = null;
+                // the D bit that was reported decides the type of PCE message sent
+                Preconditions.checkNotNull(reportedLsp.isDelegate());
+                if (reportedLsp.isDelegate()) {
+                    // we already have delegation, send update
+                    final UpdatesBuilder rb = new UpdatesBuilder();
+                    rb.setSrp(srp);
+                    rb.setLsp(lsp);
+                    final PathBuilder pb = new PathBuilder();
+                    pb.fieldsFrom(input.getArguments());
+                    rb.setPath(pb.build());
+                    final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
+                    ub.setUpdates(Collections.singletonList(rb.build()));
+                    msg = new PcupdBuilder().setPcupdMessage(ub.build()).build();
+                } else {
+                    // we want to revoke delegation, different type of message
+                    // is sent because of specification by Siva
+                    // this message is also sent, when input delegate bit is set to 0
+                    // generating an error in PCC
+                    final List<Requests> reqs = new ArrayList<>();
+                    reqs.add(new RequestsBuilder().setSrp(srp).setLsp(lsp).build());
+                    final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder();
+                    ib.setRequests(reqs);
+                    msg = new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build();
+                }
+                return sendMessage(msg, srp.getOperationId(), input.getArguments().getMetadata());
             }
         });
     }
