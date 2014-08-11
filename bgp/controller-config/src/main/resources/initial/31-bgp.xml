@@ -32,9 +32,6 @@
                     <extension>
                         <type xmlns:bgpspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi">bgpspi:extension</type>
                         <name>bgp-linkstate</name>
-                        <!-- IANA has issued an early allocation for the BGP Linkstate path attribute (=29).
-                        To preserve (TYPE = 99) set value bellow to false; to use IANA assigned type set the value to true or remove (true by default)-->
-                        <iana-linkstate-attribute-type>false</iana-linkstate-attribute-type>
                     </extension>
                 </module>
                 <module>
@@ -65,6 +62,9 @@
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:linkstate">prefix:bgp-linkstate</type>
                     <name>bgp-linkstate</name>
+                    <!-- IANA has issued an early allocation for the BGP Linkstate path attribute (=29).
+                        To preserve (TYPE = 99) set value bellow to false; to use IANA assigned type set the value to true or remove (true by default)-->
+                    <iana-linkstate-attribute-type>false</iana-linkstate-attribute-type>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-dispatcher-impl</type>
