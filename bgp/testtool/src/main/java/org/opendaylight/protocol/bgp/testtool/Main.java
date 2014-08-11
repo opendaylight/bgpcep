@@ -14,7 +14,6 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
-import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
@@ -63,10 +62,7 @@ public final class Main {
     private static final int RECONNECT_MILLIS = 5000;
 
     private Main() {
-        try (final BGPActivator bgpActivator = new BGPActivator()) {
-            bgpActivator.start(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance());
-            this.dispatcher = new BGPDispatcherImpl(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(), new NioEventLoopGroup(), new NioEventLoopGroup());
-        }
+        this.dispatcher = new BGPDispatcherImpl(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(), new NioEventLoopGroup(), new NioEventLoopGroup());
     }
 
     public static void main(final String[] args) throws NumberFormatException, UnknownHostException {
