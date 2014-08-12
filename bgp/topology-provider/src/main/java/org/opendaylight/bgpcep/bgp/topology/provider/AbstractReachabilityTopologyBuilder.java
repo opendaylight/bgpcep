@@ -8,8 +8,10 @@
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import com.google.common.base.Optional;
+
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
@@ -26,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypesBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.Node1;
@@ -36,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.PrefixKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,8 +70,8 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
         }
     }
 
-    private InstanceIdentifier<Node1> nodeInstanceId(final NodeId ni) {
-        return getInstanceIdentifier().builder().child(Node.class, new NodeKey(ni)).augmentation(Node1.class).toInstance();
+    private KeyedInstanceIdentifier<Node, NodeKey> nodeInstanceId(final NodeId ni) {
+        return getInstanceIdentifier().child(Node.class, new NodeKey(ni));
     }
 
     private static <T extends DataObject> T read(final ReadTransaction t, final InstanceIdentifier<T> id) {
@@ -79,24 +83,26 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
             return null;
         }
 
-        return (T)o.orNull();
+        return o.orNull();
     }
 
     private InstanceIdentifier<Node1> ensureNodePresent(final ReadWriteTransaction trans, final NodeId ni) {
-        final InstanceIdentifier<Node1> nii = nodeInstanceId(ni);
+        final KeyedInstanceIdentifier<Node, NodeKey> nii = nodeInstanceId(ni);
         LOG.debug("Looking for pre-existing node at {}", nii);
 
-        if (read(trans, nii) == null) {
+        final InstanceIdentifier<Node1> ret = nii.augmentation(Node1.class);
+        if (read(trans, ret) == null) {
             LOG.debug("Create a new node at {}", nii);
-            trans.put(LogicalDatastoreType.OPERATIONAL, nii, new Node1Builder().setIgpNodeAttributes(
-                    new IgpNodeAttributesBuilder().setPrefix(new ArrayList<Prefix>()).build()).build());
+            trans.put(LogicalDatastoreType.OPERATIONAL, nii, new NodeBuilder().setKey(nii.getKey()).setNodeId(ni)
+                .addAugmentation(Node1.class, new Node1Builder().setIgpNodeAttributes(
+                    new IgpNodeAttributesBuilder().setPrefix(new ArrayList<Prefix>()).build()).build()).build());
         }
 
-        return nii;
+        return ret;
     }
 
-    private void removeEmptyNode(final ReadWriteTransaction trans, final InstanceIdentifier<Node1> nii) {
-        final Node1 node = read(trans, nii);
+    private void removeEmptyNode(final ReadWriteTransaction trans, final InstanceIdentifier<Node> nii) {
+        final Node1 node = read(trans, nii.augmentation(Node1.class));
         if (node != null && node.getIgpNodeAttributes().getPrefix().isEmpty()) {
             trans.delete(LogicalDatastoreType.OPERATIONAL, nii);
         }
@@ -115,22 +121,22 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
         final PrefixKey pk = new PrefixKey(prefix);
 
         trans.put(LogicalDatastoreType.OPERATIONAL,
-                nii.builder().child(
+                nii.child(
                         org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributes.class).child(
-                                Prefix.class, pk).toInstance(), new PrefixBuilder().setKey(pk).setPrefix(prefix).build());
+                                Prefix.class, pk), new PrefixBuilder().setKey(pk).setPrefix(prefix).build());
     }
 
     @Override
     protected final void removeObject(final ReadWriteTransaction trans, final InstanceIdentifier<T> id, final T value) {
         final NodeId ni = advertizingNode(getAttributes(value));
-        final InstanceIdentifier<Node1> nii = nodeInstanceId(ni);
+        final InstanceIdentifier<Node> nii = nodeInstanceId(ni);
 
         final IpPrefix prefix = getPrefix(value);
         final PrefixKey pk = new PrefixKey(prefix);
 
-        trans.delete(LogicalDatastoreType.OPERATIONAL, nii.builder().child(
+        trans.delete(LogicalDatastoreType.OPERATIONAL, nii.augmentation(Node1.class).child(
                 org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributes.class).child(
-                        Prefix.class, pk).toInstance());
+                        Prefix.class, pk));
 
         removeEmptyNode(trans, nii);
     }
