@@ -151,12 +151,12 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) throws BGPParsingException {
-        final NlriType type = getNlriType(builder);
-        if (type == null) {
+        final NlriType nlriType = getNlriType(builder);
+        if (nlriType == null) {
             LOG.warn("No Linkstate NLRI found, not parsing Linkstate attribute");
             return;
         }
-        final PathAttributes1 a = new PathAttributes1Builder().setLinkstatePathAttribute(parseLinkState(type, buffer)).build();
+        final PathAttributes1 a = new PathAttributes1Builder().setLinkstatePathAttribute(parseLinkState(nlriType, buffer)).build();
         builder.addAugmentation(PathAttributes1.class, a);
     }
 

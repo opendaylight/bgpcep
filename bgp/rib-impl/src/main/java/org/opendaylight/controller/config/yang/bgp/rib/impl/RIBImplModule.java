@@ -25,6 +25,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
  */
 public final class RIBImplModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
 
+    private static final String IS_NOT_SET = "is not set.";
+
     public RIBImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier name,
             final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(name, dependencyResolver);
@@ -38,13 +40,13 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
 
     @Override
     public void customValidation() {
-        JmxAttributeValidationException.checkNotNull(getExtensions(), "is not set.", extensionsJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getRibId(), "is not set.", ribIdJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getLocalAs(), "is not set.", localAsJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getBgpId(), "is not set.", bgpIdJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getTcpReconnectStrategy(), "is not set.", tcpReconnectStrategyJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getSessionReconnectStrategy(), "is not set.", sessionReconnectStrategyJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getLocalTable(), "is not set.", localTableJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getExtensions(), IS_NOT_SET, extensionsJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getRibId(), IS_NOT_SET, ribIdJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getLocalAs(), IS_NOT_SET, localAsJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getBgpId(), IS_NOT_SET, bgpIdJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getTcpReconnectStrategy(), IS_NOT_SET, tcpReconnectStrategyJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getSessionReconnectStrategy(), IS_NOT_SET, sessionReconnectStrategyJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getLocalTable(), IS_NOT_SET, localTableJmxAttribute);
     }
 
     @Override

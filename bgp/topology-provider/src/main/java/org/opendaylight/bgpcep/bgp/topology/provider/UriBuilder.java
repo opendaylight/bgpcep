@@ -76,13 +76,13 @@ final class UriBuilder {
     }
 
     private String isoId(final byte[] bytes) {
-        final StringBuilder sb = new StringBuilder();
-        sb.append(Hex.encodeHexString(new byte[] { bytes[0], bytes[1] }));
-        sb.append('.');
-        sb.append(Hex.encodeHexString(new byte[] { bytes[2], bytes[3] }));
-        sb.append('.');
-        sb.append(Hex.encodeHexString(new byte[] { bytes[4], bytes[5] }));
-        return sb.toString();
+        final StringBuilder sBuilder = new StringBuilder();
+        sBuilder.append(Hex.encodeHexString(new byte[] { bytes[0], bytes[1] }));
+        sBuilder.append('.');
+        sBuilder.append(Hex.encodeHexString(new byte[] { bytes[2], bytes[3] }));
+        sBuilder.append('.');
+        sBuilder.append(Hex.encodeHexString(new byte[] { bytes[4], bytes[5] }));
+        return sBuilder.toString();
     }
 
     private String formatRouterIdentifier(final CRouterIdentifier routerIdentifier) {

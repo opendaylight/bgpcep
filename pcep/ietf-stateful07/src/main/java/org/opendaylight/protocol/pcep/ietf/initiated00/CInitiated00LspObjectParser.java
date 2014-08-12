@@ -45,7 +45,7 @@ public class CInitiated00LspObjectParser extends Stateful07LspObjectParser {
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
         int[] plspIdRaw = new int[] { bytes.readUnsignedByte(), bytes.readUnsignedByte(), bytes.getUnsignedByte(2), };
-        builder.setPlspId(new PlspId((long) ((plspIdRaw[0] << 12) | (plspIdRaw[1] << 4) | (plspIdRaw[2] >> 4))));
+        builder.setPlspId(new PlspId((long) ((plspIdRaw[0] << TWELVE_BITS_SHIFT) | (plspIdRaw[1] << FOUR_BITS_SHIFT) | (plspIdRaw[2] >> FOUR_BITS_SHIFT))));
         final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(bytes, 2));
         builder.setDelegate(flags.get(DELEGATE_FLAG_OFFSET));
         builder.setSync(flags.get(SYNC_FLAG_OFFSET));
@@ -69,31 +69,31 @@ public class CInitiated00LspObjectParser extends Stateful07LspObjectParser {
         final Lsp specObj = (Lsp) object;
         final ByteBuf body = Unpooled.buffer();
 
-        final byte[] retBytes = new byte[4];
+        final byte[] retBytes = new byte[BODY_LENGTH];
 
         Preconditions.checkArgument(specObj.getPlspId() != null, "PLSP-ID not present");
         final int lspID = specObj.getPlspId().getValue().intValue();
-        retBytes[0] = (byte) (lspID >> 12);
-        retBytes[1] = (byte) (lspID >> 4);
-        retBytes[2] = (byte) (lspID << 4);
+        retBytes[0] = (byte) (lspID >> TWELVE_BITS_SHIFT);
+        retBytes[1] = (byte) (lspID >> FOUR_BITS_SHIFT);
+        retBytes[2] = (byte) (lspID << FOUR_BITS_SHIFT);
         if (specObj.isDelegate() != null && specObj.isDelegate()) {
-            retBytes[3] |= 1 << (Byte.SIZE - (DELEGATE_FLAG_OFFSET - Byte.SIZE) - 1);
+            retBytes[FLAGS_INDEX] |= 1 << (Byte.SIZE - (DELEGATE_FLAG_OFFSET - Byte.SIZE) - 1);
         }
         if (specObj.isRemove() != null && specObj.isRemove()) {
-            retBytes[3] |= 1 << (Byte.SIZE - (REMOVE_FLAG_OFFSET - Byte.SIZE) - 1);
+            retBytes[FLAGS_INDEX] |= 1 << (Byte.SIZE - (REMOVE_FLAG_OFFSET - Byte.SIZE) - 1);
         }
         if (specObj.isSync() != null && specObj.isSync()) {
-            retBytes[3] |= 1 << (Byte.SIZE - (SYNC_FLAG_OFFSET - Byte.SIZE) - 1);
+            retBytes[FLAGS_INDEX] |= 1 << (Byte.SIZE - (SYNC_FLAG_OFFSET - Byte.SIZE) - 1);
         }
         if (specObj.isAdministrative() != null && specObj.isAdministrative()) {
-            retBytes[3] |= 1 << (Byte.SIZE - (ADMINISTRATIVE_FLAG_OFFSET - Byte.SIZE) - 1);
+            retBytes[FLAGS_INDEX] |= 1 << (Byte.SIZE - (ADMINISTRATIVE_FLAG_OFFSET - Byte.SIZE) - 1);
         }
         if (specObj.getAugmentation(Lsp1.class) != null && specObj.getAugmentation(Lsp1.class).isCreate()) {
-            retBytes[3] |= 1 << (Byte.SIZE - (CREATE_FLAG_OFFSET - Byte.SIZE) - 1);
+            retBytes[FLAGS_INDEX] |= 1 << (Byte.SIZE - (CREATE_FLAG_OFFSET - Byte.SIZE) - 1);
         }
         if (specObj.getOperational() != null) {
             final int op = specObj.getOperational().getIntValue();
-            retBytes[3] |= (op & 7) << 4;
+            retBytes[FLAGS_INDEX] |= (op & OP_VALUE_BITS_OFFSET) << FOUR_BITS_SHIFT;
         }
         body.writeBytes(retBytes);
         serializeTlvs(specObj.getTlvs(), body);

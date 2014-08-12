@@ -12,16 +12,12 @@ import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
-
 import io.netty.channel.Channel;
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
 import javax.annotation.concurrent.GuardedBy;
-
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -74,10 +70,10 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
     }
 
     /**
-     * System.nanoTime value about when was sent the last message Protected to be updated also in tests.
+     * System.nanoTime value about when was sent the last message.
      */
     @VisibleForTesting
-    protected long lastMessageSentAt;
+    private long lastMessageSentAt;
 
     /**
      * System.nanoTime value about when was received the last message
@@ -321,5 +317,10 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
         Preconditions.checkState(channel != null);
         channel.eventLoop().submit(task);
 
+    }
+
+    @VisibleForTesting
+    protected void setLastMessageSentAt(final long lastMessageSentAt) {
+        this.lastMessageSentAt = lastMessageSentAt;
     }
 }
