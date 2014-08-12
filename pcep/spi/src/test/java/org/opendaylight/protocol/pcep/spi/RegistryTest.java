@@ -19,6 +19,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -31,6 +32,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.list.tlv.OfListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.EnterpriseSpecificInformation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.objects.VendorInformationObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.tlvs.VendorInformationTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
@@ -77,12 +81,21 @@ public class RegistryTest {
     @Mock
     LabelSerializer labelSerializer;
 
+    @Mock
+    VendorInformationObject esi;
+
+    @Mock
+    EnterpriseSpecificInformation es;
+
+    @Mock
+    VendorInformationTlv viTlv;
+
     public final List<AutoCloseable> regs = new ArrayList<>();
 
     AbstractPCEPExtensionProviderActivator activator = new AbstractPCEPExtensionProviderActivator() {
 
         @Override
-        protected List<AutoCloseable> startImpl(PCEPExtensionProviderContext context) {
+        protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
             return RegistryTest.this.regs;
         }
     };
@@ -101,10 +114,10 @@ public class RegistryTest {
         Mockito.doReturn(null).when(this.eroParser).parseSubobject(Mockito.any(ByteBuf.class), Mockito.anyBoolean());
         Mockito.doNothing().when(this.eroSerializer).serializeSubobject(Mockito.any(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject.class), Mockito.any(ByteBuf.class));
 
-        Mockito.doReturn(null).when(this.tlvParser).parseTlv(Mockito.any(ByteBuf.class));
+        Mockito.doReturn(this.viTlv).when(this.tlvParser).parseTlv(Mockito.any(ByteBuf.class));
         Mockito.doNothing().when(this.tlvSerializer).serializeTlv(Mockito.any(Tlv.class), Mockito.any(ByteBuf.class));
 
-        Mockito.doReturn(null).when(this.objectParser).parseObject(Mockito.any(ObjectHeader.class), Mockito.any(ByteBuf.class));
+        Mockito.doReturn(new OpenBuilder().build()).when(this.objectParser).parseObject(Mockito.any(ObjectHeader.class), Mockito.any(ByteBuf.class));
         Mockito.doNothing().when(this.objectSerializer).serializeObject(Mockito.any(Object.class), Mockito.any(ByteBuf.class));
 
         Mockito.doReturn(null).when(this.msgParser).parseMessage(Mockito.any(ByteBuf.class), Mockito.any(List.class));
@@ -112,6 +125,14 @@ public class RegistryTest {
 
         Mockito.doReturn(null).when(this.labelParser).parseLabel(Mockito.any(ByteBuf.class));
         Mockito.doNothing().when(this.labelSerializer).serializeLabel(Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.any(LabelType.class), Mockito.any(ByteBuf.class));
+
+        Mockito.doReturn(this.es).when(this.esi).getEnterpriseSpecificInformation();
+
+        Mockito.doReturn(EnterpriseSpecificInformation.class).when(this.es).getImplementedInterface();
+
+        Mockito.doReturn(this.es).when(this.viTlv).getEnterpriseSpecificInformation();
+
+        Mockito.doReturn(EnterpriseSpecificInformation.class).when(this.es).getImplementedInterface();
     }
 
     @Test
@@ -136,6 +157,13 @@ public class RegistryTest {
 
         this.regs.add(this.ctx.registerLabelParser(7, this.labelParser));
         this.regs.add(this.ctx.registerLabelSerializer(Type1LabelCase.class, this.labelSerializer));
+
+        this.regs.add(this.ctx.registerVendorInformationObjectParser(new EnterpriseNumber(10L), this.objectParser));
+        this.regs.add(this.ctx.registerVendorInformationObjectSerializer(EnterpriseSpecificInformation.class, this.objectSerializer));
+
+        this.regs.add(this.ctx.registerVendorInformationTlvParser(new EnterpriseNumber(12L), this.tlvParser));
+        this.regs.add(this.ctx.registerVendorInformationTlvSerializer(EnterpriseSpecificInformation.class, this.tlvSerializer));
+
         final ByteBuf buffer = Unpooled.buffer();
         this.ctx.getXROSubobjectHandlerRegistry().parseSubobject(2, buffer, false);
         this.ctx.getXROSubobjectHandlerRegistry().serializeSubobject(new SubobjectBuilder().setSubobjectType(new AsNumberCaseBuilder().build()).build(), buffer);
@@ -157,6 +185,12 @@ public class RegistryTest {
 
         this.ctx.getMessageHandlerRegistry().parseMessage(6, buffer, Collections.<Message> emptyList());
         this.ctx.getMessageHandlerRegistry().serializeMessage(new KeepaliveBuilder().build(), buffer);
+
+        this.ctx.getVendorInformationObjectRegistry().parseVendorInformationObject(new EnterpriseNumber(10L), new ObjectHeaderImpl(true, false), buffer);
+        this.ctx.getVendorInformationObjectRegistry().serializeVendorInformationObject(this.esi, buffer);
+
+        this.ctx.getVendorInformationTlvRegistry().parseVendorInformationTlv(new EnterpriseNumber(12L), buffer);
+        this.ctx.getVendorInformationTlvRegistry().serializeVendorInformationTlv(this.viTlv, buffer);
 
         this.activator.start(this.ctx);
         this.activator.close();
