@@ -134,7 +134,7 @@ abstract class AbstractAdjRIBsOut implements AdjRIBsOut {
              * changed? If it has, we need to keep the entry, as there is an incoming
              * update.
              */
-            if (newValue == null && e.getCurrent() == newValue) {
+            if (newValue == null && e.getCurrent() == null) {
                 data.remove(key, e);
             }
         }
