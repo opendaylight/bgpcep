@@ -13,6 +13,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import com.google.common.collect.Lists;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import java.net.UnknownHostException;
 import java.util.List;
 import org.junit.Test;
@@ -55,6 +57,18 @@ public class IPAddressesAndPrefixesTest {
     }
 
     @Test
+    public void testBytesForPrefix4Begin() {
+        byte[] bytes = new byte[] { 123, 122, 4, 5 };
+        assertEquals(new Ipv4Prefix("123.122.4.5/8"), Ipv4Util.prefixForBytes(bytes, 8));
+        assertArrayEquals(new byte[] { 8, 102 }, Ipv4Util.bytesForPrefixBegin(new Ipv4Prefix("102.0.0.0/8")));
+
+        bytes = new byte[] { (byte) 255, (byte) 255, 0, 0 };
+        assertEquals(new Ipv4Prefix("255.255.0.0/16"), Ipv4Util.prefixForBytes(bytes, 16));
+
+        assertArrayEquals(new byte[] { 16, (byte) 255, (byte) 255 }, Ipv4Util.bytesForPrefixBegin(new Ipv4Prefix("255.255.0.0/16")));
+    }
+
+    @Test
     public void testAddress4ForBytes() {
         final byte[] bytes = new byte[] { (byte) 123, (byte) 122, (byte) 4, (byte) 5 };
         assertEquals(new Ipv4Address("123.122.4.5"), Ipv4Util.addressForBytes(bytes));
@@ -80,12 +94,10 @@ public class IPAddressesAndPrefixesTest {
     }
 
     @Test
-    public void testPrefixList4ForBytes() {
-        final byte[] bytes = new byte[] { 22, (byte) 172, (byte) 168, 3, 8, 12, 32, (byte) 192, (byte) 168, 35, 100 };
-        final List<Ipv4Prefix> prefs = Ipv4Util.prefixListForBytes(bytes);
-        assertEquals(
-                Lists.newArrayList(new Ipv4Prefix("172.168.3.0/22"), new Ipv4Prefix("12.0.0.0/8"), new Ipv4Prefix("192.168.35.100/32")),
-                prefs);
+    public void testAddressForByteBuf() {
+        final ByteBuf bb = Unpooled.wrappedBuffer(new byte[] { 123, 122, 4, 5, 0x20, (byte) 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 } );
+        assertEquals(new Ipv4Address("123.122.4.5"), Ipv4Util.addressForByteBuf(bb));
+        assertEquals(new Ipv6Address("2001::1"), Ipv6Util.addressForByteBuf(bb));
     }
 
     @Test
@@ -104,16 +116,32 @@ public class IPAddressesAndPrefixesTest {
     }
 
     @Test
+    public void testBytesForPrefix6Begin() {
+        final byte[] bytes = new byte[] { 0x20, 0x01, 0x0d, (byte) 0xb8, 0x00, 0x01, 0x00, 0x02 };
+        assertEquals(new Ipv6Prefix("2001:db8:1:2::/64"), Ipv6Util.prefixForBytes(bytes, 64));
+        assertArrayEquals(new byte[] { 0x40, 0x20, (byte) 0x01, 0x0d, (byte) 0xb8, 0x00, 0x01, 0x00, 0x02 }, Ipv6Util.bytesForPrefixBegin(new Ipv6Prefix("2001:db8:1:2::/64")));
+    }
+
+    @Test
+    public void testPrefixLength() {
+        assertEquals(8, Ipv4Util.getPrefixLengthBytes("2001:db8:1:2::/64"));
+        assertEquals(3, Ipv4Util.getPrefixLengthBytes("172.168.3.0/22"));
+    }
+
+    @Test
+    public void testPrefixList4ForBytes() {
+        final byte[] bytes = new byte[] { 22, (byte) 172, (byte) 168, 3, 8, 12, 32, (byte) 192, (byte) 168, 35, 100 };
+        final List<Ipv4Prefix> prefs = Ipv4Util.prefixListForBytes(bytes);
+        assertEquals(
+            Lists.newArrayList(new Ipv4Prefix("172.168.3.0/22"), new Ipv4Prefix("12.0.0.0/8"), new Ipv4Prefix("192.168.35.100/32")),
+            prefs);
+    }
+
+    @Test
     public void testPrefixList6ForBytes() {
         final byte[] bytes = new byte[] { 0x40, 0x20, 0x01, 0x0d, (byte) 0xb8, 0x00, 0x01, 0x00, 0x02, 0x40, 0x20, 0x01, 0x0d, (byte) 0xb8,
             0x00, 0x01, 0x00, 0x01, };
         final List<Ipv6Prefix> prefs = Ipv6Util.prefixListForBytes(bytes);
         assertEquals(prefs, Lists.newArrayList(new Ipv6Prefix("2001:db8:1:2::/64"), new Ipv6Prefix("2001:db8:1:1::/64")));
-    }
-
-    @Test
-    public void testPrefixLength() {
-        assertEquals(22, Ipv4Util.getPrefixLength(new IpPrefix(new Ipv4Prefix("172.168.3.0/22"))));
-        assertEquals(64, Ipv4Util.getPrefixLength(new IpPrefix(new Ipv6Prefix("2001:db8:1:2::/64"))));
     }
 }

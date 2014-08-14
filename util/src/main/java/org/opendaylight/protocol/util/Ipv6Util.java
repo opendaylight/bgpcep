@@ -12,16 +12,13 @@ import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
-
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
 
@@ -29,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
  * Util class for creating generated Ipv6Address.
  */
 public final class Ipv6Util {
+
     private Ipv6Util() {
     }
 
@@ -82,10 +80,10 @@ public final class Ipv6Util {
     }
 
     /**
-     * Converts Ipv6Prefix to byte array.
+     * Converts Ipv6Prefix to byte array. Prefix length at the end.
      *
      * @param prefix Ipv6Prefix to be converted
-     * @return byte array
+     * @return byte array with prefix length at the end
      */
     public static byte[] bytesForPrefix(final Ipv6Prefix prefix) {
         final String p = prefix.getValue();
@@ -137,7 +135,6 @@ public final class Ipv6Util {
         if (bytes.length == 0) {
             return Collections.emptyList();
         }
-
         final List<Ipv6Prefix> list = Lists.newArrayList();
         int byteOffset = 0;
         while (byteOffset < bytes.length) {

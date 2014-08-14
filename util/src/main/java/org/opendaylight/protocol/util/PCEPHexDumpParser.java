@@ -46,8 +46,6 @@ public final class PCEPHexDumpParser {
         Preconditions.checkNotNull(is);
         try (InputStreamReader isr = new InputStreamReader(is)) {
             return parseMessages(CharStreams.toString(isr));
-        } finally {
-            is.close();
         }
     }
 
