@@ -111,6 +111,7 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
         doReturn(ra).when(this.clientListener).remoteAddress();
         final SocketAddress la = new InetSocketAddress("127.0.0.1", 30000);
         doReturn(la).when(this.clientListener).localAddress();
+        doReturn(null).when(this.clientListener).parent();
 
         doReturn(mock(ChannelFuture.class)).when(this.clientListener).close();
 
