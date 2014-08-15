@@ -40,8 +40,6 @@ import org.opendaylight.controller.config.yang.md.sal.binding.impl.BindingAsyncD
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.BindingAsyncDataBrokerImplModuleMXBean;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.BindingBrokerImplModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.BindingBrokerImplModuleMXBean;
-import org.opendaylight.controller.config.yang.md.sal.binding.impl.DataBrokerImplModuleFactory;
-import org.opendaylight.controller.config.yang.md.sal.binding.impl.DataBrokerImplModuleMXBean;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.ForwardedCompatibleDataBrokerImplModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.ForwardedCompatibleDataBrokerImplModuleMXBean;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.NotificationBrokerImplModuleFactory;
@@ -55,6 +53,7 @@ import org.opendaylight.controller.config.yang.md.sal.dom.impl.SchemaServiceImpl
 import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleFactory;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.sal.dom.broker.GlobalBundleScanningSchemaServiceImpl;
+import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
@@ -80,7 +79,6 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
     private static final String TIMER_INSTANCE_NAME = "timer-impl";
     private static final String BINDING_ASYNC_BROKER_INSTANCE_NAME = "binding-async-broker-instance";
     private static final String DOM_ASYNC_DATA_BROKER_INSTANCE = "dom-inmemory-data-broker";
-    private static final String DATA_BROKER_INSTANCE_NAME = "data-broker-instance";
 
     @Mock
     private RpcResult<TransactionStatus> mockedResult;
@@ -93,9 +91,11 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, moduleFactories.toArray(new ModuleFactory[moduleFactories.size()])));
 
         final Filter mockedFilter = mock(Filter.class);
+        final GeneratedClassLoadingStrategy mockedClassLoadingStrategy = mock(GeneratedClassLoadingStrategy.class);
 
         Mockito.doReturn(new ServiceReference[] {}).when(mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
 
+        final ServiceReference<?> classLoadingStrategySR = mock(ServiceReference.class, "ClassLoadingStrategy");
         final ServiceReference<?> emptyServiceReference = mock(ServiceReference.class, "Empty");
 
         Mockito.doReturn(mockedFilter).when(mockedContext).createFilter(Mockito.anyString());
@@ -110,8 +110,13 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
 
         Mockito.doReturn(new ServiceReference[] {}).when(mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
 
+        Mockito.doReturn("Class loading stategy reference").when(classLoadingStrategySR).toString();
         Mockito.doReturn("Empty reference").when(emptyServiceReference).toString();
+
         Mockito.doReturn(emptyServiceReference).when(mockedContext).getServiceReference(any(Class.class));
+        Mockito.doReturn(classLoadingStrategySR).when(mockedContext).getServiceReference(GeneratedClassLoadingStrategy.class);
+
+        Mockito.doReturn(mockedClassLoadingStrategy).when(mockedContext).getService(classLoadingStrategySR);
         Mockito.doReturn(null).when(mockedContext).getService(emptyServiceReference);
 
         final GlobalBundleScanningSchemaServiceImpl schemaService = GlobalBundleScanningSchemaServiceImpl.createInstance(this.mockedContext);
@@ -160,15 +165,6 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
     public ObjectName createNotificationBrokerInstance(final ConfigTransactionJMXClient transaction) throws Exception {
         final ObjectName objectName = transaction.createModule(NotificationBrokerImplModuleFactory.NAME, NOTIFICATION_BROKER_INSTANCE_NAME);
         return objectName;
-    }
-
-    public ObjectName createDataBrokerInstance(final ConfigTransactionJMXClient transaction)
-            throws InstanceAlreadyExistsException, InstanceNotFoundException {
-        ObjectName nameCreated = transaction.createModule(DataBrokerImplModuleFactory.NAME, DATA_BROKER_INSTANCE_NAME);
-        DataBrokerImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, DataBrokerImplModuleMXBean.class);
-        mxBean.setDomBroker(lookupDomBrokerInstance(transaction));
-        mxBean.setMappingService(lookupMappingServiceInstance(transaction));
-        return nameCreated;
     }
 
     public ObjectName createCompatibleDataBrokerInstance(final ConfigTransactionJMXClient transaction)
@@ -265,7 +261,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
                 new NotificationBrokerImplModuleFactory(), new RpcBrokerImplModuleFactory(), new DomBrokerImplModuleFactory(),
                 new RuntimeMappingModuleFactory(), new BindingBrokerImplModuleFactory(), new BindingAsyncDataBrokerImplModuleFactory(),
                 new DomInmemoryDataBrokerModuleFactory(), new SchemaServiceImplSingletonModuleFactory(),
-                new ForwardedCompatibleDataBrokerImplModuleFactory(), new DataBrokerImplModuleFactory());
+                new ForwardedCompatibleDataBrokerImplModuleFactory());
     }
 
     // TODO move back to AbstractConfigTest
