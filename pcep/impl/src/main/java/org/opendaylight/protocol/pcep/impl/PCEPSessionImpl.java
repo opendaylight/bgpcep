@@ -119,7 +119,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
             }, getKeepAliveTimerValue(), TimeUnit.SECONDS);
         }
 
-        LOG.info("Session {}[{}] <-> {}[{}] started", channel.localAddress(), localOpen.getSessionId(), channel.remoteAddress(),
+        LOG.info("Session {}[{}] <-> {}[{}] started", getLocalAddress(), localOpen.getSessionId(), getRemoteAddress(),
             remoteOpen.getSessionId());
     }
 
@@ -233,7 +233,17 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 
     @Override
     public InetAddress getRemoteAddress() {
+        if (this.channel.parent() != null) {
+            return ((InetSocketAddress) this.channel.localAddress()).getAddress();
+        }
         return ((InetSocketAddress) this.channel.remoteAddress()).getAddress();
+    }
+
+    private InetAddress getLocalAddress() {
+        if (this.channel.parent() != null) {
+            return ((InetSocketAddress) this.channel.remoteAddress()).getAddress();
+        }
+        return ((InetSocketAddress) this.channel.localAddress()).getAddress();
     }
 
     private synchronized void terminate(final TerminationReason reason) {
