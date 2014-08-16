@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_af662528",
+        "filename": "pcep/pcc-mock/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-08-16T13:41:43Z",
+      "side": 1,
+      "message": "missing copyright, modeline and indentation seems to be 3 instead of 4",
+      "revId": "3d03ca0b92b632fc2d9e1b4e91a38a767f6ba9f9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
