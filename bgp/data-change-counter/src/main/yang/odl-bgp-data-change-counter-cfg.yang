@@ -1,0 +1,39 @@
+// vi: set smarttab et sw=4 tabstop=4:
+module odl-bgp-data-change-counter-cfg {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:bgp:data:change:counter";
+    prefix "dcc-cfg";
+
+    import config { prefix config; revision-date 2013-04-05; }
+
+    organization "Cisco Systems, Inc.";
+
+    contact "Milos Fabian <milfabia@cisco.com>";
+
+    description
+        "This module contains the base YANG definitions for
+         BGP Linkstate topology data-change counter.
+
+        Copyright (c)2014 Cisco Systems, Inc. All rights reserved.;
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2014-08-15" {
+        description
+            "Initial revision";
+    }
+
+    identity bgp-data-change-counter-impl {
+        base config:module-type;
+        config:java-name-prefix DataChangeCounterImpl;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case bgp-data-change-counter-impl {
+            when "/config:modules/config:module/config:type = 'bgp-data-change-counter-impl'";
+        }
+    }
+}
