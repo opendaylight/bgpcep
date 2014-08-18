@@ -48,6 +48,7 @@
 
         <module>controller-config</module>
         <module>segment-routing</module>
+        <module>pcc-mock</module>
     </modules>
 
     <dependencyManagement>
