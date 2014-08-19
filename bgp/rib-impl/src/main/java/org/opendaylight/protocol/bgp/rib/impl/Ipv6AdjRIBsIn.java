@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-
 import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBs;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
@@ -48,7 +47,7 @@ final class Ipv6AdjRIBsIn extends AbstractAdjRIBs<Ipv6Prefix, Ipv6Route, Ipv6Rou
 
     @Override
     public void addRoutes(final AdjRIBsTransaction trans, final Peer peer, final MpReachNlri nlri,
-            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
         final RIBEntryData<Ipv6Prefix, Ipv6Route, Ipv6RouteKey> data = new RIBEntryData<Ipv6Prefix, Ipv6Route, Ipv6RouteKey>(peer, attributes) {
             @Override
             protected Ipv6Route getDataObject(final Ipv6Prefix key, final Ipv6RouteKey id) {
@@ -69,24 +68,24 @@ final class Ipv6AdjRIBsIn extends AbstractAdjRIBs<Ipv6Prefix, Ipv6Route, Ipv6Rou
     }
 
     @Override
-    protected void addAdvertisement(final MpReachNlriBuilder builder, final Ipv6Route data) {
+    public void addAdvertisement(final MpReachNlriBuilder builder, final Ipv6Route data) {
         final AdvertizedRoutes ar = builder.getAdvertizedRoutes();
         if (ar == null) {
             builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-                    new DestinationIpv6CaseBuilder().setDestinationIpv6(new DestinationIpv6Builder().setIpv6Prefixes(
-                            Lists.newArrayList(data.getPrefix())).build()).build()).build());
+                new DestinationIpv6CaseBuilder().setDestinationIpv6(new DestinationIpv6Builder().setIpv6Prefixes(
+                    Lists.newArrayList(data.getPrefix())).build()).build()).build());
         } else {
             ((DestinationIpv6) ar.getDestinationType()).getIpv6Prefixes().add(data.getPrefix());
         }
     }
 
     @Override
-    protected void addWithdrawal(final MpUnreachNlriBuilder builder, final Ipv6Prefix id) {
+    public void addWithdrawal(final MpUnreachNlriBuilder builder, final Ipv6Prefix id) {
         final WithdrawnRoutes wr = builder.getWithdrawnRoutes();
         if (wr == null) {
             builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
-                    new DestinationIpv6CaseBuilder().setDestinationIpv6(new DestinationIpv6Builder().setIpv6Prefixes(
-                            Lists.newArrayList(id)).build()).build()).build());
+                new DestinationIpv6CaseBuilder().setDestinationIpv6(new DestinationIpv6Builder().setIpv6Prefixes(
+                    Lists.newArrayList(id)).build()).build()).build());
         } else {
             ((DestinationIpv6Case) wr.getDestinationType()).getDestinationIpv6().getIpv6Prefixes().add(id);
         }

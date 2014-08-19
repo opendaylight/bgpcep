@@ -38,6 +38,10 @@ module bgp-rib {
     grouping route {
         container attributes {
             uses bgp-msg:path-attributes;
+
+            uses bgp-mp:mp-reach;
+
+            uses bgp-mp:mp-unreach;
         }
     }
 

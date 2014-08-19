@@ -218,7 +218,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBs<CLinkstateDestination, Li
     }
 
     @Override
-    protected void addAdvertisement(final MpReachNlriBuilder builder, final LinkstateRoute data) {
+    public void addAdvertisement(final MpReachNlriBuilder builder, final LinkstateRoute data) {
         final CLinkstateDestinationBuilder nlri = new CLinkstateDestinationBuilder();
 
         final ObjectType type = data.getObjectType();
@@ -262,7 +262,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBs<CLinkstateDestination, Li
     }
 
     @Override
-    protected void addWithdrawal(final MpUnreachNlriBuilder builder, final CLinkstateDestination id) {
+    public void addWithdrawal(final MpUnreachNlriBuilder builder, final CLinkstateDestination id) {
         final WithdrawnRoutes wr = builder.getWithdrawnRoutes();
         if (wr == null) {
             builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
