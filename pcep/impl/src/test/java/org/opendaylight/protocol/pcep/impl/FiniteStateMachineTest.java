@@ -88,7 +88,6 @@ public class FiniteStateMachineTest {
                 return future;
             }
         }).when(this.clientListener).writeAndFlush(any(Notification.class));
-        doReturn(null).when(this.clientListener).parent();
         doReturn("TestingChannel").when(this.clientListener).toString();
         doReturn(this.pipeline).when(this.clientListener).pipeline();
         doReturn(this.address).when(this.clientListener).localAddress();
