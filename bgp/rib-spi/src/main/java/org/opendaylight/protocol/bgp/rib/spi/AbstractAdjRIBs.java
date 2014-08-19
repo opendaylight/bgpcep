@@ -109,6 +109,13 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
             return this.name;
         }
 
+        /**
+         * Based on given comparator, finds a new best candidate for initial route.
+         *
+         * @param comparator
+         * @param initial
+         * @return
+         */
         private RIBEntryData<I, D, K> findCandidate(final BGPObjectComparator comparator, final RIBEntryData<I, D, K> initial) {
             RIBEntryData<I, D, K> newState = initial;
             for (final RIBEntryData<I, D, K> s : this.candidates.values()) {
@@ -120,6 +127,12 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
             return newState;
         }
 
+        /**
+         * Advertize newly elected best candidate to datastore.
+         *
+         * @param transaction
+         * @param candidate
+         */
         private void electCandidate(final AdjRIBsTransaction transaction, final RIBEntryData<I, D, K> candidate) {
             LOG.trace("Electing state {} to supersede {}", candidate, this.currentState);
 
@@ -130,6 +143,13 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
             }
         }
 
+        /**
+         * Removes RIBEntry from database. If we are removing best path, elect another candidate (using BPS).
+         * If there are no other candidates, remove the path completely.
+         * @param transaction
+         * @param peer
+         * @return true if the list of the candidates for this path is empty
+         */
         synchronized boolean removeState(final AdjRIBsTransaction transaction, final Peer peer) {
             final RIBEntryData<I, D, K> data = this.candidates.remove(peer);
             LOG.trace("Removed data {}", data);
@@ -201,17 +221,22 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
      * @param data Data object
      * @param builder MP_REACH attribute builder
      */
-    protected abstract void addAdvertisement(MpReachNlriBuilder builder, D data);
+    @Override
+    public abstract void addAdvertisement(MpReachNlriBuilder builder, D data);
 
     /**
      * Transform a withdrawn identifier into a the corresponding NLRI in MP_UNREACH attribute.
      *
      * @param id Route key
      */
-    protected abstract void addWithdrawal(MpUnreachNlriBuilder builder, I id);
+    @Override
+    public abstract void addWithdrawal(MpUnreachNlriBuilder builder, I id);
 
     /**
      * Common backend for {@link AdjRIBsIn#addRoutes()} implementations.
+     * If a new route is added, check first for its existence in Map of entries.
+     * If the route is already there, change it's state. Then check for peer in
+     * Map of peers, if it's not there, add it.
      *
      * @param trans Transaction context
      * @param peer Originating peer

@@ -112,6 +112,31 @@ module bgp-multiprotocol {
         }
     }
 
+    grouping mp-reach {
+        container mp-reach-nlri {
+            reference "http://tools.ietf.org/html/rfc4760#section-3";
+
+            uses bgp-table-type;
+            uses bgp-t:next-hop;
+
+            container advertized-routes {
+                uses destination;
+            }
+        }
+    }
+
+    grouping mp-unreach {
+        container mp-unreach-nlri {
+            reference "http://tools.ietf.org/html/rfc4760#section-4";
+
+            uses bgp-table-type;
+
+            container withdrawn-routes {
+                uses destination;
+            }
+        }
+    }
+
     augment "/bgp-msg:update/bgp-msg:path-attributes" {
         container mp-reach-nlri {
             reference "http://tools.ietf.org/html/rfc4760#section-3";
