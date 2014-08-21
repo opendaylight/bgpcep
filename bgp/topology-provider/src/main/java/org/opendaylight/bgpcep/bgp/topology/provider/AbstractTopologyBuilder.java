@@ -19,12 +19,16 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.opendaylight.bgpcep.topology.TopologyReference;
+import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
@@ -46,25 +50,25 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCloseable, DataChangeListener, LocRIBListener, TopologyReference {
+public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCloseable, DataChangeListener, LocRIBListener, TopologyReference, TransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologyBuilder.class);
-    private final RibReference locRibReference;
     private final InstanceIdentifier<Topology> topology;
-    private final DataBroker dataProvider;
+    private final BindingTransactionChain chain;
+    private final RibReference locRibReference;
     private final Class<T> idClass;
 
     protected AbstractTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
             final TopologyId topologyId, final TopologyTypes types, final Class<T> idClass) {
-        this.dataProvider = Preconditions.checkNotNull(dataProvider);
         this.locRibReference = Preconditions.checkNotNull(locRibReference);
         this.idClass = Preconditions.checkNotNull(idClass);
+        this.chain = dataProvider.createTransactionChain(this);
 
         final TopologyKey tk = new TopologyKey(Preconditions.checkNotNull(topologyId));
         this.topology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, tk).toInstance();
 
         LOG.debug("Initiating topology builder from {} at {}", locRibReference, this.topology);
 
-        final ReadWriteTransaction t = dataProvider.newReadWriteTransaction();
+        final ReadWriteTransaction t = this.chain.newReadWriteTransaction();
         final Optional<Topology> o;
         try {
             o = t.read(LogicalDatastoreType.OPERATIONAL, this.topology).get();
@@ -98,10 +102,6 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
     protected abstract void createObject(ReadWriteTransaction trans, InstanceIdentifier<T> id, T value);
 
     protected abstract void removeObject(ReadWriteTransaction trans, InstanceIdentifier<T> id, T value);
-
-    public final DataBroker getDataProvider() {
-        return this.dataProvider;
-    }
 
     @Override
     public final InstanceIdentifier<Topology> getInstanceIdentifier() {
@@ -169,14 +169,15 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
     @Override
     public final void close() throws TransactionCommitFailedException {
         LOG.info("Shutting down builder for {}", getInstanceIdentifier());
-        final WriteTransaction trans = this.dataProvider.newWriteOnlyTransaction();
+        final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
         trans.delete(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier());
         trans.submit().checkedGet();
+        this.chain.close();
     }
 
     @Override
     public final void onDataChanged(final AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
-        final ReadWriteTransaction trans = this.dataProvider.newReadWriteTransaction();
+        final ReadWriteTransaction trans = this.chain.newReadWriteTransaction();
 
         try {
             onLocRIBChange(trans, change);
@@ -184,5 +185,16 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
             LOG.warn("Data change {} was not completely propagated to listener {}", change, this, e);
             return;
         }
+    }
+
+    @Override
+    public final void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
+        // TODO: restart?
+        LOG.error("Topology builder for {} failed in transaction {}", getInstanceIdentifier(), transaction.getIdentifier(), cause);
+    }
+
+    @Override
+    public final void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
+        LOG.info("Topology builder for {} shut down", getInstanceIdentifier());
     }
 }
