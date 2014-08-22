@@ -91,7 +91,6 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, moduleFactories.toArray(new ModuleFactory[moduleFactories.size()])));
 
         final Filter mockedFilter = mock(Filter.class);
-        final GeneratedClassLoadingStrategy mockedClassLoadingStrategy = mock(GeneratedClassLoadingStrategy.class);
 
         Mockito.doReturn(new ServiceReference[] {}).when(mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
 
@@ -116,7 +115,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         Mockito.doReturn(emptyServiceReference).when(mockedContext).getServiceReference(any(Class.class));
         Mockito.doReturn(classLoadingStrategySR).when(mockedContext).getServiceReference(GeneratedClassLoadingStrategy.class);
 
-        Mockito.doReturn(mockedClassLoadingStrategy).when(mockedContext).getService(classLoadingStrategySR);
+        Mockito.doReturn(GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy()).when(mockedContext).getService(classLoadingStrategySR);
         Mockito.doReturn(null).when(mockedContext).getService(emptyServiceReference);
 
         final GlobalBundleScanningSchemaServiceImpl schemaService = GlobalBundleScanningSchemaServiceImpl.createInstance(this.mockedContext);

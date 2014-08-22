@@ -69,7 +69,7 @@ public class Stateful02TopologySessionListenerTest extends AbstractPCEPSessionTe
     }
 
     @Test
-    public void testStateful07TopologySessionListener() throws Exception {
+    public void testStateful02TopologySessionListener() throws Exception {
         this.listener.onSessionUp(this.session);
 
         // add-lsp
@@ -92,7 +92,7 @@ public class Stateful02TopologySessionListenerTest extends AbstractPCEPSessionTe
         PathComputationClient pcc = node.getPathComputationClient();
         assertEquals(TEST_ADDRESS, pcc.getIpAddress().getIpv4Address().getValue());
         // reported lsp so far empty, has not received response (PcRpt) yet
-        assertEquals(0, pcc.getReportedLsp().size());
+        assertNull(pcc.getReportedLsp());
         this.listener.onMessage(this.session, pcRpt);
         // check created lsp
         topology = getTopology().get();
