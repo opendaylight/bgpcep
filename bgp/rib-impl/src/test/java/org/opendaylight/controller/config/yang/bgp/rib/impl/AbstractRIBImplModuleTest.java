@@ -62,9 +62,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.controller.sal.dom.broker.GlobalBundleScanningSchemaServiceImpl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.Ipv4RoutesCase;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
-import org.opendaylight.yangtools.sal.binding.model.api.Type;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -118,8 +116,6 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
         Filter mockedFilter = mock(Filter.class);
         Mockito.doReturn(mockedFilter).when(mockedContext).createFilter(Mockito.anyString());
-        final GeneratedClassLoadingStrategy mockedClassLoadingStrategy = mock(GeneratedClassLoadingStrategy.class);
-        Mockito.doReturn(Ipv4RoutesCase.class).when(mockedClassLoadingStrategy).loadClass(Mockito.any(Type.class));
 
         final ServiceReference<?> emptyServiceReference = mock(ServiceReference.class, "Empty");
         final ServiceReference<?> classLoadingStrategySR = mock(ServiceReference.class, "ClassLoadingStrategy");
@@ -146,7 +142,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         Mockito.doReturn(classLoadingStrategySR).when(mockedContext).getServiceReference(GeneratedClassLoadingStrategy.class);
 
         Mockito.doReturn(mockedDataProvider).when(mockedContext).getService(dataProviderServiceReference);
-        Mockito.doReturn(mockedClassLoadingStrategy).when(mockedContext).getService(classLoadingStrategySR);
+        Mockito.doReturn(GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy()).when(mockedContext).getService(classLoadingStrategySR);
         Mockito.doReturn(null).when(mockedContext).getService(emptyServiceReference);
 
         Mockito.doReturn(mockedTransaction).when(mockedDataProvider).newReadWriteTransaction();

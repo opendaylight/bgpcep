@@ -495,17 +495,17 @@
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <!--parallel>classes</parallel>
                     <forkCount>1C</forkCount>
-                    <reuseForks>false</reuseForks>
                     <perCoreThreadCount>true</perCoreThreadCount-->
                     <runOrder>alphabetical</runOrder>
                     <threadCount>1</threadCount>
+                    <reuseForks>false</reuseForks>
                     <!-- Specific to generate mapping between tests and covered code -->
-                    <properties>
+                    <!--properties>
                         <property>
                             <name>listener</name>
                             <value>org.sonar.java.jacoco.JUnitListener</value>
                         </property>
-                    </properties>
+                    </properties-->
                 </configuration>
             </plugin>
 
