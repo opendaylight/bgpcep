@@ -19,11 +19,15 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspArgs;
@@ -50,7 +54,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-final class ServerSessionManager implements SessionListenerFactory<PCEPSessionListener>, AutoCloseable, TopologySessionRPCs {
+final class ServerSessionManager implements SessionListenerFactory<PCEPSessionListener>, AutoCloseable, TopologySessionRPCs, TransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(ServerSessionManager.class);
     private static final long DEFAULT_HOLD_STATE_NANOS = TimeUnit.MINUTES.toNanos(5);
 
@@ -58,16 +62,16 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
     private final Map<NodeId, TopologyNodeState> state = new HashMap<>();
     private final TopologySessionListenerFactory listenerFactory;
     private final InstanceIdentifier<Topology> topology;
-    private final DataBroker dataProvider;
+    private final BindingTransactionChain chain;
 
     public ServerSessionManager(final DataBroker dataProvider, final InstanceIdentifier<Topology> topology,
             final TopologySessionListenerFactory listenerFactory) {
-        this.dataProvider = Preconditions.checkNotNull(dataProvider);
+        this.chain = dataProvider.createTransactionChain(this);
         this.topology = Preconditions.checkNotNull(topology);
         this.listenerFactory = Preconditions.checkNotNull(listenerFactory);
 
         // FIXME: should migrated to transaction chain
-        final ReadWriteTransaction tx = dataProvider.newReadWriteTransaction();
+        final ReadWriteTransaction tx = chain.newReadWriteTransaction();
 
         // Make sure the topology does not exist
         final Optional<?> c;
@@ -178,22 +182,33 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
     }
 
     WriteTransaction beginTransaction() {
-        return dataProvider.newWriteOnlyTransaction();
+        return chain.newWriteOnlyTransaction();
     }
 
     ReadWriteTransaction rwTransaction() {
-        return dataProvider.newReadWriteTransaction();
+        return chain.newReadWriteTransaction();
     }
 
     <T extends DataObject> ListenableFuture<Optional<T>> readOperationalData(final InstanceIdentifier<T> id) {
-        final ReadTransaction t = dataProvider.newReadOnlyTransaction();
+        final ReadTransaction t = chain.newReadOnlyTransaction();
         return t.read(LogicalDatastoreType.OPERATIONAL, id);
     }
 
     @Override
     public void close() throws InterruptedException, ExecutionException {
-        final WriteTransaction t = this.dataProvider.newWriteOnlyTransaction();
+        final WriteTransaction t = this.chain.newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, this.topology);
         t.submit().get();
+        chain.close();
+    }
+
+    @Override
+    public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
+        LOG.error("Unexpected transaction failure in topology {} transaction {}", getTopology(), transaction.getIdentifier(), cause);
+    }
+
+    @Override
+    public void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
+        LOG.info("Topology {} shutdown successfully", getTopology());
     }
 }
