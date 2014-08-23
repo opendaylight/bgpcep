@@ -23,10 +23,14 @@ import java.util.concurrent.ExecutionException;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.impl.spi.AdjRIBsOut;
 import org.opendaylight.protocol.bgp.rib.impl.spi.AdjRIBsOutRegistration;
@@ -71,7 +75,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-public final class RIBImpl extends DefaultRibReference implements AutoCloseable, RIB {
+public final class RIBImpl extends DefaultRibReference implements AutoCloseable, RIB, TransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
     private static final Update EOR = new UpdateBuilder().build();
     private static final TablesKey IPV4_UNICAST_TABLE = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
@@ -80,7 +84,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final ReconnectStrategyFactory sessionStrategyFactory;
     private final BGPObjectComparator comparator;
     private final BGPDispatcher dispatcher;
-    private final DataBroker dps;
+    private final BindingTransactionChain chain;
     private final AsNumber localAs;
     private final Ipv4Address bgpIdentifier;
     private final List<BgpTableType> localTables;
@@ -90,7 +94,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory,
             final ReconnectStrategyFactory sessionStrategyFactory, final DataBroker dps, final List<BgpTableType> localTables) {
         super(InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))).toInstance());
-        this.dps = Preconditions.checkNotNull(dps);
+        this.chain = dps.createTransactionChain(this);
         this.localAs = Preconditions.checkNotNull(localAs);
         this.comparator = new BGPObjectComparator(localAs);
         this.bgpIdentifier = Preconditions.checkNotNull(localBgpId);
@@ -102,7 +106,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
         LOG.debug("Instantiating RIB table {} at {}", ribId, getInstanceIdentifier());
 
-        final ReadWriteTransaction trans = dps.newReadWriteTransaction();
+        final ReadWriteTransaction trans = chain.newReadWriteTransaction();
         Optional<Rib> o;
         try {
             o = trans.read(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier()).get();
@@ -141,7 +145,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
     @Override
     public synchronized void updateTables(final Peer peer, final Update message) {
-        final AdjRIBsTransactionImpl trans = new AdjRIBsTransactionImpl(ribOuts, this.comparator, this.dps.newWriteOnlyTransaction());
+        final AdjRIBsTransactionImpl trans = new AdjRIBsTransactionImpl(ribOuts, this.comparator, this.chain.newWriteOnlyTransaction());
 
         if (!EOR.equals(message)) {
             final WithdrawnRoutes wr = message.getWithdrawnRoutes();
@@ -237,7 +241,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     public synchronized void clearTable(final Peer peer, final TablesKey key) {
         final AdjRIBsIn<?, ?> ari = this.tables.get(key);
         if (ari != null) {
-            final AdjRIBsTransactionImpl trans = new AdjRIBsTransactionImpl(ribOuts, comparator, this.dps.newWriteOnlyTransaction());
+            final AdjRIBsTransactionImpl trans = new AdjRIBsTransactionImpl(ribOuts, comparator, this.chain.newWriteOnlyTransaction());
             ari.clear(trans, peer);
 
             Futures.addCallback(trans.commit(), new FutureCallback<Void>() {
@@ -265,9 +269,10 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
     @Override
     public void close() throws InterruptedException, ExecutionException {
-        final WriteTransaction t = this.dps.newWriteOnlyTransaction();
+        final WriteTransaction t = this.chain.newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier());
         t.submit().get();
+        chain.close();
     }
 
     @Override
@@ -317,5 +322,15 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         ribOuts.put(peer, aro);
         // FIXME: schedule a walk over all the tables
         return reg;
+    }
+
+    @Override
+    public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
+        LOG.error("Broken chain in RIB {} transaction {}", getInstanceIdentifier(), transaction.getIdentifier(), cause);
+    }
+
+    @Override
+    public void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
+        LOG.info("RIB {} closed successfully", getInstanceIdentifier());
     }
 }
