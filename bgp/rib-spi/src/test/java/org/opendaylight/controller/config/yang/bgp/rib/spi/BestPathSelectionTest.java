@@ -120,34 +120,34 @@ public class BestPathSelectionTest {
     @Test
     public void testCompare() {
         assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr1),
-                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr2)) < 0);
+            new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr2)) < 0);
         assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr2),
-                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr1)) > 0);
+            new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr1)) > 0);
 
         assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr2),
-                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr3)) < 0);
+            new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr3)) < 0);
         assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr3),
-                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr2)) > 0);
+            new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr2)) > 0);
 
         assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr3),
-                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr4)) < 0);
+            new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr4)) < 0);
         assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr4),
-                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr3)) > 0);
+            new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr3)) > 0);
 
         assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr4),
-                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr5)) < 0);
+            new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr5)) < 0);
         assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr5),
-                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr4)) > 0);
+            new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr4)) > 0);
 
         assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr5),
-                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr6)) < 0);
+            new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr6)) < 0);
         assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr6),
-                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr5)) > 0);
+            new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr5)) > 0);
 
         assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr6),
-                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr7)) < 0);
+            new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr7)) < 0);
         assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr7),
-                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr6)) > 0);
+            new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr6)) > 0);
     }
 
     @Test
@@ -174,7 +174,7 @@ public class BestPathSelectionTest {
 
             @Override
             protected Ipv4Route getDataObject(final Ipv4Prefix key, final Ipv4RouteKey id) {
-                return new Ipv4RouteBuilder().setKey(id).setAttributes(new AttributesBuilder(attributes).build()).build();
+                return new Ipv4RouteBuilder().setKey(id).setAttributes(new AttributesBuilder(this.attributes).build()).build();
             }
 
         }
@@ -186,7 +186,7 @@ public class BestPathSelectionTest {
 
         @Override
         public void addRoutes(final AdjRIBsTransaction trans, final Peer peer, final MpReachNlri nlri,
-                final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
             return;
         }
 
@@ -196,13 +196,23 @@ public class BestPathSelectionTest {
         }
 
         @Override
-        protected void addAdvertisement(final MpReachNlriBuilder builder, final Ipv4Route data) {
-            // TODO Auto-generated method stub
+        public void addAdvertisement(final MpReachNlriBuilder builder, final Ipv4Route data) {
+            // no-op
         }
 
         @Override
-        protected void addWithdrawal(final MpUnreachNlriBuilder builder, final Ipv4Prefix id) {
-            // TODO Auto-generated method stub
+        public void addWithdrawal(final MpUnreachNlriBuilder builder, final Ipv4Prefix id) {
+            // no-op
+        }
+
+        @Override
+        public KeyedInstanceIdentifier<Ipv4Route, Ipv4RouteKey> routeIdentifier(final InstanceIdentifier<?> id) {
+            return null;
+        }
+
+        @Override
+        public Ipv4Prefix keyForIdentifier(final KeyedInstanceIdentifier<Ipv4Route, Ipv4RouteKey> id) {
+            return null;
         }
     }
 }

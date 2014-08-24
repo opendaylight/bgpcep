@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.collect.Lists;
-
 import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBs;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
@@ -47,7 +46,7 @@ final class Ipv4AdjRIBsIn extends AbstractAdjRIBs<Ipv4Prefix, Ipv4Route, Ipv4Rou
 
     @Override
     public void addRoutes(final AdjRIBsTransaction trans, final Peer peer, final MpReachNlri nlri,
-            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
         final RIBEntryData<Ipv4Prefix, Ipv4Route, Ipv4RouteKey> data = new RIBEntryData<Ipv4Prefix, Ipv4Route, Ipv4RouteKey>(peer, attributes) {
             @Override
             protected Ipv4Route getDataObject(final Ipv4Prefix key, final Ipv4RouteKey id) {
@@ -68,26 +67,37 @@ final class Ipv4AdjRIBsIn extends AbstractAdjRIBs<Ipv4Prefix, Ipv4Route, Ipv4Rou
     }
 
     @Override
-    protected void addAdvertisement(final MpReachNlriBuilder builder, final Ipv4Route data) {
+    public void addAdvertisement(final MpReachNlriBuilder builder, final Ipv4Route data) {
         final AdvertizedRoutes ar = builder.getAdvertizedRoutes();
         if (ar == null) {
             builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-                    new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder().setIpv4Prefixes(
-                            Lists.newArrayList(data.getPrefix())).build()).build()).build());
+                new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder().setIpv4Prefixes(
+                    Lists.newArrayList(data.getPrefix())).build()).build()).build());
         } else {
             ((DestinationIpv4) ar.getDestinationType()).getIpv4Prefixes().add(data.getPrefix());
         }
     }
 
     @Override
-    protected void addWithdrawal(final MpUnreachNlriBuilder builder, final Ipv4Prefix id) {
+    public void addWithdrawal(final MpUnreachNlriBuilder builder, final Ipv4Prefix id) {
         final WithdrawnRoutes wr = builder.getWithdrawnRoutes();
         if (wr == null) {
             builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
-                    new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder().setIpv4Prefixes(
-                            Lists.newArrayList(id)).build()).build()).build());
+                new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder().setIpv4Prefixes(
+                    Lists.newArrayList(id)).build()).build()).build());
         } else {
             ((DestinationIpv4Case) wr.getDestinationType()).getDestinationIpv4().getIpv4Prefixes().add(id);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public KeyedInstanceIdentifier<Ipv4Route, Ipv4RouteKey> routeIdentifier(final InstanceIdentifier<?> id) {
+        return (KeyedInstanceIdentifier<Ipv4Route, Ipv4RouteKey>)id.firstIdentifierOf(Ipv4Route.class);
+    }
+
+    @Override
+    public Ipv4Prefix keyForIdentifier(final KeyedInstanceIdentifier<Ipv4Route, Ipv4RouteKey> id) {
+        return id.getKey().getPrefix();
     }
 }

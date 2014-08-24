@@ -14,7 +14,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -23,7 +22,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
 import javax.annotation.concurrent.ThreadSafe;
-
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
@@ -64,6 +62,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRibBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibKey;
@@ -122,8 +121,8 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     });
 
     public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final RIBExtensionConsumerContext extensions,
-            final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory,
-            final ReconnectStrategyFactory sessionStrategyFactory, final DataBroker dps, final List<BgpTableType> localTables) {
+        final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory,
+        final ReconnectStrategyFactory sessionStrategyFactory, final DataBroker dps, final List<BgpTableType> localTables) {
         super(InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))).toInstance());
         this.chain = dps.createTransactionChain(this);
         this.localAs = Preconditions.checkNotNull(localAs);
@@ -138,7 +137,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
         LOG.debug("Instantiating RIB table {} at {}", ribId, getInstanceIdentifier());
 
-        final ReadWriteTransaction trans = chain.newReadWriteTransaction();
+        final ReadWriteTransaction trans = this.chain.newReadWriteTransaction();
         Optional<Rib> o;
         try {
             o = trans.read(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier()).get();
@@ -150,9 +149,9 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         // put empty BgpRib if not exists
         trans.merge(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(BgpRib.class).build(), new BgpRibBuilder().build());
         trans.put(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier(), new RibBuilder().setKey(new RibKey(ribId)).setId(ribId).setLocRib(
-                new LocRibBuilder().setTables(Collections.<Tables> emptyList()).build()).build());
+            new LocRibBuilder().setTables(Collections.<Tables> emptyList()).build()).build());
 
-        for (BgpTableType t : localTables) {
+        for (final BgpTableType t : localTables) {
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
             if (this.tables.create(trans, this, key) == null) {
                 LOG.debug("Did not create local table for unhandled table type {}", t);
@@ -177,20 +176,23 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
     @Override
     public synchronized void updateTables(final Peer peer, final Update message) {
-        final AdjRIBsTransactionImpl trans = new AdjRIBsTransactionImpl(ribOuts, this.comparator, this.chain.newWriteOnlyTransaction());
+        final AdjRIBsTransactionImpl trans = new AdjRIBsTransactionImpl(this.ribOuts, this.comparator, this.chain.newWriteOnlyTransaction());
 
         if (!EOR.equals(message)) {
             final WithdrawnRoutes wr = message.getWithdrawnRoutes();
             if (wr != null) {
                 final AdjRIBsIn<?, ?> ari = this.tables.get(IPV4_UNICAST_TABLE);
                 if (ari != null) {
+                    /*
+                     * create MPUnreach for the routes to be handled in the same way as linkstate routes
+                     */
                     ari.removeRoutes(
-                            trans,
-                            peer,
-                            new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setWithdrawnRoutes(
-                                    new WithdrawnRoutesBuilder().setDestinationType(
-                                            new DestinationIpv4CaseBuilder().setDestinationIpv4(
-                                                    new DestinationIpv4Builder().setIpv4Prefixes(wr.getWithdrawnRoutes()).build()).build()).build()).build());
+                        trans,
+                        peer,
+                        new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setWithdrawnRoutes(
+                            new WithdrawnRoutesBuilder().setDestinationType(
+                                new DestinationIpv4CaseBuilder().setDestinationIpv4(
+                                    new DestinationIpv4Builder().setIpv4Prefixes(wr.getWithdrawnRoutes()).build()).build()).build()).build());
                 } else {
                     LOG.debug("Not removing objects from unhandled IPv4 Unicast");
                 }
@@ -215,11 +217,14 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             if (ar != null) {
                 final AdjRIBsIn<?, ?> ari = this.tables.get(IPV4_UNICAST_TABLE);
                 if (ari != null) {
+                    /*
+                     * create MPReach for the routes to be handled in the same way as linkstate routes
+                     */
                     final MpReachNlriBuilder b = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
-                            UnicastSubsequentAddressFamily.class).setAdvertizedRoutes(
-                                    new AdvertizedRoutesBuilder().setDestinationType(
-                                            new DestinationIpv4CaseBuilder().setDestinationIpv4(
-                                                    new DestinationIpv4Builder().setIpv4Prefixes(ar.getNlri()).build()).build()).build());
+                        UnicastSubsequentAddressFamily.class).setAdvertizedRoutes(
+                            new AdvertizedRoutesBuilder().setDestinationType(
+                                new DestinationIpv4CaseBuilder().setDestinationIpv4(
+                                    new DestinationIpv4Builder().setIpv4Prefixes(ar.getNlri()).build()).build()).build());
                     if (attrs != null) {
                         b.setCNextHop(attrs.getCNextHop());
                     }
@@ -273,7 +278,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     public synchronized void clearTable(final Peer peer, final TablesKey key) {
         final AdjRIBsIn<?, ?> ari = this.tables.get(key);
         if (ari != null) {
-            final AdjRIBsTransactionImpl trans = new AdjRIBsTransactionImpl(ribOuts, comparator, this.chain.newWriteOnlyTransaction());
+            final AdjRIBsTransactionImpl trans = new AdjRIBsTransactionImpl(this.ribOuts, this.comparator, this.chain.newWriteOnlyTransaction());
             ari.clear(trans, peer);
 
             Futures.addCallback(trans.commit(), new FutureCallback<Void>() {
@@ -299,12 +304,17 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         return toStringHelper;
     }
 
+    @SuppressWarnings("unchecked")
+    protected <K, V extends Route> AdjRIBsIn<K, V> getTable(final TablesKey key) {
+        return (AdjRIBsIn<K, V>) this.tables.get(key);
+    }
+
     @Override
     public void close() throws InterruptedException, ExecutionException {
         final WriteTransaction t = this.chain.newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier());
         t.submit().get();
-        chain.close();
+        this.chain.close();
     }
 
     @Override
@@ -347,7 +357,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         final AdjRIBsOutRegistration reg = new AdjRIBsOutRegistration(aro) {
             @Override
             protected void removeRegistration() {
-                ribOuts.remove(peer, aro);
+                RIBImpl.this.ribOuts.remove(peer, aro);
             }
         };
 
@@ -357,7 +367,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             this.peers.put(peer);
             this.scheduler.run();
         } catch (final InterruptedException e) {
-            //
+            LOG.info("Interrupted while attaching peer", e);
         }
         return reg;
     }
