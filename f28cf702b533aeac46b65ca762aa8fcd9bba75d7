@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_c19b3516",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImplTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-08-24T09:12:25Z",
+      "side": 1,
+      "message": "How is this different from FiniteStateMachineTest?",
+      "revId": "f28cf702b533aeac46b65ca762aa8fcd9bba75d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
