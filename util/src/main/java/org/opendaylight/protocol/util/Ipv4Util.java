@@ -141,7 +141,7 @@ public final class Ipv4Util {
      * Creates an Ipv4Prefix object from given byte array.
      *
      * @param bytes  IPv4 address
-     * @param length prefix length
+     * @param length prefix length in bits
      * @return Ipv4Prefix object
      */
     public static Ipv4Prefix prefixForBytes(final byte[] bytes, final int length) {

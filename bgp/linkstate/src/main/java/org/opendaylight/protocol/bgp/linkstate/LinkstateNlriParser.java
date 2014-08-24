@@ -278,7 +278,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
      * @return {@link CLinkstateDestination}
      * @throws BGPParsingException if parsing was unsuccessful
      */
-    private List<CLinkstateDestination> parseNlri(final ByteBuf nlri) throws BGPParsingException {
+    public static List<CLinkstateDestination> parseNlri(final ByteBuf nlri, final boolean isVpn) throws BGPParsingException {
         if (!nlri.isReadable()) {
             return null;
         }
@@ -294,7 +294,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
             // length means total length of the tlvs including route distinguisher not including the type field
             final int length = nlri.readUnsignedShort();
             RouteDistinguisher distinguisher = null;
-            if (this.isVpn) {
+            if (isVpn) {
                 // this parses route distinguisher
                 distinguisher = new RouteDistinguisher(BigInteger.valueOf(nlri.readLong()));
                 builder.setDistinguisher(distinguisher);
@@ -317,7 +317,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
             }
             nlri.skipBytes(locallength);
             builder.setLocalNodeDescriptors((LocalNodeDescriptors) localDescriptor);
-            final int restLength = length - (this.isVpn ? ROUTE_DISTINGUISHER_LENGTH : 0) - PROTOCOL_ID_LENGTH - IDENTIFIER_LENGTH
+            final int restLength = length - (isVpn ? ROUTE_DISTINGUISHER_LENGTH : 0) - PROTOCOL_ID_LENGTH - IDENTIFIER_LENGTH
                 - TYPE_LENGTH - LENGTH_SIZE - locallength;
             LOG.trace("Restlength {}", restLength);
             final ByteBuf rest = nlri.slice(nlri.readerIndex(), restLength);
@@ -346,7 +346,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
         if (!nlri.isReadable()) {
             return;
         }
-        final List<CLinkstateDestination> dst = parseNlri(nlri);
+        final List<CLinkstateDestination> dst = parseNlri(nlri, this.isVpn);
 
         builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder().setDestinationLinkstate(
@@ -359,7 +359,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
         if (!nlri.isReadable()) {
             return;
         }
-        final List<CLinkstateDestination> dst = parseNlri(nlri);
+        final List<CLinkstateDestination> dst = parseNlri(nlri, this.isVpn);
 
         builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
             new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
