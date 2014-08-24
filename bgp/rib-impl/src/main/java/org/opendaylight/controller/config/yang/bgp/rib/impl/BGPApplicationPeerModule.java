@@ -10,6 +10,7 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer;
+import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -34,7 +35,7 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
     @Override
     public java.lang.AutoCloseable createInstance() {
         final InstanceIdentifier<?> id = InstanceIdentifier.builder(ApplicationRib.class, new ApplicationRibKey(getApplicationRibId())).build();
-        final ApplicationPeer peer = new ApplicationPeer(getApplicationRibId(), getBgpId(), getTargetRibDependency());
+        final ApplicationPeer peer = new ApplicationPeer(getApplicationRibId(), getBgpId(), (RIBImpl) getTargetRibDependency());
         return getDataBrokerDependency().registerDataChangeListener(LogicalDatastoreType.CONFIGURATION, id, peer, DataChangeScope.SUBTREE);
     }
 
