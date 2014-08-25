@@ -9,25 +9,21 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspArgs;
@@ -46,7 +42,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypesBuilder;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +49,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-final class ServerSessionManager implements SessionListenerFactory<PCEPSessionListener>, AutoCloseable, TopologySessionRPCs, TransactionChainListener {
+final class ServerSessionManager implements SessionListenerFactory<PCEPSessionListener>, AutoCloseable, TopologySessionRPCs {
     private static final Logger LOG = LoggerFactory.getLogger(ServerSessionManager.class);
     private static final long DEFAULT_HOLD_STATE_NANOS = TimeUnit.MINUTES.toNanos(5);
 
@@ -62,24 +57,18 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
     private final Map<NodeId, TopologyNodeState> state = new HashMap<>();
     private final TopologySessionListenerFactory listenerFactory;
     private final InstanceIdentifier<Topology> topology;
-    private final BindingTransactionChain chain;
+    private final DataBroker broker;
 
-    public ServerSessionManager(final DataBroker dataProvider, final InstanceIdentifier<Topology> topology,
-            final TopologySessionListenerFactory listenerFactory) {
-        this.chain = dataProvider.createTransactionChain(this);
+    public ServerSessionManager(final DataBroker broker, final InstanceIdentifier<Topology> topology,
+            final TopologySessionListenerFactory listenerFactory) throws ReadFailedException, TransactionCommitFailedException {
+        this.broker = Preconditions.checkNotNull(broker);
         this.topology = Preconditions.checkNotNull(topology);
         this.listenerFactory = Preconditions.checkNotNull(listenerFactory);
 
-        // FIXME: should migrated to transaction chain
-        final ReadWriteTransaction tx = chain.newReadWriteTransaction();
 
         // Make sure the topology does not exist
-        final Optional<?> c;
-        try {
-            c = tx.read(LogicalDatastoreType.OPERATIONAL, topology).get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new IllegalStateException("Failed to ensure topology presence", e);
-        }
+        final ReadWriteTransaction tx = broker.newReadWriteTransaction();
+        final Optional<?> c = tx.read(LogicalDatastoreType.OPERATIONAL, topology).checkedGet();
         Preconditions.checkArgument(!c.isPresent(), "Topology %s already exists", topology);
 
         // create empty network-topology is not exists
@@ -91,36 +80,36 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
                         new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build()).build()).build()).setNode(
                                 new ArrayList<Node>()).build());
 
-        Futures.addCallback(tx.submit(), new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(final Void result) {
-                LOG.trace("Topology {} created successfully", topology);
-            }
-
-            @Override
-            public void onFailure(final Throwable t) {
-                LOG.error("Failed to create topology {}", topology, t);
-            }
-        });
+        tx.submit().checkedGet();
     }
 
-    public void releaseNodeState(final TopologyNodeState nodeState) {
+    private static NodeId createNodeId(final InetAddress addr) {
+        return new NodeId("pcc://" + addr.getHostAddress());
+    }
+
+    synchronized void releaseNodeState(final TopologyNodeState nodeState) {
         LOG.debug("Node {} unbound", nodeState.getNodeId());
         this.nodes.remove(nodeState.getNodeId());
         nodeState.released();
     }
 
-    synchronized TopologyNodeState takeNodeState(final NodeId id, final TopologySessionListener sessionListener) {
-        LOG.debug("Node {} bound to listener {}", id, sessionListener);
+    synchronized TopologyNodeState takeNodeState(final InetAddress address, final TopologySessionListener sessionListener) {
+        final NodeId id = createNodeId(address);
 
+        LOG.debug("Node {} requested by listener {}", id, sessionListener);
         TopologyNodeState ret = this.state.get(id);
+
         if (ret == null) {
-            ret = new TopologyNodeState(id, DEFAULT_HOLD_STATE_NANOS);
+            ret = new TopologyNodeState(broker, topology, id, DEFAULT_HOLD_STATE_NANOS);
+            LOG.debug("Created topology node {} for id {} at {}", ret, id, ret.getNodeId());
             this.state.put(id, ret);
+        } else {
+            // FIXME: check for conflicting session
         }
 
-        this.nodes.put(id, sessionListener);
         ret.taken();
+        this.nodes.put(id, sessionListener);
+        LOG.debug("Node {} bound to listener {}", id, sessionListener);
         return ret;
     }
 
@@ -177,38 +166,11 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
         return l.ensureLspOperational(input);
     }
 
-    InstanceIdentifier<Topology> getTopology() {
-        return topology;
-    }
-
-    WriteTransaction beginTransaction() {
-        return chain.newWriteOnlyTransaction();
-    }
-
-    ReadWriteTransaction rwTransaction() {
-        return chain.newReadWriteTransaction();
-    }
-
-    <T extends DataObject> ListenableFuture<Optional<T>> readOperationalData(final InstanceIdentifier<T> id) {
-        final ReadTransaction t = chain.newReadOnlyTransaction();
-        return t.read(LogicalDatastoreType.OPERATIONAL, id);
-    }
-
     @Override
     public void close() throws InterruptedException, ExecutionException {
-        final WriteTransaction t = this.chain.newWriteOnlyTransaction();
+        // FIXME: terminate all sessions, close all states,
+        final WriteTransaction t = this.broker.newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, this.topology);
         t.submit().get();
-        chain.close();
-    }
-
-    @Override
-    public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
-        LOG.error("Unexpected transaction failure in topology {} transaction {}", getTopology(), transaction.getIdentifier(), cause);
-    }
-
-    @Override
-    public void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
-        LOG.info("Topology {} shutdown successfully", getTopology());
     }
 }

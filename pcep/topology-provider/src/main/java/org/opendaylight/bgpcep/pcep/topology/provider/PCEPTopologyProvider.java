@@ -19,6 +19,8 @@ import java.util.concurrent.ExecutionException;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
@@ -52,7 +54,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
     public static PCEPTopologyProvider create(final PCEPDispatcher dispatcher, final InetSocketAddress address, final KeyMapping keys,
             final InstructionScheduler scheduler, final DataBroker dataBroker, final RpcProviderRegistry rpcRegistry,
             final InstanceIdentifier<Topology> topology, final TopologySessionListenerFactory listenerFactory) throws InterruptedException,
-            ExecutionException {
+            ExecutionException, ReadFailedException, TransactionCommitFailedException {
 
         final ServerSessionManager manager = new ServerSessionManager(dataBroker, topology, listenerFactory);
         final ChannelFuture f = dispatcher.createServer(address, keys, manager);
