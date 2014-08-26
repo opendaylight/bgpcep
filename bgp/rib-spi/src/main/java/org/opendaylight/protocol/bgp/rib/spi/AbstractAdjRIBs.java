@@ -13,6 +13,7 @@ import com.google.common.base.Preconditions;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -184,9 +185,8 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
         this.basePath = Preconditions.checkNotNull(basePath);
         this.tableType = new BgpTableTypeImpl(basePath.getKey().getAfi(), basePath.getKey().getSafi());
         this.eor = new UpdateBuilder().setPathAttributes(new PathAttributesBuilder().addAugmentation(
-                PathAttributes1.class, new PathAttributes1Builder().setMpReachNlri(new MpReachNlriBuilder(this.tableType)
-                    .build()).build()).build()).build();
-
+            PathAttributes1.class, new PathAttributes1Builder().setMpReachNlri(new MpReachNlriBuilder(this.tableType)
+                .build()).build()).build()).build();
     }
 
     @Override
@@ -201,7 +201,14 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
         }
 
         this.peers.remove(peer);
-        trans.setUptodate(basePath, !this.peers.values().contains(Boolean.FALSE));
+        trans.setUptodate(this.basePath, !this.peers.values().contains(Boolean.FALSE));
+    }
+
+    public final synchronized void addAllEntries(final AdjRIBsTransaction trans, final Peer peer) {
+        for (final Entry<I, RIBEntry> e : this.entries.entrySet()) {
+            final RIBEntry entry = e.getValue();
+            trans.advertise(this, e.getKey(), entry.name, peer, entry.currentState.getDataObject(entry.key, entry.name.getKey()));
+        }
     }
 
     /**
@@ -293,7 +300,7 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
             pab.fieldsFrom(route.getAttributes());
             pab.addAugmentation(PathAttributes1.class, new PathAttributes1Builder().setMpReachNlri(reach.build()).build()).build();
         } else {
-            final MpUnreachNlriBuilder unreach = new MpUnreachNlriBuilder(tableType);
+            final MpUnreachNlriBuilder unreach = new MpUnreachNlriBuilder(this.tableType);
             addWithdrawal(unreach, (I)key);
             pab.addAugmentation(PathAttributes2.class, new PathAttributes2Builder().setMpUnreachNlri(unreach.build()).build()).build();
         }
