@@ -13,6 +13,8 @@ import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Set;
@@ -166,10 +168,10 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
         } else if (msg instanceof Notify) {
             // Notifications are handled internally
             LOG.info("Session closed because Notification message received: {} / {}", ((Notify) msg).getErrorCode(),
-                    ((Notify) msg).getErrorSubcode());
+                ((Notify) msg).getErrorSubcode());
             this.closeWithoutMessage();
             this.listener.onSessionTerminated(this, new BGPTerminationReason(BGPError.forValue(((Notify) msg).getErrorCode(),
-                    ((Notify) msg).getErrorSubcode())));
+                ((Notify) msg).getErrorSubcode())));
         } else if (msg instanceof Keepalive) {
             // Keepalives are handled internally
             LOG.trace("Received KeepAlive messsage.");
@@ -193,9 +195,19 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 
     synchronized void sendMessage(final Notification msg) {
         try {
-            this.channel.writeAndFlush(msg);
+            this.channel.writeAndFlush(msg).addListener(
+                new ChannelFutureListener() {
+                    @Override
+                    public void operationComplete(final ChannelFuture f) {
+                        if (!f.isSuccess()) {
+                            LOG.info("Failed to send message {} to socket {}", msg, f.cause(), BGPSessionImpl.this.channel);
+                        } else {
+                            LOG.trace("Message {} sent to socket {}", msg, BGPSessionImpl.this.channel);
+                        }
+                    }
+                });
             this.lastMessageSentAt = System.nanoTime();
-            LOG.debug("Sent message: {}", msg);
+            LOG.debug("Sent message: {} to peer {}", msg, this.bgpId);
         } catch (final Exception e) {
             LOG.warn("Message {} was not sent.", msg, e);
         }
@@ -310,12 +322,12 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
     }
 
     synchronized boolean isWritable() {
-        return channel != null && channel.isWritable();
+        return this.channel != null && this.channel.isWritable();
     }
 
     synchronized void schedule(final Runnable task) {
-        Preconditions.checkState(channel != null);
-        channel.eventLoop().submit(task);
+        Preconditions.checkState(this.channel != null);
+        this.channel.eventLoop().submit(task);
 
     }
 
