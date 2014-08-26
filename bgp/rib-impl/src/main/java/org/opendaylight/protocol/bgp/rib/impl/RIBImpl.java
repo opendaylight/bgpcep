@@ -17,10 +17,11 @@ import com.google.common.util.concurrent.Futures;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
-
+import java.util.concurrent.LinkedBlockingQueue;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
@@ -36,6 +37,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.AdjRIBsOut;
 import org.opendaylight.protocol.bgp.rib.impl.spi.AdjRIBsOutRegistration;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
+import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBs;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.BGPObjectComparator;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
@@ -89,6 +91,35 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final Ipv4Address bgpIdentifier;
     private final List<BgpTableType> localTables;
     private final RIBTables tables;
+    private final BlockingQueue<Peer> peers;
+    private final Thread scheduler = new Thread(new Runnable() {
+
+        @Override
+        public void run() {
+            try {
+                final Peer peer = RIBImpl.this.peers.take();
+                LOG.debug("Advertizing loc-rib to new peer {}.", peer);
+                for (final BgpTableType key : RIBImpl.this.localTables) {
+                    final AdjRIBsTransactionImpl trans = new AdjRIBsTransactionImpl(RIBImpl.this.ribOuts, RIBImpl.this.comparator, RIBImpl.this.chain.newWriteOnlyTransaction());
+                    final AbstractAdjRIBs<?, ?, ?> adj = (AbstractAdjRIBs<?, ?, ?>) RIBImpl.this.tables.get(new TablesKey(key.getAfi(), key.getSafi()));
+                    adj.addAllEntries(trans);
+                    Futures.addCallback(trans.commit(), new FutureCallback<Void>() {
+                        @Override
+                        public void onSuccess(final Void result) {
+                            LOG.trace("Advertizing {} to peer {} committed successfully", key.getAfi(), peer);
+                        }
+
+                        @Override
+                        public void onFailure(final Throwable t) {
+                            LOG.error("Failed to update peer {} with RIB {}", peer, t);
+                        }
+                    });
+                }
+            } catch (final InterruptedException e) {
+
+            }
+        }
+    });
 
     public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final RIBExtensionConsumerContext extensions,
             final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory,
@@ -103,6 +134,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.tcpStrategyFactory = Preconditions.checkNotNull(tcpStrategyFactory);
         this.localTables = ImmutableList.copyOf(localTables);
         this.tables = new RIBTables(extensions);
+        this.peers = new LinkedBlockingQueue<>();
 
         LOG.debug("Instantiating RIB table {} at {}", ribId, getInstanceIdentifier());
 
@@ -319,8 +351,14 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             }
         };
 
-        ribOuts.put(peer, aro);
-        // FIXME: schedule a walk over all the tables
+        this.ribOuts.put(peer, aro);
+        LOG.debug("Registering this peer {} to RIB-Out {}", peer, this.ribOuts);
+        try {
+            this.peers.put(peer);
+            this.scheduler.run();
+        } catch (final InterruptedException e) {
+            //
+        }
         return reg;
     }
 

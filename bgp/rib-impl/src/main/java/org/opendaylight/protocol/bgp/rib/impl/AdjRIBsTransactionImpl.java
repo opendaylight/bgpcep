@@ -9,10 +9,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
-
 import java.util.Map;
 import java.util.Map.Entry;
-
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -44,33 +42,36 @@ class AdjRIBsTransactionImpl implements AdjRIBsTransaction {
     @Override
     public void setUptodate(final InstanceIdentifier<Tables> basePath, final boolean uptodate) {
         final InstanceIdentifier<Attributes> aid = basePath.child(Attributes.class);
-        trans.merge(LogicalDatastoreType.OPERATIONAL, aid, new AttributesBuilder().setUptodate(uptodate).build());
+        this.trans.merge(LogicalDatastoreType.OPERATIONAL, aid, new AttributesBuilder().setUptodate(uptodate).build());
         LOG.debug("Table {} switching uptodate to {}", basePath, uptodate);
     }
 
     public CheckedFuture<Void, TransactionCommitFailedException> commit() {
-        return trans.submit();
+        return this.trans.submit();
     }
 
     @Override
     public BGPObjectComparator comparator() {
-        return comparator;
+        return this.comparator;
     }
 
     @Override
-    public <K, V extends Route> void advertise(final RouteEncoder ribOut, final K key, final InstanceIdentifier<V> id, final Peer peer, final V obj) {
-        trans.put(LogicalDatastoreType.OPERATIONAL, id, obj, true);
-        for (Entry<Peer, AdjRIBsOut> e : ribs.entrySet()) {
-            if (e.getKey() != peer) {
+    public <K, V extends Route> void advertise(final RouteEncoder ribOut, final K key, final InstanceIdentifier<V> id, final Peer advertizingPeer, final V obj) {
+        this.trans.put(LogicalDatastoreType.OPERATIONAL, id, obj, true);
+        for (final Entry<Peer, AdjRIBsOut> e : this.ribs.entrySet()) {
+            if (e.getKey() != advertizingPeer) {
                 e.getValue().put(ribOut, key, obj);
+                LOG.trace("Advertizing to peer {}", e.getKey());
+            } else {
+                LOG.trace("Not advertizing to peer {}", e.getKey());
             }
         }
     }
 
     @Override
     public <K, V extends Route> void withdraw(final RouteEncoder ribOut, final K key, final InstanceIdentifier<V> id) {
-        trans.delete(LogicalDatastoreType.OPERATIONAL, id);
-        for (AdjRIBsOut r : ribs.values()) {
+        this.trans.delete(LogicalDatastoreType.OPERATIONAL, id);
+        for (final AdjRIBsOut r : this.ribs.values()) {
             r.put(ribOut, key, null);
         }
     }
