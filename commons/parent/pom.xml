@@ -548,7 +548,7 @@
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     <sourceDirectory>${project.basedir}</sourceDirectory>
                     <includes>**\/*.java,**\/*.xml,**\/*.ini,**\/*.sh,**\/*.bat,**\/*.yang</includes>
-                    <excludes>**\/target\/,**\/bin\/,**\/target-ide\/,**\/src/main/yang-gen-config\/,**\/src/main/yang-gen-sal\/</excludes>
+                    <excludes>**\/target\/,**\/bin\/,**\/target-ide\/,**\/src/main/yang-gen-config\/,**\/src/main/yang-gen-sal\/,**\/.m2repo\/</excludes>
                 </configuration>
                 <dependencies>
                     <dependency>
