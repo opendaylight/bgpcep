@@ -44,6 +44,9 @@
         <!-- Integration tests -->
         <module>integration-tests</module>
 
+        <!--Test tools -->
+        <module>data-change-counter</module>
+
         <!-- Parents -->
         <module>commons/parent</module>
     </modules>
