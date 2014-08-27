@@ -14,20 +14,15 @@ import org.junit.Test;
 import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 
 public class RIBImplModuleTest extends AbstractRIBImplModuleTest {
     private static final String INSTANCE_NAME = "rib-impl";
     private static final String FACTORY_NAME = RIBImplModuleFactory.NAME;
 
-    private static final String RIB_ID = "test";
-    private static final String BGP_ID = "192.168.1.1";
-
     @Test
     public void testValidationExceptionRibIdNotSet() throws Exception {
         try {
-            createRIBImplModuleInstance(null, 500L, new Ipv4Address(BGP_ID));
+            createRIBImplModuleInstance(null, 500L, BGP_ID);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("RibId is not set."));
@@ -37,7 +32,7 @@ public class RIBImplModuleTest extends AbstractRIBImplModuleTest {
     @Test
     public void testValidationExceptionLocalAsNotSet() throws Exception {
         try {
-            createRIBImplModuleInstance(new RibId(RIB_ID), null, new Ipv4Address(BGP_ID));
+            createRIBImplModuleInstance(RIB_ID, null, BGP_ID);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("LocalAs is not set."));
@@ -47,7 +42,7 @@ public class RIBImplModuleTest extends AbstractRIBImplModuleTest {
     @Test
     public void testValidationExceptionBgpIdNotSet() throws Exception {
         try {
-            createRIBImplModuleInstance(new RibId(RIB_ID), 500L, null);
+            createRIBImplModuleInstance(RIB_ID, 500L, null);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("BgpId is not set."));

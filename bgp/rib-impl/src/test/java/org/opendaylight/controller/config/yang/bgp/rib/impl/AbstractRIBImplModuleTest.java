@@ -84,8 +84,8 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     private static final String FACTORY_NAME = RIBImplModuleFactory.NAME;
     private static final String TRANSACTION_NAME = "testTransaction";
 
-    private static final String RIB_ID = "test";
-    private static final String BGP_ID = "192.168.1.1";
+    protected static final RibId RIB_ID = new RibId("test");
+    protected static final Ipv4Address BGP_ID = new Ipv4Address("192.168.1.1");
 
     private static final String SESSION_RS_INSTANCE_NAME = "session-reconnect-strategy-factory";
     private static final String TCP_RS_INSTANCE_NAME = "tcp-reconnect-strategy-factory";
@@ -236,13 +236,13 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     }
 
     protected ObjectName createRIBImplModuleInstance(final ConfigTransactionJMXClient transaction) throws Exception {
-        return createRIBImplModuleInstance(transaction, new RibId(RIB_ID), 5000L, new Ipv4Address(BGP_ID),
+        return createRIBImplModuleInstance(transaction, RIB_ID, 5000L, BGP_ID,
                 createAsyncDataBrokerInstance(transaction));
     }
 
     public ObjectName createRIBImplModuleInstance(final ConfigTransactionJMXClient transaction, final ObjectName dataBroker)
             throws Exception {
-        return createRIBImplModuleInstance(transaction, new RibId(RIB_ID), 5000L, new Ipv4Address(BGP_ID), dataBroker);
+        return createRIBImplModuleInstance(transaction, RIB_ID, 5000L, BGP_ID, dataBroker);
     }
 
     public ObjectName createAsyncDataBrokerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException, InstanceNotFoundException {
