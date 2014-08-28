@@ -38,6 +38,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiator;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
@@ -137,7 +138,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     }
 
     @After
-    public void tearDown() throws InterruptedException, ExecutionException {
+    public void tearDown() throws TransactionCommitFailedException {
         this.manager.close();
     }
 

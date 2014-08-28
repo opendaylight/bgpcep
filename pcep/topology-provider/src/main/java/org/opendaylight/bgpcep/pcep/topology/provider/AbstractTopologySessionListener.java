@@ -12,7 +12,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import io.netty.util.concurrent.FutureListener;
+
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,8 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ExecutionException;
+
 import javax.annotation.concurrent.GuardedBy;
+
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -45,11 +48,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLspKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.Path;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -111,57 +109,13 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     private final Map<L, String> lsps = new HashMap<>();
 
     private final ServerSessionManager serverSessionManager;
-    private InstanceIdentifier<Node> topologyNode;
-    private InstanceIdentifier<Node1> topologyAugment;
     private InstanceIdentifier<PathComputationClient> pccIdentifier;
     private TopologyNodeState nodeState;
-    private boolean ownsTopology = false;
     private boolean synced = false;
     private PCEPSession session;
 
     protected AbstractTopologySessionListener(final ServerSessionManager serverSessionManager) {
         this.serverSessionManager = Preconditions.checkNotNull(serverSessionManager);
-    }
-
-    private static String createNodeId(final InetAddress addr) {
-        return "pcc://" + addr.getHostAddress();
-    }
-
-    private Node topologyNode(final ReadWriteTransaction trans, final InetAddress address) {
-        final String pccId = createNodeId(address);
-
-        // FIXME: Futures.transform...
-        try {
-            final Optional<Topology> topoMaybe = trans.read(LogicalDatastoreType.OPERATIONAL, this.serverSessionManager.getTopology()).get();
-            Preconditions.checkState(topoMaybe.isPresent(), "Failed to find topology.");
-            final Topology topo = topoMaybe.get();
-            for (final Node n : topo.getNode()) {
-                LOG.debug("Matching topology node {} to id {}", n, pccId);
-                if (n.getNodeId().getValue().equals(pccId)) {
-                    this.topologyNode = this.serverSessionManager.getTopology().child(Node.class, n.getKey());
-                    LOG.debug("Reusing topology node {} for id {} at {}", n, pccId, this.topologyNode);
-                    return n;
-                }
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            throw new IllegalStateException("Failed to ensure topology presence.", e);
-        }
-
-        /*
-         * We failed to find a matching node. Let's create a dynamic one
-         * and note that we are the owner (so we clean it up afterwards).
-         */
-        final NodeId id = new NodeId(pccId);
-        final NodeKey nk = new NodeKey(id);
-        final InstanceIdentifier<Node> nti = this.serverSessionManager.getTopology().child(Node.class, nk);
-
-        final Node ret = new NodeBuilder().setKey(nk).setNodeId(id).build();
-
-        trans.put(LogicalDatastoreType.OPERATIONAL, nti, ret);
-        LOG.debug("Created topology node {} for id {} at {}", ret, pccId, nti);
-        this.ownsTopology = true;
-        this.topologyNode = nti;
-        return ret;
     }
 
     @Override
@@ -173,27 +127,29 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
          * the topology model, with empty LSP list.
          */
         final InetAddress peerAddress = session.getRemoteAddress();
-        final ReadWriteTransaction trans = this.serverSessionManager.rwTransaction();
 
-        final Node topoNode = topologyNode(trans, peerAddress);
-        LOG.trace("Peer {} resolved to topology node {}", peerAddress, topoNode);
+        final TopologyNodeState state = serverSessionManager.takeNodeState(peerAddress, this);
+        if (state == null) {
+            session.close(TerminationReason.Unknown);
+            return;
+        }
 
-        // Our augmentation in the topology node
+        LOG.trace("Peer {} resolved to topology node {}", peerAddress, state.getNodeId());
         this.synced = false;
 
-        final PathComputationClientBuilder pccBuilder;
-        pccBuilder = new PathComputationClientBuilder();
+        // Our augmentation in the topology node
+        final PathComputationClientBuilder pccBuilder = new PathComputationClientBuilder();
         pccBuilder.setIpAddress(IpAddressBuilder.getDefaultInstance(peerAddress.getHostAddress()));
 
         onSessionUp(session, pccBuilder);
 
         final Node1 ta = new Node1Builder().setPathComputationClient(pccBuilder.build()).build();
+        final InstanceIdentifier<Node1> topologyAugment = state.getNodeId().augmentation(Node1.class);
+        this.pccIdentifier = topologyAugment.child(PathComputationClient.class);
 
-        this.topologyAugment = this.topologyNode.augmentation(Node1.class);
-        this.pccIdentifier = this.topologyAugment.child(PathComputationClient.class);
-
-        trans.put(LogicalDatastoreType.OPERATIONAL, this.topologyAugment, ta);
-        LOG.trace("Peer data {} set to {}", this.topologyAugment, ta);
+        final ReadWriteTransaction trans = state.rwTransaction();
+        trans.put(LogicalDatastoreType.OPERATIONAL, topologyAugment, ta);
+        LOG.trace("Peer data {} set to {}", topologyAugment, ta);
 
         // All set, commit the modifications
         Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
@@ -209,9 +165,9 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
             }
         });
 
-        this.nodeState = this.serverSessionManager.takeNodeState(topoNode.getNodeId(), this);
         this.session = session;
-        LOG.info("Session with {} attached to topology node {}", session.getRemoteAddress(), topoNode.getNodeId());
+        this.nodeState = state;
+        LOG.info("Session with {} attached to topology node {}", session.getRemoteAddress(), state.getNodeId());
     }
 
     @GuardedBy("this")
@@ -219,25 +175,6 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         this.serverSessionManager.releaseNodeState(this.nodeState);
         this.nodeState = null;
         this.session = null;
-
-        // The session went down. Undo all the Topology changes we have done.
-        final WriteTransaction trans = this.serverSessionManager.beginTransaction();
-        trans.delete(LogicalDatastoreType.OPERATIONAL, this.topologyAugment);
-        if (this.ownsTopology) {
-            trans.delete(LogicalDatastoreType.OPERATIONAL, this.topologyNode);
-        }
-
-        Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(final Void result) {
-                LOG.trace("Internal state for session {} cleaned up successfully", session);
-            }
-
-            @Override
-            public void onFailure(final Throwable t) {
-                LOG.error("Failed to cleanup internal state for session {}", session, t);
-            }
-        });
 
         // Clear all requests we know about
         for (final Entry<S, PCEPRequest> e : this.requests.entrySet()) {
@@ -275,7 +212,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
     @Override
     public final synchronized void onMessage(final PCEPSession session, final Message message) {
-        final MessageContext ctx = new MessageContext(this.serverSessionManager.beginTransaction());
+        final MessageContext ctx = new MessageContext(this.nodeState.beginTransaction());
 
         if (onMessage(ctx, message)) {
             LOG.info("Unhandled message {} on session {}", message, session);
@@ -478,7 +415,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         return this.lsps.get(id);
     }
 
-    protected final <T extends DataObject> ListenableFuture<Optional<T>> readOperationalData(final InstanceIdentifier<T> id) {
-        return this.serverSessionManager.readOperationalData(id);
+    protected synchronized final <T extends DataObject> ListenableFuture<Optional<T>> readOperationalData(final InstanceIdentifier<T> id) {
+        return this.nodeState.readOperationalData(id);
     }
 }
