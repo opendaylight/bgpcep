@@ -529,6 +529,97 @@ module bgp-linkstate {
         }
     }
 
+    grouping linkstate-routes {
+        container linkstate-routes {
+            list linkstate-route {
+                description
+                    "Link-state information entry. Due to
+                    the complexity of link-state information
+                    and YANG limitations this is the top-level
+                    object from contract perspective. It is
+                    keyed by route-key, whose format is
+                    internal to the implementation exposing
+                    this information. As an explicit example
+                    it can rely on information stored in the
+                    entry's subtree, so the subtree MUST NOT
+                    be modified by outside entities.
+                    Augmentations can attach data, but must
+                    be explicitly aware that such data, unlike
+                    the data modeled directly here, does not
+                    have any effects on keys, especially they
+                    must not impact equality tests.";
+
+                leaf route-key {
+                    description
+                        "The sole function of this leaf
+                        to act as the key in the list.
+                        Its format does not form the
+                        API contract of this model.";
+                    type binary;
+                }
+                key "route-key";
+
+                leaf distinguisher {
+                    type route-distinguisher;
+                }
+                leaf protocol-id {
+                    type protocol-id;
+                }
+                leaf identifier {
+                    type identifier;
+                }
+
+                choice object-type {
+                    case node-case {
+                        container node-descriptors {
+                            uses node-identifier;
+                        }
+                    }
+                    case link-case {
+                        container local-node-descriptors {
+                            uses node-identifier;
+                        }
+                        container remote-node-descriptors {
+                            uses node-identifier;
+                        }
+                        container link-descriptors {
+                            uses link-identifier;
+                        }
+                    }
+                    case prefix-case {
+                        container advertising-node-descriptors {
+                            uses node-identifier;
+                        }
+
+                        uses prefix-identifiers;
+                    }
+                }
+
+                uses bgp-rib:route {
+                    augment attributes {
+                        choice attribute-type {
+                            case node-case {
+                                container node-attributes {
+                                    uses node-state;
+                                }
+                            }
+                            case link-case {
+                                container link-attributes {
+                                    uses link-state;
+                                }
+                            }
+                            case prefix-case {
+                                container prefix-attributes {
+                                    uses prefix-state;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     augment "/bgp-msg:update/bgp-msg:path-attributes" {
         container linkstate-path-attribute {
             choice link-state-attribute {
@@ -554,96 +645,15 @@ module bgp-linkstate {
         }
     }
 
+    augment "/bgp-rib:application-rib/bgp-rib:tables/bgp-rib:routes" {
+        case linkstate-routes-case {
+            uses linkstate-routes;
+        }
+    }
+
     augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:loc-rib/bgp-rib:tables/bgp-rib:routes" {
         case linkstate-routes-case {
-            container linkstate-routes {
-                list linkstate-route {
-                    description
-                        "Link-state information entry. Due to
-                        the complexity of link-state information
-                        and YANG limitations this is the top-level
-                        object from contract perspective. It is
-                        keyed by route-key, whose format is
-                        internal to the implementation exposing
-                        this information. As an explicit example
-                        it can rely on information stored in the
-                        entry's subtree, so the subtree MUST NOT
-                        be modified by outside entities.
-                        Augmentations can attach data, but must
-                        be explicitly aware that such data, unlike
-                        the data modeled directly here, does not
-                        have any effects on keys, especially they
-                        must not impact equality tests.";
-
-                    leaf route-key {
-                        description
-                            "The sole function of this leaf
-                            to act as the key in the list.
-                            Its format does not form the
-                            API contract of this model.";
-                        type binary;
-                    }
-                    key "route-key";
-
-                    leaf distinguisher {
-                        type route-distinguisher;
-                    }
-                    leaf protocol-id {
-                        type protocol-id;
-                    }
-                    leaf identifier {
-                        type identifier;
-                    }
-
-                    choice object-type {
-                        case node-case {
-                            container node-descriptors {
-                                uses node-identifier;
-                            }
-                        }
-                        case link-case {
-                            container local-node-descriptors {
-                                uses node-identifier;
-                            }
-                            container remote-node-descriptors {
-                                uses node-identifier;
-                            }
-                            container link-descriptors {
-                                uses link-identifier;
-                            }
-                        }
-                        case prefix-case {
-                            container advertising-node-descriptors {
-                                uses node-identifier;
-                            }
-
-                            uses prefix-identifiers;
-                        }
-                    }
-
-                    uses bgp-rib:route {
-                        augment attributes {
-                            choice attribute-type {
-                                case node-case {
-                                    container node-attributes {
-                                        uses node-state;
-                                    }
-                                }
-                                case link-case {
-                                    container link-attributes {
-                                        uses link-state;
-                                    }
-                                }
-                                case prefix-case {
-                                    container prefix-attributes {
-                                        uses prefix-state;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            uses linkstate-routes;
         }
     }
 }
