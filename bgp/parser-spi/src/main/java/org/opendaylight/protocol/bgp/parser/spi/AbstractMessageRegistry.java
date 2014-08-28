@@ -45,15 +45,17 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
         final byte typeBytes = buffer.readByte();
         final int messageType = UnsignedBytes.toInt(typeBytes);
 
-        final ByteBuf msgBody = buffer.slice(buffer.readerIndex(), messageLength - MessageUtil.COMMON_HEADER_LENGTH);
-
         if (messageLength < MessageUtil.COMMON_HEADER_LENGTH) {
             throw BGPDocumentedException.badMessageLength("Message length field not within valid range.", messageLength);
         }
-        if (msgBody.readableBytes() != messageLength - MessageUtil.COMMON_HEADER_LENGTH) {
-            throw new BGPParsingException("Size doesn't match size specified in header. Passed: " + msgBody.readableBytes()
+
+        if (messageLength - MessageUtil.COMMON_HEADER_LENGTH != buffer.readableBytes()) {
+            throw new BGPParsingException("Size doesn't match size specified in header. Passed: " + buffer.readableBytes()
                     + "; Expected: " + (messageLength - MessageUtil.COMMON_HEADER_LENGTH) + ". ");
         }
+
+        final ByteBuf msgBody = buffer.slice(buffer.readerIndex(), messageLength - MessageUtil.COMMON_HEADER_LENGTH);
+
         Notification msg = null;
         try {
             msg = parseBody(messageType, msgBody, messageLength);
