@@ -9,9 +9,10 @@ package org.opendaylight.protocol.bgp.parser.spi;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -48,5 +49,47 @@ public class AbstractMessageRegistryTest {
 
         final Notification not = this.registry.parseMessage(Unpooled.copiedBuffer(keepAliveBMsg));
         assertTrue(not instanceof Keepalive);
+    }
+
+    @Test
+    public void testIncompleteMarker() {
+        final byte[] testBytes = new byte[] { (byte) 0x00, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            (byte) 0xff, (byte) 0x00, (byte) 0x13, (byte) 0x04 };
+        try {
+            this.registry.parseMessage(Unpooled.copiedBuffer(testBytes));
+            Assert.fail();
+        } catch (BGPDocumentedException | BGPParsingException e) {
+            assertTrue(e instanceof BGPDocumentedException);
+            Assert.assertEquals("Marker not set to ones.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testInvalidLength() {
+        final byte[] testBytes = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            (byte) 0xff, (byte) 0x00, (byte) 0x12, (byte) 0x04 };
+        try {
+            this.registry.parseMessage(Unpooled.copiedBuffer(testBytes));
+            Assert.fail();
+        } catch (BGPDocumentedException | BGPParsingException e) {
+            assertTrue(e instanceof BGPDocumentedException);
+            Assert.assertEquals("Message length field not within valid range.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testInvalidSpecifiedSize() {
+        final byte[] testBytes = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            (byte) 0xff, (byte) 0x00, (byte) 0x13, (byte) 0x04, (byte) 0x04 };
+        try {
+            this.registry.parseMessage(Unpooled.copiedBuffer(testBytes));
+            Assert.fail();
+        } catch (BGPDocumentedException | BGPParsingException e) {
+            assertTrue(e instanceof BGPParsingException);
+            Assert.assertTrue(e.getMessage().startsWith("Size doesn't match size specified in header."));
+        }
     }
 }
