@@ -8,12 +8,11 @@
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import com.google.common.primitives.UnsignedBytes;
-
 import org.apache.commons.codec.binary.Hex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.NodeIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.LinkstateRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.object.type.LinkCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.object.type.link._case.LinkDescriptors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.linkstate.routes.linkstate.routes.LinkstateRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.linkstate.routes.linkstate.routes.linkstate.route.object.type.LinkCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.linkstate.routes.linkstate.routes.linkstate.route.object.type.link._case.LinkDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.CRouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.IsisNodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.IsisPseudonodeCase;
@@ -95,7 +94,7 @@ final class UriBuilder {
         } else if (routerIdentifier instanceof IsisPseudonodeCase) {
             final IsisPseudonode r = ((IsisPseudonodeCase) routerIdentifier).getIsisPseudonode();
             return isoId(r.getIsIsRouterIdentifier().getIsoSystemId().getValue()) + '.'
-                    + Hex.encodeHexString(new byte[] { UnsignedBytes.checkedCast(r.getPsn()) });
+                + Hex.encodeHexString(new byte[] { UnsignedBytes.checkedCast(r.getPsn()) });
         } else if (routerIdentifier instanceof OspfNodeCase) {
             return ((OspfNodeCase) routerIdentifier).getOspfNode().getOspfRouterId().toString();
         } else if (routerIdentifier instanceof OspfPseudonodeCase) {
