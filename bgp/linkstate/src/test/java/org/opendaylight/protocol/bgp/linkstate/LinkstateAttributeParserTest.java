@@ -36,7 +36,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.DestinationIpv4CaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.DestinationIpv6CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
@@ -85,6 +88,38 @@ public class LinkstateAttributeParserTest {
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder().setDestinationLinkstate(
                             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder().setCLinkstateDestination(
                                 Lists.newArrayList(new CLinkstateDestinationBuilder().setNlriType(type).build())).build()).build()).build()).build()).build());
+    }
+
+    @Test
+    public void testGetNlriType() throws BGPParsingException {
+        final ByteBuf b = Unpooled.buffer();
+        PathAttributesBuilder builder = new PathAttributesBuilder();
+        this.parser.parseAttribute(b, builder);
+        assertEquals(0, b.readableBytes());
+        builder = new PathAttributesBuilder();
+
+        final PathAttributes1Builder builder1 = new PathAttributes1Builder();
+        builder.addAugmentation(PathAttributes1.class, builder1.build());
+        this.parser.parseAttribute(b, builder);
+        assertEquals(0, b.readableBytes());
+        builder = new PathAttributesBuilder();
+
+        builder.addAugmentation(PathAttributes1.class, builder1.setMpReachNlri(
+            new MpReachNlriBuilder().setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(new DestinationIpv4CaseBuilder().build()).build()).build()).build());
+        this.parser.parseAttribute(b, builder);
+        assertEquals(0, b.readableBytes());
+        builder = new PathAttributesBuilder();
+
+        final PathAttributes2Builder builder2 = new PathAttributes2Builder();
+        builder.addAugmentation(PathAttributes2.class, builder2.build());
+        this.parser.parseAttribute(b, builder);
+        assertEquals(0, b.readableBytes());
+        builder = new PathAttributesBuilder();
+
+        builder.addAugmentation(PathAttributes2.class, builder2.setMpUnreachNlri(
+            new MpUnreachNlriBuilder().setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(new DestinationIpv6CaseBuilder().build()).build()).build()).build());
+        this.parser.parseAttribute(b, builder);
+        assertEquals(0, b.readableBytes());
     }
 
     @Test

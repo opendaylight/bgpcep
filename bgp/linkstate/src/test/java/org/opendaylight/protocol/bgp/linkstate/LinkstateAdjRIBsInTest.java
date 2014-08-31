@@ -185,6 +185,10 @@ public class LinkstateAdjRIBsInTest extends AbstractDataBrokerTest {
 
     @Test
     public void testAddNode() {
+        this.builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
+            new DestinationLinkstateCaseBuilder().build()).build());
+        this.lrib.addRoutes(this.adjRibTx, this.peer, this.builder.build(), null);
+
         this.dBuilder.setNlriType(NlriType.Node);
         this.dBuilder.setRemoteNodeDescriptors(new RemoteNodeDescriptorsBuilder().setCRouterIdentifier(
             new IsisPseudonodeCaseBuilder().setIsisPseudonode(
@@ -196,7 +200,7 @@ public class LinkstateAdjRIBsInTest extends AbstractDataBrokerTest {
                 new DestinationLinkstateBuilder().setCLinkstateDestination(this.destinations).build()).build()).build());
 
         final PathAttributesBuilder pa = new PathAttributesBuilder();
-        pa.setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build());
+        //pa.setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build());
 
         this.lrib.addRoutes(this.adjRibTx, this.peer, this.builder.build(), pa.build());
 
