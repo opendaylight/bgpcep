@@ -11,9 +11,9 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.junit.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
+import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public class NextHopUtilTest {
 
@@ -53,6 +54,16 @@ public class NextHopUtilTest {
         buffer.clear();
         NextHopUtil.serializeNextHop(hop, buffer);
         assertArrayEquals(ipv6lB, ByteArray.readAllBytes(buffer));
+
+        buffer.clear();
+        NextHopUtil.serializeNextHop(new CNextHop() {
+
+            @Override
+            public Class<? extends DataContainer> getImplementedInterface() {
+                return null;
+            }
+        }, buffer);
+        assertEquals(0, buffer.readableBytes());
 
         hop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().setLinkLocal(ipv6l).build()).build();
         buffer.clear();
