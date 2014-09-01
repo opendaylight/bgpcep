@@ -24,6 +24,8 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.protocol.pcep.PCEPSession;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcrpt;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcupd;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcupdBuilder;
@@ -37,6 +39,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcerr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.EroBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.IpPrefixCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
 
 public class SimpleSessionListenerTest {
 
@@ -81,6 +86,9 @@ public class SimpleSessionListenerTest {
         Mockito.verify(this.mockedSession, Mockito.times(3)).sendMessage(Mockito.any(Message.class));
         assertEquals(3, this.sendMessages.size());
         assertTrue(this.sendMessages.get(2) instanceof Pcrpt);
+
+        sessionListser.onSessionDown(mockedSession, new Exception());
+        Mockito.verify(this.mockedSession, Mockito.times(1)).close();
     }
 
     @Test
@@ -100,7 +108,10 @@ public class SimpleSessionListenerTest {
         final UpdatesBuilder updsBuilder = new UpdatesBuilder();
         updsBuilder.setLsp(new LspBuilder().setPlspId(new PlspId(1L)).build());
         final PathBuilder pathBuilder = new PathBuilder();
-        pathBuilder.setEro(new EroBuilder().build());
+        pathBuilder.setEro(
+                new EroBuilder()
+                    .setSubobject(Lists.newArrayList(new SubobjectBuilder().setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
+                        new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("127.0.0.2/32"))).build()).build()).build())).build());
         updsBuilder.setPath(pathBuilder.build());
         updsBuilder.setSrp(new SrpBuilder().setOperationId(new SrpIdNumber(0L)).build());
         msgBuilder.setUpdates(Lists.newArrayList(updsBuilder.build()));
