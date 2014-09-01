@@ -86,7 +86,7 @@ public class SrObjectParserTest {
 
         final Tlvs1 tlv = new Tlvs1Builder().setSrPceCapability(new SrPceCapabilityBuilder().setMsd((short) 1).build())
                 .build();
-        builder.setTlvs(new TlvsBuilder().addAugmentation(Tlvs1.class, tlv).build());
+        builder.setTlvs(new TlvsBuilder().addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1Builder().build()).addAugmentation(Tlvs1.class, tlv).build());
 
         final ByteBuf result = Unpooled.wrappedBuffer(openObjectBytes);
         assertEquals(builder.build(),
