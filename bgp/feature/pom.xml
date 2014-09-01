@@ -167,8 +167,45 @@
       </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
+          <artifactId>programming-controller-config</artifactId>
+          <version>${project.version}</version>
+          <type>xml</type>
+          <classifier>config</classifier>
+      </dependency>
+      <dependency>
+          <groupId>${project.groupId}</groupId>
           <artifactId>bgp-controller-config</artifactId>
           <version>${project.version}</version>
+          <type>xml</type>
+          <classifier>config</classifier>
+      </dependency>
+      <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>pcep-controller-config</artifactId>
+          <version>${project.version}</version>
+          <type>xml</type>
+          <classifier>config</classifier>
+      </dependency>
+      <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>pcep-controller-config</artifactId>
+          <version>${project.version}</version>
+          <type>xml</type>
+          <classifier>config-segment</classifier>
+      </dependency>
+      <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>pcep-controller-config</artifactId>
+          <version>${project.version}</version>
+          <type>xml</type>
+          <classifier>config-provider</classifier>
+      </dependency>
+      <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>bgp-controller-config</artifactId>
+          <version>${project.version}</version>
+          <type>xml</type>
+          <classifier>config-example</classifier>
       </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
@@ -335,6 +372,10 @@
           <groupId>${project.groupId}</groupId>
           <artifactId>topology-tunnel-api</artifactId>
           <version>${project.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>commons-codec</groupId>
+          <artifactId>commons-codec</artifactId>
       </dependency>
 
    <dependency>
