@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.pcep.segment.routing02;
 
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.pcep.impl.object.PCEPOpenObjectParser;
+import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07OpenObjectParser;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.Tlvs1;
@@ -18,7 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
 
-public class PcepOpenObjectWithSpcTlvParser extends PCEPOpenObjectParser {
+public class PcepOpenObjectWithSpcTlvParser extends Stateful07OpenObjectParser {
 
     public PcepOpenObjectWithSpcTlvParser(TlvRegistry tlvReg, VendorInformationTlvRegistry viTlvReg) {
         super(tlvReg, viTlvReg);

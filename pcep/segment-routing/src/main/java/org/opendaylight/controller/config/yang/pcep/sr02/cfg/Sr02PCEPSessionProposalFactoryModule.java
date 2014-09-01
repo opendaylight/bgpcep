@@ -12,7 +12,6 @@ import com.google.common.base.Preconditions;
 import java.net.InetSocketAddress;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
-import org.opendaylight.protocol.pcep.ietf.initiated00.Stateful07SessionProposalFactory;
 import org.opendaylight.protocol.pcep.segment.routing02.SegmentRouting02SessionProposalFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.slf4j.Logger;
@@ -61,7 +60,7 @@ public class Sr02PCEPSessionProposalFactoryModule extends org.opendaylight.contr
     }
 
     private static final class PCEPSessionProposalFactoryCloseable implements PCEPSessionProposalFactory, AutoCloseable {
-        private final Stateful07SessionProposalFactory inner;
+        private final SegmentRouting02SessionProposalFactory inner;
 
         public PCEPSessionProposalFactoryCloseable(final SegmentRouting02SessionProposalFactory inner) {
             this.inner = Preconditions.checkNotNull(inner);
