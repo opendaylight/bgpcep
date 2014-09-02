@@ -299,16 +299,6 @@
           <version>${project.version}</version>
       </dependency>
       <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>topology-api</artifactId>
-          <version>${project.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>topology-api-config</artifactId>
-          <version>${project.version}</version>
-      </dependency>
-      <dependency>
           <groupId>org.opendaylight.tcpmd5</groupId>
           <artifactId>tcpmd5-api</artifactId>
           <version>${tcpmd5.version}</version>
