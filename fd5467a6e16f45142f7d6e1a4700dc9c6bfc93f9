@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_f1495233",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/protocol/pcep/ietf/initiated00/CInitiated00SrpObjectParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2014-09-02T19:46:36Z",
+      "side": 0,
+      "message": "Should we delte this also from Stateful07SrpObjectParser?",
+      "revId": "fd5467a6e16f45142f7d6e1a4700dc9c6bfc93f9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
