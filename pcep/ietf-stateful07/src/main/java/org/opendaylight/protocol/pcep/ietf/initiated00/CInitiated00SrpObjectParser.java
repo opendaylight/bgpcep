@@ -47,9 +47,6 @@ public class CInitiated00SrpObjectParser extends Stateful07SrpObjectParser {
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.readableBytes() + "; Expected: >="
                     + MIN_SIZE + ".");
         }
-        if (header.isProcessingRule()) {
-            throw new PCEPDeserializerException("Processed flag is set");
-        }
         final SrpBuilder builder = new SrpBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
