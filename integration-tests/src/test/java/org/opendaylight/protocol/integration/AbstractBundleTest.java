@@ -65,6 +65,7 @@ public abstract class AbstractBundleTest {
         ret.add(mavenBundle("org.opendaylight.yangtools", "yang-common").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.yangtools", "yang-data-api").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.yangtools", "yang-data-impl").versionAsInProject());
+        ret.add(mavenBundle("org.opendaylight.yangtools", "yang-data-util").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.yangtools", "yang-model-api").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.yangtools", "yang-model-util").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.yangtools", "yang-parser-api").versionAsInProject());
