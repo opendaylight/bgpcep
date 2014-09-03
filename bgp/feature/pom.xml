@@ -280,6 +280,11 @@
       </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
+          <artifactId>pcep-segment-routing</artifactId>
+          <version>${project.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>${project.groupId}</groupId>
           <artifactId>pcep-tunnel-api</artifactId>
           <version>${project.version}</version>
       </dependency>
