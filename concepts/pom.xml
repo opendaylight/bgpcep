@@ -78,6 +78,11 @@
             <artifactId>netty-buffer</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools.model</groupId>
+            <artifactId>ietf-topology</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
