@@ -10,7 +10,6 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import org.opendaylight.bgpcep.pcep.topology.spi.AbstractInstructionExecutor;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
@@ -27,8 +26,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitUpdateLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitUpdateLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitUpdateLspOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.EnsureLspOperationalInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspInputBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
 /**
@@ -52,7 +54,9 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
         b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
             @Override
             protected ListenableFuture<OperationResult> invokeOperation() {
-                return TopologyProgramming.this.manager.addLsp(input);
+                final AddLspInputBuilder addBuilder = new AddLspInputBuilder();
+                addBuilder.fieldsFrom(input);
+                return TopologyProgramming.this.manager.addLsp(addBuilder.build());
             }
         }));
 
@@ -69,7 +73,9 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
         b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
             @Override
             protected ListenableFuture<OperationResult> invokeOperation() {
-                return TopologyProgramming.this.manager.removeLsp(input);
+                final RemoveLspInputBuilder removeBuilder = new RemoveLspInputBuilder();
+                removeBuilder.fieldsFrom(input);
+                return TopologyProgramming.this.manager.removeLsp(removeBuilder.build());
             }
         }));
 
@@ -86,7 +92,9 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
         b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
             @Override
             protected ListenableFuture<OperationResult> invokeOperation() {
-                return TopologyProgramming.this.manager.updateLsp(input);
+                final UpdateLspInputBuilder updateBuilder = new UpdateLspInputBuilder();
+                updateBuilder.fieldsFrom(input);
+                return TopologyProgramming.this.manager.updateLsp(updateBuilder.build());
             }
         }));
 
