@@ -207,11 +207,6 @@
           <type>xml</type>
           <classifier>config-example</classifier>
       </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>bgp-update-mock-config</artifactId>
-          <version>${project.version}</version>
-      </dependency>
 
       <dependency>
           <groupId>${project.groupId}</groupId>
@@ -276,6 +271,11 @@
       <dependency>
           <groupId>${project.groupId}</groupId>
           <artifactId>pcep-topology-provider-config</artifactId>
+          <version>${project.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>pcep-segment-routing</artifactId>
           <version>${project.version}</version>
       </dependency>
       <dependency>
