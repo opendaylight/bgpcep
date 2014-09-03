@@ -46,7 +46,7 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<Tlvs
 
     protected static final int MIN_SIZE = FLAGS_SIZE + SRP_ID_SIZE;
 
-    protected Stateful07SrpObjectParser(TlvRegistry tlvReg, VendorInformationTlvRegistry viTlvReg) {
+    protected Stateful07SrpObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
         super(tlvReg, viTlvReg);
     }
 
@@ -56,9 +56,6 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         if (bytes.readableBytes() < MIN_SIZE) {
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.readableBytes() + "; Expected: >="
                     + MIN_SIZE + ".");
-        }
-        if (header.isProcessingRule()) {
-            throw new PCEPDeserializerException("Processed flag is set");
         }
         final SrpBuilder builder = new SrpBuilder();
         builder.setIgnore(header.isIgnore());
