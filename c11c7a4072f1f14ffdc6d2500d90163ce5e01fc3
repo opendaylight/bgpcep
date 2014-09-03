@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_a98cbe36",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/TopologyProgramming.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-09-03T14:46:03Z",
+      "side": 1,
+      "message": "Please create a bug for this in bugzilla and make the whole file as a separated commit.",
+      "revId": "c11c7a4072f1f14ffdc6d2500d90163ce5e01fc3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
