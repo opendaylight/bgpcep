@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBs;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsTransaction;
@@ -55,8 +54,7 @@ final class Ipv6AdjRIBsIn extends AbstractAdjRIBs<Ipv6Prefix, Ipv6Route, Ipv6Rou
                 return new Ipv6RouteBuilder().setKey(id).setAttributes(new AttributesBuilder(attributes).build()).build();
             }
         };
-        Preconditions.checkArgument(nlri.getAdvertizedRoutes().getDestinationType() instanceof DestinationIpv6);
-        for (final Ipv6Prefix id : ((DestinationIpv6) nlri.getAdvertizedRoutes().getDestinationType()).getIpv6Prefixes()) {
+        for (final Ipv6Prefix id : ((DestinationIpv6Case) nlri.getAdvertizedRoutes().getDestinationType()).getDestinationIpv6().getIpv6Prefixes()) {
             super.add(trans, peer, id, data);
         }
     }
