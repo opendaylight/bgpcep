@@ -9,9 +9,13 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.CheckedFuture;
+import io.netty.channel.Channel;
+import io.netty.channel.EventLoop;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,6 +26,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -66,7 +72,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.OspfNodeCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.isis.node._case.IsisNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.ospf.node._case.OspfNodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.KeepaliveBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.OpenBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParametersBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.NlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.MultiprotocolCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.multiprotocol._case.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRibBuilder;
@@ -125,19 +141,23 @@ public class ApplicationPeerTest {
     @Mock
     Optional<Rib> o;
 
+    BGPSessionImpl session;
+
     List<InstanceIdentifier<?>> routes;
 
-    private final byte[] linkNlri = new byte[] { 0, 2, 0, (byte) 0x65, 2, 0, 0,
-        0, 0, 0, 0, 0, 1, 1, 0, 0, (byte) 0x1a,
-        (byte) 0x02, (byte) 0x00, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x48, (byte) 0x02, (byte) 0x01,
-        (byte) 0x00, (byte) 0x04, (byte) 0x28, (byte) 0x28, (byte) 0x28, (byte) 0x28, (byte) 0x02, (byte) 0x03, (byte) 0x00, (byte) 0x06,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x42, (byte) 0x01, (byte) 0x01, (byte) 0x00, (byte) 0x18,
-        (byte) 0x02, (byte) 0x00, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x48, (byte) 0x02, (byte) 0x01,
-        (byte) 0x00, (byte) 0x04, (byte) 0x28, (byte) 0x28, (byte) 0x28, (byte) 0x28, (byte) 0x02, (byte) 0x03, (byte) 0x00, (byte) 0x04,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x40, 1, 2, 0, 8, 1, 2, 3, 4, 0x0a, 0x0b, 0x0c, 0x0d,
-        (byte) 0x01, (byte) 0x03, (byte) 0x00, (byte) 0x04, (byte) 0xc5, (byte) 0x14,
-        (byte) 0xa0, (byte) 0x2a, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x04, (byte) 0xc5, (byte) 0x14, (byte) 0xa0, (byte) 0x28,
-        1, 7, 0, 2, 0, 3};
+    private BGPPeer classic;
+
+    @Mock
+    Channel channel;
+
+    @Mock
+    private EventLoop eventLoop;
+
+    private final byte[] linkNlri = new byte[] { 0, 2, 0, 0x65, 2, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, (byte) 0x1a,
+        2, 0, 0, 4, 0, 0, 0, 0x48, 2, 1, 0, 4, 0x28, 0x28, 0x28, 0x28, 2, 3, 0, 6, 0, 0, 0, 0, 0, 0x42, 1, 1, 0, 0x18,
+        2, 0, 0, 4, 0, 0, 0, 0x48, 2, 1, 0, 4, 0x28, 0x28, 0x28, 0x28, 2, 3, 0, 4, 0, 0, 0, 0x40, 1, 2, 0, 8, 1, 2, 3,
+        4, 0x0a, 0x0b, 0x0c, 0x0d, 1, 3, 0, 4, (byte) 0xc5, 0x14, (byte) 0xa0, (byte) 0x2a, 1, 4, 0, 4, (byte) 0xc5,
+        0x14, (byte) 0xa0, 0x28, 1, 7, 0, 2, 0, 3};
 
     @SuppressWarnings("unchecked")
     @Before
@@ -174,12 +194,14 @@ public class ApplicationPeerTest {
         Mockito.doReturn(this.future).when(this.transWrite).submit();
         Mockito.doNothing().when(this.future).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
         Mockito.doReturn(this.transWrite).when(this.chain).newWriteOnlyTransaction();
+        Mockito.doReturn(this.eventLoop).when(this.channel).eventLoop();
         Mockito.doAnswer(new Answer<Object>() {
 
             @Override
             public Object answer(final InvocationOnMock invocation) throws Throwable {
                 final Object[] args = invocation.getArguments();
-                ApplicationPeerTest.this.routes.remove(args[1]);
+                System.out.println(ApplicationPeerTest.this.routes.remove(args[1]));
+                System.out.println(ApplicationPeerTest.this.routes.size());
                 return args[1];
             }
         }).when(this.transWrite).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class));
@@ -230,6 +252,49 @@ public class ApplicationPeerTest {
         Mockito.doReturn(removed).when(this.change).getRemovedPaths();
         this.peer.onDataChanged(this.change);
         assertEquals(1, this.routes.size());
+    }
+
+    @Test
+    public void testClassicPeer() {
+        this.classic = new BGPPeer("testPeer", this.r);
+        Mockito.doReturn(null).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
+        Mockito.doReturn(Boolean.TRUE).when(this.channel).isWritable();
+        Mockito.doReturn(null).when(this.channel).close();
+        final List<BgpParameters> params = Lists.newArrayList(new BgpParametersBuilder().setCParameters(new MultiprotocolCaseBuilder()
+            .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()).build()).build());
+        this.session = new BGPSessionImpl(this.classic, this.channel, new OpenBuilder().setBgpIdentifier(new Ipv4Address("1.1.1.1")).setHoldTimer(50).setMyAsNumber(72).setBgpParameters(params).build(), 30);
+        assertEquals(this.r, this.classic.getRib());
+        assertEquals("testPeer", this.classic.getName());
+        Mockito.doAnswer(new Answer<Object>() {
+
+            @Override
+            public Object answer(final InvocationOnMock invocation) throws Throwable {
+                final Object[] args = invocation.getArguments();
+                ((SessionRIBsOut)args[0]).run();
+                return null;
+            }
+        }).when(this.eventLoop).submit(Mockito.any(Runnable.class));
+        this.classic.onSessionUp(this.session);
+        Assert.assertArrayEquals(new byte[] {1, 1, 1, 1}, this.classic.getRawIdentifier());
+        assertEquals("BGPPeer{name=testPeer, tables=[TablesKey [_afi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily, _safi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily]]}", this.classic.toString());
+        final List<Ipv4Prefix> prefs = Lists.newArrayList(new Ipv4Prefix("127.0.0.1/32"), new Ipv4Prefix("2.2.2.2/24"));
+        final UpdateBuilder ub = new UpdateBuilder();
+        ub.setNlri(new NlriBuilder().setNlri(prefs).build());
+        ub.setPathAttributes(new PathAttributesBuilder().build());
+        this.classic.onMessage(this.session, ub.build());
+        assertEquals(2, this.routes.size());
+
+        //create new peer so that it gets advertized routes from RIB
+        final BGPPeer testingPeer = new BGPPeer("testingPeer", this.r);
+        testingPeer.onSessionUp(this.session);
+        assertEquals(4, this.routes.size());
+
+        ub.setNlri(null);
+        ub.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setWithdrawnRoutes(prefs).build());
+        this.classic.onMessage(this.session, ub.build());
+        assertEquals(2, this.routes.size());
+        this.classic.onMessage(this.session, new KeepaliveBuilder().build());
+        this.classic.releaseConnection();
     }
 
     @Test
