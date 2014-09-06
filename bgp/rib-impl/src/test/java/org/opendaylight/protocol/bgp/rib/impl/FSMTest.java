@@ -126,6 +126,14 @@ public class FSMTest {
     }
 
     @Test
+    public void testDenyPeer() {
+        this.clientSession = new BGPClientSessionNegotiator(new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE), this.speakerListener, new StrictBGPPeerRegistry(), new BGPClientSessionValidator(new AsNumber(30L)));
+        this.clientSession.channelActive(null);
+        assertEquals(1, this.receivedMsgs.size());
+        assertTrue(this.receivedMsgs.get(0) instanceof Notify);
+    }
+
+    @Test
     public void testAccSessionChar() throws InterruptedException {
         this.clientSession.channelActive(null);
         assertEquals(1, this.receivedMsgs.size());
