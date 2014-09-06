@@ -10,17 +10,29 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 
 public class ApiTest {
 
     @Test
-    public void testBGPSessionPreferences() {
-        final BGPSessionPreferences sp = new BGPSessionPreferences(new AsNumber(58L), (short) 5, null, null);
+    public void testBGPSessionProposalImpl() {
+        final Map<Class<? extends AddressFamily>, Class<? extends SubsequentAddressFamily>> map = new HashMap<>();
+        map.put(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
+
+        final BGPSessionProposalImpl proposal = new BGPSessionProposalImpl((short) 5, new AsNumber(58L), null, map);
+        final BGPSessionPreferences sp = proposal.getProposal();
         assertNull(sp.getBgpId());
-        assertEquals((short) 5, sp.getHoldTime());
-        assertEquals(new AsNumber(58L), sp.getMyAs());
+        assertEquals(proposal.getHoldTimer(), sp.getHoldTime());
+        assertEquals(proposal.getAs(), sp.getMyAs());
+        assertNull(proposal.getBgpId());
+
     }
 }
