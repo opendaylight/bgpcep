@@ -99,7 +99,7 @@
                     <name>example-bgp-rib</name>
                     <rib-id>example-bgp-rib</rib-id>
                     <local-as>64496</local-as>
-                    <bgp-id>192.0.2.2</bgp-id>
+                    <bgp-rib-id>192.0.2.2</bgp-rib-id>
                     <local-table>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
                         <name>ipv4-unicast</name>
