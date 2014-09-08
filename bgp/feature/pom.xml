@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
 <!--
  Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
 
@@ -8,64 +9,59 @@
 -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
         <artifactId>bgp-parent</artifactId>
         <version>0.3.1-SNAPSHOT</version>
     </parent>
-  <artifactId>features-bgp</artifactId>
+    <artifactId>features-bgp</artifactId>
 
-  <packaging>jar</packaging>
+    <packaging>jar</packaging>
 
-  <properties>
-    <features.file>features.xml</features.file>
-    <yangtools.version>0.6.2-SNAPSHOT</yangtools.version>
-    <mdsal.version>1.1-SNAPSHOT</mdsal.version>
-    <netconf.version>0.2.5-SNAPSHOT</netconf.version>
-    <commons.opendaylight.version>1.4.2-SNAPSHOT</commons.opendaylight.version>
-  </properties>
+    <properties>
+        <features.file>features.xml</features.file>
+        <yangtools.version>0.6.2-SNAPSHOT</yangtools.version>
+        <mdsal.version>1.1-SNAPSHOT</mdsal.version>
+        <netconf.version>0.2.5-SNAPSHOT</netconf.version>
+        <commons.opendaylight.version>1.4.2-SNAPSHOT</commons.opendaylight.version>
+    </properties>
 
-  <!-- Testing -->
-  <dependencies>
-   <dependency>
-      <groupId>org.opendaylight.yangtools</groupId>
-      <artifactId>features-yangtools</artifactId>
-      <classifier>features</classifier>
-      <type>xml</type>
-      <version>${yangtools.version}</version>
-   </dependency>
-   <dependency>
-      <groupId>org.opendaylight.controller</groupId>
-      <artifactId>features-mdsal</artifactId>
-      <classifier>features</classifier>
-      <type>xml</type>
-      <version>${mdsal.version}</version>
-   </dependency>
-   <dependency>
-      <groupId>org.opendaylight.controller</groupId>
-      <artifactId>features-netconf</artifactId>
-      <classifier>features</classifier>
-      <type>xml</type>
-      <version>${netconf.version}</version>
-   </dependency>
-   <!-- Required for testing -->
-   <dependency>
-      <groupId>org.opendaylight.controller</groupId>
-      <artifactId>config-api</artifactId>
-      <version>0.2.5-SNAPSHOT</version>
-   </dependency>
-      <dependency>
-          <groupId>org.opendaylight.bgpcep</groupId>
-          <artifactId>pcep-api-config</artifactId>
-          <version>${project.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>org.opendaylight.bgpcep</groupId>
-          <artifactId>pcep-api</artifactId>
-          <version>${project.version}</version>
-      </dependency>
-      <dependency>
+    <!-- Testing -->
+    <dependencies>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>features-yangtools</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+            <version>${yangtools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>features-mdsal</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+            <version>${mdsal.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>features-netconf</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+            <version>${netconf.version}</version>
+        </dependency>
+        <!-- Required for testing -->
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>config-api</artifactId>
+            <version>0.2.5-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>pcep-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
           <groupId>org.opendaylight.bgpcep</groupId>
           <artifactId>concepts</artifactId>
           <version>${project.version}</version>
@@ -82,22 +78,12 @@
       </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
-          <artifactId>bgp-linkstate-config</artifactId>
-          <version>${project.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
           <artifactId>bgp-parser-api</artifactId>
           <version>${project.version}</version>
       </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
           <artifactId>bgp-parser-spi</artifactId>
-          <version>${project.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>bgp-parser-spi-config</artifactId>
           <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -117,27 +103,12 @@
       </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
-          <artifactId>bgp-rib-api-config</artifactId>
-          <version>${project.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
           <artifactId>bgp-rib-spi</artifactId>
           <version>${project.version}</version>
       </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
-          <artifactId>bgp-rib-spi-config</artifactId>
-          <version>${project.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
           <artifactId>bgp-rib-impl</artifactId>
-          <version>${project.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>bgp-rib-impl-config</artifactId>
           <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -153,11 +124,6 @@
       <dependency>
           <groupId>${project.groupId}</groupId>
           <artifactId>bgp-topology-provider</artifactId>
-          <version>${project.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>bgp-topology-provider-config</artifactId>
           <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -215,27 +181,12 @@
       </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
-          <artifactId>pcep-api-config</artifactId>
-          <version>${project.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
           <artifactId>pcep-impl</artifactId>
           <version>${project.version}</version>
       </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
-          <artifactId>pcep-impl-config</artifactId>
-          <version>${project.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
           <artifactId>pcep-spi</artifactId>
-          <version>${project.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>pcep-spi-config</artifactId>
           <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -270,11 +221,6 @@
       </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
-          <artifactId>pcep-topology-provider-config</artifactId>
-          <version>${project.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
           <artifactId>pcep-segment-routing</artifactId>
           <version>${project.version}</version>
       </dependency>
@@ -286,11 +232,6 @@
       <dependency>
           <groupId>${project.groupId}</groupId>
           <artifactId>pcep-tunnel-provider</artifactId>
-          <version>${project.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>pcep-tunnel-provider-config</artifactId>
           <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -320,17 +261,7 @@
       </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
-          <artifactId>programming-impl-config</artifactId>
-          <version>${project.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
           <artifactId>programming-spi</artifactId>
-          <version>${project.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>programming-spi-config</artifactId>
           <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -346,11 +277,6 @@
       <dependency>
           <groupId>${project.groupId}</groupId>
           <artifactId>topology-api</artifactId>
-          <version>${project.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>topology-api-config</artifactId>
           <version>${project.version}</version>
       </dependency>
       <dependency>
