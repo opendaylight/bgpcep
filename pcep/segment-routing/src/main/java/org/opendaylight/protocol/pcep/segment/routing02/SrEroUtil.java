@@ -9,7 +9,13 @@
 package org.opendaylight.protocol.pcep.segment.routing02;
 
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.SrpBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.PathSetupTypeTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs5;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs5Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.path.setup.type.tlv.PathSetupTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.SrEroSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
@@ -22,16 +28,15 @@ public final class SrEroUtil {
     }
 
     protected static PCEPErrors validateSrEroSubobjects(final Ero ero) {
-        if (ero.getSubobject() == null || ero.getSubobject().isEmpty()) {
-            return null;
-        }
-        for (final Subobject subobject : ero.getSubobject()) {
-            if (!(subobject.getSubobjectType() instanceof SrEroSubobject)) {
-                return PCEPErrors.NON_IDENTICAL_ERO_SUBOBJECTS;
-            }
-            final SrEroSubobject srEroSubobject = (SrEroSubobject) subobject.getSubobjectType();
-            if (srEroSubobject.getFlags().isM() && srEroSubobject.getSid() < MPLS_LABEL_MIN_VALUE) {
-                return PCEPErrors.BAD_LABEL_VALUE;
+        if (ero.getSubobject() != null && !ero.getSubobject().isEmpty()) {
+            for (final Subobject subobject : ero.getSubobject()) {
+                if (!(subobject.getSubobjectType() instanceof SrEroSubobject)) {
+                    return PCEPErrors.NON_IDENTICAL_ERO_SUBOBJECTS;
+                }
+                final SrEroSubobject srEroSubobject = (SrEroSubobject) subobject.getSubobjectType();
+                if (srEroSubobject.getFlags().isM() && srEroSubobject.getSid() < MPLS_LABEL_MIN_VALUE) {
+                    return PCEPErrors.BAD_LABEL_VALUE;
+                }
             }
         }
         return null;
@@ -42,6 +47,23 @@ public final class SrEroUtil {
             return true;
         }
         return false;
+    }
+
+    protected static boolean isSegmentRoutingPath(final Ero ero) {
+        if (ero != null && ero.getSubobject() != null && !ero.getSubobject().isEmpty()) {
+            for (final Subobject subobject : ero.getSubobject()) {
+                if (!(subobject.getSubobjectType() instanceof SrEroSubobject)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    protected static Srp addSRPathSetupTypeTlv(final Srp srp) {
+        return new SrpBuilder(srp).setTlvs(new TlvsBuilder(srp.getTlvs()).addAugmentation(Tlvs5.class,
+                new Tlvs5Builder().setPathSetupType(new PathSetupTypeBuilder().setPst(true).build()).build()).build()).build();
     }
 
 }

@@ -29,15 +29,12 @@ public class SrPcInitiateMessageParser extends CInitiated00PCInitiateMessagePars
 
     @Override
     protected void serializeRequest(Requests req, ByteBuf buffer) {
-        if (isSegmentRoutingPath(req.getSrp())) {
-            serializeObject(req.getSrp(), buffer);
+        if (SrEroUtil.isSegmentRoutingPath(req.getEro())) {
+            serializeObject(SrEroUtil.addSRPathSetupTypeTlv(req.getSrp()), buffer);
             if (req.getLsp() != null) {
                 serializeObject(req.getLsp(), buffer);
             }
-            final Ero srEro = req.getEro();
-            if (srEro != null) {
-                serializeObject(srEro, buffer);
-            }
+            serializeObject(req.getEro(), buffer);
         } else {
             super.serializeRequest(req, buffer);
         }

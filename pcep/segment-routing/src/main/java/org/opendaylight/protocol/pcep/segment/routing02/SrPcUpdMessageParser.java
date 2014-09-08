@@ -34,15 +34,12 @@ public class SrPcUpdMessageParser extends Stateful07PCUpdateRequestMessageParser
 
     @Override
     protected void serializeUpdate(Updates update, ByteBuf buffer) {
-        if (isSegmentRoutingPath(update.getSrp())) {
-            serializeObject(update.getSrp(), buffer);
+        if (update.getPath() != null && SrEroUtil.isSegmentRoutingPath(update.getPath().getEro())) {
+            serializeObject(SrEroUtil.addSRPathSetupTypeTlv(update.getSrp()), buffer);
             if (update.getLsp() != null) {
                 serializeObject(update.getLsp(), buffer);
             }
-            final Ero srEro = update.getPath().getEro();
-            if (srEro != null) {
-                serializeObject(srEro, buffer);
-            }
+            serializeObject(update.getPath().getEro(), buffer);
         } else {
             super.serializeUpdate(update, buffer);
         }

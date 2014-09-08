@@ -33,13 +33,10 @@ public class SrPcRptMessageParser extends Stateful07PCReportMessageParser {
 
     @Override
     protected void serializeReport(Reports report, ByteBuf buffer) {
-        if (isSegmentRoutingPath(report.getSrp())) {
-            serializeObject(report.getSrp(), buffer);
+        if (report.getPath() != null && SrEroUtil.isSegmentRoutingPath(report.getPath().getEro())) {
+            serializeObject(SrEroUtil.addSRPathSetupTypeTlv(report.getSrp()), buffer);
             serializeObject(report.getLsp(), buffer);
-            final Ero srEro = report.getPath().getEro();
-            if (srEro != null) {
-                serializeObject(srEro, buffer);
-            }
+            serializeObject(report.getPath().getEro(), buffer);
         } else {
             super.serializeReport(report, buffer);
         }
