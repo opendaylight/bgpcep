@@ -48,11 +48,6 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>topology-api-config</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>topology-segment-routing</artifactId>
                 <version>${project.version}</version>
             </dependency>
