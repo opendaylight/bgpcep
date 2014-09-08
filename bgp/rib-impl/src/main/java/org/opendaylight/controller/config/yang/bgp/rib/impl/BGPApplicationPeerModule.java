@@ -35,7 +35,7 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
     @Override
     public java.lang.AutoCloseable createInstance() {
         final InstanceIdentifier<?> id = InstanceIdentifier.builder(ApplicationRib.class, new ApplicationRibKey(getApplicationRibId())).build();
-        final ApplicationPeer peer = new ApplicationPeer(getApplicationRibId(), getBgpId(), (RIBImpl) getTargetRibDependency());
+        final ApplicationPeer peer = new ApplicationPeer(getApplicationRibId(), getBgpPeerId(), (RIBImpl) getTargetRibDependency());
         return getDataBrokerDependency().registerDataChangeListener(LogicalDatastoreType.CONFIGURATION, id, peer, DataChangeScope.SUBTREE);
     }
 

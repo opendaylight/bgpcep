@@ -236,7 +236,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         mxBean.setExtensions(createRibExtensionsInstance(transaction));
         mxBean.setRibId(ribId);
         mxBean.setLocalAs(localAs);
-        mxBean.setBgpId(bgpId);
+        mxBean.setBgpRibId(bgpId);
         return nameCreated;
     }
 
