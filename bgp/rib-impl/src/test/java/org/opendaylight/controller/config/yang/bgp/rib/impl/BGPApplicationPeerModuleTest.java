@@ -70,7 +70,7 @@ public class BGPApplicationPeerModuleTest extends AbstractRIBImplModuleTest {
         final BGPApplicationPeerModuleMXBean mxBean = transaction.newMXBeanProxy(objName, BGPApplicationPeerModuleMXBean.class);
         final ObjectName dataBrokerON = createAsyncDataBrokerInstance(transaction);
         mxBean.setDataBroker(dataBrokerON);
-        mxBean.setBgpId(BGP_ID);
+        mxBean.setBgpPeerId(BGP_ID);
         mxBean.setApplicationRibId(APP_RIB_ID);
         mxBean.setTargetRib(createRIBImplModuleInstance(transaction, dataBrokerON));
         return transaction.commit();

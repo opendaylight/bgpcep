@@ -45,7 +45,7 @@ public class RIBImplModuleTest extends AbstractRIBImplModuleTest {
             createRIBImplModuleInstance(RIB_ID, 500L, null);
             fail();
         } catch (final ValidationException e) {
-            assertTrue(e.getMessage().contains("BgpId is not set."));
+            assertTrue(e.getMessage().contains("BgpRibId is not set."));
         }
     }
 
