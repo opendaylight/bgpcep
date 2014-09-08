@@ -83,14 +83,6 @@
         </dependency>
 
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>programming-spi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>topology-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.opendaylight.tcpmd5</groupId>
             <artifactId>tcpmd5-api</artifactId>
         </dependency>
