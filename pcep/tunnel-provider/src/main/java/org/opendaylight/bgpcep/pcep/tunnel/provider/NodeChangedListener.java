@@ -16,23 +16,24 @@ import com.google.common.util.concurrent.JdkFutureAdapters;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.AdministrativeStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Path1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.lsp.identifiers.AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv4Case;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv6Case;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.ipv4._case.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.ipv6._case.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv4Case;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv6Case;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv4._case.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv6._case.Ipv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClient;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.Path;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.Link1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.Link1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.SupportingNode1;
@@ -128,45 +129,50 @@ public final class NodeChangedListener implements DataChangeListener {
     }
 
     private InstanceIdentifier<TerminationPoint> getIpTerminationPoint(final ReadWriteTransaction trans, final IpAddress addr,
-            final InstanceIdentifier<Node> sni, final Boolean inControl) throws InterruptedException, ExecutionException {
-        for (final Node n : ((Topology) trans.read(LogicalDatastoreType.OPERATIONAL, this.target).get().get()).getNode()) {
-            for (final TerminationPoint tp : n.getTerminationPoint()) {
-                final TerminationPoint1 tpa = tp.getAugmentation(TerminationPoint1.class);
+            final InstanceIdentifier<Node> sni, final Boolean inControl) throws ReadFailedException {
+        final Topology topo = trans.read(LogicalDatastoreType.OPERATIONAL, this.target).checkedGet().get();
+        if (topo.getNode() != null && !topo.getNode().isEmpty()) {
+            for (final Node n : topo.getNode()) {
+                if(n.getTerminationPoint() != null && !n.getTerminationPoint().isEmpty()) {
+                    for (final TerminationPoint tp : n.getTerminationPoint()) {
+                        final TerminationPoint1 tpa = tp.getAugmentation(TerminationPoint1.class);
 
-                if (tpa != null) {
-                    final TerminationPointType tpt = tpa.getIgpTerminationPointAttributes().getTerminationPointType();
+                        if (tpa != null) {
+                            final TerminationPointType tpt = tpa.getIgpTerminationPointAttributes().getTerminationPointType();
 
-                    if (tpt instanceof Ip) {
-                        for (final IpAddress a : ((Ip) tpt).getIpAddress()) {
-                            if (addr.equals(a.getIpv6Address())) {
-                                if (sni != null) {
-                                    final NodeKey k = InstanceIdentifier.keyOf(sni);
-                                    boolean have = false;
+                            if (tpt instanceof Ip) {
+                                for (final IpAddress a : ((Ip) tpt).getIpAddress()) {
+                                    if (addr.equals(a.getIpv6Address())) {
+                                        if (sni != null) {
+                                            final NodeKey k = InstanceIdentifier.keyOf(sni);
+                                            boolean have = false;
 
-                                    /*
-                                     * We may have found a termination point which has been created as a destination,
-                                     * so it does not have a supporting node pointer. Since we now know what it is,
-                                     * fill it in.
-                                     */
-                                    for (final SupportingNode sn : n.getSupportingNode()) {
-                                        if (sn.getNodeRef().equals(k.getNodeId())) {
-                                            have = true;
-                                            break;
+                                            /*
+                                             * We may have found a termination point which has been created as a destination,
+                                             * so it does not have a supporting node pointer. Since we now know what it is,
+                                             * fill it in.
+                                             */
+                                            for (final SupportingNode sn : n.getSupportingNode()) {
+                                                if (sn.getNodeRef().equals(k.getNodeId())) {
+                                                    have = true;
+                                                    break;
+                                                }
+                                            }
+
+                                            if (!have) {
+                                                final SupportingNode sn = createSupportingNode(k.getNodeId(), inControl);
+
+                                                trans.put(LogicalDatastoreType.OPERATIONAL, this.target.child(Node.class, n.getKey()).child(
+                                                        SupportingNode.class, sn.getKey()), sn);
+                                            }
                                         }
-                                    }
-
-                                    if (!have) {
-                                        final SupportingNode sn = createSupportingNode(k.getNodeId(), inControl);
-
-                                        trans.put(LogicalDatastoreType.OPERATIONAL, this.target.child(Node.class, n.getKey()).child(
-                                                SupportingNode.class, sn.getKey()), sn);
+                                        return this.target.builder().child(Node.class, n.getKey()).child(TerminationPoint.class, tp.getKey()).toInstance();
                                     }
                                 }
-                                return this.target.builder().child(Node.class, n.getKey()).child(TerminationPoint.class, tp.getKey()).toInstance();
+                            } else {
+                                LOG.debug("Ignoring termination point type {}", tpt);
                             }
                         }
-                    } else {
-                        LOG.debug("Ignoring termination point type {}", tpt);
                     }
                 }
             }
@@ -195,7 +201,7 @@ public final class NodeChangedListener implements DataChangeListener {
         return nid.child(TerminationPoint.class, tpb.getKey());
     }
 
-    private void create(final ReadWriteTransaction trans, final InstanceIdentifier<ReportedLsp> i, final ReportedLsp value) throws InterruptedException, ExecutionException {
+    private void create(final ReadWriteTransaction trans, final InstanceIdentifier<ReportedLsp> i, final ReportedLsp value) throws ReadFailedException {
         final InstanceIdentifier<Node> ni = i.firstIdentifierOf(Node.class);
 
         final Path1 rl = value.getPath().get(0).getAugmentation(Path1.class);
@@ -208,19 +214,24 @@ public final class NodeChangedListener implements DataChangeListener {
         final IpAddress srcIp, dstIp;
         if (af instanceof Ipv4Case) {
             final Ipv4 ipv4 = ((Ipv4Case) af).getIpv4();
-            srcIp = new IpAddress(ipv4.getSourceIpv4Address());
-            dstIp = new IpAddress(ipv4.getDestinationIpv4Address());
+            srcIp = new IpAddress(ipv4.getIpv4TunnelSenderAddress());
+            dstIp = new IpAddress(ipv4.getIpv4TunnelEndpointAddress());
         } else if (af instanceof Ipv6Case) {
             final Ipv6 ipv6 = ((Ipv6Case) af).getIpv6();
-            srcIp = new IpAddress(ipv6.getSourceIpv6Address());
-            dstIp = new IpAddress(ipv6.getDestinationIpv6Address());
+            srcIp = new IpAddress(ipv6.getIpv6TunnelSenderAddress());
+            dstIp = new IpAddress(ipv6.getIpv6TunnelSenderAddress());
         } else {
             throw new IllegalArgumentException("Unsupported address family: " + af.getImplementedInterface());
         }
 
-        final Link1Builder lab = new Link1Builder(value.getPath().get(0).getLspa());
-        lab.setBandwidth(value.getPath().get(0).getBandwidth().getBandwidth());
-        lab.setClassType(value.getPath().get(0).getClassType().getClassType());
+        final Path path0 = value.getPath().get(0);
+        final Link1Builder lab = new Link1Builder();
+        if (path0.getBandwidth() != null) {
+            lab.setBandwidth(path0.getBandwidth().getBandwidth());
+        }
+        if (path0.getClassType() != null) {
+            lab.setClassType(path0.getClassType().getClassType());
+        }
         lab.setSymbolicPathName(value.getName());
 
         final InstanceIdentifier<TerminationPoint> dst = getIpTerminationPoint(trans, dstIp, null, Boolean.FALSE);
@@ -253,10 +264,10 @@ public final class NodeChangedListener implements DataChangeListener {
         return this.target.child(Node.class, new NodeKey(node));
     }
 
-    private void remove(final ReadWriteTransaction trans, final InstanceIdentifier<ReportedLsp> i, final ReportedLsp value) throws InterruptedException, ExecutionException {
+    private void remove(final ReadWriteTransaction trans, final InstanceIdentifier<ReportedLsp> i, final ReportedLsp value) throws ReadFailedException {
         final InstanceIdentifier<Link> li = linkForLsp(linkIdForLsp(i, value));
 
-        final Optional<Link> ol = trans.read(LogicalDatastoreType.OPERATIONAL, li).get();
+        final Optional<Link> ol = trans.read(LogicalDatastoreType.OPERATIONAL, li).checkedGet();
         if (!ol.isPresent()) {
             return;
         }
@@ -266,7 +277,7 @@ public final class NodeChangedListener implements DataChangeListener {
         trans.delete(LogicalDatastoreType.OPERATIONAL, li);
 
         LOG.debug("Searching for orphan links/nodes");
-        final Optional<Topology> ot = trans.read(LogicalDatastoreType.OPERATIONAL, this.target).get();
+        final Optional<Topology> ot = trans.read(LogicalDatastoreType.OPERATIONAL, this.target).checkedGet();
         Preconditions.checkState(ot.isPresent());
 
         final Topology t = (Topology) ot.get();
@@ -374,31 +385,36 @@ public final class NodeChangedListener implements DataChangeListener {
 
         // Get the subtrees
         final Map<InstanceIdentifier<?>, ? extends DataObject> o = change.getOriginalData();
-        final Map<InstanceIdentifier<?>, DataObject> n = change.getUpdatedData();
+        final Map<InstanceIdentifier<?>, DataObject> u = change.getUpdatedData();
+        final Map<InstanceIdentifier<?>, DataObject> c = change.getCreatedData();
 
         // Now walk all nodes, check for removals/additions and cascade them to LSPs
         for (final InstanceIdentifier<Node> i : nodes) {
             enumerateLsps(i, (Node) o.get(i), lsps);
-            enumerateLsps(i, (Node) n.get(i), lsps);
+            enumerateLsps(i, (Node) u.get(i), lsps);
+            enumerateLsps(i, (Node) c.get(i), lsps);
         }
 
         // We now have list of all affected LSPs. Walk them create/remove them
         for (final InstanceIdentifier<ReportedLsp> i : lsps) {
             final ReportedLsp oldValue = (ReportedLsp) o.get(i);
-            final ReportedLsp newValue = (ReportedLsp) n.get(i);
+            ReportedLsp newValue = (ReportedLsp) u.get(i);
+            if (newValue == null) {
+                newValue = (ReportedLsp) c.get(i);
+            }
 
             LOG.debug("Updating lsp {} value {} -> {}", i, oldValue, newValue);
             if (oldValue != null) {
                 try {
                     remove(trans, i, oldValue);
-                } catch (InterruptedException | ExecutionException e) {
+                } catch (ReadFailedException e) {
                     LOG.warn("Failed to remove LSP {}", i, e);
                 }
             }
             if (newValue != null) {
                 try {
                     create(trans, i, newValue);
-                } catch (InterruptedException | ExecutionException e) {
+                } catch (ReadFailedException e) {
                     LOG.warn("Failed to add LSP {}", i, e);
                 }
             }
