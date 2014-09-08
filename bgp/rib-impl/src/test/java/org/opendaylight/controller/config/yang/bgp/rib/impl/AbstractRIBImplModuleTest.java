@@ -17,6 +17,7 @@ import com.google.common.io.Resources;
 import com.google.common.util.concurrent.CheckedFuture;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -71,7 +72,7 @@ import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
 import org.opendaylight.yangtools.yang.model.parser.api.YangContextParser;
 import org.opendaylight.yangtools.yang.model.parser.api.YangSyntaxErrorException;
 import org.opendaylight.yangtools.yang.parser.impl.YangParserImpl;
-import org.opendaylight.yangtools.yang.parser.impl.util.URLSchemaContextResolver;
+import org.opendaylight.yangtools.yang.parser.repo.URLSchemaContextResolver;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.Filter;
@@ -164,8 +165,12 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
         final Field contextResolverField = schemaService.getClass().getDeclaredField("contextResolver");
         contextResolverField.setAccessible(true);
-        contextResolverField.set(schemaService, mockedContextResolver);
 
+        final Field modifiersField = Field.class.getDeclaredField("modifiers");
+        modifiersField.setAccessible(true);
+        modifiersField.setInt(contextResolverField, contextResolverField.getModifiers() & ~Modifier.FINAL);
+
+        contextResolverField.set(schemaService, mockedContextResolver);
     }
 
     protected List<ModuleFactory> getModuleFactories() {
