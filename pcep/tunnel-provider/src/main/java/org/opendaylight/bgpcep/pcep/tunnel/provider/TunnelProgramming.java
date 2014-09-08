@@ -15,7 +15,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import org.opendaylight.bgpcep.pcep.topology.spi.AbstractInstructionExecutor;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
@@ -24,6 +23,7 @@ import org.opendaylight.bgpcep.programming.tunnel.TunnelProgrammingUtil;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.AdministrativeStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Arguments2;
@@ -117,9 +117,9 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 
         private DataObject read(final InstanceIdentifier<?> id) {
             try {
-                return this.t.read(LogicalDatastoreType.OPERATIONAL, this.nii).get().get();
-            } catch (InterruptedException | ExecutionException e) {
-                throw new IllegalStateException("Failed to read " + id, e);
+                return this.t.read(LogicalDatastoreType.OPERATIONAL, id).checkedGet().get();
+            } catch (ReadFailedException | IllegalStateException e) {
+                throw new IllegalStateException("Failed to read data.", e);
             }
         }
 
@@ -250,11 +250,19 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 
                 // The link has to be non-existent
                 final InstanceIdentifier<Link> lii = NodeChangedListener.linkIdentifier(tii, ab.getNode(), ab.getName());
-                Preconditions.checkState(t.read(LogicalDatastoreType.OPERATIONAL, lii) == null);
+                try {
+                    Preconditions.checkState(! t.read(LogicalDatastoreType.OPERATIONAL, lii).checkedGet().isPresent());
+                } catch (ReadFailedException e) {
+                    throw new IllegalStateException("Failed to ensure link existence.", e);
+                }
 
                 final ArgumentsBuilder args = new ArgumentsBuilder();
-                args.setBandwidth(new BandwidthBuilder().setBandwidth(input.getBandwidth()).build());
-                args.setClassType(new ClassTypeBuilder().setClassType(input.getClassType()).build());
+                if (input.getBandwidth() != null) {
+                    args.setBandwidth(new BandwidthBuilder().setBandwidth(input.getBandwidth()).build());
+                }
+                if (input.getClassType() != null) {
+                    args.setClassType(new ClassTypeBuilder().setClassType(input.getClassType()).build());
+                }
                 args.setEndpointsObj(new EndpointsObjBuilder().setAddressFamily(buildAddressFamily(sp, dp)).build());
                 args.setEro(buildEro(input.getExplicitHops()));
                 args.setLspa(new LspaBuilder(input).build());
@@ -281,10 +289,9 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
         return Futures.immediateFuture(res);
     }
 
-    private Node sourceNode(final ReadTransaction t, final InstanceIdentifier<Topology> topology, final Link link) throws InterruptedException, ExecutionException {
-        Optional<Node> o = t.read(LogicalDatastoreType.OPERATIONAL,
-                topology.child(Node.class, new NodeKey(link.getSource().getSourceNode()))).get();
-        return (Node)o.get();
+    private Optional<Node> sourceNode(final ReadTransaction t, final InstanceIdentifier<Topology> topology, final Link link) throws ReadFailedException {
+        return t.read(LogicalDatastoreType.OPERATIONAL,
+                topology.child(Node.class, new NodeKey(link.getSource().getSourceNode()))).checkedGet();
     }
 
     @Override
@@ -302,11 +309,11 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 
                 try {
                     // The link has to exist
-                    link = (Link) t.read(LogicalDatastoreType.OPERATIONAL, lii).get().get();
+                    link = (Link) t.read(LogicalDatastoreType.OPERATIONAL, lii).checkedGet().get();
 
                     // The source node has to exist
-                    node = sourceNode(t, tii, link);
-                } catch (InterruptedException | ExecutionException e) {
+                    node = sourceNode(t, tii, link).get();
+                } catch (IllegalStateException | ReadFailedException e) {
                     return Futures.<OperationResult>immediateFuture(new OperationResult() {
                         @Override
                         public Class<? extends DataContainer> getImplementedInterface() {
@@ -360,11 +367,11 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 
                 try {
                     // The link has to exist
-                    link = (Link) t.read(LogicalDatastoreType.OPERATIONAL, lii).get().get();
+                    link = (Link) t.read(LogicalDatastoreType.OPERATIONAL, lii).checkedGet().get();
 
                     // The source node has to exist
-                    node = sourceNode(t, tii, link);
-                } catch (InterruptedException | ExecutionException e) {
+                    node = sourceNode(t, tii, link).get();
+                } catch (IllegalStateException | ReadFailedException e) {
                     return Futures.<OperationResult>immediateFuture(new OperationResult() {
                         @Override
                         public Class<? extends DataContainer> getImplementedInterface() {
