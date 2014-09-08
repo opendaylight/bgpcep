@@ -60,27 +60,12 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-api-config</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>pcep-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-impl-config</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>pcep-spi</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-spi-config</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -115,22 +100,12 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-topology-provider-config</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>pcep-tunnel-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>pcep-tunnel-provider</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-tunnel-provider-config</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -143,11 +118,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>programming-spi</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>programming-spi-config</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -168,11 +138,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>topology-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>topology-api-config</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
