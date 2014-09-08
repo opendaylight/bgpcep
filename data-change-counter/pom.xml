@@ -76,10 +76,6 @@
       <type>test-jar</type>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.yangtools</groupId>
-      <artifactId>mockito-configuration</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>config-manager</artifactId>
     </dependency>
