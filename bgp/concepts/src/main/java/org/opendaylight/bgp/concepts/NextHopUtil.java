@@ -8,7 +8,6 @@
 package org.opendaylight.bgp.concepts;
 
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
@@ -26,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 public final class NextHopUtil {
 
     private NextHopUtil() {
+        throw new UnsupportedOperationException();
     }
 
     /**

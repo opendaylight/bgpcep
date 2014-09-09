@@ -23,6 +23,7 @@ public final class ObjectUtil {
     private static final int I_FLAG_OFFSET = 7;
 
     private ObjectUtil() {
+        throw new UnsupportedOperationException();
     }
 
     public static void formatSubobject(final int objectType, final int objectClass, final Boolean processingRule, final Boolean ignore,

@@ -15,6 +15,7 @@ public final class MessageUtil {
     private static final int VERSION_SF_LENGTH = 3;
 
     private MessageUtil() {
+        throw new UnsupportedOperationException();
     }
 
     public static void formatMessage(final int messageType, final ByteBuf body, final ByteBuf out) {

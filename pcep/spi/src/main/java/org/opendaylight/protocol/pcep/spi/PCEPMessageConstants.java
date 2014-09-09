@@ -22,6 +22,6 @@ public final class PCEPMessageConstants {
     public static final int PCEP_VERSION = 1;
 
     private PCEPMessageConstants() {
-
+        throw new UnsupportedOperationException();
     }
 }

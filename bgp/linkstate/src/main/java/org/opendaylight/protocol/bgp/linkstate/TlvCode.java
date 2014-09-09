@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.linkstate;
 final class TlvCode {
 
     private TlvCode() {
+        throw new UnsupportedOperationException();
     }
 
     static final int LOCAL_NODE_DESCRIPTORS = 256;

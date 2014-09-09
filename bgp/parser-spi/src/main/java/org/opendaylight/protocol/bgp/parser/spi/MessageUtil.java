@@ -9,9 +9,7 @@ package org.opendaylight.protocol.bgp.parser.spi;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
-
 import java.util.Arrays;
 
 public final class MessageUtil {
@@ -27,6 +25,7 @@ public final class MessageUtil {
     }
 
     private MessageUtil() {
+        throw new UnsupportedOperationException();
     }
 
     /**

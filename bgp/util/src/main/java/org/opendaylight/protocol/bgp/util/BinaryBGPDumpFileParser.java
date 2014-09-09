@@ -10,12 +10,9 @@ package org.opendaylight.protocol.bgp.util;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
-
 import java.util.Arrays;
 import java.util.List;
-
 import javax.annotation.concurrent.Immutable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +28,7 @@ public final class BinaryBGPDumpFileParser {
     private static final int MARKER_LENGTH = 16;
 
     private BinaryBGPDumpFileParser() {
-
+        throw new UnsupportedOperationException();
     }
 
     /**

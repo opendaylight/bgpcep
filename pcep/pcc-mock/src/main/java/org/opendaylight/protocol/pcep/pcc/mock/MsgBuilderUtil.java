@@ -53,6 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 public final class MsgBuilderUtil {
 
     private MsgBuilderUtil() {
+        throw new UnsupportedOperationException();
     }
 
     public static Pcrpt createPcRtpMessage(final Lsp lsp, final Optional<Srp> srp, final Path path) {
