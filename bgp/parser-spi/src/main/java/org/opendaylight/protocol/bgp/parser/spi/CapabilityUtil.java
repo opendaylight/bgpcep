@@ -12,7 +12,7 @@ import io.netty.buffer.ByteBuf;
 public final class CapabilityUtil {
 
     private CapabilityUtil() {
-
+        throw new UnsupportedOperationException();
     }
 
     /**

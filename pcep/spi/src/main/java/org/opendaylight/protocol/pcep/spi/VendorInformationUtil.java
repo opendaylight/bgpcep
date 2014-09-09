@@ -17,6 +17,7 @@ public final class VendorInformationUtil {
     public static final int VENDOR_INFORMATION_OBJECT_TYPE = 1;
 
     private VendorInformationUtil() {
+        throw new UnsupportedOperationException();
     }
 
     public static boolean isVendorInformationTlv(final int type) {

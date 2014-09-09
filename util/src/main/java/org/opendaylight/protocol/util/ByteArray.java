@@ -24,7 +24,9 @@ import org.apache.commons.codec.binary.Hex;
  * Util class for methods working with byte array.
  */
 public final class ByteArray {
+
     private ByteArray() {
+        throw new UnsupportedOperationException();
     }
 
     /**

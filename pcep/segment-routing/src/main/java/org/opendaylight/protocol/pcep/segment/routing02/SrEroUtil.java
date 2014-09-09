@@ -25,6 +25,7 @@ public final class SrEroUtil {
     private static final int MPLS_LABEL_MIN_VALUE = 16;
 
     private SrEroUtil() {
+        throw new UnsupportedOperationException();
     }
 
     protected static PCEPErrors validateSrEroSubobjects(final Ero ero) {

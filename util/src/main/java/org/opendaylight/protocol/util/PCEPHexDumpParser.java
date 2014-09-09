@@ -34,7 +34,7 @@ public final class PCEPHexDumpParser {
     private static final String LENGTH = "LENGTH:";
 
     private PCEPHexDumpParser() {
-
+        throw new UnsupportedOperationException();
     }
 
     public static List<byte[]> parseMessages(final File file) throws IOException {

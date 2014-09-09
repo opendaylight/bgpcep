@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 public final class Ipv4Util {
 
     private Ipv4Util() {
+        throw new UnsupportedOperationException();
     }
 
     public static final int IP4_LENGTH = 4;

@@ -16,6 +16,7 @@ public final class XROSubobjectUtil {
     private static final int MANDATORY_BIT = 7;
 
     private XROSubobjectUtil() {
+        throw new UnsupportedOperationException();
     }
 
     public static void formatSubobject(final int type, final Boolean mandatory, final ByteBuf body, final ByteBuf buffer) {

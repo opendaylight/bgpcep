@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.spi.pojo;
 
 import java.util.ServiceLoader;
-
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 
@@ -26,7 +25,7 @@ public final class ServiceLoaderPCEPExtensionProviderContext extends SimplePCEPE
     }
 
     private ServiceLoaderPCEPExtensionProviderContext() {
-
+        throw new UnsupportedOperationException();
     }
 
     public static PCEPExtensionProviderContext create() {

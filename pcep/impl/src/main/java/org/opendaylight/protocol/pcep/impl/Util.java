@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 public final class Util {
 
     private Util() {
+        throw new UnsupportedOperationException();
     }
 
     public static Message createErrorMessage(final PCEPErrors e, final Open t) {

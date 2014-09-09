@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import java.util.ServiceLoader;
-
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 
@@ -41,6 +40,6 @@ public final class ServiceLoaderBGPExtensionProviderContext {
     }
 
     private ServiceLoaderBGPExtensionProviderContext() {
-
+        throw new UnsupportedOperationException();
     }
 }

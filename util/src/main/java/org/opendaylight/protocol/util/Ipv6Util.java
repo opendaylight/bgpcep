@@ -28,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 public final class Ipv6Util {
 
     private Ipv6Util() {
+        throw new UnsupportedOperationException();
     }
 
     public static final int IPV6_LENGTH = 16;
