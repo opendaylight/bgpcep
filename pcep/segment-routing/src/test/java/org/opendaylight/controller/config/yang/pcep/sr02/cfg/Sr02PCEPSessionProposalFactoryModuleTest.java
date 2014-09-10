@@ -13,7 +13,6 @@ import static org.junit.Assert.fail;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.ObjectName;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.ValidationException;
@@ -31,6 +30,75 @@ public class Sr02PCEPSessionProposalFactoryModuleTest extends AbstractConfigTest
     @Before
     public void setUp() throws Exception {
         super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new Sr02PCEPSessionProposalFactoryModuleFactory()));
+    }
+
+    @Test
+    public void testValidationExceptionDeadTimerValueNotSet() throws Exception {
+        try {
+            createInstance(null, (short) 100, true, true, true, true);
+            fail();
+        } catch (final ValidationException e) {
+            assertTrue(e.getMessage().contains("DeadTimerValue value is not set"));
+        }
+    }
+
+    @Test
+    public void testValidationExceptionKeepAliveTimerNotSet() throws Exception {
+        try {
+            createInstance((short) 200, null, true, true, true, true);
+            fail();
+        } catch (final ValidationException e) {
+            assertTrue(e.getMessage().contains("KeepAliveTimerValue value is not set"));
+        }
+    }
+
+    @Test
+    public void testValidationExceptionStatefulNotSet() throws Exception {
+        try {
+            createInstance((short) 200, (short) 100, null, false, false, true);
+            fail();
+        } catch (final ValidationException e) {
+            assertTrue(e.getMessage().contains("Stateful value is not set"));
+        }
+    }
+
+    @Test
+    public void testValidationExceptionActiveNotSet() throws Exception {
+        try {
+            createInstance((short) 200, (short) 100, true, null, true, true);
+            fail();
+        } catch (final ValidationException e) {
+            assertTrue(e.getMessage().contains("Active value is not set"));
+        }
+    }
+
+    @Test
+    public void testValidationExceptionInstantiatedNotSet() throws Exception {
+        try {
+            createInstance((short) 200, (short) 100, true, true, null, true);
+            fail();
+        } catch (final ValidationException e) {
+            assertTrue(e.getMessage().contains("Initiated value is not set"));
+        }
+    }
+
+    @Test
+    public void testValidationExceptionKeepAliveTimerMinValue() throws Exception {
+        try {
+            createInstance((short) 200, (short) -10, true, true, true, true);
+            fail();
+        } catch (final ValidationException e) {
+            assertTrue(e.getMessage().contains("minimum value is 1."));
+        }
+    }
+
+    @Test
+    public void testStatefulAfterCommitted() throws Exception {
+        createInstance((short) 200, (short) 100, false, true, true, true);
+        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
+        final Stateful07PCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(
+                FACTORY_NAME, INSTANCE_NAME), Stateful07PCEPSessionProposalFactoryModuleMXBean.class);
+        assertTrue(mxBean.getStateful());
     }
 
     @Test
