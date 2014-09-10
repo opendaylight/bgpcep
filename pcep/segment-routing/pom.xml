@@ -32,11 +32,74 @@
    <dependencies>
       <dependency>
          <groupId>${project.groupId}</groupId>
+         <artifactId>util</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>${project.groupId}</groupId>
          <artifactId>pcep-ietf-stateful07</artifactId>
       </dependency>
-         <dependency>
+      <dependency>
+         <groupId>${project.groupId}</groupId>
+         <artifactId>pcep-api</artifactId>
+      </dependency>
+      <dependency>
          <groupId>${project.groupId}</groupId>
          <artifactId>pcep-spi</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>${project.groupId}</groupId>
+         <artifactId>pcep-impl</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>${project.groupId}</groupId>
+         <artifactId>rsvp-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>${project.groupId}</groupId>
+         <artifactId>pcep-topology-api</artifactId>
+      </dependency>
+
+      <dependency>
+         <groupId>org.opendaylight.yangtools</groupId>
+         <artifactId>yang-binding</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.opendaylight.yangtools</groupId>
+         <artifactId>yang-common</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.opendaylight.yangtools.model</groupId>
+         <artifactId>yang-ext</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.opendaylight.yangtools.model</groupId>
+         <artifactId>ietf-inet-types</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.opendaylight.yangtools.model</groupId>
+         <artifactId>ietf-topology</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.opendaylight.controller</groupId>
+          <artifactId>config-api</artifactId>
+      </dependency>
+
+      <dependency>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-buffer</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>com.google.guava</groupId>
+         <artifactId>guava</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.osgi</groupId>
+         <artifactId>org.osgi.core</artifactId>
+         <scope>provided</scope>
       </dependency>
       <!--test dependencies -->
       <dependency>

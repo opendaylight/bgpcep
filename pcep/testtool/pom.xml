@@ -38,12 +38,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>pcep-impl</artifactId>
+            <artifactId>pcep-spi</artifactId>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>concepts</artifactId>
+            <artifactId>pcep-impl</artifactId>
         </dependency>
 
         <dependency>
@@ -53,10 +52,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>pcep-ietf-stateful07</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>pcep-ietf-stateful02</artifactId>
         </dependency>
 
         <dependency>

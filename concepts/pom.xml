@@ -54,10 +54,6 @@
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-binding</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.opendaylight.yangtools</groupId>
-            <artifactId>yang-common</artifactId>
-        </dependency>
         <!--
              FIXME: these are IETF models which are pre-generated in SAL infra.
                     This should not be here, but rather should somehow be
