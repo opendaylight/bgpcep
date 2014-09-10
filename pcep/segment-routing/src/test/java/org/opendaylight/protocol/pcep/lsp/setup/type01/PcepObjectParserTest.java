@@ -28,8 +28,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.SrpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs3;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs3Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs4Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs5;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs5Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs7;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs7Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs8;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs8Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.path.setup.type.tlv.PathSetupTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RequestId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.RpBuilder;
@@ -88,13 +100,31 @@ public class PcepObjectParserTest {
                 parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(rpObjectWithPstTlvBytes,ByteArray.getAllBytes(buf));
+        assertArrayEquals(rpObjectWithPstTlvBytes, ByteArray.getAllBytes(buf));
+
+        buf.clear();
+        builder.setTlvs(new TlvsBuilder().addAugmentation(Tlvs2.class,
+                new Tlvs2Builder().setPathSetupType(new PathSetupTypeBuilder().setPst(true).build()).build()).build());
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(rpObjectWithPstTlvBytes, ByteArray.getAllBytes(buf));
+
+        buf.clear();
+        builder.setTlvs(new TlvsBuilder().addAugmentation(Tlvs3.class,
+                new Tlvs3Builder().setPathSetupType(new PathSetupTypeBuilder().setPst(true).build()).build()).build());
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(rpObjectWithPstTlvBytes, ByteArray.getAllBytes(buf));
+
+        buf.clear();
+        builder.setTlvs(new TlvsBuilder().addAugmentation(Tlvs4.class,
+                new Tlvs4Builder().setPathSetupType(new PathSetupTypeBuilder().setPst(true).build()).build()).build());
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(rpObjectWithPstTlvBytes, ByteArray.getAllBytes(buf));
     }
 
     @Test
     public void testSrpObjectWithPstTlvParser() throws PCEPDeserializerException {
         final CInitiated00SrpObjectWithPstTlvParser parser = new CInitiated00SrpObjectWithPstTlvParser(this.tlvRegistry, this.viTlvRegistry);
-        final SrpBuilder builder = new SrpBuilder();
+        SrpBuilder builder = new SrpBuilder();
         builder.setProcessingRule(false);
         builder.setIgnore(false);
         builder.setOperationId(new SrpIdNumber(1L));
@@ -108,6 +138,27 @@ public class PcepObjectParserTest {
                 parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(srpObjectWithPstTlvBytes,ByteArray.getAllBytes(buf));
+        assertArrayEquals(srpObjectWithPstTlvBytes, ByteArray.getAllBytes(buf));
+
+        buf.clear();
+        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder().addAugmentation(Tlvs8.class,
+                new Tlvs8Builder().setPathSetupType(new PathSetupTypeBuilder().setPst(true).build()).build())
+                .build());
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(srpObjectWithPstTlvBytes, ByteArray.getAllBytes(buf));
+
+        buf.clear();
+        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder().addAugmentation(Tlvs6.class,
+                new Tlvs6Builder().setPathSetupType(new PathSetupTypeBuilder().setPst(true).build()).build())
+                .build());
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(srpObjectWithPstTlvBytes, ByteArray.getAllBytes(buf));
+
+        buf.clear();
+        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder().addAugmentation(Tlvs5.class,
+                new Tlvs5Builder().setPathSetupType(new PathSetupTypeBuilder().setPst(true).build()).build())
+                .build());
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(srpObjectWithPstTlvBytes, ByteArray.getAllBytes(buf));
     }
 }
