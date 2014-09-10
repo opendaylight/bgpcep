@@ -15,6 +15,8 @@ import static org.junit.Assert.fail;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.UnknownHostException;
 import java.util.List;
 import org.junit.Test;
@@ -143,5 +145,27 @@ public class IPAddressesAndPrefixesTest {
             0x00, 0x01, 0x00, 0x01, };
         final List<Ipv6Prefix> prefs = Ipv6Util.prefixListForBytes(bytes);
         assertEquals(prefs, Lists.newArrayList(new Ipv6Prefix("2001:db8:1:2::/64"), new Ipv6Prefix("2001:db8:1:1::/64")));
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testIpv4UtilPrivateConstructor() throws Throwable {
+        final Constructor<Ipv4Util> c = Ipv4Util.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testIpv6UtilPrivateConstructor() throws Throwable {
+        final Constructor<Ipv6Util> c = Ipv6Util.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
     }
 }

@@ -14,6 +14,8 @@ import static org.junit.Assert.fail;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import org.junit.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -107,6 +109,17 @@ public class NextHopUtilTest {
             fail("Exception should happen");
         } catch (final IllegalArgumentException e) {
             assertEquals("Cannot parse NEXT_HOP attribute. Wrong bytes length: 3", e.getMessage());
+        }
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testPrivateConstructor() throws Throwable {
+        final Constructor<NextHopUtil> c = NextHopUtil.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
         }
     }
 }

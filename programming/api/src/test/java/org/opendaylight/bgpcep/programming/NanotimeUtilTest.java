@@ -9,8 +9,9 @@ package org.opendaylight.bgpcep.programming;
 
 import static org.junit.Assert.assertTrue;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
-
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.Nanotime;
 import org.slf4j.Logger;
@@ -33,5 +34,16 @@ public class NanotimeUtilTest {
 
         LOG.debug("Times: {} {}", nt1, nt2);
         assertTrue(nt1.getValue().compareTo(nt2.getValue()) < 0);
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testPrivateConstructor() throws Throwable {
+        final Constructor<NanotimeUtil> c = NanotimeUtil.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
     }
 }

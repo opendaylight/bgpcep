@@ -9,9 +9,10 @@ package org.opendaylight.protocol.bgp.parser;
 
 import static org.junit.Assert.assertEquals;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -60,5 +61,16 @@ public class APITest {
 
         final Open open2 = new OpenBuilder().setMyAsNumber(10).build();
         assertEquals(10, AsNumberUtil.advertizedAsNumber(open2).getValue().intValue());
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testAsNumberUtilPrivateConstructor() throws Throwable {
+        final Constructor<AsNumberUtil> c = AsNumberUtil.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
     }
 }

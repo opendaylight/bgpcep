@@ -1,6 +1,16 @@
+/*
+ * Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.opendaylight.protocol.pcep.pcc.mock;
 
 import io.netty.buffer.Unpooled;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
@@ -36,6 +46,17 @@ public class PCCMockTest {
         final PCCSrpObjectParser parser = new PCCSrpObjectParser(ctx.getTlvHandlerRegistry(), ctx.getVendorInformationTlvRegistry());
         final Srp srp = new SrpBuilder().setIgnore(true).setProcessingRule(true).setOperationId(new SrpIdNumber(0L)).setTlvs(new TlvsBuilder().build()).build();
         Assert.assertEquals(srp, parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.wrappedBuffer(bytes)));
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testPrivateConstructor() throws Throwable {
+        final Constructor<MsgBuilderUtil> c = MsgBuilderUtil.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
     }
 
 }

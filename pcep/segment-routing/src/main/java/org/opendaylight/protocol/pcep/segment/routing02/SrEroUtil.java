@@ -63,7 +63,7 @@ public final class SrEroUtil {
     }
 
     protected static Srp addSRPathSetupTypeTlv(final Srp srp) {
-        return new SrpBuilder(srp).setTlvs(new TlvsBuilder(srp.getTlvs()).addAugmentation(Tlvs5.class,
+        return new SrpBuilder(srp).setTlvs(new TlvsBuilder(srp.getTlvs() != null ? srp.getTlvs() : new TlvsBuilder().build()).addAugmentation(Tlvs5.class,
                 new Tlvs5Builder().setPathSetupType(new PathSetupTypeBuilder().setPst(true).build()).build()).build()).build();
     }
 

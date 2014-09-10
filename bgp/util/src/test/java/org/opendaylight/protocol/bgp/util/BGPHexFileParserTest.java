@@ -14,6 +14,8 @@ import static org.junit.matchers.JUnitMatchers.containsString;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import org.junit.Test;
 
@@ -53,6 +55,17 @@ public class BGPHexFileParserTest {
             fail("Exception should have occured.");
         } catch (final FileNotFoundException e) {
             assertThat(e.getMessage(), containsString("bad file name"));
+        }
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testPrivateConstructor() throws Throwable {
+        final Constructor<HexDumpBGPFileParser> c = HexDumpBGPFileParser.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
         }
     }
 

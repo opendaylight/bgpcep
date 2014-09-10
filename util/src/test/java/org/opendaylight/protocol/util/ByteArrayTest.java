@@ -12,16 +12,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.BitSet;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -403,6 +404,17 @@ public class ByteArrayTest {
         assertArrayEquals(bytes, ByteArray.maskBytes(bytes, 32));
 
         assertArrayEquals(new byte[] { (byte) 0xAC, (byte) 0x80, 0, 0 }, ByteArray.maskBytes(bytes, 10));
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testPrivateConstructor() throws Throwable {
+        final Constructor<ByteArray> c = ByteArray.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
     }
 
 }

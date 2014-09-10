@@ -27,6 +27,8 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.util.BitSet;
 import org.junit.Test;
@@ -232,5 +234,16 @@ public class ByteBufWriteUtilTest {
         output.clear();
         writeBitSet(null, 1, output);
         assertArrayEquals(ONE_BYTE_ZERO, output.array());
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testPrivateConstructor() throws Throwable {
+        final Constructor<ByteBufWriteUtil> c = ByteBufWriteUtil.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
     }
 }

@@ -14,6 +14,8 @@ import static org.junit.matchers.JUnitMatchers.containsString;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import org.junit.Test;
 
@@ -26,10 +28,10 @@ public class PCEPHexDumpParserTest {
     public void testParsing() throws Exception {
         final List<byte[]> result = PCEPHexDumpParser.parseMessages(getClass().getClassLoader().getResourceAsStream(
             PCEPHexDumpParserTest.hexDumpFileName));
-        assertEquals(this.expectedSize, result.size());
+        assertEquals(expectedSize, result.size());
         final List<byte[]> result1 = PCEPHexDumpParser.parseMessages(new File(getClass().getClassLoader().getResource(
             PCEPHexDumpParserTest.hexDumpFileName).toURI()));
-        assertEquals(this.expectedSize, result1.size());
+        assertEquals(expectedSize, result1.size());
     }
 
     @Test
@@ -39,6 +41,17 @@ public class PCEPHexDumpParserTest {
             fail("Exception should have occured.");
         } catch (final FileNotFoundException e) {
             assertThat(e.getMessage(), containsString("bad file name"));
+        }
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testPrivateConstructor() throws Throwable {
+        final Constructor<PCEPHexDumpParser> c = PCEPHexDumpParser.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
         }
     }
 }

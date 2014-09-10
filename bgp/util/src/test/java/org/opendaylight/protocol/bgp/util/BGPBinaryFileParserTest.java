@@ -15,8 +15,9 @@ import static org.junit.Assert.assertThat;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-
 import org.junit.Test;
 
 public class BGPBinaryFileParserTest {
@@ -78,6 +79,17 @@ public class BGPBinaryFileParserTest {
     public void testCorruptedHeader() throws IOException {
         final List<byte[]> parsedMessages = extractFromFile("/BgpMessages_wrong_header.bin");
         assertEquals(42, parsedMessages.size());
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testPrivateConstructor() throws Throwable {
+        final Constructor<BinaryBGPDumpFileParser> c = BinaryBGPDumpFileParser.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
     }
 
 }

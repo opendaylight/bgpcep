@@ -10,12 +10,11 @@ package org.opendaylight.protocol.bgp.parser.spi;
 import static org.junit.Assert.assertArrayEquals;
 
 import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-
 import org.junit.Test;
 import org.opendaylight.protocol.util.ByteArray;
 
@@ -67,5 +66,49 @@ public class UtilsTest {
         ByteBuf aggregator = Unpooled.buffer();
         AttributeUtil.formatAttribute(AttributeUtil.TRANSITIVE , 3 , Unpooled.wrappedBuffer(value), aggregator);
         assertArrayEquals(result, ByteArray.getAllBytes(aggregator));
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testAttributeUtilPrivateConstructor() throws Throwable {
+        final Constructor<AttributeUtil> c = AttributeUtil.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testCapabilityUtilPrivateConstructor() throws Throwable {
+        final Constructor<CapabilityUtil> c = CapabilityUtil.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testMessageUtilPrivateConstructor() throws Throwable {
+        final Constructor<MessageUtil> c = MessageUtil.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testParameterUtilPrivateConstructor() throws Throwable {
+        final Constructor<ParameterUtil> c = ParameterUtil.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
     }
 }
