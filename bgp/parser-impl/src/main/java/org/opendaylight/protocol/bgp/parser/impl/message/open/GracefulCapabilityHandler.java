@@ -99,8 +99,10 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
             bytes.writeByte(afival / 256);
             bytes.writeByte(afival % 256);
             bytes.writeByte(safival);
-            if (t.getAfiFlags().isForwardingState()) {
+            if (t.getAfiFlags() != null && t.getAfiFlags().isForwardingState()) {
                 bytes.writeByte(AFI_FLAG_FORWARDING_STATE);
+            } else {
+                bytes.writeZero(1);
             }
         }
         CapabilityUtil.formatCapability(CODE, bytes,byteAggregator);
@@ -122,17 +124,20 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
             final Class<? extends AddressFamily> afi = this.afiReg.classForFamily(afiVal);
             if (afi == null) {
                 LOG.debug("Ignoring GR capability for unknown address family {}", afiVal);
+                buffer.skipBytes(PER_AFI_SAFI_SIZE - 2);
                 continue;
             }
             final int safiVal = UnsignedBytes.toInt(buffer.readByte());
             final Class<? extends SubsequentAddressFamily> safi = this.safiReg.classForFamily(safiVal);
             if (safi == null) {
                 LOG.debug("Ignoring GR capability for unknown subsequent address family {}", safiVal);
+                buffer.skipBytes(1);
                 continue;
             }
             final int flags = UnsignedBytes.toInt(buffer.readByte());
             tables.add(new TablesBuilder().setAfi(afi).setSafi(safi).setAfiFlags(new AfiFlags((flags & AFI_FLAG_FORWARDING_STATE) != 0)).build());
         }
+        cb.setTables(tables);
         return new GracefulRestartCaseBuilder().setGracefulRestartCapability(cb.build()).build();
     }
 }
