@@ -10,6 +10,8 @@ package org.opendaylight.protocol.util;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import com.google.common.collect.Lists;
@@ -56,6 +58,13 @@ public class IPAddressesAndPrefixesTest {
         assertEquals(new Ipv4Prefix("255.255.0.0/16"), Ipv4Util.prefixForBytes(bytes, 16));
 
         assertArrayEquals(new byte[] { (byte) 255, (byte) 255, 0, 0, 16 }, Ipv4Util.bytesForPrefix(new Ipv4Prefix("255.255.0.0/16")));
+
+        try {
+            Ipv4Util.prefixForBytes(bytes, 200);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertNull(e.getMessage());
+        }
     }
 
     @Test
@@ -115,6 +124,13 @@ public class IPAddressesAndPrefixesTest {
         assertEquals(new Ipv6Prefix("2001:db8:1:2::/64"), Ipv6Util.prefixForBytes(bytes, 64));
         assertArrayEquals(new byte[] { 0x20, (byte) 0x01, 0x0d, (byte) 0xb8, 0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x40 }, Ipv6Util.bytesForPrefix(new Ipv6Prefix("2001:db8:1:2::/64")));
+
+        try {
+            Ipv6Util.prefixForBytes(bytes, 200);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertNull(e.getMessage());
+        }
     }
 
     @Test
@@ -133,18 +149,24 @@ public class IPAddressesAndPrefixesTest {
     @Test
     public void testPrefixList4ForBytes() {
         final byte[] bytes = new byte[] { 22, (byte) 172, (byte) 168, 3, 8, 12, 32, (byte) 192, (byte) 168, 35, 100 };
-        final List<Ipv4Prefix> prefs = Ipv4Util.prefixListForBytes(bytes);
+        List<Ipv4Prefix> prefs = Ipv4Util.prefixListForBytes(bytes);
         assertEquals(
             Lists.newArrayList(new Ipv4Prefix("172.168.3.0/22"), new Ipv4Prefix("12.0.0.0/8"), new Ipv4Prefix("192.168.35.100/32")),
             prefs);
+
+        prefs = Ipv4Util.prefixListForBytes(new byte[] {});
+        assertTrue(prefs.isEmpty());
     }
 
     @Test
     public void testPrefixList6ForBytes() {
         final byte[] bytes = new byte[] { 0x40, 0x20, 0x01, 0x0d, (byte) 0xb8, 0x00, 0x01, 0x00, 0x02, 0x40, 0x20, 0x01, 0x0d, (byte) 0xb8,
             0x00, 0x01, 0x00, 0x01, };
-        final List<Ipv6Prefix> prefs = Ipv6Util.prefixListForBytes(bytes);
+        List<Ipv6Prefix> prefs = Ipv6Util.prefixListForBytes(bytes);
         assertEquals(prefs, Lists.newArrayList(new Ipv6Prefix("2001:db8:1:2::/64"), new Ipv6Prefix("2001:db8:1:1::/64")));
+
+        prefs = Ipv6Util.prefixListForBytes(new byte[] {});
+        assertTrue(prefs.isEmpty());
     }
 
     @Test(expected=UnsupportedOperationException.class)
@@ -153,7 +175,7 @@ public class IPAddressesAndPrefixesTest {
         c.setAccessible(true);
         try {
             c.newInstance();
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw e.getCause();
         }
     }
@@ -164,7 +186,7 @@ public class IPAddressesAndPrefixesTest {
         c.setAccessible(true);
         try {
             c.newInstance();
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw e.getCause();
         }
     }

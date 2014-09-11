@@ -12,6 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
@@ -150,9 +151,22 @@ public class PCEPObjectParserTest {
         builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder().build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
-        ByteBuf buf = Unpooled.buffer();
+        final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -167,9 +181,22 @@ public class PCEPObjectParserTest {
         builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.c.close.TlvsBuilder().build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
-        ByteBuf buf = Unpooled.buffer();
+        final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -184,9 +211,22 @@ public class PCEPObjectParserTest {
         builder.setMinBandwidth(new Bandwidth(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }));
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
-        ByteBuf buf = Unpooled.buffer();
+        final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -212,9 +252,16 @@ public class PCEPObjectParserTest {
         builder.setSubobject(subs);
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
-        ByteBuf buf = Unpooled.buffer();
+        final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null.", e.getMessage());
+        }
     }
 
     @Test
@@ -242,9 +289,22 @@ public class PCEPObjectParserTest {
         builder.setSubobject(subs);
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
-        ByteBuf buf = Unpooled.buffer();
+        final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -276,9 +336,22 @@ public class PCEPObjectParserTest {
         builder.setSubobject(subs);
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
-        ByteBuf buf = Unpooled.buffer();
+        final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -292,9 +365,22 @@ public class PCEPObjectParserTest {
         builder.setBandwidth(new Bandwidth(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 }));
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
-        ByteBuf buf = Unpooled.buffer();
+        final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -308,9 +394,22 @@ public class PCEPObjectParserTest {
         builder.setBandwidth(new Bandwidth(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }));
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
-        ByteBuf buf = Unpooled.buffer();
+        final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -329,9 +428,22 @@ public class PCEPObjectParserTest {
                         Ipv4Util.addressForBytes(destIPBytes)).build()).build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
-        ByteBuf buf = Unpooled.buffer();
+        final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -352,9 +464,22 @@ public class PCEPObjectParserTest {
                         Ipv6Util.addressForBytes(destIPBytes)).build()).build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
-        ByteBuf buf = Unpooled.buffer();
+        final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -383,6 +508,19 @@ public class PCEPObjectParserTest {
         buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -419,6 +557,19 @@ public class PCEPObjectParserTest {
         buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -450,6 +601,19 @@ public class PCEPObjectParserTest {
         buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -483,6 +647,19 @@ public class PCEPObjectParserTest {
         buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -512,6 +689,19 @@ public class PCEPObjectParserTest {
         buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -558,6 +748,19 @@ public class PCEPObjectParserTest {
         buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -602,6 +805,19 @@ public class PCEPObjectParserTest {
         buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -615,9 +831,22 @@ public class PCEPObjectParserTest {
         builder.setClassType(new ClassType((short) 4));
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
-        ByteBuf buf = Unpooled.buffer();
+        final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -639,9 +868,22 @@ public class PCEPObjectParserTest {
         builder.setSubobject(subs);
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
-        ByteBuf buf = Unpooled.buffer();
+        final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -658,9 +900,22 @@ public class PCEPObjectParserTest {
         builder.setPathKeys(list);
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
-        ByteBuf buf = Unpooled.buffer();
+        final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -675,9 +930,22 @@ public class PCEPObjectParserTest {
         builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.object.of.TlvsBuilder().build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
-        ByteBuf buf = Unpooled.buffer();
+        final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -695,9 +963,22 @@ public class PCEPObjectParserTest {
         builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.gc.object.gc.TlvsBuilder().build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
-        ByteBuf buf = Unpooled.buffer();
+        final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -725,7 +1006,7 @@ public class PCEPObjectParserTest {
     @Test
     public void testLspaObjectSerializerDefence() throws IOException, PCEPDeserializerException {
         final PCEPLspaObjectParser parser = new PCEPLspaObjectParser(this.tlvRegistry, this.viTlvRegistry);
-        ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPLspaObject1LowerBounds.bin"));
+        final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPLspaObject1LowerBounds.bin"));
 
         final LspaBuilder builder = new LspaBuilder();
         builder.setProcessingRule(true);

@@ -9,9 +9,10 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.impl.subobject.GeneralizedLabelParser;
 import org.opendaylight.protocol.pcep.impl.subobject.Type1LabelParser;
@@ -44,6 +45,20 @@ public class LabelSubobjectParserTest {
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeLabel(true, false, builder.build(), buff);
         assertArrayEquals(generalizedLabelBytes, ByteArray.getAllBytes(buff));
+
+        try {
+            parser.parseLabel(null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+
+        try {
+            parser.parseLabel(Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -58,6 +73,19 @@ public class LabelSubobjectParserTest {
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeLabel(false, true, builder.build(), buff);
         assertArrayEquals(wavebandLabelBytes, ByteArray.getAllBytes(buff));
+
+        try {
+            parser.parseLabel(null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseLabel(Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -70,5 +98,18 @@ public class LabelSubobjectParserTest {
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeLabel(true, true,  builder.build(), buff);
         assertArrayEquals(typeOneLabelBytes, ByteArray.getAllBytes(buff));
+
+        try {
+            parser.parseLabel(null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseLabel(Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 }

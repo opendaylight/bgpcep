@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
@@ -97,6 +98,7 @@ public class PCEPTlvParserTest {
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(tlv, buff);
         assertArrayEquals(noPathVectorBytes, ByteArray.getAllBytes(buff));
+        assertNull(parser.parseTlv(null));
     }
 
     @Test
@@ -107,6 +109,7 @@ public class PCEPTlvParserTest {
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(tlv, buff);
         assertArrayEquals(overloadedBytes, ByteArray.getAllBytes(buff));
+        assertNull(parser.parseTlv(null));
     }
 
     @Test
@@ -117,6 +120,7 @@ public class PCEPTlvParserTest {
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(tlv, buff);
         assertArrayEquals(reqMissingBytes, ByteArray.getAllBytes(buff));
+        assertNull(parser.parseTlv(null));
     }
 
     @Test
@@ -127,6 +131,7 @@ public class PCEPTlvParserTest {
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(tlv, buff);
         assertArrayEquals(orderBytes, ByteArray.getAllBytes(buff));
+        assertNull(parser.parseTlv(null));
     }
 
     @Test
@@ -140,6 +145,7 @@ public class PCEPTlvParserTest {
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(tlv, buff);
         assertArrayEquals(ofListBytes, ByteArray.getAllBytes(buff));
+        assertNull(parser.parseTlv(null));
     }
 
     @Test
@@ -149,6 +155,7 @@ public class PCEPTlvParserTest {
         final ByteBuf buff = Unpooled.buffer();
         this.vsParser.serializeTlv(tlv, buff);
         assertArrayEquals(vsTlvBytes, ByteArray.getAllBytes(buff));
+        assertNull(this.vsParser.parseTlv(null));
     }
 
     @Test
@@ -164,5 +171,6 @@ public class PCEPTlvParserTest {
         final ByteBuf buff = Unpooled.buffer(VENDOR_INFO_BYTES.length);
         parser.serializeTlv(viTlv, buff);
         assertArrayEquals(VENDOR_INFO_BYTES, ByteArray.getAllBytes(buff));
+        assertNull(parser.parseTlv(null));
     }
 }

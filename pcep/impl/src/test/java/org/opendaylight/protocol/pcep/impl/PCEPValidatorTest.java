@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
@@ -96,6 +97,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.success._case.success.Paths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.success._case.success.PathsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.PcreqMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.SegmentComputationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.P2pBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
@@ -276,6 +278,13 @@ public class PCEPValidatorTest {
         final ByteBuf buf = Unpooled.buffer(result.readableBytes());
         parser.serializeMessage(new OpenBuilder().setOpenMessage(builder.build()).build(), buf);
         assertArrayEquals(result.array(), buf.array());
+
+        try {
+            parser.serializeMessage(new OpenBuilder().setOpenMessage(new OpenMessageBuilder().build()).build(), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Open Object must be present in Open Message.", e.getMessage());
+        }
     }
 
     @Test
@@ -302,6 +311,13 @@ public class PCEPValidatorTest {
         final ByteBuf buf = Unpooled.buffer(result.readableBytes());
         parser.serializeMessage(builder.build(), buf);
         assertArrayEquals(result.array(), buf.array());
+
+        try {
+            parser.serializeMessage(new CloseBuilder().setCCloseMessage(new CCloseMessageBuilder().build()).build(), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Close Object must be present in Close Message.", e.getMessage());
+        }
     }
 
     @Test
@@ -345,6 +361,19 @@ public class PCEPValidatorTest {
         buf = Unpooled.buffer(result.readableBytes());
         parser.serializeMessage(new PcreqBuilder().setPcreqMessage(builder.build()).build(), buf);
         assertArrayEquals(result.array(), buf.array());
+
+        try {
+            parser.serializeMessage(new PcreqBuilder().setPcreqMessage(new PcreqMessageBuilder().build()).build(), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Requests cannot be null or empty.", e.getMessage());
+        }
+        try {
+            parser.serializeMessage(new PcreqBuilder().setPcreqMessage(new PcreqMessageBuilder().setRequests(Collections.<Requests> emptyList()).build()).build(), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Requests cannot be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -424,6 +453,19 @@ public class PCEPValidatorTest {
         buf = Unpooled.buffer(result.readableBytes());
         parser.serializeMessage(new PcrepBuilder().setPcrepMessage(builder.build()).build(), buf);
         assertArrayEquals(result.array(), buf.array());
+
+        try {
+            parser.serializeMessage(new PcrepBuilder().setPcrepMessage(new PcrepMessageBuilder().build()).build(), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Replies cannot be null or empty.", e.getMessage());
+        }
+        try {
+            parser.serializeMessage(new PcrepBuilder().setPcrepMessage(new PcrepMessageBuilder().setReplies(Collections.<Replies> emptyList()).build()).build(), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Replies cannot be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -511,6 +553,19 @@ public class PCEPValidatorTest {
         buf = Unpooled.buffer(result.readableBytes());
         parser.serializeMessage(new PcerrBuilder().setPcerrMessage(builder.build()).build(), buf);
         assertArrayEquals(result.array(), buf.array());
+
+        try {
+            parser.serializeMessage(new PcerrBuilder().setPcerrMessage(new PcerrMessageBuilder().build()).build(), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Errors should not be empty.", e.getMessage());
+        }
+        try {
+            parser.serializeMessage(new PcerrBuilder().setPcerrMessage(new PcerrMessageBuilder().setErrors(Collections.<Errors> emptyList()).build()).build(), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Errors should not be empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -533,7 +588,7 @@ public class PCEPValidatorTest {
 
         assertEquals(new PcreqBuilder().setPcreqMessage(builder.build()).build(), parser.parseMessage(result.slice(4,
             result.readableBytes() - 4), Collections.<Message> emptyList()));
-        ByteBuf buf = Unpooled.buffer(result.readableBytes());
+        final ByteBuf buf = Unpooled.buffer(result.readableBytes());
         parser.serializeMessage(new PcreqBuilder().setPcreqMessage(builder.build()).build(), buf);
 
         assertArrayEquals(result.array(), buf.array());

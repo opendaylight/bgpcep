@@ -22,45 +22,54 @@ public class UtilsTest {
 
     @Test
     public void testLabelUtil() {
-        byte[] expected = { (byte) 0x81, 0x04, 0x01, 0x02, 0x03, 0x04 };
-        ByteBuf out = Unpooled.buffer();
-        ByteBuf body = Unpooled.copiedBuffer(new byte[] { 1, 2, 3, 4 });
+        final byte[] expected = { (byte) 0x81, 0x04, 0x01, 0x02, 0x03, 0x04 };
+        final ByteBuf out = Unpooled.buffer();
+        final ByteBuf body = Unpooled.copiedBuffer(new byte[] { 1, 2, 3, 4 });
         LabelUtil.formatLabel(4, true, true, body, out);
-        assertArrayEquals(expected, ByteArray.getAllBytes(out));
+        assertArrayEquals(expected, ByteArray.readAllBytes(out));
+
+        final byte[] ex = { 0, 0x05, 0x01, 0x02, 0x03, 0x04 };
+        body.resetReaderIndex();
+        LabelUtil.formatLabel(5, null, null, body, out);
+        assertArrayEquals(ex, ByteArray.getAllBytes(out));
     }
 
     @Test
     public void testMessageUtil() {
-        byte[] expected = { (byte) 0x20, 0x08, 0, 0x0a, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 };
-        ByteBuf out = Unpooled.buffer();
-        ByteBuf body = Unpooled.copiedBuffer(new byte[] { 1, 2, 3, 4, 5, 6 });
+        final byte[] expected = { (byte) 0x20, 0x08, 0, 0x0a, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 };
+        final ByteBuf out = Unpooled.buffer();
+        final ByteBuf body = Unpooled.copiedBuffer(new byte[] { 1, 2, 3, 4, 5, 6 });
         MessageUtil.formatMessage(8, body, out);
         assertArrayEquals(expected, ByteArray.getAllBytes(out));
     }
 
     @Test
     public void testObjectUtil() {
-        byte[] expected = { 0x08, 0x13, 0, 0x06, 0x01, 0x02 };
-        ByteBuf out = Unpooled.buffer();
-        ByteBuf body = Unpooled.copiedBuffer(new byte[] { 1, 2 });
+        final byte[] expected = { 0x08, 0x13, 0, 0x06, 0x01, 0x02 };
+        final ByteBuf out = Unpooled.buffer();
+        final ByteBuf body = Unpooled.copiedBuffer(new byte[] { 1, 2 });
         ObjectUtil.formatSubobject(1, 8, true, true, body, out);
         assertArrayEquals(expected, ByteArray.getAllBytes(out));
     }
 
     @Test
     public void testObjectUtilFalse() {
-        byte[] expected = { 0x08, 0x10, 0, 0x06, 0x01, 0x02 };
-        ByteBuf out = Unpooled.buffer();
+        final byte[] expected = { 0x08, 0x10, 0, 0x06, 0x01, 0x02 };
+        final ByteBuf out = Unpooled.buffer();
         ByteBuf body = Unpooled.copiedBuffer(new byte[] { 1, 2 });
         ObjectUtil.formatSubobject(1, 8, false, false, body, out);
+        assertArrayEquals(expected, ByteArray.readAllBytes(out));
+
+        body = Unpooled.copiedBuffer(new byte[] { 1, 2 });
+        ObjectUtil.formatSubobject(1, 8, null, null, body, out);
         assertArrayEquals(expected, ByteArray.getAllBytes(out));
     }
 
     @Test
     public void testXROSubobjectUtil() {
         byte[] expected = { (byte) 0x82, 6, 0, 1, 2, 3 };
-        ByteBuf out = Unpooled.buffer();
-        ByteBuf body = Unpooled.copiedBuffer(new byte[] { 0, 1, 2, 3 });
+        final ByteBuf out = Unpooled.buffer();
+        final ByteBuf body = Unpooled.copiedBuffer(new byte[] { 0, 1, 2, 3 });
         body.markReaderIndex();
         XROSubobjectUtil.formatSubobject(2, true, body, out);
         assertArrayEquals(expected, ByteArray.getAllBytes(out));
@@ -70,12 +79,17 @@ public class UtilsTest {
         body.resetReaderIndex();
         XROSubobjectUtil.formatSubobject(2, false, body, out);
         assertArrayEquals(expected, ByteArray.getAllBytes(out));
+
+        out.clear();
+        body.resetReaderIndex();
+        XROSubobjectUtil.formatSubobject(2, null, body, out);
+        assertArrayEquals(expected, ByteArray.getAllBytes(out));
     }
 
     @Test
     public void testTlvUtil() {
         byte[] expected = { 0, 4, 0, 4, 1, 2, 3, 4 };
-        ByteBuf out = Unpooled.buffer();
+        final ByteBuf out = Unpooled.buffer();
         ByteBuf body = Unpooled.copiedBuffer(new byte[] { 1, 2, 3, 4 });
         TlvUtil.formatTlv(4, body, out);
         assertArrayEquals(expected, ByteArray.getAllBytes(out));
@@ -89,9 +103,9 @@ public class UtilsTest {
 
     @Test
     public void testRROSubobjectUtil() {
-        byte[] expected = { 4, 6, 1, 2, 3, 4 };
-        ByteBuf out = Unpooled.buffer();
-        ByteBuf body = Unpooled.copiedBuffer(new byte[] { 1, 2, 3, 4 });
+        final byte[] expected = { 4, 6, 1, 2, 3, 4 };
+        final ByteBuf out = Unpooled.buffer();
+        final ByteBuf body = Unpooled.copiedBuffer(new byte[] { 1, 2, 3, 4 });
         RROSubobjectUtil.formatSubobject(4, body, out);
         assertArrayEquals(expected, ByteArray.getAllBytes(out));
     }
@@ -99,8 +113,8 @@ public class UtilsTest {
     @Test
     public void testEROSubobjectUtil() {
         byte[] expected = { (byte) 0x82, 6, 0, 1, 2, 3 };
-        ByteBuf out = Unpooled.buffer();
-        ByteBuf body = Unpooled.copiedBuffer(new byte[] { 0, 1, 2, 3 });
+        final ByteBuf out = Unpooled.buffer();
+        final ByteBuf body = Unpooled.copiedBuffer(new byte[] { 0, 1, 2, 3 });
         body.markReaderIndex();
         EROSubobjectUtil.formatSubobject(2, true, body, out);
         assertArrayEquals(expected, ByteArray.getAllBytes(out));
@@ -129,7 +143,7 @@ public class UtilsTest {
         c.setAccessible(true);
         try {
             c.newInstance();
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw e.getCause();
         }
     }
@@ -140,7 +154,7 @@ public class UtilsTest {
         c.setAccessible(true);
         try {
             c.newInstance();
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw e.getCause();
         }
     }
@@ -151,7 +165,7 @@ public class UtilsTest {
         c.setAccessible(true);
         try {
             c.newInstance();
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw e.getCause();
         }
     }
@@ -162,7 +176,7 @@ public class UtilsTest {
         c.setAccessible(true);
         try {
             c.newInstance();
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw e.getCause();
         }
     }
@@ -173,7 +187,7 @@ public class UtilsTest {
         c.setAccessible(true);
         try {
             c.newInstance();
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw e.getCause();
         }
     }
@@ -184,7 +198,7 @@ public class UtilsTest {
         c.setAccessible(true);
         try {
             c.newInstance();
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw e.getCause();
         }
     }
@@ -195,7 +209,7 @@ public class UtilsTest {
         c.setAccessible(true);
         try {
             c.newInstance();
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw e.getCause();
         }
     }
@@ -206,7 +220,7 @@ public class UtilsTest {
         c.setAccessible(true);
         try {
             c.newInstance();
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw e.getCause();
         }
     }
@@ -217,7 +231,7 @@ public class UtilsTest {
         c.setAccessible(true);
         try {
             c.newInstance();
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw e.getCause();
         }
     }
