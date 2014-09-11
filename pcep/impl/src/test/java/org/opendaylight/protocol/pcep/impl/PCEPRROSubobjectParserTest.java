@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -67,6 +68,19 @@ public class PCEPRROSubobjectParserTest {
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeSubobject(subs.build(), buff);
         assertArrayEquals(ip4PrefixBytes, ByteArray.getAllBytes(buff));
+
+        try {
+            parser.parseSubobject(null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+           assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseSubobject(Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+           assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -84,6 +98,19 @@ public class PCEPRROSubobjectParserTest {
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeSubobject(subs.build(), buff);
         assertArrayEquals(ip6PrefixBytes, ByteArray.getAllBytes(buff));
+
+        try {
+            parser.parseSubobject(null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+           assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseSubobject(Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+           assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -98,6 +125,19 @@ public class PCEPRROSubobjectParserTest {
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeSubobject(subs.build(), buff);
         assertArrayEquals(unnumberedBytes, ByteArray.getAllBytes(buff));
+
+        try {
+            parser.parseSubobject(null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+           assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseSubobject(Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+           assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -112,6 +152,19 @@ public class PCEPRROSubobjectParserTest {
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeSubobject(subs.build(), buff);
         assertArrayEquals(pathKey32Bytes, ByteArray.getAllBytes(buff));
+
+        try {
+            parser.parseSubobject(null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+           assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseSubobject(Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+           assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -127,6 +180,19 @@ public class PCEPRROSubobjectParserTest {
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeSubobject(subs.build(), buff);
         assertArrayEquals(pathKey128Bytes, ByteArray.getAllBytes(buff));
+
+        try {
+            parser.parseSubobject(null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+           assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseSubobject(Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+           assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
     }
 
     @Test
@@ -145,6 +211,19 @@ public class PCEPRROSubobjectParserTest {
             final ByteBuf buff = Unpooled.buffer();
             parser.serializeSubobject(subs.build(), buff);
             assertArrayEquals(labelBytes, ByteArray.getAllBytes(buff));
+
+            try {
+                parser.parseSubobject(null);
+                fail();
+            } catch (final IllegalArgumentException e) {
+               assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            }
+            try {
+                parser.parseSubobject(Unpooled.EMPTY_BUFFER);
+                fail();
+            } catch (final IllegalArgumentException e) {
+               assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            }
         }
     }
 }
