@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_8bdc3c48",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/GracefulCapabilityHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-09-11T12:27:07Z",
+      "side": 1,
+      "message": "bytes.writeByte(AFI_FLAG_FORWARDING_STATE, t.getAfiFlags().isForwardingState());\n\nand remove \u0026\u0026 from condition, spares us a branch :-)",
+      "revId": "d61728585013d60a0e0f560509d114d36bf785d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
