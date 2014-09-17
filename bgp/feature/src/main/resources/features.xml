@@ -72,7 +72,7 @@
     <feature name='odl-bgpcep-util' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-dependencies</feature>
         <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-        <bundle>mvn:commons-codec/commons-codec/1.9</bundle>
+        <bundle>mvn:commons-codec/commons-codec/${commons.codec.version}</bundle>
         <feature version='${yangtools.version}'>odl-yangtools-common</feature>
         <bundle>mvn:org.opendaylight.yangtools/yang-binding/${yangtools.version}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/util/${project.version}</bundle>
@@ -85,7 +85,7 @@
         <bundle>mvn:org.opendaylight.controller/config-api/${netconf.version}</bundle>
         <feature version='${yangtools.version}'>odl-yangtools-data-binding</feature>
         <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
-        <bundle>mvn:commons-codec/commons-codec/1.9</bundle>
+        <bundle>mvn:commons-codec/commons-codec/${commons.codec.version}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/concepts/${project.version}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/util/${project.version}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-concepts/${project.version}</bundle>
@@ -97,7 +97,7 @@
         <bundle>mvn:org.opendaylight.controller/sal-common-api/${mdsal.version}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/concepts/${project.version}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/util/${project.version}</bundle>
-        <bundle>mvn:commons-codec/commons-codec/1.7</bundle>
+        <bundle>mvn:commons-codec/commons-codec/${commons.codec.version}</bundle>
         <feature version='${project.version}'>odl-bgpcep-parser</feature>
         <feature version='${project.version}'>odl-bgpcep-rib</feature>
         <bundle>mvn:org.opendaylight.bgpcep/rsvp-api/${project.version}</bundle>
