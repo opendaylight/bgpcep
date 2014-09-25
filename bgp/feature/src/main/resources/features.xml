@@ -15,6 +15,7 @@
   <repository>mvn:org.opendaylight.controller/features-netconf/${netconf.version}/xml/features</repository>
   <repository>mvn:org.opendaylight.controller/features-mdsal/${mdsal.version}/xml/features</repository>
   <repository>mvn:org.opendaylight.yangtools/features-yangtools/${yangtools.version}/xml/features</repository>
+  <repository>mvn:org.opendaylight.tcpmd5/features-tcpmd5/${tcpmd5.version}/xml/features</repository>
 
     <feature name='odl-bgpcep-all' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-dependencies</feature>
@@ -55,6 +56,7 @@
         <feature version='${yangtools.version}'>odl-yangtools-binding</feature>
         <feature version='${yangtools.version}'>odl-yangtools-common</feature>
         <feature version='${yangtools.version}'>odl-yangtools-models</feature>
+        <feature version='${tcpmd5.version}'>odl-tcpmd5</feature>
         <bundle>mvn:org.opendaylight.controller/config-api/${netconf.version}</bundle>
         <bundle>mvn:io.netty/netty-buffer/${netty.version}</bundle>
         <bundle>mvn:io.netty/netty-codec/${netty.version}</bundle>
