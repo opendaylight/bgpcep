@@ -25,6 +25,7 @@
         <mdsal.version>1.1-SNAPSHOT</mdsal.version>
         <netconf.version>0.2.5-SNAPSHOT</netconf.version>
         <commons.opendaylight.version>1.4.2-SNAPSHOT</commons.opendaylight.version>
+        <tcpmd5.version>1.0.0-SNAPSHOT</tcpmd5.version>
     </properties>
 
     <!-- Testing -->
@@ -49,6 +50,13 @@
             <classifier>features</classifier>
             <type>xml</type>
             <version>${netconf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.tcpmd5</groupId>
+            <artifactId>features-tcpmd5</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+            <version>${tcpmd5.version}</version>
         </dependency>
         <!-- Required for testing -->
         <dependency>
@@ -294,23 +302,25 @@
           <artifactId>commons-codec</artifactId>
       </dependency>
 
-   <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-   </dependency>
-   <!-- test to validate features.xml -->
-   <dependency>
-      <groupId>org.opendaylight.yangtools</groupId>
-      <artifactId>features-test</artifactId>
-      <version>${yangtools.version}</version>
-   </dependency>
-   <!-- dependency for opendaylight-karaf-empty for use by testing -->
-   <dependency>
-      <groupId>org.opendaylight.controller</groupId>
-      <artifactId>opendaylight-karaf-empty</artifactId>
-      <version>1.4.2-SNAPSHOT</version>
-      <type>zip</type>
-   </dependency>
+      <dependency>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+      </dependency>
+
+      <!-- test to validate features.xml -->
+      <dependency>
+          <groupId>org.opendaylight.yangtools</groupId>
+          <artifactId>features-test</artifactId>
+          <version>${yangtools.version}</version>
+      </dependency>
+
+      <!-- dependency for opendaylight-karaf-empty for use by testing -->
+      <dependency>
+          <groupId>org.opendaylight.controller</groupId>
+          <artifactId>opendaylight-karaf-empty</artifactId>
+          <version>${commons.opendaylight.version}</version>
+          <type>zip</type>
+      </dependency>
   </dependencies>
 
   <build>
