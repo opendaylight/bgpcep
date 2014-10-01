@@ -12,12 +12,9 @@ import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
-
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.annotation.concurrent.GuardedBy;
-
 import org.opendaylight.protocol.bgp.rib.impl.spi.AdjRIBsOutRegistration;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
@@ -97,25 +94,24 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable {
             this.rib.clearTable(this, key);
         }
 
-        if (reg != null) {
-            reg.close();
-            reg = null;
+        if (this.reg != null) {
+            this.reg.close();
+            this.reg = null;
         }
 
         this.tables.clear();
-        this.session = null;
     }
 
     @Override
     public void onSessionDown(final BGPSession session, final Exception e) {
         LOG.info("Session with peer {} went down", this.name, e);
-        cleanup();
+        releaseConnection();
     }
 
     @Override
     public void onSessionTerminated(final BGPSession session, final BGPTerminationReason cause) {
         LOG.info("Session with peer {} terminated: {}", this.name, cause);
-        cleanup();
+        releaseConnection();
     }
 
     @Override
