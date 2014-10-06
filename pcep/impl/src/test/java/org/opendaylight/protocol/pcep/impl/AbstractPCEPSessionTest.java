@@ -40,6 +40,10 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class AbstractPCEPSessionTest {
 
+    protected static final String IP_ADDRESS = "127.0.0.1";
+    protected static final short KEEP_ALIVE = 15;
+    protected static final short DEADTIMER = 40;
+
     @Mock
     protected Channel channel;
 
@@ -85,12 +89,12 @@ public class AbstractPCEPSessionTest {
         doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class), any(ChannelHandler.class));
         doReturn(true).when(this.channel).isActive();
         doReturn(mock(ChannelFuture.class)).when(this.channel).close();
-        doReturn(InetSocketAddress.createUnresolved("127.0.0.1", 4189)).when(this.channel).remoteAddress();
-        doReturn(InetSocketAddress.createUnresolved("127.0.0.1", 4189)).when(this.channel).localAddress();
+        doReturn(new InetSocketAddress(IP_ADDRESS, 4189)).when(this.channel).remoteAddress();
+        doReturn(new InetSocketAddress(IP_ADDRESS, 4189)).when(this.channel).localAddress();
         this.openMsg = new OpenBuilder().setOpenMessage(
                 new OpenMessageBuilder().setOpen(
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder().setDeadTimer(
-                                (short) 45).setKeepalive((short) 15).build()).build()).build();
+                                DEADTIMER).setKeepalive(KEEP_ALIVE).setSessionId((short) 0).build()).build()).build();
         this.kaMsg = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
 
         this.listener = new SimpleSessionListener();
