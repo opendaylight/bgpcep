@@ -18,11 +18,9 @@ package org.opendaylight.controller.config.yang.pcep.topology.provider;
 
 import com.google.common.base.Charsets;
 import com.google.common.net.InetAddresses;
-
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
-
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyProvider;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.config.yang.pcep.impl.PCEPDispatcherImplModuleMXBean;
@@ -133,6 +131,7 @@ public final class PCEPTopologyProviderModule extends
         final KeyMapping keys = contructKeys();
 
         try {
+            PCEPTopologyProvider.setRuntimeRootRegistrator(getRootRuntimeBeanRegistratorWrapper());
             return PCEPTopologyProvider.create(getDispatcherDependency(), address, keys.isEmpty() ? null : keys, getSchedulerDependency(),
                     getDataProviderDependency(), getRpcRegistryDependency(), topology, getStatefulPluginDependency());
         } catch (InterruptedException | ExecutionException | TransactionCommitFailedException | ReadFailedException e) {
