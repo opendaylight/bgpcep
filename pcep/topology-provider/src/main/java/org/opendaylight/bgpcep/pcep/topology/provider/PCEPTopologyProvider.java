@@ -15,6 +15,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -37,6 +38,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
     private final BindingAwareBroker.RoutedRpcRegistration<NetworkTopologyPcepService> element;
     private final ServerSessionManager manager;
     private final Channel channel;
+    private static PCEPTopologyProviderRuntimeRegistrator runtimeRootRegistrator;
 
     private PCEPTopologyProvider(final Channel channel, final InstanceIdentifier<Topology> topology, final ServerSessionManager manager,
             final BindingAwareBroker.RoutedRpcRegistration<NetworkTopologyPcepService> element,
@@ -54,6 +56,9 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
             ExecutionException, ReadFailedException, TransactionCommitFailedException {
 
         final ServerSessionManager manager = new ServerSessionManager(dataBroker, topology, listenerFactory);
+        if (runtimeRootRegistrator != null) {
+            manager.registerRuntimeRootRegistartion(runtimeRootRegistrator);
+        }
         final ChannelFuture f = dispatcher.createServer(address, keys, manager);
         f.get();
 
@@ -94,5 +99,9 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
                 }
             }
         });
+    }
+
+    public static void setRuntimeRootRegistrator(final PCEPTopologyProviderRuntimeRegistrator runtimeRootRegistrator) {
+        PCEPTopologyProvider.runtimeRootRegistrator = runtimeRootRegistrator;
     }
 }
