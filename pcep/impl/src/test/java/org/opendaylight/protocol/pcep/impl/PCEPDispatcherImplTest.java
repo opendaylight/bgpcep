@@ -91,11 +91,11 @@ public class PCEPDispatcherImplTest {
                 }).get();
 
         Assert.assertTrue(futureChannel.channel().isActive());
-        Assert.assertEquals(CLIENT1_ADDRESS.getAddress().getHostAddress(), session1.getPeerAddress());
+        Assert.assertEquals(CLIENT1_ADDRESS.getAddress().getHostAddress(), session1.getPeerPref().getIpAddress());
         Assert.assertEquals(DEAD_TIMER, session1.getDeadTimerValue().shortValue());
         Assert.assertEquals(KEEP_ALIVE, session1.getKeepAliveTimerValue().shortValue());
 
-        Assert.assertEquals(CLIENT2_ADDRESS.getAddress().getHostAddress(), session2.getPeerAddress());
+        Assert.assertEquals(CLIENT2_ADDRESS.getAddress().getHostAddress(), session2.getPeerPref().getIpAddress());
         Assert.assertEquals(DEAD_TIMER, session2.getDeadTimerValue().shortValue());
         Assert.assertEquals(KEEP_ALIVE, session2.getKeepAliveTimerValue().shortValue());
 

@@ -17,12 +17,11 @@
 package org.opendaylight.controller.config.yang.pcep.topology.provider;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
-
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
-
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyProvider;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.config.yang.pcep.impl.PCEPDispatcherImplModuleMXBean;
@@ -134,7 +133,8 @@ public final class PCEPTopologyProviderModule extends
 
         try {
             return PCEPTopologyProvider.create(getDispatcherDependency(), address, keys.isEmpty() ? null : keys, getSchedulerDependency(),
-                    getDataProviderDependency(), getRpcRegistryDependency(), topology, getStatefulPluginDependency());
+                    getDataProviderDependency(), getRpcRegistryDependency(), topology, getStatefulPluginDependency(),
+                    Optional.of(getRootRuntimeBeanRegistratorWrapper()));
         } catch (InterruptedException | ExecutionException | TransactionCommitFailedException | ReadFailedException e) {
             LOG.error("Failed to instantiate topology provider at {}", address, e);
             throw new IllegalStateException("Failed to instantiate provider", e);

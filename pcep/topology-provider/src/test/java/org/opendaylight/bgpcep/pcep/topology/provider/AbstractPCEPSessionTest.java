@@ -73,6 +73,8 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     protected static final String ERO_IP_PREFIX = TEST_ADDRESS + IPV4_MASK;
     protected static final String NEW_DESTINATION_ADDRESS = "127.0.1.0";
     protected static final String DST_IP_PREFIX = NEW_DESTINATION_ADDRESS + IPV4_MASK;
+    protected static final short DEAD_TIMER = 30;
+    protected static final short KEEP_ALIVE = 10;
 
     protected List<Notification> receivedMsgs;
 
@@ -92,7 +94,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
 
     private T listenerFactory;
 
-    private final Open localPrefs = new OpenBuilder().setDeadTimer((short) 30).setKeepalive((short) 10).build();
+    private final Open localPrefs = new OpenBuilder().setDeadTimer((short) 30).setKeepalive((short) 10).setSessionId((short) 0).build();
 
     protected ServerSessionManager manager;
 

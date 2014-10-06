@@ -7,6 +7,7 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -15,6 +16,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -50,10 +52,14 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
 
     public static PCEPTopologyProvider create(final PCEPDispatcher dispatcher, final InetSocketAddress address, final KeyMapping keys,
             final InstructionScheduler scheduler, final DataBroker dataBroker, final RpcProviderRegistry rpcRegistry,
-            final InstanceIdentifier<Topology> topology, final TopologySessionListenerFactory listenerFactory) throws InterruptedException,
+            final InstanceIdentifier<Topology> topology, final TopologySessionListenerFactory listenerFactory,
+            Optional<PCEPTopologyProviderRuntimeRegistrator> runtimeRootRegistrator) throws InterruptedException,
             ExecutionException, ReadFailedException, TransactionCommitFailedException {
 
         final ServerSessionManager manager = new ServerSessionManager(dataBroker, topology, listenerFactory);
+        if (runtimeRootRegistrator.isPresent()) {
+            manager.registerRuntimeRootRegistartion(runtimeRootRegistrator.get());
+        }
         final ChannelFuture f = dispatcher.createServer(address, keys, manager);
         f.get();
 

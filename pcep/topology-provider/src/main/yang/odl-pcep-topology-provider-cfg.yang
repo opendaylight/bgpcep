@@ -12,6 +12,8 @@ module odl-pcep-topology-provider-cfg {
     import odl-pcep-api-cfg { prefix pcep; revision-date 2013-04-09; }
     import opendaylight-md-sal-binding { prefix mdsal; revision-date 2013-10-28; }
     import odl-tcpmd5-cfg { prefix tcpmd5; revision-date 2014-04-27; }
+    import rpc-context { prefix rpcx; revision-date 2013-06-17; }
+    import pcep-session-stats { prefix pcep-stats; revision-date 2014-10-06; }
 
     organization "Cisco Systems, Inc.";
 
@@ -154,6 +156,132 @@ module odl-pcep-topology-provider-cfg {
                 leaf password {
                     type tcpmd5:rfc2385-key;
                     description "RFC2385 shared secret";
+                }
+            }
+        }
+    }
+
+    identity session-rpc;
+
+    grouping stateful-preferences {
+        leaf instantiation {
+            description "Represents peer's instantiation capability.";
+            type boolean;
+            default "false";
+        }
+
+        leaf stateful {
+            description "Represents peer's stateful/stateless capability.";
+            type boolean;
+            default "false";
+        }
+
+        leaf active {
+            description "Represents peer's LSP update capability.";
+            type boolean;
+            default "false";
+        }
+    }
+
+    augment "/config:modules/config:module/config:state" {
+        case pcep-topology-provider {
+            when "/config:modules/config:module/config:type = 'pcep-topology-provider'";
+            list listener-state {
+                description "Statistics gained from session listener.";
+                config:inner-state-bean;
+                rpcx:rpc-context-instance "session-rpc";
+
+                key "peer-id";
+
+                leaf peer-id {
+                    type string;
+                }
+
+                container session-state {
+                    leaf session-duration {
+                        description "Elapsed time (in d:H:m:s) from session-up until now.";
+                        type string;
+                    }
+                    uses pcep-stats:pcep-session-state;
+                }
+
+                container peer-capabilities {
+                    description "Remote peer's (PCC) advertised stateful capabilities.";
+                    uses stateful-preferences;
+                }
+
+                leaf delegated-lsps-count {
+                    description "The number of delegated LSPs (tunnels) from PCC.";
+                    type uint16;
+                }
+
+                leaf synchronized {
+                    description "Represents synchronization status.";
+                    type boolean;
+                }
+
+                container stateful-messages {
+                    description "The statistics of sent/received PCEP stateful messages.";
+                    leaf last-received-rpt-msg-timestamp {
+                        description "The timestamp of last received PCRpt message.";
+                        type uint32;
+                    }
+
+                    leaf received-rpt-msg-count {
+                        description "The number of received PcRpt messages.";
+                        type uint32;
+                    }
+
+                    leaf sent-upd-msg-count {
+                        description "The number of sent PCUpd messages.";
+                        type uint32;
+                    }
+
+                    leaf sent-init-msg-count {
+                        description "The number of sent PCInitiate messages.";
+                        type uint32;
+                    }
+                }
+
+                container reply-time {
+                    description "Measures time elapsed from request's send to reply's received.";
+
+                    leaf average-time {
+                        description "Average time (in milliseconds) of gauged values.";
+                        type uint32;
+                    }
+
+                    leaf min-time {
+                        description "Minimal measured time value (in milliseconds).";
+                        type uint32;
+                    }
+
+                    leaf max-time {
+                        description "Maximal measured time value (in milliseconds).";
+                        type uint32;
+                    }
+                }
+              }
+          }
+    }
+
+    rpc tear-down-session {
+        description "Closes the session between PCE and PCC.";
+        input {
+            uses rpcx:rpc-context-ref {
+                refine context-instance {
+                    rpcx:rpc-context-instance session-rpc;
+                }
+            }
+        }
+    }
+
+    rpc reset-stats {
+        description "Resets statistics like message counters and timestamps. (set to 0)";
+        input {
+            uses rpcx:rpc-context-ref {
+                refine context-instance {
+                    rpcx:rpc-context-instance session-rpc;
                 }
             }
         }

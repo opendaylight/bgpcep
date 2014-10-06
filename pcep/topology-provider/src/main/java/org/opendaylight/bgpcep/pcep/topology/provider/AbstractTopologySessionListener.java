@@ -21,6 +21,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.concurrent.GuardedBy;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeMXBean;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeRegistration;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.PeerCapabilities;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.ReplyTime;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.SessionState;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.StatefulMessages;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -59,7 +65,7 @@ import org.slf4j.LoggerFactory;
  * @param <S> identifier type of requests
  * @param <L> identifier type for LSPs
  */
-public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessionListener, TopologySessionListener {
+public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessionListener, TopologySessionListener, ListenerStateRuntimeMXBean {
     protected static final class MessageContext {
         private final Collection<PCEPRequest> requests = new ArrayList<>();
         private final WriteTransaction trans;
@@ -92,6 +98,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
             return this.version;
         }
     };
+
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologySessionListener.class);
 
     protected static final String MISSING_XML_TAG = "Mandatory XML tags are missing.";
@@ -111,8 +118,12 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     private boolean synced = false;
     private PCEPSession session;
 
+    private ListenerStateRuntimeRegistration registration;
+    private final SessionListenerState listenerState;
+
     protected AbstractTopologySessionListener(final ServerSessionManager serverSessionManager) {
         this.serverSessionManager = Preconditions.checkNotNull(serverSessionManager);
+        this.listenerState = new SessionListenerState();
     }
 
     @Override
@@ -160,6 +171,10 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
         this.session = session;
         this.nodeState = state;
+        this.listenerState.init(session);
+        if (this.serverSessionManager.getRuntimeRootRegistration().isPresent()) {
+            this.registration = this.serverSessionManager.getRuntimeRootRegistration().get().register(this);
+        }
         LOG.info("Session with {} attached to topology node {}", session.getRemoteAddress(), state.getNodeId());
     }
 
@@ -230,6 +245,9 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
     @Override
     public void close() {
+        if (this.registration != null) {
+            this.registration.close();
+        }
         if (this.session != null) {
             this.session.close(TerminationReason.Unknown);
         }
@@ -237,6 +255,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
     protected final synchronized PCEPRequest removeRequest(final S id) {
         final PCEPRequest ret = this.requests.remove(id);
+        this.listenerState.processRequestStats(ret.getElapsedMillis());
         LOG.trace("Removed request {} object {}", id, ret);
         return ret;
     }
@@ -244,6 +263,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     protected final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId,
         final Metadata metadata) {
         final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
+        this.listenerState.updateStatefulSentMsg(message);
         final PCEPRequest req = new PCEPRequest(metadata);
         this.requests.put(requestId, req);
 
@@ -418,4 +438,53 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     }
 
     protected abstract Object validateReportedLsp(final Optional<ReportedLsp> rep, final LspId input);
+
+    protected SessionListenerState getSessionListenerState() {
+        return this.listenerState;
+    }
+
+    @Override
+    public Integer getDelegatedLspsCount() {
+        return this.lsps.size();
+    }
+
+    @Override
+    public Boolean getSynchronized() {
+        return this.synced;
+    }
+
+    @Override
+    public StatefulMessages getStatefulMessages() {
+        return this.listenerState.getStatefulMessages();
+    }
+
+    @Override
+    public void resetStats() {
+        this.listenerState.resetStats(this.session);
+    }
+
+    @Override
+    public ReplyTime getReplyTime() {
+        return this.listenerState.getReplyTime();
+    }
+
+    @Override
+    public PeerCapabilities getPeerCapabilities() {
+        return this.listenerState.getPeerCapabilities();
+    }
+
+    @Override
+    public void tearDownSession() {
+        this.close();
+    }
+
+    @Override
+    public SessionState getSessionState() {
+        return this.listenerState.getSessionState(this.session);
+    }
+
+    @Override
+    public String getPeerId() {
+        return this.session.getPeerPref().getIpAddress();
+    }
 }
