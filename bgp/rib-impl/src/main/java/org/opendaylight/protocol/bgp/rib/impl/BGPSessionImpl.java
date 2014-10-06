@@ -332,7 +332,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
     }
 
     @VisibleForTesting
-    protected void setLastMessageSentAt(final long lastMessageSentAt) {
+    protected synchronized void setLastMessageSentAt(final long lastMessageSentAt) {
         this.lastMessageSentAt = lastMessageSentAt;
     }
 }
