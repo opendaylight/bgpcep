@@ -1,0 +1,124 @@
+// vi: set smarttab et sw=4 tabstop=4:
+module pcep-session-stats {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:pcep:stats";
+    prefix "pcep-stats";
+
+    organization "Cisco Systems, Inc.";
+
+    contact "Milos Fabian <milfabia@cisco.com>";
+
+    description
+        "This module contains the base YANG definitions for
+         PCEP session statistics.
+
+        Copyright (c)2014 Cisco Systems, Inc. All rights reserved.;
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2014-10-06" {
+        description
+            "Initial revision";
+    }
+
+    grouping error {
+        description "PCEP Error-type/value.";
+        leaf error-type {
+            type uint8;
+            default 0;
+        }
+        leaf error-value {
+            type uint8;
+            default 0;
+        }
+    }
+
+    grouping preferences {
+        leaf keepalive {
+            description "Advertised keep-alive value.";
+            type uint8;
+            default 0;
+        }
+
+        leaf deadtimer {
+            description "Advertised deadtimer value.";
+            type uint8;
+            default 0;
+        }
+
+        leaf ip-address {
+            description "Peer's IP address.";
+            type string;
+            default "";
+        }
+
+        leaf session-id {
+            description "Peer's session identifier.";
+            type uint16;
+            default 0;
+        }
+    }
+
+    grouping pcep-session-state {
+        description "PCEP session statistics.";
+
+        container messages {
+            description "The statistics of PCEP received/sent messages from the PCE point of view.";
+            leaf received-msg-count {
+                description "Total number of received PCEP messages.";
+                type uint32;
+            }
+
+            leaf sent-msg-count {
+                description "Total number of sent PCEP messages.";
+                type uint32;
+            }
+
+            leaf last-sent-msg-timestamp {
+                description "The timestamp of last sent message.";
+                type uint32;
+            }
+
+            leaf unknown-msg-received {
+                description "The number of received unknown messages.";
+                type uint16;
+            }
+
+            container error-messages {
+                description "The message statistics of received/sent PCErr messages.";
+                leaf received-error-msg-count {
+                    description "Total number of received PCErr messages.";
+                    type uint32;
+                }
+
+                leaf sent-error-msg-count {
+                    description "Total number of sent PCErr messages.";
+                    type uint32;
+                }
+
+                container last-received-error {
+                    description "Type/value tuple of last received error.";
+                    uses error;
+                }
+
+                container last-sent-error {
+                    description "Type/value tuple of last sent error.";
+                    uses error;
+                }
+            }
+        }
+
+        container local-pref {
+            description "The local (PCE) preferences.";
+            uses preferences;
+        }
+
+        container peer-pref {
+            description "The remote peer (PCC) preferences.";
+            uses preferences;
+        }
+    }
+}

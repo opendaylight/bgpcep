@@ -15,6 +15,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeMXBean;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistration;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderRuntimeRegistrator;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -46,7 +49,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-final class ServerSessionManager implements SessionListenerFactory<PCEPSessionListener>, AutoCloseable, TopologySessionRPCs {
+final class ServerSessionManager implements SessionListenerFactory<PCEPSessionListener>, AutoCloseable, TopologySessionRPCs, PCEPTopologyProviderRuntimeMXBean {
     private static final Logger LOG = LoggerFactory.getLogger(ServerSessionManager.class);
     private static final long DEFAULT_HOLD_STATE_NANOS = TimeUnit.MINUTES.toNanos(5);
 
@@ -55,6 +58,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
     private final TopologySessionListenerFactory listenerFactory;
     private final InstanceIdentifier<Topology> topology;
     private final DataBroker broker;
+    private PCEPTopologyProviderRuntimeRegistration runtimeRootRegistration;
 
     public ServerSessionManager(final DataBroker broker, final InstanceIdentifier<Topology> topology,
             final TopologySessionListenerFactory listenerFactory) throws ReadFailedException, TransactionCommitFailedException {
@@ -174,5 +178,16 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
         final WriteTransaction t = this.broker.newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, this.topology);
         t.submit().checkedGet();
+        if (this.runtimeRootRegistration != null) {
+            this.runtimeRootRegistration.close();
+        }
+    }
+
+    public void registerRuntimeRootRegistartion(final PCEPTopologyProviderRuntimeRegistrator runtimeRootRegistrator) {
+        this.runtimeRootRegistration = runtimeRootRegistrator.register(this);
+    }
+
+    public PCEPTopologyProviderRuntimeRegistration getRuntimeRootRegistration() {
+        return this.runtimeRootRegistration;
     }
 }
