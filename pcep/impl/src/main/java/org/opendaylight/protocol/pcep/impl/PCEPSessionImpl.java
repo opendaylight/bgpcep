@@ -28,6 +28,15 @@ import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.LocalPref;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.LocalPrefBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.Messages;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.MessagesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.PeerPref;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.PeerPrefBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.messages.ErrorMessagesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.messages.error.messages.LastReceivedErrorBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.messages.error.messages.LastSentErrorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.CloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
@@ -35,11 +44,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.KeepaliveMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcerrMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.CCloseMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CCloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObject;
+import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +59,110 @@ import org.slf4j.LoggerFactory;
  * Implementation of PCEPSession. (Not final for testing.)
  */
 @VisibleForTesting
-public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements PCEPSession, PCEPSessionRuntimeMXBean {
+public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements PCEPSession {
+
+    private static final class PCEPSessionState {
+        private long sentMsgCount = 0;
+        private long receivedMsgCount = 0;
+        private long sentErrMsgCount = 0;
+        private long receivedErrMsgCount = 0;
+        private long lastSentMsgTimestamp = 0;
+        private final PeerPref peerPref;
+        private final LocalPref localPref;
+        private final LastReceivedErrorBuilder lastReceivedErrorBuilder;
+        private final LastSentErrorBuilder lastSentErrorBuilder;
+        private final ErrorMessagesBuilder errorsBuilder;
+        private final MessagesBuilder msgsBuilder;
+
+        public PCEPSessionState(final Open remoteOpen, final Open localOpen, final Channel channel) {
+            this.peerPref = getRemotePref(remoteOpen, channel);
+            this.localPref = getLocalPref(localOpen, channel);
+            this.lastReceivedErrorBuilder = new LastReceivedErrorBuilder();
+            this.lastSentErrorBuilder = new LastSentErrorBuilder();
+            this.errorsBuilder = new ErrorMessagesBuilder();
+            this.msgsBuilder = new MessagesBuilder();
+        }
+
+        public Messages getMessages(final int unknownMessagesCount) {
+            this.errorsBuilder.setReceivedErrorMsgCount(this.receivedErrMsgCount);
+            this.errorsBuilder.setSentErrorMsgCount(this.sentErrMsgCount);
+            this.errorsBuilder.setLastReceivedError(this.lastReceivedErrorBuilder.build());
+            this.errorsBuilder.setLastSentError(this.lastSentErrorBuilder.build());
+            this.msgsBuilder.setLastSentMsgTimestamp(TimeUnit.MILLISECONDS.toSeconds(this.lastSentMsgTimestamp));
+            this.msgsBuilder.setReceivedMsgCount(this.receivedMsgCount);
+            this.msgsBuilder.setSentMsgCount(this.sentMsgCount);
+            this.msgsBuilder.setUnknownMsgReceived(unknownMessagesCount);
+            this.msgsBuilder.setErrorMessages(this.errorsBuilder.build());
+            return this.msgsBuilder.build();
+        }
+
+        public void reset() {
+            this.receivedMsgCount = 0;
+            this.sentMsgCount = 0;
+            this.receivedErrMsgCount = 0;
+            this.sentErrMsgCount = 0;
+            this.lastSentMsgTimestamp = 0;
+            this.lastReceivedErrorBuilder.setErrorType((short) 0);
+            this.lastReceivedErrorBuilder.setErrorValue((short) 0);
+            this.lastSentErrorBuilder.setErrorType((short) 0);
+            this.lastSentErrorBuilder.setErrorValue((short) 0);
+        }
+
+        public LocalPref getLocalPref() {
+            return this.localPref;
+        }
+
+        public PeerPref getPeerPref() {
+            return this.peerPref;
+        }
+
+        public void setLastSentError(final Message msg) {
+            this.sentErrMsgCount++;
+            final ErrorObject errObj = getErrorObject(msg);
+            this.lastSentErrorBuilder.setErrorType(errObj.getType());
+            this.lastSentErrorBuilder.setErrorValue(errObj.getValue());
+        }
+
+        public void setLastReceivedError(final Message msg) {
+            final ErrorObject errObj = getErrorObject(msg);
+            this.receivedErrMsgCount++;
+            this.lastReceivedErrorBuilder.setErrorType(errObj.getType());
+            this.lastReceivedErrorBuilder.setErrorValue(errObj.getValue());
+        }
+
+        public void updateLastReceivedMsg() {
+            this.receivedMsgCount++;
+        }
+
+        public void updateLastSentMsg() {
+            this.lastSentMsgTimestamp = System.currentTimeMillis();
+            this.sentMsgCount++;
+        }
+
+        private static ErrorObject getErrorObject(final Message msg) {
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessage errMsg =
+                    ((PcerrMessage) msg).getPcerrMessage();
+            return errMsg.getErrors().get(errMsg.getErrors().size() - 1).getErrorObject();
+        }
+
+        private static PeerPref getRemotePref(final Open open, final Channel channel) {
+            final PeerPrefBuilder peerBuilder = new PeerPrefBuilder();
+            peerBuilder.setDeadtimer(open.getDeadTimer());
+            peerBuilder.setKeepalive(open.getKeepalive());
+            peerBuilder.setIpAddress(((InetSocketAddress) channel.remoteAddress()).getAddress().getHostAddress());
+            peerBuilder.setSessionId(open.getSessionId().intValue());
+            return peerBuilder.build();
+        }
+
+        private static LocalPref getLocalPref(final Open open, final Channel channel) {
+            final LocalPrefBuilder peerBuilder = new LocalPrefBuilder();
+            peerBuilder.setDeadtimer(open.getDeadTimer());
+            peerBuilder.setKeepalive(open.getKeepalive());
+            peerBuilder.setIpAddress(((InetSocketAddress) channel.localAddress()).getAddress().getHostAddress());
+            peerBuilder.setSessionId(open.getSessionId().intValue());
+            return peerBuilder.build();
+        }
+    }
     /**
      * System.nanoTime value about when was sent the last message Protected to be updated also in tests.
      */
@@ -75,10 +190,6 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 
     private static final Logger LOG = LoggerFactory.getLogger(PCEPSessionImpl.class);
 
-    private int sentMsgCount = 0;
-
-    private int receivedMsgCount = 0;
-
     private int maxUnknownMessages;
 
     // True if the listener should not be notified about events
@@ -87,6 +198,8 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
     private final Channel channel;
 
     private final Keepalive kaMessage = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
+
+    private final PCEPSessionState sessionState;
 
     PCEPSessionImpl(final PCEPSessionListener listener, final int maxUnknownMessages, final Channel channel,
         final Open localOpen, final Open remoteOpen) {
@@ -121,6 +234,15 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 
         LOG.info("Session {}[{}] <-> {}[{}] started", channel.localAddress(), localOpen.getSessionId(), channel.remoteAddress(),
             remoteOpen.getSessionId());
+        this.sessionState = new PCEPSessionState(remoteOpen, localOpen, channel);
+    }
+
+    public Integer getKeepAliveTimerValue() {
+        return this.localOpen.getKeepalive().intValue();
+    }
+
+    public Integer getDeadTimerValue() {
+        return this.remoteOpen.getDeadTimer().intValue();
     }
 
     /**
@@ -184,10 +306,13 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
     public Future<Void> sendMessage(final Message msg) {
         final ChannelFuture f = this.channel.writeAndFlush(msg);
         this.lastMessageSentAt = System.nanoTime();
+        this.sessionState.updateLastSentMsg();
         if (!(msg instanceof KeepaliveMessage)) {
             LOG.debug("PCEP Message enqueued: {}", msg);
         }
-        this.sentMsgCount++;
+        if (msg instanceof PcerrMessage) {
+            this.sessionState.setLastSentError(msg);
+        }
 
         f.addListener(new ChannelFutureListener() {
             @Override
@@ -223,7 +348,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
         this.closed = true;
         this.sendMessage(new CloseBuilder().setCCloseMessage(
             new CCloseMessageBuilder().setCClose(new CCloseBuilder().setReason(reason.getShortValue()).build()).build()).build());
-        this.channel.close();
+        this.close();
     }
 
     @Override
@@ -300,7 +425,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
     public synchronized void handleMessage(final Message msg) {
         // Update last reception time
         this.lastMessageReceivedAt = System.nanoTime();
-        this.receivedMsgCount++;
+        this.sessionState.updateLastReceivedMsg();
         if (!(msg instanceof KeepaliveMessage)) {
             LOG.debug("PCEP message {} received.", msg);
         }
@@ -318,47 +443,11 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
             this.close();
         } else {
             // This message needs to be handled by the user
+            if (msg instanceof PcerrMessage) {
+                this.sessionState.setLastReceivedError(msg);
+            }
             this.listener.onMessage(this, msg);
         }
-    }
-
-    /**
-     * @return the sentMsgCount
-     */
-
-    @Override
-    public final Integer getSentMsgCount() {
-        return this.sentMsgCount;
-    }
-
-    /**
-     * @return the receivedMsgCount
-     */
-
-    @Override
-    public final Integer getReceivedMsgCount() {
-        return this.receivedMsgCount;
-    }
-
-    @Override
-    public final Integer getDeadTimerValue() {
-        return Integer.valueOf(this.remoteOpen.getDeadTimer());
-    }
-
-    @Override
-    public final Integer getKeepAliveTimerValue() {
-        return Integer.valueOf(this.localOpen.getKeepalive());
-    }
-
-    @Override
-    public final String getPeerAddress() {
-        final InetSocketAddress a = (InetSocketAddress) this.channel.remoteAddress();
-        return a.getHostName();
-    }
-
-    @Override
-    public void tearDown() {
-        this.close();
     }
 
     @Override
@@ -379,13 +468,32 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
         this.listener.onSessionUp(this);
     }
 
-    @Override
-    public String getNodeIdentifier() {
-        return "";
-    }
-
     @VisibleForTesting
     protected final Queue<Long> getUnknownMessagesTimes() {
         return this.unknownMessagesTimes;
+    }
+
+    @Override
+    public Messages getMessages() {
+        return this.sessionState.getMessages(this.unknownMessagesTimes.size());
+    }
+
+    @Override
+    public LocalPref getLocalPref() {
+        return this.sessionState.getLocalPref();
+    }
+
+    @Override
+    public PeerPref getPeerPref() {
+        return this.sessionState.getPeerPref();
+    }
+
+    @Override
+    public Class<? extends DataContainer> getImplementedInterface() {
+        throw new UnsupportedOperationException();
+    }
+    @Override
+    public void resetStats() {
+        this.sessionState.reset();
     }
 }

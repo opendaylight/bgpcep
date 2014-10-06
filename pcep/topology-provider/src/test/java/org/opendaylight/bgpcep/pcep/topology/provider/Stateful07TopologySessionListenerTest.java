@@ -26,6 +26,7 @@ import java.util.concurrent.Future;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.SessionState;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil;
@@ -104,6 +105,18 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
     public void testStateful07TopologySessionListener() throws Exception {
         this.listener.onSessionUp(this.session);
 
+        assertEquals(TEST_ADDRESS, this.listener.getPeerId());
+        final SessionState state = this.listener.getSessionState();
+        assertNotNull(state);
+        assertEquals(DEAD_TIMER, state.getLocalPref().getDeadtimer().shortValue());
+        assertEquals(KEEP_ALIVE, state.getLocalPref().getKeepalive().shortValue());
+        assertEquals(0, state.getLocalPref().getSessionId().intValue());
+        assertEquals(TEST_ADDRESS, state.getLocalPref().getIpAddress());
+        assertEquals(DEAD_TIMER, state.getPeerPref().getDeadtimer().shortValue());
+        assertEquals(KEEP_ALIVE, state.getPeerPref().getKeepalive().shortValue());
+        assertEquals(0, state.getPeerPref().getSessionId().intValue());
+        assertEquals(TEST_ADDRESS, state.getPeerPref().getIpAddress());
+
         // add-lsp
         this.topologyRpcs.addLsp(createAddLspInput());
         assertEquals(1, this.receivedMsgs.size());
@@ -139,6 +152,14 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         Path path = reportedLsp.getPath().get(0);
         assertEquals(1, path.getEro().getSubobject().size());
         assertEquals(ERO_IP_PREFIX, getLastEroIpPrefix(path.getEro()));
+        // check stats
+        assertEquals(1, this.listener.getDelegatedLspsCount().intValue());
+        assertTrue(this.listener.getSynchronized());
+        assertTrue(this.listener.getStatefulMessages().getLastReceivedRptMsgTimestamp() > 0);
+        assertEquals(2, this.listener.getStatefulMessages().getReceivedRptMsgCount().intValue());
+        assertEquals(1, this.listener.getStatefulMessages().getSentInitMsgCount().intValue());
+        assertEquals(0, this.listener.getStatefulMessages().getSentUpdMsgCount().intValue());
+        assertNotNull(this.listener.getSessionState());
 
         // update-lsp
         org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder updArgsBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder();
@@ -165,6 +186,18 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         path = reportedLsp.getPath().get(0);
         assertEquals(2, path.getEro().getSubobject().size());
         assertEquals(DST_IP_PREFIX, getLastEroIpPrefix(path.getEro()));
+        // check stats
+        assertEquals(1, this.listener.getDelegatedLspsCount().intValue());
+        assertTrue(this.listener.getSynchronized());
+        assertTrue(this.listener.getStatefulMessages().getLastReceivedRptMsgTimestamp() > 0);
+        assertEquals(3, this.listener.getStatefulMessages().getReceivedRptMsgCount().intValue());
+        assertEquals(1, this.listener.getStatefulMessages().getSentInitMsgCount().intValue());
+        assertEquals(1, this.listener.getStatefulMessages().getSentUpdMsgCount().intValue());
+        assertTrue(this.listener.getReplyTime().getAverageTime() > 0);
+        assertTrue(this.listener.getReplyTime().getMaxTime() > 0);
+        assertFalse(this.listener.getPeerCapabilities().getActive());
+        assertFalse(this.listener.getPeerCapabilities().getInstantiation());
+        assertTrue(this.listener.getPeerCapabilities().getStateful());
 
         // ensure-operational
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.ensure.lsp.operational.args.ArgumentsBuilder ensureArgs = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.ensure.lsp.operational.args.ArgumentsBuilder();
@@ -190,13 +223,28 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         topology = getTopology().get();
         pcc = topology.getNode().get(0).getAugmentation(Node1.class).getPathComputationClient();
         assertEquals(0, pcc.getReportedLsp().size());
+        // check stats
+        assertEquals(0, this.listener.getDelegatedLspsCount().intValue());
+        assertTrue(this.listener.getSynchronized());
+        assertTrue(this.listener.getStatefulMessages().getLastReceivedRptMsgTimestamp() > 0);
+        assertEquals(4, this.listener.getStatefulMessages().getReceivedRptMsgCount().intValue());
+        assertEquals(2, this.listener.getStatefulMessages().getSentInitMsgCount().intValue());
+        assertEquals(1, this.listener.getStatefulMessages().getSentUpdMsgCount().intValue());
+        this.listener.resetStats();
+        assertEquals(0, this.listener.getStatefulMessages().getLastReceivedRptMsgTimestamp().longValue());
+        assertEquals(0, this.listener.getStatefulMessages().getReceivedRptMsgCount().intValue());
+        assertEquals(0, this.listener.getStatefulMessages().getSentInitMsgCount().intValue());
+        assertEquals(0, this.listener.getStatefulMessages().getSentUpdMsgCount().intValue());
+        assertEquals(0, this.listener.getReplyTime().getAverageTime().longValue());
+        assertEquals(0, this.listener.getReplyTime().getMaxTime().longValue());
+        assertEquals(0, this.listener.getReplyTime().getMinTime().longValue());
     }
 
     @Test
     public void testOnUnhandledErrorMessage() {
         final Message errorMsg = AbstractMessageParser.createErrorMsg(PCEPErrors.NON_ZERO_PLSPID, Optional.<Rp>absent());
         this.listener.onSessionUp(this.session);
-        Assert.assertTrue(this.listener.onMessage(Optional.<AbstractTopologySessionListener.MessageContext>absent().orNull(), errorMsg));
+        assertTrue(this.listener.onMessage(Optional.<AbstractTopologySessionListener.MessageContext>absent().orNull(), errorMsg));
     }
 
     @Test
@@ -207,11 +255,11 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         this.listener.onMessage(this.session, errorMsg);
 
         final AddLspOutput output = futureOutput.get().getResult();
-        Assert.assertEquals(FailureType.Failed ,output.getFailure());
-        Assert.assertEquals(1, output.getError().size());
+        assertEquals(FailureType.Failed ,output.getFailure());
+        assertEquals(1, output.getError().size());
         final ErrorObject err = output.getError().get(0).getErrorObject();
-        Assert.assertEquals(PCEPErrors.NON_ZERO_PLSPID.getErrorType(), err.getType().shortValue());
-        Assert.assertEquals(PCEPErrors.NON_ZERO_PLSPID.getErrorValue(), err.getValue().shortValue());
+        assertEquals(PCEPErrors.NON_ZERO_PLSPID.getErrorType(), err.getType().shortValue());
+        assertEquals(PCEPErrors.NON_ZERO_PLSPID.getErrorValue(), err.getValue().shortValue());
     }
 
     @Test
@@ -222,7 +270,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         this.listener.onSessionDown(this.session, new IllegalArgumentException());
         final AddLspOutput output = futureOutput.get().getResult();
         // deal with unsent request after session down
-        Assert.assertEquals(FailureType.Unsent, output.getFailure());
+        assertEquals(FailureType.Unsent, output.getFailure());
     }
 
     @Test
@@ -239,11 +287,11 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
                 inetAddress, inetAddress, inetAddress);
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs).setSync(true).setRemove(false).setOperational(OperationalStatus.Active).build(), Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(req.getEro().getSubobject()));
         this.listener.onMessage(this.session, pcRpt);
-        Assert.assertEquals(1, getTopology().get().getNode().size());
+        assertEquals(1, getTopology().get().getNode().size());
 
         // node should be removed after termination
         this.listener.onSessionTerminated(this.session, new PCEPCloseTermination(TerminationReason.Unknown));
-        Assert.assertEquals(0, getTopology().get().getNode().size());
+        assertEquals(0, getTopology().get().getNode().size());
     }
 
     @Test
