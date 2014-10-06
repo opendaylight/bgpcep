@@ -7,9 +7,10 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
-
+import java.util.concurrent.TimeUnit;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.lsp.metadata.Metadata;
 import org.slf4j.Logger;
@@ -26,11 +27,13 @@ final class PCEPRequest {
     private final SettableFuture<OperationResult> future;
     private final Metadata metadata;
     private volatile State state;
+    private final Stopwatch stopwatch;
 
     PCEPRequest(final Metadata metadata) {
         this.future = SettableFuture.create();
         this.metadata = metadata;
         this.state = State.UNSENT;
+        this.stopwatch = new Stopwatch().start();
     }
 
     protected ListenableFuture<OperationResult> getFuture() {
@@ -58,5 +61,9 @@ final class PCEPRequest {
             LOG.debug("Request went from {} to {}", state, State.UNACKED);
             state = State.UNACKED;
         }
+    }
+
+    public long getElapsedMillis() {
+        return this.stopwatch.elapsed(TimeUnit.MILLISECONDS);
     }
 }

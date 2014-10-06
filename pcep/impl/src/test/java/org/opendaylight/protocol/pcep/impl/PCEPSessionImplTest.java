@@ -15,6 +15,10 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.LocalPref;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.Messages;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.PeerPref;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.messages.ErrorMessages;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.CloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcerr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcreq;
@@ -34,34 +38,36 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
 
     @After
     public void tearDown() {
-        this.session.tearDown();
+        this.session.close();
     }
 
     @Test
     public void testPcepSessionImpl() throws InterruptedException {
         Assert.assertTrue(this.listener.up);
 
-        Assert.assertEquals(45, this.session.getDeadTimerValue().intValue());
-        Assert.assertEquals(15, this.session.getKeepAliveTimerValue().intValue());
         this.session.handleMessage(this.kaMsg);
-        Assert.assertEquals(1, this.session.getReceivedMsgCount().intValue());
+        Assert.assertEquals(1, this.session.getMessages().getReceivedMsgCount().intValue());
 
         this.session.handleMessage(new PcreqBuilder().build());
-        Assert.assertEquals(2, this.session.getReceivedMsgCount().intValue());
+        Assert.assertEquals(2, this.session.getMessages().getReceivedMsgCount().intValue());
         Assert.assertEquals(1, this.listener.messages.size());
         Assert.assertTrue(this.listener.messages.get(0) instanceof Pcreq);
+        Assert.assertEquals(2, this.session.getMessages().getReceivedMsgCount().intValue());
 
         this.session.handleMessage(new CloseBuilder().build());
-        Assert.assertEquals(3, this.session.getReceivedMsgCount().intValue());
+        Assert.assertEquals(3, this.session.getMessages().getReceivedMsgCount().intValue());
         Assert.assertEquals(1, this.listener.messages.size());
         Assert.assertTrue(this.channel.isActive());
         Mockito.verify(this.channel, Mockito.times(1)).close();
+
+        this.session.resetStats();
+        Assert.assertEquals(0, this.session.getMessages().getReceivedMsgCount().longValue());
     }
 
     @Test
     public void testAttemptSecondSession() {
         this.session.handleMessage(this.openMsg);
-        Assert.assertEquals(1, this.session.getReceivedMsgCount().intValue());
+        Assert.assertEquals(1, this.session.getMessages().getReceivedMsgCount().intValue());
         Assert.assertEquals(1, this.msgsSend.size());
         Assert.assertTrue(this.msgsSend.get(0) instanceof Pcerr);
         final Pcerr pcErr = (Pcerr) this.msgsSend.get(0);
@@ -77,7 +83,7 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
         final Pcerr pcErr = (Pcerr) this.msgsSend.get(0);
         final ErrorObject errorObj = pcErr.getPcerrMessage().getErrors().get(0).getErrorObject();
         Assert.assertEquals(PCEPErrors.CAPABILITY_NOT_SUPPORTED, PCEPErrors.forValue(errorObj.getType(), errorObj.getValue()));
-        Assert.assertEquals(1, this.session.getUnknownMessagesTimes().size());
+        Assert.assertEquals(1, this.session.getMessages().getUnknownMsgReceived().intValue());
         // exceeded max. unknown messages count - terminate session
         Assert.assertTrue(this.msgsSend.get(1) instanceof CloseMessage);
         final CloseMessage closeMsg = (CloseMessage) this.msgsSend.get(1);
@@ -93,12 +99,48 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
     }
 
     @Test
-    public void voidTestCloseSessionWithReason() {
+    public void testCloseSessionWithReason() {
         this.session.close(TerminationReason.Unknown);
         Assert.assertEquals(1, this.msgsSend.size());
         Assert.assertTrue(this.msgsSend.get(0) instanceof CloseMessage);
         final CloseMessage closeMsg = (CloseMessage) this.msgsSend.get(0);
         Assert.assertEquals(TerminationReason.Unknown, TerminationReason.forValue(closeMsg.getCCloseMessage().getCClose().getReason()));
         Mockito.verify(this.channel, Mockito.times(1)).close();
+    }
+
+    @Test
+    public void testSessionStatistics() {
+        this.session.handleMessage(Util.createErrorMessage(PCEPErrors.LSP_RSVP_ERROR, null));
+        Assert.assertEquals(IP_ADDRESS, this.session.getPeerPref().getIpAddress());
+        final PeerPref peerPref = this.session.getPeerPref();
+        Assert.assertEquals(IP_ADDRESS, peerPref.getIpAddress());
+        Assert.assertEquals(DEADTIMER, peerPref.getDeadtimer().shortValue());
+        Assert.assertEquals(KEEP_ALIVE, peerPref.getKeepalive().shortValue());
+        Assert.assertEquals(0, peerPref.getSessionId().intValue());
+        final LocalPref localPref = this.session.getLocalPref();
+        Assert.assertEquals(IP_ADDRESS, localPref.getIpAddress());
+        Assert.assertEquals(DEADTIMER, localPref.getDeadtimer().shortValue());
+        Assert.assertEquals(KEEP_ALIVE, localPref.getKeepalive().shortValue());
+        Assert.assertEquals(0, localPref.getSessionId().intValue());
+        final Messages msgs = this.session.getMessages();
+        Assert.assertEquals(1, msgs.getReceivedMsgCount().longValue());
+        Assert.assertEquals(0, msgs.getSentMsgCount().longValue());
+        Assert.assertEquals(0, msgs.getUnknownMsgReceived().longValue());
+        final ErrorMessages errMsgs = msgs.getErrorMessages();
+        Assert.assertEquals(1, errMsgs.getReceivedErrorMsgCount().intValue());
+        Assert.assertEquals(0, errMsgs.getSentErrorMsgCount().intValue());
+        Assert.assertEquals(PCEPErrors.LSP_RSVP_ERROR.getErrorType(), errMsgs.getLastReceivedError().getErrorType().shortValue());
+        Assert.assertEquals(PCEPErrors.LSP_RSVP_ERROR.getErrorValue(), errMsgs.getLastReceivedError().getErrorValue().shortValue());
+
+        this.session.sendMessage(Util.createErrorMessage(PCEPErrors.UNKNOWN_PLSP_ID, null));
+        final Messages msgs2 = this.session.getMessages();
+        Assert.assertEquals(1, msgs2.getReceivedMsgCount().longValue());
+        Assert.assertEquals(1, msgs2.getSentMsgCount().longValue());
+        Assert.assertEquals(0, msgs2.getUnknownMsgReceived().longValue());
+        final ErrorMessages errMsgs2 = msgs2.getErrorMessages();
+        Assert.assertEquals(1, errMsgs2.getReceivedErrorMsgCount().intValue());
+        Assert.assertEquals(1, errMsgs2.getSentErrorMsgCount().intValue());
+        Assert.assertEquals(PCEPErrors.UNKNOWN_PLSP_ID.getErrorType(), errMsgs2.getLastSentError().getErrorType().shortValue());
+        Assert.assertEquals(PCEPErrors.UNKNOWN_PLSP_ID.getErrorValue(), errMsgs2.getLastSentError().getErrorValue().shortValue());
     }
 }

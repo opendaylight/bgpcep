@@ -19,6 +19,7 @@ import java.nio.ByteBuffer;
 import java.util.Collections;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.PcinitiateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.pcinitiate.message.PcinitiateMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.pcinitiate.message.pcinitiate.message.RequestsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Arguments1;
@@ -78,6 +79,14 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
         if (tlv != null) {
             final Stateful stateful = tlv.getStateful();
             if (stateful != null) {
+                this.capa.setStateful(true);
+                if (stateful.isLspUpdateCapability() != null) {
+                    this.capa.setActive(stateful.isLspUpdateCapability());
+                }
+                final Stateful1 stateful1 = stateful.getAugmentation(Stateful1.class);
+                if (stateful1 != null && stateful1.isInitiation() != null) {
+                    this.capa.setInstantiation(stateful1.isInitiation());
+                }
                 pccBuilder.setReportedLsp(Collections.<ReportedLsp> emptyList());
                 pccBuilder.setStateSync(PccSyncState.InitialResync);
                 pccBuilder.setStatefulTlv(new StatefulTlvBuilder().addAugmentation(StatefulTlv1.class, new StatefulTlv1Builder(tlv).build()).build());
@@ -95,6 +104,8 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
             return true;
         }
 
+        this.lastReceivedRptMsgTimestamp = System.currentTimeMillis();
+        this.receivedRptMsgCount++;
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.pcrpt.message.PcrptMessage rpt = ((PcrptMessage) message).getPcrptMessage();
         for (final Reports r : rpt.getReports()) {
             final Lsp lsp = r.getLsp();
@@ -181,7 +192,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 
                 final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
                 ib.setRequests(Collections.singletonList(rb.build()));
-
+                Stateful02TopologySessionListener.this.sentInitMsgCount++;
                 // Send the message
                 return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), input.getName(),
                     input.getArguments().getMetadata());
@@ -215,6 +226,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 
                 final PcupdMessageBuilder ib = new PcupdMessageBuilder(MESSAGE_HEADER);
                 ib.setUpdates(Collections.singletonList(rb.build()));
+                Stateful02TopologySessionListener.this.sentInitMsgCount++;
                 return sendMessage(new PcupdBuilder().setPcupdMessage(ib.build()).build(), rep.get().getName(), null);
             }
         });
@@ -251,6 +263,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
                 rb.setPath(pb.build());
                 final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
                 ub.setUpdates(Collections.singletonList(rb.build()));
+                Stateful02TopologySessionListener.this.sentUpdMsgCount++;
                 return sendMessage(new PcupdBuilder().setPcupdMessage(ub.build()).build(), rep.get().getName(), input.getArguments().getMetadata());
             }
         });

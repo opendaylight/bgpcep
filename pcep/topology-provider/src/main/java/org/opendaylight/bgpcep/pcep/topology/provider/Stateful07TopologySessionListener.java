@@ -24,6 +24,7 @@ import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.PcinitiateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.PcinitiateMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.pcinitiate.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.pcinitiate.message.RequestsBuilder;
@@ -92,6 +93,14 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
         if (tlvs != null && tlvs.getAugmentation(Tlvs1.class) != null) {
             final Stateful stateful = tlvs.getAugmentation(Tlvs1.class).getStateful();
             if (stateful != null) {
+                this.capa.setStateful(true);
+                if (stateful.isLspUpdateCapability() != null) {
+                    this.capa.setActive(stateful.isLspUpdateCapability());
+                }
+                final Stateful1 stateful1 = stateful.getAugmentation(Stateful1.class);
+                if (stateful1 != null && stateful1.isInitiation() != null) {
+                    this.capa.setInstantiation(stateful1.isInitiation());
+                }
                 pccBuilder.setReportedLsp(Collections.<ReportedLsp> emptyList());
                 pccBuilder.setStateSync(PccSyncState.InitialResync);
                 pccBuilder.setStatefulTlv(new StatefulTlvBuilder().addAugmentation(StatefulTlv1.class,
@@ -130,7 +139,8 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
         if (!(message instanceof PcrptMessage)) {
             return true;
         }
-
+        this.lastReceivedRptMsgTimestamp = System.currentTimeMillis();
+        this.receivedRptMsgCount++;
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.PcrptMessage rpt = ((PcrptMessage) message).getPcrptMessage();
         for (final Reports report : rpt.getReports()) {
             final Lsp lsp = report.getLsp();
@@ -248,7 +258,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 
                 final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
                 ib.setRequests(Collections.singletonList(rb.build()));
-
+                Stateful07TopologySessionListener.this.sentInitMsgCount++;
                 // Send the message
                 return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), rb.getSrp().getOperationId(),
                     input.getArguments().getMetadata());
@@ -285,6 +295,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 
                 final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
                 ib.setRequests(Collections.singletonList(rb.build()));
+                Stateful07TopologySessionListener.this.sentInitMsgCount++;
                 return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), rb.getSrp().getOperationId(), null);
             }
         });
@@ -347,6 +358,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
                     ib.setRequests(reqs);
                     msg = new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build();
                 }
+                Stateful07TopologySessionListener.this.sentUpdMsgCount++;
                 return sendMessage(msg, srp.getOperationId(), input.getArguments().getMetadata());
             }
         });

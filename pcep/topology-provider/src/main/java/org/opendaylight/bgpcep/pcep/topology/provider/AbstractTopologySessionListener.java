@@ -9,12 +9,11 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import io.netty.util.concurrent.FutureListener;
-
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,9 +21,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
+import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
-
+import org.opendaylight.controller.config.yang.pcep.topology.provider.ErrorMessages;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.LastReceivedError;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.LastSentError;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeMXBean;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeRegistration;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.LocalPref;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.Messages;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.PeerCapabilities;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.PeerPref;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.ReplyTime;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.SessionState;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.StatefulMessages;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -62,7 +72,7 @@ import org.slf4j.LoggerFactory;
  * @param <S> identifier type of requests
  * @param <L> identifier type for LSPs
  */
-public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessionListener, TopologySessionListener {
+public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessionListener, TopologySessionListener, ListenerStateRuntimeMXBean {
     protected static final class MessageContext {
         private final Collection<PCEPRequest> requests = new ArrayList<>();
         private final WriteTransaction trans;
@@ -114,8 +124,25 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     private boolean synced = false;
     private PCEPSession session;
 
+    protected long lastReceivedRptMsgTimestamp = 0;
+    protected long receivedRptMsgCount = 0;
+    protected long sentUpdMsgCount = 0;
+    protected long sentInitMsgCount = 0;
+    protected final PeerCapabilities capa = new PeerCapabilities();
+    private LocalPref localPref;
+    private PeerPref peerPref;
+    private final Stopwatch sessionUpDuration;
+
+    private long minReplyTime = 0;
+    private long maxReplyTime = 0;
+    private long totalTime = 0;
+    private long reqCount = 0;
+
+    private ListenerStateRuntimeRegistration registration;
+
     protected AbstractTopologySessionListener(final ServerSessionManager serverSessionManager) {
         this.serverSessionManager = Preconditions.checkNotNull(serverSessionManager);
+        this.sessionUpDuration = new Stopwatch();
     }
 
     @Override
@@ -167,6 +194,12 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
         this.session = session;
         this.nodeState = state;
+        this.localPref = getLocalPref(this.session.getLocalPref());
+        this.peerPref = getPeerPref(this.session.getPeerPref());
+        this.sessionUpDuration.start();
+        if (this.serverSessionManager.getRuntimeRootRegistration() != null) {
+            this.registration = this.serverSessionManager.getRuntimeRootRegistration().register(this);
+        }
         LOG.info("Session with {} attached to topology node {}", session.getRemoteAddress(), state.getNodeId());
     }
 
@@ -237,6 +270,9 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
     @Override
     public void close() {
+        if (this.registration != null) {
+            this.registration.close();
+        }
         if (this.session != null) {
             this.session.close(TerminationReason.Unknown);
         }
@@ -244,8 +280,24 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
     protected final synchronized PCEPRequest removeRequest(final S id) {
         final PCEPRequest ret = this.requests.remove(id);
+        processRequestStats(ret.getElapsedMillis());
         LOG.trace("Removed request {} object {}", id, ret);
         return ret;
+    }
+
+    private void processRequestStats(long duration) {
+        if (this.minReplyTime == 0) {
+            this.minReplyTime = duration;
+        } else {
+            if (duration < this.minReplyTime) {
+                this.minReplyTime = duration;
+            }
+        }
+        if (duration > this.maxReplyTime) {
+            this.maxReplyTime = duration;
+        }
+        this.totalTime += duration;
+        this.reqCount++;
     }
 
     protected final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId,
@@ -417,5 +469,123 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
     protected synchronized final <T extends DataObject> ListenableFuture<Optional<T>> readOperationalData(final InstanceIdentifier<T> id) {
         return this.nodeState.readOperationalData(id);
+    }
+
+    @Override
+    public Integer getDelegatedLspsCount() {
+        return this.lsps.size();
+    }
+
+    @Override
+    public Boolean getSynchronized() {
+        return this.synced;
+    }
+
+    @Override
+    public StatefulMessages getStatefulMessages() {
+        final StatefulMessages msgs = new StatefulMessages();
+        msgs.setLastReceivedRptMsgTimestamp(TimeUnit.MILLISECONDS.toSeconds(this.lastReceivedRptMsgTimestamp));
+        msgs.setReceivedRptMsgCount(this.receivedRptMsgCount);
+        msgs.setSentInitMsgCount(this.sentInitMsgCount);
+        msgs.setSentUpdMsgCount(this.sentUpdMsgCount);
+        return msgs;
+    }
+
+    @Override
+    public void resetStats() {
+        this.receivedRptMsgCount = 0;
+        this.sentInitMsgCount = 0;
+        this.sentUpdMsgCount = 0;
+        this.lastReceivedRptMsgTimestamp = 0;
+        this.maxReplyTime = 0;
+        this.minReplyTime = 0;
+        this.totalTime = 0;
+        this.reqCount = 0;
+        this.session.resetStats();
+    }
+
+    @Override
+    public ReplyTime getReplyTime() {
+        final ReplyTime time = new ReplyTime();
+        long avg = 0;
+        if (this.reqCount != 0) {
+            avg = this.totalTime / this.reqCount;
+        }
+        time.setAverageTime(avg);
+        time.setMaxTime(this.maxReplyTime);
+        time.setMinTime(this.minReplyTime);
+        return time;
+    }
+
+    @Override
+    public PeerCapabilities getPeerCapabilities() {
+        return this.capa;
+    }
+
+    @Override
+    public void tearDownSession() {
+        this.close();
+    }
+
+    @Override
+    public SessionState getSessionState() {
+        final SessionState state = new SessionState();
+        state.setLocalPref(this.localPref);
+        state.setPeerPref(this.peerPref);
+        state.setMessages(getMessageStats(this.session.getMessages()));
+        state.setSessionDuration(formatElapsedTime(this.sessionUpDuration.elapsed(TimeUnit.SECONDS)));
+        return state;
+    }
+
+    @Override
+    public String getPeerId() {
+        return this.session.getPeerPref().getIpAddress();
+    }
+
+    private static LocalPref getLocalPref(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.LocalPref localPref) {
+        final LocalPref local = new LocalPref();
+        local.setDeadtimer(localPref.getDeadtimer());
+        local.setIpAddress(localPref.getIpAddress());
+        local.setKeepalive(localPref.getKeepalive());
+        local.setSessionId(localPref.getSessionId());
+        return local;
+    }
+
+    private static PeerPref getPeerPref(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.PeerPref peerPref) {
+        final PeerPref peer = new PeerPref();
+        peer.setDeadtimer(peerPref.getDeadtimer());
+        peer.setIpAddress(peerPref.getIpAddress());
+        peer.setKeepalive(peerPref.getKeepalive());
+        peer.setSessionId(peerPref.getSessionId());
+        return peer;
+    }
+
+    private static Messages getMessageStats(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.Messages messages) {
+        final LastReceivedError lastReceivedError = new LastReceivedError();
+        lastReceivedError.setErrorType(messages.getErrorMessages().getLastReceivedError().getErrorType());
+        lastReceivedError.setErrorValue(messages.getErrorMessages().getLastReceivedError().getErrorValue());
+        final LastSentError lastSentError = new LastSentError();
+        lastSentError.setErrorType(messages.getErrorMessages().getLastSentError().getErrorType());
+        lastSentError.setErrorValue(messages.getErrorMessages().getLastSentError().getErrorValue());
+        final ErrorMessages errMsgs = new ErrorMessages();
+        errMsgs.setLastReceivedError(lastReceivedError);
+        errMsgs.setLastSentError(lastSentError);
+        errMsgs.setReceivedErrorMsgCount(messages.getErrorMessages().getReceivedErrorMsgCount());
+        errMsgs.setSentErrorMsgCount(messages.getErrorMessages().getSentErrorMsgCount());
+        final Messages msgs = new Messages();
+        msgs.setErrorMessages(errMsgs);
+        msgs.setLastSentMsgTimestamp(messages.getLastSentMsgTimestamp());
+        msgs.setReceivedMsgCount(messages.getReceivedMsgCount());
+        msgs.setSentMsgCount(messages.getSentMsgCount());
+        msgs.setUnknownMsgReceived(msgs.getUnknownMsgReceived());
+        return msgs;
+    }
+
+    private static String formatElapsedTime(final long seconds) {
+        return String.format("%2d:%02d:%02d:%02d",
+                TimeUnit.SECONDS.toDays(seconds),
+                TimeUnit.SECONDS.toHours(seconds) - TimeUnit.DAYS.toHours(TimeUnit.SECONDS.toDays(seconds)),
+                TimeUnit.SECONDS.toMinutes(seconds) - TimeUnit.HOURS.toMinutes(TimeUnit.SECONDS.toHours(seconds)),
+                seconds - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(seconds)));
     }
 }
