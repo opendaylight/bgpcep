@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da87b5cf_c1a6c253",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-10-07T11:20:10Z",
+      "side": 1,
+      "message": "separate method? (for clarification and to avoid too long methods)",
+      "revId": "448f031055729eb7d083673a2909e2caf74e412c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
