@@ -17,6 +17,7 @@ module odl-bgp-rib-impl-cfg {
     import protocol-framework { prefix pf; revision-date 2014-03-13; }
     import odl-tcpmd5-cfg { prefix tcpmd5; revision-date 2014-04-27; }
     import odl-tcpmd5-netty-cfg { prefix tcpmd5n; revision-date 2014-04-27; }
+    import rpc-context { prefix rpcx; revision-date 2013-06-17; }
 
     organization "Cisco Systems, Inc.";
 
@@ -359,6 +360,219 @@ module odl-bgp-rib-impl-cfg {
             }
         }
     }
+
+    grouping message-state {
+        leaf count {
+            description "Total number of BGP messages.";
+            type uint32;
+            default 0;
+        }
+
+        leaf timestamp {
+            description "The BGP message timestamp (seconds).";
+            type uint32;
+            default 0;
+        }
+    }
+
+    grouping message-stats {
+        container received {
+            description "The received BGP messages statistics.";
+            uses message-state;
+        }
+
+        container sent {
+            description "The sent BGP messages statistics.";
+            uses message-state;
+        }
+    }
+
+    grouping error {
+        leaf code {
+            description "The BGP error code.";
+            type uint8;
+            default 0;
+        }
+
+        leaf sub-code {
+            description "The BGP error sub-code.";
+            type uint8;
+            default 0;
+        }
+    }
+
+    grouping preferences {
+        leaf bgp-id {
+            description "The BGP Identifier.";
+            type string;
+            default "";
+        }
+
+        leaf address {
+            description "The IP address of BGP connection.";
+            type string;
+            default "";
+        }
+
+        leaf port {
+            description "The port for connection between the BGP peers.";
+            type uint16;
+            default 0;
+        }
+
+        leaf as {
+            description "Autonomous system number.";
+            type uint32;
+            default 0;
+        }
+
+        leaf holdtime {
+            description "Time interval (in seconds) for HoldTimer proposed by the peer.";
+            type uint16;
+            default 0;
+        }
+
+        leaf four-octet-as-capability {
+            description "The BGP peer 4 byte AS numbers support capability.";
+            type boolean;
+            default "false";
+        }
+
+        list advertized-table-types {
+            description "The BGP Table-type capabilities advertized by the BGP peer.";
+            leaf afi {
+                description "Address Family Identifier.";
+                type string;
+                default "";
+            }
+            leaf safi {
+                description "Subsequent Address Family Identifier.";
+                type string;
+                default "";
+            }
+        }
+    }
+
+    identity peer-rpc;
+
+    augment "/config:modules/config:module/config:state" {
+        case bgp-peer {
+            when "/config:modules/config:module/config:type = 'bgp-peer'";
+
+            rpcx:rpc-context-instance "peer-rpc";
+
+            container bgp-peer-state {
+                list route-table {
+
+                    leaf table-type {
+                        description "The table name - composed of AFI and SAFI.";
+                        type string;
+                    }
+
+                    leaf routes-count {
+                        description "The total number of routes in table.";
+                        type uint32;
+                        default 0;
+                    }
+                }
+
+                leaf session-established-count {
+                    description "The total number of time the BGP session was transitioned to Up state.";
+                    type uint32;
+                    default 0;
+                }
+            }
+
+            container bgp-session-state {
+
+                leaf session-state {
+                    description "The BGP peer connection state.";
+                    type string;
+                }
+
+                leaf session-duration {
+                    description "The session duration (time formated d:HH:mm:ss).";
+                    type string;
+                }
+
+                leaf holdtime-current {
+                    description "Time interval (in seconds) for HoldTimer established with the peer.";
+                    type uint16;
+                    default 0;
+                }
+
+                leaf keepalive-current {
+                    description "Time interval (in seconds) for KeepAlive established with the peer.";
+                    type uint16;
+                    default 0;
+                }
+
+                container speaker-preferences {
+                    description "The BGP speaker preferences, to which this BGP peer is connected.";
+                    uses preferences;
+                }
+
+                container peer-preferences {
+                    description "The BGP peer preferences.";
+                    uses preferences;
+                }
+
+                container messages-stats {
+                    description "The BGP messages statistics.";
+                    container total-msgs {
+                        description "The statistics for all received/sent BGP messages.";
+                        uses message-stats;
+                    }
+
+                    container keep-alive-msgs {
+                        description "The statistics for received/sent BGP Keep-Alive messages.";
+                        uses message-stats;
+                    }
+
+                    container update-msgs {
+                        description "The statistics for received/sent BGP Update messages.";
+                        uses message-stats;
+                    }
+
+                    container error-msgs {
+                        container error-received {
+                            description "The received BGP Error (notification) messages statistics.";
+                            uses message-state;
+                            uses error;
+                        }
+
+                        container error-sent {
+                            description "The sent BGP Error (notification) messages statistics.";
+                            uses message-state;
+                            uses error;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    rpc reset-session {
+        description "Restart the session between BGP peers";
+        input {
+            uses rpcx:rpc-context-ref {
+                refine context-instance {
+                    rpcx:rpc-context-instance peer-rpc;
+                }
+            }
+        }
+     }
+
+     rpc reset-stats {
+        description "Reset the BGP peer statistics.";
+        input {
+            uses rpcx:rpc-context-ref {
+                refine context-instance {
+                    rpcx:rpc-context-instance peer-rpc;
+                }
+            }
+        }
+     }
 
     identity rib-impl {
         base config:module-type;

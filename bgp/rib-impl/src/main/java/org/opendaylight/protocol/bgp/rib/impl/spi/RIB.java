@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import java.util.List;
-
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -40,4 +39,6 @@ public interface RIB {
     ReconnectStrategyFactory getSessionStrategyFactory();
 
     AdjRIBsOutRegistration registerRIBsOut(Peer bgpPeer, AdjRIBsOut aro);
+
+    long getRoutesCount(TablesKey key);
 }

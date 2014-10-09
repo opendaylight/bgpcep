@@ -17,6 +17,7 @@ import com.google.common.util.concurrent.CheckedFuture;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
 import java.math.BigInteger;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,10 +38,12 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
@@ -161,7 +164,7 @@ public class ApplicationPeerTest {
 
     @SuppressWarnings("unchecked")
     @Before
-    public void setUp() throws InterruptedException, ExecutionException {
+    public void setUp() throws InterruptedException, ExecutionException, ReadFailedException {
         MockitoAnnotations.initMocks(this);
         final List<BgpTableType> localTables = new ArrayList<>();
         this.routes = new ArrayList<>();
@@ -207,6 +210,11 @@ public class ApplicationPeerTest {
         this.r = new RIBImpl(new RibId("test"), new AsNumber(5L), new Ipv4Address("127.0.0.1"),
             context , this.dispatcher, this.tcpStrategyFactory, this.tcpStrategyFactory, this.dps, localTables);
         this.peer = new ApplicationPeer(new ApplicationRibId("t"), new Ipv4Address("127.0.0.1"), this.r);
+        final ReadOnlyTransaction readTx = Mockito.mock(ReadOnlyTransaction.class);
+        Mockito.doReturn(readTx).when(this.dps).newReadOnlyTransaction();
+        final CheckedFuture<Optional<DataObject>, ReadFailedException> readFuture = Mockito.mock(CheckedFuture.class);
+        Mockito.doReturn(Optional.<DataObject>absent()).when(readFuture).checkedGet();
+        Mockito.doReturn(readFuture).when(readTx).read(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class));
     }
 
     @Test
@@ -259,6 +267,8 @@ public class ApplicationPeerTest {
         Mockito.doReturn(null).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
         Mockito.doReturn(Boolean.TRUE).when(this.channel).isWritable();
         Mockito.doReturn(null).when(this.channel).close();
+        Mockito.doReturn(new InetSocketAddress("localhost", 12345)).when(this.channel).remoteAddress();
+        Mockito.doReturn(new InetSocketAddress("localhost", 12345)).when(this.channel).localAddress();
         final List<BgpParameters> params = Lists.newArrayList(new BgpParametersBuilder().setCParameters(new MultiprotocolCaseBuilder()
             .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()).build()).build());
         this.session = new BGPSessionImpl(this.classic, this.channel, new OpenBuilder().setBgpIdentifier(new Ipv4Address("1.1.1.1")).setHoldTimer(50).setMyAsNumber(72).setBgpParameters(params).build(), 30);
@@ -284,9 +294,13 @@ public class ApplicationPeerTest {
         assertEquals(2, this.routes.size());
 
         //create new peer so that it gets advertized routes from RIB
-        final BGPPeer testingPeer = new BGPPeer("testingPeer", this.r);
-        testingPeer.onSessionUp(this.session);
-        assertEquals(4, this.routes.size());
+        try (final BGPPeer testingPeer = new BGPPeer("testingPeer", this.r)) {
+            testingPeer.onSessionUp(this.session);
+            assertEquals(4, this.routes.size());
+            assertEquals(1, testingPeer.getBgpPeerState().getSessionEstablishedCount().intValue());
+            assertEquals(1, testingPeer.getBgpPeerState().getRouteTable().size());
+            assertNotNull(testingPeer.getBgpSessionState());
+        }
 
         ub.setNlri(null);
         ub.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setWithdrawnRoutes(prefs).build());
