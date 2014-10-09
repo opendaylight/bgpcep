@@ -16,7 +16,6 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
-import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.ProtocolSession;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.SessionListener;
@@ -25,8 +24,7 @@ import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPHandlerFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 
-public class PCCMock<M, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> extends
-        AbstractDispatcher<S, L> {
+public class PCCMock<M, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> extends BindableDispatcher<S, L> {
 
     private final SessionNegotiatorFactory<M, S, L> negotiatorFactory;
     private final PCEPHandlerFactory factory;
@@ -38,9 +36,9 @@ public class PCCMock<M, S extends ProtocolSession<M>, L extends SessionListener<
         this.factory = Preconditions.checkNotNull(factory);
     }
 
-    public Future<S> createClient(final InetSocketAddress address, final ReconnectStrategy strategy,
+    public Future<S> createClient(final InetSocketAddress localAddress, final InetSocketAddress remoteAddress, final ReconnectStrategy strategy,
             final SessionListenerFactory<L> listenerFactory) {
-        return super.createClient(address, strategy, new PipelineInitializer<S>() {
+        return super.createClient(localAddress, remoteAddress, strategy, new PipelineInitializer<S>() {
             @Override
             public void initializeChannel(final SocketChannel ch, final Promise<S> promise) {
                 ch.pipeline().addLast(PCCMock.this.factory.getDecoders());
