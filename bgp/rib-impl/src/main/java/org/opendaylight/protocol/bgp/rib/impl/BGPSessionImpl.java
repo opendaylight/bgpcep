@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
@@ -20,9 +21,12 @@ import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
+import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionStatistics;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
@@ -45,7 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @VisibleForTesting
-public class BGPSessionImpl extends AbstractProtocolSession<Notification> implements BGPSession {
+public class BGPSessionImpl extends AbstractProtocolSession<Notification> implements BGPSession, BGPSessionStatistics {
 
     private static final Logger LOG = LoggerFactory.getLogger(BGPSessionImpl.class);
 
@@ -98,6 +102,12 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
     private final int keepAlive;
     private final AsNumber asNumber;
     private final Ipv4Address bgpId;
+    private BGPSessionStats sessionStats;
+
+    public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen, final BGPSessionPreferences localPreferences) {
+        this(listener, channel, remoteOpen, localPreferences.getHoldTime());
+        this.sessionStats = new BGPSessionStats(remoteOpen, this.holdTimerValue, this.keepAlive, channel, Optional.of(localPreferences), this.tableTypes);
+    }
 
     public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen, final int localHoldTimer) {
         this.listener = Preconditions.checkNotNull(listener);
@@ -113,7 +123,8 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
             for (final BgpParameters param : remoteOpen.getBgpParameters()) {
                 final CParameters cp = param.getCParameters();
                 if (cp instanceof MultiprotocolCase) {
-                    final TablesKey tt = new TablesKey(((MultiprotocolCase) cp).getMultiprotocolCapability().getAfi(), ((MultiprotocolCase) cp).getMultiprotocolCapability().getSafi());
+                    final TablesKey tt = new TablesKey(((MultiprotocolCase) cp).getMultiprotocolCapability().getAfi(),
+                            ((MultiprotocolCase) cp).getMultiprotocolCapability().getSafi());
                     LOG.trace("Added table type to sync {}", tt);
                     tts.add(tt);
                     tats.add(new BgpTableTypeImpl(tt.getAfi(), tt.getSafi()));
@@ -140,6 +151,8 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
             }, this.keepAlive, TimeUnit.SECONDS);
         }
         this.bgpId = remoteOpen.getBgpIdentifier();
+        this.sessionStats = new BGPSessionStats(remoteOpen, this.holdTimerValue, this.keepAlive, channel, Optional.<BGPSessionPreferences>absent(),
+                this.tableTypes);
     }
 
     @Override
@@ -161,6 +174,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
     public synchronized void handleMessage(final Notification msg) {
         // Update last reception time
         this.lastMessageReceivedAt = System.nanoTime();
+        this.sessionStats.updateReceivedMsgTotal();
 
         if (msg instanceof Open) {
             // Open messages should not be present here
@@ -172,10 +186,12 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
             this.closeWithoutMessage();
             this.listener.onSessionTerminated(this, new BGPTerminationReason(BGPError.forValue(((Notify) msg).getErrorCode(),
                 ((Notify) msg).getErrorSubcode())));
+            this.sessionStats.updateReceivedMsgErr((Notify) msg);
         } else if (msg instanceof Keepalive) {
             // Keepalives are handled internally
             LOG.trace("Received KeepAlive messsage.");
             this.kaCounter++;
+            this.sessionStats.updateReceivedMsgKA();
             if (this.kaCounter >= 2) {
                 this.sync.kaReceived();
             }
@@ -183,6 +199,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
             // All others are passed up
             this.listener.onMessage(this, msg);
             this.sync.updReceived((Update) msg);
+            this.sessionStats.updateReceivedMsgUpd();
         }
     }
 
@@ -207,6 +224,12 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
                     }
                 });
             this.lastMessageSentAt = System.nanoTime();
+            this.sessionStats.updateSentMsgTotal();
+            if (msg instanceof Update) {
+                this.sessionStats.updateSentMsgUpd();
+            } else if (msg instanceof Notify) {
+                this.sessionStats.updateSentMsgErr((Notify) msg);
+            }
         } catch (final Exception e) {
             LOG.warn("Message {} was not sent.", msg, e);
         }
@@ -275,6 +298,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
         if (ct >= nextKeepalive) {
             this.sendMessage(KEEP_ALIVE);
             nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
+            this.sessionStats.updateSentMsgKA();
         }
         this.channel.eventLoop().schedule(new Runnable() {
             @Override
@@ -302,6 +326,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 
     @Override
     protected synchronized void sessionUp() {
+        this.sessionStats.startSessionStopwatch();
         this.state = State.Up;
         this.listener.onSessionUp(this);
     }
@@ -327,11 +352,20 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
     synchronized void schedule(final Runnable task) {
         Preconditions.checkState(this.channel != null);
         this.channel.eventLoop().submit(task);
-
     }
 
     @VisibleForTesting
     protected synchronized void setLastMessageSentAt(final long lastMessageSentAt) {
         this.lastMessageSentAt = lastMessageSentAt;
+    }
+
+    @Override
+    public BgpSessionState getBgpSesionState() {
+        return this.sessionStats.getBgpSessionState(this.state);
+    }
+
+    @Override
+    public synchronized void resetSessionStats() {
+        this.sessionStats.resetStats();
     }
 }

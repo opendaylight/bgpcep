@@ -22,6 +22,7 @@ import org.opendaylight.controller.config.yang.pcep.topology.provider.ReplyTime;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.SessionState;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.StatefulMessages;
 import org.opendaylight.protocol.pcep.PCEPSession;
+import org.opendaylight.protocol.util.StatisticsUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Pcinitiate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcupd;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -70,7 +71,7 @@ final class SessionListenerState {
 
     public StatefulMessages getStatefulMessages() {
         final StatefulMessages msgs = new StatefulMessages();
-        msgs.setLastReceivedRptMsgTimestamp(TimeUnit.MILLISECONDS.toSeconds(this.lastReceivedRptMsgTimestamp));
+        msgs.setLastReceivedRptMsgTimestamp(this.lastReceivedRptMsgTimestamp);
         msgs.setReceivedRptMsgCount(this.receivedRptMsgCount);
         msgs.setSentInitMsgCount(this.sentInitMsgCount);
         msgs.setSentUpdMsgCount(this.sentUpdMsgCount);
@@ -112,7 +113,7 @@ final class SessionListenerState {
         state.setLocalPref(this.localPref);
         state.setPeerPref(this.peerPref);
         state.setMessages(getMessageStats(session.getMessages()));
-        state.setSessionDuration(formatElapsedTime(this.sessionUpDuration.elapsed(TimeUnit.SECONDS)));
+        state.setSessionDuration(StatisticsUtil.formatElapsedTime(this.sessionUpDuration.elapsed(TimeUnit.SECONDS)));
         return state;
     }
 
@@ -121,7 +122,7 @@ final class SessionListenerState {
     }
 
     public void updateLastReceivedRptMsg() {
-        this.lastReceivedRptMsgTimestamp = System.currentTimeMillis();
+        this.lastReceivedRptMsgTimestamp = StatisticsUtil.getCurrentTimestampInSeconds();
         this.receivedRptMsgCount++;
     }
 
@@ -170,13 +171,5 @@ final class SessionListenerState {
         msgs.setSentMsgCount(messages.getSentMsgCount());
         msgs.setUnknownMsgReceived(msgs.getUnknownMsgReceived());
         return msgs;
-    }
-
-    private static String formatElapsedTime(final long seconds) {
-        return String.format("%2d:%02d:%02d:%02d",
-                TimeUnit.SECONDS.toDays(seconds),
-                TimeUnit.SECONDS.toHours(seconds) - TimeUnit.DAYS.toHours(TimeUnit.SECONDS.toDays(seconds)),
-                TimeUnit.SECONDS.toMinutes(seconds) - TimeUnit.HOURS.toMinutes(TimeUnit.SECONDS.toHours(seconds)),
-                seconds - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(seconds)));
     }
 }

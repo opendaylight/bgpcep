@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -35,6 +37,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -63,6 +66,8 @@ public class BGPSessionImplTest {
     private static final int HOLD_TIMER = 3;
     private static final AsNumber AS_NUMBER = new AsNumber(30L);
     private static final Ipv4Address BGP_ID = new Ipv4Address("1.1.1.2");
+    private static final String LOCAL_IP = "1.1.1.4";
+    private static final int LOCAL_PORT = 12345;
 
     @Mock
     private EventLoop eventLoop;
@@ -120,6 +125,7 @@ public class BGPSessionImplTest {
         }).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
         doReturn("TestingChannel").when(this.speakerListener).toString();
         doReturn(new InetSocketAddress(InetAddress.getByName(BGP_ID.getValue()), 179)).when(this.speakerListener).remoteAddress();
+        doReturn(new InetSocketAddress(InetAddress.getByName(LOCAL_IP), LOCAL_PORT)).when(this.speakerListener).localAddress();
         doReturn(this.pipeline).when(this.speakerListener).pipeline();
         doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class), any(ChannelHandler.class));
         doReturn(mock(ChannelFuture.class)).when(this.speakerListener).close();
@@ -130,26 +136,58 @@ public class BGPSessionImplTest {
     @Test
     public void testBGPSession() {
         this.bgpSession.sessionUp();
-        Assert.assertEquals(BGPSessionImpl.State.Up, this.bgpSession.getState());
-        Assert.assertEquals(AS_NUMBER, this.bgpSession.getAsNumber());
-        Assert.assertEquals(BGP_ID, this.bgpSession.getBgpId());
-        Assert.assertEquals(1, this.bgpSession.getAdvertisedTableTypes().size());
-        Assert.assertTrue(this.listener.up);
+        assertEquals(BGPSessionImpl.State.Up, this.bgpSession.getState());
+        assertEquals(AS_NUMBER, this.bgpSession.getAsNumber());
+        assertEquals(BGP_ID, this.bgpSession.getBgpId());
+        assertEquals(1, this.bgpSession.getAdvertisedTableTypes().size());
+        assertTrue(this.listener.up);
+        //test stats
+        BgpSessionState state = this.bgpSession.getBgpSesionState();
+        assertEquals(HOLD_TIMER, state.getHoldtimeCurrent().intValue());
+        assertEquals(1, state.getKeepaliveCurrent().intValue());
+        assertEquals("Up", state.getSessionState());
+        assertEquals(BGP_ID.getValue(), state.getPeerPreferences().getAddress());
+        assertEquals(AS_NUMBER.getValue(), state.getPeerPreferences().getAs());
+        assertEquals(BGP_ID.getValue(), state.getPeerPreferences().getBgpId());
+        assertEquals(1, state.getPeerPreferences().getAdvertizedTableTypes().size());
+        assertEquals(HOLD_TIMER, state.getPeerPreferences().getHoldtime().intValue());
+        assertTrue(state.getPeerPreferences().getFourOctetAsCapability());
+        assertEquals(LOCAL_IP, state.getSpeakerPreferences().getAddress());
+        assertEquals(LOCAL_PORT, state.getSpeakerPreferences().getPort().intValue());
+        assertEquals(0, state.getMessagesStats().getTotalMsgs().getReceived().getCount().longValue());
+        assertEquals(0, state.getMessagesStats().getTotalMsgs().getSent().getCount().longValue());
 
         this.bgpSession.handleMessage(new UpdateBuilder().build());
-        Assert.assertEquals(1, this.listener.getListMsg().size());
-        Assert.assertTrue(this.listener.getListMsg().get(0) instanceof Update);
+        assertEquals(1, this.listener.getListMsg().size());
+        assertTrue(this.listener.getListMsg().get(0) instanceof Update);
+        assertEquals(1, state.getMessagesStats().getTotalMsgs().getReceived().getCount().longValue());
+        assertEquals(1, state.getMessagesStats().getUpdateMsgs().getReceived().getCount().longValue());
+        assertEquals(0, state.getMessagesStats().getUpdateMsgs().getSent().getCount().longValue());
 
         this.bgpSession.handleMessage(new KeepaliveBuilder().build());
         this.bgpSession.handleMessage(new KeepaliveBuilder().build());
+        assertEquals(3, state.getMessagesStats().getTotalMsgs().getReceived().getCount().longValue());
+        assertEquals(2, state.getMessagesStats().getKeepAliveMsgs().getReceived().getCount().longValue());
+        assertEquals(0, state.getMessagesStats().getKeepAliveMsgs().getSent().getCount().longValue());
 
         this.bgpSession.close();
-        Assert.assertEquals(BGPSessionImpl.State.Idle, this.bgpSession.getState());
-        Assert.assertEquals(1, this.receivedMsgs.size());
-        Assert.assertTrue(this.receivedMsgs.get(0) instanceof Notify);
+        assertEquals(BGPSessionImpl.State.Idle, this.bgpSession.getState());
+        assertEquals(1, this.receivedMsgs.size());
+        assertTrue(this.receivedMsgs.get(0) instanceof Notify);
         final Notify error = (Notify) this.receivedMsgs.get(0);
-        Assert.assertEquals(BGPError.CEASE.getCode(), error.getErrorCode().shortValue());
+        assertEquals(BGPError.CEASE.getCode(), error.getErrorCode().shortValue());
+        assertEquals(BGPError.CEASE.getSubcode(), error.getErrorSubcode().shortValue());
         Mockito.verify(this.speakerListener).close();
+        assertEquals(3, state.getMessagesStats().getTotalMsgs().getReceived().getCount().longValue());
+        assertEquals(1, state.getMessagesStats().getTotalMsgs().getSent().getCount().longValue());
+        assertEquals(1, state.getMessagesStats().getErrorMsgs().getErrorSent().getCount().longValue());
+        assertEquals(BGPError.CEASE.getCode(), state.getMessagesStats().getErrorMsgs().getErrorSent().getCode().shortValue());
+        assertEquals(BGPError.CEASE.getSubcode(), state.getMessagesStats().getErrorMsgs().getErrorSent().getSubCode().shortValue());
+
+        this.bgpSession.resetSessionStats();
+        assertEquals(0, state.getMessagesStats().getTotalMsgs().getReceived().getCount().longValue());
+        assertEquals(0, state.getMessagesStats().getTotalMsgs().getSent().getCount().longValue());
+        assertEquals(0, state.getMessagesStats().getErrorMsgs().getErrorSent().getCount().longValue());
     }
 
     @Test
@@ -167,6 +205,9 @@ public class BGPSessionImplTest {
     @Test
     public void testHandleNotifyMsg() {
         this.bgpSession.handleMessage(new NotifyBuilder().setErrorCode(BGPError.BAD_BGP_ID.getCode()).setErrorSubcode(BGPError.BAD_BGP_ID.getSubcode()).build());
+        assertEquals(1, this.bgpSession.getBgpSesionState().getMessagesStats().getErrorMsgs().getErrorReceived().getCount().longValue());
+        assertEquals(BGPError.BAD_BGP_ID.getCode(), this.bgpSession.getBgpSesionState().getMessagesStats().getErrorMsgs().getErrorReceived().getCode().shortValue());
+        assertEquals(BGPError.BAD_BGP_ID.getSubcode(), this.bgpSession.getBgpSesionState().getMessagesStats().getErrorMsgs().getErrorReceived().getSubCode().shortValue());
         Assert.assertEquals(BGPSessionImpl.State.Idle, this.bgpSession.getState());
         Mockito.verify(this.speakerListener).close();
     }
