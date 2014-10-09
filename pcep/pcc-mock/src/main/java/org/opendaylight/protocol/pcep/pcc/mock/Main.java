@@ -46,15 +46,19 @@ public final class Main {
             return;
         }
 
-        InetAddress address = null;
+        InetAddress localAddress = InetAddress.getByName("127.0.0.1");
+        InetAddress remoteAddress = null;
         int pccCount = 1;
         int lsps = 1;
         boolean pcError = false;
 
         int argIdx = 0;
         while (argIdx < args.length) {
-            if (args[argIdx].equals("--address")) {
-                address = InetAddress.getByName(args[argIdx + 1]);
+            if (args[argIdx].equals("--local-address")) {
+                localAddress = InetAddress.getByName(args[argIdx + 1]);
+                argIdx++;
+            } else if (args[argIdx].equals("--remote-address")) {
+                remoteAddress = InetAddress.getByName(args[argIdx + 1]);
                 argIdx++;
             } else if (args[argIdx].equals("--pcc")) {
                 pccCount = Integer.valueOf(args[argIdx + 1]);
@@ -70,12 +74,12 @@ public final class Main {
             }
             argIdx++;
         }
-        Preconditions.checkState(address != null, "Missing mandatory address parameter.");
-        createPCCs(lsps, pcError, pccCount, address);
+        Preconditions.checkState(remoteAddress != null, "Missing mandatory remote-address parameter.");
+        createPCCs(lsps, pcError, pccCount, localAddress, remoteAddress);
     }
 
     public static void createPCCs(final int lspsPerPcc, final boolean pcerr, final int pccCount,
-            final InetAddress address) throws InterruptedException, ExecutionException {
+            final InetAddress localAddress, final InetAddress remoteAddress) throws InterruptedException, ExecutionException {
         final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf = new DefaultPCEPSessionNegotiatorFactory(
                 new OpenBuilder().setKeepalive(DEFAULT_KEEP_ALIVE).setDeadTimer(DEFAULT_DEAD_TIMER).setSessionId((short) 0).build(), 0);
 
@@ -87,12 +91,13 @@ public final class Main {
                 ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry()),
                 new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE));
 
-        InetAddress inetAddress = address;
+        final InetAddress pceAddress = remoteAddress;
+        InetAddress currentAddress = localAddress;
         int i = 0;
         while (i < pccCount) {
             final int pccNumber = i + 1;
-            final InetAddress pccAddress = inetAddress;
-            pcc.createClient(new InetSocketAddress(pccAddress, DEFAULT_PORT),
+            final InetAddress pccAddress = currentAddress;
+            pcc.createClient(new InetSocketAddress(pccAddress, 0), new InetSocketAddress(pceAddress, DEFAULT_PORT),
                     new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_STRATEGY_TIMEOUT),
                     new SessionListenerFactory<PCEPSessionListener>() {
 
@@ -102,7 +107,7 @@ public final class Main {
                         }
                     }).get();
             i++;
-            inetAddress = InetAddresses.increment(inetAddress);
+            currentAddress = InetAddresses.increment(currentAddress);
         }
     }
 
