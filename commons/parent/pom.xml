@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>odlparent</artifactId>
-        <version>1.4.2-SNAPSHOT</version>
+        <version>1.5.0-SNAPSHOT</version>
         <relativePath></relativePath>
     </parent>
 
@@ -56,18 +56,18 @@
         <surefire.version>2.15</surefire.version>
 
         <!-- YANG tools artifacts -->
-        <yangtools.version>0.6.2-SNAPSHOT</yangtools.version>
-        <ietf.types.version>2010.09.24.4-SNAPSHOT</ietf.types.version>
-        <ietf.topology.version>2013.10.21.2-SNAPSHOT</ietf.topology.version>
-        <yang-ext.version>2013.09.07.4-SNAPSHOT</yang-ext.version>
+        <yangtools.version>0.7.0-SNAPSHOT</yangtools.version>
+        <ietf.types.version>2010.09.24.7-SNAPSHOT</ietf.types.version>
+        <ietf.topology.version>2013.10.21.7-SNAPSHOT</ietf.topology.version>
+        <yang-ext.version>2013.09.07.7-SNAPSHOT</yang-ext.version>
 
         <!-- Controller artifacts -->
-        <controller.config.version>0.2.5-SNAPSHOT</controller.config.version>
-        <controller.framework.version>0.5.0-SNAPSHOT</controller.framework.version>
-        <controller.mdsal.version>1.1-SNAPSHOT</controller.mdsal.version>
+        <controller.config.version>0.3.0-SNAPSHOT</controller.config.version>
+        <controller.framework.version>0.6.0-SNAPSHOT</controller.framework.version>
+        <controller.mdsal.version>1.2.0-SNAPSHOT</controller.mdsal.version>
 
         <!-- TCP-MD5 artifacts -->
-        <tcpmd5.version>1.0.0-SNAPSHOT</tcpmd5.version>
+        <tcpmd5.version>1.1.0-SNAPSHOT</tcpmd5.version>
 
         <!-- Sonar config -->
         <sonar-jacoco-listeners.version>2.4</sonar-jacoco-listeners.version>
