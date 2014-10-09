@@ -28,6 +28,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
@@ -43,6 +44,7 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.LinkstateRoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.Nlri;
@@ -66,9 +68,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRibBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.Ipv4RoutesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.Ipv6RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -91,6 +96,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final List<BgpTableType> localTables;
     private final RIBTables tables;
     private final BlockingQueue<Peer> peers;
+    private final DataBroker dataBroker;
     private final Thread scheduler = new Thread(new Runnable() {
 
         @Override
@@ -134,6 +140,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.localTables = ImmutableList.copyOf(localTables);
         this.tables = new RIBTables(extensions);
         this.peers = new LinkedBlockingQueue<>();
+        this.dataBroker = dps;
 
         LOG.debug("Instantiating RIB table {} at {}", ribId, getInstanceIdentifier());
 
@@ -380,5 +387,37 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     @Override
     public void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
         LOG.info("RIB {} closed successfully", getInstanceIdentifier());
+    }
+
+    @Override
+    public long getRoutesCount(final TablesKey key) {
+        Optional<Tables> tableMaybe;
+        try {
+            //TODO use transaction chaining?
+            tableMaybe = this.dataBroker.newReadOnlyTransaction().read(LogicalDatastoreType.OPERATIONAL,
+                    getInstanceIdentifier().child(LocRib.class).child(Tables.class, key)).checkedGet();
+            if (tableMaybe.isPresent()) {
+                final Tables table = tableMaybe.get();
+                if (table.getRoutes() instanceof Ipv4RoutesCase) {
+                    final Ipv4RoutesCase routesCase = (Ipv4RoutesCase) table.getRoutes();
+                    if (routesCase.getIpv4Routes() != null && routesCase.getIpv4Routes().getIpv4Route() != null) {
+                        return routesCase.getIpv4Routes().getIpv4Route().size();
+                    }
+                } else if (table.getRoutes() instanceof Ipv6RoutesCase) {
+                    final Ipv6RoutesCase routesCase = (Ipv6RoutesCase) table.getRoutes();
+                    if (routesCase.getIpv6Routes() != null && routesCase.getIpv6Routes().getIpv6Route() != null) {
+                        return routesCase.getIpv6Routes().getIpv6Route().size();
+                    }
+                } else if (table.getRoutes() instanceof LinkstateRoutesCase) {
+                    final LinkstateRoutesCase routeCase = (LinkstateRoutesCase) table.getRoutes();
+                    if (routeCase.getLinkstateRoutes() != null && routeCase.getLinkstateRoutes().getLinkstateRoute() != null) {
+                        return routeCase.getLinkstateRoutes().getLinkstateRoute().size();
+                    }
+                }
+            }
+        } catch (ReadFailedException e) {
+            //no-op
+        }
+        return 0;
     }
 }

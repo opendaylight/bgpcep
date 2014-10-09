@@ -118,6 +118,7 @@ public class FSMTest {
         doReturn(null).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
         doReturn("TestingChannel").when(this.speakerListener).toString();
         doReturn(new InetSocketAddress(peerAddress, 179)).when(this.speakerListener).remoteAddress();
+        doReturn(new InetSocketAddress(peerAddress, 179)).when(this.speakerListener).localAddress();
         doReturn(this.pipeline).when(this.speakerListener).pipeline();
         doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class), any(ChannelHandler.class));
         doReturn(mock(ChannelFuture.class)).when(this.speakerListener).close();
