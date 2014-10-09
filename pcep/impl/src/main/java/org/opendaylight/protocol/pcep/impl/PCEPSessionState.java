@@ -11,7 +11,7 @@ package org.opendaylight.protocol.pcep.impl;
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import java.net.InetSocketAddress;
-import java.util.concurrent.TimeUnit;
+import org.opendaylight.protocol.util.StatisticsUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.LocalPref;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.LocalPrefBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.stats.rev141006.pcep.session.state.Messages;
@@ -56,7 +56,7 @@ final class PCEPSessionState {
         this.errorsBuilder.setSentErrorMsgCount(this.sentErrMsgCount);
         this.errorsBuilder.setLastReceivedError(this.lastReceivedErrorBuilder.build());
         this.errorsBuilder.setLastSentError(this.lastSentErrorBuilder.build());
-        this.msgsBuilder.setLastSentMsgTimestamp(TimeUnit.MILLISECONDS.toSeconds(this.lastSentMsgTimestamp));
+        this.msgsBuilder.setLastSentMsgTimestamp(this.lastSentMsgTimestamp);
         this.msgsBuilder.setReceivedMsgCount(this.receivedMsgCount);
         this.msgsBuilder.setSentMsgCount(this.sentMsgCount);
         this.msgsBuilder.setUnknownMsgReceived(unknownMessagesCount);
@@ -103,7 +103,7 @@ final class PCEPSessionState {
     }
 
     public void updateLastSentMsg() {
-        this.lastSentMsgTimestamp = System.currentTimeMillis();
+        this.lastSentMsgTimestamp = StatisticsUtil.getCurrentTimestampInSeconds();
         this.sentMsgCount++;
     }
 

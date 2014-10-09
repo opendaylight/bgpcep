@@ -106,6 +106,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
         final BGPSessionPreferences prefs = new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), tlvs);
         final BGPPeer bgpClientPeer = new BGPPeer(peerName(getHostWithoutValue()), r);
+        bgpClientPeer.registerRootRuntimeBean(getRootRuntimeBeanRegistratorWrapper());
 
         getPeerRegistryBackwards().addPeer(getHostWithoutValue(), bgpClientPeer, prefs);
 
