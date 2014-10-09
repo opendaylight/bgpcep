@@ -11,7 +11,7 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 import io.netty.buffer.Unpooled;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -30,7 +30,7 @@ public class PCCMockTest {
     public void testSessionEstablishment() {
         try {
             org.opendaylight.protocol.pcep.testtool.Main.main(new String[]{"-a", "127.0.1.0:4189", "-ka", "10", "-d", "0", "--stateful", "--active"});
-            Main.main(new String[] {"--address", "127.0.1.0", "--pcc", "1", "--lsp", "1"});
+            Main.main(new String[] {"--local-address", "127.0.0.1", "--remote-address", "127.0.1.0", "--pcc", "2", "--lsp", "1"});
         } catch (Exception e) {
             Assert.fail();
         }
