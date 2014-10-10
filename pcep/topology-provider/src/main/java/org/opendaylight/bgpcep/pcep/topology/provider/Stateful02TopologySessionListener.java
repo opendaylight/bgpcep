@@ -44,9 +44,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.LspaBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.lspa.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.Tlvs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.EnsureLspOperationalInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.PccSyncState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspArgs;
@@ -110,27 +110,24 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
             }
 
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.object.lsp.Tlvs tlvs = lsp.getTlvs();
-            final String name;
-            if (tlvs != null && tlvs.getSymbolicPathName() != null) {
-                name = Charsets.UTF_8.decode(ByteBuffer.wrap(tlvs.getSymbolicPathName().getPathName().getValue())).toString();
-            } else {
-                name = lookupLspName(id);
+            final String name = (tlvs != null && tlvs.getSymbolicPathName() != null) ?
+                Charsets.UTF_8.decode(ByteBuffer.wrap(tlvs.getSymbolicPathName().getPathName().getValue())).toString()
+                : lookupLspName(id);
+
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder pb = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder();
+            // set 0 by default, as the first report does not contain LSPIdentifiersTLV
+            pb.setLspId(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId(0L));
+            if (r.getPath() != null) {
+                pb.fieldsFrom(r.getPath());
             }
 
             final ReportedLspBuilder rlb = new ReportedLspBuilder();
             rlb.addAugmentation(ReportedLsp1.class, new ReportedLsp1Builder().setLsp(lsp).build());
-            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder pb = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder();
-            if (r.getPath() != null) {
-                pb.fieldsFrom(r.getPath());
-            }
-            // set 0 by default, as the first report does not contain LSPIdentifiersTLV
-            pb.setLspId(new LspId(0L));
             rlb.setPath(Collections.singletonList(pb.build()));
             boolean solicited = false;
 
             if (id.getValue() != 0) {
                 solicited = true;
-
                 final PCEPRequest req = removeRequest(name);
                 if (req != null) {
                     LOG.debug("Request {} resulted in LSP operational state {}", id, lsp.isOperational());
@@ -168,7 +165,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
                     return OperationResults.UNSENT.future();
                 }
 
-                final SymbolicPathNameBuilder name = new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(input.getName().getBytes()));
+                final SymbolicPathNameBuilder name = new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(input.getName().getBytes(Charsets.UTF_8)));
 
                 // Build the request
                 final RequestsBuilder rb = new RequestsBuilder();
@@ -199,20 +196,14 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
         return Futures.transform(f, new AsyncFunction<Optional<ReportedLsp>, OperationResult>() {
             @Override
             public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
-                if (!rep.isPresent()) {
-                    LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
+                final Lsp reportedLsp = validateReportedLsp(rep, input);
+                if (reportedLsp == null) {
+                    LOG.warn("Reported LSP does not contain LSP object.");
                     return OperationResults.UNSENT.future();
                 }
-
-                final ReportedLsp1 ra = rep.get().getAugmentation(ReportedLsp1.class);
-                Preconditions.checkState(ra != null, "Reported LSP reported null from data-store.");
-                final Lsp reportedLsp = ra.getLsp();
-                Preconditions.checkState(reportedLsp != null, "Reported LSP does not contain LSP object.");
-
                 // Build the request and send it
                 final UpdatesBuilder rb = new UpdatesBuilder();
                 rb.setLsp(new LspBuilder().setRemove(Boolean.TRUE).setPlspId(reportedLsp.getPlspId()).setDelegate(reportedLsp.isDelegate()).build());
-
                 final PcupdMessageBuilder ib = new PcupdMessageBuilder(MESSAGE_HEADER);
                 ib.setUpdates(Collections.singletonList(rb.build()));
                 return sendMessage(new PcupdBuilder().setPcupdMessage(ib.build()).build(), rep.get().getName(), null);
@@ -230,19 +221,13 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
         return Futures.transform(f, new AsyncFunction<Optional<ReportedLsp>, OperationResult>() {
             @Override
             public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
-                if (!rep.isPresent()) {
-                    LOG.warn("Node {} does not contain LSP {}", input.getNode(), input.getName());
+                final Lsp reportedLsp = validateReportedLsp(rep, input);
+                if (reportedLsp == null) {
                     return OperationResults.UNSENT.future();
                 }
-
-                final ReportedLsp1 ra = rep.get().getAugmentation(ReportedLsp1.class);
-                Preconditions.checkState(ra != null, "Reported LSP reported null from data-store.");
-                final Lsp reportedLsp = ra.getLsp();
-                Preconditions.checkState(reportedLsp != null, "Reported LSP does not contain LSP object.");
                 final Arguments2 args = input.getArguments().getAugmentation(Arguments2.class);
                 Preconditions.checkArgument(args != null, "Input is missing operational tag.");
                 Preconditions.checkArgument(input.getArguments().getEro() != null, "Input is missing ERO object.");
-
                 // Build the PCUpd request and send it
                 final UpdatesBuilder rb = new UpdatesBuilder();
                 rb.setLsp(new LspBuilder().setPlspId(reportedLsp.getPlspId()).setDelegate(reportedLsp.isDelegate()).setOperational(args.isOperational()).build());
@@ -276,24 +261,28 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
         return Futures.transform(f, new Function<Optional<ReportedLsp>, OperationResult>() {
             @Override
             public OperationResult apply(final Optional<ReportedLsp> rep) {
-                if (!rep.isPresent()) {
-                    LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
+                final Lsp reportedLsp = validateReportedLsp(rep, input);
+                if (reportedLsp == null) {
                     return OperationResults.UNSENT;
                 }
-
-                final ReportedLsp1 ra = rep.get().getAugmentation(ReportedLsp1.class);
-                if (ra == null) {
-                    LOG.warn("Node {} LSP {} does not contain data", input.getNode(), input.getName());
-                    return OperationResults.UNSENT;
-                }
-                final Lsp reportedLsp = ra.getLsp();
-                Preconditions.checkState(reportedLsp != null, "Reported LSP does not contain LSP object.");
-                if (reportedLsp.isOperational().equals(op)) {
-                    return OperationResults.SUCCESS;
-                } else {
-                    return OperationResults.UNSENT;
-                }
+                return reportedLsp.isOperational().equals(op) ? OperationResults.SUCCESS : OperationResults.UNSENT;
             }
         });
+    }
+
+    @Override
+    protected Lsp validateReportedLsp(final Optional<ReportedLsp> rep, final LspId input) {
+        if (!rep.isPresent()) {
+            LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
+            return null;
+        }
+        final ReportedLsp1 ra = rep.get().getAugmentation(ReportedLsp1.class);
+        if (ra == null) {
+            LOG.warn("Reported LSP reported null from data-store.");
+            return null;
+        }
+        final Lsp reportedLsp = ra.getLsp();
+        Preconditions.checkState(reportedLsp != null, "Reported LSP does not contain LSP object.");
+        return reportedLsp;
     }
 }
