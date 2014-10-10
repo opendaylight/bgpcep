@@ -16,6 +16,24 @@
       "revId": "dace2bf5b05bf0cf0d06ff385a9be2b18cd50a13",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba8cc1f7_e0f7428b",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/Main.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2014-10-10T11:08:13Z",
+      "side": 1,
+      "message": "Level#toLevel(...) static parsing methods are implemented in safe way - if input is not recognized they return some default Level (DEBUG). Thus, I think your current implementation is fine. Of course, it will be mentioned in documentation (wiki page).",
+      "parentUuid": "ba8cc1f7_40eceec7",
+      "revId": "dace2bf5b05bf0cf0d06ff385a9be2b18cd50a13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
