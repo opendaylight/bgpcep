@@ -11,7 +11,7 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 import io.netty.buffer.Unpooled;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;

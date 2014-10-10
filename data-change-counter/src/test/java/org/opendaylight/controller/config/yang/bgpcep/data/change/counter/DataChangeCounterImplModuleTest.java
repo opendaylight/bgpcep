@@ -11,7 +11,7 @@ package org.opendaylight.controller.config.yang.bgpcep.data.change.counter;
 import java.util.Collections;
 import java.util.Set;
 import javax.management.ObjectName;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

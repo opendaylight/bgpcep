@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.collect.Lists;
 import java.util.List;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;

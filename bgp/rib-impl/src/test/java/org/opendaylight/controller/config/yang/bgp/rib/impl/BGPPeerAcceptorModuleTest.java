@@ -25,7 +25,7 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.ObjectName;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

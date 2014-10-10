@@ -7,15 +7,15 @@
  */
 package org.opendaylight.bgpcep.programming.impl;
 
-import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.Lists;
 import java.util.List;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;

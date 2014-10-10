@@ -7,8 +7,8 @@
  */
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;

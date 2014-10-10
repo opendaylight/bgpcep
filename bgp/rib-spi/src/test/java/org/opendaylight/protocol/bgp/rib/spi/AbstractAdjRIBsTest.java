@@ -11,7 +11,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import com.google.common.collect.Maps;
 import java.util.AbstractMap;
 import java.util.Map;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
