@@ -71,8 +71,7 @@ public class SimpleSessionListenerTest {
 
     @Test
     public void testSessionListenerPcRpt() throws UnknownHostException {
-        final SimpleSessionListener sessionListser = new SimpleSessionListener(1, false, 1,
-                InetAddress.getByName(IP_ADDRESS));
+        final SimpleSessionListener sessionListser = new SimpleSessionListener(1, false, InetAddress.getByName(IP_ADDRESS));
 
         sessionListser.onSessionUp(this.mockedSession);
         // one lsp + end-of-sync marker
@@ -93,8 +92,7 @@ public class SimpleSessionListenerTest {
 
     @Test
     public void testSessionListenerPcErr() throws UnknownHostException {
-        final SimpleSessionListener sessionListser = new SimpleSessionListener(1, true, 1,
-                InetAddress.getByName(IP_ADDRESS));
+        final SimpleSessionListener sessionListser = new SimpleSessionListener(1, true, InetAddress.getByName(IP_ADDRESS));
 
         sessionListser.onMessage(this.mockedSession, createUpdMsg());
         // send PcErr as a response to PcUpd
