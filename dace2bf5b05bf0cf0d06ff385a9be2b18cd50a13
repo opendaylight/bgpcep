@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba8cc1f7_40eceec7",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/Main.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2014-10-10T10:16:50Z",
+      "side": 1,
+      "message": "After thinking about it, now I think that better practice is to allow exception when log level is not recognized, instead of replacing it silently with INFO.",
+      "revId": "dace2bf5b05bf0cf0d06ff385a9be2b18cd50a13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
