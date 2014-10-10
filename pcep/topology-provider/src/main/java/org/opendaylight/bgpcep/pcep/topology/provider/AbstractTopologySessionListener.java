@@ -31,8 +31,9 @@ import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.MessageHeader;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ProtocolVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
@@ -294,7 +295,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
         // just one path should be reported
         Preconditions.checkState(rlb.getPath().size() == 1);
-        final LspId reportedLspId = rlb.getPath().get(0).getLspId();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId reportedLspId = rlb.getPath().get(0).getLspId();
         // check previous report for existing paths
         final ReportedLsp previous = this.lspData.get(name);
         // if no previous report about the lsp exist, just proceed
@@ -409,4 +410,6 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     protected final synchronized <T extends DataObject> ListenableFuture<Optional<T>> readOperationalData(final InstanceIdentifier<T> id) {
         return this.nodeState.readOperationalData(id);
     }
+
+    protected abstract Object validateReportedLsp(final Optional<ReportedLsp> rep, final LspId input);
 }
