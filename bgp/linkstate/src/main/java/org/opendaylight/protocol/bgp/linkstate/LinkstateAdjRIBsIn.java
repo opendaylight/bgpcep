@@ -300,6 +300,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBs<CLinkstateDestination, Li
         }
         if (dests == null || dests.size() != 1) {
             LOG.warn("Null or more than one LinkstateRoute Key was parsed");
+            return null;
         }
         return dests.get(0);
     }

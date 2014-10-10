@@ -22,6 +22,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
+import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.EnsureLspOperationalInput;
@@ -84,9 +85,9 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
         return new NodeId("pcc://" + addr.getHostAddress());
     }
 
-    synchronized void releaseNodeState(final TopologyNodeState nodeState) {
+    synchronized void releaseNodeState(final TopologyNodeState nodeState, final PCEPSession session) {
         LOG.debug("Node {} unbound", nodeState.getNodeId());
-        this.nodes.remove(nodeState.getNodeId());
+        this.nodes.remove(createNodeId(session.getRemoteAddress()));
         nodeState.released();
     }
 
@@ -97,12 +98,11 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
         TopologyNodeState ret = this.state.get(id);
 
         if (ret == null) {
-            ret = new TopologyNodeState(broker, topology, id, DEFAULT_HOLD_STATE_NANOS);
+            ret = new TopologyNodeState(this.broker, this.topology, id, DEFAULT_HOLD_STATE_NANOS);
             LOG.debug("Created topology node {} for id {} at {}", ret, id, ret.getNodeId());
             this.state.put(id, ret);
-        } else {
-            // FIXME: check for conflicting session
         }
+        // FIXME: else check for conflicting session
 
         ret.taken();
         this.nodes.put(id, sessionListener);
@@ -112,7 +112,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 
     @Override
     public PCEPSessionListener getSessionListener() {
-        return listenerFactory.createTopologySessionListener(this);
+        return this.listenerFactory.createTopologySessionListener(this);
     }
 
     @Override
@@ -165,10 +165,10 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 
     @Override
     public void close() throws TransactionCommitFailedException {
-        for (final TopologySessionListener sessionListener : nodes.values()) {
+        for (final TopologySessionListener sessionListener : this.nodes.values()) {
             sessionListener.close();
         }
-        for (final TopologyNodeState nodeState : state.values()) {
+        for (final TopologyNodeState nodeState : this.state.values()) {
             nodeState.close();
         }
         final WriteTransaction t = this.broker.newWriteOnlyTransaction();

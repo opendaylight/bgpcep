@@ -24,19 +24,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public class PcepRpObjectWithPstTlvParser extends PCEPRequestParameterObjectParser {
 
-    public PcepRpObjectWithPstTlvParser(TlvRegistry tlvReg, VendorInformationTlvRegistry viTlvReg) {
+    public PcepRpObjectWithPstTlvParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
         super(tlvReg, viTlvReg);
     }
 
     @Override
-    public void addTlv(final TlvsBuilder builder, Tlv tlv) {
+    public void addTlv(final TlvsBuilder builder, final Tlv tlv) {
         super.addTlv(builder, tlv);
         final Tlvs1Builder tlvBuilder = new Tlvs1Builder();
-        if (builder != null) {
-            final Tlvs1 tlvs = builder.getAugmentation(Tlvs1.class);
-            if (tlvs != null && tlvs.getPathSetupType() != null) {
-                tlvBuilder.setPathSetupType(tlvs.getPathSetupType());
-            }
+        final Tlvs1 tlvs = builder.getAugmentation(Tlvs1.class);
+        if (tlvs != null && tlvs.getPathSetupType() != null) {
+            tlvBuilder.setPathSetupType(tlvs.getPathSetupType());
         }
         if (tlv instanceof PathSetupType) {
             tlvBuilder.setPathSetupType((PathSetupType) tlv);

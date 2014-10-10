@@ -12,9 +12,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import io.netty.util.concurrent.FutureListener;
-
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,9 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.annotation.concurrent.GuardedBy;
-
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -128,11 +124,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
          */
         final InetAddress peerAddress = session.getRemoteAddress();
 
-        final TopologyNodeState state = serverSessionManager.takeNodeState(peerAddress, this);
-        if (state == null) {
-            session.close(TerminationReason.Unknown);
-            return;
-        }
+        final TopologyNodeState state = this.serverSessionManager.takeNodeState(peerAddress, this);
 
         LOG.trace("Peer {} resolved to topology node {}", peerAddress, state.getNodeId());
         this.synced = false;
@@ -172,7 +164,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
     @GuardedBy("this")
     private void tearDown(final PCEPSession session) {
-        this.serverSessionManager.releaseNodeState(this.nodeState);
+        this.serverSessionManager.releaseNodeState(this.nodeState, session);
         this.nodeState = null;
         this.session = null;
 
@@ -344,7 +336,6 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
             LOG.debug("Setting new paths {} to lsp {}", updatedPaths, name);
             rlb.setPath(updatedPaths);
         }
-        Preconditions.checkState(name != null);
         rlb.setKey(new ReportedLspKey(name));
         rlb.setName(name);
 
@@ -415,7 +406,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         return this.lsps.get(id);
     }
 
-    protected synchronized final <T extends DataObject> ListenableFuture<Optional<T>> readOperationalData(final InstanceIdentifier<T> id) {
+    protected final synchronized <T extends DataObject> ListenableFuture<Optional<T>> readOperationalData(final InstanceIdentifier<T> id) {
         return this.nodeState.readOperationalData(id);
     }
 }
