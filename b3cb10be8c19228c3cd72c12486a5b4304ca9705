@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba8cc1f7_e001823a",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2014-10-10T12:51:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba8cc1f7_2020ca9a",
+      "revId": "b3cb10be8c19228c3cd72c12486a5b4304ca9705",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba8cc1f7_4025cea9",
         "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/PCEPTopologyProvider.java",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2014-10-09T20:24:52Z",
       "side": 1,
       "message": "can the registrator be null?",
+      "revId": "b3cb10be8c19228c3cd72c12486a5b4304ca9705",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba8cc1f7_a0fb7a46",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/PCEPTopologyProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2014-10-10T12:51:31Z",
+      "side": 1,
+      "message": "If you\u0027re asking about input parameter - yes can be theoretically null (same effect as the method is not called at all). Overall, runtime bean regitration is mean to be \"optional\", therefore registrators are injected via setters.",
+      "parentUuid": "ba8cc1f7_4025cea9",
       "revId": "b3cb10be8c19228c3cd72c12486a5b4304ca9705",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
