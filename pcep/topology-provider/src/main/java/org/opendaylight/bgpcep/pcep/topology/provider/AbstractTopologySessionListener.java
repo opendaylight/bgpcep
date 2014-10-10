@@ -31,8 +31,9 @@ import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.MessageHeader;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ProtocolVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
@@ -292,48 +293,17 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         LOG.debug("Saved LSP {} with name {}", id, name);
         this.lsps.put(id, name);
 
-        // just one path should be reported
-        Preconditions.checkState(rlb.getPath().size() == 1);
-        final LspId reportedLspId = rlb.getPath().get(0).getLspId();
-        // check previous report for existing paths
+
         final ReportedLsp previous = this.lspData.get(name);
         // if no previous report about the lsp exist, just proceed
         if (previous != null) {
-            final List<Path> updatedPaths = new ArrayList<>(previous.getPath());
-            LOG.debug("Found previous paths {} to this lsp name {}", updatedPaths, name);
-            for (final Path path : previous.getPath()) {
-                //we found reported path in previous reports
-                if (path.getLspId().getValue() == 0 || path.getLspId().equals(reportedLspId)) {
-                    LOG.debug("Match on lsp-id {}", path.getLspId().getValue() );
-                    // path that was reported previously and does have the same lsp-id, path will be updated
-                    final boolean r = updatedPaths.remove(path);
-                    LOG.trace("Request removed? {}", r);
-                }
-            }
-            // if the path does not exist in previous report, add it to path list, it's a new ERO
-            // only one path will be added
-            //lspId is 0 means confirmation message that shouldn't be added (because we have no means of deleting it later)
-            LOG.trace("Adding new path {} to {}", rlb.getPath(), updatedPaths);
-            updatedPaths.addAll(rlb.getPath());
-            if (remove) {
-                if (reportedLspId.getValue() == 0) {
-                    // if lsp-id also 0, remove all paths
-                    LOG.debug("Removing all paths.");
-                    updatedPaths.clear();
-                } else {
-                    // path is marked to be removed
-                    LOG.debug("Removing path {} from {}", rlb.getPath(), updatedPaths);
-                    final boolean r = updatedPaths.removeAll(rlb.getPath());
-                    LOG.trace("Request removed? {}", r);
-                }
-            }
+            final List<Path> updatedPaths = makeBeforeBreak(rlb, previous, name, remove);
             // if all paths or the last path were deleted, delete whole tunnel
-            if (updatedPaths.isEmpty()) {
+            if (updatedPaths == null || updatedPaths.isEmpty()) {
                 LOG.debug("All paths were removed, removing LSP with {}.", id);
                 removeLsp(ctx, id);
                 return;
             }
-            LOG.debug("Setting new paths {} to lsp {}", updatedPaths, name);
             rlb.setPath(updatedPaths);
         }
         rlb.setKey(new ReportedLspKey(name));
@@ -351,6 +321,43 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         LOG.debug("LSP {} updated to MD-SAL", name);
 
         this.lspData.put(name, rl);
+    }
+
+    private List<Path> makeBeforeBreak(final ReportedLspBuilder rlb, final ReportedLsp previous, final String name, final boolean remove) {
+        // just one path should be reported
+        Preconditions.checkState(rlb.getPath().size() == 1);
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId reportedLspId = rlb.getPath().get(0).getLspId();
+        // check previous report for existing paths
+        final List<Path> updatedPaths = new ArrayList<>(previous.getPath());
+        LOG.debug("Found previous paths {} to this lsp name {}", updatedPaths, name);
+        for (final Path path : previous.getPath()) {
+            //we found reported path in previous reports
+            if (path.getLspId().getValue() == 0 || path.getLspId().equals(reportedLspId)) {
+                LOG.debug("Match on lsp-id {}", path.getLspId().getValue() );
+                // path that was reported previously and does have the same lsp-id, path will be updated
+                final boolean r = updatedPaths.remove(path);
+                LOG.trace("Request removed? {}", r);
+            }
+        }
+        // if the path does not exist in previous report, add it to path list, it's a new ERO
+        // only one path will be added
+        //lspId is 0 means confirmation message that shouldn't be added (because we have no means of deleting it later)
+        LOG.trace("Adding new path {} to {}", rlb.getPath(), updatedPaths);
+        updatedPaths.addAll(rlb.getPath());
+        if (remove) {
+            if (reportedLspId.getValue() == 0) {
+                // if lsp-id also 0, remove all paths
+                LOG.debug("Removing all paths.");
+                updatedPaths.clear();
+            } else {
+                // path is marked to be removed
+                LOG.debug("Removing path {} from {}", rlb.getPath(), updatedPaths);
+                final boolean r = updatedPaths.removeAll(rlb.getPath());
+                LOG.trace("Request removed? {}", r);
+            }
+        }
+        LOG.debug("Setting new paths {} to lsp {}", updatedPaths, name);
+        return updatedPaths;
     }
 
     /**
@@ -409,4 +416,6 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     protected final synchronized <T extends DataObject> ListenableFuture<Optional<T>> readOperationalData(final InstanceIdentifier<T> id) {
         return this.nodeState.readOperationalData(id);
     }
+
+    protected abstract Object validateReportedLsp(final Optional<ReportedLsp> rep, final LspId input);
 }
