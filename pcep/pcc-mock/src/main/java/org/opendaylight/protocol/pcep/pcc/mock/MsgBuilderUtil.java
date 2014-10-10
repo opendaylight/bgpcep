@@ -124,8 +124,9 @@ public final class MsgBuilderUtil {
                                                 new Ipv4ExtendedTunnelId(extendedTunnelAddress.getHostAddress()))
                                         .build()).build()).setTunnelId(new TunnelId((int) lspId)).build());
         if (symbolicPathName) {
+            final String pathName = "pcc_" + tunnelSender.getHostAddress() + "_tunnel_" + lspId;
             tlvs.setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(
-                    new SymbolicPathName(Charsets.UTF_8.encode("tunnel" + lspId).array())).build());
+                    new SymbolicPathName(pathName.getBytes(Charsets.UTF_8))).build());
         }
         return tlvs.build();
     }

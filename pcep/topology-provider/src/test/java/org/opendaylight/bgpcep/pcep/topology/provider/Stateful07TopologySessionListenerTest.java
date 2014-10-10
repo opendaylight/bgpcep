@@ -92,6 +92,8 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 
 public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTest<Stateful07TopologySessionListenerFactory> {
 
+    private static final String TUNNEL_NAME = "pcc_" + TEST_ADDRESS + "_tunnel_0";
+
     private Stateful07TopologySessionListener listener;
 
     @Before
@@ -134,7 +136,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         pcc = topology.getNode().get(0).getAugmentation(Node1.class).getPathComputationClient();
         assertEquals(1, pcc.getReportedLsp().size());
         ReportedLsp reportedLsp = pcc.getReportedLsp().get(0);
-        assertEquals(TEST_LSP_NAME, reportedLsp.getName());
+        assertEquals(TUNNEL_NAME, reportedLsp.getName());
         assertEquals(1, reportedLsp.getPath().size());
         Path path = reportedLsp.getPath().get(0);
         assertEquals(1, path.getEro().getSubobject().size());
@@ -144,7 +146,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder updArgsBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder();
         updArgsBuilder.setEro(createEroWithIpPrefixes(Lists.newArrayList(ERO_IP_PREFIX, DST_IP_PREFIX)));
         updArgsBuilder.addAugmentation(Arguments3.class, new Arguments3Builder().setLsp(new LspBuilder().setDelegate(true).setAdministrative(true).build()).build());
-        final UpdateLspInput update = new UpdateLspInputBuilder().setArguments(updArgsBuilder.build()).setName(TEST_LSP_NAME).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(NODE_ID).build();
+        final UpdateLspInput update = new UpdateLspInputBuilder().setArguments(updArgsBuilder.build()).setName(TUNNEL_NAME).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(NODE_ID).build();
         this.topologyRpcs.updateLsp(update);
         assertEquals(2, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(1) instanceof Pcupd);
@@ -160,7 +162,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         pcc = topology.getNode().get(0).getAugmentation(Node1.class).getPathComputationClient();
         assertEquals(1, pcc.getReportedLsp().size());
         reportedLsp = pcc.getReportedLsp().get(0);
-        assertEquals(TEST_LSP_NAME, reportedLsp.getName());
+        assertEquals(TUNNEL_NAME, reportedLsp.getName());
         assertEquals(1, reportedLsp.getPath().size());
         path = reportedLsp.getPath().get(0);
         assertEquals(2, path.getEro().getSubobject().size());
@@ -169,13 +171,13 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         // ensure-operational
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.ensure.lsp.operational.args.ArgumentsBuilder ensureArgs = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.ensure.lsp.operational.args.ArgumentsBuilder();
         ensureArgs.addAugmentation(Arguments1.class, new Arguments1Builder().setOperational(OperationalStatus.Active).build());
-        final EnsureLspOperationalInput ensure = new EnsureLspOperationalInputBuilder().setArguments(ensureArgs.build()).setName(TEST_LSP_NAME).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(NODE_ID).build();
+        final EnsureLspOperationalInput ensure = new EnsureLspOperationalInputBuilder().setArguments(ensureArgs.build()).setName(TUNNEL_NAME).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(NODE_ID).build();
         final OperationResult result = this.topologyRpcs.ensureLspOperational(ensure).get().getResult();
         //check result
         assertNull(result.getFailure());
 
         // remove-lsp
-        final RemoveLspInput remove = new RemoveLspInputBuilder().setName(TEST_LSP_NAME).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(NODE_ID).build();
+        final RemoveLspInput remove = new RemoveLspInputBuilder().setName(TUNNEL_NAME).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(NODE_ID).build();
         this.topologyRpcs.removeLsp(remove);
         assertEquals(3, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(2) instanceof Pcinitiate);
@@ -271,6 +273,6 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         argsBuilder.setEndpointsObj(new EndpointsObjBuilder().setAddressFamily(ipv4Builder.build()).build());
         argsBuilder.setEro(createEroWithIpPrefixes(Lists.newArrayList(ERO_IP_PREFIX)));
         argsBuilder.addAugmentation(Arguments2.class, new Arguments2Builder().setLsp(new LspBuilder().setDelegate(true).setAdministrative(true).build()).build());
-        return new AddLspInputBuilder().setName(TEST_LSP_NAME).setArguments(argsBuilder.build()).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(NODE_ID).build();
+        return new AddLspInputBuilder().setName(TUNNEL_NAME).setArguments(argsBuilder.build()).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(NODE_ID).build();
     }
 }

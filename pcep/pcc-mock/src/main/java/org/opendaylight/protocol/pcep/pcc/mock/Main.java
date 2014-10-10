@@ -8,7 +8,11 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.net.InetAddresses;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
@@ -42,7 +46,7 @@ public final class Main {
     public static void main(String[] args) throws InterruptedException, ExecutionException, UnknownHostException {
 
         if (args.length < 2) {
-            LOG.info("Insufficient number of arguments {}.", args.length);
+            LOG.error("Insufficient number of arguments {}.", args.length);
             return;
         }
 
@@ -51,24 +55,23 @@ public final class Main {
         int pccCount = 1;
         int lsps = 1;
         boolean pcError = false;
+        final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
 
+        getRootLogger(lc).setLevel(ch.qos.logback.classic.Level.INFO);
         int argIdx = 0;
         while (argIdx < args.length) {
             if (args[argIdx].equals("--local-address")) {
-                localAddress = InetAddress.getByName(args[argIdx + 1]);
-                argIdx++;
+                localAddress = InetAddress.getByName(args[++argIdx]);
             } else if (args[argIdx].equals("--remote-address")) {
-                remoteAddress = InetAddress.getByName(args[argIdx + 1]);
-                argIdx++;
+                remoteAddress = InetAddress.getByName(args[++argIdx]);
             } else if (args[argIdx].equals("--pcc")) {
-                pccCount = Integer.valueOf(args[argIdx + 1]);
-                argIdx++;
+                pccCount = Integer.valueOf(args[++argIdx]);
             } else if (args[argIdx].equals("--lsp")) {
-                lsps = Integer.valueOf(args[argIdx + 1]);
-                argIdx++;
+                lsps = Integer.valueOf(args[++argIdx]);
             } else if (args[argIdx].equals("--pcerr")) {
                 pcError = true;
-                argIdx++;
+            } else if (args[argIdx].equals("--log-level")) {
+                getRootLogger(lc).setLevel(Level.toLevel(args[++argIdx], ch.qos.logback.classic.Level.INFO));
             } else {
                 LOG.warn("WARNING: Unrecognized argument: {}", args[argIdx]);
             }
@@ -95,7 +98,6 @@ public final class Main {
         InetAddress currentAddress = localAddress;
         int i = 0;
         while (i < pccCount) {
-            final int pccNumber = i + 1;
             final InetAddress pccAddress = currentAddress;
             pcc.createClient(new InetSocketAddress(pccAddress, 0), new InetSocketAddress(pceAddress, DEFAULT_PORT),
                     new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_STRATEGY_TIMEOUT),
@@ -103,12 +105,21 @@ public final class Main {
 
                         @Override
                         public PCEPSessionListener getSessionListener() {
-                            return new SimpleSessionListener(lspsPerPcc, pcerr, pccNumber, pccAddress);
+                            return new SimpleSessionListener(lspsPerPcc, pcerr, pccAddress);
                         }
                     }).get();
             i++;
             currentAddress = InetAddresses.increment(currentAddress);
         }
+    }
+
+    private static ch.qos.logback.classic.Logger getRootLogger(final LoggerContext lc) {
+        return Iterables.find(lc.getLoggerList(), new Predicate<Logger>() {
+            @Override
+            public boolean apply(Logger input) {
+                return input.getName().equals(Logger.ROOT_LOGGER_NAME);
+            }
+        });
     }
 
 }
