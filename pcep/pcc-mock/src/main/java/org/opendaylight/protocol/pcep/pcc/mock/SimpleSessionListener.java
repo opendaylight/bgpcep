@@ -42,23 +42,20 @@ public class SimpleSessionListener implements PCEPSessionListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleSessionListener.class);
 
-    private final int pccNumber;
     private final int lspsCount;
     private final boolean pcError;
     private final InetAddress address;
 
-    public SimpleSessionListener(final int lspsCount, final boolean pcError, final int pccNumber,
-            final InetAddress address) {
+    public SimpleSessionListener(final int lspsCount, final boolean pcError, final InetAddress address) {
         Preconditions.checkArgument(lspsCount > 0);
         this.lspsCount = lspsCount;
         this.pcError = pcError;
-        this.pccNumber = pccNumber;
         this.address = address;
     }
 
     @Override
     public void onMessage(final PCEPSession session, final Message message) {
-        LOG.debug("Received message: {}", message);
+        LOG.trace("Received message: {}", message);
         if (message instanceof Pcupd) {
             final Pcupd updMsg = (Pcupd) message;
             final Updates updates = updMsg.getPcupdMessage().getUpdates().get(0);
@@ -79,10 +76,10 @@ public class SimpleSessionListener implements PCEPSessionListener {
     public void onSessionUp(final PCEPSession session) {
         LOG.debug("Session up.");
         for (int i = 1; i <= this.lspsCount; i++) {
-            final Tlvs tlvs = MsgBuilderUtil.createLspTlvs(i * this.pccNumber, true, this.address, this.address,
+            final Tlvs tlvs = MsgBuilderUtil.createLspTlvs(i, true, this.address, this.address,
                     this.address);
             session.sendMessage(createPcRtpMessage(
-                    createLsp(i * this.pccNumber, true, Optional.<Tlvs> fromNullable(tlvs)), Optional.<Srp> absent(),
+                    createLsp(i, true, Optional.<Tlvs> fromNullable(tlvs)), Optional.<Srp> absent(),
                     createPath(Collections.<Subobject> emptyList())));
         }
         // end-of-sync marker
@@ -92,13 +89,13 @@ public class SimpleSessionListener implements PCEPSessionListener {
 
     @Override
     public void onSessionDown(final PCEPSession session, final Exception e) {
-        LOG.debug("Session down with cause : {} or exception: {}", e.getCause(), e, e);
+        LOG.info("Session down with cause : {} or exception: {}", e.getCause(), e, e);
         session.close();
     }
 
     @Override
     public void onSessionTerminated(final PCEPSession session, final PCEPTerminationReason cause) {
-        LOG.debug("Session terminated. Cause : {}", cause.toString());
+        LOG.info("Session terminated. Cause : {}", cause.toString());
     }
 
     private InetAddress getDestinationAddress(final List<Subobject> subobjects) {
@@ -108,7 +105,7 @@ public class SimpleSessionListener implements PCEPSessionListener {
             try {
                 return InetAddress.getByName(prefix.substring(0, prefix.indexOf('/')));
             } catch (UnknownHostException e) {
-                LOG.debug("Unknown host name {}", prefix);
+                LOG.warn("Unknown host name {}", prefix);
             }
         }
         return this.address;
