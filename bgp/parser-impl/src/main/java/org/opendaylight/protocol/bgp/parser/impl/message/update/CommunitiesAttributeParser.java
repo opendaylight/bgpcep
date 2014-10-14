@@ -7,15 +7,19 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.Arrays;
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
+import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Communities;
@@ -27,6 +31,14 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
 
     public static final int TYPE = 8;
 
+    private static final int COMMUNITY_LENGTH = 4;
+
+    private static final byte[] NO_EXPORT = new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x01 };
+
+    private static final byte[] NO_ADVERTISE = new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x02 };
+
+    private static final byte[] NO_EXPORT_SUBCONFED = new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x03 };
+
     private final ReferenceCache refCache;
 
     public CommunitiesAttributeParser(final ReferenceCache refCache) {
@@ -37,11 +49,35 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
     public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) throws BGPDocumentedException {
         final List<Communities> set = Lists.newArrayList();
         while (buffer.isReadable()) {
-            set.add((Communities) CommunitiesParser.parseCommunity(this.refCache, buffer.slice(buffer.readerIndex(),
-                CommunitiesParser.COMMUNITY_LENGTH)));
-            buffer.skipBytes(CommunitiesParser.COMMUNITY_LENGTH);
+            set.add((Communities) parseCommunity(this.refCache, buffer.slice(buffer.readerIndex(), COMMUNITY_LENGTH)));
+            buffer.skipBytes(COMMUNITY_LENGTH);
         }
         builder.setCommunities(set);
+    }
+
+   /**
+    * Parse known Community, if unknown, a new one will be created.
+    *
+    * @param refCache
+    *
+    * @param bytes byte array to be parsed
+    * @return new Community
+    * @throws BGPDocumentedException
+    */
+    @VisibleForTesting
+    public static Community parseCommunity(final ReferenceCache refCache, final ByteBuf buffer) throws BGPDocumentedException {
+        if (buffer.readableBytes() != COMMUNITY_LENGTH) {
+            throw new BGPDocumentedException("Community with wrong length: " + buffer.readableBytes(), BGPError.OPT_ATTR_ERROR);
+        }
+        final byte[] body = ByteArray.getBytes(buffer, COMMUNITY_LENGTH);
+        if (Arrays.equals(body, NO_EXPORT)) {
+            return CommunityUtil.NO_EXPORT;
+        } else if (Arrays.equals(body, NO_ADVERTISE)) {
+            return CommunityUtil.NO_ADVERTISE;
+        } else if (Arrays.equals(body, NO_EXPORT_SUBCONFED)) {
+            return CommunityUtil.NO_EXPORT_SUBCONFED;
+        }
+        return CommunityUtil.create(refCache, buffer.readUnsignedShort(), buffer.readUnsignedShort());
     }
 
     @Override
