@@ -14,17 +14,16 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.fail;
 
 import com.google.common.collect.Maps;
-
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.Map;
-
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunitiesParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.ExtendedCommunitiesAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
+import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.NoopReferenceCache;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -125,10 +124,10 @@ public class ComplementaryTest {
     }
 
     @Test
-    public void testCommunitiesParser() {
+    public void testExtendedCommunitiesParser() {
         ExtendedCommunities as = null;
         try {
-            as = CommunitiesParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 0, 5, 0, 54, 0, 0, 1, 76 }));
+            as = ExtendedCommunitiesAttributeParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 0, 5, 0, 54, 0, 0, 1, 76 }));
         } catch (final BGPDocumentedException e1) {
             fail("Not expected exception: " + e1);
         }
@@ -143,8 +142,12 @@ public class ComplementaryTest {
                 result.getAsSpecificExtendedCommunity().getLocalAdministrator());
         assertEquals(0, as.getCommType().intValue());
 
+        final ByteBuf serializedBuffer = Unpooled.buffer();
+        ExtendedCommunitiesAttributeParser.serializeExtendedCommunity(as, serializedBuffer);
+        assertArrayEquals(new byte[] { 0, 5, 0, 54, 0, 0, 1, 76 }, ByteArray.readAllBytes(serializedBuffer));
+
         try {
-            as = CommunitiesParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 40, 5, 0, 54, 0, 0, 1, 76 }));
+            as = ExtendedCommunitiesAttributeParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 40, 5, 0, 54, 0, 0, 1, 76 }));
         } catch (final BGPDocumentedException e1) {
             fail("Not expected exception: " + e1);
         }
@@ -155,9 +158,13 @@ public class ComplementaryTest {
         assertEquals(expected.getAsSpecificExtendedCommunity().isTransitive(), result.getAsSpecificExtendedCommunity().isTransitive());
         assertEquals(40, as.getCommType().intValue());
 
+        serializedBuffer.clear();
+        ExtendedCommunitiesAttributeParser.serializeExtendedCommunity(as, serializedBuffer);
+        assertArrayEquals(new byte[] { 40, 5, 0, 54, 0, 0, 1, 76 }, ByteArray.readAllBytes(serializedBuffer));
+
         ExtendedCommunities rtc = null;
         try {
-            rtc = CommunitiesParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 1, 2, 0, 35, 4, 2, 8, 7 }));
+            rtc = ExtendedCommunitiesAttributeParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 1, 2, 0, 35, 4, 2, 8, 7 }));
         } catch (final BGPDocumentedException e1) {
             fail("Not expected exception: " + e1);
         }
@@ -172,9 +179,13 @@ public class ComplementaryTest {
         assertEquals(1, rtc.getCommType().intValue());
         assertEquals(2, rtc.getCommSubType().intValue());
 
+        serializedBuffer.clear();
+        ExtendedCommunitiesAttributeParser.serializeExtendedCommunity(rtc, serializedBuffer);
+        assertArrayEquals(new byte[] { 1, 2, 0, 35, 4, 2, 8, 7 }, ByteArray.readAllBytes(serializedBuffer));
+
         ExtendedCommunities roc = null;
         try {
-            roc = CommunitiesParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 0, 3, 0, 24, 4, 2, 8, 7 }));
+            roc = ExtendedCommunitiesAttributeParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 0, 3, 0, 24, 4, 2, 8, 7 }));
         } catch (final BGPDocumentedException e1) {
             fail("Not expected exception: " + e1);
         }
@@ -189,9 +200,13 @@ public class ComplementaryTest {
         assertEquals(0, roc.getCommType().intValue());
         assertEquals(3, roc.getCommSubType().intValue());
 
+        serializedBuffer.clear();
+        ExtendedCommunitiesAttributeParser.serializeExtendedCommunity(roc, serializedBuffer);
+        assertArrayEquals(new byte[] { 0, 3, 0, 24, 4, 2, 8, 7 }, ByteArray.readAllBytes(serializedBuffer));
+
         ExtendedCommunities sec = null;
         try {
-            sec = CommunitiesParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 41, 6, 12, 51, 2, 5, 21, 45 }));
+            sec = ExtendedCommunitiesAttributeParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 41, 6, 12, 51, 2, 5, 21, 45 }));
         } catch (final BGPDocumentedException e1) {
             fail("Not expected exception: " + e1);
         }
@@ -207,9 +222,13 @@ public class ComplementaryTest {
                 iresult.getInet4SpecificExtendedCommunity().getLocalAdministrator());
         assertEquals(41, sec.getCommType().intValue());
 
+        serializedBuffer.clear();
+        ExtendedCommunitiesAttributeParser.serializeExtendedCommunity(sec, serializedBuffer);
+        assertArrayEquals(new byte[] { 41, 6, 12, 51, 2, 5, 21, 45 }, ByteArray.readAllBytes(serializedBuffer));
+
         ExtendedCommunities oec = null;
         try {
-            oec = CommunitiesParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 3, 6, 21, 45, 5, 4, 3, 1 }));
+            oec = ExtendedCommunitiesAttributeParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 3, 6, 21, 45, 5, 4, 3, 1 }));
         } catch (final BGPDocumentedException e1) {
             fail("Not expected exception: " + e1);
         }
@@ -220,8 +239,12 @@ public class ComplementaryTest {
         assertArrayEquals(oeexpected.getOpaqueExtendedCommunity().getValue(), oeresult.getOpaqueExtendedCommunity().getValue());
         assertEquals(3, oec.getCommType().intValue());
 
+        serializedBuffer.clear();
+        ExtendedCommunitiesAttributeParser.serializeExtendedCommunity(oec, serializedBuffer);
+        assertArrayEquals(new byte[] { 3, 6, 21, 45, 5, 4, 3, 1 }, ByteArray.readAllBytes(serializedBuffer));
+
         try {
-            oec = CommunitiesParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 43, 6, 21, 45, 5, 4, 3, 1 }));
+            oec = ExtendedCommunitiesAttributeParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 43, 6, 21, 45, 5, 4, 3, 1 }));
         } catch (final BGPDocumentedException e1) {
             fail("Not expected exception: " + e1);
         }
@@ -232,8 +255,12 @@ public class ComplementaryTest {
         assertArrayEquals(oeexpected1.getOpaqueExtendedCommunity().getValue(), oeresult1.getOpaqueExtendedCommunity().getValue());
         assertEquals(43, oec.getCommType().intValue());
 
+        serializedBuffer.clear();
+        ExtendedCommunitiesAttributeParser.serializeExtendedCommunity(oec, serializedBuffer);
+        assertArrayEquals(new byte[] { 43, 6, 21, 45, 5, 4, 3, 1 }, ByteArray.readAllBytes(serializedBuffer));
+
         try {
-            CommunitiesParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 11, 11, 21, 45, 5, 4, 3, 1 }));
+            ExtendedCommunitiesAttributeParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 11, 11, 21, 45, 5, 4, 3, 1 }));
             fail("Exception should have occured.");
         } catch (final BGPDocumentedException e) {
             assertEquals("Could not parse Extended Community type: 11", e.getMessage());

@@ -570,7 +570,7 @@ public class BGPParserTest {
             new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("3.3.3.3")).build()).build();
 
         final List<ExtendedCommunities> comms = Lists.newArrayList();
-        comms.add(new ExtendedCommunitiesBuilder().setCommType((short) 1).setExtendedCommunity(
+        comms.add(new ExtendedCommunitiesBuilder().setCommType((short) 1).setCommSubType((short) 4).setExtendedCommunity(
             new Inet4SpecificExtendedCommunityCaseBuilder().setInet4SpecificExtendedCommunity(
                 new Inet4SpecificExtendedCommunityBuilder().setTransitive(false).setGlobalAdministrator(
                     new Ipv4Address("192.168.1.0")).setLocalAdministrator(new byte[] { 0x12, 0x34 }).build()).build()).build());
