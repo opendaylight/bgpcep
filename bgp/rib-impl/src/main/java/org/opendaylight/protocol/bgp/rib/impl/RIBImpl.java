@@ -92,7 +92,6 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final RIBTables tables;
     private final BlockingQueue<Peer> peers;
     private final Thread scheduler = new Thread(new Runnable() {
-
         @Override
         public void run() {
             try {
@@ -107,7 +106,6 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
                         public void onSuccess(final Void result) {
                             LOG.trace("Advertizing {} to peer {} committed successfully", key.getAfi(), peer);
                         }
-
                         @Override
                         public void onFailure(final Throwable t) {
                             LOG.error("Failed to update peer {} with RIB {}", peer, t);
@@ -115,7 +113,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
                     });
                 }
             } catch (final InterruptedException e) {
-
+                LOG.warn("Scheduler thread was interrupted.");
             }
         }
     });

@@ -37,16 +37,15 @@ public final class BGPObjectComparator implements Comparator<RIBEntryData<?, ?, 
 
     @Override
     public int compare(final RIBEntryData<?, ?, ?> e1, final RIBEntryData<?, ?, ?> e2) {
-        if (e1 == e2) {
-            return 0;
-        }
         if (e1 == null) {
             return 1;
         }
         if (e2 == null) {
             return -1;
         }
-
+        if (e1.equals(e2)) {
+            return 0;
+        }
         final PathAttributes o1 = e1.getPathAttributes();
         final PathAttributes o2 = e2.getPathAttributes();
         if (o1.equals(o2) && Arrays.equals(e1.getPeer().getRawIdentifier(), e2.getPeer().getRawIdentifier())) {
@@ -111,7 +110,6 @@ public final class BGPObjectComparator implements Comparator<RIBEntryData<?, ?, 
         // - no next hop metric is advertized
 
         // 9. When both paths are external, prefer the path that was received first (the oldest one).
-        // if (first.equals(this.ourAS) && second.equals(this.ourAS)) {
         // FIXME: do we have a way how to determine which one was received first?
 
         // 10. Prefer the route that comes from the BGP router with the lowest router ID.

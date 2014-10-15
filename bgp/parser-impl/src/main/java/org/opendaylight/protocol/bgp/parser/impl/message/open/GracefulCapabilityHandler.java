@@ -96,8 +96,7 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
             final Integer safival = this.safiReg.numberForClass(safi);
             Preconditions.checkArgument(safival != null, "Unhandled subsequent address family " + safi);
 
-            bytes.writeByte(afival / 256);
-            bytes.writeByte(afival % 256);
+            bytes.writeShort(afival);
             bytes.writeByte(safival);
             if (t.getAfiFlags() != null && t.getAfiFlags().isForwardingState()) {
                 bytes.writeByte(AFI_FLAG_FORWARDING_STATE);
@@ -113,14 +112,14 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
         final GracefulRestartCapabilityBuilder cb = new GracefulRestartCapabilityBuilder();
 
         final int flagBits = (buffer.getByte(0) >> RESTART_FLAGS_SIZE);
-        cb.setRestartFlags(new RestartFlags((flagBits & 8) != 0));
+        cb.setRestartFlags(new RestartFlags((flagBits & Byte.SIZE) != 0));
 
         final int timer = ((buffer.readByte() & TIMER_TOPBITS_MASK) << RESTART_FLAGS_SIZE) + UnsignedBytes.toInt(buffer.readByte());
         cb.setRestartTime(timer);
 
         final List<Tables> tables = new ArrayList<>();
         while (buffer.readableBytes() != 0) {
-            final int afiVal = UnsignedBytes.toInt(buffer.readByte()) * 256 + UnsignedBytes.toInt(buffer.readByte());
+            final int afiVal = buffer.readShort();
             final Class<? extends AddressFamily> afi = this.afiReg.classForFamily(afiVal);
             if (afi == null) {
                 LOG.debug("Ignoring GR capability for unknown address family {}", afiVal);

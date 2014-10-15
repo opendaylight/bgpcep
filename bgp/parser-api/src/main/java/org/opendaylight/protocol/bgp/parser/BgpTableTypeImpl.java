@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.parser;
 
 import com.google.common.base.Preconditions;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
@@ -40,18 +39,40 @@ public final class BgpTableTypeImpl implements BgpTableType {
 
     @Override
     public int hashCode() {
-        int ret = 3 * this.afi.hashCode();
-        ret += this.safi.hashCode();
-        return ret;
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((this.afi == null) ? 0 : this.afi.hashCode());
+        result = prime * result + ((this.safi == null) ? 0 : this.safi.hashCode());
+        return result;
     }
 
     @Override
     public boolean equals(final Object obj) {
-        if (obj instanceof BgpTableTypeImpl) {
-            final BgpTableTypeImpl o = (BgpTableTypeImpl) obj;
-            return this.afi.equals(o.afi) && this.safi.equals(o.safi);
+        if (this == obj) {
+            return true;
         }
-        return false;
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final BgpTableTypeImpl other = (BgpTableTypeImpl) obj;
+        if (this.afi == null) {
+            if (other.afi != null) {
+                return false;
+            }
+        } else if (!this.afi.equals(other.afi)) {
+            return false;
+        }
+        if (this.safi == null) {
+            if (other.safi != null) {
+                return false;
+            }
+        } else if (!this.safi.equals(other.safi)) {
+            return false;
+        }
+        return true;
     }
 
     @Override
