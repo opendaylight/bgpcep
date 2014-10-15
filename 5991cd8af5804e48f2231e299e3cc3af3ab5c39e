@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba8cc1f7_d47d1cb3",
+        "filename": "bgp/parser-api/src/main/java/org/opendaylight/protocol/bgp/parser/BgpTableTypeImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-10-15T12:32:01Z",
+      "side": 1,
+      "message": "afi/safi are guaranteed to be non-null, what is that we\u0027re solving here?",
+      "revId": "5991cd8af5804e48f2231e299e3cc3af3ab5c39e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba8cc1f7_744a1085",
+        "filename": "bgp/parser-api/src/main/java/org/opendaylight/protocol/bgp/parser/BgpTableTypeImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-10-15T12:32:01Z",
+      "side": 1,
+      "message": "pretty much the same as above",
+      "revId": "5991cd8af5804e48f2231e299e3cc3af3ab5c39e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba8cc1f7_944f9492",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-10-15T12:32:01Z",
+      "side": 1,
+      "message": "info, and please add the exception",
+      "revId": "5991cd8af5804e48f2231e299e3cc3af3ab5c39e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba8cc1f7_34448873",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/BGPObjectComparator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-10-15T12:32:01Z",
+      "side": 1,
+      "message": "the previous check was correct as far as I can tell, what is sonar\u0027s complaint?",
+      "revId": "5991cd8af5804e48f2231e299e3cc3af3ab5c39e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
