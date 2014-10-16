@@ -693,6 +693,37 @@ public class BGPParserTest {
     }
 
     /*
+     * End of Rib for Ipv6 consists of empty MP_UNREACH_NLRI, with AFI 2 and SAFI 1
+     *
+     * ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff <- marker
+     * 00 1e <- length (29) - including header
+     * 02 <- message type
+     * 00 00 <- withdrawn routes length
+     * 00 07 <- total path attribute length
+     * 90 <- attribute flags
+     * 0f <- attribute type (15 - MP_UNREACH_NLRI)
+     * 00 03 <- attribute length
+     * 00 02 <- value (AFI 2: IPv6)
+     * 01 <- value (SAFI 1)
+     */
+    @Test
+    public void testEORIpv6exLength() throws Exception {
+        final byte[] body = ByteArray.cutBytes(inputBytes.get(6), MessageUtil.COMMON_HEADER_LENGTH);
+        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(6), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
+        final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
+
+        final Class<? extends AddressFamily> afi = message.getPathAttributes().getAugmentation(PathAttributes2.class).getMpUnreachNlri().getAfi();
+        final Class<? extends SubsequentAddressFamily> safi = message.getPathAttributes().getAugmentation(PathAttributes2.class).getMpUnreachNlri().getSafi();
+
+        assertEquals(Ipv6AddressFamily.class, afi);
+        assertEquals(UnicastSubsequentAddressFamily.class, safi);
+
+        final ByteBuf buffer = Unpooled.buffer();
+        BGPParserTest.updateParser.serializeMessage(message, buffer);
+        assertArrayEquals(inputBytes.get(6), ByteArray.readAllBytes(buffer));
+    }
+
+    /*
      * End of Rib for LS consists of empty MP_UNREACH_NLRI, with AFI 16388 and SAFI 71
      *
      * ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff <- marker
