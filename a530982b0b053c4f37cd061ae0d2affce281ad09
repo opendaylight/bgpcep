@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba8cc1f7_9a049d16",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2014-10-16T08:42:19Z",
+      "side": 1,
+      "message": "Done. Moved to separate class - PCEPSessionState.",
+      "parentUuid": "ba8cc1f7_941794a3",
+      "revId": "a530982b0b053c4f37cd061ae0d2affce281ad09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba8cc1f7_340c8894",
         "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/PCEPTopologyProvider.java",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2014-10-15T05:39:54Z",
       "side": 1,
       "message": "The registrator should not be a static field, but rather a per-instance thing.",
+      "revId": "a530982b0b053c4f37cd061ae0d2affce281ad09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba8cc1f7_3a09d12c",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/PCEPTopologyProvider.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2014-10-16T08:42:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba8cc1f7_340c8894",
       "revId": "a530982b0b053c4f37cd061ae0d2affce281ad09",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
