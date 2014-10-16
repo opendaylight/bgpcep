@@ -11,7 +11,6 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.List;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -111,20 +110,20 @@ public final class MsgBuilderUtil {
         return pathBuilder.build();
     }
 
-    public static Tlvs createLspTlvs(final long lspId, final boolean symbolicPathName, InetAddress tunnelEndpoint,
-            InetAddress tunnelSender, InetAddress extendedTunnelAddress) {
+    public static Tlvs createLspTlvs(final long lspId, final boolean symbolicPathName, String tunnelEndpoint,
+            String tunnelSender, String extendedTunnelAddress) {
         final TlvsBuilder tlvs = new TlvsBuilder().setLspIdentifiers(new LspIdentifiersBuilder()
                 .setLspId(new LspId(lspId))
                 .setAddressFamily(
                         new Ipv4CaseBuilder().setIpv4(
                                 new Ipv4Builder()
-                                        .setIpv4TunnelEndpointAddress(new Ipv4Address(tunnelEndpoint.getHostAddress()))
-                                        .setIpv4TunnelSenderAddress(new Ipv4Address(tunnelSender.getHostAddress()))
+                                        .setIpv4TunnelEndpointAddress(new Ipv4Address(tunnelEndpoint))
+                                        .setIpv4TunnelSenderAddress(new Ipv4Address(tunnelSender))
                                         .setIpv4ExtendedTunnelId(
-                                                new Ipv4ExtendedTunnelId(extendedTunnelAddress.getHostAddress()))
+                                                new Ipv4ExtendedTunnelId(extendedTunnelAddress))
                                         .build()).build()).setTunnelId(new TunnelId((int) lspId)).build());
         if (symbolicPathName) {
-            final String pathName = "pcc_" + tunnelSender.getHostAddress() + "_tunnel_" + lspId;
+            final String pathName = "pcc_" + tunnelSender + "_tunnel_" + lspId;
             tlvs.setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(
                     new SymbolicPathName(pathName.getBytes(Charsets.UTF_8))).build());
         }
