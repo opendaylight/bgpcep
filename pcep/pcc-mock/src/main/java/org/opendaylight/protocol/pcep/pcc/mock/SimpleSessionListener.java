@@ -47,7 +47,7 @@ public class SimpleSessionListener implements PCEPSessionListener {
     private final InetAddress address;
 
     public SimpleSessionListener(final int lspsCount, final boolean pcError, final InetAddress address) {
-        Preconditions.checkArgument(lspsCount > 0);
+        Preconditions.checkArgument(lspsCount >= 0);
         this.lspsCount = lspsCount;
         this.pcError = pcError;
         this.address = address;
