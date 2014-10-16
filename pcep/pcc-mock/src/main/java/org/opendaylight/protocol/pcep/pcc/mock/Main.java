@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.net.InetAddresses;
@@ -44,14 +43,8 @@ public final class Main {
     private static final int RECONNECT_STRATEGY_TIMEOUT = 2000;
 
     public static void main(String[] args) throws InterruptedException, ExecutionException, UnknownHostException {
-
-        if (args.length < 2) {
-            LOG.error("Insufficient number of arguments {}.", args.length);
-            return;
-        }
-
         InetAddress localAddress = InetAddress.getByName("127.0.0.1");
-        InetAddress remoteAddress = null;
+        InetAddress remoteAddress = InetAddress.getByName("127.0.0.1");
         int pccCount = 1;
         int lsps = 1;
         boolean pcError = false;
@@ -77,7 +70,6 @@ public final class Main {
             }
             argIdx++;
         }
-        Preconditions.checkState(remoteAddress != null, "Missing mandatory remote-address parameter.");
         createPCCs(lsps, pcError, pccCount, localAddress, remoteAddress);
     }
 
