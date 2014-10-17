@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba8cc1f7_470cfd94",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSeesionStats.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2014-10-17T16:29:09Z",
+      "side": 1,
+      "message": "Done. Shame.",
+      "parentUuid": "ba8cc1f7_87820551",
+      "revId": "0084e1f3b9bf0ba884a09dadb4978aa3a17bcc3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba8cc1f7_477cfd72",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2014-10-17T11:13:48Z",
       "side": 1,
       "message": "synchronized",
+      "revId": "0084e1f3b9bf0ba884a09dadb4978aa3a17bcc3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba8cc1f7_671101ac",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2014-10-17T16:29:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba8cc1f7_477cfd72",
       "revId": "0084e1f3b9bf0ba884a09dadb4978aa3a17bcc3a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
