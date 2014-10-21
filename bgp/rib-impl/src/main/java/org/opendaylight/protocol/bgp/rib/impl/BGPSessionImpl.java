@@ -55,6 +55,8 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 
     private static final Notification KEEP_ALIVE = new KeepaliveBuilder().build();
 
+    private static final int KA_TO_DEADTIMER_RATIO = 3;
+
     /**
      * Internal session state.
      */
@@ -114,7 +116,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
         this.channel = Preconditions.checkNotNull(channel);
         this.holdTimerValue = (remoteOpen.getHoldTimer() < localHoldTimer) ? remoteOpen.getHoldTimer() : localHoldTimer;
         LOG.info("BGP HoldTimer new value: {}", this.holdTimerValue);
-        this.keepAlive = this.holdTimerValue / 3;
+        this.keepAlive = this.holdTimerValue / KA_TO_DEADTIMER_RATIO;
         this.asNumber = AsNumberUtil.advertizedAsNumber(remoteOpen);
 
         final Set<TablesKey> tts = Sets.newHashSet();

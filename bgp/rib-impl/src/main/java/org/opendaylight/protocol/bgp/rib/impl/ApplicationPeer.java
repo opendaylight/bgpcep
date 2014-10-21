@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
+import java.util.Arrays;
 import java.util.Map.Entry;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
@@ -120,6 +121,6 @@ public class ApplicationPeer implements AutoCloseable, Peer, DataChangeListener 
 
     @Override
     public byte[] getRawIdentifier() {
-        return this.rawIdentifier;
+        return Arrays.copyOf(this.rawIdentifier, this.rawIdentifier.length);
     }
 }

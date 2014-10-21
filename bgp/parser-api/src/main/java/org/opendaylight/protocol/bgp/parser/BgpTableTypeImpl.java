@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.parser;
 
 import com.google.common.base.Preconditions;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
@@ -40,7 +39,8 @@ public final class BgpTableTypeImpl implements BgpTableType {
 
     @Override
     public int hashCode() {
-        int ret = 3 * this.afi.hashCode();
+        final int prime = 3;
+        int ret = prime * this.afi.hashCode();
         ret += this.safi.hashCode();
         return ret;
     }
