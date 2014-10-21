@@ -36,6 +36,13 @@ public interface BGPPeerRegistry extends AutoCloseable {
     void removePeer(IpAddress ip);
 
     /**
+     * Remove peer session from registry.
+     *
+     * @param ip address of remote peer
+     */
+    void removePeerSession(IpAddress ip);
+
+    /**
      * Check whether peer on provided IP address is present in this registry.
      *
      * @param ip address of remote peer

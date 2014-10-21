@@ -1,7 +1,6 @@
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import com.google.common.base.Objects;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -46,27 +45,32 @@ public class StrictBgpPeerRegistryModule extends org.opendaylight.controller.con
 
         @Override
         public BGPSessionPreferences getPeerPreferences(final IpAddress ip) {
-            return global.getPeerPreferences(ip);
+            return this.global.getPeerPreferences(ip);
         }
 
         @Override
         public BGPSessionListener getPeer(final IpAddress ip, final Ipv4Address sourceId, final Ipv4Address remoteId) throws BGPDocumentedException {
-            return global.getPeer(ip, sourceId, remoteId);
+            return this.global.getPeer(ip, sourceId, remoteId);
         }
 
         @Override
         public boolean isPeerConfigured(final IpAddress ip) {
-            return global.isPeerConfigured(ip);
+            return this.global.isPeerConfigured(ip);
         }
 
         @Override
         public void removePeer(final IpAddress ip) {
-            global.removePeer(ip);
+            this.global.removePeer(ip);
+        }
+
+        @Override
+        public void removePeerSession(final IpAddress ip) {
+            this.global.removePeerSession(ip);
         }
 
         @Override
         public void addPeer(final IpAddress ip, final ReusableBGPPeer peer, final BGPSessionPreferences preferences) {
-            global.addPeer(ip, peer, preferences);
+            this.global.addPeer(ip, peer, preferences);
         }
 
         @Override
@@ -77,9 +81,8 @@ public class StrictBgpPeerRegistryModule extends org.opendaylight.controller.con
         @Override
         public String toString() {
             return Objects.toStringHelper(this)
-                    .add("peers", global)
+                    .add("peers", this.global)
                     .toString();
         }
     }
-
 }

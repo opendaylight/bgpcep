@@ -12,17 +12,14 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Map;
-
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -69,6 +66,11 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     public synchronized void removePeer(final IpAddress ip) {
         Preconditions.checkNotNull(ip);
         this.peers.remove(ip);
+    }
+
+    public synchronized void removePeerSession(final IpAddress ip) {
+        Preconditions.checkNotNull(ip);
+        this.sessionIds.remove(ip);
     }
 
     @Override
