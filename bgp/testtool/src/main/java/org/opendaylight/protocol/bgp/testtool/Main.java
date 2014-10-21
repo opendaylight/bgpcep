@@ -65,7 +65,7 @@ public final class Main {
         this.dispatcher = new BGPDispatcherImpl(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(), new NioEventLoopGroup(), new NioEventLoopGroup());
     }
 
-    public static void main(final String[] args) throws NumberFormatException, UnknownHostException {
+    public static void main(final String[] args) throws UnknownHostException {
         if (args.length == 0 || (args.length == 1 && args[0].equalsIgnoreCase("--help"))) {
             LOG.info(Main.USAGE);
             return;

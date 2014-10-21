@@ -12,6 +12,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.concurrent.GuardedBy;
@@ -84,7 +85,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable {
 
         // Not particularly nice, but what can
         if (session instanceof BGPSessionImpl) {
-            reg = rib.registerRIBsOut(this, new SessionRIBsOut((BGPSessionImpl) session));
+            this.reg = this.rib.registerRIBsOut(this, new SessionRIBsOut((BGPSessionImpl) session));
         }
     }
 
@@ -150,6 +151,6 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable {
 
     @Override
     public synchronized byte[] getRawIdentifier() {
-        return rawIdentifier;
+        return Arrays.copyOf(this.rawIdentifier, this.rawIdentifier.length);
     }
 }

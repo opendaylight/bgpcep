@@ -17,17 +17,17 @@ public final class Values {
     }
 
     /**
-     * Maximum unsigned Short value.
+     * Maximum unsigned Short value (65535).
      */
     public static final int UNSIGNED_SHORT_MAX_VALUE = 65535;
 
     /**
-     * Maximum unsigned Byte value.
+     * Maximum unsigned Byte value (255).
      */
     public static final int UNSIGNED_BYTE_MAX_VALUE = 255;
 
     /**
-     * Maximum unsigned Byte value in hex.
+     * Maximum unsigned Byte value in hex (0xFF).
      */
     public static final int BYTE_MAX_VALUE_BYTES = 0xFF;
 }
