@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba8cc1f7_bdf15897",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2014-10-21T08:15:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba8cc1f7_8a5e8ce8",
+      "revId": "3afcfe158399a2146cc2af3e0ebc3757299ad56a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba8cc1f7_6a49c88a",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionStatistics.java",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "ba8cc1f7_3d5a2884",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionStatistics.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2014-10-21T08:15:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba8cc1f7_6a49c88a",
+      "revId": "3afcfe158399a2146cc2af3e0ebc3757299ad56a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba8cc1f7_5d25aca9",
         "filename": "util/src/main/java/org/opendaylight/protocol/util/StatisticsUtil.java",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2014-10-20T16:44:40Z",
       "side": 1,
       "message": "final",
+      "revId": "3afcfe158399a2146cc2af3e0ebc3757299ad56a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba8cc1f7_5d5fec72",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/StatisticsUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2014-10-21T08:15:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba8cc1f7_5d25aca9",
       "revId": "3afcfe158399a2146cc2af3e0ebc3757299ad56a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
