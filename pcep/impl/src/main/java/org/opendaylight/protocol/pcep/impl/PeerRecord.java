@@ -9,9 +9,7 @@ package org.opendaylight.protocol.pcep.impl;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-
 import java.util.concurrent.TimeUnit;
-
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -26,19 +24,19 @@ final class PeerRecord {
     PeerRecord(final long idLifetimeSeconds, final Short lastId) {
         // Note that the cache is limited to 255 entries -- which means we will always have
         // a single entry available. That number will be the Last Recently Used ID.
-        pastIds = CacheBuilder.newBuilder().expireAfterWrite(idLifetimeSeconds, TimeUnit.SECONDS).maximumSize(255).build();
+        this.pastIds = CacheBuilder.newBuilder().expireAfterWrite(idLifetimeSeconds, TimeUnit.SECONDS).maximumSize(255).build();
         this.lastId = lastId;
     }
 
     synchronized Short allocId() {
-        Short id = lastId == null ? 0 : lastId;
+        Short id = this.lastId == null ? 0 : this.lastId;
 
-        while (pastIds.getIfPresent(id) != null) {
+        while (this.pastIds.getIfPresent(id) != null) {
             id = (short) ((id + 1) % 255);
         }
 
-        pastIds.put(id, id);
-        lastId = id;
+        this.pastIds.put(id, id);
+        this.lastId = id;
         return id;
     }
 }
