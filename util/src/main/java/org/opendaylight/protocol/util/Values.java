@@ -30,4 +30,9 @@ public final class Values {
      * Maximum unsigned Byte value in hex (0xFF).
      */
     public static final int BYTE_MAX_VALUE_BYTES = 0xFF;
+
+    /**
+     * In order to get the value in first bit, we need to shift the byte by 7.
+     */
+    public static final int FIRST_BIT_OFFSET = 7;
 }

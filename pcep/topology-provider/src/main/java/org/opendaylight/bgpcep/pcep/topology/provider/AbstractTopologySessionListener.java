@@ -255,7 +255,9 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
     protected final synchronized PCEPRequest removeRequest(final S id) {
         final PCEPRequest ret = this.requests.remove(id);
-        this.listenerState.processRequestStats(ret.getElapsedMillis());
+        if (ret != null) {
+            this.listenerState.processRequestStats(ret.getElapsedMillis());
+        }
         LOG.trace("Removed request {} object {}", id, ret);
         return ret;
     }
@@ -459,7 +461,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     }
 
     @Override
-    public void resetStats() {
+    public synchronized void resetStats() {
         this.listenerState.resetStats(this.session);
     }
 

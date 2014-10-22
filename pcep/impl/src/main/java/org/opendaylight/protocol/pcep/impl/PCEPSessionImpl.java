@@ -127,11 +127,11 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
         this.sessionState = new PCEPSessionState(remoteOpen, localOpen, channel);
     }
 
-    public Integer getKeepAliveTimerValue() {
+    public final Integer getKeepAliveTimerValue() {
         return this.localOpen.getKeepalive().intValue();
     }
 
-    public Integer getDeadTimerValue() {
+    public final Integer getDeadTimerValue() {
         return this.remoteOpen.getDeadTimer().intValue();
     }
 

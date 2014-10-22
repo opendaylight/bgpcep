@@ -17,7 +17,6 @@
 package org.opendaylight.controller.config.yang.pcep.impl;
 
 import java.net.InetSocketAddress;
-
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
@@ -32,6 +31,8 @@ public final class PCEPSessionProposalFactoryImplModule extends
         org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPSessionProposalFactoryImplModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(PCEPSessionProposalFactoryImplModule.class);
+
+    private static final int KA_TO_DEADTIMER_RATIO = 4;
 
     public PCEPSessionProposalFactoryImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier name,
             final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -51,7 +52,7 @@ public final class PCEPSessionProposalFactoryImplModule extends
         if (getKeepAliveTimerValue() != 0) {
             JmxAttributeValidationException.checkCondition(getKeepAliveTimerValue() >= 1, "minimum value is 1.",
                     keepAliveTimerValueJmxAttribute);
-            if (getDeadTimerValue() != 0 && (getDeadTimerValue() / getKeepAliveTimerValue() != 4)) {
+            if (getDeadTimerValue() != 0 && (getDeadTimerValue() / getKeepAliveTimerValue() != KA_TO_DEADTIMER_RATIO)) {
                 LOG.warn("DeadTimerValue should be 4 times greater than KeepAliveTimerValue");
             }
         }

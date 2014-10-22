@@ -8,15 +8,12 @@
 package org.opendaylight.protocol.pcep.impl;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPMessageConstants;
@@ -37,7 +34,7 @@ public final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
     }
 
     @Override
-    protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) throws Exception {
+    protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) {
         if (!in.isReadable()) {
             LOG.debug("No more content in incoming buffer.");
             return;
@@ -52,7 +49,6 @@ public final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
             out.add(parse(in, errors));
         } catch (final PCEPDeserializerException e) {
             LOG.debug("Failed to decode protocol message", e);
-            this.exceptionCaught(ctx, e);
         }
         in.discardReadBytes();
 

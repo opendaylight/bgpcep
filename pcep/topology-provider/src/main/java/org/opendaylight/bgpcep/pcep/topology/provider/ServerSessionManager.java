@@ -119,52 +119,38 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
         return this.listenerFactory.createTopologySessionListener(this);
     }
 
+    private synchronized TopologySessionListener checkSessionPresence(final NodeId nodeId) {
+        // Get the listener corresponding to the node
+        final TopologySessionListener l = this.nodes.get(nodeId);
+        if (l == null) {
+            LOG.debug("Session for node {} not found", nodeId);
+            return null;
+        }
+        return l;
+    }
+
     @Override
     public synchronized ListenableFuture<OperationResult> addLsp(final AddLspArgs input) {
-        // Get the listener corresponding to the node
-        final TopologySessionListener l = this.nodes.get(input.getNode());
-        if (l == null) {
-            LOG.debug("Session for node {} not found", input.getNode());
-            return OperationResults.UNSENT.future();
-        }
-
-        return l.addLsp(input);
+        final TopologySessionListener l = checkSessionPresence(input.getNode());
+        return (l != null) ? l.addLsp(input) : OperationResults.UNSENT.future();
     }
 
     @Override
     public synchronized ListenableFuture<OperationResult> removeLsp(final RemoveLspArgs input) {
-        // Get the listener corresponding to the node
-        final TopologySessionListener l = this.nodes.get(input.getNode());
-        if (l == null) {
-            LOG.debug("Session for node {} not found", input.getNode());
-            return OperationResults.UNSENT.future();
-        }
-
-        return l.removeLsp(input);
+        final TopologySessionListener l = checkSessionPresence(input.getNode());
+        return (l != null) ? l.removeLsp(input) : OperationResults.UNSENT.future();
     }
 
     @Override
     public synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {
-        // Get the listener corresponding to the node
-        final TopologySessionListener l = this.nodes.get(input.getNode());
-        if (l == null) {
-            LOG.debug("Session for node {} not found", input.getNode());
-            return OperationResults.UNSENT.future();
-        }
-
-        return l.updateLsp(input);
+        final TopologySessionListener l = checkSessionPresence(input.getNode());
+        return (l != null) ? l.updateLsp(input) : OperationResults.UNSENT.future();
     }
 
     @Override
     public synchronized ListenableFuture<OperationResult> ensureLspOperational(final EnsureLspOperationalInput input) {
-        // Get the listener corresponding to the node
-        final TopologySessionListener l = this.nodes.get(input.getNode());
-        if (l == null) {
-            LOG.debug("Session for node {} not found", input.getNode());
-            return OperationResults.UNSENT.future();
-        }
-
-        return l.ensureLspOperational(input);
+        final TopologySessionListener l = checkSessionPresence(input.getNode());
+        return (l != null) ? l.ensureLspOperational(input) : OperationResults.UNSENT.future();
     }
 
     @Override
