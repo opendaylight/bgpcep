@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.junit.BeforeClass;
@@ -576,8 +577,6 @@ public class BGPParserTest {
                 new Inet4SpecificExtendedCommunityBuilder().setTransitive(false).setGlobalAdministrator(
                     new Ipv4Address("192.168.1.0")).setLocalAdministrator(new byte[] { 0x12, 0x34 }).build()).build()).build());
 
-        final List<Segments> asPath = Lists.newArrayList();
-
         // check path attributes
         final PathAttributes attrs = message.getPathAttributes();
 
@@ -586,7 +585,7 @@ public class BGPParserTest {
         paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build());
         assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
 
-        paBuilder.setAsPath(new AsPathBuilder().setSegments(asPath).build());
+        paBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.<Segments> emptyList()).build());
         assertEquals(paBuilder.getAsPath(), attrs.getAsPath());
 
         paBuilder.setCNextHop(nextHop);
@@ -919,8 +918,6 @@ public class BGPParserTest {
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
             new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("25.25.25.1")).build()).build();
 
-        final List<Segments> asPath = Lists.newArrayList();
-
         final LocalNodeDescriptorsBuilder lndBuilder = new LocalNodeDescriptorsBuilder().setAsNumber(new AsNumber((long) 100)).setDomainId(
             new DomainIdentifier(0x19191901L)).setAreaId(new AreaIdentifier(0L));
 
@@ -976,7 +973,7 @@ public class BGPParserTest {
         paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
         assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
 
-        paBuilder.setAsPath(new AsPathBuilder().setSegments(asPath).build());
+        paBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.<Segments> emptyList()).build());
         assertEquals(paBuilder.getAsPath(), attrs.getAsPath());
 
         paBuilder.setLocalPref(new LocalPrefBuilder().setPref(100L).build());
@@ -1158,8 +1155,6 @@ public class BGPParserTest {
             new DestinationLinkstateCaseBuilder().setDestinationLinkstate(dBuilder.build()).build()).build());
         lsBuilder.setMpReachNlri(mpBuilder.build());
 
-        final List<Segments> asPath = Lists.newArrayList();
-
         // check path attributes
         final PathAttributes attrs = message.getPathAttributes();
 
@@ -1168,7 +1163,7 @@ public class BGPParserTest {
         paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
         assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
 
-        paBuilder.setAsPath(new AsPathBuilder().setSegments(asPath).build());
+        paBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.<Segments> emptyList()).build());
         assertEquals(paBuilder.getAsPath(), attrs.getAsPath());
 
         paBuilder.setLocalPref(new LocalPrefBuilder().setPref(100L).build());
