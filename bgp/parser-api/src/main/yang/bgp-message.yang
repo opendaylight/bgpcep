@@ -69,7 +69,7 @@ module bgp-message {
             mandatory true;
         }
         list bgp-parameters {
-            reference "http://tools.ietf.org/html/rfc3392#section-4";
+            reference "http://tools.ietf.org/html/rfc5492#section-4";
             choice c-parameters {
                 case as4-bytes-case {
                     container as4-bytes-capability {

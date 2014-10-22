@@ -8,10 +8,15 @@
 
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.base.Optional;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
+import org.opendaylight.protocol.bgp.parser.impl.message.open.As4CapabilityHandler;
+import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -56,8 +61,9 @@ public class BGPClientSessionValidator implements BGPSessionValidator {
 
         final List<BgpParameters> prefs = openObj.getBgpParameters();
         if (prefs != null && !prefs.isEmpty()) {
-            if(!hasAs4BytesCapability(prefs) || !hasAs4BytesCapability(localPref.getParams())) {
-                throw new BGPDocumentedException("Both speaker and peer must advertise AS4Bytes capability.", BGPError.UNSPECIFIC_OPEN_ERROR);
+            if(getAs4BytesCapability(localPref.getParams()).isPresent() && !getAs4BytesCapability(prefs).isPresent()) {
+                throw new BGPDocumentedException("The peer must advertise AS4Bytes capability.", BGPError.UNSUPPORTED_CAPABILITY,
+                        serializeAs4BytesCapability(getAs4BytesCapability(localPref.getParams()).get()));
             }
             if (!prefs.containsAll(localPref.getParams())) {
                 LOG.info("BGP Open message session parameters differ, session still accepted.");
@@ -67,12 +73,19 @@ public class BGPClientSessionValidator implements BGPSessionValidator {
         }
     }
 
-    private boolean hasAs4BytesCapability(final List<BgpParameters> prefs) {
+    private static Optional<As4BytesCase> getAs4BytesCapability(final List<BgpParameters> prefs) {
         for(final BgpParameters param : prefs) {
             if(param.getCParameters() instanceof As4BytesCase) {
-                return true;
+                return Optional.of((As4BytesCase) param.getCParameters());
             }
         }
-        return false;
+        return Optional.absent();
+    }
+
+    private static byte[] serializeAs4BytesCapability(final As4BytesCase as4Capability) {
+        final ByteBuf buffer = Unpooled.buffer(1 /*CODE*/ + 1 /*LENGTH*/ + Integer.SIZE / Byte.SIZE /*4 byte value*/);
+        final CapabilitySerializer serializer = new As4CapabilityHandler();
+        serializer.serializeCapability(as4Capability, buffer);
+        return buffer.array();
     }
 }
