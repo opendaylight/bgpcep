@@ -137,7 +137,11 @@ public enum BGPError {
     /**
      * Out of Resources. 6/8
      */
-    OUT_OF_RESOURCES((short) 6, (short) 8);
+    OUT_OF_RESOURCES((short) 6, (short) 8),
+    /**
+     * Unsupported Capability 2/7
+     */
+    UNSUPPORTED_CAPABILITY((short) 2, (short) 7);
 
     private static final Map<BGPErrorIdentifier, BGPError> VALUE_MAP;
 

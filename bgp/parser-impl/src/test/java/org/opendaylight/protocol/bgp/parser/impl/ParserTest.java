@@ -46,9 +46,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParametersBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.OptionalCapabilities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.OptionalCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.MultiprotocolCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.multiprotocol._case.MultiprotocolCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.multiprotocol._case.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -70,16 +72,16 @@ public class ParserTest {
 
     private static final byte[] openWithCpblt1 = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-        (byte) 0xff, (byte) 0x00, (byte) 0x2d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x48, (byte) 0x00, (byte) 0xb4,
-        (byte) 0xac, (byte) 0x14, (byte) 0xa0, (byte) 0xaa, (byte) 0x10, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04,
-        (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04, (byte) 0x40,
+        (byte) 0xff, (byte) 0x00, (byte) 0x2b, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x48, (byte) 0x00, (byte) 0xb4,
+        (byte) 0xac, (byte) 0x14, (byte) 0xa0, (byte) 0xaa, (byte) 0x0e, (byte) 0x02, (byte) 0x0C, (byte) 0x01, (byte) 0x04,
+        (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x01, (byte) 0x01, (byte) 0x04, (byte) 0x40,
         (byte) 0x04, (byte) 0x00, (byte) 0x47 };
 
     private static final byte[] openWithCpblt2 = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-        (byte) 0xff, (byte) 0x00, (byte) 0x2d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x48, (byte) 0x00, (byte) 0xb4,
-        (byte) 0xac, (byte) 0x14, (byte) 0xa0, (byte) 0xaa, (byte) 0x10, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04,
-        (byte) 0x40, (byte) 0x04, (byte) 0x00, (byte) 0x47, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04, (byte) 0x00,
+        (byte) 0xff, (byte) 0x00, (byte) 0x2b, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x48, (byte) 0x00, (byte) 0xb4,
+        (byte) 0xac, (byte) 0x14, (byte) 0xa0, (byte) 0xaa, (byte) 0x0e, (byte) 0x02, (byte) 0x0C, (byte) 0x01, (byte) 0x04,
+        (byte) 0x40, (byte) 0x04, (byte) 0x00, (byte) 0x47, (byte) 0x01, (byte) 0x04, (byte) 0x00,
         (byte) 0x01, (byte) 0x00, (byte) 0x01 };
 
     private static final byte[] updMsgWithUnrecognizedAttribute = new byte[] {
@@ -295,15 +297,16 @@ public class ParserTest {
         final BgpTableType t1 = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
         final BgpTableType t2 = new BgpTableTypeImpl(LinkstateAddressFamily.class, UnicastSubsequentAddressFamily.class);
 
-        final List<BgpParameters> tlvs = Lists.newArrayList();
+        final List<OptionalCapabilities> capas = Lists.newArrayList();
 
-        tlvs.add(new BgpParametersBuilder().setCParameters(
+        capas.add(new OptionalCapabilitiesBuilder().setCParameters(
             new MultiprotocolCaseBuilder().setMultiprotocolCapability(
                 new MultiprotocolCapabilityBuilder().setAfi(LinkstateAddressFamily.class).setSafi(
                     LinkstateSubsequentAddressFamily.class).build()).build()).build());
-        tlvs.add(new BgpParametersBuilder().setCParameters(
+        capas.add(new OptionalCapabilitiesBuilder().setCParameters(
             new MultiprotocolCaseBuilder().setMultiprotocolCapability(
                 new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()).build()).build());
+        final List<BgpParameters> tlvs = Lists.newArrayList(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
 
         final Map<BgpTableType, Boolean> tableTypes = Maps.newHashMap();
         tableTypes.put(t1, true);

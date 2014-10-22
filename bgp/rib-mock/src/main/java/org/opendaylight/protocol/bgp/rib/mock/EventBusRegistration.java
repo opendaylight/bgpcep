@@ -20,8 +20,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.OptionalCapabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.MultiprotocolCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCase;
 import org.opendaylight.yangtools.concepts.AbstractListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
@@ -68,11 +69,13 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
         } else if (message instanceof Open) {
             final Set<BgpTableType> tts = Sets.newHashSet();
             for (final BgpParameters param : ((Open) message).getBgpParameters()) {
-                if (param.getCParameters() instanceof MultiprotocolCase) {
-                    final MultiprotocolCase p = (MultiprotocolCase) param.getCParameters();
-                    LOG.debug("Adding open parameter {}", p);
-                    final BgpTableType type = new BgpTableTypeImpl(p.getMultiprotocolCapability().getAfi(), p.getMultiprotocolCapability().getSafi());
-                    tts.add(type);
+                for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
+                    if (capa.getCParameters() instanceof MultiprotocolCase) {
+                        final MultiprotocolCase p = (MultiprotocolCase) capa.getCParameters();
+                        LOG.debug("Adding open parameter {}", p);
+                        final BgpTableType type = new BgpTableTypeImpl(p.getMultiprotocolCapability().getAfi(), p.getMultiprotocolCapability().getSafi());
+                        tts.add(type);
+                    }
                 }
             }
 
