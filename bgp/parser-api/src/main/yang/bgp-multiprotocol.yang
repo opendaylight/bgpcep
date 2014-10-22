@@ -67,7 +67,7 @@ module bgp-multiprotocol {
         }
     }
 
-    augment "/bgp-msg:open/bgp-msg:bgp-parameters/bgp-msg:c-parameters" {
+    augment "/bgp-msg:open/bgp-msg:bgp-parameters/bgp-msg:optional-capabilities/bgp-msg:c-parameters" {
         case multiprotocol-case {
             container multiprotocol-capability {
                 reference "http://tools.ietf.org/html/rfc4760#section-8";

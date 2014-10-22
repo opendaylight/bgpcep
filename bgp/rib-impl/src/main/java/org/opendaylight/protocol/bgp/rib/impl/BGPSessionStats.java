@@ -36,11 +36,12 @@ import org.opendaylight.protocol.util.StatisticsUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.CParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.c.parameters.As4BytesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.OptionalCapabilities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.As4BytesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.MultiprotocolCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.multiprotocol._case.MultiprotocolCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.multiprotocol._case.MultiprotocolCapability;
 
 final class BGPSessionStats {
     private final Stopwatch sessionStopwatch;
@@ -176,15 +177,17 @@ final class BGPSessionStats {
             pref.setHoldtime(localPref.getHoldTime());
             if (localPref.getParams() != null && !localPref.getParams().isEmpty()) {
                 for (final BgpParameters param : localPref.getParams()) {
-                    final CParameters cp = param.getCParameters();
-                    if (cp instanceof MultiprotocolCase) {
-                        final MultiprotocolCapability mc = ((MultiprotocolCase) cp).getMultiprotocolCapability();
-                        final AdvertizedTableTypes att = new AdvertizedTableTypes();
-                        att.setAfi(mc.getAfi().getSimpleName());
-                        att.setSafi(mc.getSafi().getSimpleName());
-                        tt.add(att);
+                    for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
+                        final CParameters cp = capa.getCParameters();
+                        if (cp instanceof MultiprotocolCase) {
+                            final MultiprotocolCapability mc = ((MultiprotocolCase) cp).getMultiprotocolCapability();
+                            final AdvertizedTableTypes att = new AdvertizedTableTypes();
+                            att.setAfi(mc.getAfi().getSimpleName());
+                            att.setSafi(mc.getSafi().getSimpleName());
+                            tt.add(att);
+                        }
+                        pref.setFourOctetAsCapability(isAs4ByteCapable(cp));
                     }
-                    pref.setFourOctetAsCapability(isAs4ByteCapable(cp));
                 }
             }
         }
@@ -208,7 +211,10 @@ final class BGPSessionStats {
         }
         if (remoteOpen.getBgpParameters() != null && !remoteOpen.getBgpParameters().isEmpty()) {
             for (final BgpParameters param : remoteOpen.getBgpParameters()) {
-                pref.setFourOctetAsCapability(isAs4ByteCapable(param.getCParameters()));
+                for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
+                    pref.setFourOctetAsCapability(isAs4ByteCapable(capa.getCParameters()));
+                }
+
             }
         }
         pref.setAdvertizedTableTypes(tt);
