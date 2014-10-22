@@ -34,6 +34,8 @@ import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.rev140113.NetworkTopologyRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Pcinitiate;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.pcinitiate.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Arguments1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Arguments1Builder;
@@ -96,6 +98,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
 
     private Stateful07TopologySessionListener listener;
 
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -163,7 +166,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         assertNotNull(this.listener.getSessionState());
 
         // update-lsp
-        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder updArgsBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder updArgsBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder();
         updArgsBuilder.setEro(createEroWithIpPrefixes(Lists.newArrayList(ERO_IP_PREFIX, DST_IP_PREFIX)));
         updArgsBuilder.addAugmentation(Arguments3.class, new Arguments3Builder().setLsp(new LspBuilder().setDelegate(true).setAdministrative(true).build()).build());
         final UpdateLspInput update = new UpdateLspInputBuilder().setArguments(updArgsBuilder.build()).setName(TUNNEL_NAME).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(NODE_ID).build();
@@ -197,7 +200,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         assertTrue(this.listener.getReplyTime().getAverageTime() > 0);
         assertTrue(this.listener.getReplyTime().getMaxTime() > 0);
         assertFalse(this.listener.getPeerCapabilities().getActive());
-        assertFalse(this.listener.getPeerCapabilities().getInstantiation());
+        assertTrue(this.listener.getPeerCapabilities().getInstantiation());
         assertTrue(this.listener.getPeerCapabilities().getStateful());
 
         // ensure-operational
@@ -310,7 +313,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
 
     @Override
     protected Open getLocalPref() {
-        return new OpenBuilder(super.getLocalPref()).setTlvs(new TlvsBuilder().addAugmentation(Tlvs1.class, new Tlvs1Builder().setStateful(new StatefulBuilder().build()).build()).build()).build();
+        return new OpenBuilder(super.getLocalPref()).setTlvs(new TlvsBuilder().addAugmentation(Tlvs1.class, new Tlvs1Builder().setStateful(new StatefulBuilder().addAugmentation(Stateful1.class, new Stateful1Builder().setInitiation(Boolean.TRUE).build()).build()).build()).build()).build();
     }
 
     private AddLspInput createAddLspInput() {
