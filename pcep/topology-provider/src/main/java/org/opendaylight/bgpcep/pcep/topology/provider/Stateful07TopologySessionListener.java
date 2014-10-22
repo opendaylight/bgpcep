@@ -226,6 +226,9 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
                     LOG.debug("Node {} already contains lsp {} at {}", input.getNode(), input.getName(), lsp);
                     return OperationResults.UNSENT.future();
                 }
+                if (!getPeerCapabilities().getInstantiation()) {
+                    return OperationResults.UNSENT.future();
+                }
 
                 // Build the request
                 final RequestsBuilder rb = new RequestsBuilder();
