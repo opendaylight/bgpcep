@@ -105,7 +105,11 @@ public enum BGPError {
     /**
      * Cease. 6/0
      */
-    CEASE((short) 6, (short) 0);
+    CEASE((short) 6, (short) 0),
+    /**
+     * Unsupported Capability 2/7
+     */
+    UNSUPPORTED_CAPABILITY((short) 2, (short) 7);
 
     private static final Map<BGPErrorIdentifier, BGPError> VALUE_MAP;
 

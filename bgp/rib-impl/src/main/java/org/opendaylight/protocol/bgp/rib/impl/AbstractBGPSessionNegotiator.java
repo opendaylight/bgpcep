@@ -168,7 +168,15 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
     }
 
     private static Notify buildErrorNotify(final BGPError err) {
-        return new NotifyBuilder().setErrorCode(err.getCode()).setErrorSubcode(err.getSubcode()).build();
+        return buildErrorNotify(err, null);
+    }
+
+    private static Notify buildErrorNotify(final BGPError err, final byte[] data) {
+        final NotifyBuilder builder = new NotifyBuilder().setErrorCode(err.getCode()).setErrorSubcode(err.getSubcode());
+        if (data != null && data.length != 0) {
+            builder.setData(data);
+        }
+        return builder.build();
     }
 
     private void handleOpen(final Open openObj) {
@@ -197,7 +205,7 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
         if (e instanceof BGPDocumentedException) {
             // although sendMessage() can also result in calling this method, it won't create a cycle. In case sendMessage() fails to
             // deliver the message, this method gets called with different exception (definitely not with BGPDocumentedException).
-            this.sendMessage(buildErrorNotify(((BGPDocumentedException)e).getError()));
+            this.sendMessage(buildErrorNotify(((BGPDocumentedException)e).getError(), ((BGPDocumentedException) e).getData()));
         }
         super.negotiationFailed(e);
         this.state = State.Finished;
