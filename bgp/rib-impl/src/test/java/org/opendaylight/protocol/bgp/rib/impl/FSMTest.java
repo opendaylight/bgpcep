@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -175,7 +176,8 @@ public class FSMTest {
         assertEquals(2, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(1) instanceof Notify);
         final Notification m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);
-        assertEquals(BGPError.UNSPECIFIC_OPEN_ERROR, BGPError.forValue(((Notify) m).getErrorCode(), ((Notify) m).getErrorSubcode()));
+        assertEquals(BGPError.UNSUPPORTED_CAPABILITY, BGPError.forValue(((Notify) m).getErrorCode(), ((Notify) m).getErrorSubcode()));
+        assertNotNull(((Notify) m).getData());
     }
 
     @Test
