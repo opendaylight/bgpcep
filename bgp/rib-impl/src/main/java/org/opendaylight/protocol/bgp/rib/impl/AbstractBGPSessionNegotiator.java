@@ -94,7 +94,7 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
             final BGPDocumentedException cause = new BGPDocumentedException(
                     "BGP peer with ip: " + getRemoteIp()
                     + " not configured, check configured peers in : "
-                    + this.registry, BGPError.CEASE);
+                    + this.registry, BGPError.CONNECTION_REJECTED);
             negotiationFailed(cause);
             return;
         }

@@ -161,7 +161,8 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
     public synchronized void close() {
         LOG.info("Closing session: {}", this);
         if (this.state != State.Idle) {
-            this.sendMessage(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).setErrorSubcode((short)0).build());
+            this.sendMessage(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).setErrorSubcode(
+                    BGPError.CEASE.getSubcode()).build());
             this.channel.close();
             this.state = State.Idle;
         }

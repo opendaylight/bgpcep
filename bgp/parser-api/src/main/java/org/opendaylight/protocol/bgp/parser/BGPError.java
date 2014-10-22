@@ -105,7 +105,39 @@ public enum BGPError {
     /**
      * Cease. 6/0
      */
-    CEASE((short) 6, (short) 0);
+    CEASE((short) 6, (short) 0),
+    /**
+     * Maximum Number of Prefixes Reached. 6/1
+     */
+    MAX_NUMBER_OF_PREFIXES_REACHED((short) 6, (short) 1),
+    /**
+     * Administrative Shutdown. 6/2
+     */
+    ADMINISTRATIVE_SHUTDOWN((short) 6, (short) 2),
+    /**
+     * Peer De-configured. 6/3
+     */
+    PEER_DECONFIGURED((short) 6, (short) 3),
+    /**
+     * Administrative Reset. 6/4
+     */
+    ADMINISTRATIVE_RESTART((short) 6, (short) 4),
+    /**
+     * Connection Rejected. 6/5
+     */
+    CONNECTION_REJECTED((short) 6, (short) 5),
+    /**
+     * Other Configuration Change. 6/6
+     */
+    OTHER_CONFIGURATION_CHANGE((short) 6, (short) 6),
+    /**
+     * Connection Collision Resolution. 6/7
+     */
+    CONNECTION_COLLISION_RESOLUTION((short) 6, (short) 7),
+    /**
+     * Out of Resources. 6/8
+     */
+    OUT_OF_RESOURCES((short) 6, (short) 8);
 
     private static final Map<BGPErrorIdentifier, BGPError> VALUE_MAP;
 

@@ -12,17 +12,14 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Map;
-
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -104,7 +101,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
                 throw new BGPDocumentedException(
                     String.format("BGP session with %s %s has to be dropped. Same session already present %s",
                         ip, currentConnection, previousConnection),
-                        BGPError.CEASE);
+                        BGPError.CONNECTION_COLLISION_RESOLUTION);
 
                 // Session reestablished with lower source bgp id, dropping current
             } else if (previousConnection.isHigherDirection(currentConnection)) {
@@ -112,7 +109,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
                 throw new BGPDocumentedException(
                     String.format("BGP session with %s initiated %s has to be dropped. Opposite session already present",
                         ip, currentConnection),
-                        BGPError.CEASE);
+                        BGPError.CONNECTION_COLLISION_RESOLUTION);
 
                 // Session reestablished with higher source bgp id, dropping previous
             } else if (currentConnection.isHigherDirection(previousConnection)) {
@@ -126,7 +123,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
                 throw new BGPDocumentedException(
                     String.format("BGP session with %s initiated %s has to be dropped. Same session already present",
                         ip, currentConnection),
-                        BGPError.CEASE);
+                        BGPError.CONNECTION_COLLISION_RESOLUTION);
             }
         }
 
