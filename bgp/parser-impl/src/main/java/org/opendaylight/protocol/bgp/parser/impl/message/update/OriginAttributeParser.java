@@ -27,6 +27,10 @@ public final class OriginAttributeParser implements AttributeParser, AttributeSe
 
     public static final int TYPE = 1;
 
+    private static final Origin IGP = new OriginBuilder().setValue(BgpOrigin.Igp).build();
+    private static final Origin EGP = new OriginBuilder().setValue(BgpOrigin.Egp).build();
+    private static final Origin INC = new OriginBuilder().setValue(BgpOrigin.Incomplete).build();
+
     @Override
     public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) throws BGPDocumentedException {
         final byte rawOrigin = buffer.readByte();
@@ -34,7 +38,19 @@ public final class OriginAttributeParser implements AttributeParser, AttributeSe
         if (borigin == null) {
             throw new BGPDocumentedException("Unknown Origin type.", BGPError.ORIGIN_ATTR_NOT_VALID, new byte[] { (byte) 0x01, (byte) 0x01, rawOrigin} );
         }
-        builder.setOrigin(new OriginBuilder().setValue(borigin).build());
+        switch (borigin) {
+        case Egp:
+            builder.setOrigin(EGP);
+            return;
+        case Igp:
+            builder.setOrigin(IGP);
+            return;
+        case Incomplete:
+            builder.setOrigin(INC);
+            return;
+        default:
+            return;
+        }
     }
 
     @Override

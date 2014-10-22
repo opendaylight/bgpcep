@@ -8,10 +8,11 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -59,8 +60,11 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
      * @throws BGPParsingException
      */
     private static AsPath parseAsPath(final ReferenceCache refCache, final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
-        final List<Segments> ases = Lists.newArrayList();
+        List<Segments> ases = null;
         boolean isSequence = false;
+        if (buffer.isReadable()) {
+            ases =  new ArrayList<>();
+        }
         while (buffer.isReadable()) {
             final int type = UnsignedBytes.toInt(buffer.readByte());
             final SegmentType segmentType = AsPathSegmentParser.parseType(type);
@@ -87,7 +91,7 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
         if (!isSequence && buffer.readableBytes() != 0) {
             throw new BGPDocumentedException("AS_SEQUENCE must be present in AS_PATH attribute.", BGPError.AS_PATH_MALFORMED);
         }
-        return new AsPathBuilder().setSegments(ases).build();
+        return (ases == null) ? new AsPathBuilder().setSegments(Collections.<Segments> emptyList()).build() : new AsPathBuilder().setSegments(ases).build();
     }
 
     @Override
