@@ -53,7 +53,7 @@ public class PCEPMetricObjectParser implements ObjectParser, ObjectSerializer {
     private static final int C_FLAG_OFFSET = 6;
     private static final int B_FLAG_OFFSET = 7;
 
-    private static final int SIZE = 4 + METRIC_VALUE_F_LENGTH;
+    private static final int SIZE = METRIC_VALUE_F_LENGTH + METRIC_VALUE_F_LENGTH;
 
     @Override
     public Metric parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {

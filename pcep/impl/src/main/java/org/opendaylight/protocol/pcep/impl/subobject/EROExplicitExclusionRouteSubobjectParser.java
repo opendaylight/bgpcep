@@ -10,18 +10,16 @@ package org.opendaylight.protocol.pcep.impl.subobject;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectRegistry;
+import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.ExrsCase;
@@ -81,9 +79,9 @@ public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectPar
         Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject> subs = new ArrayList<>();
         while (buffer.isReadable()) {
-            final boolean mandatory = ((buffer.getByte(buffer.readerIndex()) & (1 << 7)) != 0) ? true : false;
-            int type = (buffer.readByte() & 0xff) & ~(1 << 7);
-            int length = UnsignedBytes.toInt(buffer.readByte()) - HEADER_LENGTH;
+            final boolean mandatory = ((buffer.getByte(buffer.readerIndex()) & (1 << Values.FIRST_BIT_OFFSET)) != 0) ? true : false;
+            final int type = (buffer.readByte() & Values.BYTE_MAX_VALUE_BYTES) & ~(1 << Values.FIRST_BIT_OFFSET);
+            final int length = UnsignedBytes.toInt(buffer.readByte()) - HEADER_LENGTH;
             if (length > buffer.readableBytes()) {
                 throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
                         + buffer.readableBytes());

@@ -35,10 +35,8 @@ public final class SrEroUtil {
                     return PCEPErrors.NON_IDENTICAL_ERO_SUBOBJECTS;
                 }
                 final SrEroSubobject srEroSubobject = (SrEroSubobject) subobject.getSubobjectType();
-                if (srEroSubobject.getFlags() != null) {
-                    if (srEroSubobject.getFlags().isM() && srEroSubobject.getSid() < MPLS_LABEL_MIN_VALUE) {
-                        return PCEPErrors.BAD_LABEL_VALUE;
-                    }
+                if (srEroSubobject.getFlags() != null && srEroSubobject.getFlags().isM() && srEroSubobject.getSid() < MPLS_LABEL_MIN_VALUE) {
+                    return PCEPErrors.BAD_LABEL_VALUE;
                 }
             }
         }

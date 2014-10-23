@@ -17,6 +17,7 @@ import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +39,9 @@ public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, O
         Preconditions.checkArgument(buffer != null, "Array of bytes is mandatory. Can't be null.");
         final List<Subobject> subs = new ArrayList<>();
         while (buffer.isReadable()) {
-            boolean loose = ((buffer.getByte(buffer.readerIndex()) & (1 << 7)) != 0) ? true : false;
-            int type = (buffer.readByte() & 0xff) & ~(1 << 7);
-            int length = UnsignedBytes.toInt(buffer.readByte()) - HEADER_LENGTH;
+            final boolean loose = ((buffer.getByte(buffer.readerIndex()) & (1 << Values.FIRST_BIT_OFFSET)) != 0) ? true : false;
+            final int type = (buffer.readByte() & Values.BYTE_MAX_VALUE_BYTES) & ~(1 << Values.FIRST_BIT_OFFSET);
+            final int length = UnsignedBytes.toInt(buffer.readByte()) - HEADER_LENGTH;
             if (length > buffer.readableBytes()) {
                 throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
                         + buffer.readableBytes());

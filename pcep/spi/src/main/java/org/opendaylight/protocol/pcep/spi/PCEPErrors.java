@@ -305,7 +305,7 @@ public enum PCEPErrors {
     /**
      * Caret for combination of Error-type and Error-value
      */
-    private static final class PCEPErrorIdentifier {
+    private static class PCEPErrorIdentifier {
         private final short type;
         private final short value;
 

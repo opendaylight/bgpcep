@@ -66,6 +66,8 @@ public final class Main {
 
     }
 
+    private static final int KA_TO_DEADTIMER_RATIO = 4;
+
     public static void main(final String[] args) throws NumberFormatException, UnknownHostException, InterruptedException, ExecutionException {
         if (args.length == 0 || (args.length == 1 && args[0].equalsIgnoreCase("--help"))) {
             LOG.info(Main.USAGE);
@@ -104,11 +106,11 @@ public final class Main {
             }
             i++;
         }
-        if (deadTimerValue != 0 && deadTimerValue != keepAliveValue * 4) {
+        if (deadTimerValue != 0 && deadTimerValue != keepAliveValue * KA_TO_DEADTIMER_RATIO) {
             LOG.warn("WARNING: The value of DeadTimer should be 4 times the value of KeepAlive.");
         }
         if (deadTimerValue == 0) {
-            deadTimerValue = keepAliveValue * 4;
+            deadTimerValue = keepAliveValue * KA_TO_DEADTIMER_RATIO;
         }
 
         final PCEPSessionProposalFactory spf = new Stateful07SessionProposalFactory(deadTimerValue, keepAliveValue, stateful, active, instant);

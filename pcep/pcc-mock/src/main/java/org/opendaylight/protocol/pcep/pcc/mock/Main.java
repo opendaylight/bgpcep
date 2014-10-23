@@ -13,7 +13,6 @@ import ch.qos.logback.classic.LoggerContext;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.net.InetAddresses;
-import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -42,7 +41,9 @@ public final class Main {
     private static final short DEFAULT_DEAD_TIMER = 120;
     private static final int RECONNECT_STRATEGY_TIMEOUT = 2000;
 
-    public static void main(String[] args) throws InterruptedException, ExecutionException, UnknownHostException {
+    private Main() { }
+
+    public static void main(final String[] args) throws InterruptedException, ExecutionException, UnknownHostException {
         InetAddress localAddress = InetAddress.getByName("127.0.0.1");
         InetAddress remoteAddress = InetAddress.getByName("127.0.0.1");
         int pccCount = 1;
@@ -83,8 +84,7 @@ public final class Main {
         activator07.start(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance());
         activator.start(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance());
         final PCCMock<Message, PCEPSessionImpl, PCEPSessionListener> pcc = new PCCMock<>(snf, new PCEPHandlerFactory(
-                ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry()),
-                new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE));
+                ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry()));
 
         final InetAddress pceAddress = remoteAddress;
         InetAddress currentAddress = localAddress;
@@ -108,8 +108,8 @@ public final class Main {
     private static ch.qos.logback.classic.Logger getRootLogger(final LoggerContext lc) {
         return Iterables.find(lc.getLoggerList(), new Predicate<Logger>() {
             @Override
-            public boolean apply(Logger input) {
-                return input.getName().equals(Logger.ROOT_LOGGER_NAME);
+            public boolean apply(final Logger input) {
+                return (input != null) ? input.getName().equals(Logger.ROOT_LOGGER_NAME) : false;
             }
         });
     }

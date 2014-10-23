@@ -70,7 +70,7 @@ public class PCEPClassTypeObjectParser implements ObjectParser, ObjectSerializer
         builder.setClassType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ClassType(ct));
 
         final Object obj = builder.build();
-        if (ct < 0 || ct > 8) {
+        if (ct < 0 || ct > Byte.SIZE) {
             LOG.debug("Invalid class type {}", ct);
             return new UnknownObject(PCEPErrors.INVALID_CT, obj);
         }

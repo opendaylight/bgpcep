@@ -8,9 +8,7 @@
 package org.opendaylight.protocol.pcep.spi.pojo;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -29,16 +27,19 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
 public final class SimpleObjectRegistry implements ObjectRegistry {
     private final HandlerRegistry<DataContainer, ObjectParser, ObjectSerializer> handlers = new HandlerRegistry<>();
 
+    private static final int MAX_OBJECT_TYPE = 15;
+    private static final int MAX_OBJECT_CLASS = 4;
+
     private static int createKey(final int objectClass, final int objectType) {
         Preconditions.checkArgument(objectClass >= 0 && objectClass <= Values.UNSIGNED_BYTE_MAX_VALUE);
-        Preconditions.checkArgument(objectType >= 0 && objectType <= 15);
-        return (objectClass << 4) | objectType;
+        Preconditions.checkArgument(objectType >= 0 && objectType <= MAX_OBJECT_TYPE);
+        return (objectClass << MAX_OBJECT_CLASS) | objectType;
     }
 
     public AutoCloseable registerObjectParser(final int objectClass, final int objectType, final ObjectParser parser) {
-        Preconditions.checkArgument(objectClass >= 0 && objectClass <= Values.UNSIGNED_BYTE_MAX_VALUE, "Illagal object class %s",
+        Preconditions.checkArgument(objectClass >= 0 && objectClass <= Values.UNSIGNED_BYTE_MAX_VALUE, "Illegal object class %s",
                 objectClass);
-        Preconditions.checkArgument(objectType >= 0 && objectType <= 15, "Illegal object type %s", objectType);
+        Preconditions.checkArgument(objectType >= 0 && objectType <= MAX_OBJECT_TYPE, "Illegal object type %s", objectType);
         return this.handlers.registerParser(createKey(objectClass, objectType), parser);
     }
 
@@ -56,7 +57,7 @@ public final class SimpleObjectRegistry implements ObjectRegistry {
             if (!header.isProcessingRule()) {
                 return null;
             }
-            for (int type = 1; type <= 15; type++) {
+            for (int type = 1; type <= MAX_OBJECT_TYPE; type++) {
                 final ObjectParser objParser = this.handlers.getParser(createKey(objectClass, type));
                 if (objParser != null) {
                     return new UnknownObject(PCEPErrors.UNRECOGNIZED_OBJ_TYPE);
