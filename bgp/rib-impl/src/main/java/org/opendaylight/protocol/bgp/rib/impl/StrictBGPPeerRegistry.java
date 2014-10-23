@@ -68,6 +68,11 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         this.peers.remove(ip);
     }
 
+    public synchronized void removePeerSession(final IpAddress ip) {
+        Preconditions.checkNotNull(ip);
+        this.sessionIds.remove(ip);
+    }
+
     @Override
     public boolean isPeerConfigured(final IpAddress ip) {
         Preconditions.checkNotNull(ip);
