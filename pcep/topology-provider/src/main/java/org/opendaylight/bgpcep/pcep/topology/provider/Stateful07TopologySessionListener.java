@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PeerCapabilities;
 import org.opendaylight.protocol.pcep.PCEPSession;
+import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.PcinitiateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1Builder;
@@ -224,10 +225,10 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
             public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
                 if (rep.isPresent()) {
                     LOG.debug("Node {} already contains lsp {} at {}", input.getNode(), input.getName(), lsp);
-                    return OperationResults.UNSENT.future();
+                    return OperationResults.createUnsent(PCEPErrors.USED_SYMBOLIC_PATH_NAME).future();
                 }
                 if (!getPeerCapabilities().getInstantiation()) {
-                    return OperationResults.UNSENT.future();
+                    return OperationResults.createUnsent(PCEPErrors.CAPABILITY_NOT_SUPPORTED).future();
                 }
 
                 // Build the request
@@ -273,7 +274,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
             public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
                 final Lsp reportedLsp = validateReportedLsp(rep, input);
                 if (reportedLsp == null) {
-                    return OperationResults.UNSENT.future();
+                    return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
                 }
                 // Build the request and send it
                 final RequestsBuilder rb = new RequestsBuilder();
@@ -300,7 +301,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
             public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
                 final Lsp reportedLsp = validateReportedLsp(rep, input);
                 if (reportedLsp == null) {
-                    return OperationResults.UNSENT.future();
+                    return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
                 }
                 // create mandatory objects
                 final Srp srp = new SrpBuilder().setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE).build();
