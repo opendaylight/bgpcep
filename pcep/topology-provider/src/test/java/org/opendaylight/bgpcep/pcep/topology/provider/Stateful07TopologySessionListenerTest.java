@@ -85,6 +85,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.add.lsp.args.ArgumentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClient;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLsp;
@@ -309,6 +310,57 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         this.session.handleMessage(rptmsg);
         final Topology topology = getTopology().get();
         assertFalse(topology.getNode().isEmpty());
+    }
+
+    @Test
+    public void testUpdateUnknownLsp() throws InterruptedException, ExecutionException {
+        this.listener.onSessionUp(this.session);
+        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder updArgsBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder();
+        updArgsBuilder.setEro(createEroWithIpPrefixes(Lists.newArrayList(ERO_IP_PREFIX, DST_IP_PREFIX)));
+        updArgsBuilder.addAugmentation(Arguments3.class, new Arguments3Builder().setLsp(new LspBuilder().setDelegate(true).setAdministrative(true).build()).build());
+        final UpdateLspInput update = new UpdateLspInputBuilder().setArguments(updArgsBuilder.build()).setName(TUNNEL_NAME).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(NODE_ID).build();
+        final UpdateLspOutput result = this.topologyRpcs.updateLsp(update).get().getResult();
+        assertEquals(FailureType.Unsent, result.getFailure());
+        assertEquals(1, result.getError().size());
+        final ErrorObject errorObject = result.getError().get(0).getErrorObject();
+        assertNotNull(errorObject);
+        assertEquals(PCEPErrors.UNKNOWN_PLSP_ID, PCEPErrors.forValue(errorObject.getType(), errorObject.getValue()));
+    }
+
+    @Test
+    public void testRemoveUnknownLsp() throws InterruptedException, ExecutionException {
+        this.listener.onSessionUp(this.session);
+        final RemoveLspInput remove = new RemoveLspInputBuilder().setName(TUNNEL_NAME).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(NODE_ID).build();
+        final OperationResult result = this.topologyRpcs.removeLsp(remove).get().getResult();
+        assertEquals(FailureType.Unsent, result.getFailure());
+        assertEquals(1, result.getError().size());
+        final ErrorObject errorObject = result.getError().get(0).getErrorObject();
+        assertNotNull(errorObject);
+        assertEquals(PCEPErrors.UNKNOWN_PLSP_ID, PCEPErrors.forValue(errorObject.getType(), errorObject.getValue()));
+    }
+
+    @Test
+    public void testAddAlreadyExistingLsp() throws UnknownHostException, InterruptedException, ExecutionException {
+        this.listener.onSessionUp(this.session);
+        this.topologyRpcs.addLsp(createAddLspInput());
+        assertEquals(1, this.receivedMsgs.size());
+        assertTrue(this.receivedMsgs.get(0) instanceof Pcinitiate);
+        final Pcinitiate pcinitiate = (Pcinitiate) this.receivedMsgs.get(0);
+        final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
+        final long srpId = req.getSrp().getOperationId().getValue();
+        final InetAddress inetAddress = InetAddress.getByName(TEST_ADDRESS);
+        final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
+                inetAddress, inetAddress, inetAddress);
+        final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs).setPlspId(new PlspId(1L)).setSync(false).setRemove(false).setOperational(OperationalStatus.Active).build(), Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(req.getEro().getSubobject()));
+        this.listener.onMessage(this.session, pcRpt);
+
+        //try to add already existing LSP
+        final AddLspOutput result = this.topologyRpcs.addLsp(createAddLspInput()).get().getResult();
+        assertEquals(FailureType.Unsent, result.getFailure());
+        assertEquals(1, result.getError().size());
+        final ErrorObject errorObject = result.getError().get(0).getErrorObject();
+        assertNotNull(errorObject);
+        assertEquals(PCEPErrors.USED_SYMBOLIC_PATH_NAME, PCEPErrors.forValue(errorObject.getType(), errorObject.getValue()));
     }
 
     @Override

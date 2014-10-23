@@ -11,11 +11,12 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import java.util.Collections;
 import java.util.List;
-
+import org.opendaylight.protocol.pcep.spi.PCEPErrors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.Errors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.FailureType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.operation.result.Error;
@@ -45,8 +46,8 @@ final class OperationResults implements OperationResult {
         this.error = null;
     }
 
-    private OperationResults(final List<Error> error) {
-        this.failure = FailureType.Failed;
+    private OperationResults(final FailureType failure, final List<Error> error) {
+        this.failure = failure;
         this.error = error;
     }
 
@@ -56,7 +57,18 @@ final class OperationResults implements OperationResult {
 
     public static OperationResults createFailed(final List<Errors> errors) {
         final List<Errors> e = errors != null ? errors : Collections.<Errors>emptyList();
-        return new OperationResults(Lists.transform(e, CONVERT_ERRORS));
+        return new OperationResults(FailureType.Failed, Lists.transform(e, CONVERT_ERRORS));
+    }
+
+    public static OperationResults createUnsent(final PCEPErrors error) {
+        final List<Errors> e = error != null ? Collections.singletonList(getErrorFor(error)) : Collections.<Errors>emptyList();
+        return new OperationResults(FailureType.Unsent, Lists.transform(e, CONVERT_ERRORS));
+    }
+
+    private static Errors getErrorFor(final PCEPErrors error) {
+        final ErrorsBuilder builder = new ErrorsBuilder();
+        builder.setErrorObject(new ErrorObjectBuilder().setType(error.getErrorType()).setValue(error.getErrorValue()).build());
+        return builder.build();
     }
 
     @Override

@@ -19,6 +19,7 @@ import java.nio.ByteBuffer;
 import java.util.Collections;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PeerCapabilities;
 import org.opendaylight.protocol.pcep.PCEPSession;
+import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.PcinitiateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.pcinitiate.message.PcinitiateMessageBuilder;
@@ -166,7 +167,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
             public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
                 if (rep.isPresent()) {
                     LOG.debug("Node {} already contains lsp {} at {}", input.getNode(), input.getName(), lsp);
-                    return OperationResults.UNSENT.future();
+                    return OperationResults.createUnsent(PCEPErrors.USED_SYMBOLIC_PATH_NAME).future();
                 }
 
                 final SymbolicPathNameBuilder name = new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(input.getName().getBytes(Charsets.UTF_8)));
@@ -203,7 +204,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
                 final Lsp reportedLsp = validateReportedLsp(rep, input);
                 if (reportedLsp == null) {
                     LOG.warn("Reported LSP does not contain LSP object.");
-                    return OperationResults.UNSENT.future();
+                    return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
                 }
                 // Build the request and send it
                 final UpdatesBuilder rb = new UpdatesBuilder();
@@ -227,7 +228,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
             public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
                 final Lsp reportedLsp = validateReportedLsp(rep, input);
                 if (reportedLsp == null) {
-                    return OperationResults.UNSENT.future();
+                    return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
                 }
                 final Arguments2 args = input.getArguments().getAugmentation(Arguments2.class);
                 Preconditions.checkArgument(args != null, "Input is missing operational tag.");
