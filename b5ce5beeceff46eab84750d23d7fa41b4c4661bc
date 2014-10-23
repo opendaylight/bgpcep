@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba8cc1f7_4c6e5ccb",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathAttributeParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-10-23T09:53:18Z",
+      "side": 1,
+      "message": "You can\u0027t add items to emptyList().",
+      "parentUuid": "ba8cc1f7_4c097c2b",
+      "revId": "b5ce5beeceff46eab84750d23d7fa41b4c4661bc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba8cc1f7_6c0ec036",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathSegmentParser.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2014-10-23T09:29:50Z",
       "side": 1,
       "message": "return Collections.emptyList() instead of null",
+      "revId": "b5ce5beeceff46eab84750d23d7fa41b4c4661bc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba8cc1f7_6c7320b2",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathSegmentParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-10-23T09:53:18Z",
+      "side": 1,
+      "message": "That somehow defies the purpose of having less empty lists.",
+      "parentUuid": "ba8cc1f7_6c0ec036",
       "revId": "b5ce5beeceff46eab84750d23d7fa41b4c4661bc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
