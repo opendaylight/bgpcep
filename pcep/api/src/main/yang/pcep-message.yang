@@ -11,7 +11,7 @@ module pcep-message {
     description
         "This module contains the base data model of a PCEP message.
         It rolls up the definitions contained in RFC5440, RFC5520
-        and RFC6006.
+        and RFC6006, RFC5886.
 
         Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
 
@@ -51,6 +51,14 @@ module pcep-message {
 
     notification close {
         uses pcep:close-message;
+    }
+
+    notification pcmonreq {
+        uses pcep:pcreq-message;
+    }
+
+    notification pcmonrep {
+        uses pcep:pcmonrep-message;
     }
 }
 
