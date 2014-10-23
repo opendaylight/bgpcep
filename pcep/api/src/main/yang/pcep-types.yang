@@ -15,7 +15,7 @@ module pcep-types {
     description
         "This module contains the base data model of a PCEP message.
         It rolls up the definitions contained in RFC5440, RFC5520
-        and RFC6006.
+        and RFC6006, RFC5886.
 
         Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
 
@@ -713,6 +713,159 @@ module pcep-types {
         }
     }
 
+    grouping monitoring-object {
+        description "The MONITORING object is used to specify the
+        set of requested PCEP state metrics.";
+        reference "https://tools.ietf.org/html/rfc5886#section-4.1";
+        container monitoring {
+            uses object;
+
+            leaf flags {
+                type bits {
+                    bit incomplete {
+                        description "Indicates that PCE cannot provide any of
+                        the set of requested performance metrics for unspecified reasons.";
+                        position 19;
+                    }
+                    bit overload {
+                        description "Indicates that the overload status is
+                        a metric of interest.";
+                        position 20;
+                    }
+                    bit processing-time {
+                        description "Indicates that the processing times is
+                        a metric of interest.";
+                        position 21;
+                    }
+                    bit general {
+                        description "Indicates that the monitoring
+                        request is a general monitoring request.";
+                        position 22;
+                    }
+                    bit liveness {
+                        description "Indicates that the state metric
+                        of interest is the PCE's liveness.";
+                        position 23;
+                    }
+                }
+            }
+
+            leaf monitoring-id {
+                description "The Monitoring-id-number combined with
+                the PCC-REQ-ID identifying the requesting PCC uniquely
+                identifies the monitoring request context.";
+                type uint32;
+                mandatory true;
+            }
+
+            container tlvs {
+                description "Optional TLV(s).";
+                uses vendor-information-tlvs;
+            }
+        }
+    }
+
+    grouping ip-address {
+        choice ip-address {
+            mandatory true;
+            case ipv4-address {
+                leaf ipv4-address {
+                    type inet:ipv4-address;
+                    mandatory true;
+                }
+            }
+            case ipv6-address {
+                leaf ipv6-address {
+                    type inet:ipv6-address;
+                    mandatory true;
+                }
+            }
+        }
+    }
+
+    grouping pcc-id-req-object {
+        description "The PCC-ID-REQ object is used to specify the IP
+        address of the requesting PCC.";
+        reference "https://tools.ietf.org/html/rfc5886#section-4.2";
+        container pcc-id-req {
+            uses object;
+            uses ip-address;
+        }
+    }
+
+    grouping pce-id-object {
+        description "The PCE-ID object is used to specify a PCE's IP address.";
+        reference "https://tools.ietf.org/html/rfc5886#section-4.3";
+        container pce-id {
+            uses object;
+            uses ip-address;
+        }
+    }
+
+    grouping proc-time-object {
+        description "The PROC-TIME object is used to report various processing time
+        related metrics.";
+        reference "https://tools.ietf.org/html/rfc5886#section-4.4";
+        container proc-time {
+            uses object;
+
+            leaf estimated {
+                description "Indicates that the reported metric value is
+                based on estimated processing time as opposed to
+                actual computations.";
+                type boolean;
+                mandatory true;
+            }
+
+            leaf current-proc-time {
+                description "Indicates, in milliseconds, the
+                processing time for the path computation of interest
+                characterized in the corresponding PCMonReq message.";
+                type uint32;
+            }
+
+            leaf min-proc-time {
+                description "The minimum processing time in milliseconds";
+                type uint32;
+                mandatory true;
+            }
+
+            leaf max-proc-time {
+                description "The maximum processing time in milliseconds";
+                type uint32;
+                mandatory true;
+            }
+
+            leaf average-proc-time {
+                description "The average processing time in milliseconds";
+                type uint32;
+                mandatory true;
+            }
+
+            leaf variance-proc-time {
+                description "The variance of processing times in milliseconds";
+                type uint32;
+                mandatory true;
+            }
+        }
+    }
+
+    grouping overload-object {
+        description "The OVERLOAD object is used to report a PCE processing
+        congestion state.";
+        reference "https://tools.ietf.org/html/rfc5886#section-4.5";
+        container overload {
+            uses object;
+            leaf duration {
+                description "This field indicates the amount of time,
+                in seconds, that the responding PCE expects that it may continue to
+                be overloaded from the time that the response message was generated.";
+                type uint16;
+                mandatory true;
+            }
+        }
+    }
+
     typedef class-type {
         type uint8 {
             range 1..7;
@@ -889,6 +1042,14 @@ module pcep-types {
 
                 uses vendor-information-objects;
             }
+
+            container monitoring-requtes {
+                uses monitoring;
+
+                list pce-id {
+                    uses pce-id-object;
+                }
+            }
         }
     }
 
@@ -896,6 +1057,46 @@ module pcep-types {
         uses explicit-route-object;
 
         uses lsp-attributes;
+    }
+
+    grouping monitoring {
+        uses monitoring-object;
+        uses pcc-id-req-object;
+    }
+
+    grouping monitoring-metrics {
+        list metric-pce {
+            uses pce-id-object;
+            uses proc-time-object;
+            uses overload-object;
+        }
+    }
+
+    grouping monitoring-response {
+        uses monitoring;
+        choice monitoring-metrics-list {
+            case specific-metrics-list {
+                list specific-metrics {
+                    uses rp-object;
+                    uses monitoring-metrics;
+                }
+            }
+
+            case general-specific-list {
+                uses monitoring-metrics;
+            }
+        }
+    }
+
+    grouping pcmonrep-message {
+        description "The PCMonRep message is used to provide PCE
+        state metrics back to the requester for out-of-band monitoring requests.";
+        reference "https://tools.ietf.org/html/rfc5886#section-9.2";
+
+        uses message;
+        container pcmonrep-message {
+            uses monitoring-response;
+        }
     }
 
     grouping pcrep-message {
@@ -910,6 +1111,8 @@ module pcep-types {
             list replies {
                 uses rp-object;
                 uses vendor-information-objects;
+                uses monitoring;
+                uses monitoring-metrics;
 
                 choice result {
                     case success-case {
