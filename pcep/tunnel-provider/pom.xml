@@ -34,6 +34,10 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>concepts</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>pcep-topology-api</artifactId>
         </dependency>
         <dependency>
@@ -67,6 +71,10 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>pcep-spi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>rsvp-api</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -219,6 +227,10 @@
             <artifactId>sal-binding-broker-impl</artifactId>
             <scope>test</scope>
             <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
         </dependency>
     </dependencies>
 

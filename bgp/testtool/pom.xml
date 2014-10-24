@@ -42,10 +42,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-parser-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>bgp-parser-spi</artifactId>
         </dependency>
         <dependency>
@@ -78,10 +74,6 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-transport</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
