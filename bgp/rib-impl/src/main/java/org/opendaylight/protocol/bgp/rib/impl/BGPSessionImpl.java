@@ -363,7 +363,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
     }
 
     @Override
-    public BgpSessionState getBgpSesionState() {
+    public synchronized BgpSessionState getBgpSesionState() {
         return this.sessionStats.getBgpSessionState(this.state);
     }
 

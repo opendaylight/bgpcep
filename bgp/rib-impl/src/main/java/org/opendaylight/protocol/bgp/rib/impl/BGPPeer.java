@@ -184,24 +184,24 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
     @Override
     public void resetStats() {
         if (this.session instanceof BGPSessionStatistics) {
-            ((BGPSessionStatistics) session).resetSessionStats();
+            ((BGPSessionStatistics) this.session).resetSessionStats();
         }
     }
 
-    public void registerRootRuntimeBean(final BGPPeerRuntimeRegistrator registrator) {
+    public synchronized void registerRootRuntimeBean(final BGPPeerRuntimeRegistrator registrator) {
         this.registrator = registrator;
     }
 
     @Override
     public BgpSessionState getBgpSessionState() {
         if (this.session instanceof BGPSessionStatistics) {
-            return ((BGPSessionStatistics) session).getBgpSesionState();
+            return ((BGPSessionStatistics) this.session).getBgpSesionState();
         }
         return new BgpSessionState();
     }
 
     @Override
-    public BgpPeerState getBgpPeerState() {
+    public synchronized BgpPeerState getBgpPeerState() {
         final BgpPeerState peerState = new BgpPeerState();
         final List<RouteTable> routes = Lists.newArrayList();
         for (final TablesKey tablesKey : this.tables) {

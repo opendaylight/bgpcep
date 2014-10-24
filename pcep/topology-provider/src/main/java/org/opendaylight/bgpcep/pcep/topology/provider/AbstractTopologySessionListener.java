@@ -486,7 +486,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     }
 
     @Override
-    public String getPeerId() {
+    public synchronized String getPeerId() {
         return this.session.getPeerPref().getIpAddress();
     }
 }

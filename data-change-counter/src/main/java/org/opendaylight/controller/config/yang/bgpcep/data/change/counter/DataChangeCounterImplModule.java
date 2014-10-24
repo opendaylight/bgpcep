@@ -22,15 +22,15 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class DataChangeCounterImplModule extends org.opendaylight.controller.config.yang.bgpcep.data.change.counter.AbstractDataChangeCounterImplModule {
 
-    public DataChangeCounterImplModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+    public DataChangeCounterImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public DataChangeCounterImplModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-            org.opendaylight.controller.config.yang.bgpcep.data.change.counter.DataChangeCounterImplModule oldModule,
-            java.lang.AutoCloseable oldInstance) {
+    public DataChangeCounterImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+            final org.opendaylight.controller.config.yang.bgpcep.data.change.counter.DataChangeCounterImplModule oldModule,
+            final java.lang.AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
@@ -54,14 +54,14 @@ public class DataChangeCounterImplModule extends org.opendaylight.controller.con
         private final TopologyDataChangeCounter inner;
         private final ListenerRegistration<DataChangeListener> registration;
 
-        public DataChangeCounterCloseable(TopologyDataChangeCounter inner,
-                ListenerRegistration<DataChangeListener> registration) {
+        public DataChangeCounterCloseable(final TopologyDataChangeCounter inner,
+                final ListenerRegistration<DataChangeListener> registration) {
             this.inner = inner;
             this.registration = registration;
         }
 
         @Override
-        public void close() throws Exception {
+        public void close() {
             this.registration.close();
             this.inner.close();
         }
