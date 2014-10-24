@@ -237,7 +237,8 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
      * @param id instance identifier
      * @return router identifier
      */
-    public abstract @Nullable KeyedInstanceIdentifier<D, K> routeIdentifier(InstanceIdentifier<?> id);
+    @Nullable
+    public abstract KeyedInstanceIdentifier<D, K> routeIdentifier(InstanceIdentifier<?> id);
 
     /**
      * Craates route key out of instance identifier
