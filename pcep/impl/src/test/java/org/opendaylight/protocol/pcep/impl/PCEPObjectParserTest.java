@@ -37,11 +37,18 @@ import org.opendaylight.protocol.pcep.impl.object.PCEPIncludeRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPLoadBalancingObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPLspaObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPMetricObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPMonitoringObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPNoPathObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPNotificationObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPObjectiveFunctionObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPOpenObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPOverloadObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPPathKeyObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPPccIdReqIPv4ObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPPccIdReqIPv6ObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPPceIdIPv4ObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPPceIdIPv6ObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPProcTimeObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPReportedRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPRequestParameterObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPSvecObjectParser;
@@ -57,7 +64,9 @@ import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
@@ -82,21 +91,33 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.gc.object.GcBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.IroBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ip.address.ip.address.Ipv4AddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ip.address.ip.address.Ipv6AddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.load.balancing.object.LoadBalancingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.LspaBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.MetricBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.object.Monitoring;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.object.Monitoring.Flags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.object.MonitoringBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.CNotificationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.object.OfBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.order.tlv.OrderBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.duration.tlv.OverloadDurationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.object.Overload;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.object.OverloadBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.object.PathKeyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.object.path.key.PathKeys;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.object.path.key.PathKeysBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcc.id.req.object.PccIdReq;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcc.id.req.object.PccIdReqBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pce.id.object.PceIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.error.object.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure._case.NoPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure._case.no.path.tlvs.NoPathVectorBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.proc.time.object.ProcTime;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.proc.time.object.ProcTimeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.RroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.req.missing.tlv.ReqMissingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.RpBuilder;
@@ -1085,5 +1106,160 @@ public class PCEPObjectParserTest {
         final ByteBuf buf = Unpooled.buffer(viObjBytes.length);
         parser.serializeObject(viObj, buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+    }
+
+    @Test
+    public void testMonitoringObject() throws PCEPDeserializerException {
+        final byte[] monitoringBytes = {
+            /* object header */
+            0x13, 0x10, 0x00, 0x0C,
+            /* flags */
+            0x00, 0x00, 0x00, 0x01,
+            /* monitoring-id=16 */
+            0x00, 0x00, 0x00, 0x10
+        };
+        final PCEPMonitoringObjectParser parser = new PCEPMonitoringObjectParser(this.tlvRegistry, this.viTlvRegistry);
+        final Monitoring monitoring = new MonitoringBuilder().setMonitoringId(16L).setFlags(new Flags(false, false, true, false, false)).setTlvs(
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.object.monitoring.TlvsBuilder().build()).build();
+        final ByteBuf result = Unpooled.wrappedBuffer(monitoringBytes);
+        assertEquals(monitoring, parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
+
+        final ByteBuf buf = Unpooled.buffer(monitoringBytes.length);
+        parser.serializeObject(monitoring, buf);
+        assertArrayEquals(monitoringBytes, buf.array());
+    }
+
+    @Test
+    public void testPccIdReqIPv4Object() throws PCEPDeserializerException {
+        final byte[] pccIdReqBytes = {
+            /* object header */
+            0x14, 0x10, 0x00, 0x08,
+            /* ipv4 address */
+            0x7f, 0x00, 0x00, 0x01
+        };
+        final PCEPPccIdReqIPv4ObjectParser parser = new PCEPPccIdReqIPv4ObjectParser();
+        final PccIdReq pccIdReq = new PccIdReqBuilder().setIpAddress(new Ipv4AddressBuilder().setIpv4Address(
+                new Ipv4Address("127.0.0.1")).build()).build();
+        final ByteBuf result = Unpooled.wrappedBuffer(pccIdReqBytes);
+        assertEquals(pccIdReq, parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
+
+        final ByteBuf buf = Unpooled.buffer(pccIdReqBytes.length);
+        parser.serializeObject(pccIdReq, buf);
+        assertArrayEquals(pccIdReqBytes, buf.array());
+    }
+
+    @Test
+    public void testPccIdReqIPv6Object() throws PCEPDeserializerException {
+        final byte[] pccIdReqBytes = {
+            /* object header */
+            0x14, 0x20, 0x00, 0x14,
+            /* ipv6 address */
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x01
+        };
+        final PCEPPccIdReqIPv6ObjectParser parser = new PCEPPccIdReqIPv6ObjectParser();
+        final PccIdReq pccIdReq = new PccIdReqBuilder().setIpAddress(new Ipv6AddressBuilder().setIpv6Address(
+                new Ipv6Address("::1")).build()).build();
+        final ByteBuf result = Unpooled.wrappedBuffer(pccIdReqBytes);
+        assertEquals(pccIdReq, parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
+
+        final ByteBuf buf = Unpooled.buffer(pccIdReqBytes.length);
+        parser.serializeObject(pccIdReq, buf);
+        assertArrayEquals(pccIdReqBytes, buf.array());
+    }
+
+    @Test
+    public void testPceIdIPv4Object() throws PCEPDeserializerException {
+        final byte[] pccIdReqBytes = {
+            /* object header */
+            0x19, 0x10, 0x00, 0x08,
+            /* ipv4 address */
+            0x7f, 0x00, 0x00, 0x01
+        };
+        final PCEPPceIdIPv4ObjectParser parser = new PCEPPceIdIPv4ObjectParser();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pce.id.object.PceId pceId = new PceIdBuilder().setIpAddress(new Ipv4AddressBuilder().setIpv4Address(
+                new Ipv4Address("127.0.0.1")).build()).build();
+        final ByteBuf result = Unpooled.wrappedBuffer(pccIdReqBytes);
+        assertEquals(pceId, parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
+
+        final ByteBuf buf = Unpooled.buffer(pccIdReqBytes.length);
+        parser.serializeObject(pceId, buf);
+        assertArrayEquals(pccIdReqBytes, buf.array());
+    }
+
+    @Test
+    public void testPceIdIPv6Object() throws PCEPDeserializerException {
+        final byte[] pccIdReqBytes = {
+            /* object header */
+            0x19, 0x20, 0x00, 0x14,
+            /* ipv6 header */
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x01
+        };
+        final PCEPPceIdIPv6ObjectParser parser = new PCEPPceIdIPv6ObjectParser();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pce.id.object.PceId pccIdReq = new PceIdBuilder().setIpAddress(new Ipv6AddressBuilder().setIpv6Address(
+                new Ipv6Address("::1")).build()).build();
+        final ByteBuf result = Unpooled.wrappedBuffer(pccIdReqBytes);
+        assertEquals(pccIdReq, parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
+
+        final ByteBuf buf = Unpooled.buffer(pccIdReqBytes.length);
+        parser.serializeObject(pccIdReq, buf);
+        assertArrayEquals(pccIdReqBytes, buf.array());
+    }
+
+    @Test
+    public void testProcTimeObject() throws PCEPDeserializerException {
+        final byte[] proctimeBytes = {
+            /* object header */
+            0x1A, 0x10, 0x00, 0x1C,
+            /* E flag */
+            0x00, 0x00, 0x00, 0x01,
+            /* current proc. time */
+            0x00, 0x00, 0x00, 0x01,
+            /* min proc. time */
+            0x00, 0x00, 0x00, 0x02,
+            /* max proc time */
+            0x00, 0x00, 0x00, 0x03,
+            /* average proc time */
+            0x00, 0x00, 0x00, 0x04,
+            /* variance proc time */
+            0x00, 0x00, 0x00, 0x05,
+        };
+        final PCEPProcTimeObjectParser parser = new PCEPProcTimeObjectParser();
+        final ProcTime procTime = new ProcTimeBuilder()
+            .setEstimated(true)
+            .setAverageProcTime(4L)
+            .setCurrentProcTime(1L)
+            .setMaxProcTime(3L)
+            .setMinProcTime(2L)
+            .setVarianceProcTime(5L).build();
+        final ByteBuf result = Unpooled.wrappedBuffer(proctimeBytes);
+        assertEquals(procTime, parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
+
+        final ByteBuf buf = Unpooled.buffer(proctimeBytes.length);
+        parser.serializeObject(procTime, buf);
+        assertArrayEquals(proctimeBytes, buf.array());
+    }
+
+    @Test
+    public void testOverloadObject() throws PCEPDeserializerException {
+        final byte[] overloadBytes = {
+            /* object header */
+            0x1B, 0x10, 0x00, 0x08,
+            /* overload duration */
+            0x00, 0x00, 0x00, 0x78
+        };
+        final PCEPOverloadObjectParser parser = new PCEPOverloadObjectParser();
+        final Overload overload = new OverloadBuilder().setDuration(120).build();
+        final ByteBuf result = Unpooled.wrappedBuffer(overloadBytes);
+        assertEquals(overload, parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
+
+        final ByteBuf buf = Unpooled.buffer(overloadBytes.length);
+        parser.serializeObject(overload, buf);
+        assertArrayEquals(overloadBytes, buf.array());
     }
 }
