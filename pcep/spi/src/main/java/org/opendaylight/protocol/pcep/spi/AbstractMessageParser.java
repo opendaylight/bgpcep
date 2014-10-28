@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
@@ -62,6 +63,13 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
         this.viRegistry = Preconditions.checkNotNull(viRegistry);
     }
 
+    /**
+     * Calls registry to pick up specific object serializer for given object.
+     * Checks if the object is not null.
+     * @param object Object to be serialized, may be null
+     * @param buffer ByteBuf where the object should be serialized
+     */
+    @Nullable
     protected void serializeObject(final Object object, final ByteBuf buffer) {
         if (object == null) {
             return;
@@ -78,7 +86,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
             }
             final int objClass = bytes.readUnsignedByte();
 
-            byte flagsByte = bytes.readByte();
+            final byte flagsByte = bytes.readByte();
             final int objType = UnsignedBytes.toInt(ByteArray.copyBitsRange(flagsByte, OT_SF_OFFSET, OT_SF_LENGTH));
             final byte[] flagsBytes = { ByteArray.copyBitsRange(flagsByte, FLAGS_SF_OFFSET, FLAGS_SF_LENGTH) };
             final BitSet flags = ByteArray.bytesToBitSet(flagsBytes);
