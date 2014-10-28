@@ -46,6 +46,7 @@
 
         <!--Test tools -->
         <module>data-change-counter</module>
+        <module>data-change-counter-controller-config</module>
 
         <!-- Parents -->
         <module>commons/parent</module>

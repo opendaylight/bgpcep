@@ -12,221 +12,172 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
 
-    <repository>mvn:org.opendaylight.controller/features-netconf/${netconf.version}/xml/features</repository>
+    <repository>mvn:org.opendaylight.controller/features-config/${config.version}/xml/features</repository>
     <repository>mvn:org.opendaylight.controller/features-mdsal/${mdsal.version}/xml/features</repository>
     <repository>mvn:org.opendaylight.yangtools/features-yangtools/${yangtools.version}/xml/features</repository>
     <repository>mvn:org.opendaylight.tcpmd5/features-tcpmd5/${tcpmd5.version}/xml/features</repository>
 
     <feature name='odl-bgpcep-all' version='${project.version}'>
-        <feature version='${project.version}'>odl-bgpcep-dependencies</feature>
-        <feature version='${project.version}'>odl-bgpcep-util</feature>
-        <feature version='${project.version}'>odl-bgpcep-concepts</feature>
-        <feature version='${project.version}'>odl-bgpcep-parser</feature>
-        <feature version='${project.version}'>odl-bgpcep-rib</feature>
-        <feature version='${project.version}'>odl-pcep-api</feature>
-        <feature version='${project.version}'>odl-pcep-spi</feature>
-        <feature version='${project.version}'>odl-bgpcep-pcep-impl</feature>
-        <feature version='${project.version}'>odl-pcep-segment-routing</feature>
-        <feature version='${project.version}'>odl-bgpcep-topology</feature>
-        <feature version='${project.version}'>odl-bgpcep-linkstate</feature>
-        <feature version='${project.version}'>odl-bgpcep-tunnel</feature>
-        <feature version='${project.version}'>odl-bgpcep-programming</feature>
-        <configfile finalname="etc/opendaylight/karaf/30-programming.xml">mvn:org.opendaylight.bgpcep/programming-controller-config/${project.version}/xml/config</configfile>
+        <feature version='${project.version}'>odl-bgpcep-bgp-all</feature>
+        <feature version='${project.version}'>odl-bgpcep-pcep-all</feature>
+    </feature>
+
+    <feature name='odl-bgpcep-bgp-all' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-rib</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-rib-impl</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-topology</feature>
         <configfile finalname="etc/opendaylight/karaf/31-bgp.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/${project.version}/xml/config</configfile>
-        <configfile finalname="etc/opendaylight/karaf/32-pcep.xml">mvn:org.opendaylight.bgpcep/pcep-controller-config/${project.version}/xml/config</configfile>
-        <configfile finalname="etc/opendaylight/karaf/33-pcep-segment-routing.xml">mvn:org.opendaylight.bgpcep/pcep-controller-config/${project.version}/xml/config-segment</configfile>
-        <configfile finalname="etc/opendaylight/karaf/39-pcep-provider.xml">mvn:org.opendaylight.bgpcep/pcep-controller-config/${project.version}/xml/config-provider</configfile>
         <configfile finalname="etc/opendaylight/karaf/41-bgp-example.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/${project.version}/xml/config-example</configfile>
     </feature>
 
-    <!--<feature name='odl-bgpcep-pcep-all' version='${project.version}'>-->
-        <!--<feature version='${project.version}'>odl-pcep-impl</feature>-->
-        <!--<feature version='${project.version}'>odl-pcep-tunnel</feature>-->
-        <!--<feature version='${project.version}'>odl-pcep-topology</feature>-->
-        <!--<bundle>mvn:org.opendaylight.bgpcep/pcep-ietf-stateful02/${project.version}</bundle>-->
-        <!--<bundle>mvn:org.opendaylight.bgpcep/pcep-ietf-stateful07/${project.version}</bundle>-->
-    <!--</feature>-->
-
+    <feature name='odl-bgpcep-pcep-all' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-pcep</feature>
+        <feature version='${project.version}'>odl-bgpcep-pcep-impl</feature>
+        <feature version='${project.version}'>odl-bgpcep-pcep-stateful02</feature>
+        <feature version='${project.version}'>odl-bgpcep-pcep-stateful07</feature>
+        <feature version='${project.version}'>odl-bgpcep-pcep-segment-routing</feature>
+        <feature version='${project.version}'>odl-bgpcep-pcep-topology</feature>
+        <feature version='${project.version}'>odl-bgpcep-pcep-topology-provider</feature>
+        <feature version='${project.version}'>odl-bgpcep-pcep-tunnel-provider</feature>
+        <feature version='${project.version}'>odl-bgpcep-programming</feature>
+        <feature version='${project.version}'>odl-bgpcep-programming-impl</feature>
+        <configfile finalname="etc/opendaylight/karaf/30-programming.xml">mvn:org.opendaylight.bgpcep/programming-controller-config/${project.version}/xml/config</configfile>
+        <configfile finalname="etc/opendaylight/karaf/32-pcep.xml">mvn:org.opendaylight.bgpcep/pcep-controller-config/${project.version}/xml/config</configfile>
+        <configfile finalname="etc/opendaylight/karaf/33-pcep-segment-routing.xml">mvn:org.opendaylight.bgpcep/pcep-controller-config/${project.version}/xml/config-segment</configfile>
+        <configfile finalname="etc/opendaylight/karaf/39-pcep-provider.xml">mvn:org.opendaylight.bgpcep/pcep-controller-config/${project.version}/xml/config-provider</configfile>
+    </feature>
 
     <feature name='odl-bgpcep-dependencies' version='${project.version}'>
+        <!--  concepts -->
         <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-        <bundle>mvn:org.opendaylight.yangtools.model/ietf-inet-types/${ietf.types.version}</bundle>
-        <bundle>mvn:org.opendaylight.yangtools/concepts/${yangtools.version}</bundle>
-        <bundle>mvn:commons-codec/commons-codec/${commons.codec.version}</bundle>
-        <feature version='${yangtools.version}'>odl-yangtools-binding</feature>
-        <feature version='${yangtools.version}'>odl-yangtools-common</feature>
         <feature version='${yangtools.version}'>odl-yangtools-models</feature>
-        <bundle>mvn:org.opendaylight.controller/config-api/${netconf.version}</bundle>
-        <bundle>mvn:io.netty/netty-buffer/${netty.version}</bundle>
-        <bundle>mvn:io.netty/netty-codec/${netty.version}</bundle>
-        <bundle>mvn:io.netty/netty-transport/${netty.version}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/concepts/${project.version}</bundle>
+        <!-- util -->
+        <bundle>mvn:commons-codec/commons-codec/${commons.codec.version}</bundle>
         <bundle>mvn:io.netty/netty-common/${netty.version}</bundle>
-        <bundle>mvn:io.netty/netty-handler/${netty.version}</bundle>
-        <bundle>mvn:io.netty/netty-codec-http/${netty.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/concepts/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.controller/netty-config-api/${netconf.version}</bundle>
-        <bundle>mvn:org.opendaylight.controller/protocol-framework/${controller.framework.version}</bundle>
-        <feature version='${tcpmd5.version}'>odl-tcpmd5-netty</feature>
-    </feature>
-
-    <feature name='odl-bgpcep-util' version='${project.version}'>
-        <feature version='${project.version}'>odl-bgpcep-dependencies</feature>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-        <bundle>mvn:commons-codec/commons-codec/${commons.codec.version}</bundle>
-        <feature version='${yangtools.version}'>odl-yangtools-common</feature>
-        <bundle>mvn:org.opendaylight.yangtools/yang-binding/${yangtools.version}</bundle>
+        <bundle>mvn:io.netty/netty-buffer/${netty.version}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/util/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/concepts/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-util/${project.version}</bundle>
     </feature>
 
-    <feature name='odl-bgpcep-concepts' version='${project.version}'>
+    <feature name='odl-bgpcep-data-change-counter' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-dependencies</feature>
-        <bundle>mvn:org.opendaylight.controller/config-api/${netconf.version}</bundle>
-        <feature version='${yangtools.version}'>odl-yangtools-data-binding</feature>
         <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
-        <bundle>mvn:commons-codec/commons-codec/${commons.codec.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/concepts/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/util/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-concepts/${project.version}</bundle>
+        <feature version='${config.version}'>odl-config-api</feature>
+        <configfile finalname="etc/opendaylight/karaf/50-topology-data-change-counter.xml">mvn:org.opendaylight.bgpcep/data-change-counter-controller-config/${project.version}/xml/config</configfile>
+        <bundle>mvn:org.opendaylight.bgpcep/data-change-counter/${project.version}</bundle>
     </feature>
 
-    <feature name='odl-bgpcep-linkstate' version='${project.version}'>
+    <feature name='odl-bgpcep-bgp-parser' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-dependencies</feature>
-        <bundle>mvn:org.opendaylight.controller/sal-binding-api/${mdsal.version}</bundle>
-        <bundle>mvn:org.opendaylight.controller/sal-common-api/${mdsal.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/concepts/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/util/${project.version}</bundle>
-        <bundle>mvn:commons-codec/commons-codec/${commons.codec.version}</bundle>
-        <feature version='${project.version}'>odl-bgpcep-parser</feature>
-        <feature version='${project.version}'>odl-bgpcep-rib</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-concepts/${project.version}</bundle>
+        <feature version='${config.version}'>odl-config-api</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-api/${project.version}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-spi/${project.version}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-impl/${project.version}</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-bgp-rib' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-dependencies</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-api/${project.version}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-concepts/${project.version}</bundle>
+        <feature version='${protocol-framework.version}'>odl-protocol-framework</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-api/${project.version}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-spi/${project.version}</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-bgp-linkstate' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-rib</feature>
         <bundle>mvn:org.opendaylight.bgpcep/rsvp-api/${project.version}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-linkstate/${project.version}</bundle>
     </feature>
 
-
-    <feature name='odl-bgpcep-pcep-impl' version='${project.version}'>
-        <feature version='${project.version}'>odl-bgpcep-dependencies</feature>
-        <feature version='${project.version}'>odl-pcep-api</feature>
-        <feature version='${project.version}'>odl-pcep-spi</feature>
-        <bundle>mvn:org.opendaylight.bgpcep/topology-api/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/programming-api/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/programming-topology-api/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/pcep-topology-api/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/pcep-tunnel-api/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/topology-tunnel-api/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/programming-tunnel-api/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/pcep-impl/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/pcep-ietf-stateful02/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/pcep-ietf-stateful07/${project.version}</bundle>
-    </feature>
-
-    <feature name='odl-pcep-segment-routing' version='${project.version}'>
-        <feature version='${project.version}'>odl-bgpcep-dependencies</feature>
-        <feature version='${project.version}'>odl-pcep-api</feature>
-        <feature version='${project.version}'>odl-pcep-spi</feature>
-        <feature version='${project.version}'>odl-bgpcep-pcep-impl</feature>
-        <bundle>mvn:org.opendaylight.bgpcep/pcep-segment-routing/${project.version}</bundle>
-    </feature>
-
-    <feature name='odl-bgpcep-parser' version='${project.version}'>
-        <feature version='${project.version}'>odl-bgpcep-dependencies</feature>
-        <feature version='${project.version}'>odl-bgpcep-concepts</feature>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-api/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-spi/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-impl/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-mock/${project.version}</bundle>
-    </feature>
-
-    <feature name='odl-bgpcep-rib' version='${project.version}'>
-        <feature version='${project.version}'>odl-bgpcep-parser</feature>
-        <feature version='${yangtools.version}'>odl-yangtools-binding</feature>
-        <bundle>mvn:org.opendaylight.controller/sal-binding-config/${mdsal.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-api/${project.version}</bundle>
+    <feature name='odl-bgpcep-bgp-rib-impl' version='${project.version}'>
+        <feature version='${tcpmd5.version}'>odl-tcpmd5-netty</feature>
+        <bundle>mvn:io.netty/netty-codec/${netty.version}</bundle>
+        <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-rib</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-impl/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-mock/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-spi/${project.version}</bundle>
     </feature>
 
-    <feature name='odl-bgpcep-tunnel' version='${project.version}'>
-        <feature version='${project.version}'>odl-bgpcep-dependencies</feature>
-        <feature version='${project.version}'>odl-bgpcep-programming</feature>
-        <feature version='${project.version}'>odl-bgpcep-pcep-impl</feature>
-        <bundle>mvn:org.opendaylight.bgpcep/topology-tunnel-api/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/programming-tunnel-api/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/pcep-tunnel-api/${project.version}</bundle>
-    </feature>
-
-
-    <feature name='odl-bgpcep-programming' version='${project.version}'>
-        <feature version='${project.version}'>odl-bgpcep-dependencies</feature>
-        <feature version='${project.version}'>odl-bgpcep-topology</feature>
-        <bundle>mvn:org.opendaylight.bgpcep/programming-api/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/programming-spi/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/programming-impl/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.yangtools.model/yang-ext/${yang-ext.version}</bundle>
+    <feature name='odl-bgpcep-bgp-topology' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
         <bundle>mvn:org.opendaylight.bgpcep/topology-api/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/programming-topology-api/${project.version}</bundle>
-
+        <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
+        <feature version='${protocol-framework.version}'>odl-protocol-framework</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-topology-provider/${project.version}</bundle>
     </feature>
 
-    <feature name='odl-pcep-api' version='${project.version}'>
+    <feature name='odl-bgpcep-pcep' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-dependencies</feature>
         <bundle>mvn:org.opendaylight.bgpcep/rsvp-api/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/pcep-api/${project.version}</bundle>
-    </feature>
-
-    <feature name='odl-pcep-spi' version='${project.version}'>
-        <feature version='${project.version}'>odl-bgpcep-dependencies</feature>
-        <bundle>mvn:org.opendaylight.yangtools/yang-binding/${yangtools.version}</bundle>
-        <bundle>mvn:org.opendaylight.controller/config-api/${netconf.version}</bundle>
-        <feature version='${yangtools.version}'>odl-yangtools-common</feature>
-        <bundle>mvn:org.opendaylight.bgpcep/concepts/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/util/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.yangtools.model/ietf-inet-types/${ietf.types.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/rsvp-api/${project.version}</bundle>
+        <feature version='${tcpmd5.version}'>odl-tcpmd5-netty</feature>
+        <feature version='${protocol-framework.version}'>odl-protocol-framework</feature>
         <bundle>mvn:org.opendaylight.bgpcep/pcep-api/${project.version}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/pcep-spi/${project.version}</bundle>
     </feature>
 
-    <feature name='odl-bgpcep-topology' version='${project.version}'>
+    <feature name='odl-bgpcep-pcep-impl' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-pcep</feature>
+        <bundle>mvn:io.netty/netty-codec/${netty.version}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-impl/${project.version}</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-programming' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-dependencies</feature>
-        <feature version='${project.version}'>odl-bgpcep-pcep-impl</feature>
-        <bundle>mvn:org.opendaylight.yangtools.model/ietf-topology/${ietf.topology.version}</bundle>
-        <bundle>mvn:org.opendaylight.yangtools.model/ietf-topology-isis/${ietf.topology.version}</bundle>
-        <bundle>mvn:org.opendaylight.yangtools.model/ietf-ted/${ietf.topology.version}</bundle>
-        <bundle>mvn:org.opendaylight.yangtools.model/ietf-topology-l3-unicast-igp/${ietf.topology.version}</bundle>
-        <bundle>mvn:org.opendaylight.yangtools.model/ietf-topology-ospf/${ietf.topology.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/concepts/${project.version}</bundle>
+        <feature version='${config.version}'>odl-config-api</feature>
         <bundle>mvn:org.opendaylight.bgpcep/topology-api/${project.version}</bundle>
-
-        <bundle>mvn:org.opendaylight.controller/sal-common-api/${mdsal.version}</bundle>
-        <bundle>mvn:org.opendaylight.controller/sal-binding-api/${mdsal.version}</bundle>
-        <bundle>mvn:org.opendaylight.controller/sal-binding-config/${mdsal.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/util/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-concepts/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-api/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-api/${project.version}</bundle>
-
-
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-spi/${project.version}</bundle>
-
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-spi/${project.version}</bundle>
-
-        <bundle>mvn:org.opendaylight.bgpcep/rsvp-api/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/pcep-api/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-linkstate/${project.version}</bundle>
-
-        <bundle>mvn:org.opendaylight.bgpcep/pcep-topology-api/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/pcep-topology-spi/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/pcep-topology-provider/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/bgp-topology-provider/${project.version}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/topology-tunnel-api/${project.version}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/programming-api/${project.version}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/programming-spi/${project.version}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/programming-topology-api/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/topology-tunnel-api/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/topology-segment-routing/${project.version}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/topology-api/${project.version}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/programming-tunnel-api/${project.version}</bundle>
     </feature>
 
+    <feature name='odl-bgpcep-programming-impl' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-programming</feature>
+        <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
+        <feature version='${tcpmd5.version}'>odl-tcpmd5-netty</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/programming-impl/${project.version}</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-pcep-topology' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-pcep</feature>
+        <feature version='${project.version}'>odl-bgpcep-programming</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-tunnel-api/${project.version}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-topology-api/${project.version}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-topology-spi/${project.version}</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-pcep-stateful02' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-pcep-impl</feature>
+        <feature version='${project.version}'>odl-bgpcep-pcep-topology</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-ietf-stateful02/${project.version}</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-pcep-stateful07' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-pcep-impl</feature>
+        <feature version='${project.version}'>odl-bgpcep-pcep-topology</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-ietf-stateful07/${project.version}</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-pcep-topology-provider' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-pcep-stateful02</feature>
+        <feature version='${project.version}'>odl-bgpcep-pcep-stateful07</feature>
+        <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-topology-provider/${project.version}</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-pcep-tunnel-provider' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-pcep-topology-provider</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-tunnel-provider/${project.version}</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-pcep-segment-routing' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-pcep-stateful07</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-segment-routing/${project.version}</bundle>
+    </feature>
 </features>
