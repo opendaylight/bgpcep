@@ -12,6 +12,8 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.impl.message.PCEPCloseMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPErrorMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPKeepAliveMessageParser;
+import org.opendaylight.protocol.pcep.impl.message.PCEPMonitoringReplyMessageParser;
+import org.opendaylight.protocol.pcep.impl.message.PCEPMonitoringRequestMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPNotificationMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPOpenMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPReplyMessageParser;
@@ -30,11 +32,18 @@ import org.opendaylight.protocol.pcep.impl.object.PCEPIncludeRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPLoadBalancingObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPLspaObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPMetricObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPMonitoringObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPNoPathObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPNotificationObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPObjectiveFunctionObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPOpenObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPOverloadObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPPathKeyObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPPccIdReqIPv4ObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPPccIdReqIPv6ObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPPceIdIPv4ObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPPceIdIPv6ObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPProcTimeObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPReportedRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPRequestParameterObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPSvecObjectParser;
@@ -78,6 +87,8 @@ import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActi
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Close;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcerr;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcmonrep;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcmonreq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcntf;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcrep;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcreq;
@@ -93,16 +104,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.load.balancing.object.LoadBalancing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.Metric;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.object.Monitoring;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.CNotification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.list.tlv.OfList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.object.Of;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.order.tlv.Order;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.duration.tlv.OverloadDuration;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.object.Overload;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.setup.type.tlv.PathSetupType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcc.id.req.object.PccIdReq;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pce.id.object.PceId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure._case.NoPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure._case.no.path.tlvs.NoPathVector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.proc.time.object.ProcTime;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.Rro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.req.missing.tlv.ReqMissing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
@@ -161,6 +177,15 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
         final PCEPCloseMessageParser closeParser = new PCEPCloseMessageParser(objReg);
         regs.add(context.registerMessageParser(PCEPCloseMessageParser.TYPE, closeParser));
         regs.add(context.registerMessageSerializer(Close.class, closeParser));
+
+        final PCEPMonitoringReplyMessageParser monRepParser = new PCEPMonitoringReplyMessageParser(objReg);
+        regs.add(context.registerMessageParser(PCEPMonitoringReplyMessageParser.TYPE, monRepParser));
+        regs.add(context.registerMessageSerializer(Pcmonrep.class, monRepParser));
+
+        final PCEPMonitoringRequestMessageParser monReqParser = new PCEPMonitoringRequestMessageParser(objReg, viObjReg);
+        regs.add(context.registerMessageParser(PCEPMonitoringRequestMessageParser.TYPE, monReqParser));
+        regs.add(context.registerMessageSerializer(Pcmonreq.class, monReqParser));
+
         return regs;
     }
 
@@ -258,6 +283,8 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
         final PCEPGlobalConstraintsObjectParser gcParser = new PCEPGlobalConstraintsObjectParser(tlvReg, viTlvReg);
         regs.add(context.registerObjectParser(PCEPGlobalConstraintsObjectParser.CLASS, PCEPGlobalConstraintsObjectParser.TYPE, gcParser));
         regs.add(context.registerObjectSerializer(Gc.class, gcParser));
+
+        registerMonitoringExtensionParsers(regs, context, tlvReg, viTlvReg);
     }
 
     private void registerEROParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context, final LabelRegistry labelReg) {
@@ -374,5 +401,36 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
         final PathSetupTypeTlvParser pstParser = new PathSetupTypeTlvParser();
         regs.add(context.registerTlvParser(PathSetupTypeTlvParser.TYPE, pstParser));
         regs.add(context.registerTlvSerializer(PathSetupType.class, pstParser));
+    }
+
+    private void registerMonitoringExtensionParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context,
+            final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
+        final PCEPMonitoringObjectParser monParser = new PCEPMonitoringObjectParser(tlvReg, viTlvReg);
+        regs.add(context.registerObjectParser(PCEPMonitoringObjectParser.CLASS, PCEPMonitoringObjectParser.TYPE, monParser));
+        regs.add(context.registerObjectSerializer(Monitoring.class, monParser));
+
+        final PCEPPccIdReqIPv4ObjectParser pccIdIPv4Parser = new PCEPPccIdReqIPv4ObjectParser();
+        regs.add(context.registerObjectParser(PCEPPccIdReqIPv4ObjectParser.CLASS, PCEPPccIdReqIPv4ObjectParser.IPV4_TYPE, pccIdIPv4Parser));
+        regs.add(context.registerObjectSerializer(PccIdReq.class, pccIdIPv4Parser));
+
+        final PCEPPccIdReqIPv6ObjectParser pccIdIPv6Parser = new PCEPPccIdReqIPv6ObjectParser();
+        regs.add(context.registerObjectParser(PCEPPccIdReqIPv6ObjectParser.CLASS, PCEPPccIdReqIPv6ObjectParser.IPV6_TYPE, pccIdIPv6Parser));
+        regs.add(context.registerObjectSerializer(PccIdReq.class, pccIdIPv6Parser));
+
+        final PCEPPceIdIPv4ObjectParser pceIdIP4Parser = new PCEPPceIdIPv4ObjectParser();
+        regs.add(context.registerObjectParser(PCEPPceIdIPv4ObjectParser.CLASS, PCEPPceIdIPv4ObjectParser.IPV4_TYPE, pceIdIP4Parser));
+        regs.add(context.registerObjectSerializer(PceId.class, pceIdIP4Parser));
+
+        final PCEPPceIdIPv6ObjectParser pceIdIP6Parser = new PCEPPceIdIPv6ObjectParser();
+        regs.add(context.registerObjectParser(PCEPPceIdIPv6ObjectParser.CLASS, PCEPPceIdIPv6ObjectParser.IPV6_TYPE, pceIdIP6Parser));
+        regs.add(context.registerObjectSerializer(PceId.class, pceIdIP6Parser));
+
+        final PCEPProcTimeObjectParser procTimeParser = new PCEPProcTimeObjectParser();
+        regs.add(context.registerObjectParser(PCEPProcTimeObjectParser.CLASS, PCEPProcTimeObjectParser.TYPE, procTimeParser));
+        regs.add(context.registerObjectSerializer(ProcTime.class, procTimeParser));
+
+        final PCEPOverloadObjectParser overloadParser = new PCEPOverloadObjectParser();
+        regs.add(context.registerObjectParser(PCEPOverloadObjectParser.CLASS, PCEPOverloadObjectParser.TYPE, overloadParser));
+        regs.add(context.registerObjectSerializer(Overload.class, overloadParser));
     }
 }

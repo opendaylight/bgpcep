@@ -275,7 +275,11 @@ public enum PCEPErrors {
     /**
      * Invalid traffic engineering path setup type: Mismatched path setup type
      */
-    MISMATCHED_PST(21, 2);
+    MISMATCHED_PST(21, 2),
+    /**
+     * MONITORING object missing
+     */
+    MONITORING_OBJECT_MISSING(6, 4);
 
     private PCEPErrorIdentifier errorId;
     private static final Map<PCEPErrorIdentifier, PCEPErrors> VALUE_MAP;
