@@ -24,6 +24,8 @@ import org.opendaylight.protocol.pcep.impl.TestVendorInformationTlvParser.TestEn
 import org.opendaylight.protocol.pcep.impl.message.PCEPCloseMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPErrorMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPKeepAliveMessageParser;
+import org.opendaylight.protocol.pcep.impl.message.PCEPMonitoringReplyMessageParser;
+import org.opendaylight.protocol.pcep.impl.message.PCEPMonitoringRequestMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPNotificationMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPOpenMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPReplyMessageParser;
@@ -40,6 +42,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcmonrepBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcmonreqBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcntfBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcrepBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcreqBuilder;
@@ -60,18 +64,33 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.IroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.iro.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.iro.SubobjectBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ip.address.ip.address.Ipv4AddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.Metrics;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.MetricsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.LspaBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.MetricBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.metrics.MetricPce;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.metrics.MetricPceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.object.Monitoring;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.object.Monitoring.Flags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.object.MonitoringBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.response.monitoring.metrics.list.GeneralMetricsListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.response.monitoring.metrics.list.SpecificMetricsListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.response.monitoring.metrics.list.specific.metrics.list.SpecificMetricsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.CNotification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.CNotificationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.object.Of;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.object.OfBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.object.Overload;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.object.OverloadBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcc.id.req.object.PccIdReq;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcc.id.req.object.PccIdReqBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pce.id.object.PceId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pce.id.object.PceIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
@@ -81,6 +100,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.SessionCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.request._case.RequestBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.session._case.SessionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcmonrep.message.PcmonrepMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.PcntfMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.Notifications;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.NotificationsBuilder;
@@ -97,9 +117,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.success._case.success.Paths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.success._case.success.PathsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.PcreqMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.MonitoringRequestBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.Requests;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.monitoring.request.PceIdList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.monitoring.request.PceIdListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.SegmentComputationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.P2pBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.proc.time.object.ProcTime;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.proc.time.object.ProcTimeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.RpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.Svec;
@@ -128,6 +153,11 @@ public class PCEPValidatorTest {
     private EndpointsObj endpoints;
     private Svec svec;
     private List<VendorInformationObject> viObjects;
+    private Monitoring monitoring;
+    private PccIdReq pccIdReq;
+    private PceId pceId;
+    private ProcTime procTime;
+    private Overload overload;
 
     private AsNumberCase eroASSubobject;
 
@@ -255,6 +285,23 @@ public class PCEPValidatorTest {
         final VendorInformationObject viObj = new VendorInformationObjectBuilder().setEnterpriseNumber(new EnterpriseNumber(0L))
                 .setEnterpriseSpecificInformation(esInfo).build();
         this.viObjects.add(viObj);
+
+        this.monitoring = new MonitoringBuilder()
+                .setMonitoringId(100L)
+                .setFlags(new Flags(false, false, false, false, false))
+                .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.object.monitoring.TlvsBuilder().build()).build();
+        this.pccIdReq = new PccIdReqBuilder().setIpAddress(new Ipv4AddressBuilder().setIpv4Address(new Ipv4Address("127.0.0.1")).build()).build();
+        this.pceId = new PceIdBuilder().setIpAddress(new Ipv4AddressBuilder().setIpv4Address(new Ipv4Address("127.0.0.2")).build()).build();
+
+        final ProcTimeBuilder procTimeBuilder = new ProcTimeBuilder();
+        procTimeBuilder.setEstimated(false);
+        procTimeBuilder.setCurrentProcTime(1L);
+        procTimeBuilder.setMinProcTime(2L);
+        procTimeBuilder.setMaxProcTime(3L);
+        procTimeBuilder.setAverageProcTime(4L);
+        procTimeBuilder.setVarianceProcTime(5L);
+        this.procTime = procTimeBuilder.build();
+        this.overload = new OverloadBuilder().setDuration(120).build();
     }
 
     @Test
@@ -617,6 +664,160 @@ public class PCEPValidatorTest {
             result.readableBytes() - 4), Collections.<Message> emptyList()));
         final ByteBuf buf = Unpooled.buffer(result.readableBytes());
         parser.serializeMessage(new PcrepBuilder().setPcrepMessage(builder.build()).build(), buf);
+        assertArrayEquals(result.array(), buf.array());
+    }
+
+    @Test
+    public void testMonRepMsg() throws PCEPDeserializerException, IOException {
+        final PCEPMonitoringReplyMessageParser parser = new PCEPMonitoringReplyMessageParser(this.objectRegistry);
+        final PcmonrepMessageBuilder builder = new PcmonrepMessageBuilder();
+        builder.setMonitoring(this.monitoring);
+        builder.setMonitoringMetricsList(new GeneralMetricsListBuilder().setMetricPce(Lists.newArrayList(new MetricPceBuilder().setPceId(this.pceId).build())).build());
+
+        final byte[] msgBytes = {
+            0x20, 0x09, 0x00, 0x18,
+            /* monitoring object */
+            0x13, 0x10, 0x00, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x64,
+            /* pce-id object */
+            0x19, 0x10, 0x00, 0x08, 0x7f, 0x00, 0x00, 0x02
+        };
+
+        ByteBuf result = Unpooled.wrappedBuffer(msgBytes);
+        assertEquals(new PcmonrepBuilder().setPcmonrepMessage(builder.build()).build(), parser.parseMessage(result.slice(4,
+                result.readableBytes() - 4), Collections.<Message> emptyList()));
+        ByteBuf buf = Unpooled.buffer(result.readableBytes());
+        parser.serializeMessage(new PcmonrepBuilder().setPcmonrepMessage(builder.build()).build(), buf);
+        assertArrayEquals(result.array(), buf.array());
+
+        builder.setMonitoring(this.monitoring);
+        builder.setPccIdReq(this.pccIdReq);
+        final SpecificMetricsBuilder smBuilder = new SpecificMetricsBuilder();
+        smBuilder.setRp(this.rpTrue);
+        final List<MetricPce> metricPces = Lists.newArrayList();
+        metricPces.add(new MetricPceBuilder().setOverload(this.overload).setPceId(this.pceId).setProcTime(this.procTime).build());
+        metricPces.add(new MetricPceBuilder().setPceId(this.pceId).setProcTime(this.procTime).build());
+        smBuilder.setMetricPce(metricPces);
+        final SpecificMetricsBuilder smBuilder2 = new SpecificMetricsBuilder();
+        final List<MetricPce> metricPces2 = Lists.newArrayList();
+        smBuilder2.setRp(this.rpTrue);
+        metricPces2.add(new MetricPceBuilder().setOverload(this.overload).setPceId(this.pceId).build());
+        smBuilder2.setMetricPce(metricPces2);
+        builder.setMonitoringMetricsList(new SpecificMetricsListBuilder().setSpecificMetrics(Lists.newArrayList(smBuilder.build(), smBuilder2.build())).build());
+
+        result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCMonRep.bin"));
+        assertEquals(new PcmonrepBuilder().setPcmonrepMessage(builder.build()).build(), parser.parseMessage(result.slice(4,
+                result.readableBytes() - 4), Collections.<Message> emptyList()));
+        buf = Unpooled.buffer(result.readableBytes());
+        parser.serializeMessage(new PcmonrepBuilder().setPcmonrepMessage(builder.build()).build(), buf);
+        assertArrayEquals(result.array(), buf.array());
+    }
+
+    @Test
+    public void testRepWithMonitoring() throws IOException, PCEPDeserializerException {
+        final PCEPReplyMessageParser parser = new PCEPReplyMessageParser(this.objectRegistry, this.viObjRegistry);
+
+        final PcrepMessageBuilder builder = new PcrepMessageBuilder();
+        RepliesBuilder rBuilder = new RepliesBuilder();
+
+        final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCRepMon.5.bin"));
+        final List<Replies> replies4 = Lists.newArrayList();
+        rBuilder = new RepliesBuilder();
+        rBuilder.setRp(this.rpTrue);
+        rBuilder.setMonitoring(this.monitoring);
+        rBuilder.setPccIdReq(pccIdReq);
+        rBuilder.setMetricPce(Lists.newArrayList(new MetricPceBuilder().setPceId(this.pceId).build()));
+        final List<Paths> paths = Lists.newArrayList();
+        final PathsBuilder paBuilder = new PathsBuilder();
+        paBuilder.setEro(this.ero);
+        paBuilder.setLspa(this.lspa);
+        paBuilder.setMetrics(Lists.newArrayList(this.metrics));
+        paBuilder.setIro(this.iro);
+        paBuilder.setOf(this.of);
+        paths.add(paBuilder.build());
+        rBuilder.setResult(new SuccessCaseBuilder().setSuccess(new SuccessBuilder().setPaths(paths).build()).build()).build();
+        replies4.add(rBuilder.build());
+        builder.setReplies(replies4);
+
+        assertEquals(new PcrepBuilder().setPcrepMessage(builder.build()).build(), parser.parseMessage(result.slice(4,
+            result.readableBytes() - 4), Collections.<Message> emptyList()));
+        final ByteBuf buf = Unpooled.buffer(result.readableBytes());
+        parser.serializeMessage(new PcrepBuilder().setPcrepMessage(builder.build()).build(), buf);
+        assertArrayEquals(result.array(), buf.array());
+    }
+
+    @Test
+    public void testReqWithMonitoring() throws IOException, PCEPDeserializerException {
+        final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCReq.8.bin"));
+
+        final PCEPRequestMessageParser parser = new PCEPRequestMessageParser(this.objectRegistry, this.viObjRegistry);
+
+        final PcreqMessageBuilder builder = new PcreqMessageBuilder();
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.Requests> reqs1 = Lists.newArrayList();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.RequestsBuilder rBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.RequestsBuilder();
+        rBuilder.setRp(this.rpTrue);
+        rBuilder.setSegmentComputation(new SegmentComputationBuilder().setP2p(new P2pBuilder().setEndpointsObj(this.endpoints).build()).build());
+        reqs1.add(rBuilder.build());
+        final MonitoringRequestBuilder monReqBuilder = new MonitoringRequestBuilder();
+        monReqBuilder.setMonitoring(this.monitoring);
+        monReqBuilder.setPccIdReq(this.pccIdReq);
+        monReqBuilder.setPceIdList(Lists.newArrayList(new PceIdListBuilder().setPceId(this.pceId).build()));
+        builder.setMonitoringRequest(monReqBuilder.build());
+        builder.setRequests(reqs1);
+
+        assertEquals(new PcreqBuilder().setPcreqMessage(builder.build()).build(), parser.parseMessage(result.slice(4,
+                result.readableBytes() - 4), Collections.<Message> emptyList()));
+        final ByteBuf buf = Unpooled.buffer(result.readableBytes());
+        parser.serializeMessage(new PcreqBuilder().setPcreqMessage(builder.build()).build(), buf);
+
+        assertArrayEquals(result.array(), buf.array());
+    }
+
+    @Test
+    public void testMonReqMsg() throws PCEPDeserializerException, IOException {
+        final PCEPMonitoringRequestMessageParser parser = new PCEPMonitoringRequestMessageParser(this.objectRegistry, this.viObjRegistry);
+
+        final PcreqMessageBuilder builder = new PcreqMessageBuilder();
+        final MonitoringRequestBuilder monReqBuilder = new MonitoringRequestBuilder();
+        monReqBuilder.setMonitoring(this.monitoring);
+        monReqBuilder.setPceIdList(Lists.newArrayList(new PceIdListBuilder().setPceId(this.pceId).build()));
+        builder.setMonitoringRequest(monReqBuilder.build());
+        final byte[] msgBytes = {
+            0x20, 0x08, 0x00, 0x18,
+            /* monitoring object */
+            0x13, 0x10, 0x00, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x64,
+            /* pce-id object */
+            0x19, 0x10, 0x00, 0x08, 0x7f, 0x00, 0x00, 0x02
+        };
+        ByteBuf result = Unpooled.wrappedBuffer(msgBytes);
+        assertEquals(new PcmonreqBuilder().setPcreqMessage(builder.build()).build(), parser.parseMessage(result.slice(4,
+                result.readableBytes() - 4), Collections.<Message> emptyList()));
+        ByteBuf buf = Unpooled.buffer(result.readableBytes());
+        parser.serializeMessage(new PcmonreqBuilder().setPcreqMessage(builder.build()).build(), buf);
+        assertArrayEquals(result.array(), buf.array());
+
+        result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCMonReq.bin"));
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.Requests> reqs2 = Lists.newArrayList();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.RequestsBuilder rBuilder1 = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.RequestsBuilder();
+        rBuilder1.setRp(this.rpTrue);
+        final P2pBuilder p2pBuilder = new P2pBuilder();
+        p2pBuilder.setEndpointsObj(this.endpoints);
+        p2pBuilder.setMetrics(Lists.newArrayList(this.metrics));
+        p2pBuilder.setIro(this.iro);
+        rBuilder1.setSegmentComputation(new SegmentComputationBuilder().setP2p(p2pBuilder.build()).build());
+        reqs2.add(rBuilder1.build());
+        builder.setRequests(reqs2);
+        builder.setSvec(Lists.newArrayList(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.SvecBuilder().setSvec(
+            this.svec).build()));
+        monReqBuilder.setMonitoring(this.monitoring);
+        monReqBuilder.setPccIdReq(this.pccIdReq);
+        final PceIdList pceIdList = new PceIdListBuilder().setPceId(this.pceId).build();
+        monReqBuilder.setPceIdList(Lists.newArrayList(pceIdList, pceIdList));
+        builder.setMonitoringRequest(monReqBuilder.build());
+
+        assertEquals(new PcmonreqBuilder().setPcreqMessage(builder.build()).build(), parser.parseMessage(result.slice(4,
+            result.readableBytes() - 4), Collections.<Message> emptyList()));
+        buf = Unpooled.buffer(result.readableBytes());
+        parser.serializeMessage(new PcmonreqBuilder().setPcreqMessage(builder.build()).build(), buf);
         assertArrayEquals(result.array(), buf.array());
     }
 }
