@@ -34,14 +34,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.MetricsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.Metric;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.object.Monitoring;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.object.Of;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.object.PathKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcc.id.req.object.PccIdReq;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pce.id.object.PceId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.PcreqMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.PcreqMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.MonitoringRequest;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.MonitoringRequestBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.RequestsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.Svec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.SvecBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.monitoring.request.PceIdList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.monitoring.request.PceIdListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.PathKeyExpansionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.SegmentComputation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.SegmentComputationBuilder;
@@ -72,6 +79,17 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             throw new IllegalArgumentException("Requests cannot be null or empty.");
         }
         final ByteBuf buffer = Unpooled.buffer();
+        if (msg.getMonitoringRequest() != null) {
+            serializeMonitoringRequest(msg.getMonitoringRequest(), buffer);
+        }
+        if (msg.getSvec() != null) {
+            serializeSvec(msg, buffer);
+        }
+        serializeRequest(msg, buffer);
+        MessageUtil.formatMessage(TYPE, buffer, out);
+    }
+
+    protected void serializeRequest(final PcreqMessage msg, final ByteBuf buffer) {
         for (final Requests req : msg.getRequests()) {
             serializeObject(req.getRp(), buffer);
             serializeVendorInformationObjects(req.getVendorInformationObject(), buffer);
@@ -85,21 +103,21 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 }
             }
         }
-        if (msg.getSvec() != null) {
-            for (final Svec s : msg.getSvec()) {
-                serializeObject(s.getSvec(), buffer);
-                serializeObject(s.getOf(), buffer);
-                serializeObject(s.getGc(), buffer);
-                serializeObject(s.getXro(), buffer);
-                if (s.getMetric() != null) {
-                    for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.svec.Metric m : s.getMetric()) {
-                        serializeObject(m.getMetric(), buffer);
-                    }
+    }
+
+    protected void serializeSvec(final PcreqMessage msg, final ByteBuf buffer) {
+        for (final Svec s : msg.getSvec()) {
+            serializeObject(s.getSvec(), buffer);
+            serializeObject(s.getOf(), buffer);
+            serializeObject(s.getGc(), buffer);
+            serializeObject(s.getXro(), buffer);
+            if (s.getMetric() != null) {
+                for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.svec.Metric m : s.getMetric()) {
+                    serializeObject(m.getMetric(), buffer);
                 }
-                serializeVendorInformationObjects(s.getVendorInformationObject(), buffer);
             }
+            serializeVendorInformationObjects(s.getVendorInformationObject(), buffer);
         }
-        MessageUtil.formatMessage(TYPE, buffer, out);
     }
 
     protected void serializeP2P(final ByteBuf buffer, final P2p p2p) {
@@ -127,15 +145,57 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         serializeObject(p2p.getClassType(), buffer);
     }
 
+    protected void serializeMonitoringRequest(final MonitoringRequest monReq, final ByteBuf out) {
+        serializeObject(monReq.getMonitoring(), out);
+        serializeObject(monReq.getPccIdReq(), out);
+        if (monReq.getPceIdList() != null) {
+            for (final PceIdList pceId : monReq.getPceIdList()) {
+                serializeObject(pceId.getPceId(), out);
+            }
+        }
+    }
+
     @Override
-    protected Message validate(
-            final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object> objects,
-            final List<Message> errors) throws PCEPDeserializerException {
+    protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
         if (objects == null) {
             throw new IllegalArgumentException("Passed list can't be null.");
         }
-        final List<Requests> requests = new ArrayList<>();
+        if (objects.isEmpty()) {
+            throw new PCEPDeserializerException("Pcrep message cannot be empty.");
+        }
+        final PcreqMessageBuilder mBuilder = new PcreqMessageBuilder();
+        mBuilder.setMonitoringRequest(getMonitoring(objects));
+        final List<Svec> svecs = getSvecs(objects, errors);
+        if (!svecs.isEmpty()) {
+            mBuilder.setSvec(svecs);
+        }
+        final List<Requests> requests = getRequests(objects, errors);
+        if (requests != null && !requests.isEmpty()) {
+            mBuilder.setRequests(requests);
+        } else {
+            errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.<Rp>absent()));
+        }
+        if (!objects.isEmpty()) {
+            throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
+        }
+        return new PcreqBuilder().setPcreqMessage(mBuilder.build()).build();
+    }
+
+    protected List<Svec> getSvecs(final List<Object> objects, final List<Message> errors) {
         final List<Svec> svecList = new ArrayList<>();
+        while (!objects.isEmpty()) {
+            final SvecBuilder sBuilder = new SvecBuilder();
+            final Svec svecComp = getValidSvec(sBuilder, objects);
+            if (svecComp == null) {
+                break;
+            }
+            svecList.add(svecComp);
+        }
+        return svecList;
+    }
+
+    protected List<Requests> getRequests(final List<Object> objects, final List<Message> errors) {
+        final List<Requests> requests = new ArrayList<>();
         while (!objects.isEmpty()) {
             final RequestsBuilder rBuilder = new RequestsBuilder();
             Rp rpObj = null;
@@ -166,7 +226,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 
             final P2pBuilder p2pBuilder = new P2pBuilder();
 
-            if (objects.get(0) instanceof EndpointsObj) {
+            if (!objects.isEmpty() && objects.get(0) instanceof EndpointsObj) {
                 final EndpointsObj ep = (EndpointsObj) objects.get(0);
                 objects.remove(0);
                 if (!ep.isProcessingRule()) {
@@ -185,23 +245,9 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                     rBuilder.setSegmentComputation(segm);
                 }
             }
-            while (!objects.isEmpty()) {
-                final SvecBuilder sBuilder = new SvecBuilder();
-                final Svec svecComp = getValidSvec(sBuilder, objects);
-                if (svecComp == null) {
-                    break;
-                }
-                svecList.add(svecComp);
-            }
             requests.add(rBuilder.build());
         }
-
-        final PcreqMessageBuilder mBuilder = new PcreqMessageBuilder();
-        mBuilder.setRequests(requests);
-        if (!svecList.isEmpty()) {
-            mBuilder.setSvec(svecList);
-        }
-        return new PcreqBuilder().setPcreqMessage(mBuilder.build()).build();
+        return requests;
     }
 
     protected SegmentComputation getSegmentComputation(final P2pBuilder builder, final List<Object> objects, final List<Message> errors,
@@ -331,11 +377,13 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         if (objects == null || objects.isEmpty()) {
             throw new IllegalArgumentException("List cannot be null or empty.");
         }
-        if (!(objects.get(0) instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.Svec)) {
+
+        if (objects.get(0) instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.Svec) {
+            builder.setSvec((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.Svec) objects.get(0));
+            objects.remove(0);
+        } else {
             return null;
         }
-        builder.setSvec((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.Svec) objects.get(0));
-        objects.remove(0);
 
         final List<Metrics> metrics = new ArrayList<>();
         final List<VendorInformationObject> viObjects = new ArrayList<>();
@@ -398,5 +446,28 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 
     private enum SvecState {
         INIT, OF_IN, GC_IN, XRO_IN, METRIC_IN, VENDOR_INFO, END
+    }
+
+    protected MonitoringRequest getMonitoring(final List<Object> objects) {
+        final MonitoringRequestBuilder builder = new MonitoringRequestBuilder();
+        if (!objects.isEmpty() && objects.get(0) instanceof Monitoring) {
+            builder.setMonitoring((Monitoring) objects.get(0));
+            objects.remove(0);
+        } else {
+            return null;
+        }
+        if (!objects.isEmpty() && objects.get(0) instanceof PccIdReq) {
+            builder.setPccIdReq((PccIdReq) objects.get(0));
+            objects.remove(0);
+        }
+        final List<PceIdList> pceIdList = new ArrayList<>();
+        while(!objects.isEmpty() && objects.get(0) instanceof PceId) {
+            pceIdList.add(new PceIdListBuilder().setPceId((PceId) objects.get(0)).build());
+            objects.remove(0);
+        }
+        if (!pceIdList.isEmpty()) {
+            builder.setPceIdList(pceIdList);
+        }
+        return builder.build();
     }
 }
