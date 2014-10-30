@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba8cc1f7_99125a61",
+        "filename": "pcep/api/src/main/yang/pcep-types.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 718,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-10-30T08:40:13Z",
+      "side": 1,
+      "message": "*metrics",
+      "revId": "03cec3212b9adb3d175d4b18f3353fa9ab8e8629",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba8cc1f7_b9171e51",
+        "filename": "pcep/api/src/main/yang/pcep-types.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 751,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-10-30T08:40:13Z",
+      "side": 1,
+      "message": "Robert, do we leave it like this or rather use booleans?",
+      "revId": "03cec3212b9adb3d175d4b18f3353fa9ab8e8629",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba8cc1f7_590cd242",
+        "filename": "pcep/api/src/main/yang/pcep-types.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 1100,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-10-30T08:40:13Z",
+      "side": 1,
+      "message": "*container",
+      "revId": "03cec3212b9adb3d175d4b18f3353fa9ab8e8629",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
