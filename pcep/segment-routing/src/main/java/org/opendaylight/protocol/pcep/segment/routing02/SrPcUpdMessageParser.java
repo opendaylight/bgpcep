@@ -28,17 +28,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public class SrPcUpdMessageParser extends Stateful07PCUpdateRequestMessageParser {
 
-    public SrPcUpdMessageParser(ObjectRegistry registry) {
+    public SrPcUpdMessageParser(final ObjectRegistry registry) {
         super(registry);
     }
 
     @Override
-    protected void serializeUpdate(Updates update, ByteBuf buffer) {
+    protected void serializeUpdate(final Updates update, final ByteBuf buffer) {
         if (update.getPath() != null && SrEroUtil.isSegmentRoutingPath(update.getPath().getEro())) {
             serializeObject(SrEroUtil.addSRPathSetupTypeTlv(update.getSrp()), buffer);
-            if (update.getLsp() != null) {
-                serializeObject(update.getLsp(), buffer);
-            }
+            serializeObject(update.getLsp(), buffer);
             serializeObject(update.getPath().getEro(), buffer);
         } else {
             super.serializeUpdate(update, buffer);
@@ -46,7 +44,7 @@ public class SrPcUpdMessageParser extends Stateful07PCUpdateRequestMessageParser
     }
 
     @Override
-    protected Updates getValidUpdates(List<Object> objects, List<Message> errors) {
+    protected Updates getValidUpdates(final List<Object> objects, final List<Message> errors) {
         if (objects.get(0) instanceof Srp && isSegmentRoutingPath((Srp) objects.get(0))) {
             boolean isValid = true;
             final Srp srp = (Srp) objects.get(0);

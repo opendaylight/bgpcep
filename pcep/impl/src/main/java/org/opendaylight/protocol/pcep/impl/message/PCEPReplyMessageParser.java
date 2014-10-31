@@ -64,7 +64,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         if (repMsg.getReplies() == null || repMsg.getReplies().isEmpty()) {
             throw new IllegalArgumentException("Replies cannot be null or empty.");
         }
-        ByteBuf buffer = Unpooled.buffer();
+        final ByteBuf buffer = Unpooled.buffer();
         for (final Replies reply : repMsg.getReplies()) {
             if (reply.getRp() == null) {
                 throw new IllegalArgumentException("Reply must contain RP object.");
@@ -80,40 +80,30 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         if (reply.getResult() != null) {
             if (reply.getResult() instanceof FailureCase) {
                 final FailureCase f = ((FailureCase) reply.getResult());
-                serializeObject(f.getNoPath(), buffer);
-                if (f.getLspa() != null) {
+                if (f != null) {
+                    serializeObject(f.getNoPath(), buffer);
                     serializeObject(f.getLspa(), buffer);
-                }
-                if (f.getBandwidth() != null) {
                     serializeObject(f.getBandwidth(), buffer);
-                }
-                if (f.getMetrics() != null && !f.getMetrics().isEmpty()) {
-                    for (final Metrics m : f.getMetrics()) {
-                        serializeObject(m.getMetric(), buffer);
+                    if (f.getMetrics() != null && !f.getMetrics().isEmpty()) {
+                        for (final Metrics m : f.getMetrics()) {
+                            serializeObject(m.getMetric(), buffer);
+                        }
                     }
-                }
-                if (f.getIro() != null) {
                     serializeObject(f.getIro(), buffer);
                 }
             } else {
                 final SuccessCase s = (SuccessCase) reply.getResult();
-                for (final Paths p : s.getSuccess().getPaths()) {
-                    serializeObject(p.getEro(), buffer);
-                    if (p.getLspa() != null) {
+                if (s != null) {
+                    for (final Paths p : s.getSuccess().getPaths()) {
+                        serializeObject(p.getEro(), buffer);
                         serializeObject(p.getLspa(), buffer);
-                    }
-                    if (p.getOf() != null) {
                         serializeObject(p.getOf(), buffer);
-                    }
-                    if (p.getBandwidth() != null) {
                         serializeObject(p.getBandwidth(), buffer);
-                    }
-                    if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
-                        for (final Metrics m : p.getMetrics()) {
-                            serializeObject(m.getMetric(), buffer);
+                        if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
+                            for (final Metrics m : p.getMetrics()) {
+                                serializeObject(m.getMetric(), buffer);
+                            }
                         }
-                    }
-                    if (p.getIro() != null) {
                         serializeObject(p.getIro(), buffer);
                     }
                 }

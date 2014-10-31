@@ -49,12 +49,8 @@ public class PcinitiateMessageParser extends AbstractMessageParser {
         for (final Requests req : init.getRequests()) {
             serializeObject(req.getEndpointsObj(), buffer);
             serializeObject(req.getLspa(), buffer);
-            if (req.getEro() != null) {
-                serializeObject(req.getEro(), buffer);
-            }
-            if (req.getBandwidth() != null) {
-                serializeObject(req.getBandwidth(), buffer);
-            }
+            serializeObject(req.getEro(), buffer);
+            serializeObject(req.getBandwidth(), buffer);
             if (req.getMetrics() != null && !req.getMetrics().isEmpty()) {
                 for (final Metrics m : req.getMetrics()) {
                     serializeObject(m.getMetric(), buffer);
