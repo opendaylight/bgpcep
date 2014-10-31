@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba8cc1f7_5c0cc042",
+        "filename": "pcep/spi/src/main/java/org/opendaylight/protocol/pcep/spi/AbstractMessageParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-10-31T13:05:59Z",
+      "side": 1,
+      "message": "@Nullable should actually go to the parameter declaration, e.g. like this:\n\nprotected void serializeObject(final @Nullable Object object, final @Nonnull ByteBuf buffer)",
+      "revId": "be8611ac03938665486c66e45523daa68b705b8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
