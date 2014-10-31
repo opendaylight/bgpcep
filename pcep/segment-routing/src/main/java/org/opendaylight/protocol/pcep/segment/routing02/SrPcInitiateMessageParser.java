@@ -23,17 +23,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public class SrPcInitiateMessageParser extends CInitiated00PCInitiateMessageParser {
 
-    public SrPcInitiateMessageParser(ObjectRegistry registry) {
+    public SrPcInitiateMessageParser(final ObjectRegistry registry) {
         super(registry);
     }
 
     @Override
-    protected void serializeRequest(Requests req, ByteBuf buffer) {
+    protected void serializeRequest(final Requests req, final ByteBuf buffer) {
         if (SrEroUtil.isSegmentRoutingPath(req.getEro())) {
             serializeObject(SrEroUtil.addSRPathSetupTypeTlv(req.getSrp()), buffer);
-            if (req.getLsp() != null) {
-                serializeObject(req.getLsp(), buffer);
-            }
+            serializeObject(req.getLsp(), buffer);
             serializeObject(req.getEro(), buffer);
         } else {
             super.serializeRequest(req, buffer);
@@ -41,7 +39,7 @@ public class SrPcInitiateMessageParser extends CInitiated00PCInitiateMessagePars
     }
 
     @Override
-    protected Requests getValidRequest(List<Object> objects) {
+    protected Requests getValidRequest(final List<Object> objects) {
         final Srp srp = (Srp) objects.get(0);
         if (isSegmentRoutingPath(srp)) {
             final RequestsBuilder builder = new RequestsBuilder();

@@ -88,15 +88,9 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         if (msg.getSvec() != null) {
             for (final Svec s : msg.getSvec()) {
                 serializeObject(s.getSvec(), buffer);
-                if (s.getOf() != null) {
-                    serializeObject(s.getOf(), buffer);
-                }
-                if (s.getGc() != null) {
-                    serializeObject(s.getGc(), buffer);
-                }
-                if (s.getXro() != null) {
-                    serializeObject(s.getXro(), buffer);
-                }
+                serializeObject(s.getOf(), buffer);
+                serializeObject(s.getGc(), buffer);
+                serializeObject(s.getXro(), buffer);
                 if (s.getMetric() != null) {
                     for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.svec.Metric m : s.getMetric()) {
                         serializeObject(m.getMetric(), buffer);
@@ -109,48 +103,28 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     }
 
     protected void serializeP2P(final ByteBuf buffer, final P2p p2p) {
-        if (p2p.getEndpointsObj() != null) {
-            serializeObject(p2p.getEndpointsObj(), buffer);
-        }
+        serializeObject(p2p.getEndpointsObj(), buffer);
         serializeVendorInformationObjects(p2p.getVendorInformationObject(), buffer);
         if (p2p.getReportedRoute() != null) {
             final ReportedRoute rr = p2p.getReportedRoute();
-            if (rr.getRro() != null) {
+            if (rr != null) {
                 serializeObject(rr.getRro(), buffer);
-            }
-            if (rr.getBandwidth() != null) {
                 serializeObject(rr.getBandwidth(), buffer);
             }
         }
-        if (p2p.getLoadBalancing() != null) {
-            serializeObject(p2p.getLoadBalancing(), buffer);
-        }
-        if (p2p.getLspa() != null) {
-            serializeObject(p2p.getLspa(), buffer);
-        }
-        if (p2p.getBandwidth() != null) {
-            serializeObject(p2p.getBandwidth(), buffer);
-        }
+        serializeObject(p2p.getLoadBalancing(), buffer);
+        serializeObject(p2p.getLspa(), buffer);
+        serializeObject(p2p.getBandwidth(), buffer);
         if (p2p.getMetrics() != null) {
             for (final Metrics m : p2p.getMetrics()) {
                 serializeObject(m.getMetric(), buffer);
             }
         }
-        if (p2p.getIro() != null) {
-            serializeObject(p2p.getIro(), buffer);
-        }
-        if (p2p.getRro() != null) {
-            serializeObject(p2p.getRro(), buffer);
-        }
-        if (p2p.getXro() != null) {
-            serializeObject(p2p.getXro(), buffer);
-        }
-        if (p2p.getOf() != null) {
-            serializeObject(p2p.getOf(), buffer);
-        }
-        if (p2p.getClassType() != null) {
-            serializeObject(p2p.getClassType(), buffer);
-        }
+        serializeObject(p2p.getIro(), buffer);
+        serializeObject(p2p.getRro(), buffer);
+        serializeObject(p2p.getXro(), buffer);
+        serializeObject(p2p.getOf(), buffer);
+        serializeObject(p2p.getClassType(), buffer);
     }
 
     @Override

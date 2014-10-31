@@ -50,50 +50,28 @@ public final class Stateful02PCRequestMessageParser extends PCEPRequestMessagePa
 
     @Override
     protected void serializeP2P(final ByteBuf buffer, final P2p p2p) {
-        if (p2p.getEndpointsObj() != null) {
-            serializeObject(p2p.getEndpointsObj(), buffer);
-        }
-        if (p2p.getAugmentation(P2p1.class) != null && p2p.getAugmentation(P2p1.class).getLsp() != null) {
+        serializeObject(p2p.getEndpointsObj(), buffer);
+        if (p2p.getAugmentation(P2p1.class) != null) {
             serializeObject(p2p.getAugmentation(P2p1.class).getLsp(), buffer);
         }
-        if (p2p.getReportedRoute() != null) {
-            final ReportedRoute rr = p2p.getReportedRoute();
-            if (rr.getRro() != null) {
-                serializeObject(rr.getRro(), buffer);
-            }
-            if (rr.getBandwidth() != null) {
-                serializeObject(rr.getBandwidth(), buffer);
-            }
+        final ReportedRoute rr = p2p.getReportedRoute();
+        if (rr != null) {
+            serializeObject(rr.getRro(), buffer);
+            serializeObject(rr.getBandwidth(), buffer);
         }
-        if (p2p.getLoadBalancing() != null) {
-            serializeObject(p2p.getLoadBalancing(), buffer);
-        }
-        if (p2p.getLspa() != null) {
-            serializeObject(p2p.getLspa(), buffer);
-        }
-        if (p2p.getBandwidth() != null) {
-            serializeObject(p2p.getBandwidth(), buffer);
-        }
+        serializeObject(p2p.getLoadBalancing(), buffer);
+        serializeObject(p2p.getLspa(), buffer);
+        serializeObject(p2p.getBandwidth(), buffer);
         if (p2p.getMetrics() != null) {
             for (final Metrics m : p2p.getMetrics()) {
                 serializeObject(m.getMetric(), buffer);
             }
         }
-        if (p2p.getIro() != null) {
-            serializeObject(p2p.getIro(), buffer);
-        }
-        if (p2p.getRro() != null) {
-            serializeObject(p2p.getRro(), buffer);
-        }
-        if (p2p.getXro() != null) {
-            serializeObject(p2p.getXro(), buffer);
-        }
-        if (p2p.getOf() != null) {
-            serializeObject(p2p.getOf(), buffer);
-        }
-        if (p2p.getClassType() != null) {
-            serializeObject(p2p.getClassType(), buffer);
-        }
+        serializeObject(p2p.getIro(), buffer);
+        serializeObject(p2p.getRro(), buffer);
+        serializeObject(p2p.getXro(), buffer);
+        serializeObject(p2p.getOf(), buffer);
+        serializeObject(p2p.getClassType(), buffer);
     }
 
     @Override

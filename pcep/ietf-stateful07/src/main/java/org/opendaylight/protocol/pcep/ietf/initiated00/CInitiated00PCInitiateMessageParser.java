@@ -59,26 +59,16 @@ public class CInitiated00PCInitiateMessageParser extends AbstractMessageParser {
     protected void serializeRequest(final Requests req, final ByteBuf buffer) {
         serializeObject(req.getSrp(), buffer);
         serializeObject(req.getLsp(), buffer);
-        if (req.getEndpointsObj() != null) {
-            serializeObject(req.getEndpointsObj(), buffer);
-        }
-        if (req.getEro() != null) {
-            serializeObject(req.getEro(), buffer);
-        }
-        if (req.getLspa() != null) {
-            serializeObject(req.getLspa(), buffer);
-        }
-        if (req.getBandwidth() != null) {
-            serializeObject(req.getBandwidth(), buffer);
-        }
+        serializeObject(req.getEndpointsObj(), buffer);
+        serializeObject(req.getEro(), buffer);
+        serializeObject(req.getLspa(), buffer);
+        serializeObject(req.getBandwidth(), buffer);
         if (req.getMetrics() != null && !req.getMetrics().isEmpty()) {
             for (final Metrics m : req.getMetrics()) {
                 serializeObject(m.getMetric(), buffer);
             }
         }
-        if (req.getIro() != null) {
-            serializeObject(req.getIro(), buffer);
-        }
+        serializeObject(req.getIro(), buffer);
     }
 
     @Override

@@ -53,28 +53,20 @@ public final class Stateful02PCReportMessageParser extends AbstractMessageParser
         Preconditions.checkArgument(message instanceof Pcrpt, "Wrong instance of Message. Passed instance of %s. Need Pcrpt.", message.getClass());
         final Pcrpt msg = (Pcrpt) message;
         final List<Reports> reports = msg.getPcrptMessage().getReports();
-        ByteBuf buffer = Unpooled.buffer();
+        final ByteBuf buffer = Unpooled.buffer();
         for (final Reports report : reports) {
             serializeObject(report.getLsp(), buffer);
             final Path p = report.getPath();
             if (p != null) {
-                if (p.getEro() != null) {
-                    serializeObject(p.getEro(), buffer);
-                }
-                if (p.getLspa() != null) {
-                    serializeObject(p.getLspa(), buffer);
-                }
-                if (p.getBandwidth() != null) {
-                    serializeObject(p.getBandwidth(), buffer);
-                }
+                serializeObject(p.getEro(), buffer);
+                serializeObject(p.getLspa(), buffer);
+                serializeObject(p.getBandwidth(), buffer);
                 if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
                     for (final Metrics m : p.getMetrics()) {
                         serializeObject(m.getMetric(), buffer);
                     }
                 }
-                if (p.getIro() != null) {
-                    serializeObject(p.getRro(), buffer);
-                }
+                serializeObject(p.getIro(), buffer);
             }
         }
         MessageUtil.formatMessage(TYPE, buffer, out);

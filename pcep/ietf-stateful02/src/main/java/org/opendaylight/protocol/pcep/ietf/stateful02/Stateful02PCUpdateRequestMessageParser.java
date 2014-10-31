@@ -53,26 +53,20 @@ public final class Stateful02PCUpdateRequestMessageParser extends AbstractMessag
         Preconditions.checkArgument(message instanceof Pcupd, "Wrong instance of Message. Passed instance of %s. Need Pcupd.", message.getClass());
         final Pcupd msg = (Pcupd) message;
         final List<Updates> updates = msg.getPcupdMessage().getUpdates();
-        ByteBuf buffer = Unpooled.buffer();
+        final ByteBuf buffer = Unpooled.buffer();
         for (final Updates update : updates) {
             serializeObject(update.getLsp(), buffer);
             final Path p = update.getPath();
             if (p != null) {
                 serializeObject(p.getEro(), buffer);
-                if (p.getLspa() != null) {
-                    serializeObject(p.getLspa(), buffer);
-                }
-                if (p.getBandwidth() != null) {
-                    serializeObject(p.getBandwidth(), buffer);
-                }
+                serializeObject(p.getLspa(), buffer);
+                serializeObject(p.getBandwidth(), buffer);
                 if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
                     for (final Metrics m : p.getMetrics()) {
                         serializeObject(m.getMetric(), buffer);
                     }
                 }
-                if (p.getIro() != null) {
-                    serializeObject(p.getIro(), buffer);
-                }
+                serializeObject(p.getIro(), buffer);
             }
         }
         MessageUtil.formatMessage(TYPE, buffer, out);
