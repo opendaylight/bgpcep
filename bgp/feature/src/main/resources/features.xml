@@ -43,10 +43,7 @@
         <feature version='${project.version}'>odl-bgpcep-pcep-tunnel-provider</feature>
         <feature version='${project.version}'>odl-bgpcep-programming</feature>
         <feature version='${project.version}'>odl-bgpcep-programming-impl</feature>
-        <configfile finalname="etc/opendaylight/karaf/30-programming.xml">mvn:org.opendaylight.bgpcep/programming-controller-config/${project.version}/xml/config</configfile>
         <configfile finalname="etc/opendaylight/karaf/32-pcep.xml">mvn:org.opendaylight.bgpcep/pcep-controller-config/${project.version}/xml/config</configfile>
-        <configfile finalname="etc/opendaylight/karaf/33-pcep-segment-routing.xml">mvn:org.opendaylight.bgpcep/pcep-controller-config/${project.version}/xml/config-segment</configfile>
-        <configfile finalname="etc/opendaylight/karaf/39-pcep-provider.xml">mvn:org.opendaylight.bgpcep/pcep-controller-config/${project.version}/xml/config-provider</configfile>
     </feature>
 
     <feature name='odl-bgpcep-dependencies' version='${project.version}'>
@@ -142,6 +139,7 @@
         <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
         <feature version='${tcpmd5.version}'>odl-tcpmd5-netty</feature>
         <bundle>mvn:org.opendaylight.bgpcep/programming-impl/${project.version}</bundle>
+        <configfile finalname="etc/opendaylight/karaf/30-programming.xml">mvn:org.opendaylight.bgpcep/programming-controller-config/${project.version}/xml/config</configfile>
     </feature>
 
     <feature name='odl-bgpcep-pcep-topology' version='${project.version}'>
@@ -169,6 +167,7 @@
         <feature version='${project.version}'>odl-bgpcep-pcep-stateful07</feature>
         <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
         <bundle>mvn:org.opendaylight.bgpcep/pcep-topology-provider/${project.version}</bundle>
+        <configfile finalname="etc/opendaylight/karaf/39-pcep-provider.xml">mvn:org.opendaylight.bgpcep/pcep-controller-config/${project.version}/xml/config-provider</configfile>
     </feature>
 
     <feature name='odl-bgpcep-pcep-tunnel-provider' version='${project.version}'>
@@ -179,5 +178,6 @@
     <feature name='odl-bgpcep-pcep-segment-routing' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-pcep-stateful07</feature>
         <bundle>mvn:org.opendaylight.bgpcep/pcep-segment-routing/${project.version}</bundle>
+        <configfile finalname="etc/opendaylight/karaf/33-pcep-segment-routing.xml">mvn:org.opendaylight.bgpcep/pcep-controller-config/${project.version}/xml/config-segment</configfile>
     </feature>
 </features>
