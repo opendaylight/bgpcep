@@ -93,7 +93,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
                 }
             } else {
                 final SuccessCase s = (SuccessCase) reply.getResult();
-                if (s != null) {
+                if (s != null && s.getSuccess() != null) {
                     for (final Paths p : s.getSuccess().getPaths()) {
                         serializeObject(p.getEro(), buffer);
                         serializeObject(p.getLspa(), buffer);
@@ -106,8 +106,8 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
                         }
                         serializeObject(p.getIro(), buffer);
                     }
+                    serializeVendorInformationObjects(s.getSuccess().getVendorInformationObject(), buffer);
                 }
-                serializeVendorInformationObjects(s.getSuccess().getVendorInformationObject(), buffer);
             }
         }
     }

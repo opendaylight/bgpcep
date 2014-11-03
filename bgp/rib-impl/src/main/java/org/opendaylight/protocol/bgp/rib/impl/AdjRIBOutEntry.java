@@ -66,10 +66,10 @@ final class AdjRIBOutEntry<K, V extends Route> {
     }
 
     RouteEncoder getRibOut() {
-        return ribOut;
+        return this.ribOut;
     }
 
     static boolean isNone(final Object o) {
-        return o == NLRIENTRY_NONE_VALUE;
+        return NLRIENTRY_NONE_VALUE.equals(o);
     }
 }

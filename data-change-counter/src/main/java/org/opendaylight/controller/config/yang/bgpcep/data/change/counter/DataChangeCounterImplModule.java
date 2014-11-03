@@ -49,7 +49,7 @@ public class DataChangeCounterImplModule extends org.opendaylight.controller.con
         return new DataChangeCounterCloseable(counter, registration);
     }
 
-    private final class DataChangeCounterCloseable implements AutoCloseable {
+    private static final class DataChangeCounterCloseable implements AutoCloseable {
 
         private final TopologyDataChangeCounter inner;
         private final ListenerRegistration<DataChangeListener> registration;

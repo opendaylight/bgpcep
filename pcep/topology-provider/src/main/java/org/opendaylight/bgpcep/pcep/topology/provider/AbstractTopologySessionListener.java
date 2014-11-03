@@ -481,7 +481,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     }
 
     @Override
-    public SessionState getSessionState() {
+    public synchronized SessionState getSessionState() {
         return this.listenerState.getSessionState(this.session);
     }
 

@@ -199,6 +199,7 @@ public class ApplicationPeerTest {
         Mockito.doNothing().when(this.future).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
         Mockito.doReturn(this.transWrite).when(this.chain).newWriteOnlyTransaction();
         Mockito.doReturn(this.eventLoop).when(this.channel).eventLoop();
+        Mockito.doReturn("channel").when(this.channel).toString();
         Mockito.doAnswer(new Answer<Object>() {
 
             @Override
@@ -297,7 +298,7 @@ public class ApplicationPeerTest {
         //create new peer so that it gets advertized routes from RIB
         try (final BGPPeer testingPeer = new BGPPeer("testingPeer", this.r)) {
             testingPeer.onSessionUp(this.session);
-            assertEquals(4, this.routes.size());
+            assertEquals(2, this.routes.size());
             assertEquals(1, testingPeer.getBgpPeerState().getSessionEstablishedCount().intValue());
             assertEquals(1, testingPeer.getBgpPeerState().getRouteTable().size());
             assertNotNull(testingPeer.getBgpSessionState());
