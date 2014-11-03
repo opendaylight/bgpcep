@@ -96,7 +96,8 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final RIBTables tables;
     private final BlockingQueue<Peer> peers;
     private final DataBroker dataBroker;
-    private final Thread scheduler = new Thread(new Runnable() {
+
+    private final Runnable scheduler = new Runnable() {
         @Override
         public void run() {
             try {
@@ -121,7 +122,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
                 LOG.info("Scheduler thread was interrupted.", e);
             }
         }
-    });
+    };
 
     public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final RIBExtensionConsumerContext extensions,
         final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory,
@@ -369,7 +370,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         LOG.debug("Registering this peer {} to RIB-Out {}", peer, this.ribOuts);
         try {
             this.peers.put(peer);
-            this.scheduler.run();
+            new Thread(this.scheduler).start();
         } catch (final InterruptedException e) {
             //
         }
@@ -405,7 +406,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
                     }
                 }
             }
-        } catch (ReadFailedException e) {
+        } catch (final ReadFailedException e) {
             //no-op
         }
         return 0;
