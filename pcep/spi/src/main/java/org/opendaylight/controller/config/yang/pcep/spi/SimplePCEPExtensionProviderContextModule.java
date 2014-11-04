@@ -16,8 +16,6 @@
  */
 package org.opendaylight.controller.config.yang.pcep.spi;
 
-import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
-import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 
 /**
  *
@@ -37,26 +35,21 @@ public final class SimplePCEPExtensionProviderContextModule extends
     }
 
     @Override
-    protected void customValidation() {
-        // Add custom validation for module attributes here.
+    public boolean canReuseInstance(final AbstractSimplePCEPExtensionProviderContextModule oldModule) {
+        return oldModule.getInstance().getClass().equals(ReusablePCEPExtensionProviderContext.class);
+    };
+
+    @Override
+    public java.lang.AutoCloseable reuseInstance(final java.lang.AutoCloseable oldInstance) {
+        final ReusablePCEPExtensionProviderContext ctx = (ReusablePCEPExtensionProviderContext) oldInstance;
+        ctx.reconfigure(getExtensionDependency());
+        return ctx;
     }
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final class PCEPExtensionProviderContextImplCloseable extends SimplePCEPExtensionProviderContext implements AutoCloseable {
-            @Override
-            public void close() {
-                for (PCEPExtensionProviderActivator e : getExtensionDependency()) {
-                    e.stop();
-                }
-            }
-        }
-
-        final PCEPExtensionProviderContextImplCloseable ret = new PCEPExtensionProviderContextImplCloseable();
-        for (PCEPExtensionProviderActivator e : getExtensionDependency()) {
-            e.start(ret);
-        }
-
-        return ret;
+        final ReusablePCEPExtensionProviderContext ctx = new ReusablePCEPExtensionProviderContext();
+        ctx.start(getExtensionDependency());
+        return ctx;
     }
 }
