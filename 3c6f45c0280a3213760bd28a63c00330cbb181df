@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba8cc1f7_4d772cd5",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-11-04T08:41:09Z",
+      "side": 1,
+      "message": "this is wrong ... the thread needs to be stopped. please submit a separate patch to shutdown the thread in close().",
+      "revId": "3c6f45c0280a3213760bd28a63c00330cbb181df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba8cc1f7_6d7470cf",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/message/PCEPErrorMessageParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-11-04T08:41:09Z",
+      "side": 1,
+      "message": "if (state.equals()) {\n    throw ..\n}\n\nobjects.remove(0)\n\n(it\u0027s a bit faster)",
+      "revId": "3c6f45c0280a3213760bd28a63c00330cbb181df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
