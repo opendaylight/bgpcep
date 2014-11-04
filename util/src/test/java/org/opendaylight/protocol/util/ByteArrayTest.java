@@ -32,7 +32,7 @@ public class ByteArrayTest {
 
     @Test
     public void testReadBytes() {
-        ByteBuf buffer = Unpooled.copiedBuffer(this.before);
+        final ByteBuf buffer = Unpooled.copiedBuffer(this.before);
         buffer.readerIndex(1);
         assertArrayEquals(new byte[] { 28, 4, 6 }, ByteArray.readBytes(buffer, 3));
         assertEquals(4, buffer.readerIndex());
@@ -43,20 +43,13 @@ public class ByteArrayTest {
 
     @Test
     public void testGetBytes() {
-        ByteBuf buffer = Unpooled.copiedBuffer(this.before);
+        final ByteBuf buffer = Unpooled.copiedBuffer(this.before);
         buffer.readerIndex(1);
         assertArrayEquals(new byte[] { 28, 4, 6 }, ByteArray.getBytes(buffer, 3));
         assertEquals(1, buffer.readerIndex());
 
         assertArrayEquals(new byte[] { 28, 4, 6, 9, 10 }, ByteArray.getAllBytes(buffer));
         assertNotSame(buffer.readerIndex(), buffer.writerIndex());
-    }
-
-    @Test
-    public void testBytesToFloat() {
-        final float expected = 8581;
-        final byte[] b = ByteArray.floatToBytes(expected);
-        assertEquals(expected, ByteArray.bytesToFloat(b), 50);
     }
 
     @Test
@@ -203,25 +196,8 @@ public class ByteArrayTest {
         }
     }
 
-    @Test
-    public void testIntToBytes() {
-        assertEquals(Integer.MAX_VALUE, ByteArray.bytesToInt(ByteArray.intToBytes(Integer.MAX_VALUE, Integer.SIZE / Byte.SIZE)));
-        assertEquals(Integer.MIN_VALUE, ByteArray.bytesToInt(ByteArray.intToBytes(Integer.MIN_VALUE, Integer.SIZE / Byte.SIZE)));
-        assertEquals(2, ByteArray.intToBytes(12, 2).length);
-        assertArrayEquals(new byte[] { 0, 12 }, ByteArray.intToBytes(12, 2));
-        assertEquals(5, ByteArray.bytesToInt(ByteArray.intToBytes(5, 2)));
-    }
-
-    @Test
-    public void testLongToBytes_bytesToLong() {
-        assertEquals(Long.MAX_VALUE, ByteArray.bytesToLong(ByteArray.longToBytes(Long.MAX_VALUE, Long.SIZE / Byte.SIZE)));
-        assertEquals(Long.MIN_VALUE, ByteArray.bytesToLong(ByteArray.longToBytes(Long.MIN_VALUE, Long.SIZE / Byte.SIZE)));
-        assertArrayEquals(new byte[] { 0, 0, 5 }, ByteArray.longToBytes(5L, 3));
-        assertEquals(5, ByteArray.bytesToLong(ByteArray.longToBytes(5, 2)));
-    }
-
     /**
-     * if less than 4 bytes are converted, zero bytes should be appendet at the buffer's start
+     * if less than 4 bytes are converted, zero bytes should be appended at the buffer's start
      */
     @Test
     public void testBytesToLong_prependingZeros() {
@@ -238,14 +214,6 @@ public class ByteArrayTest {
     public void testBytesToShort2() {
         final byte[] b = new byte[Short.SIZE + 1];
         ByteArray.bytesToInt(b);
-    }
-
-    @Test
-    public void testBytes() {
-        assertTrue(ByteArray.bytesToInt(new byte[] { 0, 0, 0, 15 }) == 15);
-        assertEquals(Float.valueOf((float) 1.4E-45), Float.valueOf(ByteArray.bytesToFloat(new byte[] { 0, 0, 0, 1 })));
-        assertEquals(Long.valueOf(16613001005322L), Long.valueOf(ByteArray.bytesToLong(this.before)));
-        assertEquals(Short.valueOf((short) 1), Short.valueOf(ByteArray.bytesToShort(new byte[] { 0, 1 })));
     }
 
     @Test
@@ -285,74 +253,6 @@ public class ByteArrayTest {
     }
 
     @Test
-    public void testCopyWhole() {
-        final byte[] expecteds = { (byte) 0x04, (byte) 0x02, (byte) 0xD4, (byte) 0xf5, (byte) 0x32 };
-
-        final byte[] actuals = new byte[5];
-        actuals[0] = (byte) 0x04;
-        actuals[1] = (byte) 0x02;
-        actuals[2] = (byte) 0xD4;
-
-        final byte[] src = { (byte) 0xf5, (byte) 0x32 };
-
-        ByteArray.copyWhole(src, actuals, 3);
-
-        assertArrayEquals(expecteds, actuals);
-    }
-
-    @Test(expected = ArrayIndexOutOfBoundsException.class)
-    public void testCopyWhole2() {
-        ByteArray.copyWhole(new byte[0], new byte[1], 2);
-    }
-
-    @Test
-    public void testBytesToShort() {
-        final byte[] bytes1 = { (byte) 0x00, (byte) 0x01 };
-        final short expectedShort1 = 1;
-        assertEquals(expectedShort1, ByteArray.bytesToShort(bytes1));
-
-        final byte[] bytes2 = { (byte) 0xFF, (byte) 0xFF };
-        final short expectedShort2 = (short) 0xFFFF;
-        assertEquals(expectedShort2, ByteArray.bytesToShort(bytes2));
-
-        final byte[] bytes3 = { (byte) 0x25, (byte) 0x34 };
-        final short expectedShort3 = (short) 0x2534;
-        assertEquals(expectedShort3, ByteArray.bytesToShort(bytes3));
-    }
-
-    @Test
-    public void testShortToBytes() {
-        final byte[] expectedBytes1 = { (byte) 0x00, (byte) 0x01 };
-        assertArrayEquals(expectedBytes1, ByteArray.shortToBytes((short) 1));
-
-        final byte[] expectedBytes2 = { (byte) 0xFF, (byte) 0xFF };
-        assertArrayEquals(expectedBytes2, ByteArray.shortToBytes((short) 0xFFFF));
-
-        final byte[] expectedBytes3 = { (byte) 0x25, (byte) 0x34 };
-        assertArrayEquals(expectedBytes3, ByteArray.shortToBytes((short) 0x2534));
-    }
-
-    @Test
-    public void testFloatToBytes() {
-        final byte[] expectedBytes1 = { (byte) 0x35, (byte) 0x86, (byte) 0x37, (byte) 0xbd };
-        assertArrayEquals(expectedBytes1, ByteArray.floatToBytes((float) 0.000001));
-
-        final byte[] expectedBytes2 = { (byte) 0xEF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
-        assertArrayEquals(expectedBytes2, ByteArray.floatToBytes((float) -158456315583795709447797473280.0));
-
-        final byte[] expectedBytes3 = { (byte) 0x49, (byte) 0xbf, (byte) 0x1c, (byte) 0x92 };
-        assertArrayEquals(expectedBytes3, ByteArray.floatToBytes((float) 1565586.253637));
-    }
-
-    @Test
-    public void testBytesToHexString() {
-        final byte[] b = new byte[] { 0x01, 0x16, 0x01, 0x16, 0x01, 0x16, 0x01, 0x16, 0x01, 0x16, 0x01, 0x16, 0x01, 0x16, 0x01, 0x16, 0x01,
-            0x16, };
-        final String expected = "01 16 01 16 01 16 01 16  01 16 01 16 01 16 01 16\n01 16 ";
-        assertEquals(expected, ByteArray.bytesToHexString(b));
-    }
-
-    @Test
     public void testBytesToHRString() {
         byte[] b;
 
@@ -370,49 +270,13 @@ public class ByteArrayTest {
         assertEquals(Arrays.toString(b), ByteArray.bytesToHRString(b));
     }
 
-    @Test
-    public void testFindByteSequence() {
-        final byte[] bytes = new byte[] { (byte) 36, (byte) 41, (byte) 55, (byte) 101, (byte) 38 };
-        final byte[] sequence1 = new byte[] { (byte) 36, (byte) 41 };
-
-        assertEquals(0, ByteArray.findByteSequence(bytes, sequence1));
-
-        final byte[] sequence2 = new byte[] { (byte) 55, (byte) 38 };
-
-        assertEquals(-1, ByteArray.findByteSequence(bytes, sequence2));
-
-        final byte[] sequence3 = new byte[] { (byte) 101, (byte) 38 };
-
-        assertEquals(3, ByteArray.findByteSequence(bytes, sequence3));
-
-        try {
-            ByteArray.findByteSequence(bytes, new byte[] { (byte) 36, (byte) 41, (byte) 55, (byte) 101, (byte) 38, (byte) 66 });
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Sequence to be found is longer than the given byte array.", e.getMessage());
-        }
-    }
-
-    @Test
-    public void testMaskBytes() {
-        final byte[] bytes = new byte[] { (byte) 0xAC, (byte) 0xA8, (byte) 0x1F, (byte) 0x08 };
-        try {
-            ByteArray.maskBytes(bytes, 48);
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Attempted to apply invalid mask (too long)", e.getMessage());
-        }
-
-        assertArrayEquals(bytes, ByteArray.maskBytes(bytes, 32));
-
-        assertArrayEquals(new byte[] { (byte) 0xAC, (byte) 0x80, 0, 0 }, ByteArray.maskBytes(bytes, 10));
-    }
-
     @Test(expected=UnsupportedOperationException.class)
     public void testPrivateConstructor() throws Throwable {
         final Constructor<ByteArray> c = ByteArray.class.getDeclaredConstructor();
         c.setAccessible(true);
         try {
             c.newInstance();
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw e.getCause();
         }
     }
