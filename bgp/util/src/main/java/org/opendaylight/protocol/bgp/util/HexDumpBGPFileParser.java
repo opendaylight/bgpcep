@@ -47,7 +47,7 @@ public final class HexDumpBGPFileParser {
 
     public static List<byte[]> parseMessages(final InputStream is) throws IOException {
         Preconditions.checkNotNull(is);
-        try (InputStreamReader isr = new InputStreamReader(is)) {
+        try (InputStreamReader isr = new InputStreamReader(is, "UTF-8")) {
             return parseMessages(CharStreams.toString(isr));
         } finally {
             is.close();

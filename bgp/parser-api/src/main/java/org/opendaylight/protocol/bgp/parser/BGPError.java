@@ -173,7 +173,7 @@ public enum BGPError {
     /**
      * Caret for combination of Error-type and Error-value
      */
-    private static class BGPErrorIdentifier {
+    static class BGPErrorIdentifier {
         private final short code;
         private final short subcode;
 

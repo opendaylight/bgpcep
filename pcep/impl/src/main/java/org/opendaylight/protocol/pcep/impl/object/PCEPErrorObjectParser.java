@@ -17,6 +17,7 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -61,7 +62,7 @@ public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorObj
 
     @Override
     public void addTlv(final ErrorObjectBuilder builder, final Tlv tlv) {
-        if (tlv instanceof ReqMissing && builder.getType() == 7) {
+        if (tlv instanceof ReqMissing && builder.getType() == PCEPErrors.SYNC_PATH_COMP_REQ_MISSING.getErrorType()) {
             builder.setTlvs(new TlvsBuilder().setReqMissing((ReqMissing) tlv).build());
         }
     }

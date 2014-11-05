@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -28,7 +29,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  *
  * @param <T> Actual object state reference
  */
-public final class BGPObjectComparator implements Comparator<RIBEntryData<?, ?, ?>> {
+public final class BGPObjectComparator implements Comparator<RIBEntryData<?, ?, ?>>, Serializable {
+
+    private static final long serialVersionUID = 3299599519482155374L;
+
     private final AsNumber ourAS;
 
     public BGPObjectComparator(final AsNumber ourAs) {

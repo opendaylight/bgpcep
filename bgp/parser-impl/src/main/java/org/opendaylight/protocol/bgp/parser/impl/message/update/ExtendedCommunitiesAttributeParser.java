@@ -134,11 +134,9 @@ public final class ExtendedCommunitiesAttributeParser implements AttributeParser
             as = new ShortAsNumber((long) buffer.readUnsignedShort());
             value = ByteArray.readBytes(buffer, AS_LOCAL_ADMIN_LENGTH);
             if (comm.getCommSubType() == ROUTE_TARGET_SUBTYPE) {
-                c = new RouteTargetExtendedCommunityCaseBuilder().setRouteTargetExtendedCommunity(
-                    new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(as).setLocalAdministrator(value).build()).build();
+                c = new RouteTargetExtendedCommunityCaseBuilder().setRouteTargetExtendedCommunity(new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(as).setLocalAdministrator(value).build()).build();
             } else if (comm.getCommSubType() == ROUTE_ORIGIN_SUBTYPE) {
-                c = new RouteOriginExtendedCommunityCaseBuilder().setRouteOriginExtendedCommunity(
-                    new RouteOriginExtendedCommunityBuilder().setGlobalAdministrator(as).setLocalAdministrator(value).build()).build();
+                c = new RouteOriginExtendedCommunityCaseBuilder().setRouteOriginExtendedCommunity(new RouteOriginExtendedCommunityBuilder().setGlobalAdministrator(as).setLocalAdministrator(value).build()).build();
             } else {
                 throw new BGPDocumentedException("Could not parse Extended Community subtype: " + comm.getCommSubType(), BGPError.OPT_ATTR_ERROR);
             }
@@ -166,12 +164,10 @@ public final class ExtendedCommunitiesAttributeParser implements AttributeParser
                         ByteArray.readBytes(buffer, INET_LOCAL_ADMIN_LENGTH)).build()).build();
             break;
         case OPAQUE_TYPE_TRANS:
-            c = new OpaqueExtendedCommunityCaseBuilder().setOpaqueExtendedCommunity(
-                new OpaqueExtendedCommunityBuilder().setTransitive(false).setValue(ByteArray.readAllBytes(buffer)).build()).build();
+            c = new OpaqueExtendedCommunityCaseBuilder().setOpaqueExtendedCommunity(new OpaqueExtendedCommunityBuilder().setTransitive(false).setValue(ByteArray.readAllBytes(buffer)).build()).build();
             break;
         case OPAQUE_TYPE_NON_TRANS:
-            c = new OpaqueExtendedCommunityCaseBuilder().setOpaqueExtendedCommunity(
-                new OpaqueExtendedCommunityBuilder().setTransitive(true).setValue(ByteArray.readAllBytes(buffer)).build()).build();
+            c = new OpaqueExtendedCommunityCaseBuilder().setOpaqueExtendedCommunity(new OpaqueExtendedCommunityBuilder().setTransitive(true).setValue(ByteArray.readAllBytes(buffer)).build()).build();
             break;
         default:
             throw new BGPDocumentedException("Could not parse Extended Community type: " + comm.getCommType(), BGPError.OPT_ATTR_ERROR);

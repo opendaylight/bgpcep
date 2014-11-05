@@ -68,6 +68,8 @@ public final class Main {
 
     private static final int KA_TO_DEADTIMER_RATIO = 4;
 
+    private static final int KA_DEFAULT = 30;
+
     public static void main(final String[] args) throws UnknownHostException, InterruptedException, ExecutionException {
         if (args.length == 0 || (args.length == 1 && args[0].equalsIgnoreCase("--help"))) {
             LOG.info(Main.USAGE);
@@ -75,7 +77,7 @@ public final class Main {
         }
 
         InetSocketAddress address = null;
-        int keepAliveValue = 30;
+        int keepAliveValue = KA_DEFAULT;
         int deadTimerValue = 0;
         boolean stateful = false;
         boolean active = false;

@@ -230,6 +230,11 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
         regs.add(context.registerObjectParser(PCEPCloseObjectParser.CLASS, PCEPCloseObjectParser.TYPE, closeParser));
         regs.add(context.registerObjectSerializer(CClose.class, closeParser));
 
+        registerExtensionsObjectParsers(regs, context, tlvReg, viTlvReg, eroSubReg);
+    }
+
+    private void registerExtensionsObjectParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context,
+        final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg, final EROSubobjectRegistry eroSubReg) {
         final PCEPPathKeyObjectParser pathKeyParser = new PCEPPathKeyObjectParser(eroSubReg);
         regs.add(context.registerObjectParser(PCEPPathKeyObjectParser.CLASS, PCEPPathKeyObjectParser.TYPE, pathKeyParser));
         regs.add(context.registerObjectSerializer(

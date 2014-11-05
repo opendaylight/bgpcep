@@ -79,7 +79,6 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
         if (objects == null) {
             throw new IllegalArgumentException("Passed list can't be null.");
         }
-
         if (objects.isEmpty()) {
             throw new PCEPDeserializerException("Error message is empty.");
         }
@@ -87,15 +86,13 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
         final List<Errors> errorObjects = new ArrayList<>();
         final PcerrMessageBuilder b = new PcerrMessageBuilder();
 
-        Object obj;
+        Object obj = objects.get(0);
         State state = State.Init;
-        obj = objects.get(0);
 
         if (obj instanceof ErrorObject) {
             final ErrorObject o = (ErrorObject) obj;
             errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
             state = State.ErrorIn;
-            objects.remove(0);
         } else if (obj instanceof Rp) {
             final Rp o = (Rp) obj;
             if (o.isProcessingRule()) {
@@ -104,15 +101,16 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
             }
             requestParameters.add(new RpsBuilder().setRp(o).build());
             state = State.RpIn;
-            objects.remove(0);
         }
+        if (state.equals(State.Init)) {
+            throw new PCEPDeserializerException("At least one PCEPErrorObject is mandatory.");
+        }
+        objects.remove(0);
         while (!objects.isEmpty()) {
             obj = objects.get(0);
-
             if (obj instanceof UnknownObject) {
                 return new PcerrBuilder().setPcerrMessage(b.setErrors(((UnknownObject) obj).getErrors()).build()).build();
             }
-
             switch (state) {
             case ErrorIn:
                 state = State.Open;
@@ -156,18 +154,15 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
                 objects.remove(0);
             }
         }
-
         if (errorObjects.isEmpty()) {
             throw new PCEPDeserializerException("At least one PCEPErrorObject is mandatory.");
         }
-
         if (!objects.isEmpty()) {
             throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
         }
         if (!requestParameters.isEmpty()) {
             b.setErrorType(new RequestCaseBuilder().setRequest(new RequestBuilder().setRps(requestParameters).build()).build());
         }
-
         return new PcerrBuilder().setPcerrMessage(b.setErrors(errorObjects).build()).build();
     }
 
