@@ -155,14 +155,14 @@ public final class ExtendedCommunitiesAttributeParser implements AttributeParser
             } else {
                 c = new Inet4SpecificExtendedCommunityCaseBuilder().setInet4SpecificExtendedCommunity(
                     new Inet4SpecificExtendedCommunityBuilder().setTransitive(false).setGlobalAdministrator(
-                            Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, Ipv4Util.IP4_LENGTH))).setLocalAdministrator(
+                            Ipv4Util.addressForByteBuf(buffer)).setLocalAdministrator(
                             ByteArray.readBytes(buffer, INET_LOCAL_ADMIN_LENGTH)).build()).build();
             }
             break;
         case INET_TYPE_NON_TRANS:
             c = new Inet4SpecificExtendedCommunityCaseBuilder().setInet4SpecificExtendedCommunity(
                 new Inet4SpecificExtendedCommunityBuilder().setTransitive(true).setGlobalAdministrator(
-                        Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, Ipv4Util.IP4_LENGTH))).setLocalAdministrator(
+                        Ipv4Util.addressForByteBuf(buffer)).setLocalAdministrator(
                         ByteArray.readBytes(buffer, INET_LOCAL_ADMIN_LENGTH)).build()).build();
             break;
         case OPAQUE_TYPE_TRANS:
