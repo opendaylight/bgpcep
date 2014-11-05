@@ -18,7 +18,6 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvUtil;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiersBuilder;
@@ -39,8 +38,6 @@ public final class Stateful07LSPIdentifierIpv6TlvParser implements TlvParser, Tl
 
     public static final int TYPE = 19;
 
-    private static final int EX_TUNNEL_ID6_F_LENGTH = 16;
-
     private static final int V6_LENGTH = 52;
 
     @Override
@@ -52,12 +49,11 @@ public final class Stateful07LSPIdentifierIpv6TlvParser implements TlvParser, Tl
             throw new IllegalArgumentException("Length " + buffer.readableBytes() + " does not match LSP Identifiers Ipv6 tlv length.");
         }
         final Ipv6Builder builder = new Ipv6Builder();
-        builder.setIpv6TunnelSenderAddress(Ipv6Util.addressForBytes(ByteArray.readBytes(buffer, Ipv6Util.IPV6_LENGTH)));
+        builder.setIpv6TunnelSenderAddress(Ipv6Util.addressForByteBuf(buffer));
         final LspId lspId = new LspId((long) buffer.readUnsignedShort());
         final TunnelId tunnelId = new TunnelId(buffer.readUnsignedShort());
-        builder.setIpv6ExtendedTunnelId(new Ipv6ExtendedTunnelId(Ipv6Util.addressForBytes(ByteArray.readBytes(buffer,
-                EX_TUNNEL_ID6_F_LENGTH))));
-        builder.setIpv6TunnelEndpointAddress(Ipv6Util.addressForBytes(ByteArray.readBytes(buffer, Ipv6Util.IPV6_LENGTH)));
+        builder.setIpv6ExtendedTunnelId(new Ipv6ExtendedTunnelId(Ipv6Util.addressForByteBuf(buffer)));
+        builder.setIpv6TunnelEndpointAddress(Ipv6Util.addressForByteBuf(buffer));
         final AddressFamily afi = new Ipv6CaseBuilder().setIpv6(builder.build()).build();
         return new LspIdentifiersBuilder().setAddressFamily(afi).setLspId(lspId).setTunnelId(tunnelId).build();
     }

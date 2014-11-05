@@ -80,31 +80,6 @@ public class IPAddressesAndPrefixesTest {
     }
 
     @Test
-    public void testAddress4ForBytes() {
-        final byte[] bytes = new byte[] { (byte) 123, (byte) 122, (byte) 4, (byte) 5 };
-        assertEquals(new Ipv4Address("123.122.4.5"), Ipv4Util.addressForBytes(bytes));
-        try {
-            Ipv4Util.addressForBytes(new byte[] { 22, 44, 66, 18, 88, 33 });
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Failed to construct IPv4 address", e.getMessage());
-        }
-    }
-
-    @Test
-    public void testAddress6ForBytes() {
-        final byte[] bytes = new byte[] { 0x20, (byte) 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x01 };
-        assertEquals(new Ipv6Address("2001::1"), Ipv6Util.addressForBytes(bytes));
-        try {
-            Ipv6Util.addressForBytes(new byte[] { 22, 44, 66, 18, 88, 33 });
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Failed to construct IPv6 address", e.getMessage());
-        }
-    }
-
-    @Test
     public void testAddressForByteBuf() {
         final ByteBuf bb = Unpooled.wrappedBuffer(new byte[] { 123, 122, 4, 5, 0x20, (byte) 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 } );
         assertEquals(new Ipv4Address("123.122.4.5"), Ipv4Util.addressForByteBuf(bb));

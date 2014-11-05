@@ -424,8 +424,8 @@ public class PCEPObjectParserTest {
         builder.setProcessingRule(true);
         builder.setIgnore(false);
         builder.setAddressFamily(new Ipv4CaseBuilder().setIpv4(
-                new Ipv4Builder().setSourceIpv4Address(Ipv4Util.addressForBytes(srcIPBytes)).setDestinationIpv4Address(
-                        Ipv4Util.addressForBytes(destIPBytes)).build()).build());
+                new Ipv4Builder().setSourceIpv4Address(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes))).setDestinationIpv4Address(
+                        Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(destIPBytes))).build()).build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buf = Unpooled.buffer();
@@ -460,8 +460,8 @@ public class PCEPObjectParserTest {
         builder.setProcessingRule(true);
         builder.setIgnore(false);
         builder.setAddressFamily(new Ipv6CaseBuilder().setIpv6(
-                new Ipv6Builder().setSourceIpv6Address(Ipv6Util.addressForBytes(srcIPBytes)).setDestinationIpv6Address(
-                        Ipv6Util.addressForBytes(destIPBytes)).build()).build());
+                new Ipv6Builder().setSourceIpv6Address(Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes))).setDestinationIpv6Address(
+                        Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(destIPBytes))).build()).build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buf = Unpooled.buffer();
