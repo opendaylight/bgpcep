@@ -142,7 +142,7 @@ public final class NodeChangedListener implements DataChangeListener {
 
                             if (tpt instanceof Ip) {
                                 for (final IpAddress a : ((Ip) tpt).getIpAddress()) {
-                                    if (addr.equals(a.getIpv6Address())) {
+                                    if (addr.equals(a)) {
                                         if (sni != null) {
                                             final NodeKey k = InstanceIdentifier.keyOf(sni);
                                             boolean have = false;
@@ -152,10 +152,12 @@ public final class NodeChangedListener implements DataChangeListener {
                                              * so it does not have a supporting node pointer. Since we now know what it is,
                                              * fill it in.
                                              */
-                                            for (final SupportingNode sn : n.getSupportingNode()) {
-                                                if (sn.getNodeRef().equals(k.getNodeId())) {
-                                                    have = true;
-                                                    break;
+                                            if (n.getSupportingNode() != null) {
+                                                for (final SupportingNode sn : n.getSupportingNode()) {
+                                                    if (sn.getNodeRef().equals(k.getNodeId())) {
+                                                        have = true;
+                                                        break;
+                                                    }
                                                 }
                                             }
 
