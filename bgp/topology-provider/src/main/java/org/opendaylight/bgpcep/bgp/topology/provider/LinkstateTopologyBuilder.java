@@ -727,7 +727,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         case Unknown:
             break;
         case Ospf:
-            if (pa != null) {
+            if (pa != null && pa.getOspfForwardingAddress() != null) {
                 pb.addAugmentation(
                     Prefix1.class,
                     new Prefix1Builder().setOspfPrefixAttributes(
