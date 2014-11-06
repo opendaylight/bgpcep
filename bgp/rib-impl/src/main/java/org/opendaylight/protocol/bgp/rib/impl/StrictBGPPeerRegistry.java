@@ -12,17 +12,14 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Map;
-
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -71,6 +68,11 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         this.peers.remove(ip);
     }
 
+    public synchronized void removePeerSession(final IpAddress ip) {
+        Preconditions.checkNotNull(ip);
+        this.sessionIds.remove(ip);
+    }
+
     @Override
     public boolean isPeerConfigured(final IpAddress ip) {
         Preconditions.checkNotNull(ip);
@@ -92,47 +94,53 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         checkPeerConfigured(ip);
 
         final BGPSessionId currentConnection = new BGPSessionId(sourceId, remoteId);
+        final BGPSessionListener p = this.peers.get(ip);
 
         if (this.sessionIds.containsKey(ip)) {
-            LOG.warn("Duplicate BGP session established with {}", ip);
+            if (p.isSessionActive()) {
 
-            final BGPSessionId previousConnection = this.sessionIds.get(ip);
+                LOG.warn("Duplicate BGP session established with {}", ip);
 
-            // Session reestablished with different ids
-            if (!previousConnection.equals(currentConnection)) {
-                LOG.warn("BGP session with {} {} has to be dropped. Same session already present {}", ip, currentConnection, previousConnection);
-                throw new BGPDocumentedException(
-                    String.format("BGP session with %s %s has to be dropped. Same session already present %s",
-                        ip, currentConnection, previousConnection),
-                        BGPError.CEASE);
+                final BGPSessionId previousConnection = this.sessionIds.get(ip);
 
-                // Session reestablished with lower source bgp id, dropping current
-            } else if (previousConnection.isHigherDirection(currentConnection)) {
-                LOG.warn("BGP session with {} {} has to be dropped. Opposite session already present", ip, currentConnection);
-                throw new BGPDocumentedException(
-                    String.format("BGP session with %s initiated %s has to be dropped. Opposite session already present",
-                        ip, currentConnection),
-                        BGPError.CEASE);
+                // Session reestablished with different ids
+                if (!previousConnection.equals(currentConnection)) {
+                    LOG.warn("BGP session with {} {} has to be dropped. Same session already present {}", ip, currentConnection, previousConnection);
+                    throw new BGPDocumentedException(
+                        String.format("BGP session with %s %s has to be dropped. Same session already present %s",
+                            ip, currentConnection, previousConnection),
+                            BGPError.CEASE);
 
-                // Session reestablished with higher source bgp id, dropping previous
-            } else if (currentConnection.isHigherDirection(previousConnection)) {
-                LOG.warn("BGP session with {} {} released. Replaced by opposite session", ip, previousConnection);
-                this.peers.get(ip).releaseConnection();
-                return this.peers.get(ip);
+                    // Session reestablished with lower source bgp id, dropping current
+                } else if (previousConnection.isHigherDirection(currentConnection)) {
+                    LOG.warn("BGP session with {} {} has to be dropped. Opposite session already present", ip, currentConnection);
+                    throw new BGPDocumentedException(
+                        String.format("BGP session with %s initiated %s has to be dropped. Opposite session already present",
+                            ip, currentConnection),
+                            BGPError.CEASE);
 
-                // Session reestablished with same source bgp id, dropping current as duplicate
+                    // Session reestablished with higher source bgp id, dropping previous
+                } else if (currentConnection.isHigherDirection(previousConnection)) {
+                    LOG.warn("BGP session with {} {} released. Replaced by opposite session", ip, previousConnection);
+                    this.peers.get(ip).releaseConnection();
+                    return this.peers.get(ip);
+
+                    // Session reestablished with same source bgp id, dropping current as duplicate
+                } else {
+                    LOG.warn("BGP session with %s initiated from %s to %s has to be dropped. Same session already present", ip, sourceId, remoteId);
+                    throw new BGPDocumentedException(
+                        String.format("BGP session with %s initiated %s has to be dropped. Same session already present",
+                            ip, currentConnection),
+                            BGPError.CEASE);
+                }
             } else {
-                LOG.warn("BGP session with %s initiated from %s to %s has to be dropped. Same session already present", ip, sourceId, remoteId);
-                throw new BGPDocumentedException(
-                    String.format("BGP session with %s initiated %s has to be dropped. Same session already present",
-                        ip, currentConnection),
-                        BGPError.CEASE);
+                removePeerSession(ip);
             }
         }
 
         // Map session id to peer IP address
         this.sessionIds.put(ip, currentConnection);
-        return this.peers.get(ip);
+        return p;
     }
 
     @Override

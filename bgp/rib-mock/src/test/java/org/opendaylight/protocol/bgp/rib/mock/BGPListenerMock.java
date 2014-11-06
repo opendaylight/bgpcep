@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.mock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
@@ -50,5 +49,10 @@ public final class BGPListenerMock implements BGPSessionListener {
     @Override
     public void onSessionTerminated(final BGPSession session, final BGPTerminationReason reason) {
         this.connected = false;
+    }
+
+    @Override
+    public boolean isSessionActive() {
+        return true;
     }
 }
