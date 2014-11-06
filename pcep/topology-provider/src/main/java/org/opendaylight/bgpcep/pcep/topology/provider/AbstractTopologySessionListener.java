@@ -199,7 +199,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
             case UNSENT:
                 // Peer has not been sent to the peer: results in cancellation
                 LOG.debug("Request {} was not sent when session went down, cancelling the instruction", e.getKey());
-                r.done(OperationResults.UNSENT);
+                r.done(OperationResults.createUnsent("Request " + e.getKey() + " was not sent"));
                 break;
             }
         }
@@ -276,7 +276,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
                     synchronized (AbstractTopologySessionListener.this) {
                         AbstractTopologySessionListener.this.requests.remove(requestId);
                     }
-                    req.done(OperationResults.UNSENT);
+                    req.done(OperationResults.createUnsent(future.cause().getMessage()));
                     LOG.info("Failed to send request {}, instruction cancelled", requestId, future.cause());
                 } else {
                     req.sent();

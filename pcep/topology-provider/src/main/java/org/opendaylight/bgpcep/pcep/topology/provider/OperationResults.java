@@ -8,6 +8,7 @@
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import com.google.common.base.Function;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -40,15 +41,18 @@ final class OperationResults implements OperationResult {
 
     private final FailureType failure;
     private final List<Error> error;
+    private final String message;
 
     private OperationResults(final FailureType failure) {
         this.failure = failure;
         this.error = null;
+        this.message = "";
     }
 
-    private OperationResults(final FailureType failure, final List<Error> error) {
+    private OperationResults(final FailureType failure, final List<Error> error, final String message) {
         this.failure = failure;
         this.error = error;
+        this.message = Strings.nullToEmpty(message);
     }
 
     ListenableFuture<OperationResult> future() {
@@ -57,12 +61,16 @@ final class OperationResults implements OperationResult {
 
     public static OperationResults createFailed(final List<Errors> errors) {
         final List<Errors> e = errors != null ? errors : Collections.<Errors>emptyList();
-        return new OperationResults(FailureType.Failed, Lists.transform(e, CONVERT_ERRORS));
+        return new OperationResults(FailureType.Failed, Lists.transform(e, CONVERT_ERRORS), null);
     }
 
     public static OperationResults createUnsent(final PCEPErrors error) {
         final List<Errors> e = error != null ? Collections.singletonList(getErrorFor(error)) : Collections.<Errors>emptyList();
-        return new OperationResults(FailureType.Unsent, Lists.transform(e, CONVERT_ERRORS));
+        return new OperationResults(FailureType.Unsent, Lists.transform(e, CONVERT_ERRORS), null);
+    }
+
+    public static OperationResults createUnsent(final String message) {
+        return new OperationResults(FailureType.Unsent, Collections.<Error>emptyList(), message);
     }
 
     private static Errors getErrorFor(final PCEPErrors error) {
@@ -84,5 +92,10 @@ final class OperationResults implements OperationResult {
     @Override
     public Class<? extends DataContainer> getImplementedInterface() {
         return OperationResult.class;
+    }
+
+    @Override
+    public String getMessage() {
+        return this.message;
     }
 }

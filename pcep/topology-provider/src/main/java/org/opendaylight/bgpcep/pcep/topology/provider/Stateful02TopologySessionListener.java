@@ -268,7 +268,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
             public OperationResult apply(final Optional<ReportedLsp> rep) {
                 final Lsp reportedLsp = validateReportedLsp(rep, input);
                 if (reportedLsp == null) {
-                    return OperationResults.UNSENT;
+                    return OperationResults.createUnsent("LSP " + input.getName() + " not found.");
                 }
                 return reportedLsp.isOperational().equals(op) ? OperationResults.SUCCESS : OperationResults.UNSENT;
             }

@@ -90,6 +90,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClient;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.Path;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
@@ -337,6 +338,16 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         final ErrorObject errorObject = result.getError().get(0).getErrorObject();
         assertNotNull(errorObject);
         assertEquals(PCEPErrors.UNKNOWN_PLSP_ID, PCEPErrors.forValue(errorObject.getType(), errorObject.getValue()));
+    }
+
+    @Test
+    public void testRequestUnknownNode() throws InterruptedException, ExecutionException {
+        this.listener.onSessionUp(this.session);
+        final RemoveLspInput remove = new RemoveLspInputBuilder().setName(TUNNEL_NAME).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(new NodeId("pcc://0.0.0.0")).build();
+        final OperationResult result = this.topologyRpcs.removeLsp(remove).get().getResult();
+        assertEquals(FailureType.Unsent, result.getFailure());
+        assertEquals(0, result.getError().size());
+        assertEquals("Session for node pcc://0.0.0.0 not found.", result.getMessage());
     }
 
     @Test
