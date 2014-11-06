@@ -12,17 +12,14 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import javax.annotation.concurrent.ThreadSafe;
-
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
@@ -129,8 +126,9 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
     }
 
     <T extends DataObject> ListenableFuture<Optional<T>> readOperationalData(final InstanceIdentifier<T> id) {
-        final ReadTransaction t = chain.newReadOnlyTransaction();
-        return t.read(LogicalDatastoreType.OPERATIONAL, id);
+        try (final ReadOnlyTransaction t = chain.newReadOnlyTransaction()) {
+            return t.read(LogicalDatastoreType.OPERATIONAL, id);
+        }
     }
 
     @Override
