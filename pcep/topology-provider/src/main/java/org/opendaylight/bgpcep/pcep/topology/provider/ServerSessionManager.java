@@ -132,25 +132,25 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
     @Override
     public synchronized ListenableFuture<OperationResult> addLsp(final AddLspArgs input) {
         final TopologySessionListener l = checkSessionPresence(input.getNode());
-        return (l != null) ? l.addLsp(input) : OperationResults.UNSENT.future();
+        return (l != null) ? l.addLsp(input) : OperationResults.createUnsent(sessionNotFoundMessage(input.getNode())).future();
     }
 
     @Override
     public synchronized ListenableFuture<OperationResult> removeLsp(final RemoveLspArgs input) {
         final TopologySessionListener l = checkSessionPresence(input.getNode());
-        return (l != null) ? l.removeLsp(input) : OperationResults.UNSENT.future();
+        return (l != null) ? l.removeLsp(input) : OperationResults.createUnsent(sessionNotFoundMessage(input.getNode())).future();
     }
 
     @Override
     public synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {
         final TopologySessionListener l = checkSessionPresence(input.getNode());
-        return (l != null) ? l.updateLsp(input) : OperationResults.UNSENT.future();
+        return (l != null) ? l.updateLsp(input) : OperationResults.createUnsent(sessionNotFoundMessage(input.getNode())).future();
     }
 
     @Override
     public synchronized ListenableFuture<OperationResult> ensureLspOperational(final EnsureLspOperationalInput input) {
         final TopologySessionListener l = checkSessionPresence(input.getNode());
-        return (l != null) ? l.ensureLspOperational(input) : OperationResults.UNSENT.future();
+        return (l != null) ? l.ensureLspOperational(input) : OperationResults.createUnsent(sessionNotFoundMessage(input.getNode())).future();
     }
 
     @Override
@@ -175,5 +175,9 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 
     public Optional<PCEPTopologyProviderRuntimeRegistration> getRuntimeRootRegistration() {
         return this.runtimeRootRegistration;
+    }
+
+    private static String sessionNotFoundMessage(final NodeId nodeId) {
+        return "Session for node " + nodeId.getValue() + " not found.";
     }
 }

@@ -361,7 +361,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
             public OperationResult apply(final Optional<ReportedLsp> rep) {
                 if (!rep.isPresent()) {
                     LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
-                    return OperationResults.UNSENT;
+                    return OperationResults.createUnsent("LSP " + input.getName() + " not found.");
                 }
 
                 // check if at least one of the paths has the same status as requested
@@ -370,7 +370,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
                     final Path1 p1 = p.getAugmentation(Path1.class);
                     if (p1 == null) {
                         LOG.warn("Node {} LSP {} does not contain data", input.getNode(), input.getName());
-                        return OperationResults.UNSENT;
+                        return OperationResults.createUnsent("LSP " + input.getName() + " does not conatin data.");
                     }
                     final Lsp l = p1.getLsp();
                     if (l.getOperational().equals(op)) {

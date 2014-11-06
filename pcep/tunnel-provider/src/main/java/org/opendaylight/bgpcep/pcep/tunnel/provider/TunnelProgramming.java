@@ -329,6 +329,11 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
                         public List<Error> getError() {
                             return Collections.emptyList();
                         }
+
+                        @Override
+                        public String getMessage() {
+                            return "";
+                        }
                     });
                 }
 
@@ -386,6 +391,11 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
                         @Override
                         public List<Error> getError() {
                             return Collections.emptyList();
+                        }
+
+                        @Override
+                        public String getMessage() {
+                            return "";
                         }
                     });
                 }
