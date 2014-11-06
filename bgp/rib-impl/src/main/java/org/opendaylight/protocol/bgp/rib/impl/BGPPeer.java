@@ -84,7 +84,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable {
 
         // Not particularly nice, but what can
         if (session instanceof BGPSessionImpl) {
-            reg = rib.registerRIBsOut(this, new SessionRIBsOut((BGPSessionImpl) session));
+            this.reg = this.rib.registerRIBsOut(this, new SessionRIBsOut((BGPSessionImpl) session));
         }
     }
 
@@ -149,7 +149,12 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable {
     }
 
     @Override
+    public boolean isSessionActive() {
+        return this.session != null;
+    }
+
+    @Override
     public synchronized byte[] getRawIdentifier() {
-        return rawIdentifier;
+        return this.rawIdentifier;
     }
 }

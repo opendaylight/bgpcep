@@ -39,4 +39,9 @@ public class SpeakerSessionListener implements BGPSessionListener {
         LOG.info("Server: Message received: {}", message);
         // this.d.stop();
     }
+
+    @Override
+    public boolean isSessionActive() {
+        return true;
+    }
 }

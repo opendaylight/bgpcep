@@ -45,4 +45,9 @@ public class TestingListener implements ReusableBGPPeer {
     public void releaseConnection() {
         LOG.info("Client Listener: Connection released.");
     }
+
+    @Override
+    public boolean isSessionActive() {
+        return true;
+    }
 }
