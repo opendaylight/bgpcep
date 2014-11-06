@@ -19,7 +19,6 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 
@@ -50,23 +49,13 @@ public final class Ipv4Util {
     }
 
     /**
-     * Converts byte array to Ipv4Address.
-     *
-     * @param bytes to be converted to Ipv4Address
-     * @return Ipv4Address
-     */
-    public static Ipv4Address addressForBytes(final byte[] bytes) {
-        return new Ipv4Address(InetAddresses.toAddrString(getAddress(bytes)));
-    }
-
-    /**
      * Reads from ByteBuf buffer and converts bytes to Ipv4Address.
      *
      * @param buffer containing Ipv4 address, starting at reader index
      * @return Ipv4Address
      */
     public static Ipv4Address addressForByteBuf(final ByteBuf buffer) {
-        return addressForBytes(ByteArray.readBytes(buffer, IP4_LENGTH));
+        return new Ipv4Address(InetAddresses.toAddrString(getAddress(ByteArray.readBytes(buffer, IP4_LENGTH))));
     }
 
     /**
@@ -87,23 +76,12 @@ public final class Ipv4Util {
      * @param prefix
      * @return
      */
-    public static int getPrefixLengthBytes(final String prefix) {
+    protected static int getPrefixLengthBytes(final String prefix) {
         final int bits = Ipv4Util.getPrefixLength(prefix);
-        if (bits % 8 != 0) {
-            return (bits / 8) + 1;
+        if (bits % Byte.SIZE != 0) {
+            return (bits / Byte.SIZE) + 1;
         }
-        return bits / 8;
-    }
-
-    /**
-     * Converts Ipv4Prefix to byte array of length equal to prefix length value.
-     *
-     * @param ipv4Prefix Ipv4Prefix to be converted
-     * @return byte array
-     */
-    public static byte[] bytesForPrefixByPrefixLength(final Ipv4Prefix ipv4Prefix) {
-        return ByteArray.subByte(bytesForPrefix(ipv4Prefix), 0,
-            getPrefixLengthBytes(ipv4Prefix.getValue()));
+        return bits / Byte.SIZE;
     }
 
     /**
@@ -175,28 +153,12 @@ public final class Ipv4Util {
     }
 
     /**
-     * Obtains prefix length from given prefix.
-     *
-     * @param prefix
-     * @return prefix length
-     */
-    public static int getPrefixLength(final IpPrefix prefix) {
-        String p = "";
-        if (prefix.getIpv4Prefix() != null) {
-            p = prefix.getIpv4Prefix().getValue();
-        } else {
-            p = prefix.getIpv6Prefix().getValue();
-        }
-        return getPrefixLength(p);
-    }
-
-    /**
      * Obtains prefix length from given string prefix.
      *
      * @param prefixValue value of prefix
      * @return prefix length
      */
-    public static int getPrefixLength(final String prefixValue) {
+    protected static int getPrefixLength(final String prefixValue) {
         final int sep = prefixValue.indexOf('/');
         return Integer.parseInt(prefixValue.substring(sep + 1, prefixValue.length()));
     }

@@ -49,23 +49,13 @@ public final class Ipv6Util {
     }
 
     /**
-     * Converts byte array to Ipv6Address.
-     *
-     * @param bytes to be converted to Ipv6Address
-     * @return Ipv6Address
-     */
-    public static Ipv6Address addressForBytes(final byte[] bytes) {
-        return new Ipv6Address(InetAddresses.toAddrString(getAddress(bytes)));
-    }
-
-    /**
      * Reads from ByteBuf buffer and converts bytes to Ipv6Address.
      *
      * @param buffer containing Ipv6 address, starting at reader index
      * @return Ipv4Address
      */
     public static Ipv6Address addressForByteBuf(final ByteBuf buffer) {
-        return addressForBytes(ByteArray.readBytes(buffer, IPV6_LENGTH));
+        return new Ipv6Address(InetAddresses.toAddrString(getAddress((ByteArray.readBytes(buffer, IPV6_LENGTH)))));
     }
 
     /**

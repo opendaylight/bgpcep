@@ -73,7 +73,7 @@ public class PCEPTlvParserTest {
     @Test
     public void testNodeIdentifier() throws PCEPDeserializerException {
         final Stateful02NodeIdentifierTlvParser parser = new Stateful02NodeIdentifierTlvParser();
-        NodeIdentifier tlv = new NodeIdentifierBuilder().setNodeId(
+        final NodeIdentifier tlv = new NodeIdentifierBuilder().setNodeId(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.NodeIdentifier(ByteArray.subByte(
                         nodeIdentifierBytes, 4, 25))).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.subByte(nodeIdentifierBytes, 4, 25))));
@@ -86,7 +86,7 @@ public class PCEPTlvParserTest {
     public void testRSVPError4SpecTlv() throws PCEPDeserializerException {
         final Stateful02RSVPErrorSpecTlvParser parser = new Stateful02RSVPErrorSpecTlvParser();
         final RsvpErrorBuilder builder = new RsvpErrorBuilder();
-        builder.setNode(new IpAddress(Ipv4Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 })));
+        builder.setNode(new IpAddress(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }))));
         builder.setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.ErrorSpec.Flags(false, true));
         builder.setCode((short) 146);
         builder.setValue(5634);
@@ -101,9 +101,9 @@ public class PCEPTlvParserTest {
     public void testRSVPError6SpecTlv() throws PCEPDeserializerException {
         final Stateful02RSVPErrorSpecTlvParser parser = new Stateful02RSVPErrorSpecTlvParser();
         final RsvpErrorBuilder builder = new RsvpErrorBuilder();
-        builder.setNode(new IpAddress(Ipv6Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
+        builder.setNode(new IpAddress(Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
             (byte) 0x9a, (byte) 0xbc, (byte) 0xde, (byte) 0xf0, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9a,
-            (byte) 0xbc, (byte) 0xde, (byte) 0xf0 })));
+            (byte) 0xbc, (byte) 0xde, (byte) 0xf0 }))));
         builder.setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.ErrorSpec.Flags(false, true));
         builder.setCode((short) 213);
         builder.setValue(50649);

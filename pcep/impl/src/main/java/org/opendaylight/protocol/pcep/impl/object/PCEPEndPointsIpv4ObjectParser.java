@@ -18,7 +18,6 @@ import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.UnknownObject;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
@@ -57,8 +56,8 @@ public class PCEPEndPointsIpv4ObjectParser implements ObjectParser, ObjectSerial
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
         final Ipv4Builder b = new Ipv4Builder();
-        b.setSourceIpv4Address(Ipv4Util.addressForBytes(ByteArray.readBytes(bytes, Ipv4Util.IP4_LENGTH)));
-        b.setDestinationIpv4Address((Ipv4Util.addressForBytes(ByteArray.readBytes(bytes, Ipv4Util.IP4_LENGTH))));
+        b.setSourceIpv4Address(Ipv4Util.addressForByteBuf(bytes));
+        b.setDestinationIpv4Address((Ipv4Util.addressForByteBuf(bytes)));
         builder.setAddressFamily(new Ipv4CaseBuilder().setIpv4(b.build()).build());
         return builder.build();
     }

@@ -18,7 +18,6 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvUtil;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiersBuilder;
@@ -53,12 +52,11 @@ public final class Stateful07LSPIdentifierIpv4TlvParser implements TlvParser, Tl
             throw new IllegalArgumentException("Length " + buffer.readableBytes() + " does not match LSP Identifiers Ipv4 tlv length.");
         }
         final Ipv4Builder builder = new Ipv4Builder();
-        builder.setIpv4TunnelSenderAddress(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, Ipv4Util.IP4_LENGTH)));
+        builder.setIpv4TunnelSenderAddress(Ipv4Util.addressForByteBuf(buffer));
         final LspId lspId = new LspId((long) buffer.readUnsignedShort());
         final TunnelId tunnelId = new TunnelId(buffer.readUnsignedShort());
-        builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer,
-                EX_TUNNEL_ID4_F_LENGTH))));
-        builder.setIpv4TunnelEndpointAddress(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, Ipv4Util.IP4_LENGTH)));
+        builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.addressForByteBuf(buffer)));
+        builder.setIpv4TunnelEndpointAddress(Ipv4Util.addressForByteBuf(buffer));
         final AddressFamily afi = new Ipv4CaseBuilder().setIpv4(builder.build()).build();
         return new LspIdentifiersBuilder().setAddressFamily(afi).setLspId(lspId).setTunnelId(tunnelId).build();
     }

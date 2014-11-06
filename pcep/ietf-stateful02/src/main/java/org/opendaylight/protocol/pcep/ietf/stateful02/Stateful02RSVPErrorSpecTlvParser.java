@@ -55,9 +55,9 @@ public final class Stateful02RSVPErrorSpecTlvParser implements TlvParser, TlvSer
         }
         final RsvpErrorBuilder builder = new RsvpErrorBuilder();
         if (buffer.readableBytes() == V4_RSVP_LENGTH) {
-            builder.setNode(new IpAddress(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, Ipv4Util.IP4_LENGTH))));
+            builder.setNode(new IpAddress(Ipv4Util.addressForByteBuf(buffer)));
         } else if (buffer.readableBytes() == V6_RSVP_LENGTH) {
-            builder.setNode(new IpAddress(Ipv6Util.addressForBytes(ByteArray.readBytes(buffer, Ipv6Util.IPV6_LENGTH))));
+            builder.setNode(new IpAddress(Ipv6Util.addressForByteBuf(buffer)));
         }
         final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, FLAGS_F_LENGTH));
         builder.setFlags(new Flags(flags.get(IN_PLACE_FLAG_OFFSET), flags.get(NOT_GUILTY_FLAGS_OFFSET)));
@@ -75,7 +75,7 @@ public final class Stateful02RSVPErrorSpecTlvParser implements TlvParser, TlvSer
         final RsvpError rsvp = rsvpTlv.getRsvpError();
         final ByteBuf body = Unpooled.buffer();
         final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-        Flags f = rsvp.getFlags();
+        final Flags f = rsvp.getFlags();
         if (f.isInPlace() != null) {
             flags.set(IN_PLACE_FLAG_OFFSET, f.isInPlace());
         }

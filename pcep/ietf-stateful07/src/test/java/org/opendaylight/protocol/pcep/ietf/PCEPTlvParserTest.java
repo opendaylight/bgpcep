@@ -104,10 +104,10 @@ public class PCEPTlvParserTest {
     public void testLspIdentifiers4Tlv() throws PCEPDeserializerException {
         final Stateful07LSPIdentifierIpv4TlvParser parser = new Stateful07LSPIdentifierIpv4TlvParser();
         final Ipv4Builder afi = new Ipv4Builder();
-        afi.setIpv4TunnelSenderAddress(Ipv4Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }));
-        afi.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56,
-            (byte) 0x78 })));
-        afi.setIpv4TunnelEndpointAddress(Ipv4Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }));
+        afi.setIpv4TunnelSenderAddress(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 })));
+        afi.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56,
+            (byte) 0x78 }))));
+        afi.setIpv4TunnelEndpointAddress(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 })));
         final LspIdentifiers tlv = new LspIdentifiersBuilder().setAddressFamily(new Ipv4CaseBuilder().setIpv4(afi.build()).build()).setLspId(
             new LspId(65535L)).setTunnelId(new TunnelId(4660)).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(lspIdentifiers4Bytes, 4))));
@@ -120,15 +120,15 @@ public class PCEPTlvParserTest {
     public void testLspIdentifiers6Tlv() throws PCEPDeserializerException {
         final Stateful07LSPIdentifierIpv6TlvParser parser = new Stateful07LSPIdentifierIpv6TlvParser();
         final Ipv6Builder afi = new Ipv6Builder();
-        afi.setIpv6TunnelSenderAddress(Ipv6Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
+        afi.setIpv6TunnelSenderAddress(Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
             (byte) 0x9A, (byte) 0xBC, (byte) 0xDE, (byte) 0xF0, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A,
-            (byte) 0xBC, (byte) 0xDE, (byte) 0xF0 }));
-        afi.setIpv6ExtendedTunnelId(new Ipv6ExtendedTunnelId(Ipv6Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56,
+            (byte) 0xBC, (byte) 0xDE, (byte) 0xF0 })));
+        afi.setIpv6ExtendedTunnelId(new Ipv6ExtendedTunnelId(Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56,
             (byte) 0x78, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x01, (byte) 0x23, (byte) 0x45, (byte) 0x67,
-            (byte) 0x01, (byte) 0x23, (byte) 0x45, (byte) 0x67 })));
-        afi.setIpv6TunnelEndpointAddress(Ipv6Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
+            (byte) 0x01, (byte) 0x23, (byte) 0x45, (byte) 0x67 }))));
+        afi.setIpv6TunnelEndpointAddress(Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
             (byte) 0x9A, (byte) 0xBC, (byte) 0xDE, (byte) 0xF0, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A,
-            (byte) 0xBC, (byte) 0xDE, (byte) 0xF0 }));
+            (byte) 0xBC, (byte) 0xDE, (byte) 0xF0 })));
         final LspIdentifiers tlv = new LspIdentifiersBuilder().setAddressFamily(new Ipv6CaseBuilder().setIpv6(afi.build()).build()).setLspId(
             new LspId(4660L)).setTunnelId(new TunnelId(65535)).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(lspIdentifiers6Bytes, 4))));
@@ -141,7 +141,7 @@ public class PCEPTlvParserTest {
     public void testRSVPError4SpecTlv() throws PCEPDeserializerException {
         final Stateful07RSVPErrorSpecTlvParser parser = new Stateful07RSVPErrorSpecTlvParser();
         final RsvpErrorBuilder builder = new RsvpErrorBuilder();
-        builder.setNode(new IpAddress(Ipv4Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 })));
+        builder.setNode(new IpAddress(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }))));
         builder.setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.ErrorSpec.Flags(false, true));
         builder.setCode((short) 146);
         builder.setValue(5634);
@@ -156,9 +156,9 @@ public class PCEPTlvParserTest {
     public void testRSVPError6SpecTlv() throws PCEPDeserializerException {
         final Stateful07RSVPErrorSpecTlvParser parser = new Stateful07RSVPErrorSpecTlvParser();
         final RsvpErrorBuilder builder = new RsvpErrorBuilder();
-        builder.setNode(new IpAddress(Ipv6Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
+        builder.setNode(new IpAddress(Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
             (byte) 0x9a, (byte) 0xbc, (byte) 0xde, (byte) 0xf0, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9a,
-            (byte) 0xbc, (byte) 0xde, (byte) 0xf0 })));
+            (byte) 0xbc, (byte) 0xde, (byte) 0xf0 }))));
         builder.setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.ErrorSpec.Flags(false, true));
         builder.setCode((short) 213);
         builder.setValue(50649);
