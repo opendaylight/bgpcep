@@ -8,10 +8,8 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.collect.Lists;
-
 import java.util.List;
 import java.util.Set;
-
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
@@ -60,5 +58,10 @@ public class SpeakerSessionListener implements BGPSessionListener {
     public void onSessionTerminated(final BGPSession session, final BGPTerminationReason cause) {
         LOG.debug("Session terminated. Cause : {}", cause.toString());
         this.up = false;
+    }
+
+    @Override
+    public boolean isSessionActive() {
+        return true;
     }
 }
