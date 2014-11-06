@@ -15,4 +15,5 @@ import org.opendaylight.yangtools.yang.binding.Notification;
  */
 public interface BGPSessionListener extends SessionListener<Notification, BGPSession, BGPTerminationReason> {
 
+    boolean isSessionActive();
 }

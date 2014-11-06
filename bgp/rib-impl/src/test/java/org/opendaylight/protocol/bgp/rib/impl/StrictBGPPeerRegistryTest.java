@@ -13,7 +13,6 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
 import java.net.InetSocketAddress;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -31,8 +30,8 @@ public class StrictBGPPeerRegistryTest {
 
     @Before
     public void setUp() throws Exception {
-        droppingBGPSessionRegistry = new StrictBGPPeerRegistry();
-        mockPreferences = getMockPreferences();
+        this.droppingBGPSessionRegistry = new StrictBGPPeerRegistry();
+        this.mockPreferences = getMockPreferences();
     }
 
     @Test
@@ -49,13 +48,13 @@ public class StrictBGPPeerRegistryTest {
         final Ipv4Address to = new Ipv4Address("255.255.255.255");
 
         final ReusableBGPPeer session1 = getMockSession();
-        droppingBGPSessionRegistry.addPeer(remoteIp, session1, mockPreferences);
+        this.droppingBGPSessionRegistry.addPeer(remoteIp, session1, this.mockPreferences);
 
-        droppingBGPSessionRegistry.getPeer(remoteIp, from, to);
+        this.droppingBGPSessionRegistry.getPeer(remoteIp, from, to);
         try {
-            droppingBGPSessionRegistry.getPeer(remoteIp, from, to);
+            this.droppingBGPSessionRegistry.getPeer(remoteIp, from, to);
         } catch (final IllegalStateException e) {
-            Mockito.verifyZeroInteractions(session1);
+            Mockito.verify(session1).isSessionActive();
             return;
         }
 
@@ -69,7 +68,7 @@ public class StrictBGPPeerRegistryTest {
         final Ipv4Address to = new Ipv4Address("255.255.255.255");
 
         try {
-            droppingBGPSessionRegistry.getPeer(remoteIp, from, to);
+            this.droppingBGPSessionRegistry.getPeer(remoteIp, from, to);
         } catch (final IllegalStateException e) {
             return;
         }
@@ -86,17 +85,17 @@ public class StrictBGPPeerRegistryTest {
         final IpAddress remoteIp2 = new IpAddress(to2);
 
         final ReusableBGPPeer session1 = getMockSession();
-        droppingBGPSessionRegistry.addPeer(remoteIp, session1, mockPreferences);
+        this.droppingBGPSessionRegistry.addPeer(remoteIp, session1, this.mockPreferences);
         final ReusableBGPPeer session2 = getMockSession();
-        droppingBGPSessionRegistry.addPeer(remoteIp2, session2, mockPreferences);
+        this.droppingBGPSessionRegistry.addPeer(remoteIp2, session2, this.mockPreferences);
 
-        final BGPSessionListener returnedSession1 = droppingBGPSessionRegistry.getPeer(remoteIp, from, to);
+        final BGPSessionListener returnedSession1 = this.droppingBGPSessionRegistry.getPeer(remoteIp, from, to);
         assertSame(session1, returnedSession1);
-        final BGPSessionListener returnedSession2 = droppingBGPSessionRegistry.getPeer(remoteIp2, from, to2);
+        final BGPSessionListener returnedSession2 = this.droppingBGPSessionRegistry.getPeer(remoteIp2, from, to2);
         assertSame(session2, returnedSession2);
 
-        Mockito.verifyZeroInteractions(session1);
-        Mockito.verifyZeroInteractions(session2);
+        Mockito.verifyNoMoreInteractions(session1);
+        Mockito.verifyNoMoreInteractions(session2);
     }
 
     @Test
@@ -106,13 +105,13 @@ public class StrictBGPPeerRegistryTest {
         final IpAddress remoteIp = new IpAddress(lower);
 
         final ReusableBGPPeer session1 = getMockSession();
-        droppingBGPSessionRegistry.addPeer(remoteIp, session1, mockPreferences);
+        this.droppingBGPSessionRegistry.addPeer(remoteIp, session1, this.mockPreferences);
 
-        droppingBGPSessionRegistry.getPeer(remoteIp, higher, lower);
+        this.droppingBGPSessionRegistry.getPeer(remoteIp, higher, lower);
         try {
-            droppingBGPSessionRegistry.getPeer(remoteIp, lower, higher);
+            this.droppingBGPSessionRegistry.getPeer(remoteIp, lower, higher);
         } catch (final BGPDocumentedException e) {
-            Mockito.verifyZeroInteractions(session1);
+            Mockito.verify(session1).isSessionActive();
             return;
         }
 
@@ -126,16 +125,17 @@ public class StrictBGPPeerRegistryTest {
         final IpAddress remoteIp = new IpAddress(lower);
 
         final ReusableBGPPeer session1 = getMockSession();
-        droppingBGPSessionRegistry.addPeer(remoteIp, session1, mockPreferences);
+        this.droppingBGPSessionRegistry.addPeer(remoteIp, session1, this.mockPreferences);
 
-        droppingBGPSessionRegistry.getPeer(remoteIp, lower, higher);
-        droppingBGPSessionRegistry.getPeer(remoteIp, higher, lower);
+        this.droppingBGPSessionRegistry.getPeer(remoteIp, lower, higher);
+        this.droppingBGPSessionRegistry.getPeer(remoteIp, higher, lower);
         Mockito.verify(session1).releaseConnection();
     }
 
     private ReusableBGPPeer getMockSession() {
         final ReusableBGPPeer mock = Mockito.mock(ReusableBGPPeer.class);
         Mockito.doNothing().when(mock).releaseConnection();
+        Mockito.doReturn(Boolean.TRUE).when(mock).isSessionActive();
         return mock;
     }
 

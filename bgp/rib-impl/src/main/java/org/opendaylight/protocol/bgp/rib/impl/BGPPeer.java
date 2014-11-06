@@ -171,6 +171,10 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
         }
     }
 
+    public boolean isSessionActive() {
+        return this.session != null;
+    }
+
     @Override
     public synchronized byte[] getRawIdentifier() {
         return Arrays.copyOf(this.rawIdentifier, this.rawIdentifier.length);
