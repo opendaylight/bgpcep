@@ -15,4 +15,10 @@ import org.opendaylight.yangtools.yang.binding.Notification;
  */
 public interface BGPSessionListener extends SessionListener<Notification, BGPSession, BGPTerminationReason> {
 
+    /**
+     * Returns state of BGP session associated with this listener.
+     *
+     * @return false if session associated with this listener is null, true if its non-null
+     */
+    boolean isSessionActive();
 }
