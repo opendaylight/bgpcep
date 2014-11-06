@@ -12,7 +12,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-
 import com.google.common.base.Optional;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -36,6 +35,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -140,7 +140,9 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     }
 
     protected Optional<Topology> getTopology() throws InterruptedException, ExecutionException {
-        return getDataBroker().newReadOnlyTransaction().read(LogicalDatastoreType.OPERATIONAL, TOPO_IID).get();
+        try (ReadOnlyTransaction t = getDataBroker().newReadOnlyTransaction()) {
+            return t.read(LogicalDatastoreType.OPERATIONAL, TOPO_IID).get();
+        }
     }
 
     protected Ero createEroWithIpPrefixes(final List<String> ipPrefixes) {

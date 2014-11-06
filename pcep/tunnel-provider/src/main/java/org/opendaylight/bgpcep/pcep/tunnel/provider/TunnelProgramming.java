@@ -21,6 +21,7 @@ import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
 import org.opendaylight.bgpcep.programming.topology.TopologyProgrammingUtil;
 import org.opendaylight.bgpcep.programming.tunnel.TunnelProgrammingUtil;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -235,46 +236,45 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
             protected ListenableFuture<OperationResult> invokeOperation() {
                 final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(input);
 
-                final ReadTransaction t = TunnelProgramming.this.dataProvider.newReadOnlyTransaction();
+                try (final ReadOnlyTransaction t = TunnelProgramming.this.dataProvider.newReadOnlyTransaction()) {
+                    final TpReader dr = new TpReader(t, tii, input.getDestination());
+                    final TpReader sr = new TpReader(t, tii, input.getSource());
 
-                final TpReader dr = new TpReader(t, tii, input.getDestination());
-                final TpReader sr = new TpReader(t, tii, input.getSource());
+                    final Node sn = Preconditions.checkNotNull(sr.getNode());
+                    final TerminationPoint sp = Preconditions.checkNotNull(sr.getTp());
+                    final TerminationPoint dp = Preconditions.checkNotNull(dr.getTp());
 
-                final Node sn = Preconditions.checkNotNull(sr.getNode());
-                final TerminationPoint sp = Preconditions.checkNotNull(sr.getTp());
-                final TerminationPoint dp = Preconditions.checkNotNull(dr.getTp());
+                    final AddLspInputBuilder ab = new AddLspInputBuilder();
+                    ab.setNode(Preconditions.checkNotNull(supportingNode(sn)));
+                    ab.setName(input.getSymbolicPathName());
 
-                final AddLspInputBuilder ab = new AddLspInputBuilder();
-                ab.setNode(Preconditions.checkNotNull(supportingNode(sn)));
-                ab.setName(input.getSymbolicPathName());
+                    // The link has to be non-existent
+                    final InstanceIdentifier<Link> lii = NodeChangedListener.linkIdentifier(tii, ab.getNode(), ab.getName());
+                    try {
+                        Preconditions.checkState(! t.read(LogicalDatastoreType.OPERATIONAL, lii).checkedGet().isPresent());
+                    } catch (ReadFailedException e) {
+                        throw new IllegalStateException("Failed to ensure link existence.", e);
+                    }
 
-                // The link has to be non-existent
-                final InstanceIdentifier<Link> lii = NodeChangedListener.linkIdentifier(tii, ab.getNode(), ab.getName());
-                try {
-                    Preconditions.checkState(! t.read(LogicalDatastoreType.OPERATIONAL, lii).checkedGet().isPresent());
-                } catch (ReadFailedException e) {
-                    throw new IllegalStateException("Failed to ensure link existence.", e);
-                }
+                    final ArgumentsBuilder args = new ArgumentsBuilder();
+                    if (input.getBandwidth() != null) {
+                        args.setBandwidth(new BandwidthBuilder().setBandwidth(input.getBandwidth()).build());
+                    }
+                    if (input.getClassType() != null) {
+                        args.setClassType(new ClassTypeBuilder().setClassType(input.getClassType()).build());
+                    }
+                    args.setEndpointsObj(new EndpointsObjBuilder().setAddressFamily(buildAddressFamily(sp, dp)).build());
+                    args.setEro(buildEro(input.getExplicitHops()));
+                    args.setLspa(new LspaBuilder(input).build());
 
-                final ArgumentsBuilder args = new ArgumentsBuilder();
-                if (input.getBandwidth() != null) {
-                    args.setBandwidth(new BandwidthBuilder().setBandwidth(input.getBandwidth()).build());
-                }
-                if (input.getClassType() != null) {
-                    args.setClassType(new ClassTypeBuilder().setClassType(input.getClassType()).build());
-                }
-                args.setEndpointsObj(new EndpointsObjBuilder().setAddressFamily(buildAddressFamily(sp, dp)).build());
-                args.setEro(buildEro(input.getExplicitHops()));
-                args.setLspa(new LspaBuilder(input).build());
+                    AdministrativeStatus adminStatus = input.getAugmentation(PcepCreateP2pTunnelInput1.class).getAdministrativeStatus();
+                    if (adminStatus != null) {
+                        args.addAugmentation(Arguments2.class, new Arguments2Builder().setLsp(new LspBuilder().setAdministrative((adminStatus == AdministrativeStatus.Active) ? true : false).build()).build());
+                    }
 
-                AdministrativeStatus adminStatus = input.getAugmentation(PcepCreateP2pTunnelInput1.class).getAdministrativeStatus();
-                if (adminStatus != null) {
-                    args.addAugmentation(Arguments2.class, new Arguments2Builder().setLsp(new LspBuilder().setAdministrative((adminStatus == AdministrativeStatus.Active) ? true : false).build()).build());
-                }
+                    ab.setArguments(args.build());
 
-                ab.setArguments(args.build());
-
-                return Futures.transform(
+                    return Futures.transform(
                         (ListenableFuture<RpcResult<AddLspOutput>>) TunnelProgramming.this.topologyService.addLsp(ab.build()),
                         new Function<RpcResult<AddLspOutput>, OperationResult>() {
                             @Override
@@ -282,6 +282,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
                                 return input.getResult();
                             }
                         });
+                }
             }
         }));
 
@@ -303,40 +304,40 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
                 final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(input);
                 final InstanceIdentifier<Link> lii = TunnelProgrammingUtil.linkIdentifier(tii, input);
 
-                final ReadTransaction t = TunnelProgramming.this.dataProvider.newReadOnlyTransaction();
-                final Node node;
-                final Link link;
+                try (final ReadOnlyTransaction t = TunnelProgramming.this.dataProvider.newReadOnlyTransaction()) {
+                    final Node node;
+                    final Link link;
 
-                try {
-                    // The link has to exist
-                    link = (Link) t.read(LogicalDatastoreType.OPERATIONAL, lii).checkedGet().get();
+                    try {
+                        // The link has to exist
+                        link = t.read(LogicalDatastoreType.OPERATIONAL, lii).checkedGet().get();
 
-                    // The source node has to exist
-                    node = sourceNode(t, tii, link).get();
-                } catch (IllegalStateException | ReadFailedException e) {
-                    return Futures.<OperationResult>immediateFuture(new OperationResult() {
-                        @Override
-                        public Class<? extends DataContainer> getImplementedInterface() {
-                            return OperationResult.class;
-                        }
+                        // The source node has to exist
+                        node = sourceNode(t, tii, link).get();
+                    } catch (IllegalStateException | ReadFailedException e) {
+                        return Futures.<OperationResult>immediateFuture(new OperationResult() {
+                            @Override
+                            public Class<? extends DataContainer> getImplementedInterface() {
+                                return OperationResult.class;
+                            }
 
-                        @Override
-                        public FailureType getFailure() {
-                            return FailureType.Unsent;
-                        }
+                            @Override
+                            public FailureType getFailure() {
+                                return FailureType.Unsent;
+                            }
 
-                        @Override
-                        public List<Error> getError() {
-                            return Collections.emptyList();
-                        }
-                    });
-                }
+                            @Override
+                            public List<Error> getError() {
+                                return Collections.emptyList();
+                            }
+                        });
+                    }
 
-                final RemoveLspInputBuilder ab = new RemoveLspInputBuilder();
-                ab.setName(link.getAugmentation(Link1.class).getSymbolicPathName());
-                ab.setNode(node.getSupportingNode().get(0).getKey().getNodeRef());
+                    final RemoveLspInputBuilder ab = new RemoveLspInputBuilder();
+                    ab.setName(link.getAugmentation(Link1.class).getSymbolicPathName());
+                    ab.setNode(node.getSupportingNode().get(0).getKey().getNodeRef());
 
-                return Futures.transform(
+                    return Futures.transform(
                         (ListenableFuture<RpcResult<RemoveLspOutput>>) TunnelProgramming.this.topologyService.removeLsp(ab.build()),
                         new Function<RpcResult<RemoveLspOutput>, OperationResult>() {
                             @Override
@@ -344,6 +345,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
                                 return input.getResult();
                             }
                         });
+                }
             }
         }));
 
@@ -361,53 +363,53 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
                 final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(input);
                 final InstanceIdentifier<Link> lii = TunnelProgrammingUtil.linkIdentifier(tii, input);
 
-                final ReadTransaction t = TunnelProgramming.this.dataProvider.newReadOnlyTransaction();
-                final Link link;
-                final Node node;
+                try (final ReadOnlyTransaction t = TunnelProgramming.this.dataProvider.newReadOnlyTransaction()) {
+                    final Link link;
+                    final Node node;
 
-                try {
-                    // The link has to exist
-                    link = (Link) t.read(LogicalDatastoreType.OPERATIONAL, lii).checkedGet().get();
+                    try {
+                        // The link has to exist
+                        link = t.read(LogicalDatastoreType.OPERATIONAL, lii).checkedGet().get();
 
-                    // The source node has to exist
-                    node = sourceNode(t, tii, link).get();
-                } catch (IllegalStateException | ReadFailedException e) {
-                    return Futures.<OperationResult>immediateFuture(new OperationResult() {
-                        @Override
-                        public Class<? extends DataContainer> getImplementedInterface() {
-                            return OperationResult.class;
-                        }
+                        // The source node has to exist
+                        node = sourceNode(t, tii, link).get();
+                    } catch (IllegalStateException | ReadFailedException e) {
+                        return Futures.<OperationResult>immediateFuture(new OperationResult() {
+                            @Override
+                            public Class<? extends DataContainer> getImplementedInterface() {
+                                return OperationResult.class;
+                            }
 
-                        @Override
-                        public FailureType getFailure() {
-                            return FailureType.Unsent;
-                        }
+                            @Override
+                            public FailureType getFailure() {
+                                return FailureType.Unsent;
+                            }
 
-                        @Override
-                        public List<Error> getError() {
-                            return Collections.emptyList();
-                        }
-                    });
-                }
+                            @Override
+                            public List<Error> getError() {
+                                return Collections.emptyList();
+                            }
+                        });
+                    }
 
-                final UpdateLspInputBuilder ab = new UpdateLspInputBuilder();
-                ab.setName(link.getAugmentation(Link1.class).getSymbolicPathName());
-                ab.setNode(Preconditions.checkNotNull(supportingNode(node)));
+                    final UpdateLspInputBuilder ab = new UpdateLspInputBuilder();
+                    ab.setName(link.getAugmentation(Link1.class).getSymbolicPathName());
+                    ab.setNode(Preconditions.checkNotNull(supportingNode(node)));
 
-                final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder args = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder();
-                args.setBandwidth(new BandwidthBuilder().setBandwidth(input.getBandwidth()).build());
-                args.setClassType(new ClassTypeBuilder().setClassType(input.getClassType()).build());
-                args.setEro(buildEro(input.getExplicitHops()));
-                args.setLspa(new LspaBuilder(input).build());
+                    final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder args = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder();
+                    args.setBandwidth(new BandwidthBuilder().setBandwidth(input.getBandwidth()).build());
+                    args.setClassType(new ClassTypeBuilder().setClassType(input.getClassType()).build());
+                    args.setEro(buildEro(input.getExplicitHops()));
+                    args.setLspa(new LspaBuilder(input).build());
 
-                AdministrativeStatus adminStatus = input.getAugmentation(PcepUpdateTunnelInput1.class).getAdministrativeStatus();
-                if (adminStatus != null) {
-                    args.addAugmentation(Arguments3.class, new Arguments3Builder().setLsp(new LspBuilder().setAdministrative((adminStatus == AdministrativeStatus.Active) ? true : false).build()).build());
-                }
+                    AdministrativeStatus adminStatus = input.getAugmentation(PcepUpdateTunnelInput1.class).getAdministrativeStatus();
+                    if (adminStatus != null) {
+                        args.addAugmentation(Arguments3.class, new Arguments3Builder().setLsp(new LspBuilder().setAdministrative((adminStatus == AdministrativeStatus.Active) ? true : false).build()).build());
+                    }
 
-                ab.setArguments(args.build());
+                    ab.setArguments(args.build());
 
-                return Futures.transform(
+                    return Futures.transform(
                         (ListenableFuture<RpcResult<UpdateLspOutput>>) TunnelProgramming.this.topologyService.updateLsp(ab.build()),
                         new Function<RpcResult<UpdateLspOutput>, OperationResult>() {
                             @Override
@@ -415,6 +417,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
                                 return input.getResult();
                             }
                         });
+                }
             }
         }));
 
