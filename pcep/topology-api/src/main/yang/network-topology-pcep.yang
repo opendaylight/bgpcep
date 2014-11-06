@@ -171,6 +171,10 @@ module network-topology-pcep {
             type failure-type;
         }
 
+        leaf message {
+            type string;
+        }
+
         list error {
             when "../failure = failed";
             uses pcep:pcep-error-object;
