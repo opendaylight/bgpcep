@@ -56,14 +56,16 @@ public final class HexDumpBGPFileParser {
 
     public static List<byte[]> parseMessages(final String c) {
         final String content = clearWhiteSpaceToUpper(c);
+        final int sixteen = 16;
+        final int four = 4;
         // search for 16 FFs
 
         final List<byte[]> messages = Lists.newLinkedList();
         int idx = content.indexOf(FF_16, 0);
         while (idx > -1) {
             // next 2 bytes are length
-            final int lengthIdx = idx + 16 * 2;
-            final int messageIdx = lengthIdx + 4;
+            final int lengthIdx = idx + sixteen * 2;
+            final int messageIdx = lengthIdx + four;
             final String hexLength = content.substring(lengthIdx, messageIdx);
             byte[] byteLength = null;
             try {

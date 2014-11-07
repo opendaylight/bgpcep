@@ -78,34 +78,34 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
         private final InstructionBuilder builder = new InstructionBuilder();
 
         InstructionPusher(final InstructionId id, final Nanotime deadline) {
-            builder.setDeadline(deadline);
-            builder.setId(id);
-            builder.setKey(new InstructionKey(id));
-            builder.setStatus(InstructionStatus.Queued);
+            this.builder.setDeadline(deadline);
+            this.builder.setId(id);
+            this.builder.setKey(new InstructionKey(id));
+            this.builder.setStatus(InstructionStatus.Queued);
         }
 
         @Override
         public void instructionUpdated(final InstructionStatus status, final Details details) {
-            if (!status.equals(builder.getStatus())) {
-                builder.setStatus(status);
+            if (!status.equals(this.builder.getStatus())) {
+                this.builder.setStatus(status);
 
-                final WriteTransaction t = dataProvider.newWriteOnlyTransaction();
+                final WriteTransaction t = ProgrammingServiceImpl.this.dataProvider.newWriteOnlyTransaction();
                 t.put(LogicalDatastoreType.OPERATIONAL,
-                        qid.child(
+                        ProgrammingServiceImpl.this.qid.child(
                                 org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.queue.Instruction.class,
-                                new InstructionKey(builder.getId())), builder.build());
+                                new InstructionKey(this.builder.getId())), this.builder.build());
                 t.submit();
             }
 
-            notifs.publish(new InstructionStatusChangedBuilder().setId(builder.getId()).setStatus(status).setDetails(details).build());
+            ProgrammingServiceImpl.this.notifs.publish(new InstructionStatusChangedBuilder().setId(this.builder.getId()).setStatus(status).setDetails(details).build());
         }
 
         @Override
         public void instructionRemoved() {
-            final WriteTransaction t = dataProvider.newWriteOnlyTransaction();
-            t.delete(LogicalDatastoreType.OPERATIONAL, qid.child(
+            final WriteTransaction t = ProgrammingServiceImpl.this.dataProvider.newWriteOnlyTransaction();
+            t.delete(LogicalDatastoreType.OPERATIONAL, ProgrammingServiceImpl.this.qid.child(
                     org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.queue.Instruction.class,
-                    new InstructionKey(builder.getId())));
+                    new InstructionKey(this.builder.getId())));
             t.submit();
         }
     }
@@ -116,16 +116,16 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
         this.notifs = Preconditions.checkNotNull(notifs);
         this.executor = Preconditions.checkNotNull(executor);
         this.timer = Preconditions.checkNotNull(timer);
-        qid = InstanceIdentifier.builder(InstructionsQueue.class).toInstance();
+        this.qid = InstanceIdentifier.builder(InstructionsQueue.class).toInstance();
 
         final ReadWriteTransaction t = dataProvider.newReadWriteTransaction();
         try {
-            Preconditions.checkState(!t.read(LogicalDatastoreType.OPERATIONAL, qid).get().isPresent(), "Conflicting instruction queue found");
+            Preconditions.checkState(!t.read(LogicalDatastoreType.OPERATIONAL, this.qid).get().isPresent(), "Conflicting instruction queue found");
         } catch (InterruptedException | ExecutionException e) {
             throw new IllegalStateException("Failed to acquire instruction queue", e);
         }
 
-        t.put(LogicalDatastoreType.OPERATIONAL, qid,
+        t.put(LogicalDatastoreType.OPERATIONAL, this.qid,
                 new InstructionsQueueBuilder().setInstruction(
                         Collections.<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.queue.Instruction> emptyList()).build());
         t.submit();
@@ -204,6 +204,43 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
         return SuccessfulRpcResult.create(ob.build());
     }
 
+    private List<InstructionImpl> checkDependencies(final SubmitInstructionInput input) throws SchedulerException {
+        final List<InstructionImpl> dependencies = new ArrayList<>();
+        for (final InstructionId pid : input.getPreconditions()) {
+            final InstructionImpl i = this.insns.get(pid);
+            if (i == null) {
+                LOG.info("Instruction {} depends on {}, which is not a known instruction", input.getId(), pid);
+                throw new SchedulerException("Unknown dependency ID specified", new FailureBuilder().setType(UnknownPreconditionId.class).build());
+            }
+            dependencies.add(i);
+        }
+        // Check if all dependencies are non-failed
+        final List<InstructionId> unmet = new ArrayList<>();
+        for (final InstructionImpl d : dependencies) {
+            switch (d.getStatus()) {
+            case Cancelled:
+            case Failed:
+            case Unknown:
+                unmet.add(d.getId());
+                break;
+            case Executing:
+            case Queued:
+            case Scheduled:
+            case Successful:
+                break;
+            }
+        }
+        /*
+         *  Some dependencies have failed, declare the request dead-on-arrival
+         *  and fail the operation.
+         */
+        if (!unmet.isEmpty()) {
+            throw new SchedulerException("Instruction's dependencies are already unsuccessful", new FailureBuilder().setType(
+                    DeadOnArrival.class).setFailedPreconditions(unmet).build());
+        }
+        return dependencies;
+    }
+
     @Override
     public synchronized ListenableFuture<Instruction> scheduleInstruction(final SubmitInstructionInput input) throws SchedulerException {
         final InstructionId id = input.getId();
@@ -222,42 +259,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
         }
 
         // Resolve dependencies
-        final List<InstructionImpl> dependencies = new ArrayList<>();
-        for (final InstructionId pid : input.getPreconditions()) {
-            final InstructionImpl i = this.insns.get(pid);
-            if (i == null) {
-                LOG.info("Instruction {} depends on {}, which is not a known instruction", id, pid);
-                throw new SchedulerException("Unknown dependency ID specified", new FailureBuilder().setType(UnknownPreconditionId.class).build());
-            }
-
-            dependencies.add(i);
-        }
-
-        // Check if all dependencies are non-failed
-        final List<InstructionId> unmet = new ArrayList<>();
-        for (final InstructionImpl d : dependencies) {
-            switch (d.getStatus()) {
-            case Cancelled:
-            case Failed:
-            case Unknown:
-                unmet.add(d.getId());
-                break;
-            case Executing:
-            case Queued:
-            case Scheduled:
-            case Successful:
-                break;
-            }
-        }
-
-        /*
-         *  Some dependencies have failed, declare the request dead-on-arrival
-         *  and fail the operation.
-         */
-        if (!unmet.isEmpty()) {
-            throw new SchedulerException("Instruction's dependencies are already unsuccessful", new FailureBuilder().setType(
-                    DeadOnArrival.class).setFailedPreconditions(unmet).build());
-        }
+        final List<InstructionImpl> dependencies = checkDependencies(input);
 
         /*
          * All pre-flight checks done are at this point, the following
@@ -338,12 +340,12 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
     @Override
     public synchronized void close() {
         try {
-            for (InstructionImpl i : insns.values()) {
+            for (final InstructionImpl i : this.insns.values()) {
                 i.tryCancel(null);
             }
         } finally {
-            final WriteTransaction t = dataProvider.newWriteOnlyTransaction();
-            t.delete(LogicalDatastoreType.OPERATIONAL, qid);
+            final WriteTransaction t = this.dataProvider.newWriteOnlyTransaction();
+            t.delete(LogicalDatastoreType.OPERATIONAL, this.qid);
             t.submit();
         }
     }

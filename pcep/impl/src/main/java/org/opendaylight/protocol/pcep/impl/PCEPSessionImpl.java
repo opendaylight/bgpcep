@@ -296,7 +296,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
         this.sendErrorMessage(error);
         if (error == PCEPErrors.CAPABILITY_NOT_SUPPORTED) {
             this.unknownMessagesTimes.add(ct);
-            while (ct - this.unknownMessagesTimes.peek() > 60 * 1E9) {
+            while (ct - this.unknownMessagesTimes.peek() > TimeUnit.MINUTES.toNanos(1)) {
                 this.unknownMessagesTimes.poll();
             }
             if (this.unknownMessagesTimes.size() > this.maxUnknownMessages) {
