@@ -76,11 +76,13 @@ final class UriBuilder {
 
     private String isoId(final byte[] bytes) {
         final StringBuilder sBuilder = new StringBuilder();
-        sBuilder.append(Hex.encodeHexString(new byte[] { bytes[0], bytes[1] }));
-        sBuilder.append('.');
-        sBuilder.append(Hex.encodeHexString(new byte[] { bytes[2], bytes[3] }));
-        sBuilder.append('.');
-        sBuilder.append(Hex.encodeHexString(new byte[] { bytes[4], bytes[5] }));
+        int i = 0;
+        while (i < bytes.length) {
+            sBuilder.append(Hex.encodeHexString(new byte[] { bytes[i++], bytes[i++] }));
+            if (i != bytes.length) {
+                sBuilder.append('.');
+            }
+        }
         return sBuilder.toString();
     }
 

@@ -7,7 +7,10 @@
  */
 package org.opendaylight.protocol.pcep.ietf.initiated00;
 
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeMedium;
+
 import com.google.common.base.Preconditions;
+import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.BitSet;
@@ -34,7 +37,7 @@ public class CInitiated00LspObjectParser extends Stateful07LspObjectParser {
 
     private static final int CREATE_FLAG_OFFSET = 8;
 
-    public CInitiated00LspObjectParser(TlvRegistry tlvReg, VendorInformationTlvRegistry viTlvReg) {
+    public CInitiated00LspObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
         super(tlvReg, viTlvReg);
     }
 
@@ -44,7 +47,7 @@ public class CInitiated00LspObjectParser extends Stateful07LspObjectParser {
         final LspBuilder builder = new LspBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
-        int[] plspIdRaw = new int[] { bytes.readUnsignedByte(), bytes.readUnsignedByte(), bytes.getUnsignedByte(2), };
+        final int[] plspIdRaw = new int[] { bytes.readUnsignedByte(), bytes.readUnsignedByte(), bytes.getUnsignedByte(2), };
         builder.setPlspId(new PlspId((long) ((plspIdRaw[0] << TWELVE_BITS_SHIFT) | (plspIdRaw[1] << FOUR_BITS_SHIFT) | (plspIdRaw[2] >> FOUR_BITS_SHIFT))));
         final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(bytes, 2));
         builder.setDelegate(flags.get(DELEGATE_FLAG_OFFSET));
@@ -68,34 +71,30 @@ public class CInitiated00LspObjectParser extends Stateful07LspObjectParser {
         Preconditions.checkArgument(object instanceof Lsp, "Wrong instance of PCEPObject. Passed %s. Needed LspObject.", object.getClass());
         final Lsp specObj = (Lsp) object;
         final ByteBuf body = Unpooled.buffer();
-
-        final byte[] retBytes = new byte[BODY_LENGTH];
-
         Preconditions.checkArgument(specObj.getPlspId() != null, "PLSP-ID not present");
-        final int lspID = specObj.getPlspId().getValue().intValue();
-        retBytes[0] = (byte) (lspID >> TWELVE_BITS_SHIFT);
-        retBytes[1] = (byte) (lspID >> FOUR_BITS_SHIFT);
-        retBytes[2] = (byte) (lspID << FOUR_BITS_SHIFT);
-        if (specObj.isDelegate() != null && specObj.isDelegate()) {
-            retBytes[FLAGS_INDEX] |= 1 << (Byte.SIZE - (DELEGATE_FLAG_OFFSET - Byte.SIZE) - 1);
+        writeMedium(specObj.getPlspId().getValue().intValue() << FOUR_BITS_SHIFT, body);
+        final BitSet flags = new BitSet(2 * Byte.SIZE);
+        if (specObj.isDelegate() != null) {
+            flags.set(DELEGATE_FLAG_OFFSET, specObj.isDelegate());
         }
-        if (specObj.isRemove() != null && specObj.isRemove()) {
-            retBytes[FLAGS_INDEX] |= 1 << (Byte.SIZE - (REMOVE_FLAG_OFFSET - Byte.SIZE) - 1);
+        if (specObj.isRemove() != null) {
+            flags.set(REMOVE_FLAG_OFFSET, specObj.isRemove());
         }
-        if (specObj.isSync() != null && specObj.isSync()) {
-            retBytes[FLAGS_INDEX] |= 1 << (Byte.SIZE - (SYNC_FLAG_OFFSET - Byte.SIZE) - 1);
+        if (specObj.isSync() != null) {
+            flags.set(SYNC_FLAG_OFFSET, specObj.isSync());
         }
-        if (specObj.isAdministrative() != null && specObj.isAdministrative()) {
-            retBytes[FLAGS_INDEX] |= 1 << (Byte.SIZE - (ADMINISTRATIVE_FLAG_OFFSET - Byte.SIZE) - 1);
+        if (specObj.isAdministrative() != null) {
+            flags.set(ADMINISTRATIVE_FLAG_OFFSET, specObj.isAdministrative());
         }
-        if (specObj.getAugmentation(Lsp1.class) != null && specObj.getAugmentation(Lsp1.class).isCreate()) {
-            retBytes[FLAGS_INDEX] |= 1 << (Byte.SIZE - (CREATE_FLAG_OFFSET - Byte.SIZE) - 1);
+        if (specObj.getAugmentation(Lsp1.class) != null && specObj.getAugmentation(Lsp1.class).isCreate() != null) {
+            flags.set(CREATE_FLAG_OFFSET, specObj.getAugmentation(Lsp1.class).isCreate());
         }
+        byte op = 0;
         if (specObj.getOperational() != null) {
-            final int op = specObj.getOperational().getIntValue();
-            retBytes[FLAGS_INDEX] |= (op & OP_VALUE_BITS_OFFSET) << FOUR_BITS_SHIFT;
+            op = UnsignedBytes.checkedCast(specObj.getOperational().getIntValue());
+            op = (byte) (op << FOUR_BITS_SHIFT);
         }
-        body.writeBytes(retBytes);
+        body.writeByte(ByteArray.bitSetToBytes(flags, 2)[1] | op);
         serializeTlvs(specObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }

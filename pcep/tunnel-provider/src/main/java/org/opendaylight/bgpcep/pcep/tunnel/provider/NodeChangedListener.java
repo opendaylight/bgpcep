@@ -128,46 +128,45 @@ public final class NodeChangedListener implements DataChangeListener {
         return snb.build();
     }
 
+    private void handleSni(final InstanceIdentifier<Node> sni, final Node n, final Boolean inControl, final ReadWriteTransaction trans) {
+        if (sni != null) {
+            final NodeKey k = InstanceIdentifier.keyOf(sni);
+            boolean have = false;
+            /*
+             * We may have found a termination point which has been created as a destination,
+             * so it does not have a supporting node pointer. Since we now know what it is,
+             * fill it in.
+             */
+            if (n.getSupportingNode() != null) {
+                for (final SupportingNode sn : n.getSupportingNode()) {
+                    if (sn.getNodeRef().equals(k.getNodeId())) {
+                        have = true;
+                        break;
+                    }
+                }
+            }
+            if (!have) {
+                final SupportingNode sn = createSupportingNode(k.getNodeId(), inControl);
+                trans.put(LogicalDatastoreType.OPERATIONAL, this.target.child(Node.class, n.getKey()).child(
+                        SupportingNode.class, sn.getKey()), sn);
+            }
+        }
+    }
+
     private InstanceIdentifier<TerminationPoint> getIpTerminationPoint(final ReadWriteTransaction trans, final IpAddress addr,
             final InstanceIdentifier<Node> sni, final Boolean inControl) throws ReadFailedException {
         final Topology topo = trans.read(LogicalDatastoreType.OPERATIONAL, this.target).checkedGet().get();
-        if (topo.getNode() != null && !topo.getNode().isEmpty()) {
+        if (topo.getNode() != null) {
             for (final Node n : topo.getNode()) {
-                if(n.getTerminationPoint() != null && !n.getTerminationPoint().isEmpty()) {
+                if(n.getTerminationPoint() != null) {
                     for (final TerminationPoint tp : n.getTerminationPoint()) {
                         final TerminationPoint1 tpa = tp.getAugmentation(TerminationPoint1.class);
-
                         if (tpa != null) {
                             final TerminationPointType tpt = tpa.getIgpTerminationPointAttributes().getTerminationPointType();
-
                             if (tpt instanceof Ip) {
                                 for (final IpAddress a : ((Ip) tpt).getIpAddress()) {
                                     if (addr.equals(a)) {
-                                        if (sni != null) {
-                                            final NodeKey k = InstanceIdentifier.keyOf(sni);
-                                            boolean have = false;
-
-                                            /*
-                                             * We may have found a termination point which has been created as a destination,
-                                             * so it does not have a supporting node pointer. Since we now know what it is,
-                                             * fill it in.
-                                             */
-                                            if (n.getSupportingNode() != null) {
-                                                for (final SupportingNode sn : n.getSupportingNode()) {
-                                                    if (sn.getNodeRef().equals(k.getNodeId())) {
-                                                        have = true;
-                                                        break;
-                                                    }
-                                                }
-                                            }
-
-                                            if (!have) {
-                                                final SupportingNode sn = createSupportingNode(k.getNodeId(), inControl);
-
-                                                trans.put(LogicalDatastoreType.OPERATIONAL, this.target.child(Node.class, n.getKey()).child(
-                                                        SupportingNode.class, sn.getKey()), sn);
-                                            }
-                                        }
+                                        handleSni(sni, n, inControl, trans);
                                         return this.target.builder().child(Node.class, n.getKey()).child(TerminationPoint.class, tp.getKey()).toInstance();
                                     }
                                 }
@@ -179,9 +178,12 @@ public final class NodeChangedListener implements DataChangeListener {
                 }
             }
         }
-
         LOG.debug("Termination point for {} not found, creating a new one", addr);
+        return createTP(addr, sni, inControl, trans);
+    }
 
+    private InstanceIdentifier<TerminationPoint> createTP(final IpAddress addr, final InstanceIdentifier<Node> sni,
+            final Boolean inControl, final ReadWriteTransaction trans) {
         final String url = "ip://" + addr.toString();
         final TerminationPointKey tpk = new TerminationPointKey(new TpId(url));
         final TerminationPointBuilder tpb = new TerminationPointBuilder();
@@ -197,7 +199,6 @@ public final class NodeChangedListener implements DataChangeListener {
         if (sni != null) {
             nb.setSupportingNode(Lists.newArrayList(createSupportingNode(InstanceIdentifier.keyOf(sni).getNodeId(), inControl)));
         }
-
         final InstanceIdentifier<Node> nid = this.target.child(Node.class, nb.getKey());
         trans.put(LogicalDatastoreType.OPERATIONAL, nid, nb.build());
         return nid.child(TerminationPoint.class, tpb.getKey());
@@ -274,7 +275,7 @@ public final class NodeChangedListener implements DataChangeListener {
             return;
         }
 
-        final Link l = (Link) ol.get();
+        final Link l = ol.get();
         LOG.debug("Removing link {} (was {})", li, l);
         trans.delete(LogicalDatastoreType.OPERATIONAL, li);
 
@@ -282,11 +283,11 @@ public final class NodeChangedListener implements DataChangeListener {
         final Optional<Topology> ot = trans.read(LogicalDatastoreType.OPERATIONAL, this.target).checkedGet();
         Preconditions.checkState(ot.isPresent());
 
-        final Topology t = (Topology) ot.get();
-        NodeId srcNode = l.getSource().getSourceNode();
-        NodeId dstNode = l.getDestination().getDestNode();
-        TpId srcTp = l.getSource().getSourceTp();
-        TpId dstTp = l.getDestination().getDestTp();
+        final Topology t = ot.get();
+        final NodeId srcNode = l.getSource().getSourceNode();
+        final NodeId dstNode = l.getDestination().getDestNode();
+        final TpId srcTp = l.getSource().getSourceTp();
+        final TpId dstTp = l.getDestination().getDestTp();
 
         boolean orphSrcNode = true, orphDstNode = true, orphDstTp = true, orphSrcTp = true;
         for (final Link lw : t.getLink()) {
@@ -409,14 +410,14 @@ public final class NodeChangedListener implements DataChangeListener {
             if (oldValue != null) {
                 try {
                     remove(trans, i, oldValue);
-                } catch (ReadFailedException e) {
+                } catch (final ReadFailedException e) {
                     LOG.warn("Failed to remove LSP {}", i, e);
                 }
             }
             if (newValue != null) {
                 try {
                     create(trans, i, newValue);
-                } catch (ReadFailedException e) {
+                } catch (final ReadFailedException e) {
                     LOG.warn("Failed to add LSP {}", i, e);
                 }
             }

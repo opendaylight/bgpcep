@@ -65,7 +65,7 @@ public class Stateful02LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         final LspBuilder builder = new LspBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
-        int[] plspIdRaw = { bytes.readUnsignedByte(), bytes.readUnsignedByte(), bytes.getUnsignedByte(2) };
+        final int[] plspIdRaw = { bytes.readUnsignedByte(), bytes.readUnsignedByte(), bytes.getUnsignedByte(2) };
         builder.setPlspId(new PlspId((long) ((plspIdRaw[0] << ONE_B_OFFSET) | (plspIdRaw[1] << TWO_B_OFFSET) | (plspIdRaw[2] >> TWO_B_OFFSET))));
         final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(bytes, FLAGS_SIZE));
         builder.setDelegate(flags.get(DELEGATE_FLAG_OFFSET));
@@ -98,18 +98,18 @@ public class Stateful02LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         Preconditions.checkArgument(plsp != null, "PLSP-ID not present");
         writeMedium(plsp.getValue().intValue() << TWO_B_OFFSET, body);
 
-        BitSet flags = new BitSet(2 * Byte.SIZE);
-        if (specObj.isDelegate() != null && specObj.isDelegate()) {
-            flags.set(DELEGATE_FLAG_OFFSET);
+        final BitSet flags = new BitSet(2 * Byte.SIZE);
+        if (specObj.isDelegate() != null) {
+            flags.set(DELEGATE_FLAG_OFFSET, specObj.isDelegate());
         }
-        if (specObj.isRemove() != null && specObj.isRemove()) {
-            flags.set(REMOVE_FLAG_OFFSET);
+        if (specObj.isRemove() != null) {
+            flags.set(REMOVE_FLAG_OFFSET, specObj.isRemove());
         }
-        if (specObj.isSync() != null && specObj.isSync()) {
-            flags.set(SYNC_FLAG_OFFSET);
+        if (specObj.isSync() != null) {
+            flags.set(SYNC_FLAG_OFFSET, specObj.isSync());
         }
-        if (specObj.isOperational() != null && specObj.isOperational()) {
-            flags.set(OPERATIONAL_FLAG_OFFSET);
+        if (specObj.isOperational() != null) {
+            flags.set(OPERATIONAL_FLAG_OFFSET, specObj.isOperational());
         }
         body.writeByte(ByteArray.bitSetToBytes(flags, FLAGS_SIZE)[1]);
         serializeTlvs(specObj.getTlvs(), body);

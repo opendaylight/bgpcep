@@ -122,9 +122,9 @@ public final class Main {
         try (final StatefulActivator activator07 = new StatefulActivator()) {
             activator07.start(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance());
 
-            final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(prefs, 5), new NioEventLoopGroup(), new NioEventLoopGroup());
-
-            dispatcher.createServer(address, new TestingSessionListenerFactory()).get();
+            try (final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(prefs, 5), new NioEventLoopGroup(), new NioEventLoopGroup())) {
+                dispatcher.createServer(address, new TestingSessionListenerFactory()).get();
+            }
         }
     }
 }

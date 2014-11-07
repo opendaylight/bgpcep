@@ -9,9 +9,9 @@ package org.opendaylight.protocol.pcep.impl.message;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
@@ -77,38 +77,39 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
     protected void serializeReply(final Replies reply, final ByteBuf buffer) {
         serializeObject(reply.getRp(), buffer);
         serializeVendorInformationObjects(reply.getVendorInformationObject(), buffer);
-        if (reply.getResult() != null) {
-            if (reply.getResult() instanceof FailureCase) {
-                final FailureCase f = ((FailureCase) reply.getResult());
-                if (f != null) {
-                    serializeObject(f.getNoPath(), buffer);
-                    serializeObject(f.getLspa(), buffer);
-                    serializeObject(f.getBandwidth(), buffer);
-                    if (f.getMetrics() != null && !f.getMetrics().isEmpty()) {
-                        for (final Metrics m : f.getMetrics()) {
-                            serializeObject(m.getMetric(), buffer);
-                        }
+        if (reply.getResult() == null) {
+            return;
+        }
+        if (reply.getResult() instanceof FailureCase) {
+            final FailureCase f = ((FailureCase) reply.getResult());
+            if (f != null) {
+                serializeObject(f.getNoPath(), buffer);
+                serializeObject(f.getLspa(), buffer);
+                serializeObject(f.getBandwidth(), buffer);
+                if (f.getMetrics() != null) {
+                    for (final Metrics m : f.getMetrics()) {
+                        serializeObject(m.getMetric(), buffer);
                     }
-                    serializeObject(f.getIro(), buffer);
                 }
-            } else {
-                final SuccessCase s = (SuccessCase) reply.getResult();
-                if (s != null && s.getSuccess() != null) {
-                    for (final Paths p : s.getSuccess().getPaths()) {
-                        serializeObject(p.getEro(), buffer);
-                        serializeObject(p.getLspa(), buffer);
-                        serializeObject(p.getOf(), buffer);
-                        serializeObject(p.getBandwidth(), buffer);
-                        if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
-                            for (final Metrics m : p.getMetrics()) {
-                                serializeObject(m.getMetric(), buffer);
-                            }
-                        }
-                        serializeObject(p.getIro(), buffer);
-                    }
-                    serializeVendorInformationObjects(s.getSuccess().getVendorInformationObject(), buffer);
-                }
+                serializeObject(f.getIro(), buffer);
             }
+            return;
+        }
+        final SuccessCase s = (SuccessCase) reply.getResult();
+        if (s != null && s.getSuccess() != null) {
+            for (final Paths p : s.getSuccess().getPaths()) {
+                serializeObject(p.getEro(), buffer);
+                serializeObject(p.getLspa(), buffer);
+                serializeObject(p.getOf(), buffer);
+                serializeObject(p.getBandwidth(), buffer);
+                if (p.getMetrics() != null) {
+                    for (final Metrics m : p.getMetrics()) {
+                        serializeObject(m.getMetric(), buffer);
+                    }
+                }
+                serializeObject(p.getIro(), buffer);
+            }
+            serializeVendorInformationObjects(s.getSuccess().getVendorInformationObject(), buffer);
         }
     }
 
@@ -120,7 +121,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         if (objects.isEmpty()) {
             throw new PCEPDeserializerException("Pcrep message cannot be empty.");
         }
-        final List<Replies> replies = Lists.newArrayList();
+        final List<Replies> replies = new ArrayList<>();
         while (!objects.isEmpty()) {
             final Replies r = this.getValidReply(objects, errors);
             if (r != null) {
@@ -156,7 +157,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
                 final Ero ero = (Ero) objects.get(0);
                 objects.remove(0);
                 final SuccessBuilder builder = new SuccessBuilder();
-                final List<Paths> paths = Lists.newArrayList();
+                final List<Paths> paths = new ArrayList<>();
                 final PathsBuilder pBuilder = new PathsBuilder();
                 pBuilder.setEro(ero);
                 while (!objects.isEmpty()) {
@@ -179,7 +180,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
     }
 
     protected void parseAttributes(final FailureCaseBuilder builder, final List<Object> objects) {
-        final List<Metrics> pathMetrics = Lists.newArrayList();
+        final List<Metrics> pathMetrics = new ArrayList<>();
 
         Object obj;
         State state = State.Init;
@@ -228,7 +229,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
     }
 
     protected void parsePath(final PathsBuilder builder, final List<Object> objects) {
-        final List<Metrics> pathMetrics = Lists.newArrayList();
+        final List<Metrics> pathMetrics = new ArrayList<>();
 
         Object obj;
         State state = State.Init;

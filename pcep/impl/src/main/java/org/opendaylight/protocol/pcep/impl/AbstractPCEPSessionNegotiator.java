@@ -9,14 +9,11 @@ package org.opendaylight.protocol.pcep.impl;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
-
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Keepalive;
@@ -172,6 +169,88 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
         LOG.info("PCEP session with {} started, sent proposal {}", this.channel, this.localPrefs);
     }
 
+    private void handleMessageKeepWait(final Message msg) {
+        if (msg instanceof Keepalive) {
+            this.localOK = true;
+            if (this.remoteOK) {
+                LOG.info("PCEP peer {} completed negotiation", this.channel);
+                negotiationSuccessful(createSession(this.channel, this.localPrefs, this.remotePrefs));
+                this.state = State.Finished;
+            } else {
+                scheduleFailTimer();
+                this.state = State.OpenWait;
+                LOG.debug("Channel {} moved to OpenWait state with localOK=1", this.channel);
+            }
+            return;
+        } else if (msg instanceof Pcerr) {
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessage err = ((Pcerr) msg).getPcerrMessage();
+            if (err.getErrorType() == null) {
+                final ErrorObject obj = err.getErrors().get(0).getErrorObject();
+                LOG.warn("Unexpected error received from PCC: type {} value {}", obj.getType(), obj.getValue());
+                negotiationFailed(new IllegalStateException("Unexpected error received from PCC."));
+                this.state = State.Idle;
+                return;
+            }
+            this.localPrefs = getRevisedProposal(((SessionCase) err.getErrorType()).getSession().getOpen());
+            if (this.localPrefs == null) {
+                sendErrorMessage(PCEPErrors.PCERR_NON_ACC_SESSION_CHAR);
+                negotiationFailed(new IllegalStateException("Peer suggested unacceptable retry proposal"));
+                this.state = State.Finished;
+                return;
+            }
+            this.sendMessage(new OpenBuilder().setOpenMessage(new OpenMessageBuilder().setOpen(this.localPrefs).build()).build());
+            if (!this.remoteOK) {
+                this.state = State.OpenWait;
+            }
+            scheduleFailTimer();
+            return;
+        }
+    }
+
+    private void handleMessageOpenWait(final Message msg) {
+        if (msg instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open) {
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessage o = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open) msg).getOpenMessage();
+            final Open open = o.getOpen();
+            if (isProposalAcceptable(open)) {
+                this.sendMessage(KEEPALIVE);
+                this.remotePrefs = open;
+                this.remoteOK = true;
+                if (this.localOK) {
+                    negotiationSuccessful(createSession(this.channel, this.localPrefs, this.remotePrefs));
+                    LOG.info("PCEP peer {} completed negotiation", this.channel);
+                    this.state = State.Finished;
+                } else {
+                    scheduleFailTimer();
+                    this.state = State.KeepWait;
+                    LOG.debug("Channel {} moved to KeepWait state with remoteOK=1", this.channel);
+                }
+                return;
+            }
+
+            if (this.openRetry) {
+                sendErrorMessage(PCEPErrors.SECOND_OPEN_MSG);
+                negotiationFailed(new IllegalStateException("OPEN renegotiation failed"));
+                this.state = State.Finished;
+                return;
+            }
+
+            final Open newPrefs = getCounterProposal(open);
+            if (newPrefs == null) {
+                sendErrorMessage(PCEPErrors.NON_ACC_NON_NEG_SESSION_CHAR);
+                negotiationFailed(new IllegalStateException("Peer sent unacceptable session parameters"));
+                this.state = State.Finished;
+                return;
+            }
+
+            this.sendMessage(Util.createErrorMessage(PCEPErrors.NON_ACC_NEG_SESSION_CHAR, newPrefs));
+
+            this.openRetry = true;
+            this.state = this.localOK ? State.OpenWait : State.KeepWait;
+            scheduleFailTimer();
+            return;
+        }
+    }
+
     @Override
     protected final void handleMessage(final Message msg) {
         this.failTimer.cancel(false);
@@ -183,90 +262,12 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
         case Idle:
             throw new IllegalStateException("Unexpected handleMessage in state " + this.state);
         case KeepWait:
-            if (msg instanceof Keepalive) {
-                this.localOK = true;
-                if (this.remoteOK) {
-                    LOG.info("PCEP peer {} completed negotiation", this.channel);
-                    negotiationSuccessful(createSession(this.channel, this.localPrefs, this.remotePrefs));
-                    this.state = State.Finished;
-                } else {
-                    scheduleFailTimer();
-                    this.state = State.OpenWait;
-                    LOG.debug("Channel {} moved to OpenWait state with localOK=1", this.channel);
-                }
-
-                return;
-            } else if (msg instanceof Pcerr) {
-                final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessage err = ((Pcerr) msg).getPcerrMessage();
-                if (err.getErrorType() == null) {
-                    final ErrorObject obj = err.getErrors().get(0).getErrorObject();
-                    LOG.warn("Unexpected error received from PCC: type {} value {}", obj.getType(), obj.getValue());
-                    negotiationFailed(new IllegalStateException("Unexpected error received from PCC."));
-                    this.state = State.Idle;
-                    return;
-                }
-                this.localPrefs = getRevisedProposal(((SessionCase) err.getErrorType()).getSession().getOpen());
-                if (this.localPrefs == null) {
-                    sendErrorMessage(PCEPErrors.PCERR_NON_ACC_SESSION_CHAR);
-                    negotiationFailed(new IllegalStateException("Peer suggested unacceptable retry proposal"));
-                    this.state = State.Finished;
-                    return;
-                }
-                this.sendMessage(new OpenBuilder().setOpenMessage(new OpenMessageBuilder().setOpen(this.localPrefs).build()).build());
-                if (!this.remoteOK) {
-                    this.state = State.OpenWait;
-                }
-                scheduleFailTimer();
-                return;
-            }
-
-            break;
+            handleMessageKeepWait(msg);
+            return;
         case OpenWait:
-            if (msg instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open) {
-                final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessage o = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open) msg).getOpenMessage();
-                final Open open = o.getOpen();
-                if (isProposalAcceptable(open)) {
-                    this.sendMessage(KEEPALIVE);
-                    this.remotePrefs = open;
-                    this.remoteOK = true;
-                    if (this.localOK) {
-                        negotiationSuccessful(createSession(this.channel, this.localPrefs, this.remotePrefs));
-                        LOG.info("PCEP peer {} completed negotiation", this.channel);
-                        this.state = State.Finished;
-                    } else {
-                        scheduleFailTimer();
-                        this.state = State.KeepWait;
-                        LOG.debug("Channel {} moved to KeepWait state with remoteOK=1", this.channel);
-                    }
-                    return;
-                }
-
-                if (this.openRetry) {
-                    sendErrorMessage(PCEPErrors.SECOND_OPEN_MSG);
-                    negotiationFailed(new IllegalStateException("OPEN renegotiation failed"));
-                    this.state = State.Finished;
-                    return;
-                }
-
-                final Open newPrefs = getCounterProposal(open);
-                if (newPrefs == null) {
-                    sendErrorMessage(PCEPErrors.NON_ACC_NON_NEG_SESSION_CHAR);
-                    negotiationFailed(new IllegalStateException("Peer sent unacceptable session parameters"));
-                    this.state = State.Finished;
-                    return;
-                }
-
-                this.sendMessage(Util.createErrorMessage(PCEPErrors.NON_ACC_NEG_SESSION_CHAR, newPrefs));
-
-                this.openRetry = true;
-                this.state = this.localOK ? State.OpenWait : State.KeepWait;
-                scheduleFailTimer();
-                return;
-            }
-
-            break;
+            handleMessageOpenWait(msg);
+            return;
         }
-
         LOG.warn("Channel {} in state {} received unexpected message {}", this.channel, this.state, msg);
         sendErrorMessage(PCEPErrors.NON_OR_INVALID_OPEN_MSG);
         negotiationFailed(new Exception("Illegal message encountered"));

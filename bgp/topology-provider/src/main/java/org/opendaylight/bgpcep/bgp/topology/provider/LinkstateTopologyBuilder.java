@@ -583,7 +583,6 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         final NodeDescriptors node, final NodeAttributes na) {
         final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.TedBuilder tb = new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.TedBuilder();
         final OspfNodeAttributesBuilder ab = new OspfNodeAttributesBuilder();
-
         if (na != null) {
             if (na.getIpv4RouterId() != null) {
                 tb.setTeRouterIdIpv4(na.getIpv4RouterId());
@@ -594,36 +593,51 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
             if (na.getTopologyIdentifier() != null) {
                 ab.setMultiTopologyId(nodeMultiTopology(na.getTopologyIdentifier()));
             }
-        }
+            final CRouterIdentifier ri = node.getCRouterIdentifier();
+            if (ri instanceof OspfPseudonodeCase) {
+                final OspfPseudonode pn = ((OspfPseudonodeCase) ri).getOspfPseudonode();
 
-        final CRouterIdentifier ri = node.getCRouterIdentifier();
-        if (ri instanceof OspfPseudonodeCase) {
-            final OspfPseudonode pn = ((OspfPseudonodeCase) ri).getOspfPseudonode();
+                ab.setRouterType(new PseudonodeBuilder().setPseudonode(Boolean.TRUE).build());
+                ab.setDrInterfaceId(pn.getLanInterface().getValue());
+            } else if (ri instanceof OspfNodeCase && na.getNodeFlags() != null) {
+                // TODO: what should we do with in.getOspfRouterId()?
 
-            ab.setRouterType(new PseudonodeBuilder().setPseudonode(Boolean.TRUE).build());
-            ab.setDrInterfaceId(pn.getLanInterface().getValue());
-        } else if (ri instanceof OspfNodeCase && na != null && na.getNodeFlags() != null) {
-            // TODO: what should we do with in.getOspfRouterId()?
-
-            final NodeFlagBits nf = na.getNodeFlags();
-            if (nf.isAbr()) {
-                ab.setRouterType(new AbrBuilder().setAbr(Boolean.TRUE).build());
-            } else if (!nf.isExternal()) {
-                ab.setRouterType(new InternalBuilder().setInternal(Boolean.TRUE).build());
+                final NodeFlagBits nf = na.getNodeFlags();
+                if (nf.isAbr() != null) {
+                    ab.setRouterType(new AbrBuilder().setAbr(nf.isAbr()).build());
+                } else if (nf.isExternal() != null) {
+                    ab.setRouterType(new InternalBuilder().setInternal(!nf.isExternal()).build());
+                }
             }
         }
-
         ab.setTed(tb.build());
-
         return new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpNodeAttributes1Builder().setOspfNodeAttributes(
             ab.build()).build();
+    }
+
+    private void augmentProtocolId(final LinkstateRoute value, final IgpNodeAttributesBuilder inab, final NodeAttributes na, final NodeDescriptors nd) {
+        switch (value.getProtocolId()) {
+        case Direct:
+        case Static:
+        case Unknown:
+            break;
+        case IsisLevel1:
+        case IsisLevel2:
+            inab.addAugmentation(
+                org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IgpNodeAttributes1.class,
+                isisNodeAttributes(nd, na));
+            break;
+        case Ospf:
+            inab.addAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpNodeAttributes1.class,
+                ospfNodeAttributes(nd, na));
+            break;
+        }
     }
 
     private void createNode(final WriteTransaction trans, final UriBuilder base,
         final LinkstateRoute value, final NodeCase n, final Attributes attributes) {
         final NodeAttributes na = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.NodeCase) attributes.getAugmentation(Attributes1.class).getAttributeType()).getNodeAttributes();
         final IgpNodeAttributesBuilder inab = new IgpNodeAttributesBuilder();
-
         final List<IpAddress> ids = new ArrayList<>();
         if (na != null) {
             if (na.getIpv4RouterId() != null) {
@@ -636,31 +650,13 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
                 inab.setName(new DomainName(na.getDynamicHostname()));
             }
         }
-
         if (!ids.isEmpty()) {
             inab.setRouterId(ids);
         }
-
-        switch (value.getProtocolId()) {
-        case Direct:
-        case Static:
-        case Unknown:
-            break;
-        case IsisLevel1:
-        case IsisLevel2:
-            inab.addAugmentation(
-                org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IgpNodeAttributes1.class,
-                isisNodeAttributes(n.getNodeDescriptors(), na));
-            break;
-        case Ospf:
-            inab.addAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpNodeAttributes1.class,
-                ospfNodeAttributes(n.getNodeDescriptors(), na));
-            break;
-        }
+        augmentProtocolId(value, inab, na, n.getNodeDescriptors());
 
         final NodeId nid = buildNodeId(base, n.getNodeDescriptors());
         final NodeHolder nh = getNode(nid);
-
         /*
          *  Eventhough the the holder creates a dummy structure, we need to duplicate it here,
          *  as that is the API requirement. The reason for it is the possible presence of supporting
@@ -685,40 +681,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         }
     }
 
-    private void createPrefix(final WriteTransaction trans, final UriBuilder base,
-        final LinkstateRoute value, final PrefixCase p, final Attributes attributes) {
-        final IpPrefix ippfx = p.getIpReachabilityInformation();
-        if (ippfx == null) {
-            LOG.warn("IP reachability not present in prefix {} route {}, skipping it", p, value);
-            return;
-        }
-
-        final PrefixBuilder pb = new PrefixBuilder();
-        pb.setKey(new PrefixKey(ippfx));
-        pb.setPrefix(ippfx);
-
-        final PrefixAttributes pa;
-
-        // Very defensive lookup
-        final Attributes1 attr = attributes.getAugmentation(Attributes1.class);
-        if (attr != null) {
-            final AttributeType attrType = attr.getAttributeType();
-            if (attrType != null) {
-                pa = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.PrefixCase)
-                    attrType).getPrefixAttributes();
-            } else {
-                LOG.debug("Missing attribute type in IP {} prefix {} route {}, skipping it", ippfx, p, value);
-                pa = null;
-            }
-        } else {
-            LOG.debug("Missing attributes in IP {} prefix {} route {}, skipping it", ippfx, p, value);
-            pa = null;
-        }
-
-        if (pa != null) {
-            pb.setMetric(pa.getPrefixMetric().getValue());
-        }
-
+    private void augmentProtocolId(final LinkstateRoute value, final PrefixAttributes pa, final PrefixBuilder pb) {
         switch (value.getProtocolId()) {
         case Direct:
         case IsisLevel1:
@@ -735,6 +698,39 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
             }
             break;
         }
+    }
+
+    private void createPrefix(final WriteTransaction trans, final UriBuilder base,
+        final LinkstateRoute value, final PrefixCase p, final Attributes attributes) {
+        final IpPrefix ippfx = p.getIpReachabilityInformation();
+        if (ippfx == null) {
+            LOG.warn("IP reachability not present in prefix {} route {}, skipping it", p, value);
+            return;
+        }
+        final PrefixBuilder pb = new PrefixBuilder();
+        pb.setKey(new PrefixKey(ippfx));
+        pb.setPrefix(ippfx);
+
+        final PrefixAttributes pa;
+        // Very defensive lookup
+        final Attributes1 attr = attributes.getAugmentation(Attributes1.class);
+        if (attr != null) {
+            final AttributeType attrType = attr.getAttributeType();
+            if (attrType != null) {
+                pa = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.PrefixCase)
+                    attrType).getPrefixAttributes();
+            } else {
+                LOG.debug("Missing attribute type in IP {} prefix {} route {}, skipping it", ippfx, p, value);
+                pa = null;
+            }
+        } else {
+            LOG.debug("Missing attributes in IP {} prefix {} route {}, skipping it", ippfx, p, value);
+            pa = null;
+        }
+        if (pa != null) {
+            pb.setMetric(pa.getPrefixMetric().getValue());
+        }
+        augmentProtocolId(value, pa, pb);
 
         final Prefix pfx = pb.build();
 

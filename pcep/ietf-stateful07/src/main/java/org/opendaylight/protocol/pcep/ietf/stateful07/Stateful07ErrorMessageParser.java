@@ -92,21 +92,16 @@ public final class Stateful07ErrorMessageParser extends PCEPErrorMessageParser {
         if (objects.isEmpty()) {
             throw new PCEPDeserializerException("Error message is empty.");
         }
-
         final List<Rps> requestParameters = new ArrayList<>();
         final List<Srps> srps = new ArrayList<>();
         final List<Errors> errorObjects = new ArrayList<>();
         final PcerrMessageBuilder b = new PcerrMessageBuilder();
-
-        Object obj;
+        Object obj = objects.get(0);
         State state = State.Init;
-        obj = objects.get(0);
-
         if (obj instanceof ErrorObject) {
             final ErrorObject o = (ErrorObject) obj;
             errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
             state = State.ErrorIn;
-            objects.remove(0);
         } else if (obj instanceof Rp) {
             final Rp o = (Rp) obj;
             if (o.isProcessingRule()) {
@@ -115,21 +110,19 @@ public final class Stateful07ErrorMessageParser extends PCEPErrorMessageParser {
             }
             requestParameters.add(new RpsBuilder().setRp(o).build());
             state = State.RpIn;
-            objects.remove(0);
         } else if (obj instanceof Srp) {
             final Srp s = (Srp) obj;
             srps.add(new SrpsBuilder().setSrp(s).build());
             state = State.SrpIn;
+        }
+        if (!state.equals(State.Init)) {
             objects.remove(0);
         }
-
         while (!objects.isEmpty()) {
             obj = objects.get(0);
-
             if (obj instanceof UnknownObject) {
                 return new PcerrBuilder().setPcerrMessage(b.setErrors(((UnknownObject) obj).getErrors()).build()).build();
             }
-
             switch (state) {
             case ErrorIn:
                 state = State.Open;
@@ -181,11 +174,9 @@ public final class Stateful07ErrorMessageParser extends PCEPErrorMessageParser {
                 objects.remove(0);
             }
         }
-
         if (errorObjects.isEmpty()) {
             throw new PCEPDeserializerException("At least one PCEPErrorObject is mandatory.");
         }
-
         if (!objects.isEmpty()) {
             throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
         }
@@ -195,7 +186,6 @@ public final class Stateful07ErrorMessageParser extends PCEPErrorMessageParser {
         if (!srps.isEmpty()) {
             b.setErrorType(new StatefulCaseBuilder().setStateful(new StatefulBuilder().setSrps(srps).build()).build());
         }
-
         return new PcerrBuilder().setPcerrMessage(b.setErrors(errorObjects).build()).build();
     }
 

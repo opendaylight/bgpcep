@@ -39,8 +39,6 @@ public final class Stateful07LSPIdentifierIpv4TlvParser implements TlvParser, Tl
 
     public static final int TYPE = 18;
 
-    private static final int EX_TUNNEL_ID4_F_LENGTH = 4;
-
     private static final int V4_LENGTH = 16;
 
     @Override

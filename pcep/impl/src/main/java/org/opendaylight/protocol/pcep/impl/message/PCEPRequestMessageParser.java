@@ -9,9 +9,9 @@ package org.opendaylight.protocol.pcep.impl.message;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
@@ -134,9 +134,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         if (objects == null) {
             throw new IllegalArgumentException("Passed list can't be null.");
         }
-
-        final List<Requests> requests = Lists.newArrayList();
-        final List<Svec> svecList = Lists.newArrayList();
+        final List<Requests> requests = new ArrayList<>();
+        final List<Svec> svecList = new ArrayList<>();
         while (!objects.isEmpty()) {
             final RequestsBuilder rBuilder = new RequestsBuilder();
             Rp rpObj = null;
@@ -207,8 +206,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 
     protected SegmentComputation getSegmentComputation(final P2pBuilder builder, final List<Object> objects, final List<Message> errors,
             final Rp rp) {
-        final List<Metrics> metrics = Lists.newArrayList();
-        final List<VendorInformationObject> viObjects = Lists.newArrayList();
+        final List<Metrics> metrics = new ArrayList<>();
+        final List<VendorInformationObject> viObjects = new ArrayList<>();
 
         State state = State.Init;
         while (!objects.isEmpty() && state != State.End) {
@@ -330,16 +329,14 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         if (objects == null || objects.isEmpty()) {
             throw new IllegalArgumentException("List cannot be null or empty.");
         }
-
-        if (objects.get(0) instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.Svec) {
-            builder.setSvec((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.Svec) objects.get(0));
-            objects.remove(0);
-        } else {
+        if (!(objects.get(0) instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.Svec)) {
             return null;
         }
+        builder.setSvec((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.Svec) objects.get(0));
+        objects.remove(0);
 
-        final List<Metrics> metrics = Lists.newArrayList();
-        final List<VendorInformationObject> viObjects = Lists.newArrayList();
+        final List<Metrics> metrics = new ArrayList<>();
+        final List<VendorInformationObject> viObjects = new ArrayList<>();
 
         Object obj = null;
         SvecState state = SvecState.Init;
