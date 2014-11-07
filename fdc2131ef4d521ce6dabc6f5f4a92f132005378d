@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba8cc1f7_424b7259",
+        "filename": "pcep/api/src/main/yang/pcep-types.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 768,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-11-07T09:45:19Z",
+      "side": 1,
+      "message": "this is an union type. define a pce-id type:\n\ntypedef pce-id {\n    type inet:ip-address;\n}\n\nand then use it as appropriate.",
+      "revId": "fdc2131ef4d521ce6dabc6f5f4a92f132005378d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
