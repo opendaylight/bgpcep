@@ -170,62 +170,6 @@ public enum BGPError {
         return this.errorId;
     }
 
-    /**
-     * Caret for combination of Error-type and Error-value
-     */
-    static class BGPErrorIdentifier {
-        private final short code;
-        private final short subcode;
-
-        BGPErrorIdentifier(final short code, final short subcode) {
-            this.code = code;
-            this.subcode = subcode;
-        }
-
-        public short getCode() {
-            return this.code;
-        }
-
-        public short getSubCode() {
-            return this.subcode;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + this.code;
-            result = prime * result + this.subcode;
-            return result;
-        }
-
-        @Override
-        public boolean equals(final java.lang.Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (this.getClass() != obj.getClass()) {
-                return false;
-            }
-            final BGPErrorIdentifier other = (BGPErrorIdentifier) obj;
-            if (this.code != other.code) {
-                return false;
-            }
-            if (this.subcode != other.subcode) {
-                return false;
-            }
-            return true;
-        }
-
-        @Override
-        public String toString() {
-            return "type " + this.code + " value " + this.subcode;
-        }
-    }
-
     public static BGPError forValue(final int code, final int subcode) {
         final BGPError e = VALUE_MAP.get(new BGPErrorIdentifier((short) code, (short) subcode));
         if (e != null) {

@@ -10,9 +10,6 @@ package org.opendaylight.protocol.pcep.spi;
 import com.google.common.collect.Maps;
 import java.util.Map;
 
-
-
-
 /**
  * Possible errors listed in RFC5440, RFC 5455 and stateful draft.
  *
@@ -300,61 +297,5 @@ public enum PCEPErrors {
 
     public short getErrorValue() {
         return this.errorId.getValue();
-    }
-
-    /**
-     * Caret for combination of Error-type and Error-value
-     */
-    static class PCEPErrorIdentifier {
-        private final short type;
-        private final short value;
-
-        PCEPErrorIdentifier(final short type, final short value) {
-            this.type = type;
-            this.value = value;
-        }
-
-        public short getType() {
-            return this.type;
-        }
-
-        public short getValue() {
-            return this.value;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + this.type;
-            result = prime * result + this.value;
-            return result;
-        }
-
-        @Override
-        public boolean equals(final java.lang.Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (this.getClass() != obj.getClass()) {
-                return false;
-            }
-            final PCEPErrorIdentifier other = (PCEPErrorIdentifier) obj;
-            if (this.type != other.type) {
-                return false;
-            }
-            if (this.value != other.value) {
-                return false;
-            }
-            return true;
-        }
-
-        @Override
-        public String toString() {
-            return "type " + this.type + " value " + this.value;
-        }
     }
 }
