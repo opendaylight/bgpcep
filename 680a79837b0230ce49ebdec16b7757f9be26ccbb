@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba8cc1f7_966d3835",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateTopologyBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-11-09T18:19:35Z",
+      "side": 1,
+      "message": "this checks only for null ... can it ever be Boolean.FALSE?",
+      "revId": "680a79837b0230ce49ebdec16b7757f9be26ccbb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba8cc1f7_b66abc18",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/UriBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-11-09T18:19:35Z",
+      "side": 1,
+      "message": "Please add a comment that the type guarantees the size of input -- it\u0027s not immediately clear.",
+      "revId": "680a79837b0230ce49ebdec16b7757f9be26ccbb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba8cc1f7_5677b002",
+        "filename": "bgp/util/src/main/java/org/opendaylight/protocol/bgp/util/BinaryBGPDumpFileParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-11-09T18:19:35Z",
+      "side": 1,
+      "message": "j \u003c\u003d i + MARKER_LENGTH",
+      "revId": "680a79837b0230ce49ebdec16b7757f9be26ccbb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba8cc1f7_767434fd",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/AbstractPCEPSessionNegotiator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-11-09T18:19:35Z",
+      "side": 1,
+      "message": "this is not equivalent -- note how we perform a break; if the message is unknown and fall through to the warning below.",
+      "revId": "680a79837b0230ce49ebdec16b7757f9be26ccbb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba8cc1f7_16612839",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionNegotiator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-11-09T18:19:35Z",
+      "side": 1,
+      "message": "missing copyright",
+      "revId": "680a79837b0230ce49ebdec16b7757f9be26ccbb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
