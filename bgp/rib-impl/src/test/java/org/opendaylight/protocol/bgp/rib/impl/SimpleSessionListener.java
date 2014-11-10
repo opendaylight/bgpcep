@@ -8,9 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.collect.Lists;
-
 import java.util.List;
-
 import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
@@ -61,5 +59,10 @@ public class SimpleSessionListener implements ReusableBGPPeer {
     @Override
     public void releaseConnection() {
         LOG.debug("Releasing connection");
+    }
+
+    @Override
+    public boolean isSessionActive() {
+        return true;
     }
 }
