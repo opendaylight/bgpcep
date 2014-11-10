@@ -10,13 +10,12 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
-
 import java.net.InetSocketAddress;
-
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -128,6 +127,8 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
             }
             b.channelFactory(this.cf);
             b.option(MD5ChannelOption.TCP_MD5SIG, this.keys);
+            // Make sure we are doing round-robin processing
+            b.option(ChannelOption.MAX_MESSAGES_PER_READ, 1);
         }
     }
 
@@ -139,6 +140,8 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
             }
             b.channelFactory(this.scf);
             b.option(MD5ChannelOption.TCP_MD5SIG, this.keys);
+            // Make sure we are doing round-robin processing
+            b.childOption(ChannelOption.MAX_MESSAGES_PER_READ, 1);
         }
     }
 
