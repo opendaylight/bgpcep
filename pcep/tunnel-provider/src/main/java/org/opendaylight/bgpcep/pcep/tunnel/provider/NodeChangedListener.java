@@ -267,6 +267,56 @@ public final class NodeChangedListener implements DataChangeListener {
         return this.target.child(Node.class, new NodeKey(node));
     }
 
+    private void checkSourceNode(final Link lw, final NodeId sn, final NodeId dn, final TpId srcTp, final NodeId srcNode,
+        final TpId st, final TpId dt, boolean orphSrcNode, boolean orphSrcTp) {
+        // Source node checks
+        if (srcNode.equals(sn)) {
+            if (orphSrcNode) {
+                LOG.debug("Node {} held by source of link {}", srcNode, lw);
+                orphSrcNode = false;
+            }
+            if (orphSrcTp && srcTp.equals(st)) {
+                LOG.debug("TP {} held by source of link {}", srcTp, lw);
+                orphSrcTp = false;
+            }
+        }
+        if (srcNode.equals(dn)) {
+            if (orphSrcNode) {
+                LOG.debug("Node {} held by destination of link {}", srcNode, lw);
+                orphSrcNode = false;
+            }
+            if (orphSrcTp && srcTp.equals(dt)) {
+                LOG.debug("TP {} held by destination of link {}", srcTp, lw);
+                orphSrcTp = false;
+            }
+        }
+    }
+
+    private void checkDestinationNode(final Link lw, final NodeId sn, final NodeId dn, final TpId dstTp, final NodeId dstNode,
+        final TpId st, final TpId dt, boolean orphDstNode, boolean orphDstTp) {
+        // Destination node checks
+        if (dstNode.equals(sn)) {
+            if (orphDstNode) {
+                LOG.debug("Node {} held by source of link {}", dstNode, lw);
+                orphDstNode = false;
+            }
+            if (orphDstTp && dstTp.equals(st)) {
+                LOG.debug("TP {} held by source of link {}", dstTp, lw);
+                orphDstTp = false;
+            }
+        }
+        if (dstNode.equals(dn)) {
+            if (orphDstNode) {
+                LOG.debug("Node {} held by destination of link {}", dstNode, lw);
+                orphDstNode = false;
+            }
+            if (orphDstTp && dstTp.equals(dt)) {
+                LOG.debug("TP {} held by destination of link {}", dstTp, lw);
+                orphDstTp = false;
+            }
+        }
+    }
+
     private void remove(final ReadWriteTransaction trans, final InstanceIdentifier<ReportedLsp> i, final ReportedLsp value) throws ReadFailedException {
         final InstanceIdentifier<Link> li = linkForLsp(linkIdForLsp(i, value));
 
@@ -297,50 +347,8 @@ public final class NodeChangedListener implements DataChangeListener {
             final NodeId dn = lw.getDestination().getDestNode();
             final TpId st = lw.getSource().getSourceTp();
             final TpId dt = lw.getDestination().getDestTp();
-
-            // Source node checks
-            if (srcNode.equals(sn)) {
-                if (orphSrcNode) {
-                    LOG.debug("Node {} held by source of link {}", srcNode, lw);
-                    orphSrcNode = false;
-                }
-                if (orphSrcTp && srcTp.equals(st)) {
-                    LOG.debug("TP {} held by source of link {}", srcTp, lw);
-                    orphSrcTp = false;
-                }
-            }
-            if (srcNode.equals(dn)) {
-                if (orphSrcNode) {
-                    LOG.debug("Node {} held by destination of link {}", srcNode, lw);
-                    orphSrcNode = false;
-                }
-                if (orphSrcTp && srcTp.equals(dt)) {
-                    LOG.debug("TP {} held by destination of link {}", srcTp, lw);
-                    orphSrcTp = false;
-                }
-            }
-
-            // Destination node checks
-            if (dstNode.equals(sn)) {
-                if (orphDstNode) {
-                    LOG.debug("Node {} held by source of link {}", dstNode, lw);
-                    orphDstNode = false;
-                }
-                if (orphDstTp && dstTp.equals(st)) {
-                    LOG.debug("TP {} held by source of link {}", dstTp, lw);
-                    orphDstTp = false;
-                }
-            }
-            if (dstNode.equals(dn)) {
-                if (orphDstNode) {
-                    LOG.debug("Node {} held by destination of link {}", dstNode, lw);
-                    orphDstNode = false;
-                }
-                if (orphDstTp && dstTp.equals(dt)) {
-                    LOG.debug("TP {} held by destination of link {}", dstTp, lw);
-                    orphDstTp = false;
-                }
-            }
+            checkSourceNode(lw, sn, dn, srcTp, srcNode, st, dt, orphSrcNode, orphSrcNode);
+            checkDestinationNode(lw, sn, dn, dstTp, dstNode, st, dt, orphDstTp, orphDstNode);
         }
 
         if (orphSrcNode && !orphSrcTp) {

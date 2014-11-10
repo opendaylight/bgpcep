@@ -70,6 +70,8 @@ public final class Main {
 
     private static final int KA_DEFAULT = 30;
 
+    private static final int MAX_UNKNOWN_MESSAGES = 5;
+
     public static void main(final String[] args) throws UnknownHostException, InterruptedException, ExecutionException {
         if (args.length == 0 || (args.length == 1 && args[0].equalsIgnoreCase("--help"))) {
             LOG.info(Main.USAGE);
@@ -122,7 +124,7 @@ public final class Main {
         try (final StatefulActivator activator07 = new StatefulActivator()) {
             activator07.start(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance());
 
-            try (final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(prefs, 5), new NioEventLoopGroup(), new NioEventLoopGroup())) {
+            try (final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(prefs, MAX_UNKNOWN_MESSAGES), new NioEventLoopGroup(), new NioEventLoopGroup())) {
                 dispatcher.createServer(address, new TestingSessionListenerFactory()).get();
             }
         }

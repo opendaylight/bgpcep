@@ -240,7 +240,7 @@ final class InstructionImpl implements Instruction {
         if (!unmet.isEmpty()) {
             LOG.warn("Instruction {} was Queued, while some dependencies were resolved unsuccessfully, cancelling it", this.id);
             cancel(new DetailsBuilder().setUnmetDependencies(unmet).build());
-            return null;
+            return false;
         }
         return ready;
     }
@@ -255,8 +255,7 @@ final class InstructionImpl implements Instruction {
          * encounter an executing/queued/scheduled dependency, we hold
          * of scheduling this one.
          */
-        final Boolean ready = checkDependencies();
-        if (ready == null || !ready) {
+        if (!checkDependencies()) {
             return null;
         }
         LOG.debug("Instruction {} is ready for execution", this.id);
