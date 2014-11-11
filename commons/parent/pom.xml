@@ -23,14 +23,14 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>odlparent</artifactId>
-        <version>1.4.3-Helium-SR1</version>
+        <version>1.4.4-SNAPSHOT</version>
         <relativePath></relativePath>
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>commons.parent</artifactId>
     <name>BGPCEP common parent</name>
-    <version>0.3.2-Helium-SR1</version>
+    <version>0.3.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <licenses>
@@ -56,18 +56,18 @@
         <surefire.version>2.15</surefire.version>
 
         <!-- YANG tools artifacts -->
-        <yangtools.version>0.6.3-Helium-SR1</yangtools.version>
-        <ietf.types.version>2010.09.24.4.1-Helium-SR1</ietf.types.version>
-        <ietf.topology.version>2013.10.21.2.1-Helium-SR1</ietf.topology.version>
-        <yang-ext.version>2013.09.07.4.1-Helium-SR1</yang-ext.version>
+        <yangtools.version>0.6.4-SNAPSHOT</yangtools.version>
+        <ietf.types.version>2010.09.24.4.2-SNAPSHOT</ietf.types.version>
+        <ietf.topology.version>2013.10.21.2.2-SNAPSHOT</ietf.topology.version>
+        <yang-ext.version>2013.09.07.4.2-SNAPSHOT</yang-ext.version>
 
         <!-- Controller artifacts -->
-        <controller.config.version>0.2.6-Helium-SR1</controller.config.version>
-        <controller.framework.version>0.5.1-Helium-SR1</controller.framework.version>
-        <controller.mdsal.version>1.1.1-Helium-SR1</controller.mdsal.version>
+        <controller.config.version>0.2.7-SNAPSHOT</controller.config.version>
+        <controller.framework.version>0.5.2-SNAPSHOT</controller.framework.version>
+        <controller.mdsal.version>1.1.2-SNAPSHOT</controller.mdsal.version>
 
         <!-- TCP-MD5 artifacts -->
-        <tcpmd5.version>1.0.1-Helium-SR1</tcpmd5.version>
+        <tcpmd5.version>1.0.2-SNAPSHOT</tcpmd5.version>
 
         <!-- Sonar config -->
         <sonar-jacoco-listeners.version>2.4</sonar-jacoco-listeners.version>
