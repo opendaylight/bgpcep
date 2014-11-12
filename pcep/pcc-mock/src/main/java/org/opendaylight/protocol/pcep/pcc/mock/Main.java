@@ -10,14 +10,18 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
@@ -44,7 +48,7 @@ public final class Main {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException, UnknownHostException {
         InetAddress localAddress = InetAddress.getByName("127.0.0.1");
-        InetAddress remoteAddress = InetAddress.getByName("127.0.0.1");
+        List<InetAddress> remoteAddress = Lists.newArrayList(InetAddress.getByName("127.0.0.1"));
         int pccCount = 1;
         int lsps = 1;
         boolean pcError = false;
@@ -56,7 +60,7 @@ public final class Main {
             if (args[argIdx].equals("--local-address")) {
                 localAddress = InetAddress.getByName(args[++argIdx]);
             } else if (args[argIdx].equals("--remote-address")) {
-                remoteAddress = InetAddress.getByName(args[++argIdx]);
+                remoteAddress = parseAddresses(args[++argIdx]);
             } else if (args[argIdx].equals("--pcc")) {
                 pccCount = Integer.valueOf(args[++argIdx]);
             } else if (args[argIdx].equals("--lsp")) {
@@ -74,34 +78,33 @@ public final class Main {
     }
 
     public static void createPCCs(final int lspsPerPcc, final boolean pcerr, final int pccCount,
-            final InetAddress localAddress, final InetAddress remoteAddress) throws InterruptedException, ExecutionException {
+            final InetAddress localAddress, final List<InetAddress> remoteAddress) throws InterruptedException, ExecutionException {
         final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf = new DefaultPCEPSessionNegotiatorFactory(
                 new OpenBuilder().setKeepalive(DEFAULT_KEEP_ALIVE).setDeadTimer(DEFAULT_DEAD_TIMER).setSessionId((short) 0).build(), 0);
 
         final StatefulActivator activator07 = new StatefulActivator();
-        final PCCActivator activator = new PCCActivator();
         activator07.start(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance());
-        activator.start(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance());
         final PCCMock<Message, PCEPSessionImpl, PCEPSessionListener> pcc = new PCCMock<>(snf, new PCEPHandlerFactory(
                 ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry()),
                 new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE));
 
-        final InetAddress pceAddress = remoteAddress;
-        InetAddress currentAddress = localAddress;
-        int i = 0;
-        while (i < pccCount) {
-            final InetAddress pccAddress = currentAddress;
-            pcc.createClient(new InetSocketAddress(pccAddress, 0), new InetSocketAddress(pceAddress, DEFAULT_PORT),
-                    new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_STRATEGY_TIMEOUT),
-                    new SessionListenerFactory<PCEPSessionListener>() {
+        for (final InetAddress pceAddress : remoteAddress) {
+            InetAddress currentAddress = localAddress;
+            int i = 0;
+            while (i < pccCount) {
+                final InetAddress pccAddress = currentAddress;
+                pcc.createClient(new InetSocketAddress(pccAddress, 0), new InetSocketAddress(pceAddress, DEFAULT_PORT),
+                        new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_STRATEGY_TIMEOUT),
+                        new SessionListenerFactory<PCEPSessionListener>() {
 
-                        @Override
-                        public PCEPSessionListener getSessionListener() {
-                            return new SimpleSessionListener(lspsPerPcc, pcerr, pccAddress);
-                        }
-                    }).get();
-            i++;
-            currentAddress = InetAddresses.increment(currentAddress);
+                            @Override
+                            public PCEPSessionListener getSessionListener() {
+                                return new SimpleSessionListener(lspsPerPcc, pcerr, pccAddress);
+                            }
+                        }).get();
+                i++;
+                currentAddress = InetAddresses.increment(currentAddress);
+            }
         }
     }
 
@@ -110,6 +113,19 @@ public final class Main {
             @Override
             public boolean apply(Logger input) {
                 return input.getName().equals(Logger.ROOT_LOGGER_NAME);
+            }
+        });
+    }
+
+    private static List<InetAddress> parseAddresses(final String address) {
+        return Lists.transform(Arrays.asList(address.split(",")), new Function<String, InetAddress>() {
+            @Override
+            public InetAddress apply(String input) {
+                try {
+                    return InetAddress.getByName(input);
+                } catch (UnknownHostException e) {
+                    throw new RuntimeException("Not an IP address: " + input, e);
+                }
             }
         });
     }
