@@ -98,12 +98,6 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.opendaylight.yangtools</groupId>
-                <artifactId>mockito-configuration</artifactId>
-                <version>${yangtools.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.opendaylight.controller</groupId>
                 <artifactId>config-manager</artifactId>
                 <version>${controller.config.version}</version>
@@ -274,53 +268,10 @@
             <!-- YANG tools -->
             <dependency>
                 <groupId>org.opendaylight.yangtools</groupId>
-                <artifactId>binding-generator-impl</artifactId>
+                <artifactId>yangtools-artifacts</artifactId>
                 <version>${yangtools.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.yangtools</groupId>
-                <artifactId>concepts</artifactId>
-                <version>${yangtools.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.yangtools</groupId>
-                <artifactId>yang-binding</artifactId>
-                <version>${yangtools.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.yangtools</groupId>
-                <artifactId>yang-common</artifactId>
-                <version>${yangtools.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.yangtools</groupId>
-                <artifactId>yang-data-impl</artifactId>
-                <version>${yangtools.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.yangtools</groupId>
-                <artifactId>yang-model-api</artifactId>
-                <version>${yangtools.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.yangtools</groupId>
-                <artifactId>yang-parser-api</artifactId>
-                <version>${yangtools.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.yangtools</groupId>
-                <artifactId>yang-parser-impl</artifactId>
-                <version>${yangtools.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.yangtools</groupId>
-                <artifactId>object-cache-api</artifactId>
-                <version>${yangtools.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.yangtools</groupId>
-                <artifactId>object-cache-guava</artifactId>
-                <version>${yangtools.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
             </dependency>
 
             <!-- Controller infrastructure -->
