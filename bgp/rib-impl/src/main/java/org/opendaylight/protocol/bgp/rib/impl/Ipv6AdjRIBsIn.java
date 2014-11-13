@@ -35,13 +35,22 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 final class Ipv6AdjRIBsIn extends AbstractAdjRIBs<Ipv6Prefix, Ipv6Route, Ipv6RouteKey> {
+    private final InstanceIdentifier<Ipv6Routes> routesBasePath;
+
     Ipv6AdjRIBsIn(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
         super(basePath);
+        routesBasePath = basePath.builder().child(Ipv6Routes.class).build();
     }
 
     @Override
+    @Deprecated
     public KeyedInstanceIdentifier<Ipv6Route, Ipv6RouteKey> identifierForKey(final InstanceIdentifier<Tables> basePath, final Ipv6Prefix key) {
         return basePath.child(Ipv6Routes.class).child(Ipv6Route.class, new Ipv6RouteKey(key));
+    }
+
+    @Override
+    public KeyedInstanceIdentifier<Ipv6Route, Ipv6RouteKey> identifierForKey(final Ipv6Prefix key) {
+        return routesBasePath.child(Ipv6Route.class, new Ipv6RouteKey(key));
     }
 
     @Override

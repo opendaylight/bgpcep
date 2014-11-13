@@ -102,7 +102,7 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
 
         private KeyedInstanceIdentifier<D, K> getName() {
             if (this.name == null) {
-                this.name = identifierForKey(AbstractAdjRIBs.this.basePath, this.key);
+                this.name = identifierForKey(this.key);
                 LOG.trace("Entry {} grew key {}", this, this.name);
             }
             return this.name;
@@ -201,7 +201,7 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
         }
 
         this.peers.remove(peer);
-        trans.setUptodate(this.basePath, !this.peers.values().contains(Boolean.FALSE));
+        trans.setUptodate(getBasePath(), !this.peers.values().contains(Boolean.FALSE));
     }
 
     public final synchronized void addAllEntries(final AdjRIBsTransaction trans) {
@@ -218,8 +218,32 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
      * @param basePath datastore base path under which the entry to be stored
      * @param id object identifier
      * @return Data store identifier, may not be null
+     *
+     * @deprecated Please override {@link #identifierForKey(Object)} instead. The basePath
+     *             argument is constant for a particular instance and is the one your
+     *             constructor specifies.
      */
+    @Deprecated
     protected abstract KeyedInstanceIdentifier<D, K> identifierForKey(InstanceIdentifier<Tables> basePath, I id);
+
+    /**
+     * Return the base path specified at construction time.
+     *
+     * @return Base path.
+     */
+    protected final KeyedInstanceIdentifier<Tables, TablesKey> getBasePath() {
+        return basePath;
+    }
+
+    /**
+     * Construct a datastore identifier for an entry key.
+     *
+     * @param id object identifier
+     * @return Data store identifier, may not be null
+     */
+    protected KeyedInstanceIdentifier<D, K> identifierForKey(final I id) {
+        return identifierForKey(getBasePath(), id);
+    }
 
     public void addWith(final MpUnreachNlriBuilder builder, final InstanceIdentifier<?> key) {
         this.addWithdrawal(builder, keyForIdentifier(this.routeIdentifier(key)));
@@ -270,7 +294,7 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
         e.setState(trans, peer, data);
         if (!this.peers.containsKey(peer)) {
             this.peers.put(peer, Boolean.FALSE);
-            trans.setUptodate(this.basePath, Boolean.FALSE);
+            trans.setUptodate(getBasePath(), Boolean.FALSE);
         }
     }
 
@@ -292,7 +316,7 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
     @Override
     public final void markUptodate(final AdjRIBsTransaction trans, final Peer peer) {
         this.peers.put(peer, Boolean.TRUE);
-        trans.setUptodate(this.basePath, !this.peers.values().contains(Boolean.FALSE));
+        trans.setUptodate(getBasePath(), !this.peers.values().contains(Boolean.FALSE));
     }
 
     @Override
