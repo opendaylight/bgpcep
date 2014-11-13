@@ -98,37 +98,6 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>config-manager</artifactId>
-                <version>${controller.config.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>config-manager</artifactId>
-                <version>${controller.config.version}</version>
-                <scope>test</scope>
-                <type>test-jar</type>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>config-util</artifactId>
-                <version>${controller.config.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>netty-event-executor-config</artifactId>
-                <version>${controller.config.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>netty-threadgroup-config</artifactId>
-                <version>${controller.config.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>bgp-rib-spi</artifactId>
                 <version>${project.version}</version>
@@ -277,6 +246,14 @@
             <!-- Controller infrastructure -->
             <dependency>
                 <groupId>org.opendaylight.controller</groupId>
+                <artifactId>config-artifacts</artifactId>
+                <version>${controller.config.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+
+            <dependency>
+                <groupId>org.opendaylight.controller</groupId>
                 <artifactId>protocol-framework</artifactId>
                 <version>${controller.framework.version}</version>
             </dependency>
@@ -286,21 +263,6 @@
                 <version>${controller.framework.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>config-api</artifactId>
-                <version>${controller.config.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>netty-config-api</artifactId>
-                <version>${controller.config.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>netty-timer-config</artifactId>
-                <version>${controller.config.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.controller</groupId>
