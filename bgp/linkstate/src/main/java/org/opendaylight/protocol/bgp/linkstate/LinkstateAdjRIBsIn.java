@@ -109,16 +109,27 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBs<CLinkstateDestination, Li
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateAdjRIBsIn.class);
+    private final InstanceIdentifier<LinkstateRoutes> routesBasePath;
 
     LinkstateAdjRIBsIn(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
         super(basePath);
+        routesBasePath = basePath.builder().child((Class)LinkstateRoutes.class).build();
     }
 
     @Override
+    @Deprecated
     public KeyedInstanceIdentifier<LinkstateRoute, LinkstateRouteKey> identifierForKey(final InstanceIdentifier<Tables> basePath, final CLinkstateDestination key) {
         final ByteBuf keyBuf = Unpooled.buffer();
         LinkstateNlriParser.serializeNlri(key, keyBuf);
         return basePath.child((Class)LinkstateRoutes.class).child(LinkstateRoute.class,
+            new LinkstateRouteKey(ByteArray.readAllBytes(keyBuf)));
+    }
+
+    @Override
+    public KeyedInstanceIdentifier<LinkstateRoute, LinkstateRouteKey> identifierForKey(final CLinkstateDestination key) {
+        final ByteBuf keyBuf = Unpooled.buffer();
+        LinkstateNlriParser.serializeNlri(key, keyBuf);
+        return routesBasePath.child(LinkstateRoute.class,
             new LinkstateRouteKey(ByteArray.readAllBytes(keyBuf)));
     }
 
