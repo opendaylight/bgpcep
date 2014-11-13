@@ -43,7 +43,6 @@
         <feature version='${project.version}'>odl-bgpcep-pcep-tunnel-provider</feature>
         <feature version='${project.version}'>odl-bgpcep-programming</feature>
         <feature version='${project.version}'>odl-bgpcep-programming-impl</feature>
-        <configfile finalname="etc/opendaylight/karaf/32-pcep.xml">mvn:org.opendaylight.bgpcep/pcep-controller-config/${project.version}/xml/config</configfile>
     </feature>
 
     <feature name='odl-bgpcep-dependencies' version='${project.version}'>
@@ -115,6 +114,7 @@
         <feature version='${protocol-framework.version}'>odl-protocol-framework</feature>
         <bundle>mvn:org.opendaylight.bgpcep/pcep-api/${project.version}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/pcep-spi/${project.version}</bundle>
+        <configfile finalname="etc/opendaylight/karaf/32-pcep.xml">mvn:org.opendaylight.bgpcep/pcep-controller-config/${project.version}/xml/config</configfile>
     </feature>
 
     <feature name='odl-bgpcep-pcep-impl' version='${project.version}'>
@@ -132,6 +132,7 @@
         <bundle>mvn:org.opendaylight.bgpcep/programming-spi/${project.version}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/programming-topology-api/${project.version}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/programming-tunnel-api/${project.version}</bundle>
+        <configfile finalname="etc/opendaylight/karaf/30-programming.xml">mvn:org.opendaylight.bgpcep/programming-controller-config/${project.version}/xml/config</configfile>
     </feature>
 
     <feature name='odl-bgpcep-programming-impl' version='${project.version}'>
@@ -139,7 +140,6 @@
         <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
         <feature version='${tcpmd5.version}'>odl-tcpmd5-netty</feature>
         <bundle>mvn:org.opendaylight.bgpcep/programming-impl/${project.version}</bundle>
-        <configfile finalname="etc/opendaylight/karaf/30-programming.xml">mvn:org.opendaylight.bgpcep/programming-controller-config/${project.version}/xml/config</configfile>
     </feature>
 
     <feature name='odl-bgpcep-pcep-topology' version='${project.version}'>
