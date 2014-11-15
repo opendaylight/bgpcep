@@ -11,9 +11,9 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -40,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.As4BytesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.GracefulRestartCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.multiprotocol._case.MultiprotocolCapability;
 
@@ -142,13 +143,6 @@ final class BGPSessionStats {
         received.setTimestamp(StatisticsUtil.getCurrentTimestampInSeconds());
     }
 
-    private static boolean isAs4ByteCapable(final CParameters cp) {
-        if (cp instanceof As4BytesCase) {
-            return ((As4BytesCase) cp).getAs4BytesCapability() != null;
-        }
-        return false;
-    }
-
     private static void updateSentMsg(final Sent sent) {
         Preconditions.checkNotNull(sent);
         sent.setCount(sent.getCount() + 1);
@@ -169,13 +163,13 @@ final class BGPSessionStats {
         final InetSocketAddress isa = (InetSocketAddress) channel.localAddress();
         pref.setAddress(isa.getAddress().getHostAddress());
         pref.setPort(isa.getPort());
-        final List<AdvertizedTableTypes> tt = Lists.newArrayList();
+        final List<AdvertizedTableTypes> tt = new ArrayList<>();
         if (localPreferences.isPresent()) {
             final BGPSessionPreferences localPref = localPreferences.get();
             pref.setBgpId(localPref.getBgpId().getValue());
             pref.setAs(localPref.getMyAs().getValue());
             pref.setHoldtime(localPref.getHoldTime());
-            if (localPref.getParams() != null && !localPref.getParams().isEmpty()) {
+            if (localPref.getParams() != null) {
                 for (final BgpParameters param : localPref.getParams()) {
                     for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
                         final CParameters cp = capa.getCParameters();
@@ -186,7 +180,12 @@ final class BGPSessionStats {
                             att.setSafi(mc.getSafi().getSimpleName());
                             tt.add(att);
                         }
-                        pref.setFourOctetAsCapability(isAs4ByteCapable(cp));
+                        if (cp instanceof As4BytesCase) {
+                            pref.setFourOctetAsCapability(((As4BytesCase) cp).getAs4BytesCapability() != null);
+                        }
+                        if (capa.getCParameters() instanceof GracefulRestartCase) {
+                            pref.setGrCapability(((GracefulRestartCase) capa.getCParameters()).getGracefulRestartCapability() != null);
+                        }
                     }
                 }
             }
@@ -205,14 +204,19 @@ final class BGPSessionStats {
         pref.setBgpId(remoteOpen.getBgpIdentifier().getValue());
         pref.setAs(remoteOpen.getMyAsNumber().longValue());
         pref.setHoldtime(remoteOpen.getHoldTimer());
-        final List<AdvertizedTableTypes> tt = Lists.newArrayList();
+        final List<AdvertizedTableTypes> tt = new ArrayList<>();
         for (final BgpTableType t : tableTypes) {
             tt.add(addTableType(t));
         }
-        if (remoteOpen.getBgpParameters() != null && !remoteOpen.getBgpParameters().isEmpty()) {
+        if (remoteOpen.getBgpParameters() != null) {
             for (final BgpParameters param : remoteOpen.getBgpParameters()) {
                 for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
-                    pref.setFourOctetAsCapability(isAs4ByteCapable(capa.getCParameters()));
+                    if (capa.getCParameters() instanceof As4BytesCase) {
+                        pref.setFourOctetAsCapability(((As4BytesCase) capa.getCParameters()).getAs4BytesCapability() != null);
+                    }
+                    if (capa.getCParameters() instanceof GracefulRestartCase) {
+                        pref.setGrCapability(((GracefulRestartCase) capa.getCParameters()).getGracefulRestartCapability() != null);
+                    }
                 }
 
             }
