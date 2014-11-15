@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
+
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
@@ -41,7 +43,7 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
 
     // Restart flag size, in bits
     private static final int RESTART_FLAGS_SIZE = 4;
-    private static final int RESTART_FLAG_STATE = 0x80;
+    private static final int RESTART_FLAG_STATE = 0x8000;
 
     // Restart timer size, in bits
     private static final int TIMER_SIZE = 12;
@@ -53,7 +55,7 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
     // Length of each AFI/SAFI array member, in bytes
     private static final int PER_AFI_SAFI_SIZE = 4;
 
-    private static final int AFI_FLAG_FORWARDING_STATE = 0x80;
+    private static final short AFI_FLAG_FORWARDING_STATE = 0x80;
 
     private static final int MAX_RESTART_TIME = 4095;
 
@@ -70,34 +72,32 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
         Preconditions.checkArgument(capability instanceof GracefulRestartCase);
         final GracefulRestartCapability grace = ((GracefulRestartCase) capability).getGracefulRestartCapability();
         final List<Tables> tables = grace.getTables();
-
         final ByteBuf bytes = Unpooled.buffer(HEADER_SIZE + PER_AFI_SAFI_SIZE * tables.size());
 
-        int flagBits = 0;
-        final RestartFlags flags = grace.getRestartFlags();
-        if (flags != null && flags.isRestartState()) {
-            flagBits |= RESTART_FLAG_STATE;
-        }
         int timeval = 0;
         final Integer time = grace.getRestartTime();
         if (time != null) {
-            Preconditions.checkArgument(time >= 0 && time <= MAX_RESTART_TIME);
+            Preconditions.checkArgument(time >= 0 && time <= MAX_RESTART_TIME, "Restart time is " + time);
             timeval = time;
         }
-        bytes.writeByte(flagBits + timeval / 256);
-        bytes.writeByte(timeval % 256);
+        final RestartFlags flags = grace.getRestartFlags();
+        if (flags != null && flags.isRestartState()) {
+            writeUnsignedShort(RESTART_FLAG_STATE | timeval, bytes);
+        } else {
+            writeUnsignedShort(timeval, bytes);
+        }
 
         for (final Tables t : tables) {
             final Class<? extends AddressFamily> afi = t.getAfi();
             final Integer afival = this.afiReg.numberForClass(afi);
             Preconditions.checkArgument(afival != null, "Unhandled address family " + afi);
+            bytes.writeShort(afival);
 
             final Class<? extends SubsequentAddressFamily> safi = t.getSafi();
             final Integer safival = this.safiReg.numberForClass(safi);
             Preconditions.checkArgument(safival != null, "Unhandled subsequent address family " + safi);
-
-            bytes.writeShort(afival);
             bytes.writeByte(safival);
+
             if (t.getAfiFlags() != null && t.getAfiFlags().isForwardingState()) {
                 bytes.writeByte(AFI_FLAG_FORWARDING_STATE);
             } else {
