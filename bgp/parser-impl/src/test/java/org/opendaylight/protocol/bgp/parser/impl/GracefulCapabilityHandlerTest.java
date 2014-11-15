@@ -104,6 +104,15 @@ public class GracefulCapabilityHandlerTest {
         };
         Assert.assertEquals(new GracefulRestartCaseBuilder().setGracefulRestartCapability(capaBuilder.build()).build(),
                 handler.parseCapability(Unpooled.wrappedBuffer(capaBytes4).slice(2, capaBytes4.length - 2)));
+        final byte[] capaBytes5 = {
+            (byte) 0x40, (byte) 0x02, (byte) 0x00, (byte) 0x00
+        };
+        final ByteBuf b = Unpooled.buffer(capaBytes5.length);
+        handler.serializeCapability(new GracefulRestartCaseBuilder().setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build(), b);
+        Assert.assertArrayEquals(capaBytes5, b.array());
+        Assert.assertEquals(new GracefulRestartCaseBuilder().setGracefulRestartCapability(
+            new GracefulRestartCapabilityBuilder().setRestartFlags(new RestartFlags(Boolean.FALSE)).setRestartTime(0).setTables(Collections.<Tables> emptyList()).build()).build(),
+                handler.parseCapability(Unpooled.wrappedBuffer(capaBytes5).slice(2, capaBytes5.length - 2)));
     }
 
     @Test(expected=IllegalArgumentException.class)

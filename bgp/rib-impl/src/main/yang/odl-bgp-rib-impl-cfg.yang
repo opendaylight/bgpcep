@@ -438,6 +438,12 @@ module odl-bgp-rib-impl-cfg {
             default "false";
         }
 
+        leaf gr-capability {
+            description "BGP graceful restart support capability.";
+            type boolean;
+            default "false";
+        }
+
         list advertized-table-types {
             description "The BGP Table-type capabilities advertized by the BGP peer.";
             leaf afi {
