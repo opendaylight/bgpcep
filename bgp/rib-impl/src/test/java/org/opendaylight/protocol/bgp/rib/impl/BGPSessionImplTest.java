@@ -57,7 +57,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.As4BytesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.as4.bytes._case.As4BytesCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.GracefulRestartCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.graceful.restart._case.GracefulRestartCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.multiprotocol._case.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
@@ -103,6 +105,9 @@ public class BGPSessionImplTest {
                 new MultiprotocolCapabilityBuilder().setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build()).build()).build());
         capa.add(new OptionalCapabilitiesBuilder().setCParameters(new As4BytesCaseBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(
             AS_NUMBER).build()).build()).build());
+        capa.add(new OptionalCapabilitiesBuilder().setCParameters(
+            new GracefulRestartCaseBuilder().setGracefulRestartCapability(
+                new GracefulRestartCapabilityBuilder().build()).build()).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capa).build());
 
         final ChannelFuture f = mock(ChannelFuture.class);
@@ -156,6 +161,7 @@ public class BGPSessionImplTest {
         assertEquals(1, state.getPeerPreferences().getAdvertizedTableTypes().size());
         assertEquals(HOLD_TIMER, state.getPeerPreferences().getHoldtime().intValue());
         assertTrue(state.getPeerPreferences().getFourOctetAsCapability());
+        assertTrue(state.getPeerPreferences().getGrCapability());
         assertEquals(LOCAL_IP, state.getSpeakerPreferences().getAddress());
         assertEquals(LOCAL_PORT, state.getSpeakerPreferences().getPort().intValue());
         assertEquals(0, state.getMessagesStats().getTotalMsgs().getReceived().getCount().longValue());
