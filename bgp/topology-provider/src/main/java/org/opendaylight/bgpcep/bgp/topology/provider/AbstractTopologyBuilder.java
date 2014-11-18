@@ -79,7 +79,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
 
         t.put(LogicalDatastoreType.OPERATIONAL, this.topology,
                 new TopologyBuilder().setKey(tk).setServerProvided(Boolean.TRUE).setTopologyTypes(types)
-                    .setLink(Collections.<Link>emptyList()).setNode(Collections.<Node>emptyList()).build());
+                    .setLink(Collections.<Link>emptyList()).setNode(Collections.<Node>emptyList()).build(), true);
         Futures.addCallback(t.submit(), new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
