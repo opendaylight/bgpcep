@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a91bd0f_a592aaf4",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/AbstractTopologyBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-11-18T17:59:05Z",
+      "side": 1,
+      "message": "accessed from synchronized methods -\u003e does not have to be volatile. Initialize it here (default is false anyway), and skip the single assignement in the constructor.",
+      "revId": "2f3d1eb21da3b57160b02c1191ae68af17ed9520",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a91bd0f_c58faecb",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/AbstractTopologyBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-11-18T17:59:05Z",
+      "side": 1,
+      "message": "just LOG.trace() -- this can occur under normal operation",
+      "revId": "2f3d1eb21da3b57160b02c1191ae68af17ed9520",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
