@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a91bd0f_85c1a6e6",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/AbstractTopologyBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-11-18T18:02:12Z",
+      "side": 1,
+      "message": "also, adding a @GuardedBy(\"this\") will provide a hint that it is meant to be under synchronized block.",
+      "parentUuid": "9a91bd0f_a592aaf4",
+      "revId": "2f3d1eb21da3b57160b02c1191ae68af17ed9520",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a91bd0f_c58faecb",
         "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/AbstractTopologyBuilder.java",
         "patchSetId": 1
