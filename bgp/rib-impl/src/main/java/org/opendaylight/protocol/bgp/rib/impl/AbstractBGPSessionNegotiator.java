@@ -199,6 +199,7 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
             // deliver the message, this method gets called with different exception (definitely not with BGPDocumentedException).
             this.sendMessage(buildErrorNotify(((BGPDocumentedException)e).getError()));
         }
+        this.registry.removePeerSession(getRemoteIp());
         super.negotiationFailed(e);
         this.state = State.Finished;
     }

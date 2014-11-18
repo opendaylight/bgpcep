@@ -8,17 +8,14 @@
 package org.opendaylight.protocol.bgp.testtool;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
-
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPHandlerFactory;
@@ -102,6 +99,9 @@ public class BGPSpeakerMock<M, S extends ProtocolSession<M>, L extends SessionLi
             public void close() throws Exception {
 
             }
+
+            @Override
+            public void removePeerSession(final IpAddress ip) {}
         };
 
         final SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> snf = new BGPServerSessionNegotiatorFactory(new BGPSessionValidator() {
