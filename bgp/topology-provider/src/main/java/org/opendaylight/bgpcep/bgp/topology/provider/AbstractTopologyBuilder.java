@@ -11,13 +11,11 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-
 import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -56,6 +54,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
     private final BindingTransactionChain chain;
     private final RibReference locRibReference;
     private final Class<T> idClass;
+    private volatile boolean closed;
 
     protected AbstractTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
             final TopologyId topologyId, final TopologyTypes types, final Class<T> idClass) {
@@ -73,7 +72,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
         try {
             o = t.read(LogicalDatastoreType.OPERATIONAL, this.topology).get();
         } catch (InterruptedException | ExecutionException e) {
-            throw new IllegalStateException("Failed to read topology " + topology, e);
+            throw new IllegalStateException("Failed to read topology " + this.topology, e);
         }
         Preconditions.checkState(!o.isPresent(), "Data provider conflict detected on object {}", this.topology);
 
@@ -92,6 +91,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
                         AbstractTopologyBuilder.this, t);
             }
         });
+        this.closed = false;
     }
 
     public final InstanceIdentifier<Tables> tableInstanceIdentifier(final Class<? extends AddressFamily> afi,
@@ -118,9 +118,13 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
     }
 
     @Override
-    public final void onLocRIBChange(final ReadWriteTransaction trans,
+    public synchronized final void onLocRIBChange(final ReadWriteTransaction trans,
             final AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> event) {
         LOG.debug("Received data change {} event with transaction {}", event, trans.getIdentifier());
+        if (this.closed) {
+            LOG.warn("Transaction chain was already closed, skipping update.");
+            return;
+        }
 
         // FIXME: speed this up
         final Set<InstanceIdentifier<T>> ids = new HashSet<>();
@@ -167,12 +171,13 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
     }
 
     @Override
-    public final void close() throws TransactionCommitFailedException {
+    public synchronized final void close() throws TransactionCommitFailedException {
         LOG.info("Shutting down builder for {}", getInstanceIdentifier());
         final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
         trans.delete(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier());
         trans.submit().checkedGet();
         this.chain.close();
+        this.closed = true;
     }
 
     @Override
