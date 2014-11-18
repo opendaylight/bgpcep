@@ -83,12 +83,13 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
      *
      */
     private final class RIBEntry {
+        private static final int DEFAULT_MAP_SIZE = 2;
         /*
          * TODO: we could dramatically optimize performance by using the comparator
          *       to retain the candidate states ordered -- thus selection would occur
          *       automatically through insertion, without the need of a second walk.
          */
-        private final Map<Peer, RIBEntryData<I, D, K>> candidates = new HashMap<>();
+        private final Map<Peer, RIBEntryData<I, D, K>> candidates = new HashMap<>(DEFAULT_MAP_SIZE);
         private final I key;
 
         @GuardedBy("this")
