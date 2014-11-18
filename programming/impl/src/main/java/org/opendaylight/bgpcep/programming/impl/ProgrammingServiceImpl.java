@@ -343,10 +343,12 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
             for (final InstructionImpl i : this.insns.values()) {
                 i.tryCancel(null);
             }
-        } finally {
+            // Workaround for BUG-2283
             final WriteTransaction t = this.dataProvider.newWriteOnlyTransaction();
             t.delete(LogicalDatastoreType.OPERATIONAL, this.qid);
-            t.submit();
+            t.submit().checkedGet();
+        } catch (final Exception e) {
+            LOG.error("Failed to shutdown Instruction Queue", e);
         }
     }
 }
