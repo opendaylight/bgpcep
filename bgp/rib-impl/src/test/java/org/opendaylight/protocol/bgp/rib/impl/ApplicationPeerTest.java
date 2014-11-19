@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.CheckedFuture;
@@ -28,6 +27,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +39,6 @@ import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -89,7 +88,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.multiprotocol._case.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRibBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
@@ -123,9 +121,6 @@ public class ApplicationPeerTest {
 
     @Mock
     DataBroker dps;
-
-    @Mock
-    ReadWriteTransaction trans;
 
     @Mock
     WriteTransaction transWrite;
@@ -163,6 +158,9 @@ public class ApplicationPeerTest {
         4, 0x0a, 0x0b, 0x0c, 0x0d, 1, 3, 0, 4, (byte) 0xc5, 0x14, (byte) 0xa0, (byte) 0x2a, 1, 4, 0, 4, (byte) 0xc5,
         0x14, (byte) 0xa0, 0x28, 1, 7, 0, 2, 0, 3};
 
+    private RIBActivator a1;
+    private org.opendaylight.protocol.bgp.linkstate.RIBActivator a2;
+
     @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws InterruptedException, ExecutionException, ReadFailedException {
@@ -172,17 +170,13 @@ public class ApplicationPeerTest {
         localTables.add(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
         localTables.add(new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
         final RIBExtensionProviderContext context = new SimpleRIBExtensionProviderContext();
-        final RIBActivator a1 = new RIBActivator();
+        a1 = new RIBActivator();
         a1.startRIBExtensionProvider(context);
-        final org.opendaylight.protocol.bgp.linkstate.RIBActivator a2 = new org.opendaylight.protocol.bgp.linkstate.RIBActivator();
+        a2 = new org.opendaylight.protocol.bgp.linkstate.RIBActivator();
         a2.startRIBExtensionProvider(context);
-        Mockito.doReturn(this.trans).when(this.dps).newReadWriteTransaction();
         Mockito.doReturn(this.chain).when(this.dps).createTransactionChain(Mockito.any(RIBImpl.class));
-        Mockito.doReturn(this.trans).when(this.chain).newReadWriteTransaction();
-        Mockito.doReturn(this.future).when(this.trans).read(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class));
         Mockito.doReturn(this.o).when(this.future).get();
-        Mockito.doNothing().when(this.trans).merge(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(BgpRib.class).build(), new BgpRibBuilder().build());
-        Mockito.doNothing().when(this.trans).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class), Mockito.any(Rib.class));
+        Mockito.doNothing().when(this.transWrite).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class), Mockito.any(Rib.class));
         Mockito.doAnswer(new Answer<Object>() {
 
             @Override
@@ -194,7 +188,6 @@ public class ApplicationPeerTest {
         }).when(this.transWrite).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class), Mockito.any(Route.class), Mockito.eq(true));
         Mockito.doNothing().when(this.transWrite).merge(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class), Mockito.any(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes.class));
         Mockito.doReturn(false).when(this.o).isPresent();
-        Mockito.doReturn(this.future).when(this.trans).submit();
         Mockito.doReturn(this.future).when(this.transWrite).submit();
         Mockito.doNothing().when(this.future).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
         Mockito.doReturn(this.transWrite).when(this.chain).newWriteOnlyTransaction();
@@ -217,6 +210,12 @@ public class ApplicationPeerTest {
         final CheckedFuture<Optional<DataObject>, ReadFailedException> readFuture = Mockito.mock(CheckedFuture.class);
         Mockito.doReturn(Optional.<DataObject>absent()).when(readFuture).checkedGet();
         Mockito.doReturn(readFuture).when(readTx).read(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class));
+    }
+
+    @After
+    public void tearDown() {
+        a1.close();
+        a2.close();
     }
 
     @Test
@@ -254,13 +253,13 @@ public class ApplicationPeerTest {
         Mockito.doReturn(updated).when(this.change).getUpdatedData();
         Mockito.doReturn(Collections.EMPTY_SET).when(this.change).getRemovedPaths();
         this.peer.onDataChanged(this.change);
-        assertEquals(2, this.routes.size());
+        assertEquals(3, this.routes.size());
 
         Mockito.doReturn(Collections.EMPTY_MAP).when(this.change).getCreatedData();
         Mockito.doReturn(Collections.EMPTY_MAP).when(this.change).getUpdatedData();
         Mockito.doReturn(removed).when(this.change).getRemovedPaths();
         this.peer.onDataChanged(this.change);
-        assertEquals(1, this.routes.size());
+        assertEquals(2, this.routes.size());
     }
 
     @Test
@@ -293,12 +292,12 @@ public class ApplicationPeerTest {
         ub.setNlri(new NlriBuilder().setNlri(prefs).build());
         ub.setPathAttributes(new PathAttributesBuilder().build());
         this.classic.onMessage(this.session, ub.build());
-        assertEquals(2, this.routes.size());
+        assertEquals(3, this.routes.size());
 
         //create new peer so that it gets advertized routes from RIB
         try (final BGPPeer testingPeer = new BGPPeer("testingPeer", this.r)) {
             testingPeer.onSessionUp(this.session);
-            assertEquals(2, this.routes.size());
+            assertEquals(3, this.routes.size());
             assertEquals(1, testingPeer.getBgpPeerState().getSessionEstablishedCount().intValue());
             assertEquals(1, testingPeer.getBgpPeerState().getRouteTable().size());
             assertNotNull(testingPeer.getBgpSessionState());
@@ -307,7 +306,7 @@ public class ApplicationPeerTest {
         ub.setNlri(null);
         ub.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setWithdrawnRoutes(prefs).build());
         this.classic.onMessage(this.session, ub.build());
-        assertEquals(2, this.routes.size());
+        assertEquals(3, this.routes.size());
         this.classic.onMessage(this.session, new KeepaliveBuilder().build());
         this.classic.releaseConnection();
     }

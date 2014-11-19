@@ -7,7 +7,6 @@
  */
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -15,7 +14,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
@@ -70,14 +68,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
 
         LOG.debug("Initiating topology builder from {} at {}", locRibReference, this.topology);
 
-        final ReadWriteTransaction t = this.chain.newReadWriteTransaction();
-        final Optional<Topology> o;
-        try {
-            o = t.read(LogicalDatastoreType.OPERATIONAL, this.topology).get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new IllegalStateException("Failed to read topology " + this.topology, e);
-        }
-        Preconditions.checkState(!o.isPresent(), "Data provider conflict detected on object {}", this.topology);
+        final WriteTransaction t = this.chain.newWriteOnlyTransaction();
 
         t.put(LogicalDatastoreType.OPERATIONAL, this.topology,
                 new TopologyBuilder().setKey(tk).setServerProvided(Boolean.TRUE).setTopologyTypes(types)
