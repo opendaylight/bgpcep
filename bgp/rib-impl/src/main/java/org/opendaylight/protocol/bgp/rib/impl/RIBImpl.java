@@ -24,7 +24,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -61,7 +60,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRibBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
@@ -142,19 +140,11 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
         LOG.debug("Instantiating RIB table {} at {}", ribId, getInstanceIdentifier());
 
-        final ReadWriteTransaction trans = this.chain.newReadWriteTransaction();
-        Optional<Rib> o;
-        try {
-            o = trans.read(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier()).get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new IllegalStateException("Failed to read topology", e);
-        }
-        Preconditions.checkState(!o.isPresent(), "Data provider conflict detected on object {}", getInstanceIdentifier());
+        final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
 
         // put empty BgpRib if not exists
-        trans.merge(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(BgpRib.class).build(), new BgpRibBuilder().build());
         trans.put(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier(), new RibBuilder().setKey(new RibKey(ribId)).setId(ribId).setLocRib(
-            new LocRibBuilder().setTables(Collections.<Tables> emptyList()).build()).build());
+            new LocRibBuilder().setTables(Collections.<Tables> emptyList()).build()).build(), true);
 
         for (final BgpTableType t : localTables) {
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
