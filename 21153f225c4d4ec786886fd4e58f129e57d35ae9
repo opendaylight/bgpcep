@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a91bd0f_ae1cc76b",
+        "filename": "programming/impl/src/main/java/org/opendaylight/bgpcep/programming/impl/ProgrammingServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-11-19T16:44:08Z",
+      "side": 1,
+      "message": "actually you need to keep the transaction in the finally block -- we want to execute that part even if i.tryCancel() fails.\nThis means you will end up with a try/catch in the finally block.",
+      "revId": "21153f225c4d4ec786886fd4e58f129e57d35ae9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
