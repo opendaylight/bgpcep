@@ -160,26 +160,10 @@
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.tcpmd5</groupId>
-                <artifactId>tcpmd5-api</artifactId>
+                <artifactId>tcpmd5-artifacts</artifactId>
                 <version>${tcpmd5.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.tcpmd5</groupId>
-                <artifactId>tcpmd5-netty</artifactId>
-                <version>${tcpmd5.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.tcpmd5</groupId>
-                <artifactId>tcpmd5-jni</artifactId>
-                <version>${tcpmd5.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.tcpmd5</groupId>
-                <artifactId>tcpmd5-jni</artifactId>
-                <version>${tcpmd5.version}</version>
-                <type>test-jar</type>
-                <scope>test</scope>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
