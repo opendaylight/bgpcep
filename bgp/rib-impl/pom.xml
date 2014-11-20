@@ -227,15 +227,15 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.opendaylight.tcpmd5</groupId>
-            <artifactId>tcpmd5-jni</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.opendaylight.tcpmd5</groupId>
             <artifactId>tcpmd5-jni</artifactId>
             <type>test-jar</type>
+            <scope>test</scope>
+        </dependency-->
+        <dependency>
+            <groupId>org.opendaylight.tcpmd5</groupId>
+            <artifactId>tcpmd5-jni</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
