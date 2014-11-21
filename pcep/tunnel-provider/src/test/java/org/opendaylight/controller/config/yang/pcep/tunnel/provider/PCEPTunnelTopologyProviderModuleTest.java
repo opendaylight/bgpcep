@@ -127,6 +127,13 @@ public class PCEPTunnelTopologyProviderModuleTest extends AbstractInstructionSch
         final List<String> paths = super.getYangModelsPaths();
         paths.add("/META-INF/yang/network-topology@2013-10-21.yang");
         paths.add("/META-INF/yang/network-topology-pcep.yang");
+        paths.add("/META-INF/yang/network-topology-pcep-programming.yang");
+        paths.add("/META-INF/yang/network-topology-programming.yang");
+        paths.add("/META-INF/yang/topology-tunnel.yang");
+        paths.add("/META-INF/yang/topology-tunnel-pcep.yang");
+        paths.add("/META-INF/yang/topology-tunnel-pcep-programming.yang");
+        paths.add("/META-INF/yang/topology-tunnel-p2p.yang");
+        paths.add("/META-INF/yang/topology-tunnel-programming.yang");
         paths.add("/META-INF/yang/odl-network-topology.yang");
         paths.add("/META-INF/yang/yang-ext.yang");
         paths.add("/META-INF/yang/pcep-types.yang");
