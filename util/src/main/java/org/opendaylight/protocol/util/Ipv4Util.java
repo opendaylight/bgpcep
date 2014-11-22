@@ -13,6 +13,7 @@ import com.google.common.net.InetAddresses;
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -56,6 +57,15 @@ public final class Ipv4Util {
      */
     public static Ipv4Address addressForByteBuf(final ByteBuf buffer) {
         return new Ipv4Address(InetAddresses.toAddrString(getAddress(ByteArray.readBytes(buffer, IP4_LENGTH))));
+    }
+
+    /**
+     * From string ipAddress creates an InetAddress and puts it into ByteBuf.
+     * @param ipAddress Ipv4 address
+     * @return ByteBuf with filled in bytes from ipAddress
+     */
+    public static ByteBuf byteBufForAddress(final Ipv4Address ipAddress) {
+        return Unpooled.wrappedBuffer(bytesForAddress(ipAddress));
     }
 
     /**
