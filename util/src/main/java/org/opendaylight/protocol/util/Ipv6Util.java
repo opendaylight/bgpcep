@@ -13,6 +13,7 @@ import com.google.common.net.InetAddresses;
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -56,6 +57,15 @@ public final class Ipv6Util {
      */
     public static Ipv6Address addressForByteBuf(final ByteBuf buffer) {
         return new Ipv6Address(InetAddresses.toAddrString(getAddress((ByteArray.readBytes(buffer, IPV6_LENGTH)))));
+    }
+
+    /**
+     * From string ipAddress creates an InetAddress and puts it into ByteBuf.
+     * @param ipAddress Ipv6 address
+     * @return ByteBuf with filled in bytes from ipAddress
+     */
+    public static ByteBuf byteBufForAddress(final Ipv6Address ipAddress) {
+        return Unpooled.wrappedBuffer(bytesForAddress(ipAddress));
     }
 
     /**
