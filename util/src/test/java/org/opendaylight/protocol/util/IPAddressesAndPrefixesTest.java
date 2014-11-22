@@ -87,6 +87,14 @@ public class IPAddressesAndPrefixesTest {
     }
 
     @Test
+    public void testByteBufForAddress() {
+        final ByteBuf bb4 = Unpooled.wrappedBuffer(new byte[] { 123, 122, 4, 5} );
+        final ByteBuf bb6 = Unpooled.wrappedBuffer(new byte[] { 0x20, (byte) 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 } );
+        assertEquals(bb4, Ipv4Util.byteBufForAddress(new Ipv4Address("123.122.4.5")));
+        assertEquals(bb6, Ipv6Util.byteBufForAddress(new Ipv6Address("2001::1")));
+    }
+
+    @Test
     public void testBytesForAddress() {
         assertArrayEquals(new byte[] { 12, 58, (byte) 201, 99 }, Ipv4Util.bytesForAddress(new Ipv4Address("12.58.201.99")));
         assertArrayEquals(new byte[] { 0x20, (byte) 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
