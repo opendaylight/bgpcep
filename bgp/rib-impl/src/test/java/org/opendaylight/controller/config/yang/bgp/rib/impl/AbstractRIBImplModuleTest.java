@@ -46,7 +46,6 @@ import org.opendaylight.controller.config.yang.md.sal.binding.impl.BindingAsyncD
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.BindingAsyncDataBrokerImplModuleMXBean;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.RuntimeMappingModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomBrokerImplModuleFactory;
-import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomBrokerImplModuleMXBean;
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomInmemoryDataBrokerModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomInmemoryDataBrokerModuleMXBean;
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.SchemaServiceImplSingletonModuleFactory;
@@ -254,15 +253,24 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         final ObjectName nameCreated = transaction.createModule(BindingAsyncDataBrokerImplModuleFactory.NAME, BINDING_ASYNC_BROKER_INSTANCE_NAME);
         final BindingAsyncDataBrokerImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, BindingAsyncDataBrokerImplModuleMXBean.class);
         mxBean.setBindingMappingService(lookupMappingServiceInstance(transaction));
-        mxBean.setDomAsyncBroker(lookupDomBrokerInstance(transaction));
+        mxBean.setDomAsyncBroker(lookupDomAsyncDataBroker(transaction));
+        mxBean.setSchemaService(lookupSchemaServiceInstance(transaction));
         return nameCreated;
     }
 
-    private static ObjectName createDomAsyncDataBroker(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
-        final ObjectName nameCreated = transaction.createModule(DomInmemoryDataBrokerModuleFactory.NAME, DOM_ASYNC_DATA_BROKER_INSTANCE);
-        final DomInmemoryDataBrokerModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, DomInmemoryDataBrokerModuleMXBean.class);
-        mxBean.setSchemaService(lookupSchemaServiceInstance(transaction));
-        return nameCreated;
+    private static ObjectName lookupDomAsyncDataBroker(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
+        try {
+            return transaction.lookupConfigBean(DomInmemoryDataBrokerModuleFactory.NAME, DOM_ASYNC_DATA_BROKER_INSTANCE);
+        } catch (InstanceNotFoundException e) {
+            try {
+                final ObjectName nameCreated = transaction.createModule(DomInmemoryDataBrokerModuleFactory.NAME, DOM_ASYNC_DATA_BROKER_INSTANCE);
+                final DomInmemoryDataBrokerModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, DomInmemoryDataBrokerModuleMXBean.class);
+                mxBean.setSchemaService(lookupSchemaServiceInstance(transaction));
+                return nameCreated;
+            } catch (InstanceAlreadyExistsException e1) {
+                throw new IllegalStateException(e1);
+            }
+        }
     }
 
     private static ObjectName lookupMappingServiceInstance(final ConfigTransactionJMXClient transaction) {
@@ -283,21 +291,6 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         } catch (InstanceNotFoundException e) {
             try {
                 return transaction.createModule(SchemaServiceImplSingletonModuleFactory.NAME, SchemaServiceImplSingletonModuleFactory.SINGLETON_NAME);
-            } catch (InstanceAlreadyExistsException e1) {
-                throw new IllegalStateException(e1);
-            }
-        }
-    }
-
-    public static ObjectName lookupDomBrokerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
-        try {
-            return transaction.lookupConfigBean(DomBrokerImplModuleFactory.NAME, DOM_BROKER_INSTANCE_NAME);
-        } catch (InstanceNotFoundException e) {
-            try {
-                final ObjectName nameCreated = transaction.createModule(DomBrokerImplModuleFactory.NAME, DOM_BROKER_INSTANCE_NAME);
-                final DomBrokerImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, DomBrokerImplModuleMXBean.class);
-                mxBean.setAsyncDataBroker(createDomAsyncDataBroker(transaction));
-                return nameCreated;
             } catch (InstanceAlreadyExistsException e1) {
                 throw new IllegalStateException(e1);
             }
