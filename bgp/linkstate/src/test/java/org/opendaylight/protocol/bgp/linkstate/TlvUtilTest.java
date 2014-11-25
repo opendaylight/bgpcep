@@ -12,15 +12,15 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import org.junit.Test;
 
-public class TlvCodeTest {
+public class TlvUtilTest {
 
     @Test(expected=UnsupportedOperationException.class)
     public void testPrivateConstructor() throws Throwable {
-        final Constructor<TlvCode> c = TlvCode.class.getDeclaredConstructor();
+        final Constructor<TlvUtil> c = TlvUtil.class.getDeclaredConstructor();
         c.setAccessible(true);
         try {
             c.newInstance();
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw e.getCause();
         }
     }
