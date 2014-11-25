@@ -122,7 +122,7 @@
                     </bgp-dispatcher>
                     <data-provider>
                         <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-async-data-broker</type>
-                        <name>binding-data-broker</name>
+                        <name>pingpong-binding-data-broker</name>
                     </data-provider>
                     <session-reconnect-strategy>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:protocol:framework">prefix:reconnect-strategy-factory</type>
@@ -138,7 +138,7 @@
                     <name>example-ipv4-topology</name>
                     <data-provider>
                         <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-async-data-broker</type>
-                        <name>binding-data-broker</name>
+                        <name>pingpong-binding-data-broker</name>
                     </data-provider>
                     <local-rib>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg">prefix:rib</type>
@@ -151,7 +151,7 @@
                     <name>example-ipv6-topology</name>
                     <data-provider>
                         <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-async-data-broker</type>
-                        <name>binding-data-broker</name>
+                        <name>pingpong-binding-data-broker</name>
                     </data-provider>
                     <local-rib>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg">prefix:rib</type>
@@ -164,7 +164,7 @@
                     <name>example-linkstate-topology</name>
                     <data-provider>
                         <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-async-data-broker</type>
-                        <name>binding-data-broker</name>
+                        <name>pingpong-binding-data-broker</name>
                     </data-provider>
                     <local-rib>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg">prefix:rib</type>
