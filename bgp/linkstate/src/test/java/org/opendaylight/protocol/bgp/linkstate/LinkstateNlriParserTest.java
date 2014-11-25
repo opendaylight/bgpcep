@@ -17,6 +17,7 @@ import io.netty.buffer.Unpooled;
 import java.math.BigInteger;
 import java.util.List;
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.linkstate.nlri.LinkstateNlriParser;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
