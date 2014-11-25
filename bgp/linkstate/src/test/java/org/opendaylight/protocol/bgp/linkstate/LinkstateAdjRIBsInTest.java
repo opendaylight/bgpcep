@@ -245,7 +245,7 @@ public class LinkstateAdjRIBsInTest extends AbstractDataBrokerTest {
     public void testAddAdvertisement() {
         final PrefixCaseBuilder pcb = new PrefixCaseBuilder();
         pcb.setAdvertisingNodeDescriptors(new AdvertisingNodeDescriptorsBuilder().build());
-        pcb.setIpReachabilityInformation(new IpPrefix(new Ipv4Prefix("127.0.0.1"))).build();
+        pcb.setIpReachabilityInformation(new IpPrefix(new Ipv4Prefix("127.0.0.1/32"))).build();
         LinkstateRoute data = new LinkstateRouteBuilder().setObjectType(pcb.build()).build();
         final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
         this.lrib.addAdvertisement(mpBuilder, data);

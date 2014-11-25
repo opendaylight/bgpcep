@@ -122,7 +122,7 @@ public class AdjacencyRIBsInTest extends AbstractDataBrokerTest {
         MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
         mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
             new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder().setIpv4Prefixes(
-                Lists.newArrayList(new Ipv4Prefix("127.0.0.1"))).build()).build()).build());
+                Lists.newArrayList(new Ipv4Prefix("127.0.0.1/32"))).build()).build()).build());
         final PathAttributesBuilder paBuilder = new PathAttributesBuilder();
         this.a1.addRoutes(this.adjTrans4, this.peer, mpBuilder.build(), paBuilder.build());
         Mockito.verify(this.adjTrans4).advertise(Mockito.any(RouteEncoder.class), Mockito.anyObject(), Mockito.any(InstanceIdentifier.class), Mockito.eq(this.peer), Mockito.any(Route.class));
@@ -132,7 +132,7 @@ public class AdjacencyRIBsInTest extends AbstractDataBrokerTest {
         mpBuilder = new MpReachNlriBuilder();
         mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
             new DestinationIpv6CaseBuilder().setDestinationIpv6(new DestinationIpv6Builder().setIpv6Prefixes(
-                Lists.newArrayList(new Ipv6Prefix("2001:db8:1:2::"))).build()).build()).build());
+                Lists.newArrayList(new Ipv6Prefix("2001:db8:1:2::/128"))).build()).build()).build());
         a2.addRoutes(this.adjTrans6, this.peer, mpBuilder.build(), paBuilder.build());
         Mockito.verify(this.adjTrans6).advertise(Mockito.any(RouteEncoder.class), Mockito.anyObject(), Mockito.any(InstanceIdentifier.class), Mockito.eq(this.peer), Mockito.any(Route.class));
 

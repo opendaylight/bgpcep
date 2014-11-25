@@ -54,9 +54,9 @@ public class AbstractAdjRIBsTest {
 
     private static final AsNumber TEST_AS_NUMBER = new AsNumber(35L);
 
-    private static final Ipv4Prefix IPV4_PREFIX1 = new Ipv4Prefix("test-prefix1");
+    private static final Ipv4Prefix IPV4_PREFIX1 = new Ipv4Prefix("1.1.1.1/32");
 
-    private static final Ipv4Prefix IPV4_PREFIX2 = new Ipv4Prefix("test-prefix2");
+    private static final Ipv4Prefix IPV4_PREFIX2 = new Ipv4Prefix("2.2.2.2/32");
 
     private static final InstanceIdentifier<Rib> RIB_IID = InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(new RibId("test-rib"))).toInstance();
 
