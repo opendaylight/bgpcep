@@ -38,8 +38,8 @@ public class IPAddressesAndPrefixesTest {
 
     @Test
     public void test4() throws UnknownHostException {
-        assertNotNull(new IpPrefix(new Ipv4Prefix("123.123.123.123")).getIpv4Prefix());
-        assertNotNull(new IpPrefix(new Ipv6Prefix("2001::1")).getIpv6Prefix());
+        assertNotNull(new IpPrefix(new Ipv4Prefix("123.123.123.123/32")).getIpv4Prefix());
+        assertNotNull(new IpPrefix(new Ipv6Prefix("2001::1/120")).getIpv6Prefix());
     }
 
     @Test
