@@ -183,6 +183,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         this.serverSessionManager.releaseNodeState(this.nodeState, session);
         this.nodeState = null;
         this.session = null;
+        unregister();
 
         // Clear all requests we know about
         for (final Entry<S, PCEPRequest> e : this.requests.entrySet()) {
@@ -245,11 +246,16 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
     @Override
     public void close() {
-        if (this.registration != null) {
-            this.registration.close();
-        }
+        unregister();
         if (this.session != null) {
             this.session.close(TerminationReason.Unknown);
+        }
+    }
+
+    private synchronized void unregister() {
+        if (this.registration != null) {
+            this.registration.close();
+            this.registration = null;
         }
     }
 
