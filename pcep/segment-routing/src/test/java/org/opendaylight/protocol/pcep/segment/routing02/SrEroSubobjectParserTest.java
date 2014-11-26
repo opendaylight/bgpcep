@@ -75,6 +75,16 @@ public class SrEroSubobjectParserTest {
         0x00,0x00,0x00,0x04
     };
 
+    private static final byte[] srEroSubobjectWithoutNAI  = {
+        0x05,0x08,(byte) 0x10,0x08,
+        0x00,0x01,(byte) 0xe2,0x40,
+    };
+
+    private static final byte[] srEroSubobjectWithoutSID  = {
+        0x05,0x08,(byte) 0x10,0x04,
+        0x4A,0x7D,0x2b,0x63,
+    };
+
     private SimplePCEPExtensionProviderContext ctx;
     private SegmentRoutingActivator act;
 
@@ -165,5 +175,35 @@ public class SrEroSubobjectParserTest {
         final ByteBuf buffer = Unpooled.buffer();
         parser.serializeSubobject(subobjBuilder.build(), buffer);
         assertArrayEquals(srEroSubobjectWithUnnumbered, ByteArray.getAllBytes(buffer));
+    }
+
+    @Test
+    public void testSrEroSubobjectWithoutNAI() throws PCEPDeserializerException {
+        final SrEroSubobjectParser parser = new SrEroSubobjectParser();
+        final SrEroTypeBuilder builder = new SrEroTypeBuilder();
+        builder.setFlags(new Flags(false, true, false, false));
+        builder.setSidType(SidType.Ipv4NodeId);
+        builder.setSid(123456L);
+        final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build()).setLoose(false);
+
+        assertEquals(subobjBuilder.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(srEroSubobjectWithoutNAI, 2)), false));
+        final ByteBuf buffer = Unpooled.buffer();
+        parser.serializeSubobject(subobjBuilder.build(), buffer);
+        assertArrayEquals(srEroSubobjectWithoutNAI, ByteArray.getAllBytes(buffer));
+    }
+
+    @Test
+    public void testSrEroSubobjectWithoutBody() throws PCEPDeserializerException {
+        final SrEroSubobjectParser parser = new SrEroSubobjectParser();
+        final SrEroTypeBuilder builder = new SrEroTypeBuilder();
+        builder.setFlags(new Flags(false, false, false, true));
+        builder.setSidType(SidType.Ipv4NodeId);
+        builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddress(new Ipv4Address("74.125.43.99"))).build());
+        final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build()).setLoose(false);
+
+        assertEquals(subobjBuilder.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(srEroSubobjectWithoutSID, 2)), false));
+        final ByteBuf buffer = Unpooled.buffer();
+        parser.serializeSubobject(subobjBuilder.build(), buffer);
+        assertArrayEquals(srEroSubobjectWithoutSID, ByteArray.getAllBytes(buffer));
     }
 }
