@@ -46,11 +46,9 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
 
     public static final int TYPE = 5;
 
-    private static final int SID_LENGTH = 4;
     private static final int FLAGS_OFFSET = 1;
-    private static final int HEADER_LENGTH = FLAGS_OFFSET + 1;
-    private static final int MINIMAL_LENGTH = SID_LENGTH + HEADER_LENGTH;
     private static final int SID_TYPE_BITS_OFFSET = 4;
+    private static final int MINIMAL_LENGTH = 4;
 
     private static final int M_FLAG_POSITION = 7;
     private static final int C_FLAG_POSITION = 6;
@@ -77,10 +75,11 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
         }
         writeBitSet(bits, FLAGS_OFFSET, body);
 
-        writeUnsignedInt(srEroSubobject.getSid(), body);
-
+        if (srEroSubobject.getSid() != null && !flags.isS()) {
+            writeUnsignedInt(srEroSubobject.getSid(), body);
+        }
         final Nai nai = srEroSubobject.getNai();
-        if (nai != null) {
+        if (nai != null && !flags.isF()) {
             switch (srEroSubobject.getSidType()) {
             case Ipv4NodeId:
                 writeIpv4Address(((IpNodeId) nai).getIpAddress().getIpv4Address(), body);
@@ -113,9 +112,9 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
         Preconditions.checkArgument(buffer != null && buffer.isReadable(),
                 "Array of bytes is mandatory. Can't be null or empty.");
         if (buffer.readableBytes() <= MINIMAL_LENGTH) {
-            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
-                    + ";");
+            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ";");
         }
+
         final SrEroTypeBuilder srEroSubobjectBuilder = new SrEroTypeBuilder();
         final int sidTypeByte = buffer.readByte() >> SID_TYPE_BITS_OFFSET;
         final SidType sidType = SidType.forValue(sidTypeByte);
@@ -129,9 +128,11 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
         final Flags flags = new Flags(c, f, m, s);
         srEroSubobjectBuilder.setFlags(flags);
 
-        final long sid = buffer.readUnsignedInt();
-        srEroSubobjectBuilder.setSid(sid);
-        if (sidType != null) {
+        if (!flags.isS()) {
+            final long sid = buffer.readUnsignedInt();
+            srEroSubobjectBuilder.setSid(sid);
+        }
+        if (sidType != null && !flags.isF()) {
             switch (sidType) {
             case Ipv4NodeId:
                 srEroSubobjectBuilder.setNai(new IpNodeIdBuilder().setIpAddress(
