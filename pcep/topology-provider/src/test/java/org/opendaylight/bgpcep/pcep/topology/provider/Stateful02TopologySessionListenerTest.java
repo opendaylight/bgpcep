@@ -70,7 +70,7 @@ public class Stateful02TopologySessionListenerTest extends AbstractPCEPSessionTe
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        listener = (Stateful02TopologySessionListener) this.manager.getSessionListener();
+        listener = (Stateful02TopologySessionListener) getSessionListener();
     }
 
     @Test
