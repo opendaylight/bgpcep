@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_a84fd491",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing02/SrPcRptMessageParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-11-27T12:40:27Z",
+      "side": 1,
+      "message": "else SRP_MISSING?",
+      "range": {
+        "startLine": 90,
+        "startChar": 12,
+        "endLine": 90,
+        "endChar": 13
+      },
+      "revId": "dd2164070ce1e4581b1fccf67b84170f1f0e2eee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
