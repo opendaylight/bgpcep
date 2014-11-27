@@ -38,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcupdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SrpIdNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.LspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.PcrptMessageBuilder;
@@ -78,6 +79,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.RpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.rp.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId;
 
 public class SrMessageParserTest {
 
@@ -211,7 +213,13 @@ public class SrMessageParserTest {
         final SrPcRptMessageParser parser = new SrPcRptMessageParser(objectRegistry);
         final PcrptMessageBuilder builder = new PcrptMessageBuilder();
         final ReportsBuilder rptBuilder = new ReportsBuilder();
-        rptBuilder.setLsp(createLspObject());
+        final Lsp lsp = createLspObject();
+        final LspBuilder lspBuilder = new LspBuilder(lsp);
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder tlvsBuilder =
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder(lsp.getTlvs());
+        tlvsBuilder.setLspIdentifiers(new LspIdentifiersBuilder().setLspId(new LspId(0L)).build());
+        lspBuilder.setTlvs(tlvsBuilder.build());
+        rptBuilder.setLsp(lspBuilder.build());
         rptBuilder.setSrp(createSrpObject());
         rptBuilder.setPath(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.pcrpt.message.reports.PathBuilder().setEro(createSrEroObject()).build());
         builder.setReports(Lists.newArrayList(rptBuilder.build()));
@@ -221,6 +229,8 @@ public class SrMessageParserTest {
                 buf.readableBytes() - 4), Collections.<Message> emptyList()));
 
         final ByteBuf buffer = Unpooled.buffer(statefulMsg.length);
+        rptBuilder.setLsp(createLspObject());
+        builder.setReports(Lists.newArrayList(rptBuilder.build()));
         parser.serializeMessage(new PcrptBuilder().setPcrptMessage(builder.build()).build(), buffer);
         assertArrayEquals(statefulMsg, buffer.array());
     }
