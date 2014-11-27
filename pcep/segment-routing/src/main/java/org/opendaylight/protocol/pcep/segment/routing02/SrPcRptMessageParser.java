@@ -14,7 +14,10 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07PCReportMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.Lsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.LspBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.pcrpt.message.Reports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.pcrpt.message.ReportsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.pcrpt.message.reports.PathBuilder;
@@ -24,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId;
 
 public class SrPcRptMessageParser extends Stateful07PCReportMessageParser {
 
@@ -54,7 +58,12 @@ public class SrPcRptMessageParser extends Stateful07PCReportMessageParser {
             builder.setSrp(srp);
             objects.remove(0);
             if (objects.get(0) instanceof Lsp) {
-                builder.setLsp((Lsp) objects.get(0));
+                final Lsp lsp = (Lsp) objects.get(0);
+                final LspBuilder lspBuilder = new LspBuilder(lsp);
+                final TlvsBuilder tlvsBuilder = new TlvsBuilder(lsp.getTlvs());
+                tlvsBuilder.setLspIdentifiers(new LspIdentifiersBuilder().setLspId(new LspId(lsp.getPlspId().getValue())).build());
+                lspBuilder.setTlvs(tlvsBuilder.build());
+                builder.setLsp(lspBuilder.build());
                 objects.remove(0);
             } else {
                 errors.add(createErrorMsg(PCEPErrors.LSP_MISSING, Optional.<Rp>absent()));
