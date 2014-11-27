@@ -99,7 +99,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        this.listener = (Stateful07TopologySessionListener) this.manager.getSessionListener();
+        this.listener = (Stateful07TopologySessionListener) getSessionListener();
     }
 
     @Test

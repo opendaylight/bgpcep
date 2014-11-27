@@ -123,12 +123,34 @@
          <groupId>org.opendaylight.yangtools</groupId>
          <artifactId>mockito-configuration</artifactId>
       </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>pcep-spi</artifactId>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
+      <dependency>
+         <groupId>${project.groupId}</groupId>
+         <artifactId>pcep-spi</artifactId>
+         <type>test-jar</type>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.opendaylight.controller</groupId>
+         <artifactId>sal-binding-broker-impl</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.opendaylight.controller</groupId>
+          <artifactId>sal-binding-broker-impl</artifactId>
+          <scope>test</scope>
+          <type>test-jar</type>
+      </dependency>
+      <dependency>
+         <groupId>${project.groupId}</groupId>
+         <artifactId>pcep-topology-provider</artifactId>
+         <type>test-jar</type>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>${project.groupId}</groupId>
+         <artifactId>pcep-topology-provider</artifactId>
+         <scope>test</scope>
+      </dependency>
    </dependencies>
 
    <build>
