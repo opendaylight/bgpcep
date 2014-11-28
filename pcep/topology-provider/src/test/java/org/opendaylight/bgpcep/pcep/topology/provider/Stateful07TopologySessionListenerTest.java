@@ -295,7 +295,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         assertEquals(1, getTopology().get().getNode().size());
 
         // node should be removed after termination
-        this.listener.onSessionTerminated(this.session, new PCEPCloseTermination(TerminationReason.Unknown));
+        this.listener.onSessionTerminated(this.session, new PCEPCloseTermination(TerminationReason.UNKNOWN));
         assertEquals(0, getTopology().get().getNode().size());
     }
 

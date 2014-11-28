@@ -87,7 +87,7 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
         // exceeded max. unknown messages count - terminate session
         Assert.assertTrue(this.msgsSend.get(1) instanceof CloseMessage);
         final CloseMessage closeMsg = (CloseMessage) this.msgsSend.get(1);
-        Assert.assertEquals(TerminationReason.TooManyUnknownMsg, TerminationReason.forValue(closeMsg.getCCloseMessage().getCClose().getReason()));
+        Assert.assertEquals(TerminationReason.TOO_MANY_UNKNOWN_MSGS, TerminationReason.forValue(closeMsg.getCCloseMessage().getCClose().getReason()));
         Mockito.verify(this.channel, Mockito.times(1)).close();
     }
 
@@ -100,11 +100,11 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
 
     @Test
     public void testCloseSessionWithReason() {
-        this.session.close(TerminationReason.Unknown);
+        this.session.close(TerminationReason.UNKNOWN);
         Assert.assertEquals(1, this.msgsSend.size());
         Assert.assertTrue(this.msgsSend.get(0) instanceof CloseMessage);
         final CloseMessage closeMsg = (CloseMessage) this.msgsSend.get(0);
-        Assert.assertEquals(TerminationReason.Unknown, TerminationReason.forValue(closeMsg.getCCloseMessage().getCClose().getReason()));
+        Assert.assertEquals(TerminationReason.UNKNOWN, TerminationReason.forValue(closeMsg.getCCloseMessage().getCClose().getReason()));
         Mockito.verify(this.channel, Mockito.times(1)).close();
     }
 

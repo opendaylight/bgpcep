@@ -93,12 +93,12 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.notifications.Notifications> notifications = new ArrayList<>();
         Object obj;
 
-        State state = State.Init;
-        while (!objects.isEmpty() && !state.equals(State.End)) {
+        State state = State.INIT;
+        while (!objects.isEmpty() && !state.equals(State.END)) {
             obj = objects.get(0);
             switch (state) {
-            case Init:
-                state = State.RpIn;
+            case INIT:
+                state = State.RP_IN;
                 if (obj instanceof Rp) {
                     final Rp rp = (Rp) obj;
                     if (rp.isProcessingRule()) {
@@ -106,24 +106,24 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
                         return null;
                     }
                     requestParameters.add(new RpsBuilder().setRp(rp).build());
-                    state = State.Init;
+                    state = State.INIT;
                     break;
                 }
-            case RpIn:
-                state = State.NotificationIn;
+            case RP_IN:
+                state = State.NOTIFICATION_IN;
                 if (obj instanceof CNotification) {
                     final CNotification n = (CNotification) obj;
                     notifications.add(new NotificationsBuilder().setCNotification(n).build());
-                    state = State.RpIn;
+                    state = State.RP_IN;
                     break;
                 }
-            case NotificationIn:
-                state = State.End;
+            case NOTIFICATION_IN:
+                state = State.END;
                 break;
-            case End:
+            case END:
                 break;
             }
-            if (!state.equals(State.End)) {
+            if (!state.equals(State.END)) {
                 objects.remove(0);
             }
         }
@@ -137,6 +137,6 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
     }
 
     private enum State {
-        Init, RpIn, NotificationIn, End
+        INIT, RP_IN, NOTIFICATION_IN, END
     }
 }

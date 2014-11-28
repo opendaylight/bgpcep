@@ -139,42 +139,42 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
     private void parsePath(final List<Object> objects, final PathBuilder pBuilder) {
         final List<Metrics> pathMetrics = Lists.newArrayList();
         Object obj;
-        State state = State.Init;
-        while (!objects.isEmpty() && !state.equals(State.End)) {
+        State state = State.INIT;
+        while (!objects.isEmpty() && !state.equals(State.END)) {
             obj = objects.get(0);
             switch (state) {
-            case Init:
-                state = State.LspaIn;
+            case INIT:
+                state = State.LSPA_IN;
                 if (obj instanceof Lspa) {
                     pBuilder.setLspa((Lspa) obj);
                     break;
                 }
-            case LspaIn:
-                state = State.BandwidthIn;
+            case LSPA_IN:
+                state = State.BANDWIDTH_IN;
                 if (obj instanceof Bandwidth) {
                     pBuilder.setBandwidth((Bandwidth) obj);
                     break;
                 }
-            case BandwidthIn:
-                state = State.MetricIn;
+            case BANDWIDTH_IN:
+                state = State.METRIC_IN;
                 if (obj instanceof Metric) {
                     pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-                    state = State.BandwidthIn;
+                    state = State.BANDWIDTH_IN;
                     break;
                 }
-            case MetricIn:
-                state = State.IroIn;
+            case METRIC_IN:
+                state = State.IRO_IN;
                 if (obj instanceof Iro) {
                     pBuilder.setIro((Iro) obj);
                     break;
                 }
-            case IroIn:
-                state = State.End;
+            case IRO_IN:
+                state = State.END;
                 break;
-            case End:
+            case END:
                 break;
             }
-            if (!state.equals(State.End)) {
+            if (!state.equals(State.END)) {
                 objects.remove(0);
             }
         }
@@ -184,6 +184,6 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
     }
 
     private enum State {
-        Init, LspaIn, BandwidthIn, MetricIn, IroIn, End
+        INIT, LSPA_IN, BANDWIDTH_IN, METRIC_IN, IRO_IN, END
     }
 }

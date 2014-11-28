@@ -37,6 +37,6 @@ public class ServerSessionMock extends PCEPSessionImpl {
 
     @Override
     public void close() {
-        this.client.onSessionTerminated(this, new PCEPCloseTermination(TerminationReason.Unknown));
+        this.client.onSessionTerminated(this, new PCEPCloseTermination(TerminationReason.UNKNOWN));
     }
 }

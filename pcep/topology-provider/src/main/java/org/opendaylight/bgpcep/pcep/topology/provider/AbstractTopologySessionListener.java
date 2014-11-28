@@ -165,7 +165,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
             @Override
             public void onFailure(final Throwable t) {
                 LOG.error("Failed to update internal state for session {}, terminating it", session, t);
-                session.close(TerminationReason.Unknown);
+                session.close(TerminationReason.UNKNOWN);
             }
         });
 
@@ -239,7 +239,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
             public void onFailure(final Throwable t) {
                 LOG.error("Failed to update internal state for session {}, closing it", session, t);
                 ctx.notifyRequests();
-                session.close(TerminationReason.Unknown);
+                session.close(TerminationReason.UNKNOWN);
             }
         });
     }
@@ -248,7 +248,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     public void close() {
         unregister();
         if (this.session != null) {
-            this.session.close(TerminationReason.Unknown);
+            this.session.close(TerminationReason.UNKNOWN);
         }
     }
 

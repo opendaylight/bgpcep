@@ -50,7 +50,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
         assertEquals(2, this.msgsSend.size());
         assertTrue(this.msgsSend.get(1) instanceof Keepalive);
         this.serverSession.handleMessage(this.kaMsg);
-        assertEquals(this.serverSession.getState(), DefaultPCEPSessionNegotiator.State.Finished);
+        assertEquals(this.serverSession.getState(), DefaultPCEPSessionNegotiator.State.FINISHED);
     }
 
     /**
@@ -71,7 +71,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
         assertEquals(3, this.msgsSend.size());
         assertTrue(this.msgsSend.get(2) instanceof Open);
         this.serverSession.handleMessage(this.kaMsg);
-        assertEquals(this.serverSession.getState(), DefaultPCEPSessionNegotiator.State.Finished);
+        assertEquals(this.serverSession.getState(), DefaultPCEPSessionNegotiator.State.FINISHED);
     }
 
     /**
