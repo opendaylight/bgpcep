@@ -120,7 +120,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
     }
 
     public int getType() {
-        return type;
+        return this.type;
     }
 
     private NlriType getNlriType(final PathAttributesBuilder pab) {
@@ -185,8 +185,9 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
         case Node:
             builder.setLinkStateAttribute(parseNodeAttributes(map));
             return builder.build();
+        default:
+            throw new IllegalStateException("Unhandled NLRI type " + nlri);
         }
-        throw new IllegalStateException("Unhandled NLRI type " + nlri);
     }
 
     /**

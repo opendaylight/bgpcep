@@ -158,6 +158,8 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
                 return;
             }
             break;
+        default:
+            break;
         }
 
         // Catch-all for unexpected message

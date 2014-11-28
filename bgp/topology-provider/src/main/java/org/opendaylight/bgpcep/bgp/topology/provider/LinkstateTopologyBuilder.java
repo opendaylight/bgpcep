@@ -480,6 +480,8 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
             ilab.addAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpLinkAttributes1.class,
                 ospfLinkAttributes(l.getLinkDescriptors().getMultiTopologyId(), la));
             break;
+        default:
+            break;
         }
 
         final LinkBuilder lb = new LinkBuilder();
@@ -631,6 +633,8 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
             inab.addAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpNodeAttributes1.class,
                 ospfNodeAttributes(nd, na));
             break;
+        default:
+            break;
         }
     }
 
@@ -696,6 +700,8 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
                     new Prefix1Builder().setOspfPrefixAttributes(
                         new OspfPrefixAttributesBuilder().setForwardingAddress(pa.getOspfForwardingAddress().getIpv4Address()).build()).build());
             }
+            break;
+        default:
             break;
         }
     }

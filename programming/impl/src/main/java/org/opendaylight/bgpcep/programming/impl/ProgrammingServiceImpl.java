@@ -188,6 +188,8 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
                 LOG.debug("Instruction {} cannot be cleaned because of it's in state {}", id, i.getStatus());
                 failed.add(id);
                 continue;
+            default:
+                break;
             }
 
             // The instruction is in a terminal state, we need to just unlink
@@ -227,6 +229,8 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
             case Queued:
             case Scheduled:
             case Successful:
+                break;
+            default:
                 break;
             }
         }

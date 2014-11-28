@@ -298,6 +298,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 break;
             case END:
                 break;
+            default:
+                break;
             }
             if (!state.equals(State.END)) {
                 objects.remove(0);
@@ -380,6 +382,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 state = SvecState.END;
                 break;
             case END:
+                break;
+            default:
                 break;
             }
             if (!state.equals(SvecState.END)) {

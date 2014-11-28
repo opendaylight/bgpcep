@@ -113,7 +113,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBs<CLinkstateDestination, Li
 
     LinkstateAdjRIBsIn(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
         super(basePath);
-        routesBasePath = basePath.builder().child((Class)LinkstateRoutes.class).build();
+        this.routesBasePath = basePath.builder().child((Class)LinkstateRoutes.class).build();
     }
 
     @Override
@@ -129,7 +129,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBs<CLinkstateDestination, Li
     public KeyedInstanceIdentifier<LinkstateRoute, LinkstateRouteKey> identifierForKey(final CLinkstateDestination key) {
         final ByteBuf keyBuf = Unpooled.buffer();
         LinkstateNlriParser.serializeNlri(key, keyBuf);
-        return routesBasePath.child(LinkstateRoute.class,
+        return this.routesBasePath.child(LinkstateRoute.class,
             new LinkstateRouteKey(ByteArray.readAllBytes(keyBuf)));
     }
 
@@ -216,6 +216,8 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBs<CLinkstateDestination, Li
                         return new NodeCaseBuilder().setNodeDescriptors(new NodeDescriptorsBuilder(key.getLocalNodeDescriptors()).build()).build();
                     }
                 };
+                break;
+            default:
                 break;
             }
             super.add(trans, peer, key, data);

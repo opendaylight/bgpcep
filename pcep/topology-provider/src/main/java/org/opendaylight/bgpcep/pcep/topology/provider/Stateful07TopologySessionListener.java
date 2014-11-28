@@ -173,6 +173,8 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
                         // These are transitive states, so we don't have to do anything, as they will be followed
                         // up...
                         break;
+                    default:
+                        break;
                     }
                     // if remove flag is set in SRP object, remove the tunnel immediately
                     if (srp.getAugmentation(Srp1.class) != null) {

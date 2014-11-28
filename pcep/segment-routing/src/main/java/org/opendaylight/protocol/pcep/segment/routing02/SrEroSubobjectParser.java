@@ -56,7 +56,7 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
     private static final int F_FLAG_POSITION = 4;
 
     @Override
-    public void serializeSubobject(Subobject subobject, final ByteBuf buffer) {
+    public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
         Preconditions.checkArgument(subobject.getSubobjectType() instanceof SrEroSubobject,
                 "Unknown subobject instance. Passed %s. Needed SrEroSubobject.", subobject.getSubobjectType()
                         .getClass());
@@ -102,13 +102,15 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
                 ByteBufWriteUtil.writeUnsignedInt(unnumbered.getRemoteNodeId(), body);
                 ByteBufWriteUtil.writeUnsignedInt(unnumbered.getRemoteInterfaceId(), body);
                 break;
+            default:
+                break;
             }
         }
         EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
     }
 
     @Override
-    public Subobject parseSubobject(ByteBuf buffer, boolean loose) throws PCEPDeserializerException {
+    public Subobject parseSubobject(final ByteBuf buffer, final boolean loose) throws PCEPDeserializerException {
         Preconditions.checkArgument(buffer != null && buffer.isReadable(),
                 "Array of bytes is mandatory. Can't be null or empty.");
         if (buffer.readableBytes() <= MINIMAL_LENGTH) {
@@ -120,7 +122,7 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
         final SidType sidType = SidType.forValue(sidTypeByte);
         srEroSubobjectBuilder.setSidType(sidType);
 
-        BitSet bitSet = ByteArray.bytesToBitSet(new byte[] { buffer.readByte() });
+        final BitSet bitSet = ByteArray.bytesToBitSet(new byte[] { buffer.readByte() });
         final boolean f = bitSet.get(F_FLAG_POSITION);
         final boolean s = bitSet.get(S_FLAG_POSITION);
         final boolean c = bitSet.get(C_FLAG_POSITION);
@@ -156,6 +158,8 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
                 srEroSubobjectBuilder.setNai(new UnnumberedAdjacencyBuilder().setLocalNodeId(buffer.readUnsignedInt())
                         .setLocalInterfaceId(buffer.readUnsignedInt()).setRemoteNodeId(buffer.readUnsignedInt())
                         .setRemoteInterfaceId(buffer.readUnsignedInt()).build());
+                break;
+            default:
                 break;
             }
         }

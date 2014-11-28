@@ -151,6 +151,8 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
                     negotiationFailed(new TimeoutException("OpenWait timer expired"));
                     AbstractPCEPSessionNegotiator.this.state = State.FINISHED;
                     break;
+                default:
+                    break;
                 }
             }
         }, FAIL_TIMER_VALUE, TimeUnit.SECONDS);
@@ -272,6 +274,8 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
             if (handleMessageOpenWait(msg)) {
                 return;
             }
+            break;
+        default:
             break;
         }
         LOG.warn("Channel {} in state {} received unexpected message {}", this.channel, this.state, msg);

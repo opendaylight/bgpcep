@@ -122,6 +122,8 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
                 break;
             case END:
                 break;
+            default:
+                break;
             }
             if (!state.equals(State.END)) {
                 objects.remove(0);

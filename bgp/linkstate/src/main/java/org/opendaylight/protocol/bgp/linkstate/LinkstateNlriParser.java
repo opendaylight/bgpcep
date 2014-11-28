@@ -334,6 +334,8 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
             case Node:
                 // node nlri is already parsed as it contains only the common fields for node and link nlri
                 break;
+            default:
+                break;
             }
             nlri.skipBytes(restLength);
             dests.add(builder.build());

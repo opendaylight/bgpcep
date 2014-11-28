@@ -202,6 +202,8 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
                 LOG.debug("Request {} was not sent when session went down, cancelling the instruction", e.getKey());
                 r.done(OperationResults.UNSENT);
                 break;
+            default:
+                break;
             }
         }
         this.requests.clear();

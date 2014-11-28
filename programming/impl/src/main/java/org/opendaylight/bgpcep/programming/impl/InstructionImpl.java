@@ -75,6 +75,8 @@ final class InstructionImpl implements Instruction {
         case Scheduled:
         case Successful:
             break;
+        default:
+            break;
         }
     }
 
@@ -119,6 +121,8 @@ final class InstructionImpl implements Instruction {
             LOG.debug("Instruction {} timed out while Scheduled, cancelling it", this.id);
             cancel(this.heldUpDetails);
             break;
+        default:
+            break;
         }
     }
 
@@ -150,9 +154,9 @@ final class InstructionImpl implements Instruction {
         case Scheduled:
             cancel(details);
             return null;
+        default:
+            throw new IllegalStateException("Unhandled instruction state " + this.status);
         }
-
-        throw new IllegalStateException("Unhandled instruction state " + this.status);
     }
 
     @Override
@@ -234,6 +238,8 @@ final class InstructionImpl implements Instruction {
                 break;
             case Successful:
                 // No-op
+                break;
+            default:
                 break;
             }
         }

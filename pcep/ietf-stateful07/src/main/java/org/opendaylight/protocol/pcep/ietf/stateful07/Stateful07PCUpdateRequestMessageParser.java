@@ -173,6 +173,8 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
                 break;
             case END:
                 break;
+            default:
+                break;
             }
             if (!state.equals(State.END)) {
                 objects.remove(0);

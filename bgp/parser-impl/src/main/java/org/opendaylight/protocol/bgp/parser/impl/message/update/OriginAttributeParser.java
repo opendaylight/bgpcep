@@ -48,6 +48,8 @@ public final class OriginAttributeParser implements AttributeParser, AttributeSe
         case Incomplete:
             builder.setOrigin(INC);
             return;
+        default:
+            return;
         }
     }
 
