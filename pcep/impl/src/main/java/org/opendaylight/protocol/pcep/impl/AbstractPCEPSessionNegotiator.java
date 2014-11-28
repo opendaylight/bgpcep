@@ -52,26 +52,26 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
          * Negotiation has not begun. It will be activated once we are asked to provide our initial proposal, at which
          * point we move into OpenWait state.
          */
-        Idle,
+        IDLE,
         /**
          * Waiting for the peer's OPEN message.
          */
-        OpenWait,
+        OPEN_WAIT,
         /**
          * Waiting for the peer's KEEPALIVE message.
          */
-        KeepWait,
+        KEEP_WAIT,
         /**
          * Negotiation has completed.
          */
-        Finished,
+        FINISHED,
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPCEPSessionNegotiator.class);
     private static final Keepalive KEEPALIVE = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
 
     private volatile boolean localOK, openRetry, remoteOK;
-    private volatile State state = State.Idle;
+    private volatile State state = State.IDLE;
     private Future<?> failTimer;
     private Open localPrefs;
     private Open remotePrefs;
@@ -138,18 +138,18 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
             @Override
             public void run() {
                 switch (AbstractPCEPSessionNegotiator.this.state) {
-                case Finished:
-                case Idle:
+                case FINISHED:
+                case IDLE:
                     break;
-                case KeepWait:
+                case KEEP_WAIT:
                     sendErrorMessage(PCEPErrors.NO_MSG_BEFORE_EXP_KEEPWAIT);
                     negotiationFailed(new TimeoutException("KeepWait timer expired"));
-                    AbstractPCEPSessionNegotiator.this.state = State.Finished;
+                    AbstractPCEPSessionNegotiator.this.state = State.FINISHED;
                     break;
-                case OpenWait:
+                case OPEN_WAIT:
                     sendErrorMessage(PCEPErrors.NO_OPEN_BEFORE_EXP_OPENWAIT);
                     negotiationFailed(new TimeoutException("OpenWait timer expired"));
-                    AbstractPCEPSessionNegotiator.this.state = State.Finished;
+                    AbstractPCEPSessionNegotiator.this.state = State.FINISHED;
                     break;
                 }
             }
@@ -158,12 +158,12 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 
     @Override
     protected final void startNegotiation() {
-        Preconditions.checkState(this.state == State.Idle);
+        Preconditions.checkState(this.state == State.IDLE);
         this.localPrefs = getInitialProposal();
         final OpenMessage m = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.OpenBuilder().setOpenMessage(
                 new OpenMessageBuilder().setOpen(this.localPrefs).build()).build();
         this.sendMessage(m);
-        this.state = State.OpenWait;
+        this.state = State.OPEN_WAIT;
         scheduleFailTimer();
 
         LOG.info("PCEP session with {} started, sent proposal {}", this.channel, this.localPrefs);
@@ -175,10 +175,10 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
             if (this.remoteOK) {
                 LOG.info("PCEP peer {} completed negotiation", this.channel);
                 negotiationSuccessful(createSession(this.channel, this.localPrefs, this.remotePrefs));
-                this.state = State.Finished;
+                this.state = State.FINISHED;
             } else {
                 scheduleFailTimer();
-                this.state = State.OpenWait;
+                this.state = State.OPEN_WAIT;
                 LOG.debug("Channel {} moved to OpenWait state with localOK=1", this.channel);
             }
             return true;
@@ -188,19 +188,19 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
                 final ErrorObject obj = err.getErrors().get(0).getErrorObject();
                 LOG.warn("Unexpected error received from PCC: type {} value {}", obj.getType(), obj.getValue());
                 negotiationFailed(new IllegalStateException("Unexpected error received from PCC."));
-                this.state = State.Idle;
+                this.state = State.IDLE;
                 return true;
             }
             this.localPrefs = getRevisedProposal(((SessionCase) err.getErrorType()).getSession().getOpen());
             if (this.localPrefs == null) {
                 sendErrorMessage(PCEPErrors.PCERR_NON_ACC_SESSION_CHAR);
                 negotiationFailed(new IllegalStateException("Peer suggested unacceptable retry proposal"));
-                this.state = State.Finished;
+                this.state = State.FINISHED;
                 return true;
             }
             this.sendMessage(new OpenBuilder().setOpenMessage(new OpenMessageBuilder().setOpen(this.localPrefs).build()).build());
             if (!this.remoteOK) {
-                this.state = State.OpenWait;
+                this.state = State.OPEN_WAIT;
             }
             scheduleFailTimer();
             return true;
@@ -219,10 +219,10 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
                 if (this.localOK) {
                     negotiationSuccessful(createSession(this.channel, this.localPrefs, this.remotePrefs));
                     LOG.info("PCEP peer {} completed negotiation", this.channel);
-                    this.state = State.Finished;
+                    this.state = State.FINISHED;
                 } else {
                     scheduleFailTimer();
-                    this.state = State.KeepWait;
+                    this.state = State.KEEP_WAIT;
                     LOG.debug("Channel {} moved to KeepWait state with remoteOK=1", this.channel);
                 }
                 return true;
@@ -231,7 +231,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
             if (this.openRetry) {
                 sendErrorMessage(PCEPErrors.SECOND_OPEN_MSG);
                 negotiationFailed(new IllegalStateException("OPEN renegotiation failed"));
-                this.state = State.Finished;
+                this.state = State.FINISHED;
                 return true;
             }
 
@@ -239,14 +239,14 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
             if (newPrefs == null) {
                 sendErrorMessage(PCEPErrors.NON_ACC_NON_NEG_SESSION_CHAR);
                 negotiationFailed(new IllegalStateException("Peer sent unacceptable session parameters"));
-                this.state = State.Finished;
+                this.state = State.FINISHED;
                 return true;
             }
 
             this.sendMessage(Util.createErrorMessage(PCEPErrors.NON_ACC_NEG_SESSION_CHAR, newPrefs));
 
             this.openRetry = true;
-            this.state = this.localOK ? State.OpenWait : State.KeepWait;
+            this.state = this.localOK ? State.OPEN_WAIT : State.KEEP_WAIT;
             scheduleFailTimer();
             return true;
         }
@@ -260,15 +260,15 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
         LOG.debug("Channel {} handling message {} in state {}", this.channel, msg, this.state);
 
         switch (this.state) {
-        case Finished:
-        case Idle:
+        case FINISHED:
+        case IDLE:
             throw new IllegalStateException("Unexpected handleMessage in state " + this.state);
-        case KeepWait:
+        case KEEP_WAIT:
             if (handleMessageKeepWait(msg)) {
                 return;
             }
             break;
-        case OpenWait:
+        case OPEN_WAIT:
             if (handleMessageOpenWait(msg)) {
                 return;
             }
@@ -277,7 +277,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
         LOG.warn("Channel {} in state {} received unexpected message {}", this.channel, this.state, msg);
         sendErrorMessage(PCEPErrors.NON_OR_INVALID_OPEN_MSG);
         negotiationFailed(new Exception("Illegal message encountered"));
-        this.state = State.Finished;
+        this.state = State.FINISHED;
     }
 
     @VisibleForTesting

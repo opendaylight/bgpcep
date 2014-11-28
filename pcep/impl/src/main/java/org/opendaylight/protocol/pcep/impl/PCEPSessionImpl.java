@@ -149,7 +149,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
         if (this.channel.isActive()) {
             if (ct >= nextDead) {
                 LOG.debug("DeadTimer expired. {}", new Date());
-                this.terminate(TerminationReason.ExpDeadtimer);
+                this.terminate(TerminationReason.EXP_DEADTIMER);
             } else {
                 this.channel.eventLoop().schedule(new Runnable() {
                     @Override
@@ -300,7 +300,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
                 this.unknownMessagesTimes.poll();
             }
             if (this.unknownMessagesTimes.size() > this.maxUnknownMessages) {
-                this.terminate(TerminationReason.TooManyUnknownMsg);
+                this.terminate(TerminationReason.TOO_MANY_UNKNOWN_MSGS);
             }
         }
     }

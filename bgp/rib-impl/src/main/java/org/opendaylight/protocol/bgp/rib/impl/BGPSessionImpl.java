@@ -67,15 +67,15 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
          * is half-alive, e.g. the timers are running, but the session is not completely up, e.g. it has not been
          * announced to the listener. If the session is torn down in this state, we do not inform the listener.
          */
-        OpenConfirm,
+        OPEN_CONFIRM,
         /**
          * The session has been completely established.
          */
-        Up,
+        UP,
         /**
          * The session has been closed. It will not be resurrected.
          */
-        Idle,
+        IDLE,
     }
 
     /**
@@ -98,7 +98,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
     private final Channel channel;
 
     @GuardedBy("this")
-    private State state = State.OpenConfirm;
+    private State state = State.OPEN_CONFIRM;
 
     private final Set<BgpTableType> tableTypes;
     private final int holdTimerValue;
@@ -163,11 +163,11 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
     @Override
     public synchronized void close() {
         LOG.info("Closing session: {}", this);
-        if (this.state != State.Idle) {
+        if (this.state != State.IDLE) {
             this.sendMessage(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).setErrorSubcode(
                     BGPError.CEASE.getSubcode()).build());
             this.channel.close();
-            this.state = State.Idle;
+            this.state = State.IDLE;
         }
     }
 
@@ -211,7 +211,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 
     @Override
     public synchronized void endOfInput() {
-        if (this.state == State.Up) {
+        if (this.state == State.UP) {
             this.listener.onSessionDown(this, new IOException("End of input detected. Close the session."));
         }
     }
@@ -244,7 +244,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
     private synchronized void closeWithoutMessage() {
         LOG.debug("Closing session: {}", this);
         this.channel.close();
-        this.state = State.Idle;
+        this.state = State.IDLE;
     }
 
     /**
@@ -267,7 +267,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
      * state will become IDLE), then rescheduling won't occur.
      */
     private synchronized void handleHoldTimer() {
-        if (this.state == State.Idle) {
+        if (this.state == State.IDLE) {
             return;
         }
 
@@ -294,7 +294,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
      * starts to execute (the session state will become IDLE), that rescheduling won't occur.
      */
     private synchronized void handleKeepaliveTimer() {
-        if (this.state == State.Idle) {
+        if (this.state == State.IDLE) {
             return;
         }
 
@@ -333,7 +333,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
     @Override
     protected synchronized void sessionUp() {
         this.sessionStats.startSessionStopwatch();
-        this.state = State.Up;
+        this.state = State.UP;
         this.listener.onSessionUp(this);
     }
 

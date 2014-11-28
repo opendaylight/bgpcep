@@ -119,7 +119,7 @@ public class BGPSessionImplTest {
         doReturn(this.eventLoop).when(this.speakerListener).eventLoop();
         doAnswer(new Answer<Void>() {
             @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
+            public Void answer(final InvocationOnMock invocation) throws Throwable {
                 final Runnable command = (Runnable) invocation.getArguments()[0];
                 final long delay = (long) invocation.getArguments()[1];
                 final TimeUnit unit = (TimeUnit) invocation.getArguments()[2];
@@ -140,16 +140,16 @@ public class BGPSessionImplTest {
     @Test
     public void testBGPSession() {
         this.bgpSession.sessionUp();
-        assertEquals(BGPSessionImpl.State.Up, this.bgpSession.getState());
+        assertEquals(BGPSessionImpl.State.UP, this.bgpSession.getState());
         assertEquals(AS_NUMBER, this.bgpSession.getAsNumber());
         assertEquals(BGP_ID, this.bgpSession.getBgpId());
         assertEquals(1, this.bgpSession.getAdvertisedTableTypes().size());
         assertTrue(this.listener.up);
         //test stats
-        BgpSessionState state = this.bgpSession.getBgpSesionState();
+        final BgpSessionState state = this.bgpSession.getBgpSesionState();
         assertEquals(HOLD_TIMER, state.getHoldtimeCurrent().intValue());
         assertEquals(1, state.getKeepaliveCurrent().intValue());
-        assertEquals("Up", state.getSessionState());
+        assertEquals(BGPSessionImpl.State.UP.name(), state.getSessionState());
         assertEquals(BGP_ID.getValue(), state.getPeerPreferences().getAddress());
         assertEquals(AS_NUMBER.getValue(), state.getPeerPreferences().getAs());
         assertEquals(BGP_ID.getValue(), state.getPeerPreferences().getBgpId());
@@ -175,7 +175,7 @@ public class BGPSessionImplTest {
         assertEquals(0, state.getMessagesStats().getKeepAliveMsgs().getSent().getCount().longValue());
 
         this.bgpSession.close();
-        assertEquals(BGPSessionImpl.State.Idle, this.bgpSession.getState());
+        assertEquals(BGPSessionImpl.State.IDLE, this.bgpSession.getState());
         assertEquals(1, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(0) instanceof Notify);
         final Notify error = (Notify) this.receivedMsgs.get(0);
@@ -197,7 +197,7 @@ public class BGPSessionImplTest {
     @Test
     public void testHandleOpenMsg() {
         this.bgpSession.handleMessage(this.classicOpen);
-        Assert.assertEquals(BGPSessionImpl.State.Idle, this.bgpSession.getState());
+        Assert.assertEquals(BGPSessionImpl.State.IDLE, this.bgpSession.getState());
         Assert.assertEquals(1, this.receivedMsgs.size());
         Assert.assertTrue(this.receivedMsgs.get(0) instanceof Notify);
         final Notify error = (Notify) this.receivedMsgs.get(0);
@@ -212,7 +212,7 @@ public class BGPSessionImplTest {
         assertEquals(1, this.bgpSession.getBgpSesionState().getMessagesStats().getErrorMsgs().getErrorReceived().getCount().longValue());
         assertEquals(BGPError.BAD_BGP_ID.getCode(), this.bgpSession.getBgpSesionState().getMessagesStats().getErrorMsgs().getErrorReceived().getCode().shortValue());
         assertEquals(BGPError.BAD_BGP_ID.getSubcode(), this.bgpSession.getBgpSesionState().getMessagesStats().getErrorMsgs().getErrorReceived().getSubCode().shortValue());
-        Assert.assertEquals(BGPSessionImpl.State.Idle, this.bgpSession.getState());
+        Assert.assertEquals(BGPSessionImpl.State.IDLE, this.bgpSession.getState());
         Mockito.verify(this.speakerListener).close();
     }
 
@@ -228,7 +228,7 @@ public class BGPSessionImplTest {
     public void testHoldTimerExpire() throws InterruptedException {
         this.bgpSession.sessionUp();
         Thread.sleep(3500);
-        Assert.assertEquals(BGPSessionImpl.State.Idle, this.bgpSession.getState());
+        Assert.assertEquals(BGPSessionImpl.State.IDLE, this.bgpSession.getState());
         Assert.assertEquals(3, this.receivedMsgs.size());
         Assert.assertTrue(this.receivedMsgs.get(2) instanceof Notify);
         final Notify error = (Notify) this.receivedMsgs.get(2);

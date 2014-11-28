@@ -209,13 +209,13 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         final List<Metrics> metrics = new ArrayList<>();
         final List<VendorInformationObject> viObjects = new ArrayList<>();
 
-        State state = State.Init;
-        while (!objects.isEmpty() && state != State.End) {
+        State state = State.INIT;
+        while (!objects.isEmpty() && state != State.END) {
             Object obj = objects.get(0);
 
             switch (state) {
-            case Init:
-                state = State.ReportedIn;
+            case INIT:
+                state = State.REPORTED_IN;
                 if (obj instanceof Rro) {
                     final ReportedRouteBuilder rrBuilder = new ReportedRouteBuilder();
                     rrBuilder.setRro((Rro) obj);
@@ -226,64 +226,64 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                     }
                     break;
                 }
-            case ReportedIn:
-                state = State.VendorInfoList;
+            case REPORTED_IN:
+                state = State.VENDOR_INFO_LIST;
                 if (obj instanceof VendorInformationObject) {
                     viObjects.add((VendorInformationObject) obj);
-                    state = State.ReportedIn;
+                    state = State.REPORTED_IN;
                     break;
                 }
-            case VendorInfoList:
-                state = State.LoadBIn;
+            case VENDOR_INFO_LIST:
+                state = State.LOAD_BIN;
                 if (obj instanceof LoadBalancing) {
                     builder.setLoadBalancing((LoadBalancing) obj);
                     break;
                 }
-            case LoadBIn:
-                state = State.LspaIn;
+            case LOAD_BIN:
+                state = State.LSPA_IN;
                 if (obj instanceof Lspa) {
                     builder.setLspa((Lspa) obj);
                     break;
                 }
-            case LspaIn:
-                state = State.BandwidthIn;
+            case LSPA_IN:
+                state = State.BANDWIDTH_IN;
                 if (obj instanceof Bandwidth) {
                     builder.setBandwidth((Bandwidth) obj);
                     break;
                 }
-            case BandwidthIn:
-                state = State.MetricIn;
+            case BANDWIDTH_IN:
+                state = State.METRIC_IN;
                 if (obj instanceof Metric) {
                     metrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-                    state = State.BandwidthIn;
+                    state = State.BANDWIDTH_IN;
                     break;
                 }
-            case MetricIn:
-                state = State.IroIn;
+            case METRIC_IN:
+                state = State.IRO_IN;
                 if (obj instanceof Iro) {
                     builder.setIro((Iro) obj);
                     break;
                 }
-            case IroIn:
-                state = State.RroIn;
+            case IRO_IN:
+                state = State.RRO_IN;
                 if (obj instanceof Rro) {
                     builder.setRro((Rro) obj);
                     break;
                 }
-            case RroIn:
-                state = State.XroIn;
+            case RRO_IN:
+                state = State.XRO_IN;
                 if (obj instanceof Xro) {
                     builder.setXro((Xro) obj);
                     break;
                 }
-            case XroIn:
-                state = State.OfIn;
+            case XRO_IN:
+                state = State.OF_IN;
                 if (obj instanceof Of) {
                     builder.setOf((Of) obj);
                     break;
                 }
-            case OfIn:
-                state = State.CtIn;
+            case OF_IN:
+                state = State.CT_IN;
                 if (obj instanceof ClassType) {
                     final ClassType classType = (ClassType) obj;
                     if (!classType.isProcessingRule()) {
@@ -293,13 +293,13 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                     }
                     break;
                 }
-            case CtIn:
-                state = State.End;
+            case CT_IN:
+                state = State.END;
                 break;
-            case End:
+            case END:
                 break;
             }
-            if (!state.equals(State.End)) {
+            if (!state.equals(State.END)) {
                 objects.remove(0);
             }
         }
@@ -322,7 +322,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     }
 
     private enum State {
-        Init, ReportedIn, VendorInfoList, LoadBIn, LspaIn, BandwidthIn, MetricIn, IroIn, RroIn, XroIn, OfIn, CtIn, End
+        INIT, REPORTED_IN, VENDOR_INFO_LIST, LOAD_BIN, LSPA_IN, BANDWIDTH_IN, METRIC_IN, IRO_IN, RRO_IN, XRO_IN, OF_IN, CT_IN, END
     }
 
     private Svec getValidSvec(final SvecBuilder builder, final List<Object> objects) {
@@ -339,50 +339,50 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         final List<VendorInformationObject> viObjects = new ArrayList<>();
 
         Object obj = null;
-        SvecState state = SvecState.Init;
-        while (!objects.isEmpty() && !state.equals(SvecState.End)) {
+        SvecState state = SvecState.INIT;
+        while (!objects.isEmpty() && !state.equals(SvecState.END)) {
             obj = objects.get(0);
 
             switch (state) {
-            case Init:
-                state = SvecState.OfIn;
+            case INIT:
+                state = SvecState.OF_IN;
                 if (obj instanceof Of) {
                     builder.setOf((Of) obj);
                     break;
                 }
-            case OfIn:
-                state = SvecState.GcIn;
+            case OF_IN:
+                state = SvecState.GC_IN;
                 if (obj instanceof Gc) {
                     builder.setGc((Gc) obj);
                     break;
                 }
-            case GcIn:
-                state = SvecState.XroIn;
+            case GC_IN:
+                state = SvecState.XRO_IN;
                 if (obj instanceof Xro) {
                     builder.setXro((Xro) obj);
                     break;
                 }
-            case XroIn:
-                state = SvecState.MetricIn;
+            case XRO_IN:
+                state = SvecState.METRIC_IN;
                 if (obj instanceof Metric) {
                     metrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-                    state = SvecState.XroIn;
+                    state = SvecState.XRO_IN;
                     break;
                 }
-            case MetricIn:
-                state = SvecState.VendorInfo;
+            case METRIC_IN:
+                state = SvecState.VENDOR_INFO;
                 if (obj instanceof VendorInformationObject) {
                     viObjects.add((VendorInformationObject) obj);
-                    state = SvecState.MetricIn;
+                    state = SvecState.METRIC_IN;
                     break;
                 }
-            case VendorInfo:
-                state = SvecState.End;
+            case VENDOR_INFO:
+                state = SvecState.END;
                 break;
-            case End:
+            case END:
                 break;
             }
-            if (!state.equals(SvecState.End)) {
+            if (!state.equals(SvecState.END)) {
                 objects.remove(0);
             }
         }
@@ -393,6 +393,6 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     }
 
     private enum SvecState {
-        Init, OfIn, GcIn, XroIn, MetricIn, VendorInfo, End
+        INIT, OF_IN, GC_IN, XRO_IN, METRIC_IN, VENDOR_INFO, END
     }
 }

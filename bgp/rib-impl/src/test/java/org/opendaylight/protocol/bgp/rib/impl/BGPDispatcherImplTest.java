@@ -104,7 +104,7 @@ public class BGPDispatcherImplTest {
     public void testCreateClient() throws InterruptedException, ExecutionException {
         final BGPSessionImpl session = this.dispatcher.createClient(ADDRESS, AS_NUMBER, this.registry, new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, TIMEOUT)).get();
         Assert.assertTrue(this.sessionListener.up);
-        Assert.assertEquals(BGPSessionImpl.State.Up, session.getState());
+        Assert.assertEquals(BGPSessionImpl.State.UP, session.getState());
         Assert.assertEquals(AS_NUMBER, session.getAsNumber());
         Assert.assertEquals(IPV4, session.getBgpId());
         Assert.assertEquals(Sets.newHashSet(this.ipv4tt), session.getAdvertisedTableTypes());

@@ -96,55 +96,55 @@ public class CInitiated00PCInitiateMessageParser extends AbstractMessageParser {
         final List<Metrics> metrics = Lists.newArrayList();
 
         Object obj;
-        State state = State.Init;
-        while (!objects.isEmpty() && !state.equals(State.End)) {
+        State state = State.INIT;
+        while (!objects.isEmpty() && !state.equals(State.END)) {
             obj = objects.get(0);
 
             switch (state) {
-            case Init:
-                state = State.EndpointsIn;
+            case INIT:
+                state = State.ENDPOINTS_IN;
                 if (obj instanceof EndpointsObj) {
                     builder.setEndpointsObj((EndpointsObj) obj);
                     break;
                 }
-            case EndpointsIn:
-                state = State.EroIn;
+            case ENDPOINTS_IN:
+                state = State.ERO_IN;
                 if (obj instanceof Ero) {
                     builder.setEro((Ero) obj);
                     break;
                 }
-            case EroIn:
-                state = State.LspaIn;
+            case ERO_IN:
+                state = State.LSPA_IN;
                 if (obj instanceof Lspa) {
                     builder.setLspa((Lspa) obj);
                     break;
                 }
-            case LspaIn:
-                state = State.BandwidthIn;
+            case LSPA_IN:
+                state = State.BANDWIDTH_IN;
                 if (obj instanceof Bandwidth) {
                     builder.setBandwidth((Bandwidth) obj);
                     break;
                 }
-            case BandwidthIn:
-                state = State.MetricIn;
+            case BANDWIDTH_IN:
+                state = State.METRIC_IN;
                 if (obj instanceof Metric) {
                     metrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-                    state = State.BandwidthIn;
+                    state = State.BANDWIDTH_IN;
                     break;
                 }
-            case MetricIn:
-                state = State.IroIn;
+            case METRIC_IN:
+                state = State.IRO_IN;
                 if (obj instanceof Iro) {
                     builder.setIro((Iro) obj);
                     break;
                 }
-            case IroIn:
-                state = State.End;
+            case IRO_IN:
+                state = State.END;
                 break;
-            case End:
+            case END:
                 break;
             }
-            if (!state.equals(State.End)) {
+            if (!state.equals(State.END)) {
                 objects.remove(0);
             }
         }
@@ -153,6 +153,6 @@ public class CInitiated00PCInitiateMessageParser extends AbstractMessageParser {
     }
 
     private enum State {
-        Init, EndpointsIn, EroIn, LspaIn, BandwidthIn, MetricIn, IroIn, End
+        INIT, ENDPOINTS_IN, ERO_IN, LSPA_IN, BANDWIDTH_IN, METRIC_IN, IRO_IN, END
     }
 }

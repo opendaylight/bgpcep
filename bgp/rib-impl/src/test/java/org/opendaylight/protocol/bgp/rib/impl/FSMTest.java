@@ -148,7 +148,7 @@ public class FSMTest {
         assertEquals(2, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(1) instanceof Keepalive);
         this.clientSession.handleMessage(new KeepaliveBuilder().build());
-        assertEquals(this.clientSession.getState(), BGPClientSessionNegotiator.State.Finished);
+        assertEquals(this.clientSession.getState(), BGPClientSessionNegotiator.State.FINISHED);
         Thread.sleep(1000);
         Thread.sleep(100);
     }
@@ -191,7 +191,7 @@ public class FSMTest {
         this.clientSession.channelActive(null);
         this.clientSession.handleMessage(this.classicOpen);
         this.clientSession.handleMessage(new KeepaliveBuilder().build());
-        assertEquals(this.clientSession.getState(), BGPClientSessionNegotiator.State.Finished);
+        assertEquals(this.clientSession.getState(), BGPClientSessionNegotiator.State.FINISHED);
         this.clientSession.handleMessage(new OpenBuilder().setMyAsNumber(30).setHoldTimer(3).setVersion(new ProtocolVersion((short) 4)).build());
         assertEquals(3, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(2) instanceof Notify);

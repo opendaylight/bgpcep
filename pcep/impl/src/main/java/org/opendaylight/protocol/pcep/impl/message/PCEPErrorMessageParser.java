@@ -87,12 +87,12 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
         final PcerrMessageBuilder b = new PcerrMessageBuilder();
 
         Object obj = objects.get(0);
-        State state = State.Init;
+        State state = State.INIT;
 
         if (obj instanceof ErrorObject) {
             final ErrorObject o = (ErrorObject) obj;
             errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
-            state = State.ErrorIn;
+            state = State.ERROR_IN;
         } else if (obj instanceof Rp) {
             final Rp o = (Rp) obj;
             if (o.isProcessingRule()) {
@@ -100,9 +100,9 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
                 return null;
             }
             requestParameters.add(new RpsBuilder().setRp(o).build());
-            state = State.RpIn;
+            state = State.RP_IN;
         }
-        if (state.equals(State.Init)) {
+        if (state.equals(State.INIT)) {
             throw new PCEPDeserializerException("At least one PCEPErrorObject is mandatory.");
         }
         objects.remove(0);
@@ -112,45 +112,45 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
                 return new PcerrBuilder().setPcerrMessage(b.setErrors(((UnknownObject) obj).getErrors()).build()).build();
             }
             switch (state) {
-            case ErrorIn:
-                state = State.Open;
+            case ERROR_IN:
+                state = State.OPEN;
                 if (obj instanceof ErrorObject) {
                     final ErrorObject o = (ErrorObject) obj;
                     errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
-                    state = State.ErrorIn;
+                    state = State.ERROR_IN;
                     break;
                 }
-            case RpIn:
-                state = State.Error;
+            case RP_IN:
+                state = State.ERROR;
                 if (obj instanceof Rp) {
                     final Rp o = ((Rp) obj);
                     requestParameters.add(new RpsBuilder().setRp(o).build());
-                    state = State.RpIn;
+                    state = State.RP_IN;
                     break;
                 }
-            case Open:
-                state = State.OpenIn;
+            case OPEN:
+                state = State.OPEN_IN;
                 if (obj instanceof Open) {
                     b.setErrorType(new SessionCaseBuilder().setSession(new SessionBuilder().setOpen((Open) obj).build()).build());
                     break;
                 }
-            case Error:
-                state = State.OpenIn;
+            case ERROR:
+                state = State.OPEN_IN;
                 if (obj instanceof ErrorObject) {
                     final ErrorObject o = (ErrorObject) obj;
                     errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
-                    state = State.Error;
+                    state = State.ERROR;
                     break;
                 }
-            case OpenIn:
-                state = State.End;
+            case OPEN_IN:
+                state = State.END;
                 break;
-            case End:
+            case END:
                 break;
             default:
                 break;
             }
-            if (!state.equals(State.End)) {
+            if (!state.equals(State.END)) {
                 objects.remove(0);
             }
         }
@@ -167,6 +167,6 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
     }
 
     private enum State {
-        Init, ErrorIn, RpIn, Open, Error, OpenIn, End
+        INIT, ERROR_IN, RP_IN, OPEN, ERROR, OPEN_IN, END
     }
 }
