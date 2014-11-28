@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_92ec7ec9",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateTopologyBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-11-28T14:29:47Z",
+      "side": 1,
+      "message": "this is a noop, and will hide change to enum cardinality",
+      "revId": "81538518bbdc218b623134264415af3e8eb6ffce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
