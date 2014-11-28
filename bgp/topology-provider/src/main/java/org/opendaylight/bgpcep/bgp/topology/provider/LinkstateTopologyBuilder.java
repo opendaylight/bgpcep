@@ -455,7 +455,22 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 
     private void createLink(final WriteTransaction trans, final UriBuilder base,
         final LinkstateRoute value, final LinkCase l, final Attributes attributes) {
-        final LinkAttributes la = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.LinkCase) attributes.getAugmentation(Attributes1.class).getAttributeType()).getLinkAttributes();
+        // defensive lookup
+        final LinkAttributes la;
+        final Attributes1 attr = attributes.getAugmentation(Attributes1.class);
+        if (attr != null) {
+            final AttributeType attrType = attr.getAttributeType();
+            if (attrType != null) {
+                la = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.LinkCase)
+                    attrType).getLinkAttributes();
+            } else {
+                LOG.debug("Missing attribute type in link {} route {}, skipping it", l, value);
+                la = null;
+            }
+        } else {
+            LOG.debug("Missing attributes in link {} route {}, skipping it", l, value);
+            la = null;
+        }
 
         final IgpLinkAttributesBuilder ilab = new IgpLinkAttributesBuilder();
         if (la != null) {
@@ -479,6 +494,8 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         case Ospf:
             ilab.addAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpLinkAttributes1.class,
                 ospfLinkAttributes(l.getLinkDescriptors().getMultiTopologyId(), la));
+            break;
+        default:
             break;
         }
 
@@ -624,7 +641,22 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 
     private void createNode(final WriteTransaction trans, final UriBuilder base,
         final LinkstateRoute value, final NodeCase n, final Attributes attributes) {
-        final NodeAttributes na = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.NodeCase) attributes.getAugmentation(Attributes1.class).getAttributeType()).getNodeAttributes();
+        final NodeAttributes na;
+        //defensive lookup
+        final Attributes1 attr = attributes.getAugmentation(Attributes1.class);
+        if (attr != null) {
+            final AttributeType attrType = attr.getAttributeType();
+            if (attrType != null) {
+                na = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.NodeCase)
+                    attrType).getNodeAttributes();
+            } else {
+                LOG.debug("Missing attribute type in node {} route {}, skipping it", n, value);
+                na = null;
+            }
+        } else {
+            LOG.debug("Missing attributes in node {} route {}, skipping it", n, value);
+            na = null;
+        }
         final IgpNodeAttributesBuilder inab = new IgpNodeAttributesBuilder();
 
         final List<IpAddress> ids = new ArrayList<>();
