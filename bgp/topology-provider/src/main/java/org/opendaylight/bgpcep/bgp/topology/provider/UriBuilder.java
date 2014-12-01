@@ -20,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.OspfPseudonodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.isis.pseudonode._case.IsisPseudonode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.ospf.pseudonode._case.OspfPseudonode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +75,7 @@ final class UriBuilder {
         return this;
     }
 
-    private String isoId(final byte[] bytes) {
+    private static String isoId(final byte[] bytes) {
         final StringBuilder sBuilder = new StringBuilder();
         sBuilder.append(Hex.encodeHexString(new byte[] { bytes[0], bytes[1] }));
         sBuilder.append('.');
@@ -84,13 +85,24 @@ final class UriBuilder {
         return sBuilder.toString();
     }
 
+    /**
+     * Creates a String representation of ISO system identifier
+     * in format XX.XX.XX where X is one byte.
+     *
+     * @param systemId IsoSystemIdentifier object
+     * @return String representation of ISO Identifier
+     */
+    public static String isoId(final IsoSystemIdentifier systemId) {
+        return isoId(systemId.getValue());
+    }
+
     private String formatRouterIdentifier(final CRouterIdentifier routerIdentifier) {
         if (routerIdentifier == null) {
             return null;
         }
 
         if (routerIdentifier instanceof IsisNodeCase) {
-            return isoId(((IsisNodeCase) routerIdentifier).getIsisNode().getIsoSystemId().getValue());
+            return isoId(((IsisNodeCase) routerIdentifier).getIsisNode().getIsoSystemId());
         } else if (routerIdentifier instanceof IsisPseudonodeCase) {
             final IsisPseudonode r = ((IsisPseudonodeCase) routerIdentifier).getIsisPseudonode();
             return isoId(r.getIsIsRouterIdentifier().getIsoSystemId().getValue()) + '.'
