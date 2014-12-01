@@ -497,8 +497,6 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
             break;
         default:
             break;
-        default:
-            break;
         }
 
         final LinkBuilder lb = new LinkBuilder();
@@ -586,10 +584,10 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         final CRouterIdentifier ri = node.getCRouterIdentifier();
         if (ri instanceof IsisPseudonodeCase) {
             final IsisPseudonode pn = ((IsisPseudonodeCase) ri).getIsisPseudonode();
-            ab.setIso(new IsoBuilder().setIsoPseudonodeId(new IsoPseudonodeId(pn.toString())).build());
+            ab.setIso(new IsoBuilder().setIsoPseudonodeId(new IsoPseudonodeId(UriBuilder.isoId(pn.getIsIsRouterIdentifier().getIsoSystemId()))).build());
         } else if (ri instanceof IsisNodeCase) {
             final IsisNode in = ((IsisNodeCase) ri).getIsisNode();
-            ab.setIso(new IsoBuilder().setIsoSystemId(new IsoSystemId(in.getIsoSystemId().toString())).build());
+            ab.setIso(new IsoBuilder().setIsoSystemId(new IsoSystemId(UriBuilder.isoId(in.getIsoSystemId()))).build());
         }
 
         ab.setTed(tb.build());
