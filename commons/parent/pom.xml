@@ -170,13 +170,6 @@
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>sal-binding-broker-impl</artifactId>
-                <version>${controller.mdsal.version}</version>
-                <scope>test</scope>
-                <type>test-jar</type>
-            </dependency>
 
             <!-- Supporting Libraries -->
 
@@ -230,6 +223,13 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
+            <dependency>
+                <groupId>org.opendaylight.controller</groupId>
+                <artifactId>mdsal-artifacts</artifactId>
+                <version>${controller.mdsal.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
 
             <dependency>
                 <groupId>org.opendaylight.controller</groupId>
@@ -242,36 +242,6 @@
                 <version>${controller.framework.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>sal-binding-api</artifactId>
-                <version>${controller.mdsal.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>sal-binding-config</artifactId>
-                <version>${controller.mdsal.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>sal-binding-broker-impl</artifactId>
-                <version>${controller.mdsal.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>sal-binding-util</artifactId>
-                <version>${controller.mdsal.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>sal-broker-impl</artifactId>
-                <version>${controller.mdsal.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>sal-common-api</artifactId>
-                <version>${controller.mdsal.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
