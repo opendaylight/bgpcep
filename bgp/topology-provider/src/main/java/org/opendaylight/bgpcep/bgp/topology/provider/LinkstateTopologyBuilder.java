@@ -572,7 +572,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
             ab.setIso(new IsoBuilder().setIsoPseudonodeId(new IsoPseudonodeId(pn.toString())).build());
         } else if (ri instanceof IsisNodeCase) {
             final IsisNode in = ((IsisNodeCase) ri).getIsisNode();
-            ab.setIso(new IsoBuilder().setIsoSystemId(new IsoSystemId(in.getIsoSystemId().toString())).build());
+            ab.setIso(new IsoBuilder().setIsoSystemId(new IsoSystemId(UriBuilder.isoId(in.getIsoSystemId()))).build());
         }
 
         ab.setTed(tb.build());
