@@ -16,6 +16,24 @@
       "revId": "81538518bbdc218b623134264415af3e8eb6ffce",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_a6ee188a",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateTopologyBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-12-01T09:38:06Z",
+      "side": 1,
+      "message": "Sonar warning if there\u0027s no \u0027default\u0027 statement.",
+      "parentUuid": "7a96c907_92ec7ec9",
+      "revId": "81538518bbdc218b623134264415af3e8eb6ffce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
