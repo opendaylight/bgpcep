@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.codec.binary.Hex;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -497,8 +498,6 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
             break;
         default:
             break;
-        default:
-            break;
         }
 
         final LinkBuilder lb = new LinkBuilder();
@@ -586,10 +585,13 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         final CRouterIdentifier ri = node.getCRouterIdentifier();
         if (ri instanceof IsisPseudonodeCase) {
             final IsisPseudonode pn = ((IsisPseudonodeCase) ri).getIsisPseudonode();
-            ab.setIso(new IsoBuilder().setIsoPseudonodeId(new IsoPseudonodeId(pn.toString())).build());
+            final IsoBuilder b = new IsoBuilder();
+            b.setIsoSystemId(new IsoSystemId(UriBuilder.isoId(pn.getIsIsRouterIdentifier().getIsoSystemId())));
+            b.setIsoPseudonodeId(new IsoPseudonodeId(Hex.encodeHexString(new byte[] {pn.getPsn().byteValue()})));
+            ab.setIso(b.build());
         } else if (ri instanceof IsisNodeCase) {
             final IsisNode in = ((IsisNodeCase) ri).getIsisNode();
-            ab.setIso(new IsoBuilder().setIsoSystemId(new IsoSystemId(in.getIsoSystemId().toString())).build());
+            ab.setIso(new IsoBuilder().setIsoSystemId(new IsoSystemId(UriBuilder.isoId(in.getIsoSystemId()))).build());
         }
 
         ab.setTed(tb.build());
