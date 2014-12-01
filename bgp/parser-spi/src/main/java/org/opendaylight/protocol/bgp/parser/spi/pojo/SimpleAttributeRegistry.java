@@ -102,7 +102,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
 
     @Override
     public PathAttributes parseAttributes(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
-        final TreeMap<Integer, RawAttribute> attributes = new TreeMap<>();
+        final Map<Integer, RawAttribute> attributes = new TreeMap<>();
         while (buffer.isReadable()) {
             addAttribute(buffer, attributes);
         }
@@ -122,7 +122,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
 
     @Override
     public void serializeAttribute(final DataObject attribute,final ByteBuf byteAggregator) {
-        for (AttributeSerializer serializer : this.roSerializers.get()) {
+        for (final AttributeSerializer serializer : this.roSerializers.get()) {
             serializer.serializeAttribute(attribute, byteAggregator);
         }
     }

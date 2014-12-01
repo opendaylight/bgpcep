@@ -38,6 +38,7 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
     private final MD5ChannelFactory<?> cf;
     private final BGPHandlerFactory hf;
     private KeyMapping keys;
+    private static final String NEGOTIATOR = "negotiator";
 
     public BGPDispatcherImpl(final MessageRegistry messageRegistry, final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
         this(messageRegistry, bossGroup, workerGroup, null, null);
@@ -58,7 +59,7 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
             @Override
             public void initializeChannel(final SocketChannel ch, final Promise<BGPSessionImpl> promise) {
                 ch.pipeline().addLast(BGPDispatcherImpl.this.hf.getDecoders());
-                ch.pipeline().addLast("negotiator", snf.getSessionNegotiator(null, ch, promise));
+                ch.pipeline().addLast(NEGOTIATOR, snf.getSessionNegotiator(null, ch, promise));
                 ch.pipeline().addLast(BGPDispatcherImpl.this.hf.getEncoders());
             }
         });
@@ -87,7 +88,7 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
             @Override
             public void initializeChannel(final SocketChannel ch, final Promise<BGPSessionImpl> promise) {
                 ch.pipeline().addLast(BGPDispatcherImpl.this.hf.getDecoders());
-                ch.pipeline().addLast("negotiator", snf.getSessionNegotiator(null, ch, promise));
+                ch.pipeline().addLast(NEGOTIATOR, snf.getSessionNegotiator(null, ch, promise));
                 ch.pipeline().addLast(BGPDispatcherImpl.this.hf.getEncoders());
             }
         });
@@ -110,7 +111,7 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
             @Override
             public void initializeChannel(final SocketChannel ch, final Promise<BGPSessionImpl> promise) {
                 ch.pipeline().addLast(BGPDispatcherImpl.this.hf.getDecoders());
-                ch.pipeline().addLast("negotiator", snf.getSessionNegotiator(null, ch, promise));
+                ch.pipeline().addLast(NEGOTIATOR, snf.getSessionNegotiator(null, ch, promise));
                 ch.pipeline().addLast(BGPDispatcherImpl.this.hf.getEncoders());
             }
         });

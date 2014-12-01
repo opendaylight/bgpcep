@@ -111,7 +111,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
     }
 
     @Override
-    public synchronized final void onLocRIBChange(final ReadWriteTransaction trans,
+    public final synchronized void onLocRIBChange(final ReadWriteTransaction trans,
             final AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> event) {
         LOG.debug("Received data change {} event with transaction {}", event, trans.getIdentifier());
         if (this.closed) {
@@ -164,7 +164,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
     }
 
     @Override
-    public synchronized final void close() throws TransactionCommitFailedException {
+    public final synchronized void close() throws TransactionCommitFailedException {
         LOG.info("Shutting down builder for {}", getInstanceIdentifier());
         final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
         trans.delete(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier());

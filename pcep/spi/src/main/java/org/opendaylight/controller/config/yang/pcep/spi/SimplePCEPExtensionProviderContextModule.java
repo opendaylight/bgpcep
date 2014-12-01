@@ -37,7 +37,7 @@ public final class SimplePCEPExtensionProviderContextModule extends
     @Override
     public boolean canReuseInstance(final AbstractSimplePCEPExtensionProviderContextModule oldModule) {
         return oldModule.getInstance().getClass().equals(ReusablePCEPExtensionProviderContext.class);
-    };
+    }
 
     @Override
     public java.lang.AutoCloseable reuseInstance(final java.lang.AutoCloseable oldInstance) {

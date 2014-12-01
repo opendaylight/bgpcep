@@ -15,6 +15,9 @@ public final class ServiceLoaderBGPExtensionProviderContext {
     private static final class Holder {
         private static final BGPExtensionProviderContext INSTANCE;
 
+        private Holder() {
+        }
+
         static {
             try {
                 INSTANCE = create();
@@ -28,7 +31,7 @@ public final class ServiceLoaderBGPExtensionProviderContext {
         final BGPExtensionProviderContext ctx = new SimpleBGPExtensionProviderContext();
 
         final ServiceLoader<BGPExtensionProviderActivator> loader = ServiceLoader.load(BGPExtensionProviderActivator.class);
-        for (BGPExtensionProviderActivator a : loader) {
+        for (final BGPExtensionProviderActivator a : loader) {
             a.start(ctx);
         }
 
