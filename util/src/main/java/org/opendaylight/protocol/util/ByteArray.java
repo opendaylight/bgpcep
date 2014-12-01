@@ -17,11 +17,15 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.BitSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Util class for methods working with byte array.
  */
 public final class ByteArray {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ByteArray.class);
 
     private ByteArray() {
         throw new UnsupportedOperationException();
@@ -284,6 +288,7 @@ public final class ByteArray {
         try {
             return Charset.forName("UTF-8").newDecoder().decode(ByteBuffer.wrap(bytes)).toString();
         } catch (final CharacterCodingException e) {
+            LOG.debug("Could not apply UTF-8 encoding.", e);
             return Arrays.toString(bytes);
         }
     }

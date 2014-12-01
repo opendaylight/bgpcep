@@ -15,6 +15,9 @@ public final class ServiceLoaderPCEPExtensionProviderContext extends SimplePCEPE
     private static final class Holder {
         private static final PCEPExtensionProviderContext INSTANCE;
 
+        private Holder() {
+        }
+
         static {
             try {
                 INSTANCE = create();

@@ -13,6 +13,9 @@ package org.opendaylight.protocol.util;
 public final class NoopReferenceCache implements ReferenceCache {
     private static final class Holder {
         static final NoopReferenceCache INSTANCE = new NoopReferenceCache();
+
+        private Holder() {
+        }
     }
 
     private NoopReferenceCache() {

@@ -252,7 +252,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
                     final InstanceIdentifier<Link> lii = NodeChangedListener.linkIdentifier(tii, ab.getNode(), ab.getName());
                     try {
                         Preconditions.checkState(! t.read(LogicalDatastoreType.OPERATIONAL, lii).checkedGet().isPresent());
-                    } catch (ReadFailedException e) {
+                    } catch (final ReadFailedException e) {
                         throw new IllegalStateException("Failed to ensure link existence.", e);
                     }
 
@@ -267,7 +267,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
                     args.setEro(buildEro(input.getExplicitHops()));
                     args.setLspa(new LspaBuilder(input).build());
 
-                    AdministrativeStatus adminStatus = input.getAugmentation(PcepCreateP2pTunnelInput1.class).getAdministrativeStatus();
+                    final AdministrativeStatus adminStatus = input.getAugmentation(PcepCreateP2pTunnelInput1.class).getAdministrativeStatus();
                     if (adminStatus != null) {
                         args.addAugmentation(Arguments2.class, new Arguments2Builder().setLsp(new LspBuilder().setAdministrative((adminStatus == AdministrativeStatus.Active) ? true : false).build()).build());
                     }
@@ -315,6 +315,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
                         // The source node has to exist
                         node = sourceNode(t, tii, link).get();
                     } catch (IllegalStateException | ReadFailedException e) {
+                        LOG.debug("Link or node does not exist.", e.getMessage());
                         return Futures.<OperationResult>immediateFuture(new OperationResult() {
                             @Override
                             public Class<? extends DataContainer> getImplementedInterface() {
@@ -374,6 +375,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
                         // The source node has to exist
                         node = sourceNode(t, tii, link).get();
                     } catch (IllegalStateException | ReadFailedException e) {
+                        LOG.debug("Link or node does not exist.", e.getMessage());
                         return Futures.<OperationResult>immediateFuture(new OperationResult() {
                             @Override
                             public Class<? extends DataContainer> getImplementedInterface() {
@@ -402,7 +404,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
                     args.setEro(buildEro(input.getExplicitHops()));
                     args.setLspa(new LspaBuilder(input).build());
 
-                    AdministrativeStatus adminStatus = input.getAugmentation(PcepUpdateTunnelInput1.class).getAdministrativeStatus();
+                    final AdministrativeStatus adminStatus = input.getAugmentation(PcepUpdateTunnelInput1.class).getAdministrativeStatus();
                     if (adminStatus != null) {
                         args.addAugmentation(Arguments3.class, new Arguments3Builder().setLsp(new LspBuilder().setAdministrative((adminStatus == AdministrativeStatus.Active) ? true : false).build()).build());
                     }

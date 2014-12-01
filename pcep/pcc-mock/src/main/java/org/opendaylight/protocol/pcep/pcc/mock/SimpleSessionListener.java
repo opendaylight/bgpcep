@@ -60,7 +60,7 @@ public class SimpleSessionListener implements PCEPSessionListener {
             final Pcupd updMsg = (Pcupd) message;
             final Updates updates = updMsg.getPcupdMessage().getUpdates().get(0);
             final long srpId = updates.getSrp().getOperationId().getValue();
-            if (pcError) {
+            if (this.pcError) {
                 session.sendMessage(MsgBuilderUtil.createErrorMsg(getRandomError(), srpId));
             } else {
                 final Tlvs tlvs = createLspTlvs(updates.getLsp().getPlspId().getValue(), false,
@@ -104,17 +104,17 @@ public class SimpleSessionListener implements PCEPSessionListener {
                     .getIpPrefix().getIpPrefix().getIpv4Prefix().getValue();
             try {
                 return InetAddress.getByName(prefix.substring(0, prefix.indexOf('/')));
-            } catch (UnknownHostException e) {
-                LOG.warn("Unknown host name {}", prefix);
+            } catch (final UnknownHostException e) {
+                LOG.warn("Unknown host name {}.", prefix, e);
             }
         }
         return this.address;
     }
 
-    private Random rnd = new Random();
+    private final Random rnd = new Random();
 
     private PCEPErrors getRandomError() {
-        return PCEPErrors.values()[rnd.nextInt(PCEPErrors.values().length)];
+        return PCEPErrors.values()[this.rnd.nextInt(PCEPErrors.values().length)];
     }
 
 }
