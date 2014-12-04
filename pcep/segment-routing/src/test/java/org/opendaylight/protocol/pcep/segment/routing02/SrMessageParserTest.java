@@ -29,8 +29,6 @@ import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContex
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.PcinitiateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.PcinitiateMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.pcinitiate.message.RequestsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.OperationalStatus;
@@ -48,11 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcupd.message.pcupd.message.updates.PathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.SrpBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs7;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs7Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.path.setup.type.tlv.PathSetupTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcerr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcrepBuilder;
@@ -66,6 +59,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.setup.type.tlv.PathSetupTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
@@ -155,7 +149,7 @@ public class SrMessageParserTest {
             0x20,0x0C,0x00,0x30,
             /* srp-object */
             0x21,0x10,0x00,0x14,
-            0x00,0x00,0x00,0x001,
+            0x00,0x00,0x00,0x00,
             0x00,0x00,0x00,0x01,
             /* pst-tlv */
             0x00,0x1b,0x00,0x04,
@@ -168,7 +162,8 @@ public class SrMessageParserTest {
             /* sr-ero subobject */
             0x05,0x0c,(byte) 0x10,0x00,
             0x00,0x01,(byte) 0xe2,0x40,
-            0x4A,0x7D,0x2b,0x63};
+            0x4A,0x7D,0x2b,0x63
+        };
 
         final SrPcInitiateMessageParser parser = new SrPcInitiateMessageParser(objectRegistry);
 
@@ -195,7 +190,7 @@ public class SrMessageParserTest {
             0x20,0x0A,0x00,0x30,
             /* srp-object */
             0x21,0x10,0x00,0x14,
-            0x00,0x00,0x00,0x001,
+            0x00,0x00,0x00,0x00,
             0x00,0x00,0x00,0x01,
             /* pst-tlv */
             0x00,0x1b,0x00,0x04,
@@ -241,7 +236,7 @@ public class SrMessageParserTest {
             0x20,0x0B,0x00,0x30,
             /* srp-object */
             0x21,0x10,0x00,0x14,
-            0x00,0x00,0x00,0x001,
+            0x00,0x00,0x00,0x00,
             0x00,0x00,0x00,0x01,
             /* pst-tlv */
             0x00,0x1b,0x00,0x04,
@@ -279,7 +274,7 @@ public class SrMessageParserTest {
             0x20,0x0B,0x00,0x30,
             /* srp-object */
             0x21,0x10,0x00,0x14,
-            0x00,0x00,0x00,0x001,
+            0x00,0x00,0x00,0x00,
             0x00,0x00,0x00,0x01,
             /* pst-tlv */
             0x00,0x1b,0x00,0x04,
@@ -313,7 +308,7 @@ public class SrMessageParserTest {
             0x20,0x0A,0x00,0x30,
             /* srp-object */
             0x21,0x10,0x00,0x14,
-            0x00,0x00,0x00,0x001,
+            0x00,0x00,0x00,0x00,
             0x00,0x00,0x00,0x01,
             /* pst-tlv */
             0x00,0x1b,0x00,0x04,
@@ -380,21 +375,18 @@ public class SrMessageParserTest {
         rpBuilder.setEroCompression(false);
         rpBuilder.setPriority((short) 5);
         rpBuilder.setRequestId(new RequestId(0xdeadbeefL));
-        rpBuilder.setTlvs(new TlvsBuilder().addAugmentation(Tlvs1.class,
-                new Tlvs1Builder().setPathSetupType(new PathSetupTypeBuilder().setPst(true).build()).build()).build());
+        rpBuilder.setTlvs(new TlvsBuilder().setPathSetupType(new PathSetupTypeBuilder().setPst((short) 1).build()).build());
         return rpBuilder.build();
     }
 
-    private Srp createSrpObject() {;
+    private Srp createSrpObject() {
         final SrpBuilder builder = new SrpBuilder();
         builder.setProcessingRule(false);
         builder.setIgnore(false);
         builder.setOperationId(new SrpIdNumber(1L));
-        builder.addAugmentation(Srp1.class, new Srp1Builder().setRemove(true).build());
-        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder()
-                .addAugmentation(Tlvs7.class,
-                        new Tlvs7Builder().setPathSetupType(new PathSetupTypeBuilder().setPst(true).build()).build())
-                .build());
+        //builder.addAugmentation(Srp1.class, new Srp1Builder().setRemove(true).build());
+        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder().setPathSetupType(
+                new PathSetupTypeBuilder().setPst((short) 1).build()).build());
         return builder.build();
     }
 

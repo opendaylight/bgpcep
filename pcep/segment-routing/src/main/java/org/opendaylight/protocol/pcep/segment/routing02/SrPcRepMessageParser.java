@@ -16,8 +16,6 @@ import org.opendaylight.protocol.pcep.impl.message.PCEPReplyMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.VendorInformationObjectRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
@@ -40,7 +38,7 @@ public class SrPcRepMessageParser extends PCEPReplyMessageParser {
     @Override
     protected void serializeReply(Replies reply, ByteBuf buffer) {
         final Rp rp = reply.getRp();
-        if (isSegmentRoutingPath(rp)) {
+        if (SrEroUtil.isSegmentRoutingPath(rp)) {
             serializeObject(rp, buffer);
             if (reply.getResult() instanceof SuccessCase) {
                 final SuccessCase s = (SuccessCase) reply.getResult();
@@ -61,7 +59,7 @@ public class SrPcRepMessageParser extends PCEPReplyMessageParser {
             return null;
         }
         final Rp rp = (Rp) objects.get(0);
-        if (isSegmentRoutingPath(rp)) {
+        if (SrEroUtil.isSegmentRoutingPath(rp)) {
             objects.remove(0);
             Result res = null;
             if (objects.get(0) instanceof Ero) {
@@ -88,13 +86,5 @@ public class SrPcRepMessageParser extends PCEPReplyMessageParser {
             return new RepliesBuilder().setRp(rp).setResult(res).build();
         }
         return super.getValidReply(objects, errors);
-    }
-
-    private boolean isSegmentRoutingPath(final Rp rp) {
-        if (rp.getTlvs() != null) {
-            return SrEroUtil.isPst(rp.getTlvs().getAugmentation(Tlvs1.class))
-                    || SrEroUtil.isPst(rp.getTlvs().getAugmentation(Tlvs2.class));
-        }
-        return false;
     }
 }

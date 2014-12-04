@@ -22,7 +22,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.pcrpt.message.ReportsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.pcrpt.message.reports.PathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs7;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
@@ -37,8 +36,8 @@ public class SrPcRptMessageParser extends Stateful07PCReportMessageParser {
 
     @Override
     protected void serializeReport(Reports report, ByteBuf buffer) {
-        if (report.getPath() != null && SrEroUtil.isSegmentRoutingPath(report.getPath().getEro())) {
-            serializeObject(SrEroUtil.addSRPathSetupTypeTlv(report.getSrp()), buffer);
+        if (report.getPath() != null && (SrEroUtil.isSegmentRoutingPath(report.getSrp()) || SrEroUtil.isSegmentRoutingPath(report.getPath().getEro()))) {
+            serializeObject(report.getSrp(), buffer);
             serializeObject(report.getLsp(), buffer);
             serializeObject(report.getPath().getEro(), buffer);
         } else {
@@ -50,7 +49,7 @@ public class SrPcRptMessageParser extends Stateful07PCReportMessageParser {
     protected Reports getValidReports(List<Object> objects, List<Message> errors) {
         if (objects.get(0) instanceof Srp) {
             final Srp srp = (Srp) objects.get(0);
-            if (isSegmentRoutingPath(srp)) {
+            if (SrEroUtil.isSegmentRoutingPath(srp)) {
                 boolean isValid = true;
                 final ReportsBuilder builder = new ReportsBuilder();
                 builder.setSrp(srp);
@@ -90,13 +89,6 @@ public class SrPcRptMessageParser extends Stateful07PCReportMessageParser {
             }
         }
         return super.getValidReports(objects, errors);
-    }
-
-    private boolean isSegmentRoutingPath(final Srp srp) {
-        if (srp != null && srp.getTlvs() != null) {
-            return SrEroUtil.isPst(srp.getTlvs().getAugmentation(Tlvs7.class));
-        }
-        return false;
     }
 
 }
