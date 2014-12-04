@@ -19,8 +19,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcupd.message.pcupd.message.UpdatesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcupd.message.pcupd.message.updates.PathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs7;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
@@ -34,8 +32,8 @@ public class SrPcUpdMessageParser extends Stateful07PCUpdateRequestMessageParser
 
     @Override
     protected void serializeUpdate(final Updates update, final ByteBuf buffer) {
-        if (update.getPath() != null && SrEroUtil.isSegmentRoutingPath(update.getPath().getEro())) {
-            serializeObject(SrEroUtil.addSRPathSetupTypeTlv(update.getSrp()), buffer);
+        if (update.getPath() != null && (SrEroUtil.isSegmentRoutingPath(update.getSrp()) || SrEroUtil.isSegmentRoutingPath(update.getPath().getEro()))) {
+            serializeObject(update.getSrp(), buffer);
             serializeObject(update.getLsp(), buffer);
             serializeObject(update.getPath().getEro(), buffer);
         } else {
@@ -45,7 +43,7 @@ public class SrPcUpdMessageParser extends Stateful07PCUpdateRequestMessageParser
 
     @Override
     protected Updates getValidUpdates(final List<Object> objects, final List<Message> errors) {
-        if (objects.get(0) instanceof Srp && isSegmentRoutingPath((Srp) objects.get(0))) {
+        if (objects.get(0) instanceof Srp && SrEroUtil.isSegmentRoutingPath((Srp) objects.get(0))) {
             boolean isValid = true;
             final Srp srp = (Srp) objects.get(0);
             final UpdatesBuilder builder = new UpdatesBuilder();
@@ -80,14 +78,6 @@ public class SrPcUpdMessageParser extends Stateful07PCUpdateRequestMessageParser
             return null;
         }
         return super.getValidUpdates(objects, errors);
-    }
-
-    private boolean isSegmentRoutingPath(final Srp srp) {
-        if (srp != null && srp.getTlvs() != null) {
-            return SrEroUtil.isPst(srp.getTlvs().getAugmentation(Tlvs6.class))
-                    || SrEroUtil.isPst(srp.getTlvs().getAugmentation(Tlvs7.class));
-        }
-        return false;
     }
 
 }

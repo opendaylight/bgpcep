@@ -184,6 +184,20 @@ module pcep-types {
         }
     }
 
+    grouping path-setup-type-tlv {
+        description "PATH-SETUP-TYPE TLV";
+        reference "https://tools.ietf.org/html/draft-sivabalan-pce-lsp-setup-type-02#section-3";
+
+        container path-setup-type {
+            uses tlv;
+            leaf pst {
+                description "PST=0: Path is setup via RSVP-TE signaling protocol(default).";
+                type uint8;
+                default 0;
+            }
+        }
+    }
+
     // Objects
     grouping object-header {
         description "Common Object Header";
@@ -267,6 +281,7 @@ module pcep-types {
             container "tlvs" {
                 uses order-tlv;
                 uses vendor-information-tlvs;
+                uses path-setup-type-tlv;
             }
 
             leaf priority {

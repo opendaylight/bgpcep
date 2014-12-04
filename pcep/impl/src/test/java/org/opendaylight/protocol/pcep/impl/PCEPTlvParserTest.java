@@ -22,6 +22,7 @@ import org.opendaylight.protocol.pcep.impl.tlv.NoPathVectorTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.OFListTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.OrderTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.OverloadedDurationTlvParser;
+import org.opendaylight.protocol.pcep.impl.tlv.PathSetupTypeTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.ReqMissingTlvParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
@@ -35,6 +36,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.order.tlv.OrderBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.duration.tlv.OverloadDuration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.duration.tlv.OverloadDurationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.setup.type.tlv.PathSetupType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.setup.type.tlv.PathSetupTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure._case.no.path.tlvs.NoPathVectorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.req.missing.tlv.ReqMissing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.req.missing.tlv.ReqMissingBuilder;
@@ -62,6 +65,10 @@ public class PCEPTlvParserTest {
         /* Enterprise specific information */
         0x00, 0x00, 0x00, 0x05
     };
+
+    private static final byte[] PST_TLV_BYTES = { 0x0, 0x1b, 0x0, 0x4, 0x0, 0x0, 0x0, 0x0 };
+
+    private static final byte[] PST_TLV_BYTES_UNSUPPORTED = { 0x0, 0x1b, 0x0, 0x4, 0x0, 0x0, 0x0, 0x1 };
 
     private final AbstractVendorSpecificTlvParser vsParser = new AbstractVendorSpecificTlvParser() {
 
@@ -172,5 +179,29 @@ public class PCEPTlvParserTest {
         parser.serializeTlv(viTlv, buff);
         assertArrayEquals(VENDOR_INFO_BYTES, ByteArray.getAllBytes(buff));
         assertNull(parser.parseTlv(null));
+    }
+
+    @Test
+    public void testPathSetupTypeTlvParser() throws PCEPDeserializerException {
+        final PathSetupTypeTlvParser parser = new PathSetupTypeTlvParser();
+        final PathSetupType pstTlv = new PathSetupTypeBuilder().setPst((short) 0).build();
+        assertEquals(pstTlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(PST_TLV_BYTES, 4))));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeTlv(pstTlv, buff);
+        assertArrayEquals(PST_TLV_BYTES, ByteArray.getAllBytes(buff));
+    }
+
+    @Test(expected=PCEPDeserializerException.class)
+    public void testUnsupportedPSTParser() throws PCEPDeserializerException {
+        final PathSetupTypeTlvParser parser = new PathSetupTypeTlvParser();
+        parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(PST_TLV_BYTES_UNSUPPORTED, 4)));
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testUnsupportedPSTSerializer() {
+        final PathSetupTypeTlvParser parser = new PathSetupTypeTlvParser();
+        final PathSetupType pstTlv = new PathSetupTypeBuilder().setPst((short) 1).build();
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeTlv(pstTlv, buff);
     }
 }

@@ -60,6 +60,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.LspaBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.setup.type.tlv.PathSetupTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.AttributeFilter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.Ipv4ExtendedTunnelId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId;
@@ -220,5 +221,27 @@ public class PCEPObjectParserTest {
         final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+    }
+
+    @Test
+    public void testSRPObjectWithPSTTlv() throws PCEPDeserializerException {
+        final byte[] srpObjectWithPstTlvBytes = { 0x21, 0x10, 0x00, 0x14, 0x0, 0x0, 0x0, 0x01, 0x0, 0x0,
+            0x0, 0x01,
+            /* pst-tlv */
+            0x0, 0x1b, 0x0, 0x4, 0x0, 0x0, 0x0, 0x0 };
+        final CInitiated00SrpObjectParser parser = new CInitiated00SrpObjectParser(this.tlvRegistry, this.viTlvRegistry);
+        SrpBuilder builder = new SrpBuilder();
+        builder.setProcessingRule(false);
+        builder.setIgnore(false);
+        builder.setOperationId(new SrpIdNumber(1L));
+        builder.addAugmentation(Srp1.class, new Srp1Builder().setRemove(true).build());
+        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder().setPathSetupType(new PathSetupTypeBuilder().setPst((short) 0).build()).build());
+
+        final ByteBuf result = Unpooled.wrappedBuffer(srpObjectWithPstTlvBytes);
+        assertEquals(builder.build(),
+                parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
+        final ByteBuf buf = Unpooled.buffer();
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(srpObjectWithPstTlvBytes, ByteArray.getAllBytes(buf));
     }
 }

@@ -93,6 +93,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.object.PathKeyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.object.path.key.PathKeys;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.object.path.key.PathKeysBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.setup.type.tlv.PathSetupTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.error.object.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure._case.NoPathBuilder;
@@ -1085,5 +1086,40 @@ public class PCEPObjectParserTest {
         final ByteBuf buf = Unpooled.buffer(viObjBytes.length);
         parser.serializeObject(viObj, buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+    }
+
+    @Test
+    public void testRpObjectWithPstTlvParser() throws PCEPDeserializerException {
+
+        final byte[] rpObjectWithPstTlvBytes = { 0x2, 0x10, 0x0, 0x14, 0x0, 0x0, 0x4, 0x2d, (byte) 0xde,
+            (byte) 0xad, (byte) 0xbe, (byte) 0xef,
+            /* pst-tlv */
+            0x0, 0x1b, 0x0, 0x4, 0x0, 0x0, 0x0, 0x0 };
+
+        final PCEPRequestParameterObjectParser parser = new PCEPRequestParameterObjectParser(this.tlvRegistry, this.viTlvRegistry);
+        final RpBuilder builder = new RpBuilder();
+        builder.setProcessingRule(false);
+        builder.setIgnore(false);
+        builder.setReoptimization(true);
+        builder.setBiDirectional(false);
+        builder.setLoose(true);
+        builder.setMakeBeforeBreak(true);
+        builder.setOrder(false);
+        builder.setPathKey(false);
+        builder.setSupplyOf(false);
+        builder.setFragmentation(false);
+        builder.setP2mp(false);
+        builder.setEroCompression(false);
+        builder.setPriority((short) 5);
+        builder.setRequestId(new RequestId(0xdeadbeefL));
+        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.rp.TlvsBuilder().setPathSetupType(
+                new PathSetupTypeBuilder().setPst((short) 0).build()).build());
+
+        final ByteBuf result = Unpooled.wrappedBuffer(rpObjectWithPstTlvBytes);
+        assertEquals(builder.build(),
+                parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
+        final ByteBuf buf = Unpooled.buffer();
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(rpObjectWithPstTlvBytes, ByteArray.getAllBytes(buf));
     }
 }

@@ -266,8 +266,16 @@ public enum PCEPErrors {
     NON_IDENTICAL_ERO_SUBOBJECTS(10, 5),
     /**
      * Segment Routing error: ERO subobject with invalid SID value;
-     * */
-    BAD_LABEL_VALUE(10, 2);
+     */
+    BAD_LABEL_VALUE(10, 2),
+    /**
+     * Invalid traffic engineering path setup type: Unsupported path setup type
+     */
+    UNSUPPORTED_PST(21, 1),
+    /**
+     * Invalid traffic engineering path setup type: Mismatched path setup type
+     */
+    MISMATCHED_PST(21, 2);
 
     private PCEPErrorIdentifier errorId;
     private static final Map<PCEPErrorIdentifier, PCEPErrors> VALUE_MAP;
