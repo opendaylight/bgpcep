@@ -10,7 +10,6 @@ module odl-pcep-segment-routing02 {
     import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import network-topology-pcep { prefix pn; revision-date 2013-10-24; }
-    import odl-pcep-lsp-setup-type01 { prefix lst01; revision-date 2014-05-07; }
     import rsvp { prefix rsvp; revision-date 2013-08-20; }
     import yang-ext { prefix ext; revision-date 2013-07-09; }
 

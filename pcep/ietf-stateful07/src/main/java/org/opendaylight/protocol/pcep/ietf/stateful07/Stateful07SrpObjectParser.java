@@ -27,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.setup.type.tlv.PathSetupType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.tlvs.VendorInformationTlv;
 
 /**
@@ -73,6 +74,9 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         if (tlv instanceof SymbolicPathName) {
             builder.setSymbolicPathName((SymbolicPathName) tlv);
         }
+        if (tlv instanceof PathSetupType) {
+            builder.setPathSetupType((PathSetupType) tlv);
+        }
     }
 
     @Override
@@ -91,8 +95,12 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<Tlvs
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
             return;
-        } else if (tlvs.getSymbolicPathName() != null) {
+        }
+        if (tlvs.getSymbolicPathName() != null) {
             serializeTlv(tlvs.getSymbolicPathName(), body);
+        }
+        if (tlvs.getPathSetupType() != null) {
+            serializeTlv(tlvs.getPathSetupType(), body);
         }
     }
 

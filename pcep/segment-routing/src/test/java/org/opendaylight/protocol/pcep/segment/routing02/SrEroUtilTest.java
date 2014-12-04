@@ -16,11 +16,6 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.SrpBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs5;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs5Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.path.setup.type.tlv.PathSetupTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.SrEroSubobject.Flags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.pcinitiate.pcinitiate.message.requests.ero.subobject.subobject.type.SrEroTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
@@ -43,26 +38,10 @@ public class SrEroUtilTest {
     }
 
     @Test
-    public void testAddSRPathSetupTypeTlv() {
-        final SrpBuilder srpBuilder = new SrpBuilder();
-        final Srp srp = SrEroUtil.addSRPathSetupTypeTlv(srpBuilder.build());
-        Assert.assertTrue(srp.getTlvs().getAugmentation(Tlvs5.class).getPathSetupType().isPst());
-    }
-
-    @Test
-    public void testIsPst() {
-        Assert.assertTrue(SrEroUtil.isPst(new Tlvs5Builder().setPathSetupType(new PathSetupTypeBuilder().setPst(true).build()).build()));
-        Assert.assertFalse(SrEroUtil.isPst(new Tlvs5Builder().setPathSetupType(new PathSetupTypeBuilder().setPst(false).build()).build()));
-        Assert.assertFalse(SrEroUtil.isPst(null));
-        Assert.assertFalse(SrEroUtil.isPst(new Tlvs5Builder().build()));
-    }
-
-    @Test
     public void testIsSegmentRoutingPath() {
         Assert.assertTrue(SrEroUtil.isSegmentRoutingPath(createEro(Lists.newArrayList(createSRSubobject()))));
         Assert.assertFalse(SrEroUtil.isSegmentRoutingPath(createEro(Collections.<Subobject>emptyList())));
         Assert.assertFalse(SrEroUtil.isSegmentRoutingPath(createEro(null)));
-        Assert.assertFalse(SrEroUtil.isSegmentRoutingPath(null));
         Assert.assertFalse(SrEroUtil.isSegmentRoutingPath(createEro(Lists.newArrayList(createIpPrefixSubobject()))));
     }
 

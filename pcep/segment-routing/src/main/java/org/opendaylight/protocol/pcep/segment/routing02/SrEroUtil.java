@@ -10,15 +10,11 @@ package org.opendaylight.protocol.pcep.segment.routing02;
 
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.SrpBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.PathSetupTypeTlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs5;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs5Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.path.setup.type.tlv.PathSetupTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.SrEroSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.setup.type.tlv.PathSetupType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
 
 public final class SrEroUtil {
 
@@ -43,8 +39,15 @@ public final class SrEroUtil {
         return null;
     }
 
-    protected static boolean isPst(final PathSetupTypeTlv tlv) {
-        if (tlv != null && tlv.getPathSetupType() != null && tlv.getPathSetupType().isPst()) {
+    protected static boolean isSegmentRoutingPath(final Srp srp) {
+        if (srp != null && srp.getTlvs() != null && isSrTePst(srp.getTlvs().getPathSetupType())) {
+            return true;
+        }
+        return false;
+    }
+
+    protected static boolean isSegmentRoutingPath(final Rp rp) {
+        if (rp != null && rp.getTlvs() != null && isSrTePst(rp.getTlvs().getPathSetupType())) {
             return true;
         }
         return false;
@@ -62,9 +65,11 @@ public final class SrEroUtil {
         return false;
     }
 
-    protected static Srp addSRPathSetupTypeTlv(final Srp srp) {
-        return new SrpBuilder(srp).setTlvs(new TlvsBuilder(srp.getTlvs() != null ? srp.getTlvs() : new TlvsBuilder().build()).addAugmentation(Tlvs5.class,
-                new Tlvs5Builder().setPathSetupType(new PathSetupTypeBuilder().setPst(true).build()).build()).build()).build();
+    private static boolean isSrTePst(final PathSetupType tlv) {
+        if (tlv != null && tlv.getPst() == 1) {
+            return true;
+        }
+        return false;
     }
 
 }

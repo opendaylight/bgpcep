@@ -239,6 +239,8 @@ module odl-pcep-ietf-stateful07 {
                 uses symbolic-path-name-tlv;
 
                 uses pcep:vendor-information-tlvs;
+
+                uses pcep:path-setup-type-tlv;
             }
 
             leaf operation-id {
@@ -331,6 +333,7 @@ module odl-pcep-ietf-stateful07 {
 
     augment "/nt:network-topology/nt:topology/nt:node/topo:path-computation-client/topo:reported-lsp/topo:path" {
         uses lsp-object;
+        uses pcep:path-setup-type-tlv;
     }
 
     augment "/nt:network-topology/nt:topology/nt:node/topo:path-computation-client/topo:stateful-tlv" {
@@ -347,11 +350,13 @@ module odl-pcep-ietf-stateful07 {
     augment "/topo:add-lsp/topo:input/topo:arguments" {
         ext:augment-identifier arguments-2;
         uses lsp-object;
+        uses pcep:path-setup-type-tlv;
     }
 
     augment "/topo:update-lsp/topo:input/topo:arguments" {
         ext:augment-identifier arguments-3;
         uses lsp-object;
+        uses pcep:path-setup-type-tlv;
     }
 
     typedef administrative-status {

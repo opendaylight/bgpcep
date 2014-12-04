@@ -20,6 +20,7 @@ import org.opendaylight.bgpcep.pcep.topology.provider.AbstractTopologySessionLis
 import org.opendaylight.bgpcep.pcep.topology.provider.Stateful07TopologySessionListenerFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Path1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcrpt;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcrptBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PlspId;
@@ -43,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.setup.type.tlv.PathSetupTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLsp;
@@ -71,6 +73,7 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
         Assert.assertEquals(1, reportedLsps.size());
         final ReportedLsp lsp = reportedLsps.get(0);
         Assert.assertEquals("sr-path1", lsp.getName());
+        Assert.assertEquals(1, lsp.getPath().get(0).getAugmentation(Path1.class).getPathSetupType().getPst().intValue());
         List<Subobject> subobjects = lsp.getPath().get(0).getEro().getSubobject();
         Assert.assertEquals(1, subobjects.size());
         Assert.assertEquals("1.1.1.1", ((IpNodeId)((SrEroType)subobjects.get(0).getSubobjectType()).getNai()).getIpAddress().getIpv4Address().getValue());
@@ -103,7 +106,9 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
                     .setTlvs(new TlvsBuilder()
                         .setLspIdentifiers(new LspIdentifiersBuilder().setLspId(new LspId(plspId)).build())
                         .setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(pathName.getBytes(Charsets.UTF_8))).build()).build()).build())
-            .setSrp(new SrpBuilder().setOperationId(new SrpIdNumber(0L)).build())
+            .setSrp(new SrpBuilder().setOperationId(new SrpIdNumber(0L)).setTlvs(
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder()
+                        .setPathSetupType(new PathSetupTypeBuilder().setPst((short) 1).build()).build()).build())
             .setPath(new PathBuilder().setEro(createSrEroObject(nai)).build())
             .build())).build()).build();
     }
