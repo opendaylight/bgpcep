@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.pcep.segment.routing02;
+package org.opendaylight.protocol.pcep.segment.routing;
 
 import com.google.common.collect.Lists;
 import java.lang.reflect.Constructor;
@@ -16,8 +16,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.SrEroSubobject.Flags;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.pcinitiate.pcinitiate.message.requests.ero.subobject.subobject.type.SrEroTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev140506.pcinitiate.pcinitiate.message.requests.ero.subobject.subobject.type.SrEroTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
@@ -35,14 +34,6 @@ public class SrEroUtilTest {
         } catch (InvocationTargetException e) {
             throw e.getCause();
         }
-    }
-
-    @Test
-    public void testIsSegmentRoutingPath() {
-        Assert.assertTrue(SrEroUtil.isSegmentRoutingPath(createEro(Lists.newArrayList(createSRSubobject()))));
-        Assert.assertFalse(SrEroUtil.isSegmentRoutingPath(createEro(Collections.<Subobject>emptyList())));
-        Assert.assertFalse(SrEroUtil.isSegmentRoutingPath(createEro(null)));
-        Assert.assertFalse(SrEroUtil.isSegmentRoutingPath(createEro(Lists.newArrayList(createIpPrefixSubobject()))));
     }
 
     @Test
@@ -70,7 +61,7 @@ public class SrEroUtilTest {
 
     private Subobject createSRSubobject(final long sid, final boolean isM) {
         final SubobjectBuilder builder = new SubobjectBuilder();
-        builder.setSubobjectType(new SrEroTypeBuilder().setFlags(new Flags(false, false, isM, false)).setSid(sid).build());
+        builder.setSubobjectType(new SrEroTypeBuilder().setMFlag(isM).setSid(sid).build());
         return builder.build();
     }
 

@@ -6,16 +6,17 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.pcep.segment.routing02;
+package org.opendaylight.protocol.pcep.segment.routing;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.opendaylight.protocol.pcep.segment.routing.SegmentRoutingSessionProposalFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.StatefulBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.sr.pce.capability.tlv.SrPceCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev140506.sr.pce.capability.tlv.SrPceCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
@@ -32,15 +33,15 @@ public class SegmentRouting02SessionProposalTest {
             .setTlvs(new TlvsBuilder()
                 .addAugmentation(Tlvs1.class, new Tlvs1Builder().setStateful(new StatefulBuilder().addAugmentation(Stateful1.class,
                         new Stateful1Builder().setInitiation(true).build()).setLspUpdateCapability(true).build()).build())
-                .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.Tlvs1.class,
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.Tlvs1Builder()
+                .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev140506.Tlvs1.class,
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev140506.Tlvs1Builder()
                         .setSrPceCapability(new SrPceCapabilityBuilder().setMsd((short) 0).build()).build())
                 .build())
             .build();
 
     @Test
     public void testSegmentRouting02SessionProposalFactory() {
-        final SegmentRouting02SessionProposalFactory sspf = new SegmentRouting02SessionProposalFactory(DEAD_TIMER, KEEP_ALIVE, true, true, true, true);
+        final SegmentRoutingSessionProposalFactory sspf = new SegmentRoutingSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE, true, true, true, true);
         Assert.assertEquals(DEAD_TIMER, sspf.getDeadTimer());
         Assert.assertEquals(KEEP_ALIVE, sspf.getKeepAlive());
         Assert.assertTrue(sspf.isActive());
