@@ -1,5 +1,4 @@
 /*
-/*
  * Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -7,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.controller.config.yang.pcep.sr02.cfg;
-public class Sr02PCEPSessionProposalFactoryModuleFactory extends org.opendaylight.controller.config.yang.pcep.sr02.cfg.AbstractSr02PCEPSessionProposalFactoryModuleFactory {
+package org.opendaylight.controller.config.yang.pcep.sr.cfg;
+public class SegmentRoutingPCEPParserModuleFactory extends org.opendaylight.controller.config.yang.pcep.sr.cfg.AbstractSegmentRoutingPCEPParserModuleFactory {
 
 }
