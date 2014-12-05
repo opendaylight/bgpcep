@@ -1,8 +1,8 @@
 // vi: set smarttab et sw=4 tabstop=4:
-module odl-pcep-segment-routing02-cfg {
+module odl-pcep-segment-routing-cfg {
     yang-version 1;
-    namespace "urn:opendaylight:params:xml:ns:yang:controller:pcep:sr02:cfg";
-    prefix "pcep-sr02";
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:pcep:sr:cfg";
+    prefix "pcep-sr";
 
     import config { prefix config; revision-date 2013-04-05; }
     import odl-pcep-api-cfg { prefix pcep; revision-date 2013-04-09; }
@@ -13,10 +13,10 @@ module odl-pcep-segment-routing02-cfg {
     contact "Milos Fabian <milfabia@cisco.com>";
 
     description
-        "This module contains the base YANG definitions for
-         draft-sivabalan-pce-segment-routing-02 extensions.
+        "This module contains the data model of PCEP Extensions for Segment Routing,
+        draft-ietf-pce-segment-routing-00.
 
-        Copyright (c)2013 Cisco Systems, Inc. All rights reserved.;
+        Copyright (c)2014 Cisco Systems, Inc. All rights reserved.
 
         This program and the accompanying materials are made available
         under the terms of the Eclipse Public License v1.0 which
@@ -28,27 +28,27 @@ module odl-pcep-segment-routing02-cfg {
             "Initial revision.";
     }
 
-    identity pcep-parser-segment-routing02 {
+    identity pcep-parser-segment-routing {
         base config:module-type;
         config:provided-service spi:extension;
-        config:java-name-prefix SegmentRouting02PCEPParser;
+        config:java-name-prefix SegmentRoutingPCEPParser;
     }
 
     augment "/config:modules/config:module/config:configuration" {
-        case pcep-parser-segment-routing02 {
-            when "/config:modules/config:module/config:type = 'pcep-parser-segment-routing02'";
+        case pcep-parser-segment-routing {
+            when "/config:modules/config:module/config:type = 'pcep-parser-segment-routing'";
         }
     }
 
-    identity pcep-session-proposal-factory-sr02 {
+    identity pcep-session-proposal-factory-sr {
         base config:module-type;
-        config:java-name-prefix "Sr02PCEPSessionProposalFactory";
+        config:java-name-prefix "SrPCEPSessionProposalFactory";
         config:provided-service pcep:pcep-session-proposal-factory;
     }
 
     augment "/config:modules/config:module/config:configuration" {
-        case pcep-session-proposal-factory-sr02 {
-            when "/config:modules/config:module/config:type = 'pcep-session-proposal-factory-sr02'";
+        case pcep-session-proposal-factory-sr {
+            when "/config:modules/config:module/config:type = 'pcep-session-proposal-factory-sr'";
 
             leaf dead-timer-value {
                 type uint8;
