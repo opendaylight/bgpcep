@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.pcep.segment.routing02;
+package org.opendaylight.protocol.pcep.segment.routing;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -15,18 +15,19 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Before;
 import org.junit.Test;
+import org.opendaylight.protocol.pcep.segment.routing.SegmentRoutingActivator;
+import org.opendaylight.protocol.pcep.segment.routing.SrEroSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.SidType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.SrEroSubobject.Flags;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.add.lsp.input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.sr.ero.subobject.nai.IpAdjacencyBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.sr.ero.subobject.nai.IpNodeIdBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.sr.ero.subobject.nai.UnnumberedAdjacencyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev140506.SidType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev140506.add.lsp.input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev140506.sr.subobject.nai.IpAdjacencyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev140506.sr.subobject.nai.IpNodeIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev140506.sr.subobject.nai.UnnumberedAdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder;
 
 public class SrEroSubobjectParserTest {
@@ -99,9 +100,10 @@ public class SrEroSubobjectParserTest {
     public void testSrEroSubobjectIpv4NodeIdNAI() throws PCEPDeserializerException {
         final SrEroSubobjectParser parser = new SrEroSubobjectParser();
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
-        builder.setFlags(new Flags(false, false, false, false));
         builder.setSidType(SidType.Ipv4NodeId);
         builder.setSid(123456L);
+        builder.setCFlags(false);
+        builder.setMFlag(false);
         builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddress(new Ipv4Address("74.125.43.99"))).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build()).setLoose(false);
 
@@ -115,9 +117,10 @@ public class SrEroSubobjectParserTest {
     public void testSrEroSubobjectIpv6NodeIdNAI() throws PCEPDeserializerException {
         final SrEroSubobjectParser parser = new SrEroSubobjectParser();
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
-        builder.setFlags(new Flags(false, false, false, false));
         builder.setSidType(SidType.Ipv6NodeId);
         builder.setSid(123456L);
+        builder.setCFlags(false);
+        builder.setMFlag(false);
         builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddress(new Ipv6Address("fe80:cd00::211e:729c"))).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build()).setLoose(false);
 
@@ -131,9 +134,10 @@ public class SrEroSubobjectParserTest {
     public void testSrEroSubobjectIpv4AdjacencyNAI() throws PCEPDeserializerException {
         final SrEroSubobjectParser parser = new SrEroSubobjectParser();
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
-        builder.setFlags(new Flags(false, false, false, false));
         builder.setSidType(SidType.Ipv4Adjacency);
         builder.setSid(123456L);
+        builder.setCFlags(false);
+        builder.setMFlag(false);
         builder.setNai(new IpAdjacencyBuilder().setLocalIpAddress(new IpAddress(new Ipv4Address("74.125.43.99")))
                 .setRemoteIpAddress(new IpAddress(new Ipv4Address("74.125.43.100"))).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build()).setLoose(false);
@@ -148,9 +152,10 @@ public class SrEroSubobjectParserTest {
     public void testSrEroSubobjectIpv6AdjacencyNAI() throws PCEPDeserializerException {
         final SrEroSubobjectParser parser = new SrEroSubobjectParser();
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
-        builder.setFlags(new Flags(false, false, false, false));
         builder.setSidType(SidType.Ipv6Adjacency);
         builder.setSid(123456L);
+        builder.setCFlags(false);
+        builder.setMFlag(false);
         builder.setNai(new IpAdjacencyBuilder().setLocalIpAddress(new IpAddress(new Ipv6Address("fe80:cd00::211e:729c")))
                 .setRemoteIpAddress(new IpAddress(new Ipv6Address("fe80:cd00::211e:729d"))).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build()).setLoose(false);
@@ -165,9 +170,10 @@ public class SrEroSubobjectParserTest {
     public void testSrEroSubobjectUnnumberedNAI() throws PCEPDeserializerException {
         final SrEroSubobjectParser parser = new SrEroSubobjectParser();
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
-        builder.setFlags(new Flags(false, false, false, false));
         builder.setSidType(SidType.Unnumbered);
         builder.setSid(123456L);
+        builder.setCFlags(false);
+        builder.setMFlag(false);
         builder.setNai(new UnnumberedAdjacencyBuilder().setLocalNodeId(1L).setLocalInterfaceId(2L).setRemoteNodeId(3L).setRemoteInterfaceId(4L).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build()).setLoose(false);
 
@@ -181,9 +187,10 @@ public class SrEroSubobjectParserTest {
     public void testSrEroSubobjectWithoutNAI() throws PCEPDeserializerException {
         final SrEroSubobjectParser parser = new SrEroSubobjectParser();
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
-        builder.setFlags(new Flags(false, true, false, false));
         builder.setSidType(SidType.Ipv4NodeId);
         builder.setSid(123456L);
+        builder.setCFlags(false);
+        builder.setMFlag(false);
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build()).setLoose(false);
 
         assertEquals(subobjBuilder.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(srEroSubobjectWithoutNAI, 2)), false));
@@ -196,8 +203,9 @@ public class SrEroSubobjectParserTest {
     public void testSrEroSubobjectWithoutBody() throws PCEPDeserializerException {
         final SrEroSubobjectParser parser = new SrEroSubobjectParser();
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
-        builder.setFlags(new Flags(false, false, false, true));
         builder.setSidType(SidType.Ipv4NodeId);
+        builder.setCFlags(false);
+        builder.setMFlag(false);
         builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddress(new Ipv4Address("74.125.43.99"))).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build()).setLoose(false);
 
