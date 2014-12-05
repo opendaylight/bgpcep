@@ -6,30 +6,30 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.controller.config.yang.pcep.sr02.cfg;
+package org.opendaylight.controller.config.yang.pcep.sr.cfg;
 
 import com.google.common.base.Preconditions;
 import java.net.InetSocketAddress;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
-import org.opendaylight.protocol.pcep.segment.routing02.SegmentRouting02SessionProposalFactory;
+import org.opendaylight.protocol.pcep.segment.routing.SegmentRoutingSessionProposalFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Sr02PCEPSessionProposalFactoryModule extends org.opendaylight.controller.config.yang.pcep.sr02.cfg.AbstractSr02PCEPSessionProposalFactoryModule {
+public class SrPCEPSessionProposalFactoryModule extends org.opendaylight.controller.config.yang.pcep.sr.cfg.AbstractSrPCEPSessionProposalFactoryModule {
 
     private static final String VALUE_IS_NOT_SET = "value is not set.";
 
     private static final int DEADTIMER_KEEPALIVE_RATIO = 4;
 
-    private static final Logger LOG = LoggerFactory.getLogger(Sr02PCEPSessionProposalFactoryModule.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SrPCEPSessionProposalFactoryModule.class);
 
-    public Sr02PCEPSessionProposalFactoryModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+    public SrPCEPSessionProposalFactoryModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public Sr02PCEPSessionProposalFactoryModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, org.opendaylight.controller.config.yang.pcep.sr02.cfg.Sr02PCEPSessionProposalFactoryModule oldModule, java.lang.AutoCloseable oldInstance) {
+    public SrPCEPSessionProposalFactoryModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, org.opendaylight.controller.config.yang.pcep.sr.cfg.SrPCEPSessionProposalFactoryModule oldModule, java.lang.AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
@@ -55,14 +55,14 @@ public class Sr02PCEPSessionProposalFactoryModule extends org.opendaylight.contr
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final SegmentRouting02SessionProposalFactory inner = new SegmentRouting02SessionProposalFactory(getDeadTimerValue(), getKeepAliveTimerValue(), getStateful(), getActive(), getInitiated(), getSrCapable());
+        final SegmentRoutingSessionProposalFactory inner = new SegmentRoutingSessionProposalFactory(getDeadTimerValue(), getKeepAliveTimerValue(), getStateful(), getActive(), getInitiated(), getSrCapable());
         return new PCEPSessionProposalFactoryCloseable(inner);
     }
 
     private static final class PCEPSessionProposalFactoryCloseable implements PCEPSessionProposalFactory, AutoCloseable {
-        private final SegmentRouting02SessionProposalFactory inner;
+        private final SegmentRoutingSessionProposalFactory inner;
 
-        public PCEPSessionProposalFactoryCloseable(final SegmentRouting02SessionProposalFactory inner) {
+        public PCEPSessionProposalFactoryCloseable(final SegmentRoutingSessionProposalFactory inner) {
             this.inner = Preconditions.checkNotNull(inner);
         }
 

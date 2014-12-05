@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.controller.config.yang.pcep.sr02.cfg;
+package org.opendaylight.controller.config.yang.pcep.sr.cfg;
 
 import static org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleTest.createPCEPExtensionsModuleInstance;
 
@@ -20,14 +20,14 @@ import org.opendaylight.controller.config.manager.impl.factoriesresolver.Hardcod
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleFactory;
 
-public class SegmentRouting02PCEPParserModuleTest extends AbstractConfigTest {
+public class SegmentRoutingPCEPParserModuleTest extends AbstractConfigTest {
 
-    private static final String FACTORY_NAME = SegmentRouting02PCEPParserModuleFactory.NAME;
+    private static final String FACTORY_NAME = SegmentRoutingPCEPParserModuleFactory.NAME;
     private static final String INSTANCE_NAME = "pcep-parser-sr02-instance";
 
     @Before
     public void setUp() {
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new SegmentRouting02PCEPParserModuleFactory(), new SimplePCEPExtensionProviderContextModuleFactory()));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new SegmentRoutingPCEPParserModuleFactory(), new SimplePCEPExtensionProviderContextModuleFactory()));
     }
 
     @Test
