@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.controller.config.yang.pcep.sr02.cfg;
+package org.opendaylight.controller.config.yang.pcep.sr.cfg;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -22,14 +22,14 @@ import org.opendaylight.controller.config.manager.impl.factoriesresolver.Hardcod
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.controller.config.yang.pcep.stateful07.cfg.Stateful07PCEPSessionProposalFactoryModuleMXBean;
 
-public class Sr02PCEPSessionProposalFactoryModuleTest extends AbstractConfigTest {
+public class SrPCEPSessionProposalFactoryModuleTest extends AbstractConfigTest {
 
     private static final String INSTANCE_NAME = "sr02-session-proposal";
-    private static final String FACTORY_NAME = Sr02PCEPSessionProposalFactoryModuleFactory.NAME;
+    private static final String FACTORY_NAME = SrPCEPSessionProposalFactoryModuleFactory.NAME;
 
     @Before
     public void setUp() throws Exception {
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new Sr02PCEPSessionProposalFactoryModuleFactory()));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new SrPCEPSessionProposalFactoryModuleFactory()));
     }
 
     @Test
@@ -154,8 +154,8 @@ public class Sr02PCEPSessionProposalFactoryModuleTest extends AbstractConfigTest
     private ObjectName createInstance(final ConfigTransactionJMXClient transaction, final Short deadTimer, final Short keepAlive,
             final Boolean stateful, final Boolean active, final Boolean instant, final Boolean srCapable) throws InstanceAlreadyExistsException {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
-        final Sr02PCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated,
-                Sr02PCEPSessionProposalFactoryModuleMXBean.class);
+        final SrPCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated,
+                SrPCEPSessionProposalFactoryModuleMXBean.class);
         mxBean.setActive(active);
         mxBean.setDeadTimerValue(deadTimer);
         mxBean.setInitiated(instant);

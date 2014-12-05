@@ -261,13 +261,29 @@ public enum PCEPErrors {
      */
     LSP_RSVP_ERROR(24, 3),
     /**
+     * Segment Routing error: ERO subobject with invalid SID value
+     */
+    BAD_LABEL_VALUE(10, 2),
+    /**
+     * Segment Routing error: Unsupported number of Segment ERO subobjects
+     */
+    UNSUPPORTED_NUMBER_OF_SR_ERO_SUBOBJECTS(10, 3),
+    /**
+     * Segment Routing error: Bad label format
+     */
+    BAD_LABEL_FORMAT(10, 4),
+    /**
      * Segment Routing error: Non-identical ERO subobjects
      */
     NON_IDENTICAL_ERO_SUBOBJECTS(10, 5),
     /**
-     * Segment Routing error: ERO subobject with invalid SID value;
+     * Segment Routing error: Both SID and NAI are absent in ERO subobject.
      */
-    BAD_LABEL_VALUE(10, 2),
+    SID_AND_NAI_ABSENT_IN_ERO(10, 6),
+    /**
+     * Segment Routing error: Both SID and NAI are absent in RRO subobject.
+     */
+    SID_AND_NAI_ABSENT_IN_RRO(10, 7),
     /**
      * Invalid traffic engineering path setup type: Unsupported path setup type
      */
