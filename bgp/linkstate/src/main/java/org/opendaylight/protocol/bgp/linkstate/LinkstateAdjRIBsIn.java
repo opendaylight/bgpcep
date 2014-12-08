@@ -213,8 +213,12 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBs<CLinkstateDestination, Li
 
     @Override
     public void removeRoutes(final AdjRIBsTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
-        final DestinationLinkstate keys = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase) nlri.getWithdrawnRoutes().getDestinationType()).getDestinationLinkstate();
-
+        final WithdrawnRoutes withdrawnRoutes = nlri.getWithdrawnRoutes();
+        if (withdrawnRoutes == null) {
+            LOG.debug("Got Multiprotocol Unreachable NLRI without any routes to withdraw. Ignoring it: {}", nlri);
+            return;
+        }
+        final DestinationLinkstate keys = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase) withdrawnRoutes.getDestinationType()).getDestinationLinkstate();
         for (final CLinkstateDestination key : keys.getCLinkstateDestination()) {
             super.remove(trans, peer, key);
         }
