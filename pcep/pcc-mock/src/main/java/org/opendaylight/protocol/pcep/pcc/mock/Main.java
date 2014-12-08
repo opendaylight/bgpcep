@@ -53,6 +53,8 @@ public final class Main {
         int lsps = 1;
         boolean pcError = false;
         final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+        short ka = DEFAULT_KEEP_ALIVE;
+        short dt = DEFAULT_DEAD_TIMER;
 
         getRootLogger(lc).setLevel(ch.qos.logback.classic.Level.INFO);
         int argIdx = 0;
@@ -69,18 +71,22 @@ public final class Main {
                 pcError = true;
             } else if (args[argIdx].equals("--log-level")) {
                 getRootLogger(lc).setLevel(Level.toLevel(args[++argIdx], ch.qos.logback.classic.Level.INFO));
+            } else if (args[argIdx].equals("--keepalive") || args[argIdx].equals("-ka")) {
+                ka = Short.valueOf(args[++argIdx]);
+            } else if (args[argIdx].equals("--deadtimer") || args[argIdx].equals("-d")) {
+                dt = Short.valueOf(args[++argIdx]);
             } else {
                 LOG.warn("WARNING: Unrecognized argument: {}", args[argIdx]);
             }
             argIdx++;
         }
-        createPCCs(lsps, pcError, pccCount, localAddress, remoteAddress);
+        createPCCs(lsps, pcError, pccCount, localAddress, remoteAddress, ka, dt);
     }
 
     public static void createPCCs(final int lspsPerPcc, final boolean pcerr, final int pccCount,
-            final InetAddress localAddress, final List<InetAddress> remoteAddress) throws InterruptedException, ExecutionException {
+            final InetAddress localAddress, final List<InetAddress> remoteAddress, final short keepalive, final short deadtimer) throws InterruptedException, ExecutionException {
         final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf = new DefaultPCEPSessionNegotiatorFactory(
-                new OpenBuilder().setKeepalive(DEFAULT_KEEP_ALIVE).setDeadTimer(DEFAULT_DEAD_TIMER).setSessionId((short) 0).build(), 0);
+                new OpenBuilder().setKeepalive(keepalive).setDeadTimer(deadtimer).setSessionId((short) 0).build(), 0);
 
         final StatefulActivator activator07 = new StatefulActivator();
         activator07.start(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance());

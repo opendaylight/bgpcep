@@ -30,7 +30,7 @@ public class PCCMockTest {
     public void testSessionEstablishment() {
         try {
             org.opendaylight.protocol.pcep.testtool.Main.main(new String[]{"-a", "127.0.1.0:4189", "-ka", "10", "-d", "0", "--stateful", "--active"});
-            Main.main(new String[] {"--local-address", "127.0.0.1", "--remote-address", "127.0.1.0", "--pcc", "2", "--lsp", "1", "--log-level", "DEBUG"});
+            Main.main(new String[] {"--local-address", "127.0.0.1", "--remote-address", "127.0.1.0", "--pcc", "2", "--lsp", "1", "--log-level", "DEBUG", "-ka", "10", "-d", "0",});
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
