@@ -203,12 +203,15 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
                 final PathAttributes2 mpu = attrs.getAugmentation(PathAttributes2.class);
                 if (mpu != null) {
                     final MpUnreachNlri nlri = mpu.getMpUnreachNlri();
-
-                    final AdjRIBsIn<?, ?> ari = this.tables.get(new TablesKey(nlri.getAfi(), nlri.getSafi()));
-                    if (ari != null) {
-                        ari.removeRoutes(trans, peer, nlri);
+                    if (nlri != null) {
+                        final AdjRIBsIn<?, ?> ari = this.tables.get(new TablesKey(nlri.getAfi(), nlri.getSafi()));
+                        if (ari != null) {
+                            ari.removeRoutes(trans, peer, nlri);
+                        } else {
+                            LOG.debug("Not removing objects from unhandled NLRI {}", nlri);
+                        }
                     } else {
-                        LOG.debug("Not removing objects from unhandled NLRI {}", nlri);
+                        LOG.info("Got Multiprotocol Unreachable NLRI without any routes to withdraw. Ignoring MPU {}.", mpu);
                     }
                 }
             }
