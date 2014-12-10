@@ -26,6 +26,8 @@ public abstract class AbstractPCEPSessionNegotiatorFactory implements
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPCEPSessionNegotiatorFactory.class);
 
+    private PCEPPeerRegistry sessionRegistry = new PCEPPeerRegistry();
+
     /**
      * Create a new negotiator. This method needs to be implemented by subclasses to actually provide a negotiator.
      *
@@ -45,4 +47,7 @@ public abstract class AbstractPCEPSessionNegotiatorFactory implements
         return new PCEPSessionNegotiator(channel, promise, factory, this);
     }
 
+    public PCEPPeerRegistry getSessionRegistry() {
+        return this.sessionRegistry;
+    }
 }
