@@ -42,7 +42,7 @@ public class PCCMockTest {
             org.opendaylight.protocol.pcep.testtool.Main.main(new String[]{"-a", "127.0.4.0:4189", "-ka", "10", "-d", "0", "--stateful", "--active"});
             org.opendaylight.protocol.pcep.testtool.Main.main(new String[]{"-a", "127.0.2.0:4189", "-ka", "10", "-d", "0", "--stateful", "--active"});
             org.opendaylight.protocol.pcep.testtool.Main.main(new String[]{"-a", "127.0.3.0:4189", "-ka", "10", "-d", "0", "--stateful", "--active"});
-            Main.main(new String[] {"--local-address", "127.0.0.1", "--remote-address", "127.0.4.0,127.0.2.0,127.0.3.0"});
+            Main.main(new String[] {"--local-address", "127.0.0.1", "--remote-address", "127.0.4.0,127.0.2.0,127.0.3.0", "--pcc", "3"});
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
