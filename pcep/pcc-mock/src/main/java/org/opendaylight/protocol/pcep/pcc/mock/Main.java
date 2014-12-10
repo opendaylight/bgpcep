@@ -86,19 +86,18 @@ public final class Main {
 
     public static void createPCCs(final int lspsPerPcc, final boolean pcerr, final int pccCount,
             final InetAddress localAddress, final List<InetAddress> remoteAddress, final short keepalive, final short deadtimer) throws InterruptedException, ExecutionException {
-        final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf = new DefaultPCEPSessionNegotiatorFactory(
-                new OpenBuilder().setKeepalive(keepalive).setDeadTimer(deadtimer).setSessionId((short) 0).build(), 0);
-
         final StatefulActivator activator07 = new StatefulActivator();
         activator07.start(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance());
-        final PCCMock<Message, PCEPSessionImpl, PCEPSessionListener> pcc = new PCCMock<>(snf, new PCEPHandlerFactory(
-                ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry()));
-
         for (final InetAddress pceAddress : remoteAddress) {
             InetAddress currentAddress = localAddress;
             int i = 0;
             while (i < pccCount) {
                 final InetAddress pccAddress = currentAddress;
+                final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf = new DefaultPCEPSessionNegotiatorFactory(
+                        new OpenBuilder().setKeepalive(keepalive).setDeadTimer(deadtimer).setSessionId((short) 0).build(), 0);
+
+                final PCCMock<Message, PCEPSessionImpl, PCEPSessionListener> pcc = new PCCMock<Message, PCEPSessionImpl, PCEPSessionListener>(snf, new PCEPHandlerFactory(
+                        ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry()));
                 pcc.createClient(new InetSocketAddress(pccAddress, 0), new InetSocketAddress(pceAddress, DEFAULT_PORT),
                         new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_STRATEGY_TIMEOUT),
                         new SessionListenerFactory<PCEPSessionListener>() {
