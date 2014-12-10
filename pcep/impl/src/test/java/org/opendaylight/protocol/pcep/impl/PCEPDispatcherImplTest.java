@@ -53,14 +53,14 @@ public class PCEPDispatcherImplTest {
     public void setUp() {
         final Open open = new OpenBuilder().setSessionId((short) 0).setDeadTimer(DEAD_TIMER).setKeepalive(KEEP_ALIVE)
                 .build();
-        final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf = new DefaultPCEPSessionNegotiatorFactory(
-                open, 0);
         final EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         final MessageRegistry msgReg = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance()
                 .getMessageHandlerRegistry();
-        this.dispatcher = new PCEPDispatcherImpl(msgReg, snf, eventLoopGroup, eventLoopGroup);
-        this.pccMock = new PCCMock<>(snf, new PCEPHandlerFactory(msgReg), new DefaultPromise<PCEPSessionImpl>(
-                GlobalEventExecutor.INSTANCE));
+        this.dispatcher = new PCEPDispatcherImpl(msgReg, new DefaultPCEPSessionNegotiatorFactory(open, 0),
+                eventLoopGroup, eventLoopGroup);
+        this.pccMock = new PCCMock<>(new DefaultPCEPSessionNegotiatorFactory(open, 0),
+                new PCEPHandlerFactory(msgReg), new DefaultPromise<PCEPSessionImpl>(
+                        GlobalEventExecutor.INSTANCE));
     }
 
     @Test
@@ -101,6 +101,49 @@ public class PCEPDispatcherImplTest {
 
         session1.close();
         session2.close();
+        Assert.assertTrue(futureChannel.channel().isActive());
+
+        futureChannel.channel().close();
+    }
+
+    @Test
+    public void testCreateDuplicateClient() throws InterruptedException, ExecutionException {
+        final ChannelFuture futureChannel = this.dispatcher.createServer(new InetSocketAddress("0.0.0.0", PORT),
+                new SessionListenerFactory<PCEPSessionListener>() {
+                    @Override
+                    public PCEPSessionListener getSessionListener() {
+                        return new SimpleSessionListener();
+                    }
+                });
+        final PCEPSessionImpl session1 = pccMock.createClient(CLIENT1_ADDRESS,
+                new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 500),
+                new SessionListenerFactory<PCEPSessionListener>() {
+                    @Override
+                    public PCEPSessionListener getSessionListener() {
+                        return new SimpleSessionListener();
+                    }
+                }).get();
+
+        try {
+            pccMock.createClient(CLIENT1_ADDRESS,
+                    new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 500),
+                    new SessionListenerFactory<PCEPSessionListener>() {
+                        @Override
+                        public PCEPSessionListener getSessionListener() {
+                            return new SimpleSessionListener();
+                        }
+                    }).get();
+            Assert.fail();
+        } catch(ExecutionException e) {
+            Assert.assertTrue(e.getMessage().contains("A conflicting session for address"));
+        }
+
+        Assert.assertTrue(futureChannel.channel().isActive());
+        Assert.assertEquals(CLIENT1_ADDRESS.getAddress().getHostAddress(), session1.getPeerAddress());
+        Assert.assertEquals(DEAD_TIMER, session1.getDeadTimerValue().shortValue());
+        Assert.assertEquals(KEEP_ALIVE, session1.getKeepAliveTimerValue().shortValue());
+
+        session1.close();
         Assert.assertTrue(futureChannel.channel().isActive());
 
         futureChannel.channel().close();
