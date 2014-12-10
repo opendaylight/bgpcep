@@ -9,23 +9,20 @@ package org.opendaylight.protocol.pcep.impl;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.util.concurrent.Promise;
-
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-
 import javax.annotation.concurrent.GuardedBy;
-
 import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.framework.SessionNegotiator;
@@ -62,7 +59,7 @@ public abstract class AbstractPCEPSessionNegotiatorFactory implements
     private static final long ID_CACHE_SECONDS = 3 * 3600;
 
     @GuardedBy("this")
-    private final BiMap<byte[], SessionReference> sessions = HashBiMap.create();
+    private final Map<ByteArrayWrapper, SessionReference> sessions = new HashMap<>();
 
     @GuardedBy("this")
     private final Cache<byte[], PeerRecord> formerClients = CacheBuilder.newBuilder().expireAfterAccess(PEER_CACHE_SECONDS,
@@ -100,12 +97,13 @@ public abstract class AbstractPCEPSessionNegotiatorFactory implements
                  * registered for this client.
                  */
                 final byte[] clientAddress = ((InetSocketAddress) this.channel.remoteAddress()).getAddress().getAddress();
+                final ByteArrayWrapper clientAddressWrapper = new ByteArrayWrapper(clientAddress);
 
                 synchronized (lock) {
-                    if (AbstractPCEPSessionNegotiatorFactory.this.sessions.containsKey(clientAddress)) {
+                    if (AbstractPCEPSessionNegotiatorFactory.this.sessions.containsKey(clientAddressWrapper)) {
                         final byte[] serverAddress = ((InetSocketAddress) this.channel.localAddress()).getAddress().getAddress();
                         if (COMPARATOR.compare(serverAddress, clientAddress) > 0) {
-                            final SessionReference n = AbstractPCEPSessionNegotiatorFactory.this.sessions.remove(clientAddress);
+                            final SessionReference n = AbstractPCEPSessionNegotiatorFactory.this.sessions.remove(clientAddressWrapper);
                             try {
                                 n.close();
                             } catch (final Exception e) {
@@ -121,7 +119,7 @@ public abstract class AbstractPCEPSessionNegotiatorFactory implements
                     final Short sessionId = nextSession(clientAddress);
                     final AbstractPCEPSessionNegotiator n = createNegotiator(promise, factory.getSessionListener(), this.channel, sessionId);
 
-                    AbstractPCEPSessionNegotiatorFactory.this.sessions.put(clientAddress, new SessionReference() {
+                    AbstractPCEPSessionNegotiatorFactory.this.sessions.put(clientAddressWrapper, new SessionReference() {
                         @Override
                         public void close() throws ExecutionException {
                             try {
@@ -146,7 +144,7 @@ public abstract class AbstractPCEPSessionNegotiatorFactory implements
                         @Override
                         public void operationComplete(final ChannelFuture future) {
                             synchronized (lock) {
-                                AbstractPCEPSessionNegotiatorFactory.this.sessions.inverse().remove(this);
+                                AbstractPCEPSessionNegotiatorFactory.this.sessions.remove(clientAddressWrapper);
                             }
                         }
                     });
@@ -174,5 +172,34 @@ public abstract class AbstractPCEPSessionNegotiatorFactory implements
         });
 
         return peer.allocId();
+    }
+
+    private static final class ByteArrayWrapper {
+
+        final byte[] byteArray;
+
+        ByteArrayWrapper(final byte[] byteArray) {
+            this.byteArray = byteArray;
+        }
+
+        @Override
+        public int hashCode() {
+            return Arrays.hashCode(byteArray);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final ByteArrayWrapper other = (ByteArrayWrapper) obj;
+            return Arrays.equals(byteArray, other.byteArray);
+        }
     }
 }
