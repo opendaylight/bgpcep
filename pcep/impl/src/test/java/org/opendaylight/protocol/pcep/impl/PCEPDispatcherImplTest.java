@@ -53,14 +53,14 @@ public class PCEPDispatcherImplTest {
     public void setUp() {
         final Open open = new OpenBuilder().setSessionId((short) 0).setDeadTimer(DEAD_TIMER).setKeepalive(KEEP_ALIVE)
                 .build();
-        final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf = new DefaultPCEPSessionNegotiatorFactory(
-                open, 0);
         final EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         final MessageRegistry msgReg = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance()
                 .getMessageHandlerRegistry();
-        this.dispatcher = new PCEPDispatcherImpl(msgReg, snf, eventLoopGroup, eventLoopGroup);
-        this.pccMock = new PCCMock<>(snf, new PCEPHandlerFactory(msgReg), new DefaultPromise<PCEPSessionImpl>(
-                GlobalEventExecutor.INSTANCE));
+        this.dispatcher = new PCEPDispatcherImpl(msgReg, new DefaultPCEPSessionNegotiatorFactory(open, 0),
+                eventLoopGroup, eventLoopGroup);
+        this.pccMock = new PCCMock<>(new DefaultPCEPSessionNegotiatorFactory(open, 0),
+                new PCEPHandlerFactory(msgReg), new DefaultPromise<PCEPSessionImpl>(
+                        GlobalEventExecutor.INSTANCE));
     }
 
     @Test
