@@ -319,6 +319,7 @@ module odl-bgp-rib-impl-cfg {
             }
 
             list advertized-table {
+                key "type name";
                 uses config:service-ref {
                     refine type {
                         mandatory true;
