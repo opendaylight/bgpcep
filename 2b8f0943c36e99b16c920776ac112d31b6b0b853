@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_91546a55",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/AbstractPCEPSessionNegotiatorFactory.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-12-12T09:59:59Z",
+      "side": 1,
+      "message": "just use \u0027return Arrays.hashCode()\u0027",
+      "revId": "2b8f0943c36e99b16c920776ac112d31b6b0b853",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_f15fee70",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/AbstractPCEPSessionNegotiatorFactory.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-12-12T09:59:59Z",
+      "side": 1,
+      "message": "just use \u0027return Arrays.equals()\u0027",
+      "revId": "2b8f0943c36e99b16c920776ac112d31b6b0b853",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
