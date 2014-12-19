@@ -8,10 +8,8 @@
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import com.google.common.base.Optional;
-
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
@@ -33,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypesBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.Node1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.Node1Builder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributes;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.Prefix;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.PrefixBuilder;
@@ -88,22 +87,18 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
 
     private InstanceIdentifier<Node1> ensureNodePresent(final ReadWriteTransaction trans, final NodeId ni) {
         final KeyedInstanceIdentifier<Node, NodeKey> nii = nodeInstanceId(ni);
-        LOG.debug("Looking for pre-existing node at {}", nii);
-
         final InstanceIdentifier<Node1> ret = nii.augmentation(Node1.class);
-        if (read(trans, ret) == null) {
-            LOG.debug("Create a new node at {}", nii);
-            trans.put(LogicalDatastoreType.OPERATIONAL, nii, new NodeBuilder().setKey(nii.getKey()).setNodeId(ni)
-                .addAugmentation(Node1.class, new Node1Builder().setIgpNodeAttributes(
-                    new IgpNodeAttributesBuilder().setPrefix(new ArrayList<Prefix>()).build()).build()).build());
-        }
+
+        trans.merge(LogicalDatastoreType.OPERATIONAL, nii, new NodeBuilder().setKey(nii.getKey()).setNodeId(ni)
+            .addAugmentation(Node1.class, new Node1Builder().setIgpNodeAttributes(
+                new IgpNodeAttributesBuilder().setPrefix(Collections.<Prefix>emptyList()).build()).build()).build());
 
         return ret;
     }
 
     private void removeEmptyNode(final ReadWriteTransaction trans, final InstanceIdentifier<Node> nii) {
-        final Node1 node = read(trans, nii.augmentation(Node1.class));
-        if (node != null && node.getIgpNodeAttributes().getPrefix().isEmpty()) {
+        final IgpNodeAttributes attrs = read(trans, nii.augmentation(Node1.class).child(IgpNodeAttributes.class));
+        if (attrs != null && attrs.getPrefix().isEmpty()) {
             trans.delete(LogicalDatastoreType.OPERATIONAL, nii);
         }
     }
@@ -121,8 +116,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
         final PrefixKey pk = new PrefixKey(prefix);
 
         trans.put(LogicalDatastoreType.OPERATIONAL,
-                nii.child(
-                        org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributes.class).child(
+                nii.child(IgpNodeAttributes.class).child(
                                 Prefix.class, pk), new PrefixBuilder().setKey(pk).setPrefix(prefix).build());
     }
 
@@ -134,8 +128,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
         final IpPrefix prefix = getPrefix(value);
         final PrefixKey pk = new PrefixKey(prefix);
 
-        trans.delete(LogicalDatastoreType.OPERATIONAL, nii.augmentation(Node1.class).child(
-                org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributes.class).child(
+        trans.delete(LogicalDatastoreType.OPERATIONAL, nii.augmentation(Node1.class).child(IgpNodeAttributes.class).child(
                         Prefix.class, pk));
 
         removeEmptyNode(trans, nii);
