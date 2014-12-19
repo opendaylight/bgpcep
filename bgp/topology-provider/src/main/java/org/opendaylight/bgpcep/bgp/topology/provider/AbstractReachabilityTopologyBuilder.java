@@ -8,7 +8,10 @@
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
@@ -47,6 +50,16 @@ import org.slf4j.LoggerFactory;
  */
 abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends AbstractTopologyBuilder<T> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractReachabilityTopologyBuilder.class);
+    private final Map<NodeId, NodeUsage> nodes = new HashMap<>();
+
+    private static final class NodeUsage {
+        private final InstanceIdentifier<IgpNodeAttributes> attrId;
+        private int useCount = 1;
+
+        NodeUsage(final InstanceIdentifier<IgpNodeAttributes> attrId) {
+            this.attrId = Preconditions.checkNotNull(attrId);
+        }
+    }
 
     protected AbstractReachabilityTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
             final TopologyId topologyId, final Class<T> idClass) {
@@ -85,22 +98,21 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
         return o.orNull();
     }
 
-    private InstanceIdentifier<Node1> ensureNodePresent(final ReadWriteTransaction trans, final NodeId ni) {
+    private InstanceIdentifier<IgpNodeAttributes> ensureNodePresent(final ReadWriteTransaction trans, final NodeId ni) {
+        final NodeUsage present = nodes.get(ni);
+        if (present != null) {
+            return present.attrId;
+        }
+
         final KeyedInstanceIdentifier<Node, NodeKey> nii = nodeInstanceId(ni);
-        final InstanceIdentifier<Node1> ret = nii.augmentation(Node1.class);
+        final InstanceIdentifier<IgpNodeAttributes> ret = nii.builder().augmentation(Node1.class).child(IgpNodeAttributes.class).build();
 
         trans.merge(LogicalDatastoreType.OPERATIONAL, nii, new NodeBuilder().setKey(nii.getKey()).setNodeId(ni)
             .addAugmentation(Node1.class, new Node1Builder().setIgpNodeAttributes(
                 new IgpNodeAttributesBuilder().setPrefix(Collections.<Prefix>emptyList()).build()).build()).build());
 
+        nodes.put(ni, new NodeUsage(ret));
         return ret;
-    }
-
-    private void removeEmptyNode(final ReadWriteTransaction trans, final InstanceIdentifier<Node> nii) {
-        final IgpNodeAttributes attrs = read(trans, nii.augmentation(Node1.class).child(IgpNodeAttributes.class));
-        if (attrs != null && attrs.getPrefix().isEmpty()) {
-            trans.delete(LogicalDatastoreType.OPERATIONAL, nii);
-        }
     }
 
     protected abstract Attributes getAttributes(final T value);
@@ -110,28 +122,44 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
     @Override
     protected final void createObject(final ReadWriteTransaction trans, final InstanceIdentifier<T> id, final T value) {
         final NodeId ni = advertizingNode(getAttributes(value));
-        final InstanceIdentifier<Node1> nii = ensureNodePresent(trans, ni);
+        final InstanceIdentifier<IgpNodeAttributes> nii = ensureNodePresent(trans, ni);
 
         final IpPrefix prefix = getPrefix(value);
         final PrefixKey pk = new PrefixKey(prefix);
 
         trans.put(LogicalDatastoreType.OPERATIONAL,
-                nii.child(IgpNodeAttributes.class).child(
-                                Prefix.class, pk), new PrefixBuilder().setKey(pk).setPrefix(prefix).build());
+                nii.child(Prefix.class, pk), new PrefixBuilder().setKey(pk).setPrefix(prefix).build());
     }
 
     @Override
     protected final void removeObject(final ReadWriteTransaction trans, final InstanceIdentifier<T> id, final T value) {
         final NodeId ni = advertizingNode(getAttributes(value));
-        final InstanceIdentifier<Node> nii = nodeInstanceId(ni);
+        final NodeUsage present = nodes.get(ni);
+        Preconditions.checkState(present != null, "Removing prefix from non-existent node %s", present);
 
-        final IpPrefix prefix = getPrefix(value);
-        final PrefixKey pk = new PrefixKey(prefix);
+        final PrefixKey pk = new PrefixKey(getPrefix(value));
+        trans.delete(LogicalDatastoreType.OPERATIONAL, present.attrId.child(Prefix.class, pk));
 
-        trans.delete(LogicalDatastoreType.OPERATIONAL, nii.augmentation(Node1.class).child(IgpNodeAttributes.class).child(
-                        Prefix.class, pk));
-
-        removeEmptyNode(trans, nii);
+        /*
+         * This is optimization magic: we are reading a list and we want to remove it once it
+         * hits zero. We may be in a transaction, so the read is costly, especially since we
+         * have just modified the list.
+         *
+         * Once we have performed the read, though, we can check the number of nodes, and reuse
+         * it for that number of removals. Note that since we do not track data and thus have
+         * no understanding about the difference between replace and add, we do not ever increase
+         * the life of this in createObject().
+         */
+        present.useCount--;
+        if (present.useCount == 0) {
+            final IgpNodeAttributes attrs = read(trans, present.attrId);
+            if (attrs != null) {
+                present.useCount = attrs.getPrefix().size();
+                if (present.useCount == 0) {
+                    trans.delete(LogicalDatastoreType.OPERATIONAL, nodeInstanceId(ni));
+                    nodes.remove(ni);
+                }
+            }
+        }
     }
-
 }
