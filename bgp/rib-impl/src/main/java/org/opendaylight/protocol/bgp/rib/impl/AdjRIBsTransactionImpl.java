@@ -57,6 +57,11 @@ class AdjRIBsTransactionImpl implements AdjRIBsTransaction {
 
     @Override
     public <K, V extends Route> void advertise(final RouteEncoder ribOut, final K key, final InstanceIdentifier<V> id, final Peer advertizingPeer, final V obj) {
+        /*
+         * FIXME: audit all code paths to make sure they create parent entries,
+         *        and then flip this to false. The reason is that ensuring
+         *        parents increases the cost ~5x.
+         */
         this.trans.put(LogicalDatastoreType.OPERATIONAL, id, obj, true);
         for (final Entry<Peer, AdjRIBsOut> e : this.ribs.entrySet()) {
             if (e.getKey() != advertizingPeer) {
