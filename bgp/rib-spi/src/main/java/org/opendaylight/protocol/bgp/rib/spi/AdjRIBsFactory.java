@@ -7,10 +7,17 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 public interface AdjRIBsFactory {
-    AdjRIBsIn<?, ?> createAdjRIBs(final KeyedInstanceIdentifier<Tables, TablesKey> basePath);
+    /*
+     * Create an instance of route tables for the specified backend data store. Note that the
+     * AFI/SAFI is encoded as the key of the instance identifier.
+     *
+     * @param basePath datastore identifier of local the table.
+     */
+    AdjRIBsIn<?, ?> createAdjRIBs(@Nonnull KeyedInstanceIdentifier<Tables, TablesKey> basePath);
 }
