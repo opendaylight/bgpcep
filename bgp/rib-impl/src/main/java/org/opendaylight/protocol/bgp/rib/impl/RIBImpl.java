@@ -11,11 +11,12 @@ import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -82,15 +83,34 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
     private static final Update EOR = new UpdateBuilder().build();
     private static final TablesKey IPV4_UNICAST_TABLE = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+
+    /*
+     * FIXME: performance: this needs to be turned into a Peer->offset map.
+     *        The offset is used to locate a the per-peer state entry in the
+     *        RIB tables.
+     *
+     *        For the first release, that map is updated whenever configuration
+     *        changes and remains constant on peer flaps. On re-configuration
+     *        a resize task is scheduled, so large tables may take some time
+     *        before they continue reacting to updates.
+     *
+     *        For subsequent releases, if we make the reformat process concurrent,
+     *        we can trigger reformats when Graceful Restart Time expires for a
+     *        particular peer.
+     */
     private final ConcurrentMap<Peer, AdjRIBsOut> ribOuts = new ConcurrentHashMap<>();
     private final ReconnectStrategyFactory tcpStrategyFactory;
     private final ReconnectStrategyFactory sessionStrategyFactory;
+
+    /**
+     * BGP Best Path selection comparator for ingress best path selection.
+     */
     private final BGPObjectComparator comparator;
     private final BGPDispatcher dispatcher;
     private final BindingTransactionChain chain;
     private final AsNumber localAs;
     private final Ipv4Address bgpIdentifier;
-    private final List<BgpTableType> localTables;
+    private final Set<BgpTableType> localTables;
     private final RIBTables tables;
     private final BlockingQueue<Peer> peers;
     private final DataBroker dataBroker;
@@ -133,7 +153,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.dispatcher = Preconditions.checkNotNull(dispatcher);
         this.sessionStrategyFactory = Preconditions.checkNotNull(sessionStrategyFactory);
         this.tcpStrategyFactory = Preconditions.checkNotNull(tcpStrategyFactory);
-        this.localTables = ImmutableList.copyOf(localTables);
+        this.localTables = ImmutableSet.copyOf(localTables);
         this.tables = new RIBTables(extensions);
         this.peers = new LinkedBlockingQueue<>();
         this.dataBroker = dps;
@@ -323,7 +343,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     }
 
     @Override
-    public List<? extends BgpTableType> getLocalTables() {
+    public Set<? extends BgpTableType> getLocalTables() {
         return this.localTables;
     }
 
