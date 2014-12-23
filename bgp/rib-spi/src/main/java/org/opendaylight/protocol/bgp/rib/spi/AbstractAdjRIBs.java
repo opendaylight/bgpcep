@@ -77,107 +77,13 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
         }
     }
 
-    /**
-     * A single RIB table entry, which holds multiple versions of the entry's state and elects the authoritative based
-     * on ordering specified by the supplied comparator.
-     *
-     */
-    private final class RIBEntry {
-        private static final int DEFAULT_MAP_SIZE = 2;
-        /*
-         * TODO: we could dramatically optimize performance by using the comparator
-         *       to retain the candidate states ordered -- thus selection would occur
-         *       automatically through insertion, without the need of a second walk.
-         */
-        private final Map<Peer, RIBEntryData<I, D, K>> candidates = new HashMap<>(DEFAULT_MAP_SIZE);
-        private final I key;
-
-        @GuardedBy("this")
-        private KeyedInstanceIdentifier<D, K> name;
-        @GuardedBy("this")
-        private RIBEntryData<I, D, K> currentState;
-
-        RIBEntry(final I key) {
-            this.key = Preconditions.checkNotNull(key);
-        }
-
-        private KeyedInstanceIdentifier<D, K> getName() {
-            if (this.name == null) {
-                this.name = identifierForKey(this.key);
-                LOG.trace("Entry {} grew key {}", this, this.name);
-            }
-            return this.name;
-        }
-
-        /**
-         * Based on given comparator, finds a new best candidate for initial route.
-         *
-         * @param comparator
-         * @param initial
-         * @return
-         */
-        private RIBEntryData<I, D, K> findCandidate(final BGPObjectComparator comparator, final RIBEntryData<I, D, K> initial) {
-            RIBEntryData<I, D, K> newState = initial;
-            for (final RIBEntryData<I, D, K> s : this.candidates.values()) {
-                if (newState == null || comparator.compare(newState, s) > 0) {
-                    newState = s;
-                }
-            }
-
-            return newState;
-        }
-
-        /**
-         * Advertize newly elected best candidate to datastore.
-         *
-         * @param transaction
-         * @param candidate
-         */
-        private void electCandidate(final AdjRIBsTransaction transaction, final RIBEntryData<I, D, K> candidate) {
-            LOG.trace("Electing state {} to supersede {}", candidate, this.currentState);
-
-            if (this.currentState == null || !this.currentState.equals(candidate)) {
-                LOG.trace("Elected new state for {}: {}", getName(), candidate);
-                transaction.advertise(AbstractAdjRIBs.this, this.key, getName(), candidate.getPeer(), candidate.getDataObject(this.key, getName().getKey()));
-                this.currentState = candidate;
-            }
-        }
-
-        /**
-         * Removes RIBEntry from database. If we are removing best path, elect another candidate (using BPS).
-         * If there are no other candidates, remove the path completely.
-         * @param transaction
-         * @param peer
-         * @return true if the list of the candidates for this path is empty
-         */
-        synchronized boolean removeState(final AdjRIBsTransaction transaction, final Peer peer) {
-            final RIBEntryData<I, D, K> data = this.candidates.remove(peer);
-            LOG.trace("Removed data {}", data);
-
-            final RIBEntryData<I, D, K> candidate = findCandidate(transaction.comparator(), null);
-            if (candidate != null) {
-                electCandidate(transaction, candidate);
-            } else {
-                LOG.trace("Final candidate disappeared, removing entry {}", getName());
-                transaction.withdraw(AbstractAdjRIBs.this, this.key, getName());
-            }
-
-            return this.candidates.isEmpty();
-        }
-
-        synchronized void setState(final AdjRIBsTransaction transaction, final Peer peer, final RIBEntryData<I, D, K> state) {
-            this.candidates.put(Preconditions.checkNotNull(peer), Preconditions.checkNotNull(state));
-            electCandidate(transaction, findCandidate(transaction.comparator(), state));
-        }
-    }
-
     private static final Logger LOG = LoggerFactory.getLogger(AbstractAdjRIBs.class);
     private final KeyedInstanceIdentifier<Tables, TablesKey> basePath;
     private final BgpTableType tableType;
     private final Update eor;
 
     @GuardedBy("this")
-    private final Map<I, RIBEntry> entries = new HashMap<>();
+    private final Map<I, RIBEntry<I, D, K>> entries = new HashMap<>();
 
     @GuardedBy("this")
     private final Map<Peer, Boolean> peers = new HashMap<>();
@@ -192,9 +98,9 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
 
     @Override
     public final synchronized void clear(final AdjRIBsTransaction trans, final Peer peer) {
-        final Iterator<Entry<I, RIBEntry>> i = this.entries.entrySet().iterator();
+        final Iterator<Entry<I, RIBEntry<I, D, K>>> i = this.entries.entrySet().iterator();
         while (i.hasNext()) {
-            final Entry<I, RIBEntry> e = i.next();
+            final Entry<I, RIBEntry<I, D, K>> e = i.next();
 
             if (e.getValue().removeState(trans, peer)) {
                 i.remove();
@@ -206,10 +112,10 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
     }
 
     public final synchronized void addAllEntries(final AdjRIBsTransaction trans) {
-        for (final Entry<I, RIBEntry> e : this.entries.entrySet()) {
-            final RIBEntry entry = e.getValue();
+        for (final Entry<I, RIBEntry<I, D, K>> e : this.entries.entrySet()) {
+            final RIBEntry<I, D, K> entry = e.getValue();
             final RIBEntryData<I, D, K> state = entry.currentState;
-            trans.advertise(this, e.getKey(), entry.name, state.peer, state.getDataObject(entry.key, entry.name.getKey()));
+            trans.advertise(this, e.getKey(), entry.name, state.peer, state.getDataObject(entry.getKey(), entry.name.getKey()));
         }
     }
 
@@ -286,9 +192,9 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
     protected final synchronized void add(final AdjRIBsTransaction trans, final Peer peer, final I id, final RIBEntryData<I, D, K> data) {
         LOG.debug("Adding state {} for {} peer {}", data, id, peer);
 
-        RIBEntry e = this.entries.get(Preconditions.checkNotNull(id));
+        RIBEntry<I, D, K> e = this.entries.get(Preconditions.checkNotNull(id));
         if (e == null) {
-            e = new RIBEntry(id);
+            e = new RIBEntry<I, D, K>(this, id);
             this.entries.put(id, e);
         }
 
@@ -307,7 +213,7 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
      * @param id Data store instance identifier
      */
     protected final synchronized void remove(final AdjRIBsTransaction trans, final Peer peer, final I id) {
-        final RIBEntry e = this.entries.get(id);
+        final RIBEntry<I, D, K> e = this.entries.get(id);
         if (e != null && e.removeState(trans, peer)) {
             LOG.debug("Removed last state, removing entry for {}", id);
             this.entries.remove(id);
