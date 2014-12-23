@@ -1,0 +1,8 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+1: Dana Kutenicsova <dkutenic@cisco.com>
+Code-Review+2: Robert Varga <nite@hq.sk>
+Submitted-by: Robert Varga <nite@hq.sk>
+Submitted-at: Tue, 23 Dec 2014 15:19:44 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/12221
+Project: bgpcep
+Branch: refs/heads/master
