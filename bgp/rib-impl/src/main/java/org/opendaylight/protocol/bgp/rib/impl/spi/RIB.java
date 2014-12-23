@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
-import java.util.List;
+import java.util.Set;
+import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -24,7 +25,13 @@ public interface RIB {
 
     Ipv4Address getBgpIdentifier();
 
-    List<? extends BgpTableType> getLocalTables();
+    /**
+     * Return the set of table identifiers which are accepted and advertised
+     * by this RIB instance.
+     *
+     * @return A set of identifiers.
+     */
+    @Nonnull Set<? extends BgpTableType> getLocalTables();
 
     void initTable(Peer bgpPeer, TablesKey key);
 
