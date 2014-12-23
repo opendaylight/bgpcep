@@ -99,7 +99,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>${maven.shade.version}</version>
                 <configuration>
                 </configuration>
                 <executions>
