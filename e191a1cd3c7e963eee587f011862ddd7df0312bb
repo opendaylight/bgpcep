@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_36269eb8",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/Ipv4Util.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-12-23T16:19:01Z",
+      "side": 1,
+      "message": "wrappedBuffer()",
+      "revId": "e191a1cd3c7e963eee587f011862ddd7df0312bb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
