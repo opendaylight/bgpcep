@@ -35,8 +35,6 @@
     <properties>
         <exam.version>3.3.0</exam.version>
         <url.version>1.6.0</url.version>
-        <antlr.version>4.0</antlr.version>
-        <xtend-lib-osgi.version>2.4.3</xtend-lib-osgi.version>
         <moxy.controller.version>2.5.0</moxy.controller.version>
     </properties>
 
@@ -45,7 +43,6 @@
             <plugin>
                 <groupId>org.ops4j.pax.exam</groupId>
                 <artifactId>maven-paxexam-plugin</artifactId>
-                <version>1.2.4</version>
                 <executions>
                     <execution>
                         <id>generate-config</id>
@@ -96,7 +93,6 @@
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>logback-config</artifactId>
-            <version>${controller.config.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -113,7 +109,6 @@
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>yang-jmx-generator</artifactId>
-            <version>${controller.config.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -144,7 +139,6 @@
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>config-persister-file-xml-adapter</artifactId>
-            <version>${controller.config.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -156,7 +150,6 @@
         <dependency>
             <groupId>org.opendaylight.yangtools.thirdparty</groupId>
             <artifactId>antlr4-runtime-osgi-nohead</artifactId>
-            <version>${antlr.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -295,7 +288,6 @@
         <dependency>
             <groupId>org.opendaylight.yangtools.thirdparty</groupId>
             <artifactId>xtend-lib-osgi</artifactId>
-            <version>${xtend-lib-osgi.version}</version>
             <scope>test</scope>
         </dependency>
 
