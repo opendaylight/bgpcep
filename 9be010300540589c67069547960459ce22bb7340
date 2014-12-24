@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_f9da6977",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/TlvUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-12-24T16:27:57Z",
+      "side": 1,
+      "message": "final",
+      "revId": "9be010300540589c67069547960459ce22bb7340",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_d9dd2d72",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/TlvUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-12-24T16:27:57Z",
+      "side": 1,
+      "message": "private",
+      "revId": "9be010300540589c67069547960459ce22bb7340",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_99e7a540",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/TlvUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-12-24T16:27:57Z",
+      "side": 1,
+      "message": "if (LOG.isDebugEnabled()) {\n...\n}\n\nbecause hexDump can be costly",
+      "revId": "9be010300540589c67069547960459ce22bb7340",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_b9e4e13b",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/NodeAttributesParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-12-24T16:27:57Z",
+      "side": 1,
+      "message": "if (LOG.isDebugEnabled())",
+      "revId": "9be010300540589c67069547960459ce22bb7340",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_79d65951",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/NodeNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-12-24T16:27:57Z",
+      "side": 1,
+      "message": "if LOG.isTraceEnabled()",
+      "revId": "9be010300540589c67069547960459ce22bb7340",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_19cb95a6",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/PrefixNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-12-24T16:27:57Z",
+      "side": 1,
+      "message": "if (LOG.isTraceEnabled())",
+      "revId": "9be010300540589c67069547960459ce22bb7340",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
