@@ -8,11 +8,19 @@
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv6.routes._case.Ipv6Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv6.routes._case.ipv6.routes.Ipv6Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class Ipv6ReachabilityTopologyBuilder extends AbstractReachabilityTopologyBuilder<Ipv6Route> {
     public Ipv6ReachabilityTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
@@ -28,5 +36,12 @@ public final class Ipv6ReachabilityTopologyBuilder extends AbstractReachabilityT
     @Override
     protected IpPrefix getPrefix(final Ipv6Route value) {
         return new IpPrefix(value.getKey().getPrefix());
+    }
+
+    @Override
+    public void register(final DataBroker dataBroker, final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
+        final InstanceIdentifier<?> i = tableInstanceIdentifier(afi, safi).child(Ipv6Routes.class).child(Ipv6Route.class);
+        final ListenerRegistration<DataChangeListener> r = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, i, this, DataChangeScope.BASE);
+        setRegistration(r);
     }
 }

@@ -42,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -56,6 +57,9 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
 
     @GuardedBy("this")
     private boolean closed = false;
+
+    @GuardedBy("this")
+    private ListenerRegistration<?> registration;
 
     protected AbstractTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
             final TopologyId topologyId, final TopologyTypes types, final Class<T> idClass) {
@@ -89,8 +93,16 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
 
     public final InstanceIdentifier<Tables> tableInstanceIdentifier(final Class<? extends AddressFamily> afi,
             final Class<? extends SubsequentAddressFamily> safi) {
-        return this.locRibReference.getInstanceIdentifier().builder().child(LocRib.class).child(Tables.class, new TablesKey(afi, safi)).toInstance();
+        return this.locRibReference.getInstanceIdentifier().child(LocRib.class).child(Tables.class, new TablesKey(afi, safi));
     }
+
+    protected synchronized final void setRegistration(final ListenerRegistration<?> registration) {
+        Preconditions.checkState(this.registration == null, "Registration %s already set", this.registration);
+        this.registration = Preconditions.checkNotNull(registration);
+    }
+
+    public abstract void register(DataBroker dataBroker, Class<? extends AddressFamily> afi,
+            Class<? extends SubsequentAddressFamily> safi);
 
     protected abstract void createObject(ReadWriteTransaction trans, InstanceIdentifier<T> id, T value);
 
@@ -166,6 +178,12 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
     @Override
     public final synchronized void close() throws TransactionCommitFailedException {
         LOG.info("Shutting down builder for {}", getInstanceIdentifier());
+
+        if (registration != null) {
+            registration.close();
+            registration = null;
+        }
+
         final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
         trans.delete(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier());
         trans.submit().checkedGet();
