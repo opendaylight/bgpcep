@@ -78,6 +78,7 @@ public abstract class AbstractBundleTest {
         ret.add(mavenBundle("org.opendaylight.yangtools", "binding-model-api").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.yangtools", "binding-type-provider").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.yangtools.model", "ietf-inet-types").versionAsInProject());
+        ret.add(mavenBundle("org.opendaylight.yangtools.model", "ietf-yang-types").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.yangtools.model", "ietf-topology").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.yangtools.model", "yang-ext").versionAsInProject());
 
@@ -100,7 +101,6 @@ public abstract class AbstractBundleTest {
         ret.add(mavenBundle("org.opendaylight.controller", "sal-common").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.controller", "sal-common-impl").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.controller", "sal-common-util").versionAsInProject());
-        ret.add(mavenBundle("org.opendaylight.yangtools.thirdparty", "xtend-lib-osgi").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.yangtools.thirdparty", "antlr4-runtime-osgi-nohead").versionAsInProject());
 
         ret.add(systemProperty("pax.exam.osgi.unresolved.fail").value("true"));
