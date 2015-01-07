@@ -100,7 +100,6 @@ public abstract class AbstractBundleTest {
         ret.add(mavenBundle("org.opendaylight.controller", "sal-common").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.controller", "sal-common-impl").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.controller", "sal-common-util").versionAsInProject());
-        ret.add(mavenBundle("org.opendaylight.yangtools.thirdparty", "xtend-lib-osgi").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.yangtools.thirdparty", "antlr4-runtime-osgi-nohead").versionAsInProject());
 
         ret.add(systemProperty("pax.exam.osgi.unresolved.fail").value("true"));
