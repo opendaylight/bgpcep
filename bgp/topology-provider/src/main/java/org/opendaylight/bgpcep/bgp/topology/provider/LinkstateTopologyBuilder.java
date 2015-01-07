@@ -55,11 +55,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.ospf.pseudonode._case.OspfPseudonode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.SrlgId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IsoPseudonodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IsoSystemId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.isis.link.attributes.IsisLinkAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.isis.node.attributes.IsisNodeAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.isis.node.attributes.isis.node.attributes.IsoBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.ted.rev131021.srlg.attributes.SrlgValues;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.ted.rev131021.srlg.attributes.SrlgValuesBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.ted.rev131021.ted.link.attributes.SrlgBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.ted.rev131021.ted.link.attributes.UnreservedBandwidth;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.ted.rev131021.ted.link.attributes.UnreservedBandwidthBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.ted.rev131021.ted.link.attributes.UnreservedBandwidthKey;
@@ -393,6 +397,13 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
             if (la.getMaxReservableBandwidth() != null) {
                 tb.setMaxResvLinkBandwidth(bandwidthToBigDecimal(la.getMaxReservableBandwidth()));
             }
+            if (la.getSharedRiskLinkGroups() != null) {
+                final List<SrlgValues> srlgs = new ArrayList<>();
+                for (final SrlgId id : la.getSharedRiskLinkGroups()) {
+                    srlgs.add(new SrlgValuesBuilder().setSrlgValue(id.getValue()).build());
+                }
+                tb.setSrlg(new SrlgBuilder().setSrlgValues(srlgs).build());
+            }
         }
 
         final IsisLinkAttributesBuilder ilab = new IsisLinkAttributesBuilder();
@@ -424,6 +435,13 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
             }
             if (la.getMaxReservableBandwidth() != null) {
                 tb.setMaxResvLinkBandwidth(bandwidthToBigDecimal(la.getMaxReservableBandwidth()));
+            }
+            if (la.getSharedRiskLinkGroups() != null) {
+                final List<SrlgValues> srlgs = new ArrayList<>();
+                for (final SrlgId id : la.getSharedRiskLinkGroups()) {
+                    srlgs.add(new SrlgValuesBuilder().setSrlgValue(id.getValue()).build());
+                }
+                tb.setSrlg(new SrlgBuilder().setSrlgValues(srlgs).build());
             }
         }
 
