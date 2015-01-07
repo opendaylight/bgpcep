@@ -65,6 +65,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IgpMetric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.TeMetric;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.SrlgId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IgpLinkAttributes1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IgpNodeAttributes1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -196,6 +197,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         assertEquals("link1", igpLink1.getName());
         assertNull(igpLink1.getAugmentation(IgpLinkAttributes1.class));
         assertEquals((short) 1, igpLink1.getAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpLinkAttributes1.class).getOspfLinkAttributes().getMultiTopologyId().shortValue());
+        assertEquals(new Long(15), igpLink1.getAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpLinkAttributes1.class).getOspfLinkAttributes().getTed().getSrlg().getSrlgValues().get(0).getSrlgValue());
 
         this.linkstateTopoBuilder.close();
         assertFalse(getTopology(this.linkstateTopoBuilder.getInstanceIdentifier()).isPresent());
@@ -233,7 +235,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                 .build())
             .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.AttributesBuilder()
                 .addAugmentation(Attributes1.class, new Attributes1Builder().setAttributeType(new LinkCaseBuilder().setLinkAttributes(
-                    new LinkAttributesBuilder().setAdminGroup(new AdministrativeGroup(0L))
+                    new LinkAttributesBuilder().setSharedRiskLinkGroups(Lists.newArrayList(new SrlgId(5L), new SrlgId(15L))).setAdminGroup(new AdministrativeGroup(0L))
                         .setMaxLinkBandwidth(new Bandwidth(new byte[]{0x00, 0x00, (byte) 0xff, (byte) 0xff}))
                         .setMaxReservableBandwidth(new Bandwidth(new byte[]{0x00, 0x00, (byte) 0xff, (byte) 0x1f}))
                         .setUnreservedBandwidth(Lists.newArrayList(new UnreservedBandwidthBuilder().setKey(new UnreservedBandwidthKey((short) 1)).setBandwidth(new Bandwidth(new byte[]{0x00, 0x00, 0x00, (byte) 0xff})).build()))
