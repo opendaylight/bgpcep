@@ -83,6 +83,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.MultiprotocolCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.multiprotocol._case.MultiprotocolCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRibBuilder;
@@ -207,6 +210,11 @@ public class ApplicationPeerTest {
         this.r = new RIBImpl(new RibId("test"), new AsNumber(5L), new Ipv4Address("127.0.0.1"),
             context , this.dispatcher, this.tcpStrategyFactory, this.tcpStrategyFactory, this.dps, localTables);
         this.peer = new ApplicationPeer(new ApplicationRibId("t"), new Ipv4Address("127.0.0.1"), this.r);
+        final ReadOnlyTransaction readTx = Mockito.mock(ReadOnlyTransaction.class);
+        Mockito.doReturn(readTx).when(this.dps).newReadOnlyTransaction();
+        final CheckedFuture<Optional<DataObject>, ReadFailedException> readFuture = Mockito.mock(CheckedFuture.class);
+        Mockito.doReturn(Optional.<DataObject>absent()).when(readFuture).checkedGet();
+        Mockito.doReturn(readFuture).when(readTx).read(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class));
     }
 
     @Test
@@ -293,6 +301,11 @@ public class ApplicationPeerTest {
         this.classic.onMessage(this.session, ub.build());
         assertEquals(2, this.routes.size());
         this.classic.onMessage(this.session, new KeepaliveBuilder().build());
+        this.classic.onMessage(this.session, new UpdateBuilder().setPathAttributes(
+            new PathAttributesBuilder().addAugmentation(
+                    PathAttributes2.class,
+                    new PathAttributes2Builder().setMpUnreachNlri(
+                            new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()).build()).build()).build());
         this.classic.releaseConnection();
     }
 
