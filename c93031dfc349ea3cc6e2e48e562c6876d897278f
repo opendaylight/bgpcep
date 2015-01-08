@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_4b95b831",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/AbstractTopologyBuilder.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-01-08T12:38:39Z",
+      "side": 1,
+      "message": "double check null in synchronized method, is it needed?",
+      "revId": "c93031dfc349ea3cc6e2e48e562c6876d897278f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
