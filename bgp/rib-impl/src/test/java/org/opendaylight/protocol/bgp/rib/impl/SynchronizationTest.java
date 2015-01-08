@@ -11,9 +11,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
 import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -119,7 +117,7 @@ public class SynchronizationTest {
         this.bs.kaReceived(); // linkstate
         assertEquals(1, this.listener.getListMsg().size());
         assertEquals(LinkstateAddressFamily.class, ((Update) this.listener.getListMsg().get(0)).getPathAttributes().getAugmentation(
-                PathAttributes1.class).getMpReachNlri().getAfi());
+                PathAttributes2.class).getMpUnreachNlri().getAfi());
         this.bs.kaReceived(); // ipv4 sync
         assertEquals(2, this.listener.getListMsg().size());
     }
@@ -137,6 +135,6 @@ public class SynchronizationTest {
         this.bs.kaReceived();
         assertEquals(1, this.listener.getListMsg().size());
         assertEquals(LinkstateAddressFamily.class, ((Update) this.listener.getListMsg().get(0)).getPathAttributes().getAugmentation(
-                PathAttributes1.class).getMpReachNlri().getAfi());
+                PathAttributes2.class).getMpUnreachNlri().getAfi());
     }
 }

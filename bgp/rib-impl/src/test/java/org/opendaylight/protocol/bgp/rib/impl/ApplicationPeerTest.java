@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.CheckedFuture;
@@ -84,8 +85,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.multiprotocol._case.MultiprotocolCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
@@ -170,10 +174,10 @@ public class ApplicationPeerTest {
         localTables.add(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
         localTables.add(new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
         final RIBExtensionProviderContext context = new SimpleRIBExtensionProviderContext();
-        a1 = new RIBActivator();
-        a1.startRIBExtensionProvider(context);
-        a2 = new org.opendaylight.protocol.bgp.linkstate.RIBActivator();
-        a2.startRIBExtensionProvider(context);
+        this.a1 = new RIBActivator();
+        this.a1.startRIBExtensionProvider(context);
+        this.a2 = new org.opendaylight.protocol.bgp.linkstate.RIBActivator();
+        this.a2.startRIBExtensionProvider(context);
         Mockito.doReturn(this.chain).when(this.dps).createTransactionChain(Mockito.any(RIBImpl.class));
         Mockito.doReturn(this.o).when(this.future).get();
         Mockito.doNothing().when(this.transWrite).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class), Mockito.any(Rib.class));
@@ -214,8 +218,8 @@ public class ApplicationPeerTest {
 
     @After
     public void tearDown() {
-        a1.close();
-        a2.close();
+        this.a1.close();
+        this.a2.close();
     }
 
     @Test
@@ -308,6 +312,11 @@ public class ApplicationPeerTest {
         this.classic.onMessage(this.session, ub.build());
         assertEquals(3, this.routes.size());
         this.classic.onMessage(this.session, new KeepaliveBuilder().build());
+        this.classic.onMessage(this.session, new UpdateBuilder().setPathAttributes(
+            new PathAttributesBuilder().addAugmentation(
+                    PathAttributes2.class,
+                    new PathAttributes2Builder().setMpUnreachNlri(
+                            new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()).build()).build()).build());
         this.classic.releaseConnection();
     }
 
