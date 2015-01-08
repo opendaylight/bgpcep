@@ -11,9 +11,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
 import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -31,9 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
@@ -58,7 +54,7 @@ public class SynchronizationTest {
         this.listener = new SimpleSessionListener();
         this.ipv4m = new UpdateBuilder().setNlri(new NlriBuilder().setNlri(Lists.newArrayList(new Ipv4Prefix("1.1.1.1/32"))).build()).build();
 
-        final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
+        MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
         mpBuilder.setAfi(Ipv6AddressFamily.class);
         mpBuilder.setSafi(UnicastSubsequentAddressFamily.class);
 
@@ -67,12 +63,12 @@ public class SynchronizationTest {
 
         this.ipv6m = new UpdateBuilder().setPathAttributes(paBuilder.build()).build();
 
-        final MpUnreachNlriBuilder mpUBuilder = new MpUnreachNlriBuilder();
-        mpUBuilder.setAfi(LinkstateAddressFamily.class);
-        mpUBuilder.setSafi(LinkstateSubsequentAddressFamily.class);
+        mpBuilder = new MpReachNlriBuilder();
+        mpBuilder.setAfi(LinkstateAddressFamily.class);
+        mpBuilder.setSafi(LinkstateSubsequentAddressFamily.class);
 
-        paBuilder = new PathAttributesBuilder().addAugmentation(PathAttributes2.class, new PathAttributes2Builder().setMpUnreachNlri(
-                mpUBuilder.build()).build());
+        paBuilder = new PathAttributesBuilder().addAugmentation(PathAttributes1.class, new PathAttributes1Builder().setMpReachNlri(
+                mpBuilder.build()).build());
 
         this.lsm = new UpdateBuilder().setPathAttributes(paBuilder.build()).build();
 
@@ -119,7 +115,7 @@ public class SynchronizationTest {
         this.bs.kaReceived(); // linkstate
         assertEquals(1, this.listener.getListMsg().size());
         assertEquals(LinkstateAddressFamily.class, ((Update) this.listener.getListMsg().get(0)).getPathAttributes().getAugmentation(
-                PathAttributes1.class).getMpReachNlri().getAfi());
+                PathAttributes2.class).getMpUnreachNlri().getAfi());
         this.bs.kaReceived(); // ipv4 sync
         assertEquals(2, this.listener.getListMsg().size());
     }
@@ -137,6 +133,6 @@ public class SynchronizationTest {
         this.bs.kaReceived();
         assertEquals(1, this.listener.getListMsg().size());
         assertEquals(LinkstateAddressFamily.class, ((Update) this.listener.getListMsg().get(0)).getPathAttributes().getAugmentation(
-                PathAttributes1.class).getMpReachNlri().getAfi());
+                PathAttributes2.class).getMpUnreachNlri().getAfi());
     }
 }
