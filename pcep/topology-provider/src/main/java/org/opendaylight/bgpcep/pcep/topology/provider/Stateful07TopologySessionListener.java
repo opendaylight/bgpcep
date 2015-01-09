@@ -221,6 +221,9 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
         // Make sure there is no such LSP
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
         final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
+        if (f == null) {
+            return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
+        }
 
         return Futures.transform(f, new AsyncFunction<Optional<ReportedLsp>, OperationResult>() {
             @Override
@@ -270,6 +273,9 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
         // Make sure the LSP exists, we need it for PLSP-ID
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
         final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
+        if (f == null) {
+            return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
+        }
 
         return Futures.transform(f, new AsyncFunction<Optional<ReportedLsp>, OperationResult>() {
             @Override
@@ -297,6 +303,9 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
         // Make sure the LSP exists
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
         final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
+        if (f == null) {
+            return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
+        }
 
         return Futures.transform(f, new AsyncFunction<Optional<ReportedLsp>, OperationResult>() {
             @Override
@@ -357,6 +366,9 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
         LOG.debug("Checking if LSP {} has operational state {}", lsp, op);
         final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
+        if (f == null) {
+            return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
+        }
 
         return Futures.transform(f, new Function<Optional<ReportedLsp>, OperationResult>() {
             @Override

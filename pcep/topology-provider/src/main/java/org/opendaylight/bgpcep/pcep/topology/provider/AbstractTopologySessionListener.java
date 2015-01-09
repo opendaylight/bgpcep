@@ -443,7 +443,17 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         return this.lsps.get(id);
     }
 
+    /**
+     * Reads operational data on this node. Doesn't attempt to read the data,
+     * if the node does not exist. In this case returns null.
+     *
+     * @param id InstanceIdentifier of the node
+     * @return null if the node does not exists, or operational data
+     */
     protected final synchronized <T extends DataObject> ListenableFuture<Optional<T>> readOperationalData(final InstanceIdentifier<T> id) {
+        if (this.nodeState == null) {
+            return null;
+        }
         return this.nodeState.readOperationalData(id);
     }
 
