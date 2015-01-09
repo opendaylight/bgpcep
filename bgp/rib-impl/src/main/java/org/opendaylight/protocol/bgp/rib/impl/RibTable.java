@@ -1,0 +1,162 @@
+/*
+ * Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+package org.opendaylight.protocol.bgp.rib.impl;
+
+import com.google.common.base.Preconditions;
+import com.google.common.primitives.UnsignedInteger;
+import com.romix.scala.collection.concurrent.TrieMap;
+import java.util.Collection;
+import java.util.concurrent.CopyOnWriteArrayList;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
+
+/**
+ * A single table in the Routing Information Base.
+ *
+ * @param <T> NLRI type
+ */
+final class RibTable<T> {
+    /**
+     * An abstract operation on an entry.
+     */
+    private static abstract class EntryOperation {
+        /**
+         * Apply the operation and indicate whether a record of that entry needs
+         * to go into the update queue.
+         *
+         * @param entry A {@link RibTableEntry} that needs to be updated
+         * @param routerId Router ID of the peer which is performing the update
+         * @param attributes Attributes associated with the operation
+         * @return
+         */
+        abstract boolean apply(@Nonnull RibTableEntry<?> entry, @Nonnull UnsignedInteger routerId, @Nullable PathAttributes attributes);
+    }
+
+    /**
+     * The add/update operation. Attributes have to be non-null.
+     */
+    private static final EntryOperation ADD_ROUTE = new EntryOperation() {
+        @Override
+        boolean apply(final RibTableEntry<?> entry, final UnsignedInteger routerId, final PathAttributes attributes) {
+            Preconditions.checkArgument(attributes != null);
+            return entry.addRoute(routerId, attributes);
+        }
+    };
+
+    /**
+     * The remove operation. Attributes are not used, but checked to be null.
+     */
+    private static final EntryOperation REMOVE_ROUTE = new EntryOperation() {
+        @Override
+        boolean apply(final RibTableEntry<?> entry, final UnsignedInteger routerId, final PathAttributes attributes) {
+            Preconditions.checkArgument(attributes == null);
+            return entry.removeRoute(routerId);
+        }
+    };
+
+    /*
+     * Lookup table for NLRI -> RibTableEntry. We are using a TrieMap due
+     * to it being concurrent and supports efficient isolated read-write snapshots.
+     *
+     * We use the snapshot capability to support Graceful Restart in an efficient
+     * manner. Instead of keeping a stale bit for each entry, we just mark the
+     * peer as disconnected, starting the timer. If the timer expires, we just
+     * walk the entries and remove the entries (without taking a snapshot).
+     *
+     * If the peer reconnects, we take a read-write snapshot, which will give us
+     * the view of NLRIs which were present before the peer started advertising
+     * routes after reconnect. We retain the snapshot until we see the End-of-RIB
+     * marker. Each time we receive an advertisement/withdrawal, we remove it
+     * from the snapshot in addition to normal processing.
+     *
+     * Once we receive the EOR, we need to purge the state routes. In order to
+     * do this, we fire off a background task, which will walk all routes present
+     * in the snapshot. These are guaranteed to be either not advertised by this
+     * peer, or stale -- we discern the two cases by looking up the peer with the
+     * route's routeSources.
+     *
+     * Note that peer processing needs to continue while the background task
+     * works through the routes, but the updates need to be made by one thread
+     * at a time. This means that while the task is running, we need to add
+     * additional synchronization.
+     */
+    private final TrieMap<T, RibTableEntry<T>> entries = new TrieMap<>();
+
+    /*
+     * We are using a COW list to ensure peers can connect/disconnect while route
+     * selection is in progress. Those should not happen often, so we can take the
+     * hit.
+     */
+    private final Collection<RouteSink> connectedSinks = new CopyOnWriteArrayList<>();
+    private final BestPathSelectionProcess selector;
+
+    RibTable(final BestPathSelectionProcess selector) {
+        this.selector = Preconditions.checkNotNull(selector);
+    }
+
+    private synchronized RibTableResyncContext<T> createResyncContext(final UnsignedInteger routerId) {
+        return new RibTableResyncContext<T>(routerId, this.entries.snapshot());
+    }
+
+    @SafeVarargs
+    private final void updateRoutes(@Nonnull final EntryOperation op, @Nonnull final UnsignedInteger routerId, final PathAttributes attributes, final T... routes) {
+        Preconditions.checkNotNull(routerId, "Router ID must not be null");
+
+        final RibTableUpdate<T> update = new RibTableUpdate<>(this, routes.length);
+        for (final T r : routes) {
+            RibTableEntry<T> entry = entries.get(r);
+            if (entry == null) {
+                final RibTableEntry<T> newEntry = new RibTableEntry<>();
+                entry = entries.putIfAbsent(r, newEntry);
+            }
+
+            if (op.apply(entry, routerId, attributes)) {
+                update.add(r, entry);
+            }
+        }
+
+        if (update.isEmpty()) {
+            selector.routeTableUpdated(update);
+        }
+    }
+
+    /**
+     * Advertise a particular set of routes sharing attributes.
+     *
+     * @param routerId Router ID of the peer whence the update can from, must not be null
+     * @param attributes Attribute object, must not be null
+     * @param routes One or more routes
+     */
+    private void advertize(@Nonnull final UnsignedInteger routerId, @Nonnull final PathAttributes attributes, final T... routes) {
+        updateRoutes(ADD_ROUTE, routerId, attributes, routes);
+    }
+
+    /**
+     * Withdraw a set of routes.
+     *
+     * @param routerId Router ID of the peer whence the update can from, must not be null
+     * @param routes One or more routes
+     */
+    private void withdraw(@Nonnull final UnsignedInteger routerId, final T... routes) {
+        updateRoutes(REMOVE_ROUTE, routerId, null, routes);
+    }
+
+    /**
+     * Select a best path for a particular entry.
+     *
+     * @param localAs
+     * @param route
+     * @param entry
+     */
+    void selectBestPath(final AsNumber localAs, final T route, final RibTableEntry<T> entry) {
+        // FIXME: perform table cleanup when entries disappear. Note it has to work with updateRoutes() above...
+        entry.selectRoute(route, localAs, connectedSinks);
+    }
+}
