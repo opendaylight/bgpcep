@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_164034a4",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing-cfg.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-01-12T18:35:51Z",
+      "side": 1,
+      "message": "change the revision as well",
+      "range": {
+        "startLine": 26,
+        "startChar": 26,
+        "endLine": 26,
+        "endChar": 27
+      },
+      "revId": "30fccceb807f14b10077a1c98a037a23c98d921d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
