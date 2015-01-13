@@ -97,20 +97,6 @@ public class AbstractPcepOsgiTest {
 
     abstract class AbstractTestProvider implements BindingAwareProvider {
 
-        @Override
-        public Collection<? extends RpcService> getImplementations() {
-            return Collections.emptySet();
-        }
-
-        @Override
-        public Collection<? extends ProviderFunctionality> getFunctionality() {
-            return Collections.emptySet();
-        }
-
-        @Override
-        public void onSessionInitialized(final BindingAwareBroker.ConsumerContext session) {
-        }
-
     }
 
     TopologyKey getTopologyId(final String id) {
