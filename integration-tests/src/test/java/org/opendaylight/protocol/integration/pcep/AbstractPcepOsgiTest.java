@@ -12,14 +12,11 @@ import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.systemPackages;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 
-import java.util.Collection;
-import java.util.Collections;
 import javax.inject.Inject;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.controller.test.sal.binding.it.TestHelper;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
-import org.opendaylight.yangtools.yang.binding.RpcService;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
@@ -96,20 +93,6 @@ public class AbstractPcepOsgiTest {
     }
 
     abstract class AbstractTestProvider implements BindingAwareProvider {
-
-        @Override
-        public Collection<? extends RpcService> getImplementations() {
-            return Collections.emptySet();
-        }
-
-        @Override
-        public Collection<? extends ProviderFunctionality> getFunctionality() {
-            return Collections.emptySet();
-        }
-
-        @Override
-        public void onSessionInitialized(final BindingAwareBroker.ConsumerContext session) {
-        }
 
     }
 
