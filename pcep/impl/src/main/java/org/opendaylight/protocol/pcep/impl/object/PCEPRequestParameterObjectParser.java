@@ -28,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RequestId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.order.tlv.Order;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.setup.type.tlv.PathSetupType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.RpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.rp.Tlvs;
@@ -132,6 +133,9 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
         if (tlv instanceof Order) {
             builder.setOrder((Order) tlv);
         }
+        if (tlv instanceof PathSetupType) {
+            builder.setPathSetupType((PathSetupType) tlv);
+        }
     }
 
     @Override
@@ -184,8 +188,12 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
             return;
-        } else if (tlvs.getOrder() != null) {
+        }
+        if (tlvs.getOrder() != null) {
             serializeTlv(tlvs.getOrder(), body);
+        }
+        if (tlvs.getPathSetupType() != null) {
+            serializeTlv(tlvs.getPathSetupType(), body);
         }
         serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
     }

@@ -10,9 +10,6 @@ package org.opendaylight.protocol.pcep.segment.routing02;
 
 import com.google.common.collect.Lists;
 import java.util.List;
-import org.opendaylight.protocol.pcep.lsp.setup.type01.CInitiated00SrpObjectWithPstTlvParser;
-import org.opendaylight.protocol.pcep.lsp.setup.type01.PathSetupTypeTlvParser;
-import org.opendaylight.protocol.pcep.lsp.setup.type01.PcepRpObjectWithPstTlvParser;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
@@ -22,13 +19,11 @@ import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActi
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Pcinitiate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcrpt;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcupd;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.path.setup.type.tlv.PathSetupType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcrep;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.add.lsp.input.arguments.ero.subobject.subobject.type.SrEroType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.sr.pce.capability.tlv.SrPceCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.setup.type.tlv.PathSetupType;
 
 public class SegmentRoutingActivator extends AbstractPCEPExtensionProviderActivator {
 
@@ -38,9 +33,9 @@ public class SegmentRoutingActivator extends AbstractPCEPExtensionProviderActiva
 
         /* Tlvs */
         regs.add(context.registerTlvParser(SrPceCapabilityTlvParser.TYPE, new SrPceCapabilityTlvParser()));
-        regs.add(context.registerTlvParser(PathSetupTypeTlvParser.TYPE, new PathSetupTypeTlvParser()));
+        regs.add(context.registerTlvParser(SrPathSetupTypeTlvParser.TYPE, new SrPathSetupTypeTlvParser()));
 
-        regs.add(context.registerTlvSerializer(PathSetupType.class, new PathSetupTypeTlvParser()));
+        regs.add(context.registerTlvSerializer(PathSetupType.class, new SrPathSetupTypeTlvParser()));
         regs.add(context.registerTlvSerializer(SrPceCapability.class, new SrPceCapabilityTlvParser()));
 
         /* Subobjects */
@@ -50,15 +45,9 @@ public class SegmentRoutingActivator extends AbstractPCEPExtensionProviderActiva
         /* Objects */
         final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
         final VendorInformationTlvRegistry viTlvRegistry = context.getVendorInformationTlvRegistry();
-        regs.add(context.registerObjectParser(CInitiated00SrpObjectWithPstTlvParser.CLASS,
-                CInitiated00SrpObjectWithPstTlvParser.TYPE, new CInitiated00SrpObjectWithPstTlvParser(tlvReg, viTlvRegistry)));
-        regs.add(context.registerObjectParser(PcepRpObjectWithPstTlvParser.CLASS, PcepRpObjectWithPstTlvParser.TYPE,
-                new PcepRpObjectWithPstTlvParser(tlvReg, viTlvRegistry)));
         regs.add(context.registerObjectParser(PcepOpenObjectWithSpcTlvParser.CLASS,
                 PcepOpenObjectWithSpcTlvParser.TYPE, new PcepOpenObjectWithSpcTlvParser(tlvReg, viTlvRegistry)));
 
-        regs.add(context.registerObjectSerializer(Srp.class, new CInitiated00SrpObjectWithPstTlvParser(tlvReg, viTlvRegistry)));
-        regs.add(context.registerObjectSerializer(Rp.class, new PcepRpObjectWithPstTlvParser(tlvReg, viTlvRegistry)));
         regs.add(context.registerObjectSerializer(Open.class, new PcepOpenObjectWithSpcTlvParser(tlvReg, viTlvRegistry)));
 
         /* Messages */
