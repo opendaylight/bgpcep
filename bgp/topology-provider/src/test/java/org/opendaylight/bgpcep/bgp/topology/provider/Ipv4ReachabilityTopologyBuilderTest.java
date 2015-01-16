@@ -58,7 +58,7 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         wTx.put(LogicalDatastoreType.OPERATIONAL, path, new TablesBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
                 .setAttributes(new AttributesBuilder().setUptodate(Boolean.TRUE).build()).setRoutes(new Ipv4RoutesCaseBuilder().build()).build(), true);
         wTx.submit();
-        this.ipv4RouteIID = path.builder().child(Ipv4Routes.class).child(Ipv4Route.class, new Ipv4RouteKey(new Ipv4Prefix(ROUTE_IP4PREFIX))).toInstance();
+        this.ipv4RouteIID = path.builder().child(Ipv4Routes.class).child(Ipv4Route.class, new Ipv4RouteKey(new Ipv4Prefix(ROUTE_IP4PREFIX))).build();
     }
 
     @Test

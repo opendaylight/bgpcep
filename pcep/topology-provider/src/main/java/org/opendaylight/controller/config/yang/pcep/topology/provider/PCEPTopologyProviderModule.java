@@ -127,7 +127,7 @@ public final class PCEPTopologyProviderModule extends
     @Override
     public java.lang.AutoCloseable createInstance() {
         final InstanceIdentifier<Topology> topology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
-                new TopologyKey(getTopologyId())).toInstance();
+                new TopologyKey(getTopologyId())).build();
         final InetSocketAddress address = new InetSocketAddress(listenAddress(), getListenPort().getValue());
         final KeyMapping keys = contructKeys();
 

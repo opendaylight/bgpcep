@@ -105,7 +105,7 @@ public final class NodeChangedListener implements DataChangeListener {
         }
 
         for (final ReportedLsp l : pccnode.getPathComputationClient().getReportedLsp()) {
-            lsps.add(id.builder().augmentation(Node1.class).child(PathComputationClient.class).child(ReportedLsp.class, l.getKey()).toInstance());
+            lsps.add(id.builder().augmentation(Node1.class).child(PathComputationClient.class).child(ReportedLsp.class, l.getKey()).build());
         }
     }
 
@@ -167,7 +167,7 @@ public final class NodeChangedListener implements DataChangeListener {
                                 for (final IpAddress a : ((Ip) tpt).getIpAddress()) {
                                     if (addr.equals(a)) {
                                         handleSni(sni, n, inControl, trans);
-                                        return this.target.builder().child(Node.class, n.getKey()).child(TerminationPoint.class, tp.getKey()).toInstance();
+                                        return this.target.builder().child(Node.class, n.getKey()).child(TerminationPoint.class, tp.getKey()).build();
                                     }
                                 }
                             } else {
@@ -260,7 +260,7 @@ public final class NodeChangedListener implements DataChangeListener {
     }
 
     private InstanceIdentifier<TerminationPoint> tpIdentifier(final NodeId node, final TpId tp) {
-        return this.target.builder().child(Node.class, new NodeKey(node)).child(TerminationPoint.class, new TerminationPointKey(tp)).toInstance();
+        return this.target.builder().child(Node.class, new NodeKey(node)).child(TerminationPoint.class, new TerminationPointKey(tp)).build();
     }
 
     private InstanceIdentifier<Node> nodeIdentifier(final NodeId node) {

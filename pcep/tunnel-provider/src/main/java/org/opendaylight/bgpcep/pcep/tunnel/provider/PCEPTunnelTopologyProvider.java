@@ -35,7 +35,7 @@ public final class PCEPTunnelTopologyProvider implements AutoCloseable {
     public static PCEPTunnelTopologyProvider create(final DataBroker dataProvider,
             final InstanceIdentifier<Topology> sourceTopology, final TopologyId targetTopology) {
         final InstanceIdentifier<Topology> dst = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
-                new TopologyKey(targetTopology)).toInstance();
+                new TopologyKey(targetTopology)).build();
         final NodeChangedListener ncl = new NodeChangedListener(dataProvider, dst);
 
         final InstanceIdentifier<Node> src = sourceTopology.child(Node.class);

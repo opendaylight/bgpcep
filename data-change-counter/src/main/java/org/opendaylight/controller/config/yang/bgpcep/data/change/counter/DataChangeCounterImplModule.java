@@ -43,7 +43,7 @@ public class DataChangeCounterImplModule extends org.opendaylight.controller.con
     public java.lang.AutoCloseable createInstance() {
         final TopologyDataChangeCounter counter = new TopologyDataChangeCounter(getDataProviderDependency());
         final InstanceIdentifier<Topology> topoIId = InstanceIdentifier.builder(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(new TopologyId(getTopologyName()))).toInstance();
+                .child(Topology.class, new TopologyKey(new TopologyId(getTopologyName()))).build();
         final ListenerRegistration<DataChangeListener> registration = getDataProviderDependency().registerDataChangeListener(
                 LogicalDatastoreType.OPERATIONAL, topoIId, counter, DataBroker.DataChangeScope.SUBTREE);
         return new DataChangeCounterCloseable(counter, registration);

@@ -109,7 +109,7 @@ public class LinkstateAdjRIBsInTest extends AbstractDataBrokerTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
-        final InstanceIdentifier<Rib> iid = InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(new RibId("test-rib"))).toInstance();
+        final InstanceIdentifier<Rib> iid = InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(new RibId("test-rib"))).build();
         final KeyedInstanceIdentifier<Tables, TablesKey> key = iid.child(LocRib.class).child(Tables.class, new TablesKey(LinkstateAddressFamily.class,
             LinkstateSubsequentAddressFamily.class));
 

@@ -64,7 +64,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
         this.chain = dataProvider.createTransactionChain(this);
 
         final TopologyKey tk = new TopologyKey(Preconditions.checkNotNull(topologyId));
-        this.topology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, tk).toInstance();
+        this.topology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, tk).build();
 
         LOG.debug("Initiating topology builder from {} at {}", locRibReference, this.topology);
 
@@ -89,7 +89,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
 
     public final InstanceIdentifier<Tables> tableInstanceIdentifier(final Class<? extends AddressFamily> afi,
             final Class<? extends SubsequentAddressFamily> safi) {
-        return this.locRibReference.getInstanceIdentifier().builder().child(LocRib.class).child(Tables.class, new TablesKey(afi, safi)).toInstance();
+        return this.locRibReference.getInstanceIdentifier().builder().child(LocRib.class).child(Tables.class, new TablesKey(afi, safi)).build();
     }
 
     protected abstract void createObject(ReadWriteTransaction trans, InstanceIdentifier<T> id, T value);

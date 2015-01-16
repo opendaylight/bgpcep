@@ -105,7 +105,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         wTx.put(LogicalDatastoreType.OPERATIONAL, path, new TablesBuilder().setAfi(LinkstateAddressFamily.class).setSafi(LinkstateSubsequentAddressFamily.class)
                 .setAttributes(new AttributesBuilder().setUptodate(Boolean.TRUE).build()).setRoutes(new LinkstateRoutesCaseBuilder().build()).build(), true);
         wTx.submit();
-        this.linkstateRouteIID = (InstanceIdentifier<LinkstateRoute>) path.builder().child((Class)LinkstateRoutes.class).child(LinkstateRoute.class, new LinkstateRouteKey(LINKSTATE_ROUTE_KEY)).toInstance();
+        this.linkstateRouteIID = (InstanceIdentifier<LinkstateRoute>) path.builder().child((Class)LinkstateRoutes.class).child(LinkstateRoute.class, new LinkstateRouteKey(LINKSTATE_ROUTE_KEY)).build();
     }
 
     @Test

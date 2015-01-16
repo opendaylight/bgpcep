@@ -116,7 +116,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
         this.notifs = Preconditions.checkNotNull(notifs);
         this.executor = Preconditions.checkNotNull(executor);
         this.timer = Preconditions.checkNotNull(timer);
-        this.qid = InstanceIdentifier.builder(InstructionsQueue.class).toInstance();
+        this.qid = InstanceIdentifier.builder(InstructionsQueue.class).build();
 
         final ReadWriteTransaction t = dataProvider.newReadWriteTransaction();
         try {
