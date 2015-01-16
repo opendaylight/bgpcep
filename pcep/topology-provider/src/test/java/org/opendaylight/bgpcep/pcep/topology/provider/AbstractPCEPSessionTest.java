@@ -67,7 +67,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
 
     protected static final String TEST_TOPOLOGY_NAME = "testtopo";
     protected static final InstanceIdentifier<Topology> TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class).child(
-            Topology.class, new TopologyKey(new TopologyId(TEST_TOPOLOGY_NAME))).toInstance();
+            Topology.class, new TopologyKey(new TopologyId(TEST_TOPOLOGY_NAME))).build();
     protected static final String TEST_ADDRESS = "127.0.0.1";
     protected static final NodeId NODE_ID = new NodeId("pcc://" + TEST_ADDRESS);
     protected static final String TEST_LSP_NAME = "tunnel0";

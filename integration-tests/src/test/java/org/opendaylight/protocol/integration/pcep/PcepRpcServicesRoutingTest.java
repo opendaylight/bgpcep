@@ -57,7 +57,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
         assertNotNull(getBroker());
 
         final InstanceIdentifier<Topology> topology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
-                new TopologyKey(getTopologyId("Topo1"))).toInstance();
+                new TopologyKey(getTopologyId("Topo1"))).build();
 
         BindingAwareProvider provider1 = new AbstractTestProvider() {
 
@@ -76,7 +76,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
         broker.registerProvider(provider1, getBundleContext());
 
         final InstanceIdentifier<Topology> topology2 = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
-                new TopologyKey(getTopologyId("Topo2"))).toInstance();
+                new TopologyKey(getTopologyId("Topo2"))).build();
 
         BindingAwareProvider provider2 = new AbstractTestProvider() {
 
@@ -160,7 +160,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
         assertNotNull(getBroker());
 
         final InstanceIdentifier<Topology> topology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
-                new TopologyKey(getTopologyId("Topo1"))).toInstance();
+                new TopologyKey(getTopologyId("Topo1"))).build();
 
         BindingAwareProvider provider1 = new AbstractTestProvider() {
 
@@ -179,7 +179,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
         broker.registerProvider(provider1, getBundleContext());
 
         final InstanceIdentifier<Topology> topology2 = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
-                new TopologyKey(getTopologyId("Topo2"))).toInstance();
+                new TopologyKey(getTopologyId("Topo2"))).build();
 
         BindingAwareProvider provider2 = new AbstractTestProvider() {
 
@@ -251,7 +251,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
         assertNotNull(getBroker());
 
         final InstanceIdentifier<Topology> topology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
-                new TopologyKey(getTopologyId("Topo1"))).toInstance();
+                new TopologyKey(getTopologyId("Topo1"))).build();
 
         BindingAwareProvider provider1 = new AbstractTestProvider() {
 
@@ -270,7 +270,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
         broker.registerProvider(provider1, getBundleContext());
 
         final InstanceIdentifier<Topology> topology2 = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
-                new TopologyKey(getTopologyId("Topo2"))).toInstance();
+                new TopologyKey(getTopologyId("Topo2"))).build();
 
         BindingAwareProvider provider2 = new AbstractTestProvider() {
 

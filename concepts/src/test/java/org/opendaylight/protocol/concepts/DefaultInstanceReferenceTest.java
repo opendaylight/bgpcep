@@ -15,7 +15,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class DefaultInstanceReferenceTest {
 
-    private static final InstanceIdentifier<NetworkTopology> IID = InstanceIdentifier.builder(NetworkTopology.class).toInstance();
+    private static final InstanceIdentifier<NetworkTopology> IID = InstanceIdentifier.builder(NetworkTopology.class).build();
 
     @Test
     public void testDefaultInstanceReference() {

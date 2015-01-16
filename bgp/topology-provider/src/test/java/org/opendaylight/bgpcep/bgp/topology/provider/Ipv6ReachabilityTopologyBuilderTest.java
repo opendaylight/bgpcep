@@ -58,7 +58,7 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         wTx.put(LogicalDatastoreType.OPERATIONAL, path, new TablesBuilder().setAfi(Ipv6AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
                 .setAttributes(new AttributesBuilder().setUptodate(Boolean.TRUE).build()).setRoutes(new Ipv6RoutesCaseBuilder().build()).build(), true);
         wTx.submit();
-        this.ipv6RouteIID = path.builder().child(Ipv6Routes.class).child(Ipv6Route.class, new Ipv6RouteKey(new Ipv6Prefix(ROUTE_IP6PREFIX))).toInstance();
+        this.ipv6RouteIID = path.builder().child(Ipv6Routes.class).child(Ipv6Route.class, new Ipv6RouteKey(new Ipv6Prefix(ROUTE_IP6PREFIX))).build();
     }
 
     @Test

@@ -100,7 +100,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 public class TunnelProgrammingTest extends AbstractDataBrokerTest {
 
     private static final TopologyId TOPOLOGY_ID = new TopologyId("tunnel-topo");
-    private static final InstanceIdentifier<Topology> TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, new TopologyKey(TOPOLOGY_ID)).toInstance();
+    private static final InstanceIdentifier<Topology> TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, new TopologyKey(TOPOLOGY_ID)).build();
 
     private static final String NODE1_IPV4 = "127.0.0.1";
     private static final NodeId NODE1_ID = new NodeId("pcc://" + NODE1_IPV4);
@@ -301,7 +301,7 @@ public class TunnelProgrammingTest extends AbstractDataBrokerTest {
         linkBuilder.setKey(new LinkKey(LINK1_ID));
         linkBuilder.addAugmentation(Link1.class, new Link1Builder().setSymbolicPathName(LINK1_ID.getValue()).build());
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
-        wTx.put(LogicalDatastoreType.OPERATIONAL, TOPO_IID.builder().child(Link.class, new LinkKey(LINK1_ID)).toInstance(), linkBuilder.build(), true);
+        wTx.put(LogicalDatastoreType.OPERATIONAL, TOPO_IID.builder().child(Link.class, new LinkKey(LINK1_ID)).build(), linkBuilder.build(), true);
         wTx.submit().checkedGet();
     }
 

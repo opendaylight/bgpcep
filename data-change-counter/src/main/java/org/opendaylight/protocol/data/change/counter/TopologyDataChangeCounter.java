@@ -26,7 +26,7 @@ public class TopologyDataChangeCounter implements DataChangeListener {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyDataChangeCounter.class);
 
     protected static final InstanceIdentifier<DataChangeCounter> IID = InstanceIdentifier
-            .builder(DataChangeCounter.class).toInstance();
+            .builder(DataChangeCounter.class).build();
 
     private final DataBroker dataBroker;
     private AtomicLong count;

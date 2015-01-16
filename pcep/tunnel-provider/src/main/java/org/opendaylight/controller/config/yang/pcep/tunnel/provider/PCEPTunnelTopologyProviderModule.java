@@ -61,7 +61,7 @@ public final class PCEPTunnelTopologyProviderModule extends AbstractPCEPTunnelTo
         final BindingAwareBroker.RoutedRpcRegistration<TopologyTunnelPcepProgrammingService> reg = getRpcRegistryDependency().addRoutedRpcImplementation(
                 TopologyTunnelPcepProgrammingService.class, tp);
         final InstanceIdentifier<Topology> topology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
-                new TopologyKey(getTopologyId())).toInstance();
+                new TopologyKey(getTopologyId())).build();
         reg.registerPath(NetworkTopologyContext.class, topology);
 
         final class TunnelTopologyReferenceCloseable extends DefaultTopologyReference implements AutoCloseable {

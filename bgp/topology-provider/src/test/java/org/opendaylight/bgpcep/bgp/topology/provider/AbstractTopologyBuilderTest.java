@@ -36,7 +36,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public abstract class AbstractTopologyBuilderTest extends AbstractDataBrokerTest {
 
     protected static final TopologyId TEST_TOPOLOGY_ID = new TopologyId("test-topo");
-    protected static RibReference LOC_RIB_REF = new DefaultRibReference(InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(new RibId("test-rib")))).toInstance());
+    protected static RibReference LOC_RIB_REF = new DefaultRibReference(InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(new RibId("test-rib")))).build());
 
     protected ListenerRegistration<DataChangeListener> reg;
 
@@ -47,7 +47,7 @@ public abstract class AbstractTopologyBuilderTest extends AbstractDataBrokerTest
 
     protected void createEmptyTopology() {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
-        wTx.put(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(NetworkTopology.class).toInstance(), new NetworkTopologyBuilder().setTopology(Collections.<Topology>emptyList()).build());
+        wTx.put(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(NetworkTopology.class).build(), new NetworkTopologyBuilder().setTopology(Collections.<Topology>emptyList()).build());
         wTx.submit();
     }
 

@@ -333,7 +333,7 @@ public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
 
     private boolean assertInstructionExists(final InstructionId id) {
         try {
-            return getDataBroker().newReadOnlyTransaction().read(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(InstructionsQueue.class).toInstance().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.queue.Instruction.class,
+            return getDataBroker().newReadOnlyTransaction().read(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(InstructionsQueue.class).build().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.queue.Instruction.class,
                     new InstructionKey(id))).get().isPresent();
         } catch (InterruptedException | ExecutionException e) {
             return false;

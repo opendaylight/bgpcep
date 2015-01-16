@@ -59,7 +59,7 @@ public class AdjacencyRIBsInTest extends AbstractDataBrokerTest {
 
     private WriteTransaction trans;
 
-    private final DefaultRibReference rib = new DefaultRibReference(InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(new RibId("test"))).toInstance());
+    private final DefaultRibReference rib = new DefaultRibReference(InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(new RibId("test"))).build());
 
     private final RIBActivator act = new RIBActivator();
 
