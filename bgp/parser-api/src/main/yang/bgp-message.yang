@@ -132,6 +132,27 @@ module bgp-message {
         container cluster-id {
             uses cluster-id;
         }
+        list unrecognized-attributes {
+            key type;
+            leaf partial {
+                type boolean;
+                mandatory true;
+            }
+            leaf transitive {
+                type boolean;
+                mandatory true;
+            }
+            leaf type {
+                type uint8;
+                mandatory true;
+            }
+            leaf value {
+                type binary {
+                    length 0..65535;
+                }
+                mandatory true;
+            }
+        }
     }
 
     notification update {
