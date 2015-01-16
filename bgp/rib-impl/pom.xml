@@ -123,10 +123,6 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-linkstate</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>bgp-parser-impl</artifactId>
         </dependency>
         <dependency>
@@ -164,6 +160,11 @@
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>mockito-configuration</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-linkstate</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
