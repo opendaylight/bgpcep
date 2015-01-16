@@ -26,7 +26,7 @@
 
     <artifactId>releasepom</artifactId>
     <packaging>pom</packaging>
-    <name>BGPCEP release</name>
+    <name>bgpcep</name> <!-- Used by Sonar to set project name -->
     <description>BGPCEP top-level pom</description>
 
     <modules>
