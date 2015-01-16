@@ -14,6 +14,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.List;
 import org.opendaylight.protocol.pcep.impl.message.PCEPReplyMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
+import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.VendorInformationObjectRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -53,7 +54,7 @@ public class SrPcRepMessageParser extends PCEPReplyMessageParser {
     }
 
     @Override
-    protected Replies getValidReply(List<Object> objects, List<Message> errors) {
+    protected Replies getValidReply(List<Object> objects, List<Message> errors) throws PCEPDeserializerException {
         if (!(objects.get(0) instanceof Rp)) {
             errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.<Rp>absent()));
             return null;
