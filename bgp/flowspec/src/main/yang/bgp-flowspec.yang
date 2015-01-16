@@ -1,0 +1,393 @@
+module bgp-flowspec {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:bgp-flowspec";
+    prefix "bgp-fs";
+
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import bgp-message { prefix bgp-msg; revision-date 2013-09-19; }
+    import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
+    import bgp-rib { prefix bgp-rib; revision-date 2013-09-25; }
+    import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
+    import network-concepts { prefix netc; revision-date 2013-11-25; }
+    import rsvp { prefix rsvp; revision-date 2013-08-20; }
+
+    organization "Cisco Systems, Inc.";
+    contact "Dana Kutenicsova <dkutenic@cisco.com>";
+
+    description
+        "This module contains the base data model of a BGP flow specification.
+        It rolls up the definitions contained in RFC5575.
+
+        Copyright (c)2015 Cisco Systems, Inc. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2015-01-14" {
+        description
+            "Initial revision.";
+        reference "http://tools.ietf.org/html/rfc5575";
+    }
+
+    identity flowspec-subsequent-address-family {
+        reference "http://tools.ietf.org/html/rfc5575#section-11";
+
+        base bgp-t:subsequent-address-family;
+    }
+
+    typedef component-type {
+        reference "http://tools.ietf.org/html/rfc5575#section-4";
+        type enumeration {
+            enum destination-prefix {
+                value 1;
+            }
+            enum source-prefix {
+                value 2;
+            }
+            enum protocol-ip {
+                value 3;
+            }
+            enum port {
+                value 4;
+            }
+            enum destination-port {
+                value 5;
+            }
+            enum source-port {
+                value 6;
+            }
+            enum icmp-type {
+                value 7;
+            }
+            enum icmp-code {
+                value 8;
+            }
+            enum tcp-flags {
+                value 9;
+            }
+            enum packet-length {
+                value 10;
+            }
+            enum dscp {
+                value 11;
+            }
+            enum fragment {
+                value 12;
+            }
+        }
+    }
+
+    typedef fragment {
+        reference "http://tools.ietf.org/html/rfc5575#section-4";
+        type bits {
+            bit last {
+                position 4;
+            }
+            bit first {
+                position 5;
+            }
+            bit is-a {
+                position 6;
+            }
+            bit do-not {
+                position 7;
+            }
+        }
+    }
+
+    typedef dscp {
+        reference "https://tools.ietf.org/html/rfc2474#section-3";
+        type uint8 {
+            range "0..63";
+        }
+    }
+
+    typedef numeric-operand {
+        reference "http://tools.ietf.org/html/rfc5575#section-4";
+        type bits {
+            bit end-of-list {
+                position 0;
+            }
+            bit and-bit {
+                position 1;
+            }
+            bit less-than {
+                position 5;
+            }
+            bit greater-than {
+                position 6;
+            }
+            bit equals {
+                position 7;
+            }
+        }
+    }
+
+    typedef bitmask-operand {
+        reference "http://tools.ietf.org/html/rfc5575#section-4";
+        type bits {
+            bit end-of-list {
+                position 0;
+            }
+            bit and-bit {
+                position 1;
+            }
+            bit not {
+                position 6;
+            }
+            bit match {
+                position 7;
+            }
+        }
+    }
+
+    grouping numeric-two-byte-value {
+        reference "http://tools.ietf.org/html/rfc5575#section-4";
+        leaf op {
+            type numeric-operand;
+        }
+        leaf value {
+            type uint16;
+        }
+    }
+
+    grouping numeric-one-byte-value {
+        reference "http://tools.ietf.org/html/rfc5575#section-4";
+        leaf op {
+            type numeric-operand;
+        }
+        leaf value {
+            type uint8;
+        }
+    }
+
+    grouping bitmask-two-byte-value {
+        reference "http://tools.ietf.org/html/rfc5575#section-4";
+        leaf op {
+            type bitmask-operand;
+        }
+        leaf value {
+            type uint16;
+        }
+    }
+
+    grouping dscp-value {
+        reference "http://tools.ietf.org/html/rfc5575#section-4";
+        leaf op {
+            type numeric-operand;
+        }
+        leaf value {
+            type dscp;
+        }
+    }
+
+    grouping fragment-value {
+        reference "http://tools.ietf.org/html/rfc5575#section-4";
+        leaf op {
+            type bitmask-operand;
+        }
+        leaf value {
+            type fragment;
+        }
+    }
+
+    grouping flowspec-destination {
+        list flowspec {
+            leaf component-type {
+                type component-type;
+            }
+            choice flowspec-type {
+                case destination-prefix-case {
+                    container destination-prefix {
+                        when "../component-type = destination-prefix";
+                        leaf destination-prefix {
+                            type inet:ipv4-prefix;
+                        }
+                    }
+                }
+                case source-prefix-case {
+                    container source-prefix {
+                        when "../component-type = source-prefix";
+                        leaf source-prefix {
+                            type inet:ipv4-prefix;
+                        }
+                    }
+                }
+                case protocol-ip-case {
+                    container protocol-ip {
+                        when "../component-type = protocol-ip";
+                        list protocol-ips {
+                            uses numeric-two-byte-value;
+                        }
+                    }
+                }
+                case port-case {
+                    container port {
+                        when "../component-type = port";
+                        list ports {
+                            uses numeric-two-byte-value;
+                        }
+                    }
+                }
+                case destination-port-case {
+                    container destination-port {
+                        when "../component-type = destination-port";
+                        list destination-ports {
+                            uses numeric-two-byte-value;
+                        }
+                    }
+                }
+                case source-port-case {
+                    container source-port {
+                        when "../component-type = source-port";
+                        list source-ports {
+                            uses numeric-two-byte-value;
+                        }
+                    }
+                }
+                case icmp-type-case {
+                    container icmp-type {
+                        when "../component-type = icmp-type";
+                        list types {
+                            uses numeric-one-byte-value;
+                        }
+                    }
+                }
+                case icmp-code-case {
+                    container icmp-code {
+                        when "../component-type = icmp-code";
+                        list codes {
+                            uses numeric-one-byte-value;
+                        }
+                    }
+                }
+                case tcp-flags-case {
+                    container tcp-flags {
+                        when "../component-type = tcp-flags";
+                        list tcp-flags {
+                            uses bitmask-two-byte-value;
+                        }
+                    }
+                }
+                case packet-length-case {
+                    container packet-length {
+                        when "../component-type = packet-length";
+                        list packet-lengths {
+                            uses numeric-two-byte-value;
+                        }
+                    }
+                }
+                case dscp-case {
+                    container dscp {
+                        when "../component-type = dscp";
+                        list dscps {
+                            uses dscp-value;
+                        }
+                    }
+                }
+                case fragment-case {
+                    container fragment {
+                        when "../component-type = fragment";
+                        list fragments {
+                            uses fragment-value;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
+        case destination-flowspec-case {
+            container destination-flowspec {
+                uses flowspec-destination;
+            }
+        }
+    }
+
+    augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type" {
+        case destination-flowspec-case {
+            container destination-flowspec {
+                uses flowspec-destination;
+            }
+        }
+    }
+
+    grouping flowspec-routes {
+        container flowspec-routes {
+            list flowspec-route {
+                leaf route-key {
+                    description
+                        "The sole function of this leaf
+                        to act as the key in the list.
+                        Its format does not form the
+                        API contract of this model.";
+                    type binary;
+                }
+                key "route-key";
+            }
+        }
+    }
+
+    augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-msg:extended-communities/bgp-msg:extended-community" {
+        case traffic-rate-extended-community-case {
+            container traffic-rate-extended-community {
+                when "../comm-type = 128 and ../comm-sub-type = 6";
+                leaf informative-as {
+                    type bgp-t:short-as-number;
+                }
+                leaf local-administrator {
+                    type netc:bandwidth;
+                }
+            }
+        }
+        case traffic-action-extended-community-case {
+            container traffic-action-extended-community {
+                when "../comm-type = 128 and ../comm-sub-type = 7";
+                leaf sample {
+                    type boolean;
+                    default false;
+                }
+                leaf terminal-action {
+                    type boolean;
+                    default false;
+                }
+            }
+        }
+        case redirect-extended-community-case {
+            container redirect-extended-community {
+                when "../comm-type = 128 and ../comm-sub-type = 8";
+                leaf global-administrator {
+                    type bgp-t:short-as-number;
+                }
+                leaf local-administrator {
+                    type binary {
+                        length "4";
+                    }
+                }
+            }
+        }
+        case traffic-marking-extended-community-case {
+            container traffic-marking-extended-community {
+                when "../comm-type = 128 and ../comm-sub-type = 9";
+                leaf global-administrator {
+                    type dscp;
+                }
+            }
+        }
+    }
+
+    augment "/bgp-rib:application-rib/bgp-rib:tables/bgp-rib:routes" {
+        case flowspec-routes-case {
+            uses flowspec-routes;
+        }
+    }
+
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:loc-rib/bgp-rib:tables/bgp-rib:routes" {
+        case flowspec-routes-case {
+            uses flowspec-routes;
+        }
+    }
+}
