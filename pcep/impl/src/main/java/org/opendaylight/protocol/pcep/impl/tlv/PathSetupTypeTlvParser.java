@@ -25,7 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public class PathSetupTypeTlvParser implements TlvParser, TlvSerializer {
 
-    // http://tools.ietf.org/html/draft-sivabalan-pce-segment-routing-01#section-9.3
+    // http://tools.ietf.org/html/draft-sivabalan-pce-ietf-routing-00#section-9.3
     public static final int TYPE = 27;
 
     private static final int CONTENT_LENGTH = 4;
