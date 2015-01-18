@@ -186,7 +186,7 @@ module pcep-types {
 
     grouping path-setup-type-tlv {
         description "PATH-SETUP-TYPE TLV";
-        reference "https://tools.ietf.org/html/draft-sivabalan-pce-lsp-setup-type-02#section-3";
+        reference "https://tools.ietf.org/html/draft-ietf-pce-lsp-setup-type-00#section-3";
 
         container path-setup-type {
             uses tlv;
