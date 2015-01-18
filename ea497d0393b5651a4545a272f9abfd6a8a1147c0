@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_8bec1591",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing/SrSubobjectParserUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-01-18T21:49:42Z",
+      "side": 1,
+      "message": "Why are we using an open-coded implementation instead of using a generated SrSubobjectBuilder.build()?",
+      "revId": "ea497d0393b5651a4545a272f9abfd6a8a1147c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
