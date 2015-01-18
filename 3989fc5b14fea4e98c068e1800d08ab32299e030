@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_2bdce1e3",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing/SrSubobjectParserUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-01-18T21:23:56Z",
+      "side": 1,
+      "message": "Why are we open-coding the implementation here?",
+      "revId": "3989fc5b14fea4e98c068e1800d08ab32299e030",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_4bd7edbf",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-01-18T21:23:56Z",
+      "side": 1,
+      "message": "create a new revision statement and keep the old one.",
+      "revId": "3989fc5b14fea4e98c068e1800d08ab32299e030",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
