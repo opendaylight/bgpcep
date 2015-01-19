@@ -56,7 +56,7 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
     private static final int F_FLAG_POSITION = 4;
 
     @Override
-    public void serializeSubobject(Subobject subobject, final ByteBuf buffer) {
+    public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
         Preconditions.checkArgument(subobject.getSubobjectType() instanceof SrEroSubobject,
                 "Unknown subobject instance. Passed %s. Needed SrEroSubobject.", subobject.getSubobjectType()
                         .getClass());
@@ -76,7 +76,11 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
         writeBitSet(bits, FLAGS_OFFSET, body);
 
         if (srEroSubobject.getSid() != null && !flags.isS()) {
-            writeUnsignedInt(srEroSubobject.getSid(), body);
+            long sid = srEroSubobject.getSid();
+            if (flags.isM()) {
+                sid = sid << 12;
+            }
+            writeUnsignedInt(sid, body);
         }
         final Nai nai = srEroSubobject.getNai();
         if (nai != null && !flags.isF()) {
@@ -108,7 +112,7 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
     }
 
     @Override
-    public Subobject parseSubobject(ByteBuf buffer, boolean loose) throws PCEPDeserializerException {
+    public Subobject parseSubobject(final ByteBuf buffer, final boolean loose) throws PCEPDeserializerException {
         Preconditions.checkArgument(buffer != null && buffer.isReadable(),
                 "Array of bytes is mandatory. Can't be null or empty.");
         if (buffer.readableBytes() <= MINIMAL_LENGTH) {
@@ -120,7 +124,7 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
         final SidType sidType = SidType.forValue(sidTypeByte);
         srEroSubobjectBuilder.setSidType(sidType);
 
-        BitSet bitSet = ByteArray.bytesToBitSet(new byte[] { buffer.readByte() });
+        final BitSet bitSet = ByteArray.bytesToBitSet(new byte[] { buffer.readByte() });
         final boolean f = bitSet.get(F_FLAG_POSITION);
         final boolean s = bitSet.get(S_FLAG_POSITION);
         final boolean c = bitSet.get(C_FLAG_POSITION);
@@ -129,7 +133,10 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
         srEroSubobjectBuilder.setFlags(flags);
 
         if (!flags.isS()) {
-            final long sid = buffer.readUnsignedInt();
+            Long sid = buffer.readUnsignedInt();
+            if (flags.isM()) {
+                sid = sid >>> 12;
+            }
             srEroSubobjectBuilder.setSid(sid);
         }
         if (sidType != null && !flags.isF()) {
@@ -164,5 +171,5 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
         subobjectBuilder.setSubobjectType(srEroSubobjectBuilder.build());
         return subobjectBuilder.build();
     }
-
 }
+
