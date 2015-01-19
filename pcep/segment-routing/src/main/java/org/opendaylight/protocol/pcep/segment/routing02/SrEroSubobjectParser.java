@@ -76,7 +76,11 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
         writeBitSet(bits, FLAGS_OFFSET, body);
 
         if (srEroSubobject.getSid() != null && !flags.isS()) {
-            writeUnsignedInt(srEroSubobject.getSid(), body);
+            long sid = srEroSubobject.getSid();
+            if (flags.isM()) {
+                sid = sid << 12;
+            }
+            writeUnsignedInt(sid, body);
         }
         final Nai nai = srEroSubobject.getNai();
         if (nai != null && !flags.isF()) {
@@ -131,7 +135,10 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
         srEroSubobjectBuilder.setFlags(flags);
 
         if (!flags.isS()) {
-            final long sid = buffer.readUnsignedInt();
+            Long sid = buffer.readUnsignedInt();
+            if (flags.isM()) {
+                sid = sid >>> 12;
+            }
             srEroSubobjectBuilder.setSid(sid);
         }
         if (sidType != null && !flags.isF()) {
@@ -168,5 +175,5 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
         subobjectBuilder.setSubobjectType(srEroSubobjectBuilder.build());
         return subobjectBuilder.build();
     }
-
 }
+

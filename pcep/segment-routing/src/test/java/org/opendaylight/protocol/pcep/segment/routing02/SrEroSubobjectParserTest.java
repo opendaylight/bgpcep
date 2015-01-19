@@ -37,6 +37,17 @@ public class SrEroSubobjectParserTest {
         0x4A,0x7D,0x2b,0x63,
     };
 
+    private static final byte[] srEroSubobjectWithIpv4NodeIDMFalse  = {
+        0x05,0x0c,(byte) 0x10,0x01,
+        0x07,0x5B,(byte) 0xCD,0x15,
+        0x4A,0x7D,0x2b,0x63,
+    };
+    private static final byte[] srEroSubobjectWithIpv4NodeIDMFalseAfter  = {
+        0x05,0x0c,(byte) 0x10,0x01,
+        0x07,0x5B,(byte) 0xC0,0x00,
+        0x4A,0x7D,0x2b,0x63,
+    };
+
     private static final byte[] srEroSubobjectWithIpv6NodeID  = {
         0x05,0x18,(byte) 0x20,0x00,
         0x00,0x01,(byte) 0xe2,0x40,
@@ -109,6 +120,22 @@ public class SrEroSubobjectParserTest {
         final ByteBuf buffer = Unpooled.buffer();
         parser.serializeSubobject(subobjBuilder.build(), buffer);
         assertArrayEquals(srEroSubobjectWithIpv4NodeID, ByteArray.getAllBytes(buffer));
+    }
+
+    @Test
+    public void testSrEroSubobjectIpv4NodeIdNAIMFalse() throws PCEPDeserializerException {
+        final SrEroSubobjectParser parser = new SrEroSubobjectParser();
+        final SrEroTypeBuilder builder = new SrEroTypeBuilder();
+        builder.setFlags(new Flags(false, false, true, false));
+        builder.setSidType(SidType.Ipv4NodeId);
+        builder.setSid(30140L);
+        builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddress(new Ipv4Address("74.125.43.99"))).build());
+        final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build()).setLoose(false);
+
+        assertEquals(subobjBuilder.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(srEroSubobjectWithIpv4NodeIDMFalse, 2)), false));
+        final ByteBuf buffer = Unpooled.buffer();
+        parser.serializeSubobject(subobjBuilder.build(), buffer);
+        assertArrayEquals(srEroSubobjectWithIpv4NodeIDMFalseAfter, ByteArray.getAllBytes(buffer));
     }
 
     @Test
