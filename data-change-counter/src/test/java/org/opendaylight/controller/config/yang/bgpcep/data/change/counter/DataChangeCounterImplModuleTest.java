@@ -117,19 +117,19 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
         }
 
         @Override
-        public Module createModule(String instanceName, DependencyResolver dependencyResolver,
-                BundleContext bundleContext) {
+        public Module createModule(final String instanceName, final DependencyResolver dependencyResolver,
+                final BundleContext bundleContext) {
             return new MockDataBrokerModule();
         }
 
         @Override
-        public Module createModule(String instanceName, DependencyResolver dependencyResolver,
-                DynamicMBeanWithInstance old, BundleContext bundleContext) throws Exception {
+        public Module createModule(final String instanceName, final DependencyResolver dependencyResolver,
+                final DynamicMBeanWithInstance old, final BundleContext bundleContext) throws Exception {
             return new MockDataBrokerModule();
         }
 
         @Override
-        public boolean isModuleImplementingServiceInterface(Class<? extends AbstractServiceInterface> serviceInterface) {
+        public boolean isModuleImplementingServiceInterface(final Class<? extends AbstractServiceInterface> serviceInterface) {
             return true;
         }
 
@@ -140,8 +140,8 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
         }
 
         @Override
-        public Set<? extends Module> getDefaultModules(DependencyResolverFactory dependencyResolverFactory,
-                BundleContext bundleContext) {
+        public Set<? extends Module> getDefaultModules(final DependencyResolverFactory dependencyResolverFactory,
+                final BundleContext bundleContext) {
             return Collections.emptySet();
         }
 
@@ -160,7 +160,7 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
         }
 
         @Override
-        public void setBindingMappingService(ObjectName bindingMappingService) {
+        public void setBindingMappingService(final ObjectName bindingMappingService) {
             return;
         }
 
@@ -170,7 +170,7 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
         }
 
         @Override
-        public void setDomAsyncBroker(ObjectName domAsyncBroker) {
+        public void setDomAsyncBroker(final ObjectName domAsyncBroker) {
             return;
         }
 
@@ -181,9 +181,13 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
 
         @Override
         public AutoCloseable getInstance() {
-            return (AutoCloseable) DataChangeCounterImplModuleTest.this.dataBorker;
+            return DataChangeCounterImplModuleTest.this.dataBorker;
         }
 
+        @Override
+        public boolean canReuse(final Module arg0) {
+            return true;
+        }
     }
 
     private interface CloseableDataBroker extends DataBroker, AutoCloseable {
