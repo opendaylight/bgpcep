@@ -122,19 +122,22 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
                 final Peer peer = RIBImpl.this.peers.take();
                 LOG.debug("Advertizing loc-rib to new peer {}.", peer);
                 for (final BgpTableType key : RIBImpl.this.localTables) {
-                    final AdjRIBsTransactionImpl trans = new AdjRIBsTransactionImpl(RIBImpl.this.ribOuts, RIBImpl.this.comparator, RIBImpl.this.chain.newWriteOnlyTransaction());
-                    final AbstractAdjRIBs<?, ?, ?> adj = (AbstractAdjRIBs<?, ?, ?>) RIBImpl.this.tables.get(new TablesKey(key.getAfi(), key.getSafi()));
-                    adj.addAllEntries(trans);
-                    Futures.addCallback(trans.commit(), new FutureCallback<Void>() {
-                        @Override
-                        public void onSuccess(final Void result) {
-                            LOG.trace("Advertizing {} to peer {} committed successfully", key.getAfi(), peer);
-                        }
-                        @Override
-                        public void onFailure(final Throwable t) {
-                            LOG.error("Failed to update peer {} with RIB {}", peer, t);
-                        }
-                    });
+
+                    synchronized (RIBImpl.this) {
+                        final AdjRIBsTransactionImpl trans = new AdjRIBsTransactionImpl(RIBImpl.this.ribOuts, RIBImpl.this.comparator, RIBImpl.this.chain.newWriteOnlyTransaction());
+                        final AbstractAdjRIBs<?, ?, ?> adj = (AbstractAdjRIBs<?, ?, ?>) RIBImpl.this.tables.get(new TablesKey(key.getAfi(), key.getSafi()));
+                        adj.addAllEntries(trans);
+                        Futures.addCallback(trans.commit(), new FutureCallback<Void>() {
+                            @Override
+                            public void onSuccess(final Void result) {
+                                LOG.trace("Advertizing {} to peer {} committed successfully", key.getAfi(), peer);
+                            }
+                            @Override
+                            public void onFailure(final Throwable t) {
+                                LOG.error("Failed to update peer {} with RIB {}", peer, t);
+                            }
+                        });
+                    }
                 }
             } catch (final InterruptedException e) {
                 LOG.info("Scheduler thread was interrupted.", e);
