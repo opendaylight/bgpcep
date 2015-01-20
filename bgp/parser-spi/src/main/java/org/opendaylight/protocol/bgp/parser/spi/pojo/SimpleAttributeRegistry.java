@@ -87,9 +87,9 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
                 }
                 if (flags[TRANSITIVE_BIT]) {
                     // FIXME: transitive attributes need to be preserved
-                    LOG.warn("Losing unrecognized transitive attribute {}", type);
+                    LOG.warn("Losing unrecognized transitive attribute {}. Some data might be missing from the output.", type);
                 } else {
-                    LOG.debug("Ignoring unrecognized attribute type {}", type);
+                    LOG.warn("Ignoring unrecognized attribute type {}. Some data might be missing from the output.", type);
                 }
             } else {
                 attributes.put(type, new RawAttribute(parser, buffer.slice(buffer.readerIndex(), len)));
