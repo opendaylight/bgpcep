@@ -16,6 +16,24 @@
       "revId": "ea497d0393b5651a4545a272f9abfd6a8a1147c0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_2c739416",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing/SrSubobjectParserUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-01-21T13:34:43Z",
+      "side": 1,
+      "message": "The SRSubobject interface is generated from grouping, hence does not have builder.",
+      "parentUuid": "7a96c907_8bec1591",
+      "revId": "ea497d0393b5651a4545a272f9abfd6a8a1147c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
