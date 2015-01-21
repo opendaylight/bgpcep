@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType.AS_SEQUENCE;
 import static org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType.AS_SET;
-
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,19 +66,17 @@ public final class AsPathSegmentParser {
     }
 
     static List<AsSequence> parseAsSequence(final ReferenceCache refCache, final int count, final ByteBuf buffer) {
-        final List<AsSequence> coll = new ArrayList<>();
+        final List<AsSequence> coll = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
-            coll.add(
-                    refCache.getSharedReference(new AsSequenceBuilder().setAs(refCache.getSharedReference(new AsNumber(buffer.readUnsignedInt()))).build()));
+            coll.add(refCache.getSharedReference(new AsSequenceBuilder().setAs(refCache.getSharedReference(new AsNumber(buffer.readUnsignedInt()))).build()));
         }
         return (coll.isEmpty()) ? Collections.<AsSequence>emptyList() : coll;
     }
 
     static List<AsNumber> parseAsSet(final ReferenceCache refCache, final int count, final ByteBuf buffer) {
-        final List<AsNumber> coll = new ArrayList<>();
+        final List<AsNumber> coll = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
-            coll.add(refCache.getSharedReference(
-                    new AsNumber(buffer.readUnsignedInt())));
+            coll.add(refCache.getSharedReference(new AsNumber(buffer.readUnsignedInt())));
         }
         return (coll.isEmpty()) ? Collections.<AsNumber>emptyList() : coll;
     }
