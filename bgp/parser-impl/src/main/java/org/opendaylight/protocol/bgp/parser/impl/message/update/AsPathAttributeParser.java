@@ -40,7 +40,6 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public final class AsPathAttributeParser implements AttributeParser, AttributeSerializer {
 
     public static final int TYPE = 2;
@@ -65,7 +64,7 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
         if (!buffer.isReadable()) {
             return EMPTY;
         }
-        final List<Segments> ases = new ArrayList<>();
+        final ArrayList<Segments> ases = new ArrayList<>();
         boolean isSequence = false;
         while (buffer.isReadable()) {
             final int type = UnsignedBytes.toInt(buffer.readByte());
@@ -92,6 +91,8 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
         if (!isSequence) {
             throw new BGPDocumentedException("AS_SEQUENCE must be present in AS_PATH attribute.", BGPError.AS_PATH_MALFORMED);
         }
+
+        ases.trimToSize();
         return new AsPathBuilder().setSegments(ases).build();
     }
 
