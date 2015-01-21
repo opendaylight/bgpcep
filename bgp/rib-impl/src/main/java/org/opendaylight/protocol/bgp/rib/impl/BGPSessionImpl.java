@@ -324,7 +324,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
         return this.channel != null && this.channel.isWritable();
     }
 
-    synchronized void schedule(final Runnable task) {
+    void schedule(final Runnable task) {
         Preconditions.checkState(this.channel != null);
         this.channel.eventLoop().submit(task);
 
