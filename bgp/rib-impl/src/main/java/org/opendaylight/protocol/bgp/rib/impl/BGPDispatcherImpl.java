@@ -127,9 +127,10 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
             }
             b.channelFactory(this.cf);
             b.option(MD5ChannelOption.TCP_MD5SIG, this.keys);
-            // Make sure we are doing round-robin processing
-            b.option(ChannelOption.MAX_MESSAGES_PER_READ, 1);
         }
+
+        // Make sure we are doing round-robin processing
+        b.option(ChannelOption.MAX_MESSAGES_PER_READ, 1);
     }
 
     @Override
@@ -140,9 +141,10 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
             }
             b.channelFactory(this.scf);
             b.option(MD5ChannelOption.TCP_MD5SIG, this.keys);
-            // Make sure we are doing round-robin processing
-            b.childOption(ChannelOption.MAX_MESSAGES_PER_READ, 1);
         }
+
+        // Make sure we are doing round-robin processing
+        b.childOption(ChannelOption.MAX_MESSAGES_PER_READ, 1);
     }
 
 }
