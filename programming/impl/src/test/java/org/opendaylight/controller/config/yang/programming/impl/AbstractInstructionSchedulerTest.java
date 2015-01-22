@@ -185,7 +185,13 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         final ObjectName nameCreated = transaction.createModule(BindingAsyncDataBrokerImplModuleFactory.NAME, BINDING_ASYNC_BROKER_INSTANCE_NAME);
         final BindingAsyncDataBrokerImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, BindingAsyncDataBrokerImplModuleMXBean.class);
         mxBean.setBindingMappingService(lookupMappingServiceInstance(transaction));
-        mxBean.setDomAsyncBroker(lookupDomAsyncDataBroker(transaction));
+        mxBean.setDomAsyncBroker(lookupDomBrokerInstance(transaction));
+        return nameCreated;
+    }
+
+    private static ObjectName createDomAsyncDataBroker(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
+        final ObjectName nameCreated = transaction.createModule(DomInmemoryDataBrokerModuleFactory.NAME, DOM_ASYNC_DATA_BROKER_INSTANCE);
+        final DomInmemoryDataBrokerModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, DomInmemoryDataBrokerModuleMXBean.class);
         mxBean.setSchemaService(lookupSchemaServiceInstance(transaction));
         return nameCreated;
     }
@@ -221,22 +227,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
             try {
                 final ObjectName nameCreated = transaction.createModule(DomBrokerImplModuleFactory.NAME, DOM_BROKER_INSTANCE_NAME);
                 final DomBrokerImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, DomBrokerImplModuleMXBean.class);
-                mxBean.setAsyncDataBroker(lookupDomAsyncDataBroker(transaction));
-                return nameCreated;
-            } catch (final InstanceAlreadyExistsException e1) {
-                throw new IllegalStateException(e1);
-            }
-        }
-    }
-
-    private static ObjectName lookupDomAsyncDataBroker(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
-        try {
-            return transaction.lookupConfigBean(DomInmemoryDataBrokerModuleFactory.NAME, DOM_ASYNC_DATA_BROKER_INSTANCE);
-        } catch (final InstanceNotFoundException e) {
-            try {
-                final ObjectName nameCreated = transaction.createModule(DomInmemoryDataBrokerModuleFactory.NAME, DOM_ASYNC_DATA_BROKER_INSTANCE);
-                final DomInmemoryDataBrokerModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, DomInmemoryDataBrokerModuleMXBean.class);
-                mxBean.setSchemaService(lookupSchemaServiceInstance(transaction));
+                mxBean.setAsyncDataBroker(createDomAsyncDataBroker(transaction));
                 return nameCreated;
             } catch (final InstanceAlreadyExistsException e1) {
                 throw new IllegalStateException(e1);
