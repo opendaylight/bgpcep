@@ -184,16 +184,6 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
             return (AutoCloseable) DataChangeCounterImplModuleTest.this.dataBorker;
         }
 
-        @Override
-        public ObjectName getSchemaService() {
-            return null;
-        }
-
-        @Override
-        public void setSchemaService(ObjectName schemaService) {
-            return;
-        }
-
     }
 
     private interface CloseableDataBroker extends DataBroker, AutoCloseable {
