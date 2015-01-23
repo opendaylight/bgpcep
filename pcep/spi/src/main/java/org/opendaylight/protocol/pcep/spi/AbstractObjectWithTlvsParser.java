@@ -9,9 +9,9 @@ package org.opendaylight.protocol.pcep.spi;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
@@ -39,7 +39,7 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
         if (!bytes.isReadable()) {
             return;
         }
-        final List<VendorInformationTlv> viTlvs = Lists.newArrayList();
+        final List<VendorInformationTlv> viTlvs = new ArrayList<>();
         while (bytes.isReadable()) {
             int type = bytes.readUnsignedShort();
             int length = bytes.readUnsignedShort();
@@ -56,12 +56,17 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
                 if(viTlv.isPresent()) {
                     LOG.trace("Parsed VENDOR-INFORMATION TLV {}.", viTlv.get());
                     viTlvs.add(viTlv.get());
+                } else {
+                    LOG.info("Parser for VENDOR-INFORMATION TLV with enterprise-number {} was not found: {}", enterpriseNumber.getValue(),
+                            ByteBufUtil.hexDump(tlvBytes));
                 }
             } else {
                 final Tlv tlv = this.tlvReg.parseTlv(type, tlvBytes);
                 if(tlv != null) {
                     LOG.trace("Parsed PCEP TLV {}.", tlv);
                     addTlv(builder, tlv);
+                } else {
+                    LOG.info("TLV type {} parser was not found: {}", type, ByteBufUtil.hexDump(tlvBytes));
                 }
             }
             bytes.skipBytes(length + TlvUtil.getPadding(TlvUtil.HEADER_SIZE + length, TlvUtil.PADDED_TO));
