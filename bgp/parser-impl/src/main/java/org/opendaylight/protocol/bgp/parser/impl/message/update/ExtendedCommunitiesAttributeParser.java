@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
@@ -20,6 +19,7 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
@@ -50,11 +50,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.route.target.extended.community._case.RouteTargetExtendedCommunityBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
-public final class ExtendedCommunitiesAttributeParser implements AttributeParser,AttributeSerializer {
+public class ExtendedCommunitiesAttributeParser implements AttributeParser,AttributeSerializer {
 
     public static final int TYPE = 16;
 
-    private static final int EXTENDED_COMMUNITY_LENGTH = 8;
+    private static final int EXTENDED_COMMUNITY_LENGTH = 6;
 
     private static final int AS_LOCAL_ADMIN_LENGTH = 4;
 
@@ -87,12 +87,20 @@ public final class ExtendedCommunitiesAttributeParser implements AttributeParser
     @Override
     public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) throws BGPDocumentedException {
         final List<ExtendedCommunities> set = new ArrayList<>();
+        ExtendedCommunitiesBuilder exBuilder = null;
         while (buffer.isReadable()) {
-            final ExtendedCommunities comm = parseExtendedCommunity(this.refCache, buffer.slice(buffer.readerIndex(), EXTENDED_COMMUNITY_LENGTH));
+            exBuilder = new ExtendedCommunitiesBuilder();
+            parseHeader(exBuilder, buffer);
+            final ExtendedCommunities comm = parseExtendedCommunity(this.refCache, exBuilder, buffer.slice(buffer.readerIndex(), EXTENDED_COMMUNITY_LENGTH));
             buffer.skipBytes(EXTENDED_COMMUNITY_LENGTH);
             set.add(comm);
         }
         builder.setExtendedCommunities(set);
+    }
+
+    protected void parseHeader(final ExtendedCommunitiesBuilder exBuilder, final ByteBuf buffer) {
+        exBuilder.setCommType((short) UnsignedBytes.toInt(buffer.readByte()));
+        exBuilder.setCommSubType((short) UnsignedBytes.toInt(buffer.readByte()));
     }
 
     /**
@@ -102,12 +110,8 @@ public final class ExtendedCommunitiesAttributeParser implements AttributeParser
      * @return new Specific Extended Community
      * @throws BGPDocumentedException if the type is not recognized
      */
-    @VisibleForTesting
-    public static ExtendedCommunities parseExtendedCommunity(final ReferenceCache refCache, final ByteBuf buffer)
+    public ExtendedCommunities parseExtendedCommunity(final ReferenceCache refCache, final ExtendedCommunitiesBuilder comm, final ByteBuf buffer)
             throws BGPDocumentedException {
-        final ExtendedCommunitiesBuilder comm = new ExtendedCommunitiesBuilder();
-        comm.setCommType((short) UnsignedBytes.toInt(buffer.readByte()));
-        comm.setCommSubType((short) UnsignedBytes.toInt(buffer.readByte()));
         ExtendedCommunity c = null;
         switch (comm.getCommType()) {
         case AS_TYPE_TRANS:
@@ -190,45 +194,44 @@ public final class ExtendedCommunitiesAttributeParser implements AttributeParser
         if (communitiesList == null || communitiesList.isEmpty()) {
             return;
         }
-        final ByteBuf extendedCommunitiesBuffer = Unpooled.buffer();
         for (final ExtendedCommunities extendedCommunities : communitiesList) {
+            final ByteBuf extendedCommunitiesBuffer = Unpooled.buffer();
+            serializeHeader(extendedCommunities, extendedCommunitiesBuffer);
             serializeExtendedCommunity(extendedCommunities, extendedCommunitiesBuffer);
             AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL | AttributeUtil.TRANSITIVE, TYPE, extendedCommunitiesBuffer, byteAggregator);
         }
     }
 
-    @VisibleForTesting
-    public static void serializeExtendedCommunity(final ExtendedCommunities extendedCommunities, final ByteBuf extendedCommunitiesBuffer) {
-        if (extendedCommunities.getCommType() != null) {
-            extendedCommunitiesBuffer.writeByte(extendedCommunities.getCommType());
-        }
-        if (extendedCommunities.getCommSubType() != null) {
-            extendedCommunitiesBuffer.writeByte(extendedCommunities.getCommSubType());
-        }
+    protected void serializeHeader(final ExtendedCommunities extendedCommunities, final ByteBuf extendedCommunitiesBuffer) {
+        ByteBufWriteUtil.writeUnsignedByte(extendedCommunities.getCommType(), extendedCommunitiesBuffer);
+        ByteBufWriteUtil.writeUnsignedByte(extendedCommunities.getCommSubType(), extendedCommunitiesBuffer);
+    }
+
+    public void serializeExtendedCommunity(final ExtendedCommunities extendedCommunities, final ByteBuf buffer) {
         final ExtendedCommunity ex = extendedCommunities.getExtendedCommunity();
         if (ex instanceof AsSpecificExtendedCommunityCase) {
             final AsSpecificExtendedCommunity asSpecificExtendedCommunity = ((AsSpecificExtendedCommunityCase) ex).getAsSpecificExtendedCommunity();
-            extendedCommunitiesBuffer.writeShort(asSpecificExtendedCommunity.getGlobalAdministrator().getValue().shortValue());
-            extendedCommunitiesBuffer.writeBytes(asSpecificExtendedCommunity.getLocalAdministrator());
+            ByteBufWriteUtil.writeUnsignedShort(asSpecificExtendedCommunity.getGlobalAdministrator().getValue().intValue(), buffer);
+            buffer.writeBytes(asSpecificExtendedCommunity.getLocalAdministrator());
         }
         else if (ex instanceof Inet4SpecificExtendedCommunityCase) {
             final Inet4SpecificExtendedCommunity inet4SpecificExtendedCommunity = ((Inet4SpecificExtendedCommunityCase) ex).getInet4SpecificExtendedCommunity();
-            extendedCommunitiesBuffer.writeBytes(Ipv4Util.bytesForAddress(inet4SpecificExtendedCommunity.getGlobalAdministrator()));
-            extendedCommunitiesBuffer.writeBytes(inet4SpecificExtendedCommunity.getLocalAdministrator());
+            ByteBufWriteUtil.writeIpv4Address(inet4SpecificExtendedCommunity.getGlobalAdministrator(), buffer);
+            buffer.writeBytes(inet4SpecificExtendedCommunity.getLocalAdministrator());
         }
         else if (ex instanceof OpaqueExtendedCommunityCase) {
             final OpaqueExtendedCommunity opaqueExtendedCommunity = ((OpaqueExtendedCommunityCase) ex).getOpaqueExtendedCommunity();
-            extendedCommunitiesBuffer.writeBytes(opaqueExtendedCommunity.getValue());
+            buffer.writeBytes(opaqueExtendedCommunity.getValue());
         }
         else if (ex instanceof RouteTargetExtendedCommunityCase) {
-            final RouteTargetExtendedCommunity routeTargetExtendedCommunity = ((RouteTargetExtendedCommunityCase) ex).getRouteTargetExtendedCommunity();
-            extendedCommunitiesBuffer.writeShort(routeTargetExtendedCommunity.getGlobalAdministrator().getValue().shortValue());
-            extendedCommunitiesBuffer.writeBytes(routeTargetExtendedCommunity.getLocalAdministrator());
+            final RouteTargetExtendedCommunity routeTarget = ((RouteTargetExtendedCommunityCase) ex).getRouteTargetExtendedCommunity();
+            ByteBufWriteUtil.writeUnsignedShort(routeTarget.getGlobalAdministrator().getValue().intValue(), buffer);
+            buffer.writeBytes(routeTarget.getLocalAdministrator());
         }
         else if (ex instanceof RouteOriginExtendedCommunityCase) {
             final RouteOriginExtendedCommunity routeOriginExtendedCommunity = ((RouteOriginExtendedCommunityCase) ex).getRouteOriginExtendedCommunity();
-            extendedCommunitiesBuffer.writeShort(routeOriginExtendedCommunity.getGlobalAdministrator().getValue().shortValue());
-            extendedCommunitiesBuffer.writeBytes(routeOriginExtendedCommunity.getLocalAdministrator());
+            ByteBufWriteUtil.writeUnsignedShort(routeOriginExtendedCommunity.getGlobalAdministrator().getValue().intValue(), buffer);
+            buffer.writeBytes(routeOriginExtendedCommunity.getLocalAdministrator());
         }
     }
 }
