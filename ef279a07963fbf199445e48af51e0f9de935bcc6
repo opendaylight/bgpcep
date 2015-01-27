@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_43dfb80d",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSActivator.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-01-27T09:53:41Z",
+      "side": 1,
+      "message": "not needed",
+      "revId": "ef279a07963fbf199445e48af51e0f9de935bcc6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_63e2f4d6",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSExtendedCommunitiesAttributeParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-01-27T09:53:41Z",
+      "side": 1,
+      "message": "} else if",
+      "revId": "ef279a07963fbf199445e48af51e0f9de935bcc6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
