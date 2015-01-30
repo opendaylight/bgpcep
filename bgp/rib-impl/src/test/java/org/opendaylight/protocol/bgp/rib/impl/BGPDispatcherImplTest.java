@@ -81,6 +81,7 @@ public class BGPDispatcherImplTest {
         final BGPSessionPreferences prefs = new BGPSessionPreferences(AS_NUMBER, (short) 90, new Ipv4Address(ADDRESS.getAddress().getHostAddress()), tlvs);
         Mockito.doReturn(true).when(this.registry).isPeerConfigured(Mockito.any(IpAddress.class));
         Mockito.doReturn(prefs).when(this.registry).getPeerPreferences(Mockito.any(IpAddress.class));
+        Mockito.doNothing().when(this.registry).removePeerSession(Mockito.any(IpAddress.class));
         Mockito.doReturn(this.sessionListener).when(this.registry).getPeer(Mockito.any(IpAddress.class), Mockito.any(Ipv4Address.class), Mockito.any(Ipv4Address.class));
 
         this.dispatcher = new BGPDispatcherImpl(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(), group, group);
