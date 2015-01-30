@@ -264,7 +264,7 @@ public class ApplicationPeerTest {
         Mockito.doReturn(null).when(this.channel).close();
         final List<BgpParameters> params = Lists.newArrayList(new BgpParametersBuilder().setCParameters(new MultiprotocolCaseBuilder()
             .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()).build()).build());
-        this.session = new BGPSessionImpl(this.classic, this.channel, new OpenBuilder().setBgpIdentifier(new Ipv4Address("1.1.1.1")).setHoldTimer(50).setMyAsNumber(72).setBgpParameters(params).build(), 30);
+        this.session = new BGPSessionImpl(this.classic, this.channel, new OpenBuilder().setBgpIdentifier(new Ipv4Address("1.1.1.1")).setHoldTimer(50).setMyAsNumber(72).setBgpParameters(params).build(), 30, null);
         assertEquals(this.r, this.classic.getRib());
         assertEquals("testPeer", this.classic.getName());
         Mockito.doAnswer(new Answer<Object>() {
