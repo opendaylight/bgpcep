@@ -22,7 +22,7 @@ public class SpeakerSessionMock extends BGPSessionImpl {
     private final BGPSessionListener client;
 
     SpeakerSessionMock(final BGPSessionListener listener, final BGPSessionListener client) {
-        super(listener, mock(Channel.class), new OpenBuilder().setHoldTimer(5).build(), 10);
+        super(listener, mock(Channel.class), new OpenBuilder().setHoldTimer(5).build(), 10, null);
         this.client = client;
     }
 
