@@ -8,10 +8,10 @@
 
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.CharMatcher;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import com.google.common.net.InetAddresses;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -42,8 +42,6 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
 
     private static final Logger LOG = LoggerFactory.getLogger(StrictBGPPeerRegistry.class);
 
-    private static final CharMatcher NONDIGIT = CharMatcher.inRange('0', '9').negate();
-
     // TODO remove backwards compatibility
     public static final StrictBGPPeerRegistry GLOBAL = new StrictBGPPeerRegistry();
 
@@ -68,6 +66,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         this.peers.remove(ip);
     }
 
+    @Override
     public synchronized void removePeerSession(final IpAddress ip) {
         Preconditions.checkNotNull(ip);
         this.sessionIds.remove(ip);
@@ -96,45 +95,41 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         final BGPSessionId currentConnection = new BGPSessionId(sourceId, remoteId);
         final BGPSessionListener p = this.peers.get(ip);
 
-        if (this.sessionIds.containsKey(ip)) {
-            if (p.isSessionActive()) {
+        final BGPSessionId previousConnection = this.sessionIds.get(ip);
 
-                LOG.warn("Duplicate BGP session established with {}", ip);
+        if (previousConnection != null) {
 
-                final BGPSessionId previousConnection = this.sessionIds.get(ip);
+            LOG.warn("Duplicate BGP session established with {}", ip);
 
-                // Session reestablished with different ids
-                if (!previousConnection.equals(currentConnection)) {
-                    LOG.warn("BGP session with {} {} has to be dropped. Same session already present {}", ip, currentConnection, previousConnection);
-                    throw new BGPDocumentedException(
-                        String.format("BGP session with %s %s has to be dropped. Same session already present %s",
-                            ip, currentConnection, previousConnection),
-                            BGPError.CEASE);
+            // Session reestablished with different ids
+            if (!previousConnection.equals(currentConnection)) {
+                LOG.warn("BGP session with {} {} has to be dropped. Same session already present {}", ip, currentConnection, previousConnection);
+                throw new BGPDocumentedException(
+                    String.format("BGP session with %s %s has to be dropped. Same session already present %s",
+                        ip, currentConnection, previousConnection),
+                        BGPError.CEASE);
 
-                    // Session reestablished with lower source bgp id, dropping current
-                } else if (previousConnection.isHigherDirection(currentConnection)) {
-                    LOG.warn("BGP session with {} {} has to be dropped. Opposite session already present", ip, currentConnection);
-                    throw new BGPDocumentedException(
-                        String.format("BGP session with %s initiated %s has to be dropped. Opposite session already present",
-                            ip, currentConnection),
-                            BGPError.CEASE);
+                // Session reestablished with lower source bgp id, dropping current
+            } else if (previousConnection.isHigherDirection(currentConnection)) {
+                LOG.warn("BGP session with {} {} has to be dropped. Opposite session already present", ip, currentConnection);
+                throw new BGPDocumentedException(
+                    String.format("BGP session with %s initiated %s has to be dropped. Opposite session already present",
+                        ip, currentConnection),
+                        BGPError.CEASE);
 
-                    // Session reestablished with higher source bgp id, dropping previous
-                } else if (currentConnection.isHigherDirection(previousConnection)) {
-                    LOG.warn("BGP session with {} {} released. Replaced by opposite session", ip, previousConnection);
-                    this.peers.get(ip).releaseConnection();
-                    return this.peers.get(ip);
+                // Session reestablished with higher source bgp id, dropping previous
+            } else if (currentConnection.isHigherDirection(previousConnection)) {
+                LOG.warn("BGP session with {} {} released. Replaced by opposite session", ip, previousConnection);
+                this.peers.get(ip).releaseConnection();
+                return this.peers.get(ip);
 
-                    // Session reestablished with same source bgp id, dropping current as duplicate
-                } else {
-                    LOG.warn("BGP session with %s initiated from %s to %s has to be dropped. Same session already present", ip, sourceId, remoteId);
-                    throw new BGPDocumentedException(
-                        String.format("BGP session with %s initiated %s has to be dropped. Same session already present",
-                            ip, currentConnection),
-                            BGPError.CEASE);
-                }
+                // Session reestablished with same source bgp id, dropping current as duplicate
             } else {
-                removePeerSession(ip);
+                LOG.warn("BGP session with %s initiated from %s to %s has to be dropped. Same session already present", ip, sourceId, remoteId);
+                throw new BGPDocumentedException(
+                    String.format("BGP session with %s initiated %s has to be dropped. Same session already present",
+                        ip, currentConnection),
+                        BGPError.CEASE);
             }
         }
 
@@ -231,11 +226,15 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
          */
         boolean isHigherDirection(final BGPSessionId other) {
             Preconditions.checkState(!this.isSameDirection(other), "Equal sessions with same direction");
+            if (this.isSameDirection(other)) {
+                return false;
+            }
             return toLong(this.from) > toLong(other.from);
         }
 
         private long toLong(final Ipv4Address from) {
-            return Long.parseLong(NONDIGIT.removeFrom(from.getValue()));
+            final int i = InetAddresses.coerceToInteger(InetAddresses.forString(from.getValue()));
+            return i & 0xFFFFFFFFL;
         }
 
         /**
