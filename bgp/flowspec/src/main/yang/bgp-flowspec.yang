@@ -200,99 +200,75 @@ module bgp-flowspec {
             }
             choice flowspec-type {
                 case destination-prefix-case {
-                    container destination-prefix {
-                        when "../component-type = destination-prefix";
-                        leaf destination-prefix {
-                            type inet:ipv4-prefix;
-                        }
+                    when "../component-type = destination-prefix";
+                    leaf destination-prefix {
+                        type inet:ipv4-prefix;
                     }
                 }
                 case source-prefix-case {
-                    container source-prefix {
-                        when "../component-type = source-prefix";
-                        leaf source-prefix {
-                            type inet:ipv4-prefix;
-                        }
+                    when "../component-type = source-prefix";
+                    leaf source-prefix {
+                        type inet:ipv4-prefix;
                     }
                 }
                 case protocol-ip-case {
-                    container protocol-ip {
-                        when "../component-type = protocol-ip";
-                        list protocol-ips {
-                            uses numeric-two-byte-value;
-                        }
+                    when "../component-type = protocol-ip";
+                    list protocol-ips {
+                        uses numeric-two-byte-value;
                     }
                 }
                 case port-case {
-                    container port {
-                        when "../component-type = port";
-                        list ports {
-                            uses numeric-two-byte-value;
-                        }
+                    when "../component-type = port";
+                    list ports {
+                        uses numeric-two-byte-value;
                     }
                 }
                 case destination-port-case {
-                    container destination-port {
-                        when "../component-type = destination-port";
-                        list destination-ports {
-                            uses numeric-two-byte-value;
-                        }
+                    when "../component-type = destination-port";
+                    list destination-ports {
+                        uses numeric-two-byte-value;
                     }
                 }
                 case source-port-case {
-                    container source-port {
-                        when "../component-type = source-port";
-                        list source-ports {
-                            uses numeric-two-byte-value;
-                        }
+                    when "../component-type = source-port";
+                    list source-ports {
+                        uses numeric-two-byte-value;
                     }
                 }
                 case icmp-type-case {
-                    container icmp-type {
-                        when "../component-type = icmp-type";
-                        list types {
-                            uses numeric-one-byte-value;
-                        }
+                    when "../component-type = icmp-type";
+                    list types {
+                        uses numeric-one-byte-value;
                     }
                 }
                 case icmp-code-case {
-                    container icmp-code {
-                        when "../component-type = icmp-code";
-                        list codes {
-                            uses numeric-one-byte-value;
-                        }
+                    when "../component-type = icmp-code";
+                    list codes {
+                        uses numeric-one-byte-value;
                     }
                 }
                 case tcp-flags-case {
-                    container tcp-flags {
-                        when "../component-type = tcp-flags";
-                        list tcp-flags {
-                            uses bitmask-two-byte-value;
-                        }
+                    when "../component-type = tcp-flags";
+                    list tcp-flags {
+                        uses bitmask-two-byte-value;
                     }
                 }
                 case packet-length-case {
-                    container packet-length {
-                        when "../component-type = packet-length";
-                        list packet-lengths {
-                            uses numeric-two-byte-value;
-                        }
+                    when "../component-type = packet-length";
+                    list packet-lengths {
+                        uses numeric-two-byte-value;
                     }
                 }
                 case dscp-case {
-                    container dscp {
-                        when "../component-type = dscp";
-                        list dscps {
-                            uses dscp-value;
-                        }
+                    when "../component-type = dscp";
+                    list dscps {
+                        uses dscp-value;
                     }
                 }
                 case fragment-case {
-                    container fragment {
-                        when "../component-type = fragment";
-                        list fragments {
-                            uses fragment-value;
-                        }
+                    when "../component-type = fragment";
+                    list fragments {
+                        uses fragment-value;
                     }
                 }
             }
