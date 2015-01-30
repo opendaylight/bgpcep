@@ -23,6 +23,7 @@ import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
@@ -98,14 +99,17 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
     private final int keepAlive;
     private final AsNumber asNumber;
     private final Ipv4Address bgpId;
+    private final BGPPeerRegistry peerRegistry;
 
-    public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen, final int localHoldTimer) {
+    public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen, final int localHoldTimer,
+            final BGPPeerRegistry peerRegitry) {
         this.listener = Preconditions.checkNotNull(listener);
         this.channel = Preconditions.checkNotNull(channel);
         this.holdTimerValue = (remoteOpen.getHoldTimer() < localHoldTimer) ? remoteOpen.getHoldTimer() : localHoldTimer;
         LOG.info("BGP HoldTimer new value: {}", this.holdTimerValue);
         this.keepAlive = this.holdTimerValue / 3;
         this.asNumber = AsNumberUtil.advertizedAsNumber(remoteOpen);
+        this.peerRegistry = peerRegitry;
 
         final Set<TablesKey> tts = Sets.newHashSet();
         final Set<BgpTableType> tats = Sets.newHashSet();
@@ -147,6 +151,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
         LOG.info("Closing session: {}", this);
         if (this.state != State.Idle) {
             this.sendMessage(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).setErrorSubcode((short)0).build());
+            removePeerSession();
             this.channel.close();
             this.state = State.Idle;
         }
@@ -214,6 +219,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 
     private synchronized void closeWithoutMessage() {
         LOG.debug("Closing session: {}", this);
+        removePeerSession();
         this.channel.close();
         this.state = State.Idle;
     }
@@ -229,6 +235,12 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
         this.closeWithoutMessage();
 
         this.listener.onSessionTerminated(this, new BGPTerminationReason(error));
+    }
+
+    private void removePeerSession() {
+        if (this.peerRegistry != null) {
+            this.peerRegistry.removePeerSession(StrictBGPPeerRegistry.getIpAddress(this.channel.remoteAddress()));
+        }
     }
 
     /**

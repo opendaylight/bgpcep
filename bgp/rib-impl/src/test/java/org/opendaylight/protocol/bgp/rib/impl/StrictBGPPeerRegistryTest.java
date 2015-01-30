@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
@@ -53,8 +54,8 @@ public class StrictBGPPeerRegistryTest {
         this.droppingBGPSessionRegistry.getPeer(remoteIp, from, to);
         try {
             this.droppingBGPSessionRegistry.getPeer(remoteIp, from, to);
-        } catch (final IllegalStateException e) {
-            Mockito.verify(session1).isSessionActive();
+        } catch (final BGPDocumentedException e) {
+            assertEquals(BGPError.CEASE, e.getError());
             return;
         }
 
@@ -111,7 +112,7 @@ public class StrictBGPPeerRegistryTest {
         try {
             this.droppingBGPSessionRegistry.getPeer(remoteIp, lower, higher);
         } catch (final BGPDocumentedException e) {
-            Mockito.verify(session1).isSessionActive();
+            assertEquals(BGPError.CEASE, e.getError());
             return;
         }
 
@@ -132,10 +133,29 @@ public class StrictBGPPeerRegistryTest {
         Mockito.verify(session1).releaseConnection();
     }
 
+    @Test
+    public void testDuplicateDifferentIds() throws Exception {
+        final Ipv4Address from = new Ipv4Address("0.0.0.1");
+        final IpAddress remoteIp = new IpAddress(from);
+        final Ipv4Address to = new Ipv4Address("255.255.255.255");
+
+        final ReusableBGPPeer session1 = getMockSession();
+        this.droppingBGPSessionRegistry.addPeer(remoteIp, session1, this.mockPreferences);
+
+        this.droppingBGPSessionRegistry.getPeer(remoteIp, from, to);
+        try {
+            this.droppingBGPSessionRegistry.getPeer(remoteIp, to, to);
+        } catch (final BGPDocumentedException e) {
+            assertEquals(BGPError.CEASE, e.getError());
+            return;
+        }
+
+        fail("Same peer cannot be connected twice");
+    }
+
     private ReusableBGPPeer getMockSession() {
         final ReusableBGPPeer mock = Mockito.mock(ReusableBGPPeer.class);
         Mockito.doNothing().when(mock).releaseConnection();
-        Mockito.doReturn(Boolean.TRUE).when(mock).isSessionActive();
         return mock;
     }
 
