@@ -54,7 +54,6 @@ public class StrictBGPPeerRegistryTest {
         try {
             this.droppingBGPSessionRegistry.getPeer(remoteIp, from, to);
         } catch (final IllegalStateException e) {
-            Mockito.verify(session1).isSessionActive();
             return;
         }
 
@@ -111,7 +110,6 @@ public class StrictBGPPeerRegistryTest {
         try {
             this.droppingBGPSessionRegistry.getPeer(remoteIp, lower, higher);
         } catch (final BGPDocumentedException e) {
-            Mockito.verify(session1).isSessionActive();
             return;
         }
 
@@ -135,7 +133,6 @@ public class StrictBGPPeerRegistryTest {
     private ReusableBGPPeer getMockSession() {
         final ReusableBGPPeer mock = Mockito.mock(ReusableBGPPeer.class);
         Mockito.doNothing().when(mock).releaseConnection();
-        Mockito.doReturn(Boolean.TRUE).when(mock).isSessionActive();
         return mock;
     }
 
