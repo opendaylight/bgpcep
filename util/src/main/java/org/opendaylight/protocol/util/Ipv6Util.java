@@ -127,6 +127,21 @@ public final class Ipv6Util {
     }
 
     /**
+     * Creates an Ipv6Prefix object from given ByteBuf. Prefix length is assumed to
+     * be in the left most byte of the buffer.
+     *
+     * @param bytes IPv6 address
+     * @return Ipv6Prefix object
+     */
+    public static Ipv6Prefix prefixForByteBuf(final ByteBuf bytes) {
+        final int prefixLength = bytes.readByte();
+        final int size = prefixLength / Byte.SIZE + ((prefixLength % Byte.SIZE == 0) ? 0 : 1);
+        Preconditions.checkArgument(size <= bytes.readableBytes(), "Illegal length of IP prefix: " + (bytes.readableBytes()));
+        return Ipv6Util.prefixForBytes(ByteArray.readBytes(bytes, size), prefixLength);
+    }
+
+
+    /**
      * Creates a list of Ipv6 Prefixes from given byte array.
      *
      * @param bytes to be converted to List of Ipv6Prefixes.

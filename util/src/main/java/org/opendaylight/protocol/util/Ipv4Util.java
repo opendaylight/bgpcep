@@ -141,6 +141,20 @@ public final class Ipv4Util {
     }
 
     /**
+     * Creates an Ipv4Prefix object from given ByteBuf. Prefix length is assumed to
+     * be in the left most byte of the buffer.
+     *
+     * @param bytes IPv4 address
+     * @return Ipv4Prefix object
+     */
+    public static Ipv4Prefix prefixForByteBuf(final ByteBuf bytes) {
+        final int prefixLength = bytes.readByte();
+        final int size = prefixLength / Byte.SIZE + ((prefixLength % Byte.SIZE == 0) ? 0 : 1);
+        Preconditions.checkArgument(size <= bytes.readableBytes(), "Illegal length of IP prefix: " + (bytes.readableBytes()));
+        return Ipv4Util.prefixForBytes(ByteArray.readBytes(bytes, size), prefixLength);
+    }
+
+    /**
      * Creates a list of Ipv4 Prefixes from given byte array.
      *
      * @param bytes to be converted to List of Ipv4Prefixes.
