@@ -14,6 +14,8 @@ import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActi
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ExtendedCommunities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 
 public final class FSActivator extends AbstractBGPExtensionProviderActivator {
 
@@ -24,6 +26,10 @@ public final class FSActivator extends AbstractBGPExtensionProviderActivator {
         final List<AutoCloseable> regs = new ArrayList<>();
 
         regs.add(context.registerSubsequentAddressFamily(FlowspecSubsequentAddressFamily.class, FLOWSPEC_SAFI));
+
+        regs.add(context.registerNlriParser(Ipv4AddressFamily.class, FlowspecSubsequentAddressFamily.class,
+                new FSNlriParser()));
+        regs.add(context.registerNlriSerializer(PathAttributes.class, new FSNlriParser()));
 
         final ExtendedCommunitiesAttributeParser extendedCommunitiesAttributeParser = new FSExtendedCommunitiesAttributeParser(context.getReferenceCache());
         regs.add(context.registerAttributeSerializer(ExtendedCommunities.class, extendedCommunitiesAttributeParser));
