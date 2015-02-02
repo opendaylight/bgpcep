@@ -10,10 +10,10 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
-
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 
@@ -35,5 +35,10 @@ public final class BGPServerSessionNegotiator extends AbstractBGPSessionNegotiat
     @Override
     protected Ipv4Address getDestinationId(final Open openMsg, final BGPSessionPreferences preferences) {
         return openMsg.getBgpIdentifier();
+    }
+
+    @Override
+    protected AsNumber getAsNumber(Open openMsg, BGPSessionPreferences preferences) {
+        return preferences.getMyAs();
     }
 }

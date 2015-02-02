@@ -26,6 +26,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
@@ -84,7 +85,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
 
     @Override
     public synchronized BGPSessionListener getPeer(final IpAddress ip,
-        final Ipv4Address sourceId, final Ipv4Address remoteId)
+        final Ipv4Address sourceId, final Ipv4Address remoteId, final AsNumber asNumber)
             throws BGPDocumentedException {
         Preconditions.checkNotNull(ip);
         Preconditions.checkNotNull(sourceId);
@@ -92,7 +93,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
 
         checkPeerConfigured(ip);
 
-        final BGPSessionId currentConnection = new BGPSessionId(sourceId, remoteId);
+        final BGPSessionId currentConnection = new BGPSessionId(sourceId, remoteId, asNumber);
         final BGPSessionListener p = this.peers.get(ip);
 
         final BGPSessionId previousConnection = this.sessionIds.get(ip);
@@ -123,7 +124,17 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
                 this.peers.get(ip).releaseConnection();
                 return this.peers.get(ip);
 
-                // Session reestablished with same source bgp id, dropping current as duplicate
+            } else if (previousConnection.hasHigherAsNumber(currentConnection)) {
+                LOG.warn("BGP session with {} {} has to be dropped. Opposite session already present", ip, currentConnection);
+                throw new BGPDocumentedException(
+                    String.format("BGP session with %s initiated %s has to be dropped. Opposite session already present",
+                        ip, currentConnection),
+                        BGPError.CEASE);
+            } else if (currentConnection.hasHigherAsNumber(previousConnection)) {
+                LOG.warn("BGP session with {} {} released. Replaced by opposite session", ip, previousConnection);
+                this.peers.get(ip).releaseConnection();
+                return this.peers.get(ip);
+            // Session reestablished with same source bgp id, dropping current as duplicate
             } else {
                 LOG.warn("BGP session with %s initiated from %s to %s has to be dropped. Same session already present", ip, sourceId, remoteId);
                 throw new BGPDocumentedException(
@@ -183,10 +194,12 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
      */
     private static final class BGPSessionId {
         private final Ipv4Address from, to;
+        private final AsNumber asNumber;
 
-        BGPSessionId(final Ipv4Address from, final Ipv4Address to) {
+        BGPSessionId(final Ipv4Address from, final Ipv4Address to, final AsNumber asNumber) {
             this.from = Preconditions.checkNotNull(from);
             this.to = Preconditions.checkNotNull(to);
+            this.asNumber = Preconditions.checkNotNull(asNumber);
         }
 
         /**
@@ -226,6 +239,10 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
          */
         boolean isHigherDirection(final BGPSessionId other) {
             return toLong(this.from) > toLong(other.from);
+        }
+
+        boolean hasHigherAsNumber(final BGPSessionId other) {
+            return this.asNumber.getValue() > other.asNumber.getValue();
         }
 
         private long toLong(final Ipv4Address from) {
