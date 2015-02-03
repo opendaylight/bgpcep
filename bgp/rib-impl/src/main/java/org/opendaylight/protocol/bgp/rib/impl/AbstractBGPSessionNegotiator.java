@@ -192,7 +192,7 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
         try {
             final BGPSessionListener peer = this.registry.getPeer(getRemoteIp(), getSourceId(openObj, getPreferences()), getDestinationId(openObj, getPreferences()));
             this.sendMessage(new KeepaliveBuilder().build());
-            this.session = new BGPSessionImpl(peer, this.channel, openObj, getPreferences());
+            this.session = new BGPSessionImpl(peer, this.channel, openObj, getPreferences(), this.registry);
             this.state = State.OPEN_CONFIRM;
             LOG.debug("Channel {} moved to OpenConfirm state with remote proposal {}", this.channel, openObj);
         } catch (final BGPDocumentedException e) {
