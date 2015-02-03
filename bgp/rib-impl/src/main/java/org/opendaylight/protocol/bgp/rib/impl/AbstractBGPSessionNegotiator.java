@@ -22,6 +22,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
 import org.opendaylight.protocol.util.Values;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
@@ -190,7 +191,8 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
         }
 
         try {
-            final BGPSessionListener peer = this.registry.getPeer(getRemoteIp(), getSourceId(openObj, getPreferences()), getDestinationId(openObj, getPreferences()));
+            final BGPSessionListener peer = this.registry.getPeer(getRemoteIp(), getSourceId(openObj, getPreferences()),
+                    getDestinationId(openObj, getPreferences()), getAsNumber(openObj, getPreferences()));
             this.sendMessage(new KeepaliveBuilder().build());
             this.session = new BGPSessionImpl(peer, this.channel, openObj, getPreferences(), this.registry);
             this.state = State.OPEN_CONFIRM;
@@ -215,14 +217,25 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
     }
 
     /**
+     * @param openMsg Open message received from remote BGP speaker
+     * @param preferences Local BGP speaker preferences
      * @return BGP Id of device that accepted the connection
      */
     protected abstract Ipv4Address getDestinationId(final Open openMsg, final BGPSessionPreferences preferences);
 
     /**
-     * @return BGP Id of device that initiated the connection
+     * @param openMsg Open message received from remote BGP speaker
+     * @param preferences Local BGP speaker preferences
+     * @return BGP Id of device that accepted the connection
      */
     protected abstract Ipv4Address getSourceId(final Open openMsg, final BGPSessionPreferences preferences);
+
+    /**
+     * @param openMsg Open message received from remote BGP speaker
+     * @param preferences Local BGP speaker preferences
+     * @return AS Number of device that initiate connection
+     */
+    protected abstract AsNumber getAsNumber(final Open openMsg, final BGPSessionPreferences preferences);
 
     public synchronized State getState() {
         return this.state;
