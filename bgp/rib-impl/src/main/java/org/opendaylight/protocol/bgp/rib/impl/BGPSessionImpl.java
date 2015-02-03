@@ -25,6 +25,7 @@ import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionStatistics;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
@@ -105,20 +106,25 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
     private final int keepAlive;
     private final AsNumber asNumber;
     private final Ipv4Address bgpId;
+    private final BGPPeerRegistry peerRegistry;
+
     private BGPSessionStats sessionStats;
 
-    public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen, final BGPSessionPreferences localPreferences) {
-        this(listener, channel, remoteOpen, localPreferences.getHoldTime());
+    public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen, final BGPSessionPreferences localPreferences,
+            final BGPPeerRegistry peerRegitry) {
+        this(listener, channel, remoteOpen, localPreferences.getHoldTime(), peerRegitry);
         this.sessionStats = new BGPSessionStats(remoteOpen, this.holdTimerValue, this.keepAlive, channel, Optional.of(localPreferences), this.tableTypes);
     }
 
-    public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen, final int localHoldTimer) {
+    public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen, final int localHoldTimer,
+            final BGPPeerRegistry peerRegitry) {
         this.listener = Preconditions.checkNotNull(listener);
         this.channel = Preconditions.checkNotNull(channel);
         this.holdTimerValue = (remoteOpen.getHoldTimer() < localHoldTimer) ? remoteOpen.getHoldTimer() : localHoldTimer;
         LOG.info("BGP HoldTimer new value: {}", this.holdTimerValue);
         this.keepAlive = this.holdTimerValue / KA_TO_DEADTIMER_RATIO;
         this.asNumber = AsNumberUtil.advertizedAsNumber(remoteOpen);
+        this.peerRegistry = peerRegitry;
 
         final Set<TablesKey> tts = Sets.newHashSet();
         final Set<BgpTableType> tats = Sets.newHashSet();
@@ -163,9 +169,11 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
     @Override
     public synchronized void close() {
         LOG.info("Closing session: {}", this);
+
         if (this.state != State.IDLE) {
             this.sendMessage(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).setErrorSubcode(
                     BGPError.CEASE.getSubcode()).build());
+            removePeerSession();
             this.channel.close();
             this.state = State.IDLE;
         }
@@ -243,6 +251,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 
     private synchronized void closeWithoutMessage() {
         LOG.debug("Closing session: {}", this);
+        removePeerSession();
         this.channel.close();
         this.state = State.IDLE;
     }
@@ -258,6 +267,12 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
         this.closeWithoutMessage();
 
         this.listener.onSessionTerminated(this, new BGPTerminationReason(error));
+    }
+
+    private void removePeerSession() {
+        if (this.peerRegistry != null) {
+            this.peerRegistry.removePeerSession(StrictBGPPeerRegistry.getIpAddress(this.channel.remoteAddress()));
+        }
     }
 
     /**
