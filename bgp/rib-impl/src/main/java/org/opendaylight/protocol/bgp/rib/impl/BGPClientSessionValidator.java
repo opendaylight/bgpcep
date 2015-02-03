@@ -59,6 +59,11 @@ public class BGPClientSessionValidator implements BGPSessionValidator {
             LOG.warn("Unexpected remote AS number. Expecting {}, got {}", this.remoteAs, as);
             throw new BGPDocumentedException("Peer AS number mismatch", BGPError.BAD_PEER_AS);
         }
+        //https://tools.ietf.org/html/rfc6286#section-2.2
+        if (openObj.getBgpIdentifier() != null &&  openObj.getBgpIdentifier().equals(localPref.getBgpId())) {
+            LOG.warn("Remote and local BGP Identifiers are the same: {}", openObj.getBgpIdentifier());
+            throw new BGPDocumentedException("Remote and local BGP Identifiers are the same.", BGPError.BAD_BGP_ID);
+        }
 
         final List<BgpParameters> prefs = openObj.getBgpParameters();
         if (prefs != null && !prefs.isEmpty()) {
