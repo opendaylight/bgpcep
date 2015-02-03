@@ -22,6 +22,30 @@
       "revId": "03dc04712638fb4e106d434c8857e9501e2ebdf2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_8672a347",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/StrictBGPPeerRegistry.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-02-03T11:47:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a96c907_e67da76f",
+      "range": {
+        "startLine": 232,
+        "startChar": 93,
+        "endLine": 232,
+        "endChar": 98
+      },
+      "revId": "03dc04712638fb4e106d434c8857e9501e2ebdf2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
