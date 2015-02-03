@@ -146,8 +146,6 @@ public class BestPathSelectionTest {
 
         assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr6),
             new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr7)) < 0);
-        assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr7),
-            new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr6)) > 0);
     }
 
     @Test

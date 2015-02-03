@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.net.InetAddresses;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -40,20 +39,20 @@ public final class BGPObjectComparator implements Comparator<RIBEntryData<?, ?, 
     }
 
     @Override
-    public int compare(final RIBEntryData<?, ?, ?> e1, final RIBEntryData<?, ?, ?> e2) {
-        if (e1 == e2) {
+    public int compare(final RIBEntryData<?, ?, ?> newObject, final RIBEntryData<?, ?, ?> oldObject) {
+        if (newObject == oldObject) {
             return 0;
         }
-        if (e1 == null) {
+        if (newObject == null) {
             return 1;
         }
-        if (e2 == null) {
+        if (oldObject == null) {
             return -1;
         }
 
-        final PathAttributes o1 = e1.getPathAttributes();
-        final PathAttributes o2 = e2.getPathAttributes();
-        if (o1.equals(o2) && Arrays.equals(e1.getPeer().getRawIdentifier(), e2.getPeer().getRawIdentifier())) {
+        final PathAttributes newPath = newObject.getPathAttributes();
+        final PathAttributes oldPath = oldObject.getPathAttributes();
+        if (newPath.equals(oldPath) && Arrays.equals(newObject.getPeer().getRawIdentifier(), oldObject.getPeer().getRawIdentifier())) {
             return 0;
         }
 
@@ -61,31 +60,31 @@ public final class BGPObjectComparator implements Comparator<RIBEntryData<?, ?, 
         // - we assume that all nexthops are accessible
 
         // 2. prefer path with higher LOCAL_PREF
-        if ((o1.getLocalPref() != null || o2.getLocalPref() != null)
-                && (o1.getLocalPref() != null && !o1.getLocalPref().equals(o2.getLocalPref()))) {
-            return o1.getLocalPref().getPref().compareTo(o2.getLocalPref().getPref());
+        if ((newPath.getLocalPref() != null || oldPath.getLocalPref() != null)
+                && (newPath.getLocalPref() != null && !newPath.getLocalPref().equals(oldPath.getLocalPref()))) {
+            return newPath.getLocalPref().getPref().compareTo(oldPath.getLocalPref().getPref());
         }
 
         // 3. prefer learned path
         // - we assume that all paths are learned
 
         // 4. prefer the path with the shortest AS_PATH.
-        if (!o1.getAsPath().equals(o2.getAsPath())) {
-            final Integer i1 = countAsPath(o1.getAsPath().getSegments());
-            final Integer i2 = countAsPath(o2.getAsPath().getSegments());
+        if (!newPath.getAsPath().equals(oldPath.getAsPath())) {
+            final Integer i1 = countAsPath(newPath.getAsPath().getSegments());
+            final Integer i2 = countAsPath(oldPath.getAsPath().getSegments());
             return i2.compareTo(i1);
         }
 
         // 5. prefer the path with the lowest origin type
         // - IGP is lower than Exterior Gateway Protocol (EGP), and EGP is lower than INCOMPLETE
-        if (!o1.getOrigin().equals(o2.getOrigin())) {
-            if (o1.getOrigin().getValue().equals(BgpOrigin.Igp)) {
+        if (!newPath.getOrigin().equals(oldPath.getOrigin())) {
+            if (newPath.getOrigin().getValue().equals(BgpOrigin.Igp)) {
                 return 1;
             }
-            if (o2.getOrigin().getValue().equals(BgpOrigin.Igp)) {
+            if (oldPath.getOrigin().getValue().equals(BgpOrigin.Igp)) {
                 return -1;
             }
-            if (o1.getOrigin().getValue().equals(BgpOrigin.Egp)) {
+            if (newPath.getOrigin().getValue().equals(BgpOrigin.Egp)) {
                 return 1;
             } else {
                 return -1;
@@ -93,15 +92,15 @@ public final class BGPObjectComparator implements Comparator<RIBEntryData<?, ?, 
         }
 
         // 6. prefer the path with the lowest multi-exit discriminator (MED)
-        if ((o1.getMultiExitDisc() != null || o2.getMultiExitDisc() != null)
-                && (o1.getMultiExitDisc() != null && !o1.getMultiExitDisc().equals(o2.getMultiExitDisc()))) {
-            return o2.getMultiExitDisc().getMed().compareTo(o1.getMultiExitDisc().getMed());
+        if ((newPath.getMultiExitDisc() != null || oldPath.getMultiExitDisc() != null)
+                && (newPath.getMultiExitDisc() != null && !newPath.getMultiExitDisc().equals(oldPath.getMultiExitDisc()))) {
+            return oldPath.getMultiExitDisc().getMed().compareTo(newPath.getMultiExitDisc().getMed());
         }
 
         // 7. prefer eBGP over iBGP paths
         // EBGP is peering between two different AS, whereas IBGP is between same AS (Autonomous System).
-        final AsNumber first = getPeerAs(o1.getAsPath().getSegments());
-        final AsNumber second = getPeerAs(o2.getAsPath().getSegments());
+        final AsNumber first = getPeerAs(newPath.getAsPath().getSegments());
+        final AsNumber second = getPeerAs(oldPath.getAsPath().getSegments());
         if ((first != null || second != null) && (first != null && !first.equals(second))) {
             if (first.equals(this.ourAS)) {
                 return -1;
@@ -122,34 +121,15 @@ public final class BGPObjectComparator implements Comparator<RIBEntryData<?, ?, 
         // The router ID is the highest IP address on the router, with preference given to loopback addresses.
         // If a path contains route reflector (RR) attributes, the originator ID is substituted for the router ID in the
         // path selection process.
-        byte[] oid1 = e1.getPeer().getRawIdentifier();
-        byte[] oid2 = e2.getPeer().getRawIdentifier();
-        if (o1.getOriginatorId() != null) {
-            oid1 = InetAddresses.forString(o1.getOriginatorId().getOriginator().getValue()).getAddress();
-        }
-        if (o2.getOriginatorId() != null) {
-            oid2 = InetAddresses.forString(o2.getOriginatorId().getOriginator().getValue()).getAddress();
-        }
-        if (!Arrays.equals(oid1, oid2)) {
-            return compareByteArrays(oid1, oid2);
-        }
-        // 11. prefer the path with the minimum cluster list length
-        int cluster1 = 0;
-        int cluster2 = 0;
-        if (o1.getClusterId() != null) {
-            cluster1 = o1.getClusterId().getCluster().size();
-        }
-        if (o2.getClusterId() != null) {
-            cluster2 = o2.getClusterId().getCluster().size();
-        }
-        if (cluster1 != cluster2) {
-            return ((Integer) cluster1).compareTo(cluster2);
-        }
 
-        // 12. Prefer the path that comes from the lowest neighbor address.
-        // FIXME: do we know this?
+        // RFC5004 states that this algorithm should end here and select existing path over new path in the
+        // best path selection process. Benefits are listed in the RFC: @see http://tools.ietf.org/html/rfc500
+        // - This algorithm SHOULD NOT be applied when either path is from a BGP Confederation peer.
+        //  - not applicable, we don't deal with confederation peers
+        // - The algorithm SHOULD NOT be applied when both paths are from peers with an identical BGP identifier (i.e., there exist parallel BGP sessions between two BGP speakers).
+        //  - not applicable, BUG-2631 prevents parallel sessions to be created.
 
-        return 0;
+        return -1;
     }
 
     private static int countAsPath(final List<Segments> segments) {
