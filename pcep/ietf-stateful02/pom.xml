@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
         <artifactId>pcep-parent</artifactId>
-        <version>0.3.3-SNAPSHOT</version>
+        <version>0.3.3-Helium-SR2</version>
     </parent>
 
     <artifactId>pcep-ietf-stateful02</artifactId>
