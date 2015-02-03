@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
         <artifactId>programming-parent</artifactId>
-        <version>0.3.3-Helium-SR2</version>
+        <version>0.3.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>programming-spi</artifactId>
