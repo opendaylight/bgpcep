@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 
@@ -61,7 +62,7 @@ public interface BGPPeerRegistry extends AutoCloseable {
      * @throws BGPDocumentedException if session establishment cannot be finished successfully
      * @throws java.lang.IllegalStateException if there is no peer configured for provided ip address
      */
-    BGPSessionListener getPeer(IpAddress ip, Ipv4Address sourceId, Ipv4Address remoteId) throws BGPDocumentedException;
+    BGPSessionListener getPeer(IpAddress ip, Ipv4Address sourceId, Ipv4Address remoteId, AsNumber asNumber) throws BGPDocumentedException;
 
     /**
      * @param ip address of remote peer

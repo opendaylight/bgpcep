@@ -27,6 +27,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
@@ -84,11 +86,16 @@ public class BGPDispatcherImplTest {
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(new As4BytesCaseBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(
                 new AsNumber(30L)).build()).build()).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
-        final BGPSessionPreferences prefs = new BGPSessionPreferences(AS_NUMBER, (short) 90, new Ipv4Address(ADDRESS.getAddress().getHostAddress()), tlvs);
         Mockito.doReturn(true).when(this.registry).isPeerConfigured(Mockito.any(IpAddress.class));
-        Mockito.doReturn(prefs).when(this.registry).getPeerPreferences(Mockito.any(IpAddress.class));
+        Mockito.doAnswer(new Answer<BGPSessionPreferences>() {
+            @Override
+            public BGPSessionPreferences answer(InvocationOnMock invocation) throws Throwable {
+                return new BGPSessionPreferences(AS_NUMBER, (short) 90, ((IpAddress) invocation.getArguments()[0]).getIpv4Address(), tlvs);
+            }
+        }).when(this.registry).getPeerPreferences(Mockito.any(IpAddress.class));
         Mockito.doNothing().when(this.registry).removePeerSession(Mockito.any(IpAddress.class));
-        Mockito.doReturn(this.sessionListener).when(this.registry).getPeer(Mockito.any(IpAddress.class), Mockito.any(Ipv4Address.class), Mockito.any(Ipv4Address.class));
+        Mockito.doReturn(this.sessionListener).when(this.registry).getPeer(Mockito.any(IpAddress.class), Mockito.any(Ipv4Address.class),
+                Mockito.any(Ipv4Address.class), Mockito.any(AsNumber.class));
 
         this.dispatcher = new BGPDispatcherImpl(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(), group, group);
         this.clientDispatcher = new TestClientDispatcher(group, group, ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry());
@@ -111,7 +118,6 @@ public class BGPDispatcherImplTest {
         Assert.assertTrue(this.sessionListener.up);
         Assert.assertEquals(BGPSessionImpl.State.UP, session.getState());
         Assert.assertEquals(AS_NUMBER, session.getAsNumber());
-        Assert.assertEquals(IPV4, session.getBgpId());
         Assert.assertEquals(Sets.newHashSet(this.ipv4tt), session.getAdvertisedTableTypes());
         session.close();
     }
