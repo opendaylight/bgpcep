@@ -205,6 +205,19 @@ public class FSMTest {
         assertEquals(BGPError.FSM_ERROR.getSubcode(), ((Notify) m).getErrorSubcode().shortValue());
     }
 
+    @Test
+    public void sameBGPIDs() {
+        this.clientSession.channelActive(null);
+        assertEquals(1, this.receivedMsgs.size());
+        assertTrue(this.receivedMsgs.get(0) instanceof Open);
+
+        this.clientSession.handleMessage(new OpenBuilder(this.classicOpen).setBgpIdentifier(new Ipv4Address("1.1.1.1")).build());
+        assertEquals(2, this.receivedMsgs.size());
+        assertTrue(this.receivedMsgs.get(1) instanceof Notify);
+        final Notification m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);
+        assertEquals(BGPError.BAD_BGP_ID, BGPError.forValue(((Notify) m).getErrorCode(), ((Notify) m).getErrorSubcode()));
+    }
+
     @After
     public void tearDown() {
 
