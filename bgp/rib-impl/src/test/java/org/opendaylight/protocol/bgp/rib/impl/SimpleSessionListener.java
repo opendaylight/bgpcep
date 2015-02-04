@@ -29,6 +29,8 @@ public class SimpleSessionListener implements ReusableBGPPeer {
 
     public boolean down = false;
 
+    private BGPSession session;
+
     public List<Notification> getListMsg() {
         return this.listMsg;
     }
@@ -42,6 +44,7 @@ public class SimpleSessionListener implements ReusableBGPPeer {
     @Override
     public void onSessionUp(final BGPSession session) {
         LOG.debug("Session Up");
+        this.session = session;
         this.up = true;
     }
 
@@ -59,6 +62,9 @@ public class SimpleSessionListener implements ReusableBGPPeer {
     @Override
     public void releaseConnection() {
         LOG.debug("Releasing connection");
+        if (this.session != null) {
+            this.session.close();
+        }
     }
 
     @Override
