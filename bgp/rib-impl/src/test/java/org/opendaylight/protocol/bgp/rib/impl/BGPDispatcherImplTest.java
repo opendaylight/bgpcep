@@ -24,9 +24,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
@@ -52,45 +49,34 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public class BGPDispatcherImplTest {
 
-    private static final Ipv4Address IPV4 = new Ipv4Address("127.0.10.0");
-    private static final InetSocketAddress ADDRESS = new InetSocketAddress(IPV4.getValue(), 1790);
+    private static final InetSocketAddress ADDRESS = new InetSocketAddress("127.0.10.0", 1790);
+    private static final InetSocketAddress CLIENT_ADDRESS = new InetSocketAddress("127.0.11.0", 1791);
+    private static final InetSocketAddress CLIENT_ADDRESS2 = new InetSocketAddress("127.0.12.0", 1792);
     private static final AsNumber AS_NUMBER = new AsNumber(30L);
     private static final int TIMEOUT = 5000;
 
     private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
 
     private BGPDispatcherImpl dispatcher;
+    private TestClientDispatcher clientDispatcher;
 
-    @Mock
     private BGPPeerRegistry registry;
 
     private Channel channel;
 
-    private SimpleSessionListener sessionListener;
-
     @Before
     public void setUp() throws BGPDocumentedException {
-        MockitoAnnotations.initMocks(this);
-        this.sessionListener = new SimpleSessionListener();
         final EventLoopGroup group = new NioEventLoopGroup();
-
-        final List<BgpParameters> tlvs = Lists.newArrayList();
-        final List<OptionalCapabilities> capas = Lists.newArrayList();
-        capas.add(new OptionalCapabilitiesBuilder().setCParameters(
-            new MultiprotocolCaseBuilder().setMultiprotocolCapability(
-                new MultiprotocolCapabilityBuilder().setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build()).build()).build());
-        capas.add(new OptionalCapabilitiesBuilder().setCParameters(new As4BytesCaseBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(
-                new AsNumber(30L)).build()).build()).build());
-        tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
-        final BGPSessionPreferences prefs = new BGPSessionPreferences(AS_NUMBER, (short) 90, new Ipv4Address(ADDRESS.getAddress().getHostAddress()), tlvs);
-        Mockito.doReturn(true).when(this.registry).isPeerConfigured(Mockito.any(IpAddress.class));
-        Mockito.doReturn(prefs).when(this.registry).getPeerPreferences(Mockito.any(IpAddress.class));
-        Mockito.doNothing().when(this.registry).removePeerSession(Mockito.any(IpAddress.class));
-        Mockito.doReturn(this.sessionListener).when(this.registry).getPeer(Mockito.any(IpAddress.class), Mockito.any(Ipv4Address.class), Mockito.any(Ipv4Address.class));
-
+        this.registry = new StrictBGPPeerRegistry();
+        this.registry.addPeer(new IpAddress(new Ipv4Address(CLIENT_ADDRESS.getAddress().getHostAddress())),
+                new SimpleSessionListener(), createPreferences(CLIENT_ADDRESS));
+        this.registry.addPeer(new IpAddress(new Ipv4Address(ADDRESS.getAddress().getHostAddress())),
+                new SimpleSessionListener(), createPreferences(ADDRESS));
         this.dispatcher = new BGPDispatcherImpl(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(), group, group);
+        this.clientDispatcher = new TestClientDispatcher(group, group, ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(),
+                CLIENT_ADDRESS);
 
-        final ChannelFuture future = dispatcher.createServer(this.registry, new InetSocketAddress("0.0.0.0", 1790), new BGPServerSessionValidator());
+        final ChannelFuture future = this.dispatcher.createServer(this.registry, ADDRESS, new BGPServerSessionValidator());
         future.addListener(new GenericFutureListener<Future<Void>>() {
             @Override
             public void operationComplete(Future<Void> future) {
@@ -101,28 +87,36 @@ public class BGPDispatcherImplTest {
         });
         this.channel = future.channel();
     }
+
     @Test
     public void testCreateClient() throws InterruptedException, ExecutionException {
-        final BGPSessionImpl session = this.dispatcher.createClient(ADDRESS, AS_NUMBER, this.registry, new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, TIMEOUT)).get();
-        Assert.assertTrue(this.sessionListener.up);
+        final BGPSessionImpl session = this.clientDispatcher.createClient(ADDRESS, AS_NUMBER, this.registry,
+                new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, TIMEOUT)).get();
         Assert.assertEquals(BGPSessionImpl.State.UP, session.getState());
         Assert.assertEquals(AS_NUMBER, session.getAsNumber());
-        Assert.assertEquals(IPV4, session.getBgpId());
         Assert.assertEquals(Sets.newHashSet(this.ipv4tt), session.getAdvertisedTableTypes());
         session.close();
     }
 
     @After
-    public void tearDown() {
-        this.channel.close();
+    public void tearDown() throws Exception {
+        this.channel.close().get();
         this.dispatcher.close();
+        this.registry.close();
     }
 
     @Test
     public void testCreateReconnectingClient() throws InterruptedException, ExecutionException {
-        final Future<Void> cf = this.dispatcher.createReconnectingClient(ADDRESS, AS_NUMBER, this.registry, new ReconnectStrategyFctImpl(), new ReconnectStrategyFctImpl());
-        cf.await(500);
-        Assert.assertTrue(this.sessionListener.up);
+        final SimpleSessionListener listener = new SimpleSessionListener();
+        this.registry.addPeer(new IpAddress(new Ipv4Address(CLIENT_ADDRESS2.getAddress().getHostAddress())), listener, createPreferences(CLIENT_ADDRESS2));
+        final Future<Void> cf = this.clientDispatcher.createReconnectingClient(CLIENT_ADDRESS2, AS_NUMBER, this.registry,
+                new ReconnectStrategyFctImpl());
+        final Channel channel2 = this.dispatcher.createServer(this.registry, CLIENT_ADDRESS2, new BGPServerSessionValidator()).channel();
+        Thread.sleep(1000);
+        Assert.assertTrue(listener.up);
+        Assert.assertTrue(channel2.isActive());
+        cf.cancel(true);
+        listener.releaseConnection();
     }
 
     private static final class ReconnectStrategyFctImpl implements ReconnectStrategyFactory {
@@ -131,6 +125,18 @@ public class BGPDispatcherImplTest {
             return new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, TIMEOUT);
         }
 
+    }
+
+    private BGPSessionPreferences createPreferences(final InetSocketAddress socketAddress) {
+        final List<BgpParameters> tlvs = Lists.newArrayList();
+        final List<OptionalCapabilities> capas = Lists.newArrayList();
+        capas.add(new OptionalCapabilitiesBuilder().setCParameters(
+            new MultiprotocolCaseBuilder().setMultiprotocolCapability(
+                new MultiprotocolCapabilityBuilder().setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build()).build()).build());
+        capas.add(new OptionalCapabilitiesBuilder().setCParameters(new As4BytesCaseBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(
+                new AsNumber(30L)).build()).build()).build());
+        tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
+        return new BGPSessionPreferences(AS_NUMBER, (short) 4, new Ipv4Address(socketAddress.getAddress().getHostAddress()), tlvs);
     }
 
 }
