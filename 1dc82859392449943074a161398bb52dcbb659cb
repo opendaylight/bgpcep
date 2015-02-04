@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a96c907_91217c4f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-02-04T09:41:49Z",
+      "side": 1,
+      "message": "BGPPeerRegistry stores \"SessionId\" (local and remote BGPId) keyed by connection remote IpAddress. It is used to detect and resolve connection collisions. Item (SessionId) is added during negotiation process when BGPPeerRegistry.getPeer is called. The SessionId should be stored in BGPPeerRegistry until the related session does not goes down.",
+      "parentUuid": "7a96c907_483589d8",
+      "revId": "1dc82859392449943074a161398bb52dcbb659cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a96c907_683085e8",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/StrictBGPPeerRegistry.java",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2015-02-03T16:26:56Z",
       "side": 1,
       "message": "Is this UnsignedInt.checkedCast()?",
+      "revId": "1dc82859392449943074a161398bb52dcbb659cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_516d3497",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/StrictBGPPeerRegistry.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-02-04T09:41:49Z",
+      "side": 1,
+      "message": "Right, UnsignedInts.toLong(int value) do the same. Will be fixed in next patchset.",
+      "parentUuid": "7a96c907_683085e8",
       "revId": "1dc82859392449943074a161398bb52dcbb659cb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
