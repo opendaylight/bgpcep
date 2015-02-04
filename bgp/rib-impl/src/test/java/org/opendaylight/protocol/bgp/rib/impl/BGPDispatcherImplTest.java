@@ -54,12 +54,14 @@ public class BGPDispatcherImplTest {
 
     private static final Ipv4Address IPV4 = new Ipv4Address("127.0.10.0");
     private static final InetSocketAddress ADDRESS = new InetSocketAddress(IPV4.getValue(), 1790);
+    private static final InetSocketAddress CLIENT_ADDRESS = new InetSocketAddress("127.0.11.0", 1790);
     private static final AsNumber AS_NUMBER = new AsNumber(30L);
     private static final int TIMEOUT = 5000;
 
     private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
 
     private BGPDispatcherImpl dispatcher;
+    private TestClientDispatcher clientDispatcher;
 
     @Mock
     private BGPPeerRegistry registry;
@@ -89,8 +91,9 @@ public class BGPDispatcherImplTest {
         Mockito.doReturn(this.sessionListener).when(this.registry).getPeer(Mockito.any(IpAddress.class), Mockito.any(Ipv4Address.class), Mockito.any(Ipv4Address.class));
 
         this.dispatcher = new BGPDispatcherImpl(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(), group, group);
+        this.clientDispatcher = new TestClientDispatcher(group, group, ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry());
 
-        final ChannelFuture future = dispatcher.createServer(this.registry, new InetSocketAddress("0.0.0.0", 1790), new BGPServerSessionValidator());
+        final ChannelFuture future = dispatcher.createServer(this.registry, ADDRESS, new BGPServerSessionValidator());
         future.addListener(new GenericFutureListener<Future<Void>>() {
             @Override
             public void operationComplete(Future<Void> future) {
@@ -103,7 +106,8 @@ public class BGPDispatcherImplTest {
     }
     @Test
     public void testCreateClient() throws InterruptedException, ExecutionException {
-        final BGPSessionImpl session = this.dispatcher.createClient(ADDRESS, AS_NUMBER, this.registry, new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, TIMEOUT)).get();
+        final BGPSessionImpl session = this.clientDispatcher.createClient(CLIENT_ADDRESS, ADDRESS, AS_NUMBER, this.registry,
+                new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, TIMEOUT)).get();
         Assert.assertTrue(this.sessionListener.up);
         Assert.assertEquals(BGPSessionImpl.State.UP, session.getState());
         Assert.assertEquals(AS_NUMBER, session.getAsNumber());
@@ -120,7 +124,8 @@ public class BGPDispatcherImplTest {
 
     @Test
     public void testCreateReconnectingClient() throws InterruptedException, ExecutionException {
-        final Future<Void> cf = this.dispatcher.createReconnectingClient(ADDRESS, AS_NUMBER, this.registry, new ReconnectStrategyFctImpl(), new ReconnectStrategyFctImpl());
+        final Future<Void> cf = this.dispatcher.createReconnectingClient(ADDRESS, AS_NUMBER, this.registry,
+                new ReconnectStrategyFctImpl(), new ReconnectStrategyFctImpl());
         cf.await(500);
         Assert.assertTrue(this.sessionListener.up);
     }
