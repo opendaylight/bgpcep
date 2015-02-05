@@ -58,10 +58,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-rib-spi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>rsvp-api</artifactId>
         </dependency>
         <dependency>
@@ -92,10 +88,6 @@
         </dependency>
 
          <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>config-api</artifactId>
-         </dependency>
-         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-buffer</artifactId>
          </dependency>
@@ -109,19 +101,6 @@
          <dependency>
              <groupId>junit</groupId>
              <artifactId>junit</artifactId>
-         </dependency>
-         <dependency>
-             <groupId>org.opendaylight.controller</groupId>
-             <artifactId>config-manager</artifactId>
-             <type>test-jar</type>
-         </dependency>
-         <dependency>
-             <groupId>org.opendaylight.controller</groupId>
-             <artifactId>config-manager</artifactId>
-         </dependency>
-         <dependency>
-             <groupId>org.opendaylight.controller</groupId>
-             <artifactId>config-util</artifactId>
          </dependency>
          <dependency>
              <groupId>org.opendaylight.yangtools</groupId>
