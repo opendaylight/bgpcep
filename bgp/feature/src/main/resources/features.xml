@@ -27,6 +27,7 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-rib</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-impl</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-flowspec</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-topology</feature>
         <configfile finalname="etc/opendaylight/karaf/31-bgp.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/${project.version}/xml/config</configfile>
         <configfile finalname="etc/opendaylight/karaf/41-bgp-example.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/${project.version}/xml/config-example</configfile>
@@ -88,6 +89,12 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-rib</feature>
         <bundle>mvn:org.opendaylight.bgpcep/rsvp-api/${project.version}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-linkstate/${project.version}</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-bgp-flowspec' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-rib</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-flowspec/${project.version}</bundle>
     </feature>
 
     <feature name='odl-bgpcep-bgp-rib-impl' version='${project.version}'>
