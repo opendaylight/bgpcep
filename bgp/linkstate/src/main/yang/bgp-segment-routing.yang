@@ -1,0 +1,209 @@
+module bgp-segment-routing {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:bgp-segment-routing";
+    prefix "bgp-sr";
+
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
+    import rsvp { prefix rsvp; revision-date 2013-08-20; }
+    import network-concepts { prefix netc; revision-date 2013-11-25; }
+
+    organization "Cisco Systems, Inc.";
+    contact "Dana Kutenicsova <dkutenic@cisco.com>";
+
+    description
+        "This module contains the base data concepts contained
+        in draft-ietf-isis-segment-routing-extensions.
+
+        Copyright (c)2015 Cisco Systems, Inc. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2015-02-06" {
+        description
+            "Initial revision.";
+    }
+
+    typedef adjacency-flags {
+        reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-02#section-2.2.1";
+        type bits {
+            bit address-family {
+                position 0;
+            }
+            bit backup {
+                position 1;
+            }
+            bit value {
+                position 2;
+            }
+            bit local {
+                position 3;
+            }
+            bit set-flag {
+                position 4;
+            }
+        }
+    }
+
+    typedef sid-label {
+        reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-02#section-2.3";
+        type uint64;
+    }
+
+    typedef weight {
+        reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-02#section-2.4.2";
+        type uint8;
+    }
+
+    grouping ero-ip-address {
+        leaf loose {
+            type boolean;
+            mandatory true;
+        }
+        leaf address {
+            type inet:ip-address;
+            mandatory true;
+        }
+    }
+
+    grouping ero-unnumbered {
+        leaf loose {
+            type boolean;
+            mandatory true;
+        }
+        leaf router-id {
+            type binary {
+                length 20;
+            }
+            mandatory true;
+        }
+        leaf interface-id {
+            type uint32;
+            mandatory true;
+        }
+    }
+
+    grouping sid-sub-tlvs {
+        description "SubTlvs for SID Label Tlv";
+        reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-02#section-2.4";
+
+        choice subtlv-type {
+            case sid-label-case {
+                leaf sid {
+                    type sid-label;
+                }
+            }
+            case ero-metric-case {
+                leaf ero-metric {
+                    type netc:te-metric;
+                }
+            }
+            case ip4-ero-case {
+                uses ero-ip-address;
+            }
+            case ipv6-ero-case {
+                uses ero-ip-address;
+            }
+            case unnumbered-ero-case {
+                uses ero-unnumbered;
+            }
+            case ip4-ero-backup-case {
+                uses ero-ip-address;
+            }
+            case ipv6-ero-backup-case {
+                uses ero-ip-address;
+            }
+            case unnumbered-ero-backup-case {
+                uses ero-unnumbered;
+            }
+        }
+    }
+
+    grouping sid-label-binding {
+        reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-02#section-2.4";
+        leaf flags {
+            type bits {
+                bit address-family {
+                    position 0;
+                }
+                bit mirror-context {
+                    position 1;
+                }
+            }
+        }
+        leaf weight {
+            type weight;
+        }
+        leaf value-range {
+            type uint16;
+        }
+        leaf fec-prefix {
+            type inet:ip-prefix;
+        }
+        list sub-tlvs {
+            uses sid-sub-tlvs;
+            ordered-by user;
+        }
+    }
+
+    grouping adjacency-segment-identifier {
+        reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-02#section-2.2.1";
+        leaf flags {
+            type adjacency-flags;
+        }
+        leaf weight {
+            type weight;
+        }
+        leaf sid {
+            type sid-label;
+        }
+    }
+
+    grouping lan-adjacency-segment-identifier {
+        reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-02#section-2.2.2";
+        leaf flags {
+            type adjacency-flags;
+        }
+        leaf weight {
+            type weight;
+        }
+        leaf iso-system-id {
+            type netc:iso-system-identifier;
+        }
+        leaf sid {
+            type sid-label;
+        }
+    }
+
+    grouping sr-capabilities {
+        reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-02#section-3.1";
+        leaf flags {
+            type bits {
+                bit ipv4 {
+                    position 0;
+                }
+                bit ipv6 {
+                    position 1;
+                }
+            }
+        }
+        leaf value-range {
+            type uint32 {
+                range "0..16777215";
+            }
+        }
+        leaf sid {
+            type sid-label;
+        }
+    }
+
+    grouping sr-algorithm {
+        reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-02#section-3.2";
+        leaf-list algorithm {
+            type uint8;
+        }
+    }
+}
