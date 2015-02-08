@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_d784c65f",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/Values.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-02-08T21:10:44Z",
+      "side": 1,
+      "message": "unsigned integer does not fit into an integer ... long maybe?",
+      "revId": "acaa0a06614e32138d11e792f3c01c51e8b411ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
