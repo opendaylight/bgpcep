@@ -8,19 +8,10 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock;
 
-import io.netty.buffer.Unpooled;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import org.junit.Assert;
 import org.junit.Test;
-import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
-import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SrpIdNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.SrpBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder;
 
 
 
@@ -46,18 +37,6 @@ public class PCCMockTest {
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
-    }
-
-    @Test
-    public void testSrpObjectParser() throws PCEPDeserializerException {
-        final byte[] bytes = {
-            0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00,
-        };
-        final PCEPExtensionProviderContext ctx = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance();
-        final PCCSrpObjectParser parser = new PCCSrpObjectParser(ctx.getTlvHandlerRegistry(), ctx.getVendorInformationTlvRegistry());
-        final Srp srp = new SrpBuilder().setIgnore(true).setProcessingRule(true).setOperationId(new SrpIdNumber(0L)).setTlvs(new TlvsBuilder().build()).build();
-        Assert.assertEquals(srp, parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.wrappedBuffer(bytes)));
     }
 
     @Test(expected=UnsupportedOperationException.class)
