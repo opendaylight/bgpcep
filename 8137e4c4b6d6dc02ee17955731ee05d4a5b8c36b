@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_427c72b5",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/Main.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2015-02-09T15:23:03Z",
+      "side": 1,
+      "message": "I read http://tools.ietf.org/html/rfc5440#section-5\nas requirement to only use DEFAULT_PORT with localAddress.\nFor flexibility, both ports could be configurable by command line arguments.",
+      "range": {
+        "startLine": 103,
+        "startChar": 75,
+        "endLine": 103,
+        "endChar": 76
+      },
+      "revId": "8137e4c4b6d6dc02ee17955731ee05d4a5b8c36b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
