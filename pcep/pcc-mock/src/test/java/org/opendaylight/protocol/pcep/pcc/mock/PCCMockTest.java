@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock;
 
+import com.google.common.base.Charsets;
 import com.google.common.net.InetAddresses;
 import io.netty.channel.Channel;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -24,6 +25,11 @@ import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
+import org.opendaylight.tcpmd5.api.KeyMapping;
+import org.opendaylight.tcpmd5.jni.NativeKeyAccessFactory;
+import org.opendaylight.tcpmd5.jni.NativeSupportUnavailableException;
+import org.opendaylight.tcpmd5.jni.NativeTestSupport;
+import org.opendaylight.tcpmd5.netty.MD5NioServerSocketChannelFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 
 public class PCCMockTest {
@@ -120,6 +126,24 @@ public class PCCMockTest {
         channel.close().get();
         channel2.close().get();
         channel3.close().get();
+    }
+
+    @Test
+    public void testMockPccWithMD5() throws NativeSupportUnavailableException, InterruptedException, ExecutionException, UnknownHostException {
+        NativeTestSupport.assumeSupportedPlatform();
+        final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(
+                new OpenBuilder().setKeepalive(KEEP_ALIVE).setDeadTimer(DEAD_TIMER).setSessionId((short) 0).build(), 0);
+        final PCEPDispatcher dispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(),
+                nf, new NioEventLoopGroup(), new NioEventLoopGroup(), null, new MD5NioServerSocketChannelFactory(NativeKeyAccessFactory.getInstance()));
+        final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
+        final KeyMapping keyMapping = new KeyMapping();
+        keyMapping.put(InetAddresses.forString(LOCAL_ADDRESS), "pazzword".getBytes(Charsets.US_ASCII));
+        final Channel channel = dispatcher.createServer(SERVER_ADDRESS, keyMapping, factory).channel();
+        Main.main(new String[] {"--local-address", LOCAL_ADDRESS, "--remote-address", REMOTE_ADDRESS, "--pcc", "1", "--lsp", "3", "--password", "pazzword"});
+        Thread.sleep(1000);
+        final TestingSessionListener sessionListener = factory.getSessionListenerByRemoteAddress(InetAddresses.forString(LOCAL_ADDRESS));
+        Assert.assertTrue(sessionListener.isUp());
+        channel.close().get();
     }
 
     @Test(expected=UnsupportedOperationException.class)
