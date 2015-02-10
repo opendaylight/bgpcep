@@ -60,8 +60,8 @@ public class PCCMockTest {
     @Test
     public void testSessionEstablishment() throws UnknownHostException, InterruptedException, ExecutionException {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
-        final Channel channel = this.pceDispatcher.createServer(SERVER_ADDRESS, factory).channel();
-        Main.main(new String[] {"--local-address", LOCAL_ADDRESS, "--remote-address", REMOTE_ADDRESS, "--pcc", "1", "--lsp", "3",
+        final Channel channel = this.pceDispatcher.createServer(new InetSocketAddress(REMOTE_ADDRESS, 4567), factory).channel();
+        Main.main(new String[] {"--local-address", LOCAL_ADDRESS, "--remote-address", REMOTE_ADDRESS + ":4567", "--pcc", "1", "--lsp", "3",
             "--log-level", "DEBUG", "-ka", "10", "-d", "40"});
         Thread.sleep(1000);
         final TestingSessionListener sessionListener = factory.getSessionListenerByRemoteAddress(InetAddresses.forString(LOCAL_ADDRESS));

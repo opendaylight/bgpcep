@@ -15,6 +15,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.net.HostAndPort;
 import com.google.common.net.InetAddresses;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetAddress;
@@ -41,16 +42,18 @@ public final class Main {
 
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
-    private static final int DEFAULT_PORT = 4189;
+    private static final int DEFAULT_REMOTE_PORT = 4189;
+    private static final int DEFAULT_LOCAL_PORT = 0;
     private static final short DEFAULT_KEEP_ALIVE = 30;
     private static final short DEFAULT_DEAD_TIMER = 120;
     private static final int RECONNECT_STRATEGY_TIMEOUT = 2000;
+    private static final InetAddress LOCALHOST = InetAddresses.forString("127.0.0.1");
 
     private Main() { }
 
     public static void main(final String[] args) throws InterruptedException, ExecutionException, UnknownHostException {
-        InetAddress localAddress = InetAddress.getByName("127.0.0.1");
-        List<InetAddress> remoteAddress = Lists.newArrayList(InetAddress.getByName("127.0.0.1"));
+        InetSocketAddress localAddress = new InetSocketAddress(LOCALHOST, DEFAULT_LOCAL_PORT);
+        List<InetSocketAddress> remoteAddress = Lists.newArrayList(new InetSocketAddress(LOCALHOST, DEFAULT_REMOTE_PORT));
         int pccCount = 1;
         int lsps = 1;
         boolean pcError = false;
@@ -63,9 +66,9 @@ public final class Main {
         int argIdx = 0;
         while (argIdx < args.length) {
             if (args[argIdx].equals("--local-address")) {
-                localAddress = InetAddress.getByName(args[++argIdx]);
+                localAddress = getInetSocketAddress(args[++argIdx], DEFAULT_LOCAL_PORT);
             } else if (args[argIdx].equals("--remote-address")) {
-                remoteAddress = parseAddresses(args[++argIdx]);
+                remoteAddress = parseAddresses(args[++argIdx], DEFAULT_REMOTE_PORT);
             } else if (args[argIdx].equals("--pcc")) {
                 pccCount = Integer.valueOf(args[++argIdx]);
             } else if (args[argIdx].equals("--lsp")) {
@@ -89,30 +92,31 @@ public final class Main {
     }
 
     public static void createPCCs(final int lspsPerPcc, final boolean pcerr, final int pccCount,
-            final InetAddress localAddress, final List<InetAddress> remoteAddress, final short keepalive, final short deadtimer,
+            final InetSocketAddress localAddress, final List<InetSocketAddress> remoteAddress, final short keepalive, final short deadtimer,
             final String password) throws InterruptedException, ExecutionException {
         final StatefulActivator activator07 = new StatefulActivator();
         activator07.start(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance());
-        InetAddress currentAddress = localAddress;
+        InetAddress currentAddress = localAddress.getAddress();
         final PCCDispatcher pccDispatcher = new PCCDispatcher(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(),
                 getSessionNegotiatorFactory(keepalive, deadtimer));
         for (int i = 0; i < pccCount; i++) {
-            createPCC(lspsPerPcc, pcerr, currentAddress, remoteAddress, keepalive, deadtimer, pccDispatcher, password);
+            createPCC(lspsPerPcc, pcerr, new InetSocketAddress(currentAddress, localAddress.getPort()),
+                    remoteAddress, keepalive, deadtimer, pccDispatcher, password);
             currentAddress = InetAddresses.increment(currentAddress);
         }
     }
 
-    private static void createPCC(final int lspsPerPcc, final boolean pcerr, final InetAddress localAddress,
-            final List<InetAddress> remoteAddress, final short keepalive, final short deadtimer, final PCCDispatcher pccDispatcher,
+    private static void createPCC(final int lspsPerPcc, final boolean pcerr, final InetSocketAddress localAddress,
+            final List<InetSocketAddress> remoteAddress, final short keepalive, final short deadtimer, final PCCDispatcher pccDispatcher,
             final String password) throws InterruptedException, ExecutionException {
         final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf = getSessionNegotiatorFactory(keepalive, deadtimer);
-        for (final InetAddress pceAddress : remoteAddress) {
-            pccDispatcher.createClient(new InetSocketAddress(localAddress, 0), new InetSocketAddress(pceAddress, DEFAULT_PORT), new ReconnectImmediatelyStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_STRATEGY_TIMEOUT), new SessionListenerFactory<PCEPSessionListener>() {
+        for (final InetSocketAddress pceAddress : remoteAddress) {
+            pccDispatcher.createClient(localAddress, pceAddress, new ReconnectImmediatelyStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_STRATEGY_TIMEOUT), new SessionListenerFactory<PCEPSessionListener>() {
                 @Override
                 public PCEPSessionListener getSessionListener() {
-                    return new SimpleSessionListener(lspsPerPcc, pcerr, localAddress);
+                    return new SimpleSessionListener(lspsPerPcc, pcerr, localAddress.getAddress());
                 }
-            }, snf, getKeyMapping(localAddress, password));
+            }, snf, getKeyMapping(localAddress.getAddress(), password));
         }
     }
 
@@ -131,17 +135,18 @@ public final class Main {
         });
     }
 
-    private static List<InetAddress> parseAddresses(final String address) {
-        return Lists.transform(Arrays.asList(address.split(",")), new Function<String, InetAddress>() {
+    private static List<InetSocketAddress> parseAddresses(final String address, final int defaultPort) {
+        return Lists.transform(Arrays.asList(address.split(",")), new Function<String, InetSocketAddress>() {
             @Override
-            public InetAddress apply(String input) {
-                try {
-                    return InetAddress.getByName(input);
-                } catch (UnknownHostException e) {
-                    throw new RuntimeException("Not an IP address: " + input, e);
-                }
+            public InetSocketAddress apply(final String input) {
+                return getInetSocketAddress(input, defaultPort);
             }
         });
+    }
+
+    private static InetSocketAddress getInetSocketAddress(final String hostPortString, final int defaultPort) {
+        final HostAndPort hostAndPort = HostAndPort.fromString(hostPortString).withDefaultPort(defaultPort);
+        return new InetSocketAddress(hostAndPort.getHostText(), hostAndPort.getPort());
     }
 
     private static KeyMapping getKeyMapping(final InetAddress inetAddress, final String password) {
