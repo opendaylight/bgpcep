@@ -51,10 +51,6 @@
     </dependency>
     <dependency>
       <groupId>io.netty</groupId>
-      <artifactId>netty-buffer</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.netty</groupId>
       <artifactId>netty-transport</artifactId>
     </dependency>
     <dependency>
@@ -73,6 +69,18 @@
        <groupId>org.opendaylight.yangtools.model</groupId>
        <artifactId>ietf-inet-types</artifactId>
     </dependency>
+    <dependency>
+        <groupId>org.opendaylight.tcpmd5</groupId>
+        <artifactId>tcpmd5-jni</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.opendaylight.tcpmd5</groupId>
+        <artifactId>tcpmd5-netty</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.opendaylight.tcpmd5</groupId>
+        <artifactId>tcpmd5-api</artifactId>
+    </dependency>
 
     <!-- Testing dependencies -->
     <dependency>
@@ -82,11 +90,6 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>pcep-testtool</artifactId>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 
