@@ -34,7 +34,6 @@ public class PCCMockTest {
     private static final String REMOTE_ADDRESS2 = "127.0.2.0";
     private static final String REMOTE_ADDRESS3 = "127.0.3.0";
     private static final String REMOTE_ADDRESS4 = "127.0.4.0";
-    private static final InetSocketAddress SERVER_ADDRESS = new InetSocketAddress(REMOTE_ADDRESS, 4189);
     private static final InetSocketAddress SERVER_ADDRESS2 = new InetSocketAddress(REMOTE_ADDRESS2, 4189);
     private static final InetSocketAddress SERVER_ADDRESS3 = new InetSocketAddress(REMOTE_ADDRESS3, 4189);
     private static final InetSocketAddress SERVER_ADDRESS4 = new InetSocketAddress(REMOTE_ADDRESS4, 4189);
@@ -54,8 +53,8 @@ public class PCCMockTest {
     @Test
     public void testSessionEstablishment() throws UnknownHostException, InterruptedException, ExecutionException {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
-        final Channel channel = this.pceDispatcher.createServer(SERVER_ADDRESS, factory).channel();
-        Main.main(new String[] {"--local-address", LOCAL_ADDRESS, "--remote-address", REMOTE_ADDRESS, "--pcc", "1", "--lsp", "3",
+        final Channel channel = this.pceDispatcher.createServer(new InetSocketAddress(REMOTE_ADDRESS, 4567), factory).channel();
+        Main.main(new String[] {"--local-address", LOCAL_ADDRESS, "--remote-address", REMOTE_ADDRESS + ":4567", "--pcc", "1", "--lsp", "3",
             "--log-level", "DEBUG", "-ka", "10", "-d", "40"});
         Thread.sleep(1000);
         final TestingSessionListener sessionListener = factory.getSessionListenerByRemoteAddress(InetAddresses.forString(LOCAL_ADDRESS));
