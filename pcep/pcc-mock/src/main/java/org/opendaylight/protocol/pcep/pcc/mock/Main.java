@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
+import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -30,6 +31,7 @@ import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
+import org.opendaylight.tcpmd5.api.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 import org.slf4j.Logger;
@@ -55,6 +57,7 @@ public final class Main {
         final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
         short ka = DEFAULT_KEEP_ALIVE;
         short dt = DEFAULT_DEAD_TIMER;
+        String password = null;
 
         getRootLogger(lc).setLevel(ch.qos.logback.classic.Level.INFO);
         int argIdx = 0;
@@ -75,29 +78,33 @@ public final class Main {
                 ka = Short.valueOf(args[++argIdx]);
             } else if (args[argIdx].equals("--deadtimer") || args[argIdx].equals("-d")) {
                 dt = Short.valueOf(args[++argIdx]);
+            } else if (args[argIdx].equals("--password")) {
+                password = args[++argIdx];
             } else {
                 LOG.warn("WARNING: Unrecognized argument: {}", args[argIdx]);
             }
             argIdx++;
         }
-        createPCCs(lsps, pcError, pccCount, localAddress, remoteAddress, ka, dt);
+        createPCCs(lsps, pcError, pccCount, localAddress, remoteAddress, ka, dt, password);
     }
 
     public static void createPCCs(final int lspsPerPcc, final boolean pcerr, final int pccCount,
-            final InetAddress localAddress, final List<InetAddress> remoteAddress, final short keepalive, final short deadtimer) throws InterruptedException, ExecutionException {
+            final InetAddress localAddress, final List<InetAddress> remoteAddress, final short keepalive, final short deadtimer,
+            final String password) throws InterruptedException, ExecutionException {
         final StatefulActivator activator07 = new StatefulActivator();
         activator07.start(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance());
         InetAddress currentAddress = localAddress;
         final PCCDispatcher pccDispatcher = new PCCDispatcher(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(),
                 getSessionNegotiatorFactory(keepalive, deadtimer));
         for (int i = 0; i < pccCount; i++) {
-            createPCC(lspsPerPcc, pcerr, currentAddress, remoteAddress, keepalive, deadtimer, pccDispatcher);
+            createPCC(lspsPerPcc, pcerr, currentAddress, remoteAddress, keepalive, deadtimer, pccDispatcher, password);
             currentAddress = InetAddresses.increment(currentAddress);
         }
     }
 
     private static void createPCC(final int lspsPerPcc, final boolean pcerr, final InetAddress localAddress,
-            final List<InetAddress> remoteAddress, final short keepalive, final short deadtimer, final PCCDispatcher pccDispatcher) throws InterruptedException, ExecutionException {
+            final List<InetAddress> remoteAddress, final short keepalive, final short deadtimer, final PCCDispatcher pccDispatcher,
+            final String password) throws InterruptedException, ExecutionException {
         final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf = getSessionNegotiatorFactory(keepalive, deadtimer);
         for (final InetAddress pceAddress : remoteAddress) {
             pccDispatcher.createClient(new InetSocketAddress(localAddress, 0), new InetSocketAddress(pceAddress, DEFAULT_PORT), new ReconnectImmediatelyStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_STRATEGY_TIMEOUT), new SessionListenerFactory<PCEPSessionListener>() {
@@ -105,7 +112,7 @@ public final class Main {
                 public PCEPSessionListener getSessionListener() {
                     return new SimpleSessionListener(lspsPerPcc, pcerr, localAddress);
                 }
-            }, snf);
+            }, snf, getKeyMapping(pceAddress, password));
         }
     }
 
@@ -135,6 +142,15 @@ public final class Main {
                 }
             }
         });
+    }
+
+    private static KeyMapping getKeyMapping(final InetAddress inetAddress, final String password) {
+        if (password != null) {
+            final KeyMapping keyMapping = new KeyMapping();
+            keyMapping.put(inetAddress, password.getBytes(Charsets.US_ASCII));
+            return keyMapping;
+        }
+        return null;
     }
 
 }
