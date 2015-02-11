@@ -13,6 +13,7 @@ import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createLspTl
 import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createPath;
 import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createPcRtpMessage;
 import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createSrp;
+import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.reqToRptPath;
 import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.updToRptPath;
 
 import com.google.common.base.Optional;
@@ -22,19 +23,28 @@ import java.net.InetAddress;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Lsp1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Lsp1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Pcinitiate;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.pcinitiate.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcrpt;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcupd;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.LspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcupd.message.pcupd.message.Updates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
@@ -55,12 +65,14 @@ public class SimpleSessionListener implements PCEPSessionListener {
     private final int lspsCount;
     private final boolean pcError;
     private final String address;
+    private final AtomicLong plspIDs;
 
     public SimpleSessionListener(final int lspsCount, final boolean pcError, final InetAddress address) {
         Preconditions.checkArgument(lspsCount >= 0);
         this.lspsCount = lspsCount;
         this.pcError = pcError;
         this.address = address.getHostAddress();
+        this.plspIDs = new AtomicLong(lspsCount);
     }
 
     @Override
@@ -77,6 +89,26 @@ public class SimpleSessionListener implements PCEPSessionListener {
                         getDestinationAddress(updates.getPath().getEro().getSubobject()), this.address, this.address);
                 final Pcrpt pcRpt = createPcRtpMessage(new LspBuilder(updates.getLsp()).setTlvs(tlvs).build(),
                         Optional.fromNullable(createSrp(srpId)), updToRptPath(updates.getPath()));
+                session.sendMessage(pcRpt);
+            }
+        } else if (message instanceof Pcinitiate) {
+            final Pcinitiate initMsg = (Pcinitiate) message;
+            final Requests request = initMsg.getPcinitiateMessage().getRequests().get(0);
+            if (this.pcError) {
+                session.sendMessage(MsgBuilderUtil.createErrorMsg(getRandomError(), request.getSrp().getOperationId().getValue()));
+            } else {
+                final Pcrpt pcRpt;
+                if (request.getSrp().getAugmentation(Srp1.class) != null && request.getSrp().getAugmentation(Srp1.class).isRemove()) {
+                    pcRpt = createPcRtpMessage(request.getLsp(), Optional.fromNullable(request.getSrp()), reqToRptPath(request));
+                } else {
+                    final LspBuilder lspBuilder = new LspBuilder(request.getLsp());
+                    lspBuilder.setPlspId(new PlspId(this.plspIDs.incrementAndGet()));
+                    lspBuilder.addAugmentation(Lsp1.class, new Lsp1Builder().setCreate(true).build());
+                    final Tlvs tlvs = createLspTlvs(lspBuilder.getPlspId().getValue(), false,
+                            ((Ipv4Case) request.getEndpointsObj().getAddressFamily()).getIpv4().getDestinationIpv4Address().getValue(), this.address, this.address);
+                    lspBuilder.setTlvs(new TlvsBuilder(tlvs).setSymbolicPathName(request.getLsp().getTlvs().getSymbolicPathName()).build());
+                    pcRpt = createPcRtpMessage(lspBuilder.build(), Optional.fromNullable(request.getSrp()), reqToRptPath(request));
+                }
                 session.sendMessage(pcRpt);
             }
         }

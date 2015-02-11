@@ -28,13 +28,22 @@ import org.opendaylight.protocol.framework.ReconnectImmediatelyStrategy;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
+import org.opendaylight.protocol.pcep.ietf.initiated00.CrabbeInitiatedActivator;
 import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
+import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 import org.opendaylight.tcpmd5.api.KeyMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,22 +103,22 @@ public final class Main {
     public static void createPCCs(final int lspsPerPcc, final boolean pcerr, final int pccCount,
             final InetSocketAddress localAddress, final List<InetSocketAddress> remoteAddress, final short keepalive, final short deadtimer,
             final String password) throws InterruptedException, ExecutionException {
-        final StatefulActivator activator07 = new StatefulActivator();
-        activator07.start(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance());
+        startActivators();
         InetAddress currentAddress = localAddress.getAddress();
+        final Open openMessage = getOpenMessage(keepalive, deadtimer);
         final PCCDispatcher pccDispatcher = new PCCDispatcher(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(),
-                getSessionNegotiatorFactory(keepalive, deadtimer));
+                getSessionNegotiatorFactory(openMessage));
         for (int i = 0; i < pccCount; i++) {
             createPCC(lspsPerPcc, pcerr, new InetSocketAddress(currentAddress, localAddress.getPort()),
-                    remoteAddress, keepalive, deadtimer, pccDispatcher, password);
+                    remoteAddress, openMessage, pccDispatcher, password);
             currentAddress = InetAddresses.increment(currentAddress);
         }
     }
 
     private static void createPCC(final int lspsPerPcc, final boolean pcerr, final InetSocketAddress localAddress,
-            final List<InetSocketAddress> remoteAddress, final short keepalive, final short deadtimer, final PCCDispatcher pccDispatcher,
+            final List<InetSocketAddress> remoteAddress, final Open openMessage, final PCCDispatcher pccDispatcher,
             final String password) throws InterruptedException, ExecutionException {
-        final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf = getSessionNegotiatorFactory(keepalive, deadtimer);
+        final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf = getSessionNegotiatorFactory(openMessage);
         for (final InetSocketAddress pceAddress : remoteAddress) {
             pccDispatcher.createClient(localAddress, pceAddress, new ReconnectImmediatelyStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_STRATEGY_TIMEOUT), new SessionListenerFactory<PCEPSessionListener>() {
                 @Override
@@ -120,10 +129,8 @@ public final class Main {
         }
     }
 
-    private static SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> getSessionNegotiatorFactory(final short keepalive,
-            final short deadtimer) {
-        return new DefaultPCEPSessionNegotiatorFactory(
-                new OpenBuilder().setKeepalive(keepalive).setDeadTimer(deadtimer).setSessionId((short) 0).build(), 0);
+    private static SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> getSessionNegotiatorFactory(final Open openMessage) {
+        return new DefaultPCEPSessionNegotiatorFactory(openMessage, 0);
     }
 
     private static ch.qos.logback.classic.Logger getRootLogger(final LoggerContext lc) {
@@ -156,6 +163,23 @@ public final class Main {
             return keyMapping;
         }
         return null;
+    }
+
+    private static Open getOpenMessage(final short keepalive, final short deadtimer) {
+        final Tlvs1 tlvs1 = new Tlvs1Builder().setStateful(new StatefulBuilder().addAugmentation(Stateful1.class,
+                new Stateful1Builder().setInitiation(true).build()).setLspUpdateCapability(true).build()).build();
+        return new OpenBuilder().setTlvs(new TlvsBuilder().addAugmentation(Tlvs1.class, tlvs1).build())
+                .setKeepalive(keepalive).setDeadTimer(deadtimer).setSessionId((short) 0).build();
+    }
+
+    private static void startActivators() {
+        final PCCActivator pccActivator = new PCCActivator();
+        final StatefulActivator stateful = new StatefulActivator();
+        final CrabbeInitiatedActivator activator = new CrabbeInitiatedActivator();
+        final PCEPExtensionProviderContext ctx = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance();
+        pccActivator.start(ctx);
+        stateful.start(ctx);
+        activator.start(ctx);
     }
 
 }

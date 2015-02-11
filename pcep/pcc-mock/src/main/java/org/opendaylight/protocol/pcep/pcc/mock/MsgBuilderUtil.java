@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.pcinitiate.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.OperationalStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcrpt;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcrptBuilder;
@@ -98,15 +99,13 @@ public final class MsgBuilderUtil {
     public static Path updToRptPath(
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcupd.message.pcupd.message.updates.Path path) {
         final PathBuilder pathBuilder = new PathBuilder();
-        pathBuilder.setBandwidth(path.getBandwidth());
-        pathBuilder.setClassType(path.getClassType());
-        pathBuilder.setEro(path.getEro());
-        pathBuilder.setIro(path.getIro());
-        pathBuilder.setLspa(path.getLspa());
-        pathBuilder.setMetrics(path.getMetrics());
-        pathBuilder.setOf(path.getOf());
-        pathBuilder.setRro(path.getRro());
-        pathBuilder.setXro(path.getXro());
+        pathBuilder.fieldsFrom(path);
+        return pathBuilder.build();
+    }
+
+    public static Path reqToRptPath(final Requests request) {
+        final PathBuilder pathBuilder = new PathBuilder();
+        pathBuilder.fieldsFrom(request);
         return pathBuilder.build();
     }
 
