@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_042e6ffb",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-02-12T21:57:13Z",
+      "side": 1,
+      "message": "this is not appropriate: it will synchronize on the runnable, not on the parent class. Cherry-pick https://git.opendaylight.org/gerrit/#/c/14285/ to get this part of the fix.",
+      "revId": "f206c54e74ed43ba86150df057ab4e5690d0ed50",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
