@@ -251,12 +251,14 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 
                 rb.fieldsFrom(input.getArguments());
 
-                final TlvsBuilder tlvsBuilder = new TlvsBuilder();
+                final TlvsBuilder tlvsBuilder;
+                if (inputLsp.getTlvs() != null) {
+                    tlvsBuilder = new TlvsBuilder(inputLsp.getTlvs());
+                } else {
+                    tlvsBuilder = new TlvsBuilder();
+                }
                 tlvsBuilder.setSymbolicPathName(
                     new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(input.getName().getBytes(Charsets.UTF_8))).build());
-                if (inputLsp.getTlvs() != null) {
-                    tlvsBuilder.setVsTlv(inputLsp.getTlvs().getVsTlv());
-                }
 
                 final SrpBuilder srpBuilder = new SrpBuilder();
                 srpBuilder.setOperationId(nextRequest());
