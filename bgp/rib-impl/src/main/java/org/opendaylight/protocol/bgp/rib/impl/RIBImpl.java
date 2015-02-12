@@ -94,7 +94,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final Thread scheduler = new Thread(new Runnable() {
 
         @Override
-        public void run() {
+        public synchronized void run() {
             try {
                 final Peer peer = RIBImpl.this.peers.take();
                 LOG.debug("Advertizing loc-rib to new peer {}.", peer);
@@ -314,7 +314,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     }
 
     @Override
-    public void close() throws InterruptedException, ExecutionException {
+    public synchronized void close() throws InterruptedException, ExecutionException {
         final WriteTransaction t = this.chain.newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier());
         t.submit().get();
