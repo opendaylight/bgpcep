@@ -56,5 +56,10 @@ module network-concepts {
         reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.3.4";
         type uint32;
     }
+
+    typedef accumulated-igp-metric {
+        reference "https://tools.ietf.org/html/rfc7311#section-3";
+        type uint64;
+    }
 }
 

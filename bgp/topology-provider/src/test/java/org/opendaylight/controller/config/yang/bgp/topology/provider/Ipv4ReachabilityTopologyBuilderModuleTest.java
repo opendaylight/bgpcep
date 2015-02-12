@@ -39,6 +39,8 @@ public class Ipv4ReachabilityTopologyBuilderModuleTest extends AbstractRIBImplMo
         final List<String> paths = super.getYangModelsPaths();
         paths.add("/META-INF/yang/network-topology@2013-10-21.yang");
         paths.add("/META-INF/yang/l3-unicast-igp-topology@2013-10-21.yang");
+        paths.add("/META-INF/yang/network-concepts.yang");
+        paths.add("/META-INF/yang/ieee754.yang");
         return paths;
     }
 
