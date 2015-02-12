@@ -305,7 +305,8 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
     public List<String> getYangModelsPaths() {
         List<String> paths = Lists.newArrayList("/META-INF/yang/bgp-rib.yang", "/META-INF/yang/ietf-inet-types.yang",
-                "/META-INF/yang/bgp-message.yang", "/META-INF/yang/bgp-multiprotocol.yang", "/META-INF/yang/bgp-types.yang");
+                "/META-INF/yang/bgp-message.yang", "/META-INF/yang/bgp-multiprotocol.yang", "/META-INF/yang/bgp-types.yang",
+                "/META-INF/yang/network-concepts.yang");
         return paths;
     }
 
