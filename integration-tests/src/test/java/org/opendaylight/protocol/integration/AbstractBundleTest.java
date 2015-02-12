@@ -103,6 +103,8 @@ public abstract class AbstractBundleTest {
         ret.add(mavenBundle("org.opendaylight.controller", "sal-common-util").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.yangtools.thirdparty", "antlr4-runtime-osgi-nohead").versionAsInProject());
 
+        ret.add(mavenBundle("com.lmax", "disruptor").versionAsInProject());
+
         ret.add(systemProperty("pax.exam.osgi.unresolved.fail").value("true"));
 
         ret.add(mavenBundle("org.slf4j", "slf4j-api").versionAsInProject());
@@ -149,7 +151,7 @@ public abstract class AbstractBundleTest {
         }
 
         options.addAll(Arrays.asList(junitBundles()));
-        options.add(systemPackages("sun.nio.ch"));
+        options.add(systemPackages("sun.nio.ch", "sun.misc"));
         return options.toArray(new Option[0]);
     }
 
