@@ -37,6 +37,7 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
         final List<String> paths = super.getYangModelsPaths();
         paths.add("/META-INF/yang/network-topology@2013-10-21.yang");
         paths.add("/META-INF/yang/l3-unicast-igp-topology@2013-10-21.yang");
+        paths.add("/META-INF/yang/network-concepts.yang");
         return paths;
     }
 

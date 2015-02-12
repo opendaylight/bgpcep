@@ -5,6 +5,7 @@ module bgp-message {
 
     import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
     import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
+    import network-concepts { prefix netc; revision-date 2013-11-25; }
 
     organization "Cisco Systems, Inc.";
     contact "Dana Kutenicsova <dkutenic@cisco.com>";
@@ -131,6 +132,13 @@ module bgp-message {
         }
         container cluster-id {
             uses cluster-id;
+        }
+        container aigp {
+            container aigp-tlv {
+                leaf metric {
+                    type netc:accumulated-igp-metric;
+                }
+            }
         }
     }
 
