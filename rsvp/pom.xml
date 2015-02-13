@@ -24,9 +24,6 @@
         <version>0.4.0-SNAPSHOT</version>
         <relativePath>../parent</relativePath>
     </parent>
-    <prerequisites>
-        <maven>3.0.4</maven>
-    </prerequisites>
 
     <artifactId>rsvp-parent</artifactId>
     <description>RSVP-related components</description>
@@ -36,14 +33,4 @@
     <modules>
         <module>api</module>
     </modules>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>rsvp-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 </project>

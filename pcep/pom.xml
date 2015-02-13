@@ -10,7 +10,6 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-
     <modelVersion>4.0.0</modelVersion>
     <scm>
         <connection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</connection>
@@ -24,9 +23,6 @@
         <version>0.4.0-SNAPSHOT</version>
         <relativePath>../parent</relativePath>
     </parent>
-    <prerequisites>
-        <maven>3.0.4</maven>
-    </prerequisites>
 
     <artifactId>pcep-parent</artifactId>
     <description>PCEP protocol parent</description>
@@ -50,101 +46,4 @@
         <module>segment-routing</module>
         <module>pcc-mock</module>
     </modules>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-spi</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-ietf-stateful02</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-             <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-ietf-stateful07</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-testtool</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-topology-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-topology-spi</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-topology-provider</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-tunnel-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-tunnel-provider</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <!-- Stuff outside of this component -->
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>programming-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>programming-spi</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>programming-topology-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>programming-tunnel-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>rsvp-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>topology-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>topology-tunnel-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 </project>

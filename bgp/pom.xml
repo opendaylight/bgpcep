@@ -10,7 +10,6 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-
     <modelVersion>4.0.0</modelVersion>
     <scm>
         <connection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</connection>
@@ -24,9 +23,6 @@
         <version>0.4.0-SNAPSHOT</version>
         <relativePath>../parent</relativePath>
     </parent>
-    <prerequisites>
-        <maven>3.0.4</maven>
-    </prerequisites>
 
     <artifactId>bgp-parent</artifactId>
     <description>BGP-related components</description>
@@ -53,87 +49,4 @@
         <module>feature</module>
 
     </modules>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-concepts</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-linkstate</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-parser-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-parser-spi</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-parser-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-parser-mock</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-rib-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-rib-spi</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-rib-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-testtool</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-rib-mock</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-topology-provider</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-util</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <!-- Outside of this component -->
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>rsvp-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>topology-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
 </project>
