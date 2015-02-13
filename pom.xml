@@ -32,7 +32,7 @@
     <modules>
         <!-- Well-known -->
         <module>artifacts</module>
-        <!-- <module>feature</module> -->
+        <module>features</module>
         <module>parent</module>
 
         <!-- Common infra -->
