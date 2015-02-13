@@ -17,6 +17,7 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.Map.Entry;
 import org.opendaylight.protocol.bgp.linkstate.TlvUtil;
+import org.opendaylight.protocol.bgp.linkstate.attribute.sr.SrNodeAttributesParser;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -25,11 +26,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.IsisAreaIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeFlagBits;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.TopologyIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.state.SrAlgorithm;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.state.SrCapabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.linkstate.path.attribute.LinkStateAttribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.linkstate.path.attribute.link.state.attribute.NodeAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.linkstate.path.attribute.link.state.attribute.NodeAttributesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.linkstate.path.attribute.link.state.attribute.node.attributes._case.NodeAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.linkstate.path.attribute.link.state.attribute.node.attributes._case.NodeAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.SidLabelBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +52,11 @@ final class NodeAttributesParser {
     private static final int NODE_OPAQUE = 1025;
     private static final int DYNAMIC_HOSTNAME = 1026;
     private static final int ISIS_AREA_IDENTIFIER = 1027;
+
+    /* Segment routing TLVs */
+    private static final int SID_LABEL_BINDING = 1033;
+    private static final int SR_CAPABILITIES = 1034;
+    private static final int SR_ALGORITHMS = 1035;
 
     /**
      * Parse Node Attributes.
@@ -100,6 +109,21 @@ final class NodeAttributesParser {
                 final Ipv6RouterIdentifier ip6 = new Ipv6RouterIdentifier(Ipv6Util.addressForByteBuf(value));
                 builder.setIpv6RouterId(ip6);
                 LOG.debug("Parsed IPv6 Router Identifier {}", ip6);
+                break;
+            case SID_LABEL_BINDING:
+                final SidLabelBinding label = SrNodeAttributesParser.parseSidLabelBinding(value);
+                // builder.set
+                LOG.debug("Parsed SID Label Binding {}", label);
+                break;
+            case SR_CAPABILITIES:
+                final SrCapabilities caps = SrNodeAttributesParser.parseSrCapabilities(value);
+                builder.setSrCapabilities(caps);
+                LOG.debug("Parsed SR Capabilities {}", caps);
+                break;
+            case SR_ALGORITHMS:
+                final SrAlgorithm algs = SrNodeAttributesParser.parseSrAlgorithms(value);
+                builder.setSrAlgorithm(algs);
+                LOG.debug("Parsed SR Algorithms {}", algs);
                 break;
             default:
                 LOG.warn("TLV {} is not a valid node attribute, ignoring it", key);
