@@ -49,9 +49,6 @@
 
         <!-- YANG tools artifacts -->
         <yangtools.version>0.7.0-SNAPSHOT</yangtools.version>
-        <ietf.types.version>2010.09.24.7-SNAPSHOT</ietf.types.version>
-        <ietf.topology.version>2013.10.21.7-SNAPSHOT</ietf.topology.version>
-        <yang-ext.version>2013.09.07.7-SNAPSHOT</yang-ext.version>
 
         <!-- Controller artifacts -->
         <controller.config.version>0.3.0-SNAPSHOT</controller.config.version>
