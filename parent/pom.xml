@@ -44,8 +44,6 @@
 
         <maven.dependency.version>2.8</maven.dependency.version>
         <maven.info.reports.version>2.7</maven.info.reports.version>
-        <maven.jar.version>2.4</maven.jar.version>
-        <maven.site.version>3.3</maven.site.version>
 
         <!-- YANG tools artifacts -->
         <yangtools.version>0.7.0-SNAPSHOT</yangtools.version>
@@ -289,22 +287,6 @@
 
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>${maven.jar.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-release-plugin</artifactId>
-                    <version>${maven.release.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>1.8</version>
-                </plugin>
-
                 <!--This plugin's configuration is used to store Eclipse m2e settings
                     only. It has no influence on the Maven build itself. -->
                 <plugin>
@@ -416,12 +398,6 @@
                             <version>${controller.config.version}</version>
                         </dependency>
                     </dependencies>
-                </plugin>
-
-                <!-- Maven site plugin -->
-                <plugin>
-                    <artifactId>maven-site-plugin</artifactId>
-                    <version>${maven.site.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
