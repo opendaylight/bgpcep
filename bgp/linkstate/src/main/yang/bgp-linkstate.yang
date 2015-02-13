@@ -391,9 +391,15 @@ module bgp-linkstate {
         leaf ipv6-router-id {
             type ipv6-router-identifier;
         }
-        uses bgp-sr:sid-label-binding;
-        uses bgp-sr:sr-capabilities;
-        uses bgp-sr:sr-algorithm;
+        container sr-sid-label {
+            uses bgp-sr:sid-label-binding;
+        }
+        container sr-capabilities {
+            uses bgp-sr:sr-capabilities;
+        }
+        container sr-algorithm {
+            uses bgp-sr:sr-algorithm;
+        }
     }
 
     typedef link-protection-type {
@@ -493,8 +499,12 @@ module bgp-linkstate {
         leaf admin-group {
             type administrative-group;
         }
-        uses bgp-sr:adjacency-segment-identifier;
-        uses bgp-sr:lan-adjacency-segment-identifier;
+        container sr-adj-id {
+            uses bgp-sr:adjacency-segment-identifier;
+        }
+        container sr-lan-adj-id {
+            uses bgp-sr:lan-adjacency-segment-identifier;
+        }
     }
 
     typedef route-tag {
@@ -538,7 +548,9 @@ module bgp-linkstate {
         leaf ospf-forwarding-address {
             type inet:ip-address;
         }
-        uses bgp-sr:prefix-sid;
+        container sr-prefix {
+            uses bgp-sr:prefix-sid;
+        }
     }
 
     grouping linkstate-routes {
