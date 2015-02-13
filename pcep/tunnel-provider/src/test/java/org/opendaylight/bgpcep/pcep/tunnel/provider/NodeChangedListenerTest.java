@@ -96,10 +96,21 @@ public class NodeChangedListenerTest extends AbstractDataBrokerTest {
         createNode(NODE1_ID, NODE1_IPV4, LSP1_NAME, LSP1_ID, NODE2_IPV4);
         final Topology tunnelTopo = readTunnelTopology().get();
         Assert.assertEquals(2, tunnelTopo.getNode().size());
-        final Node dst = tunnelTopo.getNode().get(0);
-        final Node src = tunnelTopo.getNode().get(1);
+
         final NodeId srcId = new NodeId("ip://" + new IpAddress(new Ipv4Address(NODE1_IPV4)));
         final NodeId dstId = new NodeId("ip://" + new IpAddress(new Ipv4Address(NODE2_IPV4)));
+
+        Node dst;
+        Node src;
+
+        if (tunnelTopo.getNode().get(0).getNodeId().equals(srcId)) {
+            src = tunnelTopo.getNode().get(0);
+            dst =  tunnelTopo.getNode().get(1);
+        } else {
+            src = tunnelTopo.getNode().get(1);
+            dst =  tunnelTopo.getNode().get(0);
+        }
+
         Assert.assertEquals(srcId, src.getNodeId());
         Assert.assertEquals(dstId, dst.getNodeId());
 
@@ -127,13 +138,29 @@ public class NodeChangedListenerTest extends AbstractDataBrokerTest {
         // update second node -> adds supporting node and second link
         createNode(NODE2_ID, NODE2_IPV4, LSP2_NAME, LSP2_ID, NODE1_IPV4);
         final Topology updatedNodeTopo = readTunnelTopology().get();
-        final Node updatedNode = updatedNodeTopo.getNode().get(0);
+        Assert.assertEquals(2, updatedNodeTopo.getNode().size());
+
+        Node updatedNode;
+
+        if (updatedNodeTopo.getNode().get(0).getNodeId().equals(srcId)) {
+            updatedNode = updatedNodeTopo.getNode().get(1);
+        } else {
+            updatedNode = updatedNodeTopo.getNode().get(0);
+        }
+
         Assert.assertEquals(1, updatedNode.getSupportingNode().size());
         final SupportingNode sNode2 = updatedNode.getSupportingNode().get(0);
         Assert.assertEquals(NODE2_ID, sNode2.getNodeRef());
 
         Assert.assertEquals(2, updatedNodeTopo.getLink().size());
-        final Link link2 = updatedNodeTopo.getLink().get(0);
+
+        Link link2;
+        if (updatedNodeTopo.getLink().get(0).getSource().getSourceNode().equals(srcId)) {
+            link2 = updatedNodeTopo.getLink().get(1);
+        } else {
+            link2 = updatedNodeTopo.getLink().get(0);
+        }
+
         Assert.assertEquals(dstId, link2.getSource().getSourceNode());
         Assert.assertEquals(dstNodeTpId, link2.getSource().getSourceTp());
         Assert.assertEquals(srcId, link2.getDestination().getDestNode());
