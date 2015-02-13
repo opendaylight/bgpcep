@@ -315,7 +315,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     }
 
     @Override
-    public void close() throws InterruptedException, ExecutionException {
+    public synchronized void close() throws InterruptedException, ExecutionException {
         final WriteTransaction t = this.chain.newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier());
         t.submit().get();
