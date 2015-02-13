@@ -35,6 +35,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-flowspec</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>bgp-linkstate</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -114,11 +119,37 @@
                 <artifactId>bgp-util</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-controller-config</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-controller-config</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>config</classifier>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-controller-config</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>config-example</classifier>
+            </dependency>
 
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>data-change-counter</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>data-change-counter-controller-config</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>config</classifier>
             </dependency>
 
             <dependency>
@@ -216,6 +247,33 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-controller-config</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-controller-config</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>config</classifier>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-controller-config</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>config-provider</classifier>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-controller-config</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>config-segment</classifier>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>programming-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -246,6 +304,19 @@
                 <artifactId>programming-tunnel-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>programming-controller-config</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>programming-controller-config</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>config</classifier>
+            </dependency>
+
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>rsvp-api</artifactId>
