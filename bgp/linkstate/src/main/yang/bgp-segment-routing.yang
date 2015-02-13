@@ -59,7 +59,9 @@ module bgp-segment-routing {
 
     typedef sid-label {
         reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-02#section-2.3";
-        type uint64;
+        type binary {
+            range 0...255;
+        }
     }
 
     typedef weight {
@@ -160,36 +162,36 @@ module bgp-segment-routing {
 
     grouping adjacency-segment-identifier {
         reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-02#section-2.2.1";
-        leaf adj-flags {
+        leaf flags {
             type adjacency-flags;
         }
-        leaf adj-weight {
+        leaf weight {
             type weight;
         }
-        leaf adj-sid {
+        leaf sid {
             type sid-label;
         }
     }
 
     grouping lan-adjacency-segment-identifier {
         reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-02#section-2.2.2";
-        leaf lan-flags {
+        leaf flags {
             type adjacency-flags;
         }
-        leaf lan-weight {
+        leaf weight {
             type weight;
         }
-        leaf lan-iso-system-id {
+        leaf iso-system-id {
             type netc:iso-system-identifier;
         }
-        leaf lan-sid {
+        leaf sid {
             type sid-label;
         }
     }
 
     grouping sr-capabilities {
         reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-02#section-3.1";
-        leaf cap-flags {
+        leaf flags {
             type bits {
                 bit ipv4 {
                     position 0;
@@ -199,7 +201,7 @@ module bgp-segment-routing {
                 }
             }
         }
-        leaf cap-value-range {
+        leaf value-range {
             type uint32 {
                 range "0..16777215";
             }
@@ -218,7 +220,7 @@ module bgp-segment-routing {
 
     grouping prefix-sid {
         reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-02#section-2.1";
-        leaf prefix-sid-flags {
+        leaf flags {
             type bits {
                 bit readvertisement {
                     position 0;
