@@ -43,7 +43,7 @@ final class SessionListenerState {
     private long reqCount = 0;
 
     public SessionListenerState() {
-        this.sessionUpDuration = new Stopwatch();
+        this.sessionUpDuration = Stopwatch.createUnstarted();
         this.capa = new PeerCapabilities();
     }
 

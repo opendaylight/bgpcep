@@ -33,7 +33,7 @@ final class PCEPRequest {
         this.future = SettableFuture.create();
         this.metadata = metadata;
         this.state = State.UNSENT;
-        this.stopwatch = new Stopwatch().start();
+        this.stopwatch = Stopwatch.createStarted();
     }
 
     protected ListenableFuture<OperationResult> getFuture() {

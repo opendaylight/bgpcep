@@ -54,7 +54,7 @@ final class BGPSessionStats {
 
     public BGPSessionStats(final Open remoteOpen, final int holdTimerValue, final int keepAlive, final Channel channel,
             final Optional<BGPSessionPreferences> localPreferences, final Collection<BgpTableType> tableTypes) {
-        this.sessionStopwatch = new Stopwatch();
+        this.sessionStopwatch = Stopwatch.createUnstarted();
         this.stats = new BgpSessionState();
         this.stats.setHoldtimeCurrent(holdTimerValue);
         this.stats.setKeepaliveCurrent(keepAlive);
