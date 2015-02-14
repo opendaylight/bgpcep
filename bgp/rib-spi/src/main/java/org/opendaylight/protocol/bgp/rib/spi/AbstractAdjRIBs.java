@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Objects.ToStringHelper;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Preconditions;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -69,7 +69,7 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
 
         @Override
         public final String toString() {
-            return addToStringAttributes(Objects.toStringHelper(this)).toString();
+            return addToStringAttributes(MoreObjects.toStringHelper(this)).toString();
         }
 
         protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {

@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.linkstate;
 
-import com.google.common.base.Objects.ToStringHelper;
+import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;

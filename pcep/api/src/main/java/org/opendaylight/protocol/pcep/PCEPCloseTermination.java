@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.pcep;
 
-import com.google.common.base.Objects.ToStringHelper;
+import com.google.common.base.MoreObjects.ToStringHelper;
 
 /**
  * Used as a reason when one of the regular reasons was the cause of the termination of a session.

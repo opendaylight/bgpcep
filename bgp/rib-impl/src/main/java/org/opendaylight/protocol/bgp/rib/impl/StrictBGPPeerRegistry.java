@@ -8,7 +8,7 @@
 
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.net.InetAddresses;
@@ -185,7 +185,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
             .add("peers", this.peers.keySet())
             .toString();
     }
@@ -254,7 +254,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
 
         @Override
         public String toString() {
-            return Objects.toStringHelper(this)
+            return MoreObjects.toStringHelper(this)
                 .add("from", this.from)
                 .add("to", this.to)
                 .toString();

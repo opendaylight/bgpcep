@@ -7,6 +7,7 @@
  */
 package org.opendaylight.bgpcep.programming.impl;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -14,7 +15,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -27,7 +27,6 @@ import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.matchers.JUnitMatchers;
 import org.opendaylight.bgpcep.programming.NanotimeUtil;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.SchedulerException;
@@ -104,7 +103,7 @@ public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
         try {
             testedProgrammingService.scheduleInstruction(getMockedSubmitInstructionInput("mockedSubmit", "dep1"));
         } catch (final SchedulerException e) {
-            assertThat(e.getMessage(), JUnitMatchers.containsString("Unknown dependency ID"));
+            assertThat(e.getMessage(), containsString("Unknown dependency ID"));
             mockedNotificationServiceWrapper.assertNotificationsCount(0);
             return;
         }
@@ -321,13 +320,13 @@ public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
         return mockedSubmitInstruction;
     }
 
-    private CancelInstructionInput getCancelInstruction(String instructionId) {
+    private CancelInstructionInput getCancelInstruction(final String instructionId) {
         final CancelInstructionInputBuilder builder = new CancelInstructionInputBuilder();
         builder.setId(getInstructionId(instructionId));
         return builder.build();
     }
 
-    private InstructionId getInstructionId(String id) {
+    private InstructionId getInstructionId(final String id) {
         return new InstructionId(id);
     }
 

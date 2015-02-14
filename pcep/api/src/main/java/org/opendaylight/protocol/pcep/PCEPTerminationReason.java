@@ -7,16 +7,15 @@
  */
 package org.opendaylight.protocol.pcep;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Objects.ToStringHelper;
-
+import com.google.common.base.MoreObjects;
+import com.google.common.base.MoreObjects.ToStringHelper;
 import org.opendaylight.protocol.framework.TerminationReason;
 
 public abstract class PCEPTerminationReason implements TerminationReason {
 
     @Override
     public final String toString() {
-        return addToStringAttributes(Objects.toStringHelper(this)).toString();
+        return addToStringAttributes(MoreObjects.toStringHelper(this)).toString();
     }
 
     protected abstract ToStringHelper addToStringAttributes(ToStringHelper toStringHelper);

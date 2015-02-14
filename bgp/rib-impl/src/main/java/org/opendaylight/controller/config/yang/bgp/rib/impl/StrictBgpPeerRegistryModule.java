@@ -1,6 +1,6 @@
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -82,7 +82,7 @@ public class StrictBgpPeerRegistryModule extends org.opendaylight.controller.con
 
         @Override
         public String toString() {
-            return Objects.toStringHelper(this)
+            return MoreObjects.toStringHelper(this)
                     .add("peers", this.global)
                     .toString();
         }

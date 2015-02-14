@@ -7,11 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.util;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.junit.matchers.JUnitMatchers.containsString;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Constructor;

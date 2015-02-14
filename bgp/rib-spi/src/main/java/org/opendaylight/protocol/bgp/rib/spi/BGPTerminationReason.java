@@ -7,8 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import com.google.common.base.Objects;
-
+import com.google.common.base.MoreObjects;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.framework.TerminationReason;
 
@@ -26,7 +25,7 @@ public final class BGPTerminationReason implements TerminationReason {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                 .add("error", error)
                 .toString();
     }
