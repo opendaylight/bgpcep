@@ -27,6 +27,11 @@ public final class Values {
     public static final int UNSIGNED_BYTE_MAX_VALUE = 255;
 
     /**
+     * Maximum unsigned Integer value (2147483648);
+     */
+    public static final long UNSIGNED_INT_MAX_VALUE = Integer.MAX_VALUE + 1;
+
+    /**
      * Maximum unsigned Byte value in hex (0xFF).
      */
     public static final int BYTE_MAX_VALUE_BYTES = 0xFF;
