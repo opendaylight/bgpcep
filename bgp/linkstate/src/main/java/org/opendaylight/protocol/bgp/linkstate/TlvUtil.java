@@ -28,13 +28,29 @@ public final class TlvUtil {
 
     /**
      * Util method for writing TLV header.
-     * @param type TLV type
-     * @param value TLV value
+     * @param type TLV type (2B)
+     * @param value TLV value (2B)
      * @param byteAggregator final ByteBuf where the tlv should be serialized
      */
     public static void writeTLV(final int type, final ByteBuf value, final ByteBuf byteAggregator){
         byteAggregator.writeShort(type);
         byteAggregator.writeShort(value.writerIndex());
+        byteAggregator.writeBytes(value);
+        value.readerIndex(0);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Serialized tlv type {} to: {}", type, ByteBufUtil.hexDump(value));
+        }
+    }
+
+    /**
+     * Util method for writing Segment routing TLV header.
+     * @param type TLV type (1B)
+     * @param value TLV value (1B)
+     * @param byteAggregator final ByteBuf where the tlv should be serialized
+     */
+    public static void writeSrTLV(final int type, final ByteBuf value, final ByteBuf byteAggregator){
+        byteAggregator.writeByte(type);
+        byteAggregator.writeByte(value.writerIndex());
         byteAggregator.writeBytes(value);
         value.readerIndex(0);
         if (LOG.isDebugEnabled()) {
