@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_70460a51",
+        "filename": "pcep/pcc-mock/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-02-15T10:27:31Z",
+      "side": 1,
+      "message": "use tcpmd5-artefacts",
+      "range": {
+        "startLine": 82,
+        "startChar": 42,
+        "endLine": 82,
+        "endChar": 43
+      },
+      "revId": "316242d4eeb17383971c3fd5874d1cad06a90690",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
