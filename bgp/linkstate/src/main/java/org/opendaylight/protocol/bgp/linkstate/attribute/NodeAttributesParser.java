@@ -28,12 +28,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.TopologyIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.state.SrAlgorithm;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.state.SrCapabilities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.state.SrSidLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.linkstate.path.attribute.LinkStateAttribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.linkstate.path.attribute.link.state.attribute.NodeAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.linkstate.path.attribute.link.state.attribute.NodeAttributesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.linkstate.path.attribute.link.state.attribute.node.attributes._case.NodeAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.linkstate.path.attribute.link.state.attribute.node.attributes._case.NodeAttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.SidLabelBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,8 +111,8 @@ final class NodeAttributesParser {
                 LOG.debug("Parsed IPv6 Router Identifier {}", ip6);
                 break;
             case SID_LABEL_BINDING:
-                final SidLabelBinding label = SrNodeAttributesParser.parseSidLabelBinding(value);
-                // builder.set
+                final SrSidLabel label = SrNodeAttributesParser.parseSidLabelBinding(value);
+                builder.setSrSidLabel(label);
                 LOG.debug("Parsed SID Label Binding {}", label);
                 break;
             case SR_CAPABILITIES:
@@ -161,6 +161,21 @@ final class NodeAttributesParser {
         }
         if (nodeAttributes.getIpv6RouterId() != null) {
             TlvUtil.writeTLV(TlvUtil.LOCAL_IPV6_ROUTER_ID, Ipv6Util.byteBufForAddress(nodeAttributes.getIpv6RouterId()), byteAggregator);
+        }
+        if (nodeAttributes.getSrSidLabel() != null) {
+            final ByteBuf sidBuffer = Unpooled.buffer();
+            SrNodeAttributesParser.serializeSidLabelBinding(nodeAttributes.getSrSidLabel(), sidBuffer);
+            TlvUtil.writeTLV(SID_LABEL_BINDING, sidBuffer, byteAggregator);
+        }
+        if (nodeAttributes.getSrCapabilities() != null) {
+            final ByteBuf capBuffer = Unpooled.buffer();
+            SrNodeAttributesParser.serializeSrCapabilities(nodeAttributes.getSrCapabilities(), capBuffer);
+            TlvUtil.writeTLV(SR_CAPABILITIES, capBuffer, byteAggregator);
+        }
+        if (nodeAttributes.getSrAlgorithm() != null) {
+            final ByteBuf capBuffer = Unpooled.buffer();
+            SrNodeAttributesParser.serializeSrAlgorithms(nodeAttributes.getSrAlgorithm(), capBuffer);
+            TlvUtil.writeTLV(SR_ALGORITHMS, capBuffer, byteAggregator);
         }
         LOG.trace("Finished serializing Node Attributes");
     }
