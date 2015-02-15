@@ -87,7 +87,7 @@ module bgp-segment-routing {
         }
         leaf router-id {
             type binary {
-                length 20;
+                range 4...16;
             }
             mandatory true;
         }
