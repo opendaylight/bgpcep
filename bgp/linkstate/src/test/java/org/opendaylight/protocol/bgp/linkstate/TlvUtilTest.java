@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bgp.linkstate;
 
+import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import org.junit.Test;

@@ -7,13 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.attribute.sr;
 
+import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
+
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
-import org.opendaylight.protocol.bgp.linkstate.TlvUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;

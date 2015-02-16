@@ -7,11 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.nlri;
 
+import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
+
 import com.google.common.primitives.UnsignedInteger;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
-import org.opendaylight.protocol.bgp.linkstate.TlvUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;

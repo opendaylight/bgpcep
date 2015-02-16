@@ -7,13 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.nlri;
 
+import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.math.BigInteger;
 import java.util.List;
-import org.opendaylight.protocol.bgp.linkstate.TlvUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
