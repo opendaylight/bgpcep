@@ -115,9 +115,8 @@ final class LinkAttributesParser {
             case UNRESERVED_BANDWIDTH:
                 final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.UnreservedBandwidth> unreservedBandwidth = new ArrayList<>(UNRESERVED_BW_COUNT);
                 for (int i = 0; i < UNRESERVED_BW_COUNT; i++) {
-                    final ByteBuf v = value.slice(value.readerIndex(), BANDWIDTH_LENGTH);
+                    final ByteBuf v = value.readSlice(BANDWIDTH_LENGTH);
                     unreservedBandwidth.add(new UnreservedBandwidthBuilder().setBandwidth(new Bandwidth(ByteArray.readAllBytes(v))).setPriority((short) i).build());
-                    value.skipBytes(BANDWIDTH_LENGTH);
                 }
                 builder.setUnreservedBandwidth(unreservedBandwidth);
                 LOG.debug("Parsed Unreserved Bandwidth {}", builder.getUnreservedBandwidth());

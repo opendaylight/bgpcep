@@ -69,8 +69,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
         final int length = buffer.readUnsignedShort();
         final NodeIdentifier remote = null;
         if (type == REMOTE_NODE_DESCRIPTORS) {
-            builder.setRemoteNodeDescriptors((RemoteNodeDescriptors) NodeNlriParser.parseNodeDescriptors(buffer.slice(buffer.readerIndex(), length), false));
-            buffer.skipBytes(length);
+            builder.setRemoteNodeDescriptors((RemoteNodeDescriptors) NodeNlriParser.parseNodeDescriptors(buffer.readSlice(length), false));
         }
         builder.setLinkDescriptors(LinkNlriParser.parseLinkDescriptors(buffer.slice()));
         return remote;
@@ -118,14 +117,13 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
             final int localtype = nlri.readUnsignedShort();
             locallength = nlri.readUnsignedShort();
             if (localtype == LOCAL_NODE_DESCRIPTORS) {
-                localDescriptor = NodeNlriParser.parseNodeDescriptors(nlri.slice(nlri.readerIndex(), locallength), true);
+                localDescriptor = NodeNlriParser.parseNodeDescriptors(nlri.readSlice(locallength), true);
             }
-            nlri.skipBytes(locallength);
             builder.setLocalNodeDescriptors((LocalNodeDescriptors) localDescriptor);
             final int restLength = length - (isVpn ? ROUTE_DISTINGUISHER_LENGTH : 0) - PROTOCOL_ID_LENGTH - IDENTIFIER_LENGTH
                 - TYPE_LENGTH - LENGTH_SIZE - locallength;
             LOG.trace("Restlength {}", restLength);
-            final ByteBuf rest = nlri.slice(nlri.readerIndex(), restLength);
+            final ByteBuf rest = nlri.readSlice(restLength);
             switch (type) {
             case Link:
                 parseLink(builder, rest);
@@ -142,7 +140,6 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
             default:
                 break;
             }
-            nlri.skipBytes(restLength);
             dests.add(builder.build());
         }
         return dests;

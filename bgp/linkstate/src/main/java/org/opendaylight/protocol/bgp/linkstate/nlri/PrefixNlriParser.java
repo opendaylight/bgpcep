@@ -37,7 +37,7 @@ final class PrefixNlriParser {
         while (buffer.isReadable()) {
             final int type = buffer.readUnsignedShort();
             final int length = buffer.readUnsignedShort();
-            final ByteBuf value = buffer.slice(buffer.readerIndex(), length);
+            final ByteBuf value = buffer.readSlice(length);
             if (LOG.isTraceEnabled()) {
                 LOG.trace("Parsing Prefix Descriptor: {}", ByteBufUtil.hexDump(value));
             }
@@ -72,7 +72,6 @@ final class PrefixNlriParser {
             default:
                 throw new BGPParsingException("Prefix Descriptor not recognized, type: " + type);
             }
-            buffer.skipBytes(length);
         }
         LOG.debug("Finished parsing Prefix descriptors.");
         return builder.build();

@@ -10,13 +10,10 @@ package org.opendaylight.protocol.bgp.parser.spi.pojo;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
 import org.opendaylight.bgp.concepts.NextHopUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -121,7 +118,7 @@ final class SimpleNlriRegistry implements NlriRegistry {
     }
 
     @Override
-    public void serializeMpReach(MpReachNlri mpReachNlri, ByteBuf byteAggregator) {
+    public void serializeMpReach(final MpReachNlri mpReachNlri, final ByteBuf byteAggregator) {
         byteAggregator.writeShort(this.afiReg.numberForClass(mpReachNlri.getAfi()));
         byteAggregator.writeByte(this.safiReg.numberForClass(mpReachNlri.getSafi()));
 
@@ -134,7 +131,7 @@ final class SimpleNlriRegistry implements NlriRegistry {
     }
 
     @Override
-    public void serializeMpUnReach(MpUnreachNlri mpUnreachNlri, ByteBuf byteAggregator) {
+    public void serializeMpUnReach(final MpUnreachNlri mpUnreachNlri, final ByteBuf byteAggregator) {
         byteAggregator.writeShort(this.afiReg.numberForClass(mpUnreachNlri.getAfi()));
         byteAggregator.writeByte(this.safiReg.numberForClass(mpUnreachNlri.getSafi()));
     }
@@ -153,8 +150,8 @@ final class SimpleNlriRegistry implements NlriRegistry {
         final NlriParser parser = this.handlers.get(createKey(builder.getAfi(), builder.getSafi()));
 
         final int nextHopLength = UnsignedBytes.toInt(buffer.readByte());
-        builder.setCNextHop(NextHopUtil.parseNextHop(buffer.slice(buffer.readerIndex(), nextHopLength)));
-        buffer.skipBytes(nextHopLength + RESERVED);
+        builder.setCNextHop(NextHopUtil.parseNextHop(buffer.readSlice(nextHopLength)));
+        buffer.skipBytes(RESERVED);
 
         final ByteBuf nlri = buffer.slice();
         parser.parseNlri(nlri, builder);

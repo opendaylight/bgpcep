@@ -81,8 +81,7 @@ public class BGPUpdateMessageParser implements MessageParser, MessageSerializer 
         }
         if (totalPathAttrLength > 0) {
             try {
-                final PathAttributes pathAttributes = this.reg.parseAttributes(buffer.slice(buffer.readerIndex(), totalPathAttrLength));
-                buffer.skipBytes(totalPathAttrLength);
+                final PathAttributes pathAttributes = this.reg.parseAttributes(buffer.readSlice(totalPathAttrLength));
                 eventBuilder.setPathAttributes(pathAttributes);
             } catch (final BGPParsingException | RuntimeException e) {
                 // Catch everything else and turn it into a BGPDocumentedException

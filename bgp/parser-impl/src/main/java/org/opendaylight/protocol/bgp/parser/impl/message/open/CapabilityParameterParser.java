@@ -59,8 +59,7 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
     private OptionalCapabilities parseOptionalCapability(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
         final int capCode = buffer.readUnsignedByte();
         final int capLength = buffer.readUnsignedByte();
-        final ByteBuf paramBody = buffer.slice(buffer.readerIndex(), capLength);
-        buffer.skipBytes(capLength);
+        final ByteBuf paramBody = buffer.readSlice(capLength);
         final CParameters ret = this.reg.parseCapability(capCode, paramBody);
         if (ret == null) {
             LOG.debug("Ignoring unsupported capability {}", capCode);
@@ -70,7 +69,7 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
     }
 
     @Override
-    public void serializeParameter(final BgpParameters parameter, ByteBuf byteAggregator) {
+    public void serializeParameter(final BgpParameters parameter, final ByteBuf byteAggregator) {
         if (parameter.getOptionalCapabilities() != null && !parameter.getOptionalCapabilities().isEmpty()) {
             LOG.trace("Started serializing BGP Capability: {}", parameter.getOptionalCapabilities());
             final ByteBuf buffer = Unpooled.buffer();

@@ -99,9 +99,8 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
         while (buffer.isReadable()) {
             final int type = buffer.readUnsignedShort();
             final int length = buffer.readUnsignedShort();
-            final ByteBuf value = buffer.slice(buffer.readerIndex(), length);
+            final ByteBuf value = buffer.readSlice(length);
             map.put(type, value);
-            buffer.skipBytes(length);
         }
         final LinkstatePathAttributeBuilder builder = new LinkstatePathAttributeBuilder();
 

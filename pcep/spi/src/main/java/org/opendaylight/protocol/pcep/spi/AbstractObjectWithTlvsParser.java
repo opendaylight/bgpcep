@@ -41,13 +41,13 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
         }
         final List<VendorInformationTlv> viTlvs = Lists.newArrayList();
         while (bytes.isReadable()) {
-            int type = bytes.readUnsignedShort();
-            int length = bytes.readUnsignedShort();
+            final int type = bytes.readUnsignedShort();
+            final int length = bytes.readUnsignedShort();
             if (length > bytes.readableBytes()) {
                 throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= " + bytes.readableBytes()
                     + ".");
             }
-            final ByteBuf tlvBytes = bytes.slice(bytes.readerIndex(), length);
+            final ByteBuf tlvBytes = bytes.readSlice(length);
             LOG.trace("Parsing PCEP TLV : {}", ByteBufUtil.hexDump(tlvBytes));
 
             if (VendorInformationUtil.isVendorInformationTlv(type)) {
@@ -64,7 +64,7 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
                     addTlv(builder, tlv);
                 }
             }
-            bytes.skipBytes(length + TlvUtil.getPadding(TlvUtil.HEADER_SIZE + length, TlvUtil.PADDED_TO));
+            bytes.skipBytes(TlvUtil.getPadding(TlvUtil.HEADER_SIZE + length, TlvUtil.PADDED_TO));
         }
         addVendorInformationTlvs(builder, viTlvs);
     }

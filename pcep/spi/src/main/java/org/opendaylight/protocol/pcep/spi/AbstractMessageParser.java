@@ -96,13 +96,13 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
                         + objLength + ".");
             }
             // copy bytes for deeper parsing
-            final ByteBuf bytesToPass = bytes.slice(bytes.readerIndex(), objLength - COMMON_OBJECT_HEADER_LENGTH);
+            final ByteBuf bytesToPass = bytes.readSlice(objLength - COMMON_OBJECT_HEADER_LENGTH);
 
             final ObjectHeader header = new ObjectHeaderImpl(flags.get(P_FLAG_OFFSET), flags.get(I_FLAG_OFFSET));
 
             if (VendorInformationUtil.isVendorInformationObject(objClass, objType)) {
                 Preconditions.checkState(this.viRegistry != null);
-                final EnterpriseNumber enterpriseNumber = new EnterpriseNumber(bytes.getUnsignedInt(bytes.readerIndex()));
+                final EnterpriseNumber enterpriseNumber = new EnterpriseNumber(bytesToPass.readUnsignedInt());
                 final Optional<? extends Object> obj = this.viRegistry.parseVendorInformationObject(enterpriseNumber, header, bytesToPass);
                 if (obj.isPresent()) {
                     objs.add(obj.get());
@@ -114,8 +114,6 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
                     objs.add(o);
                 }
             }
-
-            bytes.readerIndex(bytes.readerIndex() + objLength - COMMON_OBJECT_HEADER_LENGTH);
         }
 
         return objs;
