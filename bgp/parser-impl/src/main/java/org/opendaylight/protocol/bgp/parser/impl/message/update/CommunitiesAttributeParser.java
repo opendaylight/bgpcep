@@ -49,8 +49,7 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
     public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) throws BGPDocumentedException {
         final List<Communities> set = Lists.newArrayList();
         while (buffer.isReadable()) {
-            set.add((Communities) parseCommunity(this.refCache, buffer.slice(buffer.readerIndex(), COMMUNITY_LENGTH)));
-            buffer.skipBytes(COMMUNITY_LENGTH);
+            set.add((Communities) parseCommunity(this.refCache, buffer.readSlice(COMMUNITY_LENGTH)));
         }
         builder.setCommunities(set);
     }

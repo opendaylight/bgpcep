@@ -86,8 +86,7 @@ public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectPar
                 throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
                         + buffer.readableBytes());
             }
-            subs.add(this.registry.parseSubobject(type, buffer.slice(buffer.readerIndex(), length), mandatory));
-            buffer.readerIndex(buffer.readerIndex() + length);
+            subs.add(this.registry.parseSubobject(type, buffer.readSlice(length), mandatory));
         }
         return subs;
     }

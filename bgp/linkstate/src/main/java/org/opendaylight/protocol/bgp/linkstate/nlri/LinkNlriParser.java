@@ -38,7 +38,7 @@ final class LinkNlriParser {
         while (buffer.isReadable()) {
             final int type = buffer.readUnsignedShort();
             final int length = buffer.readUnsignedShort();
-            final ByteBuf value = buffer.slice(buffer.readerIndex(), length);
+            final ByteBuf value = buffer.readSlice(length);
             LOG.trace("Parsing Link Descriptor: {}", ByteBufUtil.hexDump(value));
             switch (type) {
             case LINK_LR_IDENTIFIERS:
@@ -75,7 +75,6 @@ final class LinkNlriParser {
             default:
                 throw new BGPParsingException("Link Descriptor not recognized, type: " + type);
             }
-            buffer.skipBytes(length);
         }
         LOG.trace("Finished parsing Link descriptors.");
         return builder.build();

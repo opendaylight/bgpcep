@@ -65,7 +65,7 @@ final class NodeNlriParser {
         while (buffer.isReadable()) {
             final int type = buffer.readUnsignedShort();
             final int length = buffer.readUnsignedShort();
-            final ByteBuf value = buffer.slice(buffer.readerIndex(), length);
+            final ByteBuf value = buffer.readSlice(length);
             if (LOG.isTraceEnabled()) {
                 LOG.trace("Parsing Node Descriptor: {}", ByteBufUtil.hexDump(value));
             }
@@ -89,7 +89,6 @@ final class NodeNlriParser {
             default:
                 throw new BGPParsingException("Node Descriptor not recognized, type: " + type);
             }
-            buffer.skipBytes(length);
         }
         LOG.trace("Finished parsing Node descriptors.");
         return (local) ? new LocalNodeDescriptorsBuilder().setAsNumber(asnumber).setDomainId(bgpId).setAreaId(ai).setCRouterIdentifier(

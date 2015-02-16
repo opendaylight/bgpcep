@@ -92,12 +92,11 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
                     LOG.warn("Ignoring unrecognized attribute type {}. Some data might be missing from the output.", type);
                 }
             } else {
-                attributes.put(type, new RawAttribute(parser, buffer.slice(buffer.readerIndex(), len)));
+                attributes.put(type, new RawAttribute(parser, buffer.readSlice(len)));
             }
         } else {
             LOG.debug("Ignoring duplicate attribute type {}", type);
         }
-        buffer.skipBytes(len);
     }
 
     @Override

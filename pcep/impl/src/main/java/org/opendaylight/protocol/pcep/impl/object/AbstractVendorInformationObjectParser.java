@@ -13,10 +13,8 @@ import static org.opendaylight.protocol.pcep.spi.VendorInformationUtil.VENDOR_IN
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.EnterpriseSpecificInformationParser;
 import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
@@ -34,7 +32,6 @@ public abstract class AbstractVendorInformationObjectParser implements ObjectSer
     public final Object parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
         Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final VendorInformationObjectBuilder builder = new VendorInformationObjectBuilder();
-        buffer.readUnsignedInt();
         builder.setEnterpriseNumber(new EnterpriseNumber(getEnterpriseNumber()));
         builder.setEnterpriseSpecificInformation(parseEnterpriseSpecificInformation(buffer));
         return builder.build();

@@ -1100,8 +1100,9 @@ public class PCEPObjectParserTest {
         final VendorInformationObject viObj = new VendorInformationObjectBuilder().setEnterpriseNumber(new EnterpriseNumber(0L))
                 .setEnterpriseSpecificInformation(esInfo).build();
         final ByteBuf result = Unpooled.wrappedBuffer(viObjBytes);
-
-        assertEquals(viObj, parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
+        result.readerIndex(8);
+        final VendorInformationObject o = (VendorInformationObject) parser.parseObject(new ObjectHeaderImpl(false, false), result.readSlice(result.readableBytes()));
+        assertEquals(viObj, o);
 
         final ByteBuf buf = Unpooled.buffer(viObjBytes.length);
         parser.serializeObject(viObj, buf);

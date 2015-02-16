@@ -54,15 +54,9 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
                     + "; Expected: " + (messageLength - MessageUtil.COMMON_HEADER_LENGTH) + ". ");
         }
 
-        final ByteBuf msgBody = buffer.slice(buffer.readerIndex(), messageLength - MessageUtil.COMMON_HEADER_LENGTH);
+        final ByteBuf msgBody = buffer.readSlice(messageLength - MessageUtil.COMMON_HEADER_LENGTH);
 
-        Notification msg = null;
-        try {
-            msg = parseBody(messageType, msgBody, messageLength);
-        } finally {
-            // Always reads body bytes
-            buffer.skipBytes(messageLength - MessageUtil.COMMON_HEADER_LENGTH);
-        }
+        final Notification msg = parseBody(messageType, msgBody, messageLength);
         if (msg == null) {
             throw new BGPDocumentedException("Unhandled message type " + messageType, BGPError.BAD_MSG_TYPE, new byte[] { typeBytes });
         }
