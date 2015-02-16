@@ -9,7 +9,6 @@ package org.opendaylight.protocol.pcep.impl.subobject;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -80,8 +79,8 @@ public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectPar
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject> subs = new ArrayList<>();
         while (buffer.isReadable()) {
             final boolean mandatory = ((buffer.getByte(buffer.readerIndex()) & (1 << Values.FIRST_BIT_OFFSET)) != 0) ? true : false;
-            final int type = (buffer.readByte() & Values.BYTE_MAX_VALUE_BYTES) & ~(1 << Values.FIRST_BIT_OFFSET);
-            final int length = UnsignedBytes.toInt(buffer.readByte()) - HEADER_LENGTH;
+            final int type = (buffer.readUnsignedByte() & Values.BYTE_MAX_VALUE_BYTES) & ~(1 << Values.FIRST_BIT_OFFSET);
+            final int length = buffer.readUnsignedByte() - HEADER_LENGTH;
             if (length > buffer.readableBytes()) {
                 throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
                         + buffer.readableBytes());

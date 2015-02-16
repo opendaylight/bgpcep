@@ -11,7 +11,6 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Prefix;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -50,12 +49,12 @@ public class XROIpv4PrefixSubobjectParser implements XROSubobjectParser, XROSubo
         if (buffer.readableBytes() != CONTENT4_LENGTH) {
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ";");
         }
-        final int length = UnsignedBytes.toInt(buffer.getByte(PREFIX4_F_OFFSET));
-        IpPrefixBuilder prefix = new IpPrefixBuilder().setIpPrefix(new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.readBytes(buffer,
+        final int length = buffer.getUnsignedByte(PREFIX4_F_OFFSET);
+        final IpPrefixBuilder prefix = new IpPrefixBuilder().setIpPrefix(new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.readBytes(buffer,
                 Ipv4Util.IP4_LENGTH), length)));
         builder.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(prefix.build()).build());
         buffer.readerIndex(buffer.readerIndex() + PREFIX_F_LENGTH);
-        builder.setAttribute(Attribute.forValue(UnsignedBytes.toInt(buffer.readByte())));
+        builder.setAttribute(Attribute.forValue(buffer.readUnsignedByte()));
         return builder.build();
     }
 

@@ -11,7 +11,6 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Prefix;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.BitSet;
@@ -53,8 +52,8 @@ public class RROIpv6PrefixSubobjectParser implements RROSubobjectParser, RROSubo
         if (buffer.readableBytes() != CONTENT_LENGTH) {
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ";");
         }
-        final int length = UnsignedBytes.toInt(buffer.getByte(PREFIX_F_OFFSET));
-        IpPrefixBuilder prefix = new IpPrefixBuilder().setIpPrefix(new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.readBytes(buffer,
+        final int length = buffer.getUnsignedByte(PREFIX_F_OFFSET);
+        final IpPrefixBuilder prefix = new IpPrefixBuilder().setIpPrefix(new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.readBytes(buffer,
                 Ipv6Util.IPV6_LENGTH), length)));
         buffer.readerIndex(buffer.readerIndex() + PREFIX_F_LENGTH);
         final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, FLAGS_F_LENGTH));

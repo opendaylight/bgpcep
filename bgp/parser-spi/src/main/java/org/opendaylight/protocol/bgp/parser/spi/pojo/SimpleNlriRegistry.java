@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.concurrent.ConcurrentHashMap;
@@ -97,7 +96,7 @@ final class SimpleNlriRegistry implements NlriRegistry {
     }
 
     private Class<? extends SubsequentAddressFamily> getSafi(final ByteBuf buffer) throws BGPParsingException {
-        final int safiVal = UnsignedBytes.toInt(buffer.readByte());
+        final int safiVal = buffer.readUnsignedByte();
         final Class<? extends SubsequentAddressFamily> safi = this.safiReg.classForFamily(safiVal);
         if (safi == null) {
             throw new BGPParsingException("Subsequent Address Family Identifier: '" + safiVal + "' not supported.");
@@ -149,7 +148,7 @@ final class SimpleNlriRegistry implements NlriRegistry {
 
         final NlriParser parser = this.handlers.get(createKey(builder.getAfi(), builder.getSafi()));
 
-        final int nextHopLength = UnsignedBytes.toInt(buffer.readByte());
+        final int nextHopLength = buffer.readUnsignedByte();
         builder.setCNextHop(NextHopUtil.parseNextHop(buffer.readSlice(nextHopLength)));
         buffer.skipBytes(RESERVED);
 

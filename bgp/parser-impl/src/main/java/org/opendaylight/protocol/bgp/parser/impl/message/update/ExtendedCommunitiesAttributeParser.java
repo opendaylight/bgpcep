@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -97,8 +96,8 @@ public class ExtendedCommunitiesAttributeParser implements AttributeParser,Attri
     }
 
     protected void parseHeader(final ExtendedCommunitiesBuilder exBuilder, final ByteBuf buffer) {
-        exBuilder.setCommType((short) UnsignedBytes.toInt(buffer.readByte()));
-        exBuilder.setCommSubType((short) UnsignedBytes.toInt(buffer.readByte()));
+        exBuilder.setCommType(buffer.readUnsignedByte());
+        exBuilder.setCommSubType(buffer.readUnsignedByte());
     }
 
     /**

@@ -38,9 +38,9 @@ public abstract class AbstractXROWithSubobjectsParser implements ObjectParser, O
         Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final List<Subobject> subs = new ArrayList<>();
         while (buffer.isReadable()) {
-            final boolean mandatory = ((buffer.getByte(buffer.readerIndex()) & (1 << Values.FIRST_BIT_OFFSET)) != 0) ? true : false;
-            final int type = UnsignedBytes.checkedCast((buffer.readByte() & Values.BYTE_MAX_VALUE_BYTES) & ~(1 << Values.FIRST_BIT_OFFSET));
-            final int length = UnsignedBytes.toInt(buffer.readByte()) - HEADER_LENGTH;
+            final boolean mandatory = ((buffer.getUnsignedByte(buffer.readerIndex()) & (1 << Values.FIRST_BIT_OFFSET)) != 0) ? true : false;
+            final int type = UnsignedBytes.checkedCast((buffer.readUnsignedByte() & Values.BYTE_MAX_VALUE_BYTES) & ~(1 << Values.FIRST_BIT_OFFSET));
+            final int length = buffer.readUnsignedByte() - HEADER_LENGTH;
             if (length > buffer.readableBytes()) {
                 throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
                         + buffer.readableBytes());

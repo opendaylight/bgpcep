@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.impl.object;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -54,8 +53,8 @@ public class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<C
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
         bytes.readerIndex(bytes.readerIndex() + NT_F_OFFSET);
-        builder.setType((short) UnsignedBytes.toInt(bytes.readByte()));
-        builder.setValue((short) UnsignedBytes.toInt(bytes.readByte()));
+        builder.setType(bytes.readUnsignedByte());
+        builder.setValue(bytes.readUnsignedByte());
         parseTlvs(builder, bytes.slice());
         return builder.build();
     }

@@ -12,7 +12,6 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.BitSet;
@@ -67,8 +66,8 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         builder.setExcludeAny(new AttributeFilter(bytes.readUnsignedInt()));
         builder.setIncludeAll(new AttributeFilter(bytes.readUnsignedInt()));
         builder.setIncludeAny(new AttributeFilter(bytes.readUnsignedInt()));
-        builder.setSetupPriority((short) UnsignedBytes.toInt(bytes.readByte()));
-        builder.setHoldPriority((short) UnsignedBytes.toInt(bytes.readByte()));
+        builder.setSetupPriority(bytes.readUnsignedByte());
+        builder.setHoldPriority(bytes.readUnsignedByte());
 
         final BitSet flags = ByteArray.bytesToBitSet(new byte[] { bytes.readByte() });
         builder.setLocalProtectionDesired(flags.get(L_FLAG_OFFSET));

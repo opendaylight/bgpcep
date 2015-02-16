@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -67,12 +66,12 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
         final ArrayList<Segments> ases = new ArrayList<>();
         boolean isSequence = false;
         while (buffer.isReadable()) {
-            final int type = UnsignedBytes.toInt(buffer.readByte());
+            final int type = buffer.readUnsignedByte();
             final SegmentType segmentType = AsPathSegmentParser.parseType(type);
             if (segmentType == null) {
                 throw new BGPParsingException("AS Path segment type unknown : " + type);
             }
-            final int count = UnsignedBytes.toInt(buffer.readByte());
+            final int count = buffer.readUnsignedByte();
 
             if (segmentType == SegmentType.AS_SEQUENCE) {
                 final List<AsSequence> numbers = AsPathSegmentParser.parseAsSequence(refCache, count, buffer.readSlice(count * AsPathSegmentParser.AS_NUMBER_LENGTH));

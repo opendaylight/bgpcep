@@ -11,7 +11,6 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -47,7 +46,7 @@ public class XROUnnumberedInterfaceSubobjectParser implements XROSubobjectParser
         buffer.readerIndex(buffer.readerIndex() + RESERVED);
         final SubobjectBuilder builder = new SubobjectBuilder();
         builder.setMandatory(mandatory);
-        builder.setAttribute(Attribute.forValue(UnsignedBytes.toInt(buffer.readByte())));
+        builder.setAttribute(Attribute.forValue(buffer.readUnsignedByte()));
         final UnnumberedBuilder ubuilder = new UnnumberedBuilder();
         ubuilder.setRouterId(buffer.readUnsignedInt());
         ubuilder.setInterfaceId(buffer.readUnsignedInt());

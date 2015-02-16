@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.parser.impl.message.open;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -118,7 +117,7 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
         final int flagBits = (buffer.getByte(0) >> RESTART_FLAGS_SIZE);
         cb.setRestartFlags(new RestartFlags((flagBits & Byte.SIZE) != 0));
 
-        final int timer = ((buffer.readByte() & TIMER_TOPBITS_MASK) << RESTART_FLAGS_SIZE) + UnsignedBytes.toInt(buffer.readByte());
+        final int timer = ((buffer.readUnsignedByte() & TIMER_TOPBITS_MASK) << RESTART_FLAGS_SIZE) + buffer.readUnsignedByte();
         cb.setRestartTime(timer);
 
         final List<Tables> tables = new ArrayList<>();
@@ -130,14 +129,14 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
                 buffer.skipBytes(PER_AFI_SAFI_SIZE - 2);
                 continue;
             }
-            final int safiVal = UnsignedBytes.toInt(buffer.readByte());
+            final int safiVal = buffer.readUnsignedByte();
             final Class<? extends SubsequentAddressFamily> safi = this.safiReg.classForFamily(safiVal);
             if (safi == null) {
                 LOG.debug("Ignoring GR capability for unknown subsequent address family {}", safiVal);
                 buffer.skipBytes(1);
                 continue;
             }
-            final int flags = UnsignedBytes.toInt(buffer.readByte());
+            final int flags = buffer.readUnsignedByte();
             tables.add(new TablesBuilder().setAfi(afi).setSafi(safi).setAfiFlags(new AfiFlags((flags & AFI_FLAG_FORWARDING_STATE) != 0)).build());
         }
         cb.setTables(tables);

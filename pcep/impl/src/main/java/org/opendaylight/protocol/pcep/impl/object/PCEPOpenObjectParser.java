@@ -11,7 +11,6 @@ package org.opendaylight.protocol.pcep.impl.object;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -58,7 +57,7 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 
     private static final int PCEP_VERSION = 1;
 
-    public PCEPOpenObjectParser(TlvRegistry tlvReg, VendorInformationTlvRegistry viTlvReg) {
+    public PCEPOpenObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
         super(tlvReg, viTlvReg);
     }
 
@@ -71,15 +70,15 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         builder.setVersion(new ProtocolVersion((short) versionValue));
         builder.setProcessingRule(header.isProcessingRule());
         builder.setIgnore(header.isIgnore());
-        final short keepalive = (short) UnsignedBytes.toInt(bytes.readByte());
+        final short keepalive = bytes.readUnsignedByte();
         builder.setKeepalive(keepalive);
-        final short deadTimer = (short) UnsignedBytes.toInt(bytes.readByte());
+        final short deadTimer = bytes.readUnsignedByte();
         if(keepalive == 0) {
             builder.setDeadTimer((short) 0);
         } else {
             builder.setDeadTimer(deadTimer);
         }
-        builder.setSessionId((short) UnsignedBytes.toInt(bytes.readByte()));
+        builder.setSessionId(bytes.readUnsignedByte());
 
         final TlvsBuilder tbuilder = new TlvsBuilder();
         parseTlvs(tbuilder, bytes.slice());
