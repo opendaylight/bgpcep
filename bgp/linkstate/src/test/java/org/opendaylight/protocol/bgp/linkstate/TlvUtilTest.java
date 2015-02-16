@@ -11,6 +11,7 @@ package org.opendaylight.protocol.bgp.linkstate;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 
 public class TlvUtilTest {
 
