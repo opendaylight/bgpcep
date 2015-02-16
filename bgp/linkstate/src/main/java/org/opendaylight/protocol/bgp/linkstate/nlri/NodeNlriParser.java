@@ -11,7 +11,7 @@ import com.google.common.primitives.UnsignedInteger;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
-import org.opendaylight.protocol.bgp.linkstate.TlvUtil;
+import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -42,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 final class NodeNlriParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(NodeNlriParser.class);
