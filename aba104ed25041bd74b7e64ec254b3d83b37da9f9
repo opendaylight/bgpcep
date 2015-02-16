@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_f171bca8",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/sr/SrNodeAttributesParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-02-16T18:47:25Z",
+      "side": 1,
+      "message": "\"return b \u003d\u003d 0;\"",
+      "revId": "aba104ed25041bd74b7e64ec254b3d83b37da9f9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_916ab8b1",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/sr/SrNodeAttributesParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-02-16T18:47:25Z",
+      "side": 1,
+      "message": "no need for parentheses",
+      "revId": "aba104ed25041bd74b7e64ec254b3d83b37da9f9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
