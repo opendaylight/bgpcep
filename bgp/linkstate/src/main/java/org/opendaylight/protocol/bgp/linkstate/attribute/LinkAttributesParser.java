@@ -195,7 +195,7 @@ final class LinkAttributesParser {
         }
         // this sub-TLV contains eight 32-bit IEEE floating point numbers
         final List<UnreservedBandwidth> ubList = linkAttributes.getUnreservedBandwidth();
-        if (ubList != null && !ubList.isEmpty()) {
+        if (ubList != null) {
             final ByteBuf unreservedBandwithBuf = Unpooled.buffer();
             for (final UnreservedBandwidth unreservedBandwidth : ubList) {
                 unreservedBandwithBuf.writeBytes(unreservedBandwidth.getBandwidth().getValue());
@@ -214,7 +214,7 @@ final class LinkAttributesParser {
             TlvUtil.writeTLV(METRIC, Unpooled.copyMedium(linkAttributes.getMetric().getValue().intValue()), byteAggregator);
         }
         final List<SrlgId> srlgList = linkAttributes.getSharedRiskLinkGroups();
-        if (srlgList != null && !srlgList.isEmpty()) {
+        if (srlgList != null) {
             final ByteBuf sharedRLGBuf = Unpooled.buffer();
             for (final SrlgId srlgId : srlgList) {
                 sharedRLGBuf.writeInt(srlgId.getValue().intValue());

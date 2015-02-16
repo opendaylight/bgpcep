@@ -42,7 +42,7 @@ public class PCEPMonitoringRequestMessageParser extends PCEPRequestMessageParser
     }
 
     @Override
-    public void serializeMessage(Message message, ByteBuf out) {
+    public void serializeMessage(final Message message, final ByteBuf out) {
         Preconditions.checkArgument(message instanceof Pcmonreq, "Wrong instance of Message. Passed instance of %s. Need Pcmonreq.", message.getClass());
         final PcreqMessage msg = ((Pcmonreq) message).getPcreqMessage();
         if (msg.getMonitoringRequest() == null) {
@@ -53,14 +53,14 @@ public class PCEPMonitoringRequestMessageParser extends PCEPRequestMessageParser
         if (msg.getSvec() != null) {
             serializeSvec(msg, buffer);
         }
-        if (msg.getRequests() != null && !msg.getRequests().isEmpty()) {
+        if (msg.getRequests() != null) {
             serializeRequest(msg, buffer);
         }
         MessageUtil.formatMessage(TYPE, buffer, out);
     }
 
     @Override
-    protected Message validate(List<Object> objects, List<Message> errors) throws PCEPDeserializerException {
+    protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
         if (objects == null) {
             throw new IllegalArgumentException("Passed list can't be null.");
         }

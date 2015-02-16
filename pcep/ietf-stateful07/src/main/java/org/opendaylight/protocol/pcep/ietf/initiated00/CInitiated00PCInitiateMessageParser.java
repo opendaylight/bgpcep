@@ -63,7 +63,7 @@ public class CInitiated00PCInitiateMessageParser extends AbstractMessageParser {
         serializeObject(req.getEro(), buffer);
         serializeObject(req.getLspa(), buffer);
         serializeObject(req.getBandwidth(), buffer);
-        if (req.getMetrics() != null && !req.getMetrics().isEmpty()) {
+        if (req.getMetrics() != null) {
             for (final Metrics m : req.getMetrics()) {
                 serializeObject(m.getMetric(), buffer);
             }

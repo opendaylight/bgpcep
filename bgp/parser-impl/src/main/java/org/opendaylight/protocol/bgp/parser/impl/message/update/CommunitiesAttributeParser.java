@@ -84,7 +84,7 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
         Preconditions.checkArgument(attribute instanceof PathAttributes, "Attribute parameter is not a PathAttribute object.");
         final PathAttributes pathAttributes = (PathAttributes) attribute;
         final List<Communities> communities = pathAttributes.getCommunities();
-        if (communities == null || communities.isEmpty()) {
+        if (communities == null) {
             return;
         }
         final ByteBuf communitiesBuffer = Unpooled.buffer();
