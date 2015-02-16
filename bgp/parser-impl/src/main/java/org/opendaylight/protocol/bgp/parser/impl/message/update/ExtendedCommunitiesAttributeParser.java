@@ -90,8 +90,7 @@ public class ExtendedCommunitiesAttributeParser implements AttributeParser,Attri
         while (buffer.isReadable()) {
             final ExtendedCommunitiesBuilder exBuilder = new ExtendedCommunitiesBuilder();
             parseHeader(exBuilder, buffer);
-            final ExtendedCommunities comm = parseExtendedCommunity(this.refCache, exBuilder, buffer.slice(buffer.readerIndex(), EXTENDED_COMMUNITY_LENGTH));
-            buffer.skipBytes(EXTENDED_COMMUNITY_LENGTH);
+            final ExtendedCommunities comm = parseExtendedCommunity(this.refCache, exBuilder, buffer.readSlice(EXTENDED_COMMUNITY_LENGTH));
             set.add(comm);
         }
         builder.setExtendedCommunities(set);

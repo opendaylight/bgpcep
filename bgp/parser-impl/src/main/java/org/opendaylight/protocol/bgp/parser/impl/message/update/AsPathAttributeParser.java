@@ -75,18 +75,14 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
             final int count = UnsignedBytes.toInt(buffer.readByte());
 
             if (segmentType == SegmentType.AS_SEQUENCE) {
-                final List<AsSequence> numbers = AsPathSegmentParser.parseAsSequence(refCache, count, buffer.slice(buffer.readerIndex(),
-                    count * AsPathSegmentParser.AS_NUMBER_LENGTH));
+                final List<AsSequence> numbers = AsPathSegmentParser.parseAsSequence(refCache, count, buffer.readSlice(count * AsPathSegmentParser.AS_NUMBER_LENGTH));
                 ases.add(new SegmentsBuilder().setCSegment(
                     new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(numbers).build()).build()).build());
                 isSequence = true;
             } else {
-                final List<AsNumber> list = AsPathSegmentParser.parseAsSet(refCache, count, buffer.slice(buffer.readerIndex(), count
-                    * AsPathSegmentParser.AS_NUMBER_LENGTH));
+                final List<AsNumber> list = AsPathSegmentParser.parseAsSet(refCache, count, buffer.readSlice(count * AsPathSegmentParser.AS_NUMBER_LENGTH));
                 ases.add(new SegmentsBuilder().setCSegment(new ASetCaseBuilder().setASet(new ASetBuilder().setAsSet(list).build()).build()).build());
-
             }
-            buffer.skipBytes(count * AsPathSegmentParser.AS_NUMBER_LENGTH);
         }
         if (!isSequence) {
             throw new BGPDocumentedException("AS_SEQUENCE must be present in AS_PATH attribute.", BGPError.AS_PATH_MALFORMED);

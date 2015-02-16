@@ -129,7 +129,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 
         final List<BgpParameters> optParams = new ArrayList<>();
         if (optLength > 0) {
-            fillParams(body.slice(body.readerIndex(), optLength), optParams);
+            fillParams(body.slice(), optParams);
         }
         LOG.debug("BGP Open message was parsed: AS = {}, holdTimer = {}, bgpId = {}, optParams = {}", as, holdTime, bgpId, optParams);
         return new OpenBuilder().setMyAsNumber(as.getValue().intValue()).setHoldTimer(holdTime).setBgpIdentifier(bgpId).setBgpParameters(
@@ -145,7 +145,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
             }
             final int paramType = buffer.readUnsignedByte();
             final int paramLength = buffer.readUnsignedByte();
-            final ByteBuf paramBody = buffer.slice(buffer.readerIndex(), paramLength);
+            final ByteBuf paramBody = buffer.readSlice(paramLength);
 
             final BgpParameters param;
             try {
@@ -158,7 +158,6 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
             } else {
                 LOG.debug("Ignoring BGP Parameter type: {}", paramType);
             }
-            buffer.skipBytes(paramLength);
         }
         LOG.trace("Parsed BGP parameters: {}", Arrays.toString(params.toArray()));
     }

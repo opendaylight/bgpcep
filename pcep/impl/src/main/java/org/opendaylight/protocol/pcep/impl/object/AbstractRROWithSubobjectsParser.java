@@ -37,21 +37,20 @@ public abstract class AbstractRROWithSubobjectsParser implements ObjectParser, O
         Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final List<Subobject> subs = new ArrayList<>();
         while (buffer.isReadable()) {
-            int type = UnsignedBytes.toInt(buffer.readByte());
-            int length = UnsignedBytes.toInt(buffer.readByte()) - HEADER_LENGTH;
+            final int type = UnsignedBytes.toInt(buffer.readByte());
+            final int length = UnsignedBytes.toInt(buffer.readByte()) - HEADER_LENGTH;
             if (length > buffer.readableBytes()) {
                 throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
                         + buffer.readableBytes());
             }
             LOG.debug("Attempt to parse subobject from bytes: {}", ByteBufUtil.hexDump(buffer));
-            final Subobject sub = this.subobjReg.parseSubobject(type, buffer.slice(buffer.readerIndex(), length));
+            final Subobject sub = this.subobjReg.parseSubobject(type, buffer.readSlice(length));
             if (sub == null) {
                 LOG.warn("Unknown subobject type: {}. Ignoring subobject.", type);
             } else {
                 LOG.debug("Subobject was parsed. {}", sub);
                 subs.add(sub);
             }
-            buffer.readerIndex(buffer.readerIndex() + length);
         }
         return subs;
     }
