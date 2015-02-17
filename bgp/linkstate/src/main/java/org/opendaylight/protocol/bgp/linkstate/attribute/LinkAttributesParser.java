@@ -18,6 +18,7 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.Map.Entry;
 import org.opendaylight.protocol.bgp.linkstate.TlvUtil;
+import org.opendaylight.protocol.bgp.linkstate.attribute.sr.SrLinkAttributesParser;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -26,6 +27,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Ipv6RouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkProtectionType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.MplsProtocolMask;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrAdjId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrLanAdjId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.UnreservedBandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.UnreservedBandwidthBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.linkstate.path.attribute.LinkStateAttribute;
@@ -66,6 +69,8 @@ final class LinkAttributesParser {
     private static final int SHARED_RISK_LINK_GROUP = 1096;
     private static final int LINK_OPAQUE = 1097;
     private static final int LINK_NAME = 1098;
+    private static final int SR_ADJ_ID = 1099;
+    private static final int SR_LAN_ADJ_ID = 1100;
 
     /**
      * Parse Link Attributes.
@@ -161,6 +166,14 @@ final class LinkAttributesParser {
                 builder.setLinkName(name);
                 LOG.debug("Parsed Link Name : {}", name);
                 break;
+            case SR_ADJ_ID:
+                final SrAdjId srAdjId = SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value);
+                builder.setSrAdjId(srAdjId);
+                LOG.debug("Parsed Adjacency Segment Identifier :{}", srAdjId);      // TODO: change to appropriate object
+            case SR_LAN_ADJ_ID:
+                final SrLanAdjId srLanAdjId = SrLinkAttributesParser.parseLanAdjacencySegmentIdentifier(value);
+                builder.setSrLanAdjId(srLanAdjId);
+                LOG.debug("Parsed Adjacency Segment Identifier :{}", srLanAdjId);    // TODO: change to appropriate object
             default:
                 LOG.warn("TLV {} is not a valid link attribute, ignoring it", key);
             }
@@ -223,6 +236,12 @@ final class LinkAttributesParser {
         }
         if (linkAttributes.getLinkName() != null) {
             TlvUtil.writeTLV(LINK_NAME, Unpooled.wrappedBuffer(Charsets.UTF_8.encode(linkAttributes.getLinkName())), byteAggregator);
+        }
+        if (linkAttributes.getSrAdjId() != null) {
+            TlvUtil.writeTLV(SR_ADJ_ID, SrLinkAttributesParser.serializeAdjacencySegmentIdentifier(linkAttributes.getSrAdjId()), byteAggregator);
+        }
+        if (linkAttributes.getSrLanAdjId() != null) {
+            TlvUtil.writeTLV(SR_LAN_ADJ_ID, SrLinkAttributesParser.serializeLanAdjacencySegmentIdentifier(linkAttributes.getSrLanAdjId()), byteAggregator);
         }
         LOG.trace("Finished serializing Link Attributes");
     }

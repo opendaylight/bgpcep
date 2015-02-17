@@ -16,6 +16,7 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.Map.Entry;
 import org.opendaylight.protocol.bgp.linkstate.TlvUtil;
+import org.opendaylight.protocol.bgp.linkstate.attribute.sr.SrPrefixAttributesParser;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -48,6 +49,7 @@ final class PrefixAttributesParser {
     private static final int PREFIX_METRIC = 1155;
     private static final int FORWARDING_ADDRESS = 1156;
     private static final int PREFIX_OPAQUE = 1157;
+    private static final int SR_PREFIX = 1158;
 
     /**
      * Parse prefix attributes.
@@ -97,6 +99,8 @@ final class PrefixAttributesParser {
             case PREFIX_OPAQUE:
                 LOG.debug("Parsed Opaque value: {}, not preserving it", ByteBufUtil.hexDump(value));
                 break;
+            case SR_PREFIX:
+                builder.setSrPrefix(SrPrefixAttributesParser.parseSrPrefix(value));
             default:
                 LOG.warn("TLV {} is not a valid prefix attribute, ignoring it", key);
             }
@@ -149,6 +153,9 @@ final class PrefixAttributesParser {
         }
         if (prefixAtrributes.getPrefixMetric() != null) {
             TlvUtil.writeTLV(PREFIX_METRIC, Unpooled.copyInt(prefixAtrributes.getPrefixMetric().getValue().intValue()), byteAggregator);
+        }
+        if (prefixAtrributes.getSrPrefix() != null) {
+            TlvUtil.writeSrTLV(SR_PREFIX, SrPrefixAttributesParser.serializeSrPrefix(prefixAtrributes.getSrPrefix()), byteAggregator);
         }
         serializeForwardingAddress(prefixAtrributes.getOspfForwardingAddress(), byteAggregator);
     }
