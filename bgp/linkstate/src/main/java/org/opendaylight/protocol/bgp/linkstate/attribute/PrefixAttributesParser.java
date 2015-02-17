@@ -147,10 +147,10 @@ final class PrefixAttributesParser {
             }
             TlvUtil.writeTLV(EXTENDED_ROUTE_TAG, extendedBuf, byteAggregator);
         }
+        serializeForwardingAddress(prefixAtrributes.getOspfForwardingAddress(), byteAggregator);
         if (prefixAtrributes.getPrefixMetric() != null) {
             TlvUtil.writeTLV(PREFIX_METRIC, Unpooled.copyInt(prefixAtrributes.getPrefixMetric().getValue().intValue()), byteAggregator);
         }
-        serializeForwardingAddress(prefixAtrributes.getOspfForwardingAddress(), byteAggregator);
     }
 
     private static void serializeForwardingAddress(final IpAddress forwardingAddress, final ByteBuf byteAggregator) {
