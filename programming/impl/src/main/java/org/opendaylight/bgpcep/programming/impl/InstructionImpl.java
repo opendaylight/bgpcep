@@ -182,15 +182,19 @@ final class InstructionImpl implements Instruction {
     }
 
     @Override
-    public synchronized void executionCompleted(final InstructionStatus status, final Details details) {
-        Preconditions.checkState(executionFuture != null);
+    public void executionCompleted(final InstructionStatus status, final Details details) {
+        final ExecutionResult<Details> result;
 
-        cancelTimeout();
+        synchronized (this) {
+            Preconditions.checkState(this.executionFuture != null);
 
-        // We reuse the preconditions set down in this class
-        final ExecutionResult<Details> result = new ExecutionResult<Details>(status, details);
-        setStatus(status, details);
-        executionFuture.set(result);
+            cancelTimeout();
+
+            // We reuse the preconditions set down in this class
+            result = new ExecutionResult<Details>(status, details);
+            setStatus(status, details);
+        }
+        this.executionFuture.set(result);
     }
 
     synchronized void addDependant(final InstructionImpl d) {
