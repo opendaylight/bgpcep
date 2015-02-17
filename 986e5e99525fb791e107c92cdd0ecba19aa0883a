@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_864cb9c9",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/sr/SrLinkAttributesParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-02-17T15:33:04Z",
+      "side": 1,
+      "message": "private",
+      "range": {
+        "startLine": 25,
+        "startChar": 43,
+        "endLine": 25,
+        "endChar": 44
+      },
+      "revId": "986e5e99525fb791e107c92cdd0ecba19aa0883a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_c6dde1e1",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/sr/SrLinkAttributesParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-02-17T15:33:04Z",
+      "side": 1,
+      "message": "reverse order of flags, 0 \u003d 7",
+      "revId": "986e5e99525fb791e107c92cdd0ecba19aa0883a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_46f1d169",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/sr/SrLinkAttributesParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-02-17T15:33:04Z",
+      "side": 1,
+      "message": "move builder creation after the if condition",
+      "range": {
+        "startLine": 37,
+        "startChar": 64,
+        "endLine": 37,
+        "endChar": 67
+      },
+      "revId": "986e5e99525fb791e107c92cdd0ecba19aa0883a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_e6da5de7",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/sr/SrLinkAttributesParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-02-17T15:33:04Z",
+      "side": 1,
+      "message": "buffer.readUnsignedByte()",
+      "range": {
+        "startLine": 43,
+        "startChar": 73,
+        "endLine": 43,
+        "endChar": 79
+      },
+      "revId": "986e5e99525fb791e107c92cdd0ecba19aa0883a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_26ecc58e",
+        "filename": "bgp/linkstate/src/test/java/org/opendaylight/protocol/bgp/linkstate/SrAttributeParserTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-02-17T15:33:04Z",
+      "side": 1,
+      "message": "Flag bytes are wrong, draft states:  \n0 1 2 3 4 5 6 7\n+-+-+-+-+-+-+-+-+\n|F|B|V|L|S|     |\n+-+-+-+-+-+-+-+-+\n\nstarting from leftmost bit.",
+      "range": {
+        "startLine": 110,
+        "startChar": 126,
+        "endLine": 110,
+        "endChar": 128
+      },
+      "revId": "986e5e99525fb791e107c92cdd0ecba19aa0883a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
