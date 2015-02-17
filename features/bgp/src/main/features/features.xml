@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+<!--
+ Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
+
+ This program and the accompanying materials are made available under the
+ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ and is available at http://www.eclipse.org/legal/epl-v10.html
+-->
+
+<features name="odl-bgpcep-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
+
+    <repository>mvn:org.opendaylight.controller/features-config/${config.version}/xml/features</repository>
+    <repository>mvn:org.opendaylight.controller/features-mdsal/${mdsal.version}/xml/features</repository>
+    <repository>mvn:org.opendaylight.yangtools/features-yangtools/${yangtools.version}/xml/features</repository>
+    <repository>mvn:org.opendaylight.tcpmd5/features-tcpmd5/${tcpmd5.version}/xml/features</repository>
+
+    <feature name='odl-bgpcep-bgp-all' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-rib</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-rib-impl</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-flowspec</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-topology</feature>
+        <configfile finalname="etc/opendaylight/karaf/31-bgp.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/${project.version}/xml/config</configfile>
+        <configfile finalname="etc/opendaylight/karaf/41-bgp-example.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/${project.version}/xml/config-example</configfile>
+    </feature>
+
+    <feature name='odl-bgpcep-dependencies' version='${project.version}'>
+        <!--  concepts -->
+        <bundle>mvn:com.google.guava/guava/{{VERSION}}</bundle>
+        <feature version='${yangtools.version}'>odl-yangtools-models</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/concepts/{{VERSION}}</bundle>
+        <!-- util -->
+        <bundle>mvn:commons-codec/commons-codec/{{VERSION}}</bundle>
+        <bundle>mvn:io.netty/netty-common/{{VERSION}}</bundle>
+        <bundle>mvn:io.netty/netty-buffer/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/util/{{VERSION}}</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-bgp-parser' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-dependencies</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-concepts/{{VERSION}}</bundle>
+        <feature version='${config.version}'>odl-config-api</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-api/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-spi/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-impl/{{VERSION}}</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-bgp-rib' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-dependencies</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-api/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-concepts/{{VERSION}}</bundle>
+        <feature version='${protocol-framework.version}'>odl-protocol-framework</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-api/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-spi/{{VERSION}}</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-bgp-linkstate' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-rib</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/rsvp-api/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-linkstate/{{VERSION}}</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-bgp-flowspec' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-rib</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-flowspec/{{VERSION}}</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-bgp-rib-impl' version='${project.version}'>
+        <feature version='${tcpmd5.version}'>odl-tcpmd5-netty</feature>
+        <bundle>mvn:io.netty/netty-codec/${netty.version}</bundle>
+        <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-rib</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-impl/{{VERSION}}</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-bgp-topology' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/topology-api/{{VERSION}}</bundle>
+        <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
+        <feature version='${protocol-framework.version}'>odl-protocol-framework</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-topology-provider/{{VERSION}}</bundle>
+    </feature>
+</features>
