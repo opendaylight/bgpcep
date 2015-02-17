@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.attribute.sr;
 
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -147,7 +146,7 @@ public final class SrNodeAttributesParser {
         final SrSidLabelBuilder builder = new SrSidLabelBuilder();
         final BitSet flags = BitSet.valueOf(ByteArray.readBytes(buffer, FLAGS_SIZE));
         builder.setSidLabelFlags(new SidLabelFlags(flags.get(AFI), flags.get(MIRROR)));
-        builder.setWeight(new Weight((short) UnsignedBytes.checkedCast(buffer.readUnsignedByte())));
+        builder.setWeight(new Weight(buffer.readUnsignedByte()));
         builder.setValueRange(buffer.readUnsignedShort());
         final int length = buffer.readUnsignedByte();
         IpPrefix prefix = null;
@@ -271,7 +270,7 @@ public final class SrNodeAttributesParser {
         final SrAlgorithmBuilder builder = new SrAlgorithmBuilder();
         final List<Algorithm> algs = new ArrayList<>();
         while (buffer.isReadable()) {
-            algs.add(Algorithm.forValue(UnsignedBytes.toInt(buffer.readByte())));
+            algs.add(Algorithm.forValue(buffer.readUnsignedByte()));
         }
         builder.setAlgorithm(algs);
         return builder.build();

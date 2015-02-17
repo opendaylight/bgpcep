@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Map.Entry;
+import org.opendaylight.protocol.bgp.linkstate.attribute.sr.SrPrefixAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -24,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.IgpBits.UpDown;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.RouteTag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.IgpBitsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.linkstate.path.attribute.LinkStateAttribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.linkstate.path.attribute.link.state.attribute.PrefixAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.linkstate.path.attribute.link.state.attribute.PrefixAttributesCaseBuilder;
@@ -48,6 +50,9 @@ final class PrefixAttributesParser {
     private static final int PREFIX_METRIC = 1155;
     private static final int FORWARDING_ADDRESS = 1156;
     private static final int PREFIX_OPAQUE = 1157;
+
+    /* Segment routing TLV */
+    private static final int PREFIX_SID = 1158;
 
     /**
      * Parse prefix attributes.
@@ -96,6 +101,11 @@ final class PrefixAttributesParser {
                 break;
             case PREFIX_OPAQUE:
                 LOG.debug("Parsed Opaque value: {}, not preserving it", ByteBufUtil.hexDump(value));
+                break;
+            case PREFIX_SID:
+                final SrPrefix prefix = SrPrefixAttributesParser.parseSrPrefix(value);
+                builder.setSrPrefix(prefix);
+                LOG.debug("Parsed SR Prefix: {}", prefix);
                 break;
             default:
                 LOG.warn("TLV {} is not a valid prefix attribute, ignoring it", key);
@@ -147,10 +157,16 @@ final class PrefixAttributesParser {
             }
             TlvUtil.writeTLV(EXTENDED_ROUTE_TAG, extendedBuf, byteAggregator);
         }
+        serializeForwardingAddress(prefixAtrributes.getOspfForwardingAddress(), byteAggregator);
         if (prefixAtrributes.getPrefixMetric() != null) {
             TlvUtil.writeTLV(PREFIX_METRIC, Unpooled.copyInt(prefixAtrributes.getPrefixMetric().getValue().intValue()), byteAggregator);
         }
-        serializeForwardingAddress(prefixAtrributes.getOspfForwardingAddress(), byteAggregator);
+        if (prefixAtrributes.getSrPrefix() != null) {
+            final ByteBuf b = Unpooled.buffer();
+            SrPrefixAttributesParser.serializeSrPrefix(prefixAtrributes.getSrPrefix(), b);
+            TlvUtil.writeTLV(PREFIX_SID, b, byteAggregator);
+        }
+
     }
 
     private static void serializeForwardingAddress(final IpAddress forwardingAddress, final ByteBuf byteAggregator) {
