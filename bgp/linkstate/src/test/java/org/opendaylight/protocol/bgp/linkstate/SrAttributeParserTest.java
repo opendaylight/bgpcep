@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.linkstate.attribute.sr.SrNodeAttributesParser;
+import org.opendaylight.protocol.bgp.linkstate.attribute.sr.SrPrefixAttributesParser;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
@@ -30,6 +31,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.state.SrCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.state.SrSidLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.state.SrSidLabelBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrPrefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrPrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.Algorithm;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.SidLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.SidLabelBinding.SidLabelFlags;
@@ -92,6 +95,18 @@ public class SrAttributeParserTest {
         assertEquals(caps, SrNodeAttributesParser.parseSrCapabilities(Unpooled.wrappedBuffer(bytes)));
         final ByteBuf b = Unpooled.buffer();
         SrNodeAttributesParser.serializeSrCapabilities(caps, b);
+        assertArrayEquals(bytes, ByteArray.readAllBytes(b));
+    }
+
+    @Test
+    public void testSrPrefix() {
+        final byte[] bytes = { (byte)0xFC, 0, 1, 2, 3, 4 };
+        final SrPrefix p = new SrPrefixBuilder()
+            .setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.PrefixSid.Flags(true, true, true, true, true, true))
+            .setAlgorithm(Algorithm.ShortestPathFirst).setSid(new SidLabel(new byte[] {1, 2, 3, 4})).build();
+        assertEquals(p, SrPrefixAttributesParser.parseSrPrefix(Unpooled.wrappedBuffer(bytes)));
+        final ByteBuf b = Unpooled.buffer();
+        SrPrefixAttributesParser.serializeSrPrefix(p, b);
         assertArrayEquals(bytes, ByteArray.readAllBytes(b));
     }
 }
