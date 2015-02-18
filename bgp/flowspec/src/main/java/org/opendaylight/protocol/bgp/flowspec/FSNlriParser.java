@@ -469,7 +469,7 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
             final byte b = nlri.readByte();
             final NumericOperand op = parseNumeric(b);
             builder.setOp(op);
-            builder.setValue((short) UnsignedBytes.toInt((nlri.readByte())));
+            builder.setValue(nlri.readUnsignedByte());
             end = op.isEndOfList();
             types.add(builder.build());
         }
@@ -485,7 +485,7 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
             final byte b = nlri.readByte();
             final NumericOperand op = parseNumeric(b);
             builder.setOp(op);
-            builder.setValue((short) UnsignedBytes.toInt((nlri.readByte())));
+            builder.setValue(nlri.readUnsignedByte());
             end = op.isEndOfList();
             codes.add(builder.build());
         }
@@ -537,7 +537,7 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
             // RFC does not specify operator
             final NumericOperand op = parseNumeric(b);
             builder.setOp(op);
-            builder.setValue(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.Dscp((short) UnsignedBytes.toInt((nlri.readByte()))));
+            builder.setValue(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.Dscp(nlri.readUnsignedByte()));
             end = op.isEndOfList();
             dscps.add(builder.build());
         }

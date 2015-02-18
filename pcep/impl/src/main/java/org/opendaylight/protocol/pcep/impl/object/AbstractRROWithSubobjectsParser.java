@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.impl.object;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import java.util.ArrayList;
@@ -37,8 +36,8 @@ public abstract class AbstractRROWithSubobjectsParser implements ObjectParser, O
         Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final List<Subobject> subs = new ArrayList<>();
         while (buffer.isReadable()) {
-            final int type = UnsignedBytes.toInt(buffer.readByte());
-            final int length = UnsignedBytes.toInt(buffer.readByte()) - HEADER_LENGTH;
+            final int type = buffer.readUnsignedByte();
+            final int length = buffer.readUnsignedByte() - HEADER_LENGTH;
             if (length > buffer.readableBytes()) {
                 throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
                         + buffer.readableBytes());

@@ -11,7 +11,6 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.BitSet;
@@ -63,7 +62,7 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<TlvsBui
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
 
-        builder.setNatureOfIssue((short) UnsignedBytes.toInt(bytes.readByte()));
+        builder.setNatureOfIssue(bytes.readUnsignedByte());
         final byte[] flagsByte = ByteArray.readBytes(bytes, FLAGS_F_LENGTH);
         final BitSet flags = ByteArray.bytesToBitSet(flagsByte);
         builder.setUnsatisfiedConstraints(flags.get(C_FLAG_OFFSET));

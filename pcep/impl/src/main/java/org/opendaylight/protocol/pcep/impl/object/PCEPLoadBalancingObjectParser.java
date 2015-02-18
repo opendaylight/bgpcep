@@ -11,7 +11,6 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeFloat32;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.ObjectParser;
@@ -50,7 +49,7 @@ public class PCEPLoadBalancingObjectParser implements ObjectParser, ObjectSerial
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
         bytes.readerIndex(bytes.readerIndex() + RESERVED + FLAGS_F_LENGTH);
-        builder.setMaxLsp((short) UnsignedBytes.toInt(bytes.readByte()));
+        builder.setMaxLsp(bytes.readUnsignedByte());
         builder.setMinBandwidth(new Bandwidth(ByteArray.readAllBytes(bytes)));
         return builder.build();
     }

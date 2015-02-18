@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import java.util.BitSet;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -93,7 +92,7 @@ public class FSExtendedCommunitiesAttributeParser extends ExtendedCommunitiesAtt
                 break;
             case TRAFFIC_MARKING_SUBTYPE:
                 buffer.skipBytes(RESERVED);
-                final Dscp dscp = new Dscp((short) UnsignedBytes.toInt(buffer.readByte()));
+                final Dscp dscp = new Dscp(buffer.readUnsignedByte());
                 c = new TrafficMarkingExtendedCommunityCaseBuilder().setTrafficMarkingExtendedCommunity(new TrafficMarkingExtendedCommunityBuilder().setGlobalAdministrator(dscp).build()).build();
                 break;
             default:

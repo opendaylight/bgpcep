@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.attribute.sr;
 
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -68,7 +67,7 @@ public final class SrNodeAttributesParser {
         final SrAlgorithmBuilder builder = new SrAlgorithmBuilder();
         final List<Algorithm> algs = new ArrayList<>();
         while (buffer.isReadable()) {
-            algs.add(Algorithm.forValue(UnsignedBytes.toInt(buffer.readByte())));
+            algs.add(Algorithm.forValue(buffer.readUnsignedByte()));
         }
         builder.setAlgorithm(algs);
         return builder.build();

@@ -12,7 +12,6 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeFloat32;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.BitSet;
@@ -70,7 +69,7 @@ public class PCEPMetricObjectParser implements ObjectParser, ObjectSerializer {
         builder.setProcessingRule(header.isProcessingRule());
         builder.setBound(flags.get(B_FLAG_OFFSET));
         builder.setComputed(flags.get(C_FLAG_OFFSET));
-        builder.setMetricType((short) UnsignedBytes.toInt(bytes.readByte()));
+        builder.setMetricType(bytes.readUnsignedByte());
         builder.setValue(new Float32(ByteArray.readBytes(bytes, METRIC_VALUE_F_LENGTH)));
         return builder.build();
     }

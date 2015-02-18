@@ -8,13 +8,9 @@
 package org.opendaylight.protocol.pcep.impl.subobject;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.BitSet;
-
 import org.opendaylight.protocol.pcep.spi.LabelRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
@@ -61,7 +57,7 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
         }
         final BitSet reserved = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, RES_F_LENGTH));
 
-        final short cType = (short) UnsignedBytes.toInt(buffer.readByte());
+        final short cType = buffer.readUnsignedByte();
 
         final LabelType labelType = this.registry.parseLabel(cType, buffer.slice());
         if (labelType == null) {

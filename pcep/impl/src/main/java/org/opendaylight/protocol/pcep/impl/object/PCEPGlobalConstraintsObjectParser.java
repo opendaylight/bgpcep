@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.impl.object;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -48,10 +47,10 @@ public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsPar
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
 
-        builder.setMaxHop((short) UnsignedBytes.toInt(bytes.readByte()));
-        builder.setMaxUtilization((short) UnsignedBytes.toInt(bytes.readByte()));
-        builder.setMinUtilization((short) UnsignedBytes.toInt(bytes.readByte()));
-        builder.setOverBookingFactor((short) UnsignedBytes.toInt(bytes.readByte()));
+        builder.setMaxHop(bytes.readUnsignedByte());
+        builder.setMaxUtilization(bytes.readUnsignedByte());
+        builder.setMinUtilization(bytes.readUnsignedByte());
+        builder.setOverBookingFactor(bytes.readUnsignedByte());
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes.slice());
         builder.setTlvs(tlvsBuilder.build());
