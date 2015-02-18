@@ -23,7 +23,7 @@ public final class SrEroUtil {
     }
 
     protected static PCEPErrors validateSrEroSubobjects(final Ero ero) {
-        if (ero.getSubobject() != null && !ero.getSubobject().isEmpty()) {
+        if (ero.getSubobject() != null) {
             for (final Subobject subobject : ero.getSubobject()) {
                 if (!(subobject.getSubobjectType() instanceof SrEroSubobject)) {
                     return PCEPErrors.NON_IDENTICAL_ERO_SUBOBJECTS;

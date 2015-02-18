@@ -145,7 +145,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
     }
 
     protected final void serializeVendorInformationObjects(final List<VendorInformationObject> viObjects, final ByteBuf buffer) {
-        if (viObjects != null && !viObjects.isEmpty()) {
+        if (viObjects != null) {
             for (final VendorInformationObject viObject : viObjects) {
                 this.viRegistry.serializeVendorInformationObject(viObject, buffer);
             }

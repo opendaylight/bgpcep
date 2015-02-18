@@ -170,7 +170,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             mBuilder.setSvec(svecs);
         }
         final List<Requests> requests = getRequests(objects, errors);
-        if (requests != null && !requests.isEmpty()) {
+        if (requests != null) {
             mBuilder.setRequests(requests);
         } else {
             errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.<Rp>absent()));

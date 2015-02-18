@@ -139,7 +139,7 @@ final class NodeAttributesParser {
         LOG.trace("Started serializing Node Attributes");
         final NodeAttributes nodeAttributes = nodeAttributesCase.getNodeAttributes();
         final List<TopologyIdentifier> topList = nodeAttributes.getTopologyIdentifier();
-        if (topList != null && !topList.isEmpty()) {
+        if (topList != null) {
             final ByteBuf mpIdBuf = Unpooled.buffer();
             for (final TopologyIdentifier topologyIdentifier : topList) {
                 mpIdBuf.writeShort(topologyIdentifier.getValue());
@@ -151,7 +151,7 @@ final class NodeAttributesParser {
             TlvUtil.writeTLV(DYNAMIC_HOSTNAME, Unpooled.wrappedBuffer(Charsets.UTF_8.encode(nodeAttributes.getDynamicHostname())), byteAggregator);
         }
         final List<IsisAreaIdentifier> isisList = nodeAttributes.getIsisAreaId();
-        if (isisList != null && !isisList.isEmpty()) {
+        if (isisList != null) {
             for (final IsisAreaIdentifier isisAreaIdentifier : isisList) {
                 TlvUtil.writeTLV(ISIS_AREA_IDENTIFIER, Unpooled.wrappedBuffer(isisAreaIdentifier.getValue()), byteAggregator);
             }

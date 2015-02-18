@@ -140,7 +140,7 @@ final class PrefixAttributesParser {
             TlvUtil.writeTLV(ROUTE_TAG, routeTagsBuf, byteAggregator);
         }
         final List<ExtendedRouteTag> routeTagList = prefixAtrributes.getExtendedTags();
-        if (routeTagList != null && !routeTagList.isEmpty()) {
+        if (routeTagList != null) {
             final ByteBuf extendedBuf = Unpooled.buffer();
             for (final ExtendedRouteTag extendedRouteTag : routeTagList) {
                 extendedBuf.writeBytes(extendedRouteTag.getValue());

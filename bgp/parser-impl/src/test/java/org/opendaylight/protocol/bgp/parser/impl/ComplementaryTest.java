@@ -213,13 +213,13 @@ public class ComplementaryTest {
 
         final ByteBuf serializedBuffer = Unpooled.buffer();
         parser.serializeAttribute(pa.build(), serializedBuffer);
-        assertArrayEquals(new byte[]{ (byte)192, 16, 8, 0, 5, 0, 54, 0, 0, 1, 76,
-            (byte)192, 16, 8, 40, 5, 0, 54, 0, 0, 1, 76,
-            (byte)192, 16, 8, 1, 2, 0, 35, 4, 2, 8, 7,
-            (byte)192, 16, 8, 0, 3, 0, 24, 4, 2, 8, 7,
-            (byte)192, 16, 8, 41, 6, 12, 51, 2, 5, 21, 45,
-            (byte)192, 16, 8, 3, 6, 21, 45, 5, 4, 3, 1,
-            (byte)192, 16, 8, 43, 6, 21, 45, 5, 4, 3, 1 }, ByteArray.readAllBytes(serializedBuffer));
+        assertArrayEquals(new byte[]{ (byte)192, 16, 56, 0, 5, 0, 54, 0, 0, 1, 76,
+            40, 5, 0, 54, 0, 0, 1, 76,
+            1, 2, 0, 35, 4, 2, 8, 7,
+            0, 3, 0, 24, 4, 2, 8, 7,
+            41, 6, 12, 51, 2, 5, 21, 45,
+            3, 6, 21, 45, 5, 4, 3, 1,
+            43, 6, 21, 45, 5, 4, 3, 1 }, ByteArray.readAllBytes(serializedBuffer));
 
         try {
             parser.parseAttribute(Unpooled.copiedBuffer(new byte[] { 11, 11, 21, 45, 5, 4, 3, 1 }), pa);

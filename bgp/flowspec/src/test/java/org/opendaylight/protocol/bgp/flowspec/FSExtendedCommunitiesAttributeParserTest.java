@@ -90,10 +90,10 @@ public class FSExtendedCommunitiesAttributeParserTest {
 
         final ByteBuf serializedBuffer = Unpooled.buffer();
         parser.serializeAttribute(pa.build(), serializedBuffer);
-        assertArrayEquals(new byte[]{ (byte)192, 16, 8, (byte)128, 6, 0, 72, 0, 1, 2, 3,
-            (byte)192, 16, 8, (byte)128, 7, 0, 0, 0, 0, 0, 3,
-            (byte)192, 16, 8, (byte)128, 8, 0, 35, 4, 2, 8, 7,
-            (byte)192, 16, 8, (byte)128, 9, 0, 0, 0, 0, 0, 63 }, ByteArray.readAllBytes(serializedBuffer));
+        assertArrayEquals(new byte[]{ (byte)192, 16, 32, (byte)128, 6, 0, 72, 0, 1, 2, 3,
+            (byte)128, 7, 0, 0, 0, 0, 0, 3,
+            (byte)128, 8, 0, 35, 4, 2, 8, 7,
+            (byte)128, 9, 0, 0, 0, 0, 0, 63 }, ByteArray.readAllBytes(serializedBuffer));
 
         try {
             parser.parseAttribute(Unpooled.copiedBuffer(new byte[] { 11, 11, 21, 45, 5, 4, 3, 1 }), pa);

@@ -59,7 +59,7 @@ public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, O
     }
 
     protected final void serializeSubobject(final List<Subobject> subobjects, final ByteBuf buffer) {
-        if(subobjects != null && !subobjects.isEmpty()) {
+        if(subobjects != null) {
             for (final Subobject subobject : subobjects) {
                 this.subobjReg.serializeSubobject(subobject, buffer);
             }

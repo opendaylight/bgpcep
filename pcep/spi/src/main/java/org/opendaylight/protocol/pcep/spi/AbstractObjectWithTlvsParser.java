@@ -83,7 +83,7 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
     protected abstract void addVendorInformationTlvs(final T builder, final List<VendorInformationTlv> tlvs);
 
     protected final void serializeVendorInformationTlvs(final List<VendorInformationTlv> tlvs, final ByteBuf buffer) {
-        if (tlvs != null && !tlvs.isEmpty()) {
+        if (tlvs != null) {
             for (final VendorInformationTlv tlv : tlvs) {
                 LOG.trace("Serializing VENDOR-INFORMATION TLV {}", tlv);
                 this.viTlvReg.serializeVendorInformationTlv(tlv, buffer);

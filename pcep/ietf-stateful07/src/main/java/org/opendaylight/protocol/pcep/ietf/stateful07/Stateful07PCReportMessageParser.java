@@ -72,7 +72,7 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
             serializeObject(p.getEro(), buffer);
             serializeObject(p.getLspa(), buffer);
             serializeObject(p.getBandwidth(), buffer);
-            if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
+            if (p.getMetrics() != null) {
                 for (final Metrics m : p.getMetrics()) {
                     serializeObject(m.getMetric(), buffer);
                 }

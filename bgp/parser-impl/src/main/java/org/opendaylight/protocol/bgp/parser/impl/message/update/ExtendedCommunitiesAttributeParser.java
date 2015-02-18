@@ -189,15 +189,15 @@ public class ExtendedCommunitiesAttributeParser implements AttributeParser,Attri
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
         Preconditions.checkArgument(attribute instanceof PathAttributes, "Attribute parameter is not a PathAttribute object.");
         final List<ExtendedCommunities> communitiesList = ((PathAttributes) attribute).getExtendedCommunities();
-        if (communitiesList == null || communitiesList.isEmpty()) {
+        if (communitiesList == null) {
             return;
         }
+        final ByteBuf extendedCommunitiesBuffer = Unpooled.buffer();
         for (final ExtendedCommunities extendedCommunities : communitiesList) {
-            final ByteBuf extendedCommunitiesBuffer = Unpooled.buffer();
             serializeHeader(extendedCommunities, extendedCommunitiesBuffer);
             serializeExtendedCommunity(extendedCommunities, extendedCommunitiesBuffer);
-            AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL | AttributeUtil.TRANSITIVE, TYPE, extendedCommunitiesBuffer, byteAggregator);
         }
+        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL | AttributeUtil.TRANSITIVE, TYPE, extendedCommunitiesBuffer, byteAggregator);
     }
 
     protected void serializeHeader(final ExtendedCommunities extendedCommunities, final ByteBuf extendedCommunitiesBuffer) {

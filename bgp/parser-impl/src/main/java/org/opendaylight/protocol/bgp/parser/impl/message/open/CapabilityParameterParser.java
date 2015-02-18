@@ -70,10 +70,10 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
 
     @Override
     public void serializeParameter(final BgpParameters parameter, final ByteBuf byteAggregator) {
-        if (parameter.getOptionalCapabilities() != null && !parameter.getOptionalCapabilities().isEmpty()) {
-            LOG.trace("Started serializing BGP Capability: {}", parameter.getOptionalCapabilities());
+        if (parameter.getOptionalCapabilities() != null) {
             final ByteBuf buffer = Unpooled.buffer();
             for (final OptionalCapabilities optionalCapa : parameter.getOptionalCapabilities()) {
+                LOG.trace("Started serializing BGP Capability: {}", optionalCapa);
                 serializeOptionalCapability(optionalCapa, buffer);
             }
             ParameterUtil.formatParameter(TYPE, buffer, byteAggregator);
