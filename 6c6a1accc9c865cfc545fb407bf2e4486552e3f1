@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_179d3559",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/sr/SrNodeAttributesParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-02-18T13:41:10Z",
+      "side": 1,
+      "message": "this should be a\n\ncontinue;\n\nwith a comment. If we hit the unknown case, sub will be null, and we will add a new subtlv with null type two lines below, which is probably not what we want.",
+      "revId": "6c6a1accc9c865cfc545fb407bf2e4486552e3f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
