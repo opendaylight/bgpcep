@@ -16,11 +16,14 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.SrpBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.pcinitiate.pcinitiate.message.requests.ero.subobject.subobject.type.SrEroTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.setup.type.tlv.PathSetupTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.IpPrefixCaseBuilder;
 
 public class SrEroUtilTest {
@@ -47,6 +50,15 @@ public class SrEroUtilTest {
         Assert.assertEquals(PCEPErrors.BAD_LABEL_VALUE, SrEroUtil.validateSrEroSubobjects(createEro(Lists.newArrayList(createSRSubobject(10L, true)))));
         Assert.assertEquals(PCEPErrors.NON_IDENTICAL_ERO_SUBOBJECTS,
                 SrEroUtil.validateSrEroSubobjects(createEro(Lists.newArrayList(createIpPrefixSubobject()))));
+    }
+
+    @Test
+    public void testIsSegmentRoutingPath() {
+        Assert.assertFalse(SrEroUtil.isSegmentRoutingPath(null));
+        Assert.assertFalse(SrEroUtil.isSegmentRoutingPath(new SrpBuilder().build()));
+        Assert.assertFalse(SrEroUtil.isSegmentRoutingPath(new SrpBuilder().setTlvs(new TlvsBuilder().build()).build()));
+        Assert.assertFalse(SrEroUtil.isSegmentRoutingPath(new SrpBuilder().setTlvs(new TlvsBuilder().setPathSetupType(new PathSetupTypeBuilder().setPst((short) 8).build()).build()).build()));
+        Assert.assertTrue(SrEroUtil.isSegmentRoutingPath(new SrpBuilder().setTlvs(new TlvsBuilder().setPathSetupType(new PathSetupTypeBuilder().setPst((short) 1).build()).build()).build()));
     }
 
     private Ero createEro(final List<Subobject> subobejcts) {
