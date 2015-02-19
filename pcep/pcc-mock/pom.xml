@@ -21,6 +21,10 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>pcep-api</artifactId>
     </dependency>
     <dependency>
@@ -48,6 +52,10 @@
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-buffer</artifactId>
     </dependency>
     <dependency>
       <groupId>io.netty</groupId>
@@ -81,6 +89,10 @@
         <groupId>org.opendaylight.tcpmd5</groupId>
         <artifactId>tcpmd5-api</artifactId>
     </dependency>
+    <dependency>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>jsr305</artifactId>
+    </dependency>
 
     <!-- Testing dependencies -->
     <dependency>
@@ -90,6 +102,16 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.controller</groupId>
+      <artifactId>config-manager</artifactId>
+      <type>test-jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.controller</groupId>
+      <artifactId>config-manager</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
