@@ -34,6 +34,10 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>concepts</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>bgp-concepts</artifactId>
         </dependency>
         <dependency>
@@ -80,6 +84,11 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-linkstate</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

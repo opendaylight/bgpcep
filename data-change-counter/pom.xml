@@ -91,6 +91,7 @@
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>config-manager</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
