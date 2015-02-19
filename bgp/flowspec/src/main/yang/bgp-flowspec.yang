@@ -300,9 +300,14 @@ module bgp-flowspec {
                         to act as the key in the list.
                         Its format does not form the
                         API contract of this model.";
-                    type binary;
+                    type string;
                 }
                 key "route-key";
+                uses bgp-rib:route {
+                    augment attributes {
+                        uses flowspec-destination;
+                    }
+                }
             }
         }
     }
