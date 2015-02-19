@@ -53,6 +53,10 @@ module pcep-message {
         uses pcep:close-message;
     }
 
+    notification starttls {
+        uses pcep:start-tls-message;
+    }
+
     notification pcmonreq {
         uses pcep:pcreq-message;
     }

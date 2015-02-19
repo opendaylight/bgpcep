@@ -1205,4 +1205,15 @@ module pcep-types {
             uses close-object;
         }
     }
+
+    grouping start-tls-message {
+        uses message;
+
+        container start-tls-message {
+            description "StartTLS Message";
+            reference "https://tools.ietf.org/html/draft-ietf-pce-pceps-02#section-3.3";
+
+            uses message-header;
+        }
+    }
 }
