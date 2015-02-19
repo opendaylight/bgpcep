@@ -25,8 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public class PathSetupTypeTlvParser implements TlvParser, TlvSerializer {
 
-    // http://tools.ietf.org/html/draft-sivabalan-pce-ietf-routing-00#section-9.3
-    public static final int TYPE = 27;
+    public static final int TYPE = 28;
 
     private static final int CONTENT_LENGTH = 4;
     private static final int PST_LENGTH = 1;
@@ -41,18 +40,18 @@ public class PathSetupTypeTlvParser implements TlvParser, TlvSerializer {
     }
 
     @Override
-    public void serializeTlv(Tlv tlv, ByteBuf buffer) {
+    public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
         Preconditions.checkArgument(tlv instanceof PathSetupType, "PathSetupType is mandatory.");
         final PathSetupType pstTlv = (PathSetupType) tlv;
         Preconditions.checkArgument(checkPST(pstTlv.getPst()), UNSUPPORTED_PST);
-        ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
+        final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         body.writeZero(OFFSET);
         writeUnsignedByte(pstTlv.getPst(), body);
         TlvUtil.formatTlv(TYPE, body, buffer);
     }
 
     @Override
-    public Tlv parseTlv(ByteBuf buffer) throws PCEPDeserializerException {
+    public Tlv parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
         if (buffer == null) {
             return null;
         }
