@@ -9,7 +9,7 @@
 -->
 <snapshot>
     <required-capabilities>
-        <capability>urn:opendaylight:params:xml:ns:yang:bgp-linkstate?module=bgp-linkstate&amp;revision=2013-11-25</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:bgp-linkstate?module=bgp-linkstate&amp;revision=2015-02-10</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:bgp-types?module=bgp-types&amp;revision=2013-09-19</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:linkstate?module=odl-bgp-linkstate-cfg&amp;revision=2013-11-15</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi?module=odl-bgp-parser-spi-cfg&amp;revision=2013-11-15</capability>
