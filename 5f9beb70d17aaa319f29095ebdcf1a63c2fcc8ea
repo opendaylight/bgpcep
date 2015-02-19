@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_ed81d8c3",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/message/PCEPStartTLSMessageParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-02-19T08:25:37Z",
+      "side": 1,
+      "message": "in this case you don\u0027t have to put here a constant. Keepalive is sent multiple times through session, hence the constant (to avoid having created same objects). Tls is sent only once.",
+      "range": {
+        "startLine": 45,
+        "startChar": 22,
+        "endLine": 45,
+        "endChar": 23
+      },
+      "revId": "5f9beb70d17aaa319f29095ebdcf1a63c2fcc8ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
