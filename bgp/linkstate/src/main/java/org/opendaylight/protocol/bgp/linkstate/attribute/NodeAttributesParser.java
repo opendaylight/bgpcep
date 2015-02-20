@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.attribute;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Multimap;
 import io.netty.buffer.ByteBuf;
@@ -37,9 +38,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class NodeAttributesParser {
+@VisibleForTesting
+public final class NodeAttributesParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(NodeAttributesParser.class);
+
+    private NodeAttributesParser() {
+        throw new UnsupportedOperationException();
+    }
 
     // node flag bits
     private static final int OVERLOAD_BIT = 7;

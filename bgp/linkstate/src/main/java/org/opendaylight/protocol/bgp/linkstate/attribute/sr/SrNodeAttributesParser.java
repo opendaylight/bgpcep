@@ -57,6 +57,10 @@ public final class SrNodeAttributesParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(SrNodeAttributesParser.class);
 
+    private SrNodeAttributesParser() {
+        throw new UnsupportedOperationException();
+    }
+
     private static final int FLAGS_SIZE = 1;
 
     /* SR Capabilities flags */

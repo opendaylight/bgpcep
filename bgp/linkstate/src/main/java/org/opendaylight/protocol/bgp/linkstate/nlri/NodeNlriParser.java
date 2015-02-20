@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.nlri;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.primitives.UnsignedInteger;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -43,9 +44,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class NodeNlriParser {
+@VisibleForTesting
+public final class NodeNlriParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(NodeNlriParser.class);
+
+    private NodeNlriParser() {
+        throw new UnsupportedOperationException();
+    }
 
     private static final int OSPF_PSEUDONODE_ROUTER_ID_LENGTH = 8;
     private static final int OSPF_ROUTER_ID_LENGTH = 4;

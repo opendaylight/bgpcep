@@ -16,9 +16,14 @@ import static org.junit.Assert.assertTrue;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.linkstate.attribute.LinkAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.attribute.LinkstateAttributeParser;
+import org.opendaylight.protocol.bgp.linkstate.attribute.NodeAttributesParser;
+import org.opendaylight.protocol.bgp.linkstate.attribute.PrefixAttributesParser;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkProtectionType;
@@ -206,5 +211,38 @@ public class LinkstateAttributeParserTest {
         buff.skipBytes(3);
         // there is unresolved TLV at the end, that needs to be cut off
         assertArrayEquals(ByteArray.subByte(P4_ATTR, 0, P4_ATTR.length -5), ByteArray.getAllBytes(buff));
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testLinkAttributesPrivateConstructor() throws Throwable {
+        final Constructor<LinkAttributesParser> c = LinkAttributesParser.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (final InvocationTargetException e) {
+            throw e.getCause();
+        }
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testNodeAttributesPrivateConstructor() throws Throwable {
+        final Constructor<NodeAttributesParser> c = NodeAttributesParser.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (final InvocationTargetException e) {
+            throw e.getCause();
+        }
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testPrefixAttributesPrivateConstructor() throws Throwable {
+        final Constructor<PrefixAttributesParser> c = PrefixAttributesParser.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (final InvocationTargetException e) {
+            throw e.getCause();
+        }
     }
 }

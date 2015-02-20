@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.attribute;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Multimap;
 import io.netty.buffer.ByteBuf;
@@ -43,9 +44,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class LinkAttributesParser {
+@VisibleForTesting
+public final class LinkAttributesParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinkAttributesParser.class);
+
+    private LinkAttributesParser() {
+        throw new UnsupportedOperationException();
+    }
 
     private static final int UNRESERVED_BW_COUNT = 8;
 

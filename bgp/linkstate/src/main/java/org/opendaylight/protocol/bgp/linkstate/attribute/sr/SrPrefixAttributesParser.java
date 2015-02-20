@@ -16,9 +16,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.PrefixSid.Flags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.SidLabel;
 
-public class SrPrefixAttributesParser {
+public final class SrPrefixAttributesParser {
 
     private static final int FLAGS_SIZE = 1;
+
+    private SrPrefixAttributesParser() {
+        throw new UnsupportedOperationException();
+    }
 
     /* Flags */
     private static final int RE_ADVERTISEMENT = 7;

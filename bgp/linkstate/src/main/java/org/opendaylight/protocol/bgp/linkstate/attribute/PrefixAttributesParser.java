@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.attribute;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Multimap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -35,9 +36,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class PrefixAttributesParser {
+@VisibleForTesting
+public final class PrefixAttributesParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(PrefixAttributesParser.class);
+
+    private PrefixAttributesParser() {
+        throw new UnsupportedOperationException();
+    }
 
     private static final int ROUTE_TAG_LENGTH = 4;
     private static final int EXTENDED_ROUTE_TAG_LENGTH = 8;

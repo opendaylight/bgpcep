@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.nlri;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -24,9 +25,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class PrefixNlriParser {
+@VisibleForTesting
+public final class PrefixNlriParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(PrefixNlriParser.class);
+
+    private PrefixNlriParser() {
+        throw new UnsupportedOperationException();
+    }
 
     /* Prefix Descriptor TLVs */
     private static final int OSPF_ROUTE_TYPE = 264;

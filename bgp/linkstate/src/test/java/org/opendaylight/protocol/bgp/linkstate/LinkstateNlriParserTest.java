@@ -14,10 +14,15 @@ import static org.junit.Assert.assertNull;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.util.List;
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.linkstate.nlri.LinkNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.nlri.LinkstateNlriParser;
+import org.opendaylight.protocol.bgp.linkstate.nlri.NodeNlriParser;
+import org.opendaylight.protocol.bgp.linkstate.nlri.PrefixNlriParser;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -212,5 +217,38 @@ public class LinkstateNlriParserTest {
         result = Unpooled.buffer();
         parser.serializeAttribute(pa, result);
         assertArrayEquals(this.nodeNlri, ByteArray.getAllBytes(result));
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testLinkNlriPrivateConstructor() throws Throwable {
+        final Constructor<LinkNlriParser> c = LinkNlriParser.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (final InvocationTargetException e) {
+            throw e.getCause();
+        }
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testNodeNlriPrivateConstructor() throws Throwable {
+        final Constructor<NodeNlriParser> c = NodeNlriParser.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (final InvocationTargetException e) {
+            throw e.getCause();
+        }
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testPrefixNlriPrivateConstructor() throws Throwable {
+        final Constructor<PrefixNlriParser> c = PrefixNlriParser.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (final InvocationTargetException e) {
+            throw e.getCause();
+        }
     }
 }

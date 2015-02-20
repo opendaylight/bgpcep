@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.nlri;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
@@ -22,10 +23,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class LinkNlriParser {
+@VisibleForTesting
+public final class LinkNlriParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinkNlriParser.class);
 
+    private LinkNlriParser() {
+        throw new UnsupportedOperationException();
+    }
     /* Link Descriptor TLVs */
     private static final int LINK_LR_IDENTIFIERS = 258;
     private static final int IPV4_IFACE_ADDRESS = 259;

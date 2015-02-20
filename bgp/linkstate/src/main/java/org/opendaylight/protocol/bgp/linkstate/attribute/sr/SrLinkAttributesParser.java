@@ -20,7 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.Weight;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 
-public class SrLinkAttributesParser {
+public final class SrLinkAttributesParser {
 
     private static final int ISO_SYSTEM_ID_SIZE = 6;
 
@@ -31,6 +31,10 @@ public class SrLinkAttributesParser {
     private static int LOCAL_FLAG = 4;
     private static int SET_FLAG = 3;
     private static final int FLAGS_SIZE = 1;
+
+    private SrLinkAttributesParser() {
+        throw new UnsupportedOperationException();
+    }
 
     public static SrAdjId parseAdjacencySegmentIdentifier(final ByteBuf buffer) {
         if (!buffer.isReadable()) {
