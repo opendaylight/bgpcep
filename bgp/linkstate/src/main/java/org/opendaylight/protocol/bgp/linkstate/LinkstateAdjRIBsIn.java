@@ -134,6 +134,69 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBs<CLinkstateDestination, Li
             new LinkstateRouteKey(ByteArray.readAllBytes(keyBuf)));
     }
 
+    private static LinkstateRIBEntryData<PrefixAttributesCase> createPrefixData(final Peer peer,
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes, final LinkStateAttribute lsattr) {
+        return new LinkstateRIBEntryData<PrefixAttributesCase>(peer, attributes, (PrefixAttributesCase) lsattr) {
+            @Override
+            protected AttributeType createAttributes(final PrefixAttributesCase lsattr) {
+                final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.PrefixCaseBuilder b = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.PrefixCaseBuilder();
+                if (lsattr != null && lsattr.getPrefixAttributes() != null) {
+                    b.setPrefixAttributes(new PrefixAttributesBuilder(lsattr.getPrefixAttributes()).build());
+                }
+                return b.build();
+            }
+
+            @Override
+            protected PrefixCase createObject(final CLinkstateDestination key) {
+                final PrefixCaseBuilder b = new PrefixCaseBuilder(key.getPrefixDescriptors());
+                b.setAdvertisingNodeDescriptors(new AdvertisingNodeDescriptorsBuilder(key.getLocalNodeDescriptors()).build());
+                return b.build();
+            }
+        };
+    }
+
+    private static LinkstateRIBEntryData<LinkAttributesCase> createLinkData(final Peer peer,
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes, final LinkStateAttribute lsattr) {
+        return new LinkstateRIBEntryData<LinkAttributesCase>(peer, attributes, (LinkAttributesCase) lsattr) {
+            @Override
+            protected AttributeType createAttributes(final LinkAttributesCase lsattr) {
+                final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.LinkCaseBuilder b = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.LinkCaseBuilder();
+                if (lsattr != null && lsattr.getLinkAttributes() != null) {
+                    b.setLinkAttributes(new LinkAttributesBuilder(lsattr.getLinkAttributes()).build());
+                }
+                return b.build();
+            }
+
+            @Override
+            protected LinkCase createObject(final CLinkstateDestination key) {
+                final LinkCaseBuilder b = new LinkCaseBuilder();
+                b.setLinkDescriptors(new LinkDescriptorsBuilder(key.getLinkDescriptors()).build());
+                b.setLocalNodeDescriptors(new LocalNodeDescriptorsBuilder(key.getLocalNodeDescriptors()).build());
+                b.setRemoteNodeDescriptors(new RemoteNodeDescriptorsBuilder(key.getRemoteNodeDescriptors()).build());
+                return b.build();
+            }
+        };
+    }
+
+    private static LinkstateRIBEntryData<NodeAttributesCase> createNodeData(final Peer peer,
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes, final LinkStateAttribute lsattr) {
+        return new LinkstateRIBEntryData<NodeAttributesCase>(peer, attributes, (NodeAttributesCase) lsattr) {
+            @Override
+            protected AttributeType createAttributes(final NodeAttributesCase lsattr) {
+                final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.NodeCaseBuilder b = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.NodeCaseBuilder();
+                if (lsattr != null && lsattr.getNodeAttributes() != null) {
+                    b.setNodeAttributes(new NodeAttributesBuilder(lsattr.getNodeAttributes()).build());
+                }
+                return b.build();
+            }
+
+            @Override
+            protected NodeCase createObject(final CLinkstateDestination key) {
+                return new NodeCaseBuilder().setNodeDescriptors(new NodeDescriptorsBuilder(key.getLocalNodeDescriptors()).build()).build();
+            }
+        };
+    }
+
     @Override
     public void addRoutes(final AdjRIBsTransaction trans, final Peer peer, final MpReachNlri nlri,
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
@@ -143,12 +206,9 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBs<CLinkstateDestination, Li
             LOG.debug("No destinations present in advertized routes");
             return;
         }
-
         LOG.debug("Iterating over route destinations {}", keys);
-
         for (final CLinkstateDestination key : keys.getCLinkstateDestination()) {
             LOG.debug("Processing route key {}", key);
-
             LinkStateAttribute lsattr = null;
             final PathAttributes1 pa = attributes.getAugmentation(PathAttributes1.class);
             if (pa != null) {
@@ -157,66 +217,17 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBs<CLinkstateDestination, Li
                     lsattr = lpa.getLinkStateAttribute();
                 }
             }
-
             RIBEntryData<CLinkstateDestination, LinkstateRoute, LinkstateRouteKey> data = null;
             switch (key.getNlriType()) {
             case Ipv4Prefix:
             case Ipv6Prefix:
-                data = new LinkstateRIBEntryData<PrefixAttributesCase>(peer, attributes, (PrefixAttributesCase) lsattr) {
-                    @Override
-                    protected AttributeType createAttributes(final PrefixAttributesCase lsattr) {
-                        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.PrefixCaseBuilder b = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.PrefixCaseBuilder();
-                        if (lsattr != null && lsattr.getPrefixAttributes() != null) {
-                            b.setPrefixAttributes(new PrefixAttributesBuilder(lsattr.getPrefixAttributes()).build());
-                        }
-                        return b.build();
-                    }
-
-                    @Override
-                    protected PrefixCase createObject(final CLinkstateDestination key) {
-                        final PrefixCaseBuilder b = new PrefixCaseBuilder(key.getPrefixDescriptors());
-                        b.setAdvertisingNodeDescriptors(new AdvertisingNodeDescriptorsBuilder(key.getLocalNodeDescriptors()).build());
-                        return b.build();
-                    }
-                };
+                data = createPrefixData(peer, attributes, lsattr);
                 break;
             case Link:
-                data = new LinkstateRIBEntryData<LinkAttributesCase>(peer, attributes, (LinkAttributesCase) lsattr) {
-                    @Override
-                    protected AttributeType createAttributes(final LinkAttributesCase lsattr) {
-                        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.LinkCaseBuilder b = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.LinkCaseBuilder();
-                        if (lsattr != null && lsattr.getLinkAttributes() != null) {
-                            b.setLinkAttributes(new LinkAttributesBuilder(lsattr.getLinkAttributes()).build());
-                        }
-                        return b.build();
-                    }
-
-                    @Override
-                    protected LinkCase createObject(final CLinkstateDestination key) {
-                        final LinkCaseBuilder b = new LinkCaseBuilder();
-                        b.setLinkDescriptors(new LinkDescriptorsBuilder(key.getLinkDescriptors()).build());
-                        b.setLocalNodeDescriptors(new LocalNodeDescriptorsBuilder(key.getLocalNodeDescriptors()).build());
-                        b.setRemoteNodeDescriptors(new RemoteNodeDescriptorsBuilder(key.getRemoteNodeDescriptors()).build());
-                        return b.build();
-                    }
-                };
+                data = createLinkData(peer, attributes, lsattr);
                 break;
             case Node:
-                data = new LinkstateRIBEntryData<NodeAttributesCase>(peer, attributes, (NodeAttributesCase) lsattr) {
-                    @Override
-                    protected AttributeType createAttributes(final NodeAttributesCase lsattr) {
-                        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.NodeCaseBuilder b = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.NodeCaseBuilder();
-                        if (lsattr != null && lsattr.getNodeAttributes() != null) {
-                            b.setNodeAttributes(new NodeAttributesBuilder(lsattr.getNodeAttributes()).build());
-                        }
-                        return b.build();
-                    }
-
-                    @Override
-                    protected NodeCase createObject(final CLinkstateDestination key) {
-                        return new NodeCaseBuilder().setNodeDescriptors(new NodeDescriptorsBuilder(key.getLocalNodeDescriptors()).build()).build();
-                    }
-                };
+                data = createNodeData(peer, attributes, lsattr);
                 break;
             default:
                 break;
@@ -234,6 +245,16 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBs<CLinkstateDestination, Li
         }
     }
 
+    private NlriType nlriType(final IpPrefix ip) {
+        if (ip.getIpv4Prefix() != null) {
+            return NlriType.Ipv4Prefix;
+        }
+        if (ip.getIpv6Prefix() != null) {
+            return NlriType.Ipv6Prefix;
+        }
+        throw new IllegalArgumentException("Unsupported reachability type " + ip);
+    }
+
     @Override
     public void addAdvertisement(final MpReachNlriBuilder builder, final LinkstateRoute data) {
         final CLinkstateDestinationBuilder nlri = new CLinkstateDestinationBuilder();
@@ -247,14 +268,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBs<CLinkstateDestination, Li
         if (type instanceof PrefixCase) {
             final PrefixCase prefix = (PrefixCase) type;
             final IpPrefix ip = prefix.getIpReachabilityInformation();
-
-            if (ip.getIpv4Prefix() != null) {
-                nlri.setNlriType(NlriType.Ipv4Prefix);
-            } else if (ip.getIpv6Prefix() != null) {
-                nlri.setNlriType(NlriType.Ipv6Prefix);
-            } else {
-                throw new IllegalArgumentException("Unsupported reachability type " + ip);
-            }
+            nlri.setNlriType(nlriType(ip));
             nlri.setLocalNodeDescriptors(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.c.linkstate.destination.LocalNodeDescriptorsBuilder(prefix.getAdvertisingNodeDescriptors()).build());
 
         } else if (type instanceof NodeCase) {

@@ -83,6 +83,8 @@ public final class SrNodeAttributesParser {
 
     private static final int UNNUMBERED_4_SIZE = 8;
 
+    private static final byte LOOSE = (byte) 128;
+
     private static List<SubTlvs> parseSidSubtlvs(final ByteBuf buffer) {
         final List<SubTlvs> subs = new ArrayList<>();
         while (buffer.isReadable()) {
@@ -109,11 +111,7 @@ public final class SrNodeAttributesParser {
                 break;
             case UNNUMBERED_ERO:
                 final UnnumberedEroCaseBuilder un = new UnnumberedEroCaseBuilder().setLoose(value.readUnsignedByte() != 0);
-                if (value.readableBytes() == UNNUMBERED_4_SIZE) {
-                    un.setRouterId(ByteArray.readBytes(value, Ipv4Util.IP4_LENGTH));
-                } else {
-                    un.setRouterId(ByteArray.readBytes(value, Ipv6Util.IPV6_LENGTH));
-                }
+                un.setRouterId(readRouterId(value));
                 un.setInterfaceId(value.readUnsignedInt());
                 sub = un.build();
                 break;
@@ -129,11 +127,7 @@ public final class SrNodeAttributesParser {
                 break;
             case UNNUMBERED_BACKUP_ERO:
                 final UnnumberedEroBackupCaseBuilder unb = new UnnumberedEroBackupCaseBuilder().setLoose(value.readUnsignedByte() != 0);
-                if (value.readableBytes() == UNNUMBERED_4_SIZE) {
-                    unb.setRouterId(ByteArray.readBytes(value, Ipv4Util.IP4_LENGTH));
-                } else {
-                    unb.setRouterId(ByteArray.readBytes(value, Ipv6Util.IPV6_LENGTH));
-                }
+                unb.setRouterId(readRouterId(value));
                 unb.setInterfaceId(value.readUnsignedInt());
                 sub = unb.build();
                 break;
@@ -145,6 +139,13 @@ public final class SrNodeAttributesParser {
             subs.add(new SubTlvsBuilder().setSubtlvType(sub).build());
         }
         return subs;
+    }
+
+    private static byte[] readRouterId(final ByteBuf value) {
+        if (value.readableBytes() == UNNUMBERED_4_SIZE) {
+            return ByteArray.readBytes(value, Ipv4Util.IP4_LENGTH);
+        }
+        return ByteArray.readBytes(value, Ipv6Util.IPV6_LENGTH);
     }
 
     public static SrSidLabel parseSidLabelBinding(final ByteBuf buffer) {
@@ -166,13 +167,10 @@ public final class SrNodeAttributesParser {
     }
 
     private static byte serializeLoose(final boolean loose) {
-        return loose ? (byte)128 : 0;
+        return loose ? LOOSE : 0;
     }
 
     private static void serializeSidSubtlvs(final List<SubTlvs> subTlvs, final ByteBuf buffer) {
-        if (subTlvs == null) {
-            return;
-        }
         for (final SubTlvs sub : subTlvs) {
             final SubtlvType type = sub.getSubtlvType();
             if (type instanceof SidLabelCase) {
@@ -241,7 +239,9 @@ public final class SrNodeAttributesParser {
         } else {
             buffer.writeBytes(Ipv6Util.bytesForPrefixBegin(prefix.getIpv6Prefix()));
         }
-        serializeSidSubtlvs(binding.getSubTlvs(), buffer);
+        if (binding.getSubTlvs() != null) {
+            serializeSidSubtlvs(binding.getSubTlvs(), buffer);
+        }
     }
 
     public static SrCapabilities parseSrCapabilities(final ByteBuf buffer) {

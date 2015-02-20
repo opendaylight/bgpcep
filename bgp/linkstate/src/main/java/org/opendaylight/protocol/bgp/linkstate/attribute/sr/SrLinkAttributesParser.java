@@ -25,11 +25,11 @@ public final class SrLinkAttributesParser {
     private static final int ISO_SYSTEM_ID_SIZE = 6;
 
     /* Adj-SID flags */
-    private static int ADDRESS_FAMILY_FLAG = 7;
-    private static int BACKUP_FLAG = 6;
-    private static int VALUE_FLAG = 5;
-    private static int LOCAL_FLAG = 4;
-    private static int SET_FLAG = 3;
+    private static final int ADDRESS_FAMILY_FLAG = 7;
+    private static final int BACKUP_FLAG = 6;
+    private static final int VALUE_FLAG = 5;
+    private static final int LOCAL_FLAG = 4;
+    private static final int SET_FLAG = 3;
     private static final int FLAGS_SIZE = 1;
 
     private SrLinkAttributesParser() {
