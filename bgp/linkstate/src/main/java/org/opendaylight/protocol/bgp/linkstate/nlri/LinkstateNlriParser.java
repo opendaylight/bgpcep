@@ -8,10 +8,10 @@
 package org.opendaylight.protocol.bgp.linkstate.nlri;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -83,15 +83,9 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
      * @throws BGPParsingException if parsing was unsuccessful
      */
     public static List<CLinkstateDestination> parseNlri(final ByteBuf nlri, final boolean isVpn) throws BGPParsingException {
-        if (!nlri.isReadable()) {
-            return null;
-        }
-        final List<CLinkstateDestination> dests = Lists.newArrayList();
-
-        CLinkstateDestinationBuilder builder = null;
-
+        final List<CLinkstateDestination> dests = new ArrayList<>();
         while (nlri.isReadable()) {
-            builder = new CLinkstateDestinationBuilder();
+            final CLinkstateDestinationBuilder builder = new CLinkstateDestinationBuilder();
             final NlriType type = NlriType.forValue(nlri.readUnsignedShort());
             builder.setNlriType(type);
 
@@ -113,9 +107,8 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
 
             // if we are dealing with linkstate nodes/links, parse local node descriptor
             NodeIdentifier localDescriptor = null;
-            int locallength = 0;
             final int localtype = nlri.readUnsignedShort();
-            locallength = nlri.readUnsignedShort();
+            final int locallength = nlri.readUnsignedShort();
             if (localtype == LOCAL_NODE_DESCRIPTORS) {
                 localDescriptor = NodeNlriParser.parseNodeDescriptors(nlri.readSlice(locallength), true);
             }

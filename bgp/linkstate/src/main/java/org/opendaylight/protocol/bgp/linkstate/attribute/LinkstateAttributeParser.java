@@ -70,12 +70,15 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
     }
 
     private NlriType getNlriType(final PathAttributesBuilder pab) {
+        // we can extrapolate the variable, as there cannot be both MPReach & MPUnreach objects in PathAttributes
+        NlriType type = null;
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1 mpr = pab.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1.class);
         if (mpr != null && mpr.getMpReachNlri() != null) {
             final DestinationType dt = mpr.getMpReachNlri().getAdvertizedRoutes().getDestinationType();
             if (dt instanceof DestinationLinkstateCase) {
                 for (final CLinkstateDestination d : ((DestinationLinkstateCase) dt).getDestinationLinkstate().getCLinkstateDestination()) {
-                    return d.getNlriType();
+                    type = d.getNlriType();
+                    break;
                 }
             }
         }
@@ -84,11 +87,12 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
             final DestinationType dt = mpu.getMpUnreachNlri().getWithdrawnRoutes().getDestinationType();
             if (dt instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase) {
                 for (final CLinkstateDestination d : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase) dt).getDestinationLinkstate().getCLinkstateDestination()) {
-                    return d.getNlriType();
+                    type = d.getNlriType();
+                    break;
                 }
             }
         }
-        return null;
+        return type;
     }
 
     private static LinkstatePathAttribute parseLinkState(final NlriType nlri, final ByteBuf buffer) throws BGPParsingException {
