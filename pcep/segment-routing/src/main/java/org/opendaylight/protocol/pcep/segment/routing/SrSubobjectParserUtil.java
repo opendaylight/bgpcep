@@ -37,7 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.seg
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.sr.subobject.nai.UnnumberedAdjacencyBuilder;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
-class SrSubobjectParserUtil {
+final class SrSubobjectParserUtil {
 
     public static final int MINIMAL_LENGTH = 4;
     public static final int BITSET_LENGTH = 8;
@@ -147,22 +147,18 @@ class SrSubobjectParserUtil {
         }
 
         return new SrSubobject() {
-
             @Override
             public Class<? extends DataContainer> getImplementedInterface() {
                 return SrSubobject.class;
             }
-
             @Override
             public SidType getSidType() {
                 return sidType;
             }
-
             @Override
             public Long getSid() {
                 return sid;
             }
-
             @Override
             public Nai getNai() {
                 return nai;

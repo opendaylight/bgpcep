@@ -365,6 +365,8 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
                 break;
             case END :
                 break;
+            default:
+                break;
             }
             if (!state.equals(MetricPceState.END)) {
                 objects.remove(0);

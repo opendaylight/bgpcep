@@ -97,23 +97,23 @@ final class PCEPPeerRegistry {
         private final byte[] byteArray;
 
         public ByteArrayWrapper(final byte[] byteArray) {
-            this.byteArray = byteArray;
+            this.byteArray = byteArray == null ? null : byteArray.clone();
         }
 
         @Override
         public int hashCode() {
-            return Arrays.hashCode(byteArray);
+            return Arrays.hashCode(this.byteArray);
         }
 
         @Override
-        public boolean equals(Object obj) {
+        public boolean equals(final Object obj) {
             if (this == obj) {
                 return true;
             }
             if (!(obj instanceof ByteArrayWrapper)) {
                 return false;
             }
-            return Arrays.equals(byteArray, ((ByteArrayWrapper) obj).byteArray);
+            return Arrays.equals(this.byteArray, ((ByteArrayWrapper) obj).byteArray);
         }
     }
 }

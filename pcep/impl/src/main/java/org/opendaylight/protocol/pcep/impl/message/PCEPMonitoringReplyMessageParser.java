@@ -12,7 +12,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
@@ -165,6 +164,8 @@ public class PCEPMonitoringReplyMessageParser extends AbstractMessageParser {
                 state = State.END;
                 break;
             case END :
+                break;
+            default:
                 break;
             }
             if (!state.equals(State.END)) {

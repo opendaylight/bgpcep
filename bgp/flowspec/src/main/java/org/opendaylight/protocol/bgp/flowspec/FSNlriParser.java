@@ -341,7 +341,7 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
         // length field can be one or two bytes (if needed)
         // check the length of nlri to see how many bytes we can skip
         final int length = nlri.readableBytes();
-        nlri.skipBytes(length > 240 ? NLRI_LENGTH_EXTENDED : NLRI_LENGTH);
+        nlri.skipBytes(length > MAX_NLRI_LENGTH_ONE_BYTE ? NLRI_LENGTH_EXTENDED : NLRI_LENGTH);
 
         while(nlri.isReadable()) {
             final FlowspecBuilder builder = new FlowspecBuilder();
