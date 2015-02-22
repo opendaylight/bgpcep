@@ -315,7 +315,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
                         // The source node has to exist
                         node = sourceNode(t, tii, link).get();
                     } catch (IllegalStateException | ReadFailedException e) {
-                        LOG.debug("Link or node does not exist.", e.getMessage());
+                        LOG.debug("Link or node does not exist.", e.getMessage(), e);
                         return Futures.<OperationResult>immediateFuture(new OperationResult() {
                             @Override
                             public Class<? extends DataContainer> getImplementedInterface() {
@@ -375,7 +375,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
                         // The source node has to exist
                         node = sourceNode(t, tii, link).get();
                     } catch (IllegalStateException | ReadFailedException e) {
-                        LOG.debug("Link or node does not exist.", e.getMessage());
+                        LOG.debug("Link or node does not exist.", e.getMessage(), e);
                         return Futures.<OperationResult>immediateFuture(new OperationResult() {
                             @Override
                             public Class<? extends DataContainer> getImplementedInterface() {

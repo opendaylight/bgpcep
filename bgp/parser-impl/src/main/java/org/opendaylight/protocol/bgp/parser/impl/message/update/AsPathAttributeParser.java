@@ -63,7 +63,7 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
         if (!buffer.isReadable()) {
             return EMPTY;
         }
-        final ArrayList<Segments> ases = new ArrayList<>();
+        final List<Segments> ases = new ArrayList<>();
         boolean isSequence = false;
         while (buffer.isReadable()) {
             final int type = buffer.readUnsignedByte();
@@ -87,7 +87,7 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
             throw new BGPDocumentedException("AS_SEQUENCE must be present in AS_PATH attribute.", BGPError.AS_PATH_MALFORMED);
         }
 
-        ases.trimToSize();
+        ((ArrayList<Segments>) ases).trimToSize();
         return new AsPathBuilder().setSegments(ases).build();
     }
 
