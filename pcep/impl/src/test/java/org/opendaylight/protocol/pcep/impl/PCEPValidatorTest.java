@@ -30,6 +30,7 @@ import org.opendaylight.protocol.pcep.impl.message.PCEPNotificationMessageParser
 import org.opendaylight.protocol.pcep.impl.message.PCEPOpenMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPReplyMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPRequestMessageParser;
+import org.opendaylight.protocol.pcep.impl.message.PCEPStartTLSMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.VendorInformationObjectRegistry;
@@ -48,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcntfBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcrepBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcreqBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.StarttlsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OfId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ProtocolVersion;
@@ -127,6 +129,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.proc.time.object.ProcTimeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.RpBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.start.tls.message.StartTlsMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.Svec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.SvecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.objects.VendorInformationObject;
@@ -339,6 +342,18 @@ public class PCEPValidatorTest {
         final ByteBuf result = Unpooled.wrappedBuffer(new byte[] { 32, 2, 0, 4 });
         final PCEPKeepAliveMessageParser parser = new PCEPKeepAliveMessageParser(this.objectRegistry);
         final KeepaliveBuilder builder = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build());
+
+        assertEquals(builder.build(), parser.parseMessage(result.slice(4, result.readableBytes() - 4), Collections.<Message> emptyList()));
+        final ByteBuf buf = Unpooled.buffer(result.readableBytes());
+        parser.serializeMessage(builder.build(), buf);
+        assertArrayEquals(result.array(), buf.array());
+    }
+
+    @Test
+    public void testStartTLSMsg() throws Exception {
+        final ByteBuf result = Unpooled.wrappedBuffer(new byte[] { 32, 20, 0, 4 });
+        final PCEPStartTLSMessageParser parser = new PCEPStartTLSMessageParser(this.objectRegistry);
+        final StarttlsBuilder builder = new StarttlsBuilder().setStartTlsMessage(new StartTlsMessageBuilder().build());
 
         assertEquals(builder.build(), parser.parseMessage(result.slice(4, result.readableBytes() - 4), Collections.<Message> emptyList()));
         final ByteBuf buf = Unpooled.buffer(result.readableBytes());

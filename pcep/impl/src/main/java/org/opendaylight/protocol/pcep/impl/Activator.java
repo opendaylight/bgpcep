@@ -18,6 +18,7 @@ import org.opendaylight.protocol.pcep.impl.message.PCEPNotificationMessageParser
 import org.opendaylight.protocol.pcep.impl.message.PCEPOpenMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPReplyMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPRequestMessageParser;
+import org.opendaylight.protocol.pcep.impl.message.PCEPStartTLSMessageParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPBandwidthObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPClassTypeObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPCloseObjectParser;
@@ -92,6 +93,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcntf;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcrep;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcreq;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Starttls;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.classtype.object.ClassType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CClose;
@@ -185,6 +187,10 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
         final PCEPMonitoringRequestMessageParser monReqParser = new PCEPMonitoringRequestMessageParser(objReg, viObjReg);
         regs.add(context.registerMessageParser(PCEPMonitoringRequestMessageParser.TYPE, monReqParser));
         regs.add(context.registerMessageSerializer(Pcmonreq.class, monReqParser));
+
+        final PCEPStartTLSMessageParser startTLSParser = new PCEPStartTLSMessageParser(objReg);
+        regs.add(context.registerMessageParser(PCEPStartTLSMessageParser.TYPE, startTLSParser));
+        regs.add(context.registerMessageSerializer(Starttls.class, startTLSParser));
 
         return regs;
     }

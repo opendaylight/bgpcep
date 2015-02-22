@@ -18,14 +18,15 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.StarttlsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.start.tls.message.StartTlsMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.StartTlsMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.start.tls.message.StartTlsMessageBuilder;
 
 public class PCEPStartTLSMessageParser extends AbstractMessageParser {
 
-    public static final int TYPE = 8;
+    // TODO: temporary value, to be assigned by IANA
+    public static final int TYPE = 20;
 
-    protected PCEPStartTLSMessageParser(final ObjectRegistry registry) {
+    public PCEPStartTLSMessageParser(final ObjectRegistry registry) {
         super(registry);
     }
 
@@ -36,10 +37,11 @@ public class PCEPStartTLSMessageParser extends AbstractMessageParser {
     }
 
     @Override
-    protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
+    protected StartTlsMessage validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
         if (objects != null && !objects.isEmpty()) {
             throw new PCEPDeserializerException("StartTLS message should not contain any objects.");
         }
+
         return new StarttlsBuilder().setStartTlsMessage(new StartTlsMessageBuilder().build()).build();
     }
 }
