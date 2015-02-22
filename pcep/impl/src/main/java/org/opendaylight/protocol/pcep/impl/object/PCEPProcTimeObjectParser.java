@@ -37,7 +37,8 @@ public class PCEPProcTimeObjectParser implements ObjectParser, ObjectSerializer 
 
     private static final int RESERVED = 2;
     private static final int FLAGS = RESERVED;
-    private static final int BODY_SIZE = RESERVED + FLAGS + 5 * INT_BYTES_LENGTH;
+    private static final int COUNT_FIELDS = 5;
+    private static final int BODY_SIZE = RESERVED + FLAGS + COUNT_FIELDS * INT_BYTES_LENGTH;
     private static final int E_FLAG_POSITION = 15;
 
     @Override
