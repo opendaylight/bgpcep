@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_4c332762",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathAttributeParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-02-23T10:51:56Z",
+      "side": 1,
+      "message": "declare as ArrayList, which will remove the need for a cast on line 90",
+      "revId": "079b66c7746cedebb6883a2d121ed72fb26f772e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_6c38633d",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPPeerRegistry.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-02-23T10:51:56Z",
+      "side": 1,
+      "message": "check if byteArray is non-null and use .clone() instead",
+      "revId": "079b66c7746cedebb6883a2d121ed72fb26f772e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_2c3edb28",
+        "filename": "pcep/tunnel-provider/src/main/java/org/opendaylight/bgpcep/pcep/tunnel/provider/TunnelProgramming.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-02-23T10:51:56Z",
+      "side": 1,
+      "message": "remove e.getMessage(), also on line 318",
+      "revId": "079b66c7746cedebb6883a2d121ed72fb26f772e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
