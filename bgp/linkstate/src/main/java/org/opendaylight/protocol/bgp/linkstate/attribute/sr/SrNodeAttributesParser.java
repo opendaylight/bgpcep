@@ -35,10 +35,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.sid.sub.tlvs.SubtlvType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.sid.sub.tlvs.subtlv.type.EroMetricCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.sid.sub.tlvs.subtlv.type.EroMetricCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.sid.sub.tlvs.subtlv.type.Ip4EroBackupCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.sid.sub.tlvs.subtlv.type.Ip4EroBackupCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.sid.sub.tlvs.subtlv.type.Ip4EroCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.sid.sub.tlvs.subtlv.type.Ip4EroCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.sid.sub.tlvs.subtlv.type.Ipv4EroBackupCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.sid.sub.tlvs.subtlv.type.Ipv4EroBackupCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.sid.sub.tlvs.subtlv.type.Ipv4EroCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.sid.sub.tlvs.subtlv.type.Ipv4EroCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.sid.sub.tlvs.subtlv.type.Ipv6EroBackupCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.sid.sub.tlvs.subtlv.type.Ipv6EroBackupCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.sid.sub.tlvs.subtlv.type.Ipv6EroCase;
@@ -100,7 +100,7 @@ public final class SrNodeAttributesParser {
                 sub = new EroMetricCaseBuilder().setEroMetric(new TeMetric(value.readUnsignedInt())).build();
                 break;
             case ERO_IPV4:
-                final Ip4EroCaseBuilder ero4 = new Ip4EroCaseBuilder().setLoose(value.readUnsignedByte() != 0);
+                final Ipv4EroCaseBuilder ero4 = new Ipv4EroCaseBuilder().setLoose(value.readUnsignedByte() != 0);
                 ero4.setAddress(new IpAddress(Ipv4Util.addressForByteBuf(value)));
                 sub = ero4.build();
                 break;
@@ -116,7 +116,7 @@ public final class SrNodeAttributesParser {
                 sub = un.build();
                 break;
             case BACKUP_IPV4:
-                final Ip4EroBackupCaseBuilder erob4 = new Ip4EroBackupCaseBuilder().setLoose(value.readUnsignedByte() != 0);
+                final Ipv4EroBackupCaseBuilder erob4 = new Ipv4EroBackupCaseBuilder().setLoose(value.readUnsignedByte() != 0);
                 erob4.setAddress(new IpAddress(Ipv4Util.addressForByteBuf(value)));
                 sub = erob4.build();
                 break;
@@ -179,9 +179,9 @@ public final class SrNodeAttributesParser {
                 final ByteBuf b = Unpooled.buffer();
                 ByteBufWriteUtil.writeUnsignedInt(((EroMetricCase)type).getEroMetric().getValue(), b);
                 TlvUtil.writeSrTLV(ERO_METRIC, b, buffer);
-            } else if (type instanceof Ip4EroCase) {
+            } else if (type instanceof Ipv4EroCase) {
                 final ByteBuf b = Unpooled.buffer(Ipv4Util.IP4_LENGTH + FLAGS_SIZE);
-                final Ip4EroCase ero = (Ip4EroCase)type;
+                final Ipv4EroCase ero = (Ipv4EroCase)type;
                 b.writeByte(serializeLoose(ero.isLoose()));
                 ByteBufWriteUtil.writeIpv4Address(ero.getAddress().getIpv4Address(), b);
                 TlvUtil.writeSrTLV(ERO_IPV4, b, buffer);
@@ -198,9 +198,9 @@ public final class SrNodeAttributesParser {
                 b.writeBytes(ero.getRouterId());
                 ByteBufWriteUtil.writeUnsignedInt(ero.getInterfaceId(), b);
                 TlvUtil.writeSrTLV(UNNUMBERED_ERO, b, buffer);
-            } else if (type instanceof Ip4EroBackupCase) {
+            } else if (type instanceof Ipv4EroBackupCase) {
                 final ByteBuf b = Unpooled.buffer(Ipv4Util.IP4_LENGTH + FLAGS_SIZE);
-                final Ip4EroBackupCase ero = (Ip4EroBackupCase)type;
+                final Ipv4EroBackupCase ero = (Ipv4EroBackupCase)type;
                 b.writeByte(serializeLoose(ero.isLoose()));
                 ByteBufWriteUtil.writeIpv4Address(ero.getAddress().getIpv4Address(), b);
                 TlvUtil.writeSrTLV(BACKUP_IPV4, b, buffer);
