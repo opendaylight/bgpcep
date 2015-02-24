@@ -34,8 +34,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.OpenBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Starttls;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.StarttlsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.start.tls.message.StartTlsMessageBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class AbstractPCEPSessionTest {
@@ -62,6 +65,8 @@ public class AbstractPCEPSessionTest {
     protected final List<Notification> msgsSend = Lists.newArrayList();
 
     protected Open openMsg;
+
+    protected Starttls startTlsMsg;
 
     protected Keepalive kaMsg;
 
@@ -96,6 +101,8 @@ public class AbstractPCEPSessionTest {
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder().setDeadTimer(
                                 DEADTIMER).setKeepalive(KEEP_ALIVE).setSessionId((short) 0).build()).build()).build();
         this.kaMsg = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
+        this.startTlsMsg = new StarttlsBuilder().setStartTlsMessage(new StartTlsMessageBuilder().build()).build();
+
 
         this.listener = new SimpleSessionListener();
     }

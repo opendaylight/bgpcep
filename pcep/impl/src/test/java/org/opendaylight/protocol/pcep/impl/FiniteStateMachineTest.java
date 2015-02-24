@@ -53,6 +53,14 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
         assertEquals(this.serverSession.getState(), DefaultPCEPSessionNegotiator.State.FINISHED);
     }
 
+    @Ignore
+    @Test
+    public void testReceivedStartTLSMessasge() throws Exception {
+        this.serverSession.channelActive(null);
+        this.serverSession.handleMessage(this.startTlsMsg);
+        int size = this.msgsSend.size();
+    }
+
     /**
      * Mock PCE does not accept session characteristics the first time.
      *
