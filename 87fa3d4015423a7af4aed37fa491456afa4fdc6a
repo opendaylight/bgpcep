@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_cf8ac6be",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/BitArray.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-02-24T17:03:57Z",
+      "side": 1,
+      "message": "do we have a clear() for setting a bit to 0?",
+      "revId": "87fa3d4015423a7af4aed37fa491456afa4fdc6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_8f903eee",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/BitArray.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-02-24T17:03:57Z",
+      "side": 1,
+      "message": ".clone(), to silence sonar",
+      "revId": "87fa3d4015423a7af4aed37fa491456afa4fdc6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_0fb42e80",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/BitArray.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-02-24T17:03:57Z",
+      "side": 1,
+      "message": "use a bitshift instead of pow()",
+      "revId": "87fa3d4015423a7af4aed37fa491456afa4fdc6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_6fc372ed",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/BitArray.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-02-24T17:03:57Z",
+      "side": 1,
+      "message": "seed the start into the stringbuilder and append the \u0027]\u0027, thus eliminating the string concat",
+      "revId": "87fa3d4015423a7af4aed37fa491456afa4fdc6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
