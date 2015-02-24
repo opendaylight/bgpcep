@@ -15,26 +15,18 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Notify;
@@ -42,15 +34,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.ProtocolVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParametersBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.OptionalCapabilities;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.OptionalCapabilitiesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.multiprotocol._case.MultiprotocolCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class ParserTest {
@@ -67,20 +50,6 @@ public class ParserTest {
     private static final byte[] notificationBMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
         (byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 0x17, (byte) 0x03, (byte) 0x02, (byte) 0x04, (byte) 0x04, (byte) 0x09 };
-
-    private static final byte[] openWithCpblt1 = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-        (byte) 0xff, (byte) 0x00, (byte) 0x2b, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x48, (byte) 0x00, (byte) 0xb4,
-        (byte) 0xac, (byte) 0x14, (byte) 0xa0, (byte) 0xaa, (byte) 0x0e, (byte) 0x02, (byte) 0x0C, (byte) 0x01, (byte) 0x04,
-        (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x01, (byte) 0x01, (byte) 0x04, (byte) 0x40,
-        (byte) 0x04, (byte) 0x00, (byte) 0x47 };
-
-    private static final byte[] openWithCpblt2 = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-        (byte) 0xff, (byte) 0x00, (byte) 0x2b, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x48, (byte) 0x00, (byte) 0xb4,
-        (byte) 0xac, (byte) 0x14, (byte) 0xa0, (byte) 0xaa, (byte) 0x0e, (byte) 0x02, (byte) 0x0C, (byte) 0x01, (byte) 0x04,
-        (byte) 0x40, (byte) 0x04, (byte) 0x00, (byte) 0x47, (byte) 0x01, (byte) 0x04, (byte) 0x00,
-        (byte) 0x01, (byte) 0x00, (byte) 0x01 };
 
     private static final byte[] updMsgWithUnrecognizedAttribute = new byte[] {
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
@@ -287,36 +256,6 @@ public class ParserTest {
             return;
         }
         fail();
-    }
-
-    @Test
-    public void testTLVParser() throws UnknownHostException {
-
-        final BgpTableType t1 = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-        final BgpTableType t2 = new BgpTableTypeImpl(LinkstateAddressFamily.class, UnicastSubsequentAddressFamily.class);
-
-        final List<OptionalCapabilities> capas = Lists.newArrayList();
-
-        capas.add(new OptionalCapabilitiesBuilder().setCParameters(
-            new MultiprotocolCaseBuilder().setMultiprotocolCapability(
-                new MultiprotocolCapabilityBuilder().setAfi(LinkstateAddressFamily.class).setSafi(
-                    LinkstateSubsequentAddressFamily.class).build()).build()).build());
-        capas.add(new OptionalCapabilitiesBuilder().setCParameters(
-            new MultiprotocolCaseBuilder().setMultiprotocolCapability(
-                new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()).build()).build());
-        final List<BgpParameters> tlvs = Lists.newArrayList(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
-
-        final Map<BgpTableType, Boolean> tableTypes = Maps.newHashMap();
-        tableTypes.put(t1, true);
-        tableTypes.put(t2, true);
-        final Open open = new OpenBuilder().setMyAsNumber(72).setHoldTimer(180).setBgpIdentifier(new Ipv4Address("172.20.160.170")).setVersion(
-            new ProtocolVersion((short) 4)).setBgpParameters(tlvs).build();
-
-        final ByteBuf result = Unpooled.buffer();
-        ParserTest.reg.serializeMessage(open, result);
-
-        // the capabilities can be swapped.
-        assertTrue(Arrays.equals(openWithCpblt1, ByteArray.getAllBytes(result)) || Arrays.equals(openWithCpblt2, ByteArray.getAllBytes(result)));
     }
 
     @Test
