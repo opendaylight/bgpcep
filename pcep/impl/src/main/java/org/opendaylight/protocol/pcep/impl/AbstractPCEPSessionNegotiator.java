@@ -10,11 +10,15 @@ package org.opendaylight.protocol.pcep.impl;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
+import io.netty.handler.ssl.SslHandler;
 import io.netty.util.concurrent.Promise;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import javax.net.ssl.SSLEngine;
 import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
+import org.opendaylight.protocol.pcep.impl.tls.SslContextFactory;
+import org.opendaylight.protocol.pcep.impl.tls.TlsConfigUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
@@ -22,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcerr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.StartTlsMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
@@ -264,7 +269,16 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
         switch (this.state) {
         case FINISHED:
         case IDLE:
-            throw new IllegalStateException("Unexpected handleMessage in state " + this.state);
+            if (msg instanceof StartTlsMessage) {
+                SslContextFactory sslFactory = new SslContextFactory(TlsConfigUtil.createDummyTlsConfiguration());
+                SSLEngine engine = sslFactory.getServerContext().createSSLEngine();
+                //engine.setNeedClientAuth(true);
+                //engine.setUseClientMode(false);
+                this.channel.pipeline().addFirst(new SslHandler(engine));
+                this.sendMessage(msg);
+                startNegotiation();
+            }
+            break;
         case KEEP_WAIT:
             if (handleMessageKeepWait(msg)) {
                 return;
