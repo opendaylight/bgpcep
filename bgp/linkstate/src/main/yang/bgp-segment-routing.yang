@@ -112,7 +112,7 @@ module bgp-segment-routing {
                     type netc:te-metric;
                 }
             }
-            case ip4-ero-case {
+            case ipv4-ero-case {
                 uses ero-ip-address;
             }
             case ipv6-ero-case {
@@ -121,7 +121,7 @@ module bgp-segment-routing {
             case unnumbered-ero-case {
                 uses ero-unnumbered;
             }
-            case ip4-ero-backup-case {
+            case ipv4-ero-backup-case {
                 uses ero-ip-address;
             }
             case ipv6-ero-backup-case {
