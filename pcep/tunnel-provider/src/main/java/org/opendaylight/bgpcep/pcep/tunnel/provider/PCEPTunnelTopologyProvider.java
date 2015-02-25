@@ -8,7 +8,6 @@
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
 import com.google.common.base.Preconditions;
-
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -36,7 +35,7 @@ public final class PCEPTunnelTopologyProvider implements AutoCloseable {
             final InstanceIdentifier<Topology> sourceTopology, final TopologyId targetTopology) {
         final InstanceIdentifier<Topology> dst = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
                 new TopologyKey(targetTopology)).build();
-        final NodeChangedListener ncl = new NodeChangedListener(dataProvider, dst);
+        final NodeChangedListener ncl = new NodeChangedListener(dataProvider, sourceTopology.firstKeyOf(Topology.class, TopologyKey.class).getTopologyId(), dst);
 
         final InstanceIdentifier<Node> src = sourceTopology.child(Node.class);
         final ListenerRegistration<DataChangeListener> reg = dataProvider.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, src, ncl, DataChangeScope.SUBTREE);

@@ -41,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.tunnel.pcep.supporting.node.attributes.PathComputationClientBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.LinkId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TpId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.DestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.SourceBuilder;
@@ -72,10 +73,12 @@ public final class NodeChangedListener implements DataChangeListener {
     private static final Logger LOG = LoggerFactory.getLogger(NodeChangedListener.class);
     private final InstanceIdentifier<Topology> target;
     private final DataBroker dataProvider;
+    private final TopologyId source;
 
-    NodeChangedListener(final DataBroker dataProvider, final InstanceIdentifier<Topology> target) {
+    NodeChangedListener(final DataBroker dataProvider, final TopologyId source, final InstanceIdentifier<Topology> target) {
         this.dataProvider = Preconditions.checkNotNull(dataProvider);
         this.target = Preconditions.checkNotNull(target);
+        this.source = Preconditions.checkNotNull(source);
     }
 
     private static void categorizeIdentifier(final InstanceIdentifier<?> i, final Set<InstanceIdentifier<ReportedLsp>> changedLsps,
@@ -118,7 +121,7 @@ public final class NodeChangedListener implements DataChangeListener {
     }
 
     private SupportingNode createSupportingNode(final NodeId sni, final Boolean inControl) {
-        final SupportingNodeKey sk = new SupportingNodeKey(sni);
+        final SupportingNodeKey sk = new SupportingNodeKey(sni, source);
         final SupportingNodeBuilder snb = new SupportingNodeBuilder();
         snb.setNodeRef(sni);
         snb.setKey(sk);

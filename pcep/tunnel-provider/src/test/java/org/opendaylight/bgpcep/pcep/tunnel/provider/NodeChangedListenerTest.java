@@ -86,7 +86,7 @@ public class NodeChangedListenerTest extends AbstractDataBrokerTest {
         wTx.put(LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID, new TopologyBuilder().setKey(new TopologyKey(PCEP_TOPOLOGY_ID)).setNode(Lists.<Node>newArrayList()).setTopologyId(PCEP_TOPOLOGY_ID).build(), true);
         wTx.put(LogicalDatastoreType.OPERATIONAL, TUNNEL_TOPO_IID, new TopologyBuilder().setKey(new TopologyKey(TUNNEL_TOPOLOGY_ID)).setTopologyId(TUNNEL_TOPOLOGY_ID).build(), true);
         wTx.submit().checkedGet();
-        final NodeChangedListener nodeListener = new NodeChangedListener(getDataBroker(), TUNNEL_TOPO_IID);
+        final NodeChangedListener nodeListener = new NodeChangedListener(getDataBroker(), PCEP_TOPOLOGY_ID, TUNNEL_TOPO_IID);
         this.listenerRegistration = getDataBroker().registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID.child(Node.class), nodeListener, DataChangeScope.SUBTREE);
     }
 

@@ -144,7 +144,7 @@ public class TunnelProgrammingTest extends AbstractDataBrokerTest {
         Mockito.doNothing().when(this.instruction).executionCompleted(InstructionStatus.Failed, null);
         Mockito.doAnswer(new Answer<Void>() {
             @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
+            public Void answer(final InvocationOnMock invocation) throws Throwable {
                 final Runnable callback = (Runnable) invocation.getArguments()[0];
                 callback.run();
                 return null;
@@ -152,7 +152,7 @@ public class TunnelProgrammingTest extends AbstractDataBrokerTest {
         }).when(this.instructionFuture).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
         Mockito.doAnswer(new Answer<Void>() {
             @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
+            public Void answer(final InvocationOnMock invocation) throws Throwable {
                 final Runnable callback = (Runnable) invocation.getArguments()[0];
                 callback.run();
                 return null;
@@ -160,7 +160,7 @@ public class TunnelProgrammingTest extends AbstractDataBrokerTest {
         }).when(this.futureAddLspOutput).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
         Mockito.doAnswer(new Answer<Void>() {
             @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
+            public Void answer(final InvocationOnMock invocation) throws Throwable {
                 final Runnable callback = (Runnable) invocation.getArguments()[0];
                 callback.run();
                 return null;
@@ -168,7 +168,7 @@ public class TunnelProgrammingTest extends AbstractDataBrokerTest {
         }).when(this.futureUpdateLspOutput).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
         Mockito.doAnswer(new Answer<Void>() {
             @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
+            public Void answer(final InvocationOnMock invocation) throws Throwable {
                 final Runnable callback = (Runnable) invocation.getArguments()[0];
                 callback.run();
                 return null;
@@ -176,21 +176,21 @@ public class TunnelProgrammingTest extends AbstractDataBrokerTest {
         }).when(this.futureRemoveLspOutput).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
         Mockito.doAnswer(new Answer<Future<RpcResult<AddLspOutput>>>() {
             @Override
-            public Future<RpcResult<AddLspOutput>> answer(InvocationOnMock invocation) throws Throwable {
+            public Future<RpcResult<AddLspOutput>> answer(final InvocationOnMock invocation) throws Throwable {
                 TunnelProgrammingTest.this.addLspInput = (AddLspInput) invocation.getArguments()[0];
                 return TunnelProgrammingTest.this.futureAddLspOutput;
             }
         }).when(this.topologyService).addLsp(Mockito.any(AddLspInput.class));
         Mockito.doAnswer(new Answer<Future<RpcResult<UpdateLspOutput>>>() {
             @Override
-            public Future<RpcResult<UpdateLspOutput>> answer(InvocationOnMock invocation) throws Throwable {
+            public Future<RpcResult<UpdateLspOutput>> answer(final InvocationOnMock invocation) throws Throwable {
                 TunnelProgrammingTest.this.updateLspInput = (UpdateLspInput) invocation.getArguments()[0];
                 return TunnelProgrammingTest.this.futureUpdateLspOutput;
             }
         }).when(this.topologyService).updateLsp(Mockito.any(UpdateLspInput.class));
         Mockito.doAnswer(new Answer<Future<RpcResult<RemoveLspOutput>>>() {
             @Override
-            public Future<RpcResult<RemoveLspOutput>> answer(InvocationOnMock invocation) throws Throwable {
+            public Future<RpcResult<RemoveLspOutput>> answer(final InvocationOnMock invocation) throws Throwable {
                 TunnelProgrammingTest.this.removeLspInput = (RemoveLspInput) invocation.getArguments()[0];
                 return TunnelProgrammingTest.this.futureRemoveLspOutput;
             }
@@ -282,7 +282,7 @@ public class TunnelProgrammingTest extends AbstractDataBrokerTest {
         nodeBuilder.setNodeId(nodeId);
         nodeBuilder.setKey(new NodeKey(nodeId));
         nodeBuilder.setTerminationPoint(Lists.newArrayList(tpBuilder.build()));
-        final SupportingNode supportingNode = new SupportingNodeBuilder().setKey(new SupportingNodeKey(nodeId)).addAugmentation(SupportingNode1.class, new SupportingNode1Builder().setPathComputationClient(new PathComputationClientBuilder().setControlling(true).build()).build()).build();
+        final SupportingNode supportingNode = new SupportingNodeBuilder().setKey(new SupportingNodeKey(nodeId, new TopologyId("dummy"))).addAugmentation(SupportingNode1.class, new SupportingNode1Builder().setPathComputationClient(new PathComputationClientBuilder().setControlling(true).build()).build()).build();
         nodeBuilder.setSupportingNode(Lists.newArrayList(supportingNode));
         return nodeBuilder.build();
     }
