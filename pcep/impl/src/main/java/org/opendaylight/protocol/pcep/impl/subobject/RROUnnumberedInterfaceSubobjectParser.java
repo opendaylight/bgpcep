@@ -53,7 +53,7 @@ public class RROUnnumberedInterfaceSubobjectParser implements RROSubobjectParser
         builder.setProtectionAvailable(flags.get(LPA_F_OFFSET));
         builder.setProtectionInUse(flags.get(LPIU_F_OFFSET));
         final UnnumberedBuilder ubuilder = new UnnumberedBuilder();
-        buffer.readerIndex(buffer.readerIndex() + RESERVED);
+        buffer.skipBytes(RESERVED);
         ubuilder.setRouterId(buffer.readUnsignedInt());
         ubuilder.setInterfaceId(buffer.readUnsignedInt());
         builder.setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(ubuilder.build()).build());

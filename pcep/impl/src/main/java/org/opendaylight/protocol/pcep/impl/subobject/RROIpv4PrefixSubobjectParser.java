@@ -55,7 +55,7 @@ public class RROIpv4PrefixSubobjectParser implements RROSubobjectParser, RROSubo
         final int length = buffer.getUnsignedByte(PREFIX4_F_OFFSET);
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.ip.prefix._case.IpPrefix prefix = new IpPrefixBuilder().setIpPrefix(
                 new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.readBytes(buffer, Ipv4Util.IP4_LENGTH), length))).build();
-        buffer.readerIndex(buffer.readerIndex() + PREFIX_F_LENGTH);
+        buffer.skipBytes(PREFIX_F_LENGTH);
         final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, FLAGS_F_LENGTH));
         builder.setProtectionAvailable(flags.get(LPA_F_OFFSET));
         builder.setProtectionInUse(flags.get(LPIU_F_OFFSET));

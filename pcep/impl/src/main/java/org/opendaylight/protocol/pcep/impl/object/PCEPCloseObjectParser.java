@@ -52,7 +52,7 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<TlvsBuil
         final CCloseBuilder builder = new CCloseBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
-        bytes.readerIndex(bytes.readerIndex() + FLAGS_F_LENGTH + RESERVED);
+        bytes.skipBytes(FLAGS_F_LENGTH + RESERVED);
         builder.setReason(bytes.readUnsignedByte());
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes.slice());

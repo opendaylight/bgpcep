@@ -61,7 +61,7 @@ public class PCEPMetricObjectParser implements ObjectParser, ObjectSerializer {
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.readableBytes() + "; Expected: " + SIZE
                     + ".");
         }
-        bytes.readerIndex(bytes.readerIndex() + RESERVED);
+        bytes.skipBytes(RESERVED);
         final byte[] flagBytes = { bytes.readByte() };
         final BitSet flags = ByteArray.bytesToBitSet(flagBytes);
         final MetricBuilder builder = new MetricBuilder();

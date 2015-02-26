@@ -52,7 +52,7 @@ public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorObj
         final ErrorObjectBuilder builder = new ErrorObjectBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
-        bytes.readerIndex(bytes.readerIndex() + FLAGS_F_LENGTH + RESERVED);
+        bytes.skipBytes(FLAGS_F_LENGTH + RESERVED);
         builder.setType(bytes.readUnsignedByte());
         builder.setValue(bytes.readUnsignedByte());
         parseTlvs(builder, bytes.slice());

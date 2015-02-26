@@ -44,7 +44,7 @@ public class EROUnnumberedInterfaceSubobjectParser implements EROSubobjectParser
         final SubobjectBuilder builder = new SubobjectBuilder();
         builder.setLoose(loose);
         final UnnumberedBuilder ubuilder = new UnnumberedBuilder();
-        buffer.readerIndex(buffer.readerIndex() + RESERVED);
+        buffer.skipBytes(RESERVED);
         ubuilder.setRouterId(buffer.readUnsignedInt());
         ubuilder.setInterfaceId(buffer.readUnsignedInt());
         builder.setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(ubuilder.build()).build());

@@ -72,7 +72,7 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         final BitSet flags = ByteArray.bytesToBitSet(new byte[] { bytes.readByte() });
         builder.setLocalProtectionDesired(flags.get(L_FLAG_OFFSET));
         final TlvsBuilder tbuilder = new TlvsBuilder();
-        bytes.readerIndex(bytes.readerIndex() + RESERVED);
+        bytes.skipBytes(RESERVED);
         parseTlvs(tbuilder, bytes.slice());
         builder.setTlvs(tbuilder.build());
         return builder.build();

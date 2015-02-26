@@ -61,7 +61,7 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         final SrpBuilder builder = new SrpBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
-        bytes.readerIndex(bytes.readerIndex() + FLAGS_SIZE);
+        bytes.skipBytes(FLAGS_SIZE);
         builder.setOperationId(new SrpIdNumber(bytes.readUnsignedInt()));
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes.slice());

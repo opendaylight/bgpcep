@@ -52,7 +52,7 @@ public class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<C
         final CNotificationBuilder builder = new CNotificationBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
-        bytes.readerIndex(bytes.readerIndex() + NT_F_OFFSET);
+        bytes.skipBytes(NT_F_OFFSET);
         builder.setType(bytes.readUnsignedByte());
         builder.setValue(bytes.readUnsignedByte());
         parseTlvs(builder, bytes.slice());

@@ -65,7 +65,7 @@ public class PCEPSvecObjectParser implements ObjectParser, ObjectSerializer {
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.readableBytes() + "; Expected: >="
                     + MIN_SIZE + ".");
         }
-        bytes.readerIndex(bytes.readerIndex() + FLAGS_F_OFFSET);
+        bytes.skipBytes(FLAGS_F_OFFSET);
         final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(bytes, FLAGS_F_LENGTH));
         final List<RequestId> requestIDs = Lists.newArrayList();
 

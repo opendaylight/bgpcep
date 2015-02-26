@@ -66,7 +66,7 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<TlvsBui
         final byte[] flagsByte = ByteArray.readBytes(bytes, FLAGS_F_LENGTH);
         final BitSet flags = ByteArray.bytesToBitSet(flagsByte);
         builder.setUnsatisfiedConstraints(flags.get(C_FLAG_OFFSET));
-        bytes.readerIndex(bytes.readerIndex() + RESERVED_F_LENGTH);
+        bytes.skipBytes(RESERVED_F_LENGTH);
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes.slice());
         builder.setTlvs(tlvsBuilder.build());

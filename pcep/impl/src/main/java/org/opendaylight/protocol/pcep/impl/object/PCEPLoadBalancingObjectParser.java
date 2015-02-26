@@ -48,7 +48,7 @@ public class PCEPLoadBalancingObjectParser implements ObjectParser, ObjectSerial
         final LoadBalancingBuilder builder = new LoadBalancingBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
-        bytes.readerIndex(bytes.readerIndex() + RESERVED + FLAGS_F_LENGTH);
+        bytes.skipBytes(RESERVED + FLAGS_F_LENGTH);
         builder.setMaxLsp(bytes.readUnsignedByte());
         builder.setMinBandwidth(new Bandwidth(ByteArray.readAllBytes(bytes)));
         return builder.build();

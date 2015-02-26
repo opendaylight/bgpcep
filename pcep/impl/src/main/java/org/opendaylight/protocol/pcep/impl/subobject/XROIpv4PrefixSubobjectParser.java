@@ -53,7 +53,7 @@ public class XROIpv4PrefixSubobjectParser implements XROSubobjectParser, XROSubo
         final IpPrefixBuilder prefix = new IpPrefixBuilder().setIpPrefix(new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.readBytes(buffer,
                 Ipv4Util.IP4_LENGTH), length)));
         builder.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(prefix.build()).build());
-        buffer.readerIndex(buffer.readerIndex() + PREFIX_F_LENGTH);
+        buffer.skipBytes(PREFIX_F_LENGTH);
         builder.setAttribute(Attribute.forValue(buffer.readUnsignedByte()));
         return builder.build();
     }

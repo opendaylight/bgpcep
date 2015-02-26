@@ -62,7 +62,7 @@ public final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
     }
 
     private Message parse(final ByteBuf buffer, final List<Message> errors) throws PCEPDeserializerException {
-        buffer.readerIndex(buffer.readerIndex() + 1);
+        buffer.skipBytes(1);
         final int type = buffer.readUnsignedByte();
         final int msgLength = buffer.readUnsignedShort();
         final int actualLength = buffer.readableBytes();
@@ -71,7 +71,7 @@ public final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
             throw new PCEPDeserializerException("Body size " + actualLength + " does not match header size "
                     + (msgLength - PCEPMessageConstants.COMMON_HEADER_LENGTH));
         }
-        buffer.readerIndex(buffer.readerIndex() + actualLength);
+        buffer.skipBytes(actualLength);
         return this.registry.parseMessage(type, msgBody, errors);
     }
 }

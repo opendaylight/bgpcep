@@ -55,7 +55,7 @@ public class RROIpv6PrefixSubobjectParser implements RROSubobjectParser, RROSubo
         final int length = buffer.getUnsignedByte(PREFIX_F_OFFSET);
         final IpPrefixBuilder prefix = new IpPrefixBuilder().setIpPrefix(new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.readBytes(buffer,
                 Ipv6Util.IPV6_LENGTH), length)));
-        buffer.readerIndex(buffer.readerIndex() + PREFIX_F_LENGTH);
+        buffer.skipBytes(PREFIX_F_LENGTH);
         final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, FLAGS_F_LENGTH));
         builder.setProtectionAvailable(flags.get(LPA_F_OFFSET));
         builder.setProtectionInUse(flags.get(LPIU_F_OFFSET));
