@@ -73,6 +73,10 @@
             <artifactId>protocol-framework</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-core-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
