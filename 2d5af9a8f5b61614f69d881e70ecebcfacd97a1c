@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_20b49433",
+        "filename": "bgp/rib-api/src/main/yang/bgp-rib.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2015-02-26T14:30:18Z",
+      "side": 1,
+      "message": "defined",
+      "range": {
+        "startLine": 41,
+        "startChar": 61,
+        "endLine": 41,
+        "endChar": 67
+      },
+      "revId": "2d5af9a8f5b61614f69d881e70ecebcfacd97a1c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
