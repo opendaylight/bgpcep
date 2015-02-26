@@ -173,6 +173,7 @@ public final class ByteArray {
      * @param b byte to be parsed
      * @return array of booleans with size of 8
      */
+    @Deprecated
     public static boolean[] parseBits(final byte b) {
         final boolean[] bits = new boolean[Byte.SIZE];
         int j = 0;
@@ -189,6 +190,7 @@ public final class ByteArray {
      * @param bytes array of bytes to be parsed
      * @return BitSet with length = bytes.length * Byte.SIZE
      */
+    @Deprecated
     public static BitSet bytesToBitSet(final byte[] bytes) {
         final BitSet bitSet = new BitSet(bytes.length * Byte.SIZE);
         for (int bytesIter = 0; bytesIter < bytes.length; bytesIter++) {
@@ -207,6 +209,7 @@ public final class ByteArray {
      * @param returnedLength Length of returned array. Overlapping flags are truncated.
      * @return parsed array of bytes with length of bitSet.length / Byte.SIZE
      */
+    @Deprecated
     public static byte[] bitSetToBytes(final BitSet bitSet, final int returnedLength) {
         final byte[] bytes = new byte[returnedLength];
 
