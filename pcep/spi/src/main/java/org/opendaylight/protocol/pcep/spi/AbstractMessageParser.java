@@ -13,10 +13,10 @@ import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
@@ -37,17 +37,15 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
     private static final int COMMON_OBJECT_HEADER_LENGTH = 4;
 
     private static final int OT_SF_LENGTH = 4;
-    private static final int FLAGS_SF_LENGTH = 4;
     /*
      * offsets of fields inside of multi-field in bits
      */
     private static final int OT_SF_OFFSET = 0;
-    private static final int FLAGS_SF_OFFSET = OT_SF_OFFSET + OT_SF_LENGTH;
     /*
      * flags offsets inside multi-filed
      */
-    private static final int P_FLAG_OFFSET = 6;
-    private static final int I_FLAG_OFFSET = 7;
+    private static final int PROCESSED = 6;
+    private static final int IGNORED = 7;
 
     private final ObjectRegistry registry;
     private final VendorInformationObjectRegistry viRegistry;
@@ -85,10 +83,8 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
             final int objClass = bytes.readUnsignedByte();
 
             final byte flagsByte = bytes.readByte();
+            final BitArray flags = BitArray.valueOf(flagsByte);
             final int objType = UnsignedBytes.toInt(ByteArray.copyBitsRange(flagsByte, OT_SF_OFFSET, OT_SF_LENGTH));
-            final byte[] flagsBytes = { ByteArray.copyBitsRange(flagsByte, FLAGS_SF_OFFSET, FLAGS_SF_LENGTH) };
-            final BitSet flags = ByteArray.bytesToBitSet(flagsBytes);
-
             final int objLength = bytes.readUnsignedShort();
 
             if (bytes.readableBytes() < objLength - COMMON_OBJECT_HEADER_LENGTH) {
@@ -98,7 +94,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
             // copy bytes for deeper parsing
             final ByteBuf bytesToPass = bytes.readSlice(objLength - COMMON_OBJECT_HEADER_LENGTH);
 
-            final ObjectHeader header = new ObjectHeaderImpl(flags.get(P_FLAG_OFFSET), flags.get(I_FLAG_OFFSET));
+            final ObjectHeader header = new ObjectHeaderImpl(flags.get(PROCESSED), flags.get(IGNORED));
 
             if (VendorInformationUtil.isVendorInformationObject(objClass, objType)) {
                 Preconditions.checkState(this.viRegistry != null);

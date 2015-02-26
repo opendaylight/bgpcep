@@ -10,13 +10,12 @@ package org.opendaylight.protocol.pcep.impl.subobject;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.BitSet;
 import org.opendaylight.protocol.pcep.spi.LabelRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectUtil;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
@@ -29,13 +28,11 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
 
     public static final int TYPE = 3;
 
-    public static final int RES_F_LENGTH = 1;
+    public static final int FLAGS_SIZE = 8;
 
     public static final int C_TYPE_F_LENGTH = 1;
 
-    public static final int RES_F_OFFSET = 0;
-
-    public static final int C_TYPE_F_OFFSET = RES_F_OFFSET + RES_F_LENGTH;
+    public static final int C_TYPE_F_OFFSET = FLAGS_SIZE / Byte.SIZE;
 
     public static final int HEADER_LENGTH = C_TYPE_F_OFFSET + C_TYPE_F_LENGTH;
 
@@ -55,7 +52,7 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: >"
                     + HEADER_LENGTH + ".");
         }
-        final BitSet reserved = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, RES_F_LENGTH));
+        final BitArray reserved = BitArray.valueOf(buffer, FLAGS_SIZE);
 
         final short cType = buffer.readUnsignedByte();
 

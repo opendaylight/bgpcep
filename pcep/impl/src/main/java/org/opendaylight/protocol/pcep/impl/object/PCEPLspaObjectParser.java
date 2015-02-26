@@ -7,21 +7,19 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.BitSet;
 import java.util.List;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.Lspa;
@@ -43,7 +41,7 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
     /*
      * lengths of fields in bytes
      */
-    private static final int FLAGS_F_LENGTH = 1;
+    private static final int FLAGS_SIZE = 8;
 
     /*
      * offsets of flags inside flags field in bits
@@ -69,7 +67,7 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         builder.setSetupPriority(bytes.readUnsignedByte());
         builder.setHoldPriority(bytes.readUnsignedByte());
 
-        final BitSet flags = ByteArray.bytesToBitSet(new byte[] { bytes.readByte() });
+        final BitArray flags = BitArray.valueOf(bytes.readByte());
         builder.setLocalProtectionDesired(flags.get(L_FLAG_OFFSET));
         final TlvsBuilder tbuilder = new TlvsBuilder();
         bytes.readerIndex(bytes.readerIndex() + RESERVED);
@@ -88,11 +86,9 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         writeAttributeFilter(lspaObj.getIncludeAll(), body);
         writeUnsignedByte(lspaObj.getSetupPriority(), body);
         writeUnsignedByte(lspaObj.getHoldPriority(), body);
-        final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-        if (lspaObj.isLocalProtectionDesired() != null) {
-            flags.set(L_FLAG_OFFSET, lspaObj.isLocalProtectionDesired());
-        }
-        writeBitSet(flags, FLAGS_F_LENGTH, body);
+        final BitArray flags = new BitArray(FLAGS_SIZE);
+        flags.set(L_FLAG_OFFSET, lspaObj.isLocalProtectionDesired());
+        flags.toByteBuf(body);
         body.writeZero(RESERVED);
         serializeTlvs(lspaObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);

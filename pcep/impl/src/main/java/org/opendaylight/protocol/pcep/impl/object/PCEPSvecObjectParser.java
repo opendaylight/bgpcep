@@ -7,20 +7,18 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.BitSet;
 import java.util.List;
 import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RequestId;
@@ -39,7 +37,7 @@ public class PCEPSvecObjectParser implements ObjectParser, ObjectSerializer {
     /*
      * field lengths in bytes
      */
-    private static final int FLAGS_F_LENGTH = 3;
+    private static final int FLAGS_SIZE = 24;
 
     /*
      * fields offsets in bytes
@@ -56,7 +54,7 @@ public class PCEPSvecObjectParser implements ObjectParser, ObjectSerializer {
     /*
      * min size in bytes
      */
-    private static final int MIN_SIZE = FLAGS_F_LENGTH + FLAGS_F_OFFSET;
+    private static final int MIN_SIZE = FLAGS_SIZE / Byte.SIZE + FLAGS_F_OFFSET;
 
     @Override
     public Svec parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
@@ -66,7 +64,7 @@ public class PCEPSvecObjectParser implements ObjectParser, ObjectSerializer {
                     + MIN_SIZE + ".");
         }
         bytes.readerIndex(bytes.readerIndex() + FLAGS_F_OFFSET);
-        final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(bytes, FLAGS_F_LENGTH));
+        final BitArray flags = BitArray.valueOf(bytes, FLAGS_SIZE);
         final List<RequestId> requestIDs = Lists.newArrayList();
 
         while (bytes.isReadable()) {
@@ -93,17 +91,11 @@ public class PCEPSvecObjectParser implements ObjectParser, ObjectSerializer {
         final Svec svecObj = (Svec) object;
         final ByteBuf body = Unpooled.buffer();
         body.writeZero(FLAGS_F_OFFSET);
-        final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-        if (svecObj.isLinkDiverse() != null) {
-            flags.set(L_FLAG_OFFSET, svecObj.isLinkDiverse());
-        }
-        if (svecObj.isNodeDiverse() != null) {
-            flags.set(N_FLAG_OFFSET, svecObj.isNodeDiverse());
-        }
-        if (svecObj.isSrlgDiverse() != null) {
-            flags.set(S_FLAG_OFFSET, svecObj.isSrlgDiverse());
-        }
-        writeBitSet(flags, FLAGS_F_LENGTH, body);
+        final BitArray flags = new BitArray(FLAGS_SIZE);
+        flags.set(L_FLAG_OFFSET, svecObj.isLinkDiverse());
+        flags.set(N_FLAG_OFFSET, svecObj.isNodeDiverse());
+        flags.set(S_FLAG_OFFSET, svecObj.isSrlgDiverse());
+        flags.toByteBuf(body);
 
         final List<RequestId> requestIDs = svecObj.getRequestsIds();
         assert !(requestIDs.isEmpty()) : "Empty Svec Object - no request ids.";

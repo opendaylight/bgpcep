@@ -10,9 +10,9 @@ package org.opendaylight.protocol.bgp.linkstate.attribute.sr;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -61,15 +61,15 @@ public final class SrNodeAttributesParser {
         throw new UnsupportedOperationException();
     }
 
-    private static final int FLAGS_SIZE = 1;
+    private static final int FLAGS_SIZE = 8;
 
     /* SR Capabilities flags */
-    private static final int IPV4 = 7;
-    private static final int IPV6 = 6;
+    private static final int IPV4 = 0;
+    private static final int IPV6 = 1;
 
     /* SID Label flags */
-    private static final int AFI = 7;
-    private static final int MIRROR = 6;
+    private static final int AFI = 0;
+    private static final int MIRROR = 1;
 
     /* SID Label Tlv types */
     private static final int SID_TLV_TYPE = 1;
@@ -150,7 +150,7 @@ public final class SrNodeAttributesParser {
 
     public static SrSidLabel parseSidLabelBinding(final ByteBuf buffer) {
         final SrSidLabelBuilder builder = new SrSidLabelBuilder();
-        final BitSet flags = BitSet.valueOf(ByteArray.readBytes(buffer, FLAGS_SIZE));
+        final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         builder.setSidLabelFlags(new SidLabelFlags(flags.get(AFI), flags.get(MIRROR)));
         builder.setWeight(new Weight(buffer.readUnsignedByte()));
         builder.setValueRange(buffer.readUnsignedShort());
@@ -223,14 +223,10 @@ public final class SrNodeAttributesParser {
 
     public static void serializeSidLabelBinding(final SrSidLabel binding, final ByteBuf buffer) {
         final SidLabelFlags flags = binding.getSidLabelFlags();
-        final BitSet bs = new BitSet(FLAGS_SIZE);
-        if (flags.isAddressFamily() != null) {
-            bs.set(AFI, flags.isAddressFamily());
-        }
-        if (flags.isMirrorContext() != null) {
-            bs.set(MIRROR, flags.isMirrorContext());
-        }
-        buffer.writeBytes(bs.toByteArray());
+        final BitArray bs = new BitArray(FLAGS_SIZE);
+        bs.set(AFI, flags.isAddressFamily());
+        bs.set(MIRROR, flags.isMirrorContext());
+        bs.toByteBuf(buffer);
         buffer.writeByte(binding.getWeight().getValue());
         buffer.writeShort(binding.getValueRange());
         final IpPrefix prefix = binding.getFecPrefix();
@@ -246,7 +242,7 @@ public final class SrNodeAttributesParser {
 
     public static SrCapabilities parseSrCapabilities(final ByteBuf buffer) {
         final SrCapabilitiesBuilder builder = new SrCapabilitiesBuilder();
-        final BitSet flags = BitSet.valueOf(ByteArray.readBytes(buffer, FLAGS_SIZE));
+        final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         builder.setFlags(new Flags(flags.get(IPV4), flags.get(IPV6)));
         builder.setValueRange((long)buffer.readUnsignedMedium());
         buffer.skipBytes(2);
@@ -256,14 +252,10 @@ public final class SrNodeAttributesParser {
 
     public static void serializeSrCapabilities(final SrCapabilities caps, final ByteBuf buffer) {
         final Flags flags = caps.getFlags();
-        final BitSet bs = new BitSet(FLAGS_SIZE);
-        if (flags.isIpv4() != null) {
-            bs.set(IPV4, flags.isIpv4());
-        }
-        if (flags.isIpv6() != null) {
-            bs.set(IPV6, flags.isIpv6());
-        }
-        buffer.writeBytes(bs.toByteArray());
+        final BitArray bs = new BitArray(FLAGS_SIZE);
+        bs.set(IPV4, flags.isIpv4());
+        bs.set(IPV6, flags.isIpv6());
+        bs.toByteBuf(buffer);
         buffer.writeMedium(caps.getValueRange().intValue());
         buffer.writeByte(SID_TLV_TYPE);
         final byte[] sid = caps.getSid().getValue();

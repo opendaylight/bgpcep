@@ -39,13 +39,11 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<Tlvs
 
     public static final int TYPE = 1;
 
-    protected static final int FLAGS_SIZE = 4;
+    protected static final int FLAGS_SIZE = 32;
 
     protected static final int SRP_ID_SIZE = 4;
 
-    protected static final int TLVS_OFFSET = FLAGS_SIZE + SRP_ID_SIZE;
-
-    protected static final int MIN_SIZE = FLAGS_SIZE + SRP_ID_SIZE;
+    protected static final int MIN_SIZE = FLAGS_SIZE / Byte.SIZE + SRP_ID_SIZE;
 
     protected Stateful07SrpObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
         super(tlvReg, viTlvReg);
@@ -61,7 +59,7 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         final SrpBuilder builder = new SrpBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
-        bytes.readerIndex(bytes.readerIndex() + FLAGS_SIZE);
+        bytes.skipBytes(FLAGS_SIZE / Byte.SIZE);
         builder.setOperationId(new SrpIdNumber(bytes.readUnsignedInt()));
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes.slice());
@@ -84,7 +82,7 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         Preconditions.checkArgument(object instanceof Srp, "Wrong instance of PCEPObject. Passed %s . Needed SrpObject.", object.getClass());
         final Srp srp = (Srp) object;
         final ByteBuf body = Unpooled.buffer();
-        body.writerIndex(body.writerIndex() + FLAGS_SIZE);
+        body.writeZero(FLAGS_SIZE / Byte.SIZE);
         final SrpIdNumber srpId = srp.getOperationId();
         Preconditions.checkArgument(srpId != null, "SrpId is mandatory.");
         writeUnsignedInt(srpId.getValue(), body);

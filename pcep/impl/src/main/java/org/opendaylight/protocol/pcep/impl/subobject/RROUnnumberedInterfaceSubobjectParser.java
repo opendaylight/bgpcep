@@ -7,18 +7,16 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.BitSet;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectUtil;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.UnnumberedSubobject;
@@ -33,7 +31,7 @@ public class RROUnnumberedInterfaceSubobjectParser implements RROSubobjectParser
 
     public static final int TYPE = 4;
 
-    private static final int FLAGS_F_LENGTH = 1;
+    private static final int FLAGS_SIZE = 8;
     private static final int RESERVED = 1;
 
     private static final int CONTENT_LENGTH = 10;
@@ -49,7 +47,7 @@ public class RROUnnumberedInterfaceSubobjectParser implements RROSubobjectParser
                     + CONTENT_LENGTH + ".");
         }
         final SubobjectBuilder builder = new SubobjectBuilder();
-        final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, FLAGS_F_LENGTH));
+        final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         builder.setProtectionAvailable(flags.get(LPA_F_OFFSET));
         builder.setProtectionInUse(flags.get(LPIU_F_OFFSET));
         final UnnumberedBuilder ubuilder = new UnnumberedBuilder();
@@ -64,15 +62,11 @@ public class RROUnnumberedInterfaceSubobjectParser implements RROSubobjectParser
     public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
         Preconditions.checkArgument(subobject.getSubobjectType() instanceof UnnumberedCase, "Unknown subobject instance. Passed %s. Needed UnnumberedCase.", subobject.getSubobjectType().getClass());
         final UnnumberedSubobject specObj = ((UnnumberedCase) subobject.getSubobjectType()).getUnnumbered();
-        final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-        if (subobject.isProtectionAvailable() != null) {
-            flags.set(LPA_F_OFFSET, subobject.isProtectionAvailable());
-        }
-        if (subobject.isProtectionInUse() != null) {
-            flags.set(LPIU_F_OFFSET, subobject.isProtectionInUse());
-        }
+        final BitArray flags = new BitArray(FLAGS_SIZE);
+        flags.set(LPA_F_OFFSET, subobject.isProtectionAvailable());
+        flags.set(LPIU_F_OFFSET, subobject.isProtectionInUse());
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
-        writeBitSet(flags, FLAGS_F_LENGTH, body);
+        flags.toByteBuf(body);
         body.writeZero(RESERVED);
         Preconditions.checkArgument(specObj.getRouterId() != null, "RouterId is mandatory.");
         writeUnsignedInt(specObj.getRouterId(), body);

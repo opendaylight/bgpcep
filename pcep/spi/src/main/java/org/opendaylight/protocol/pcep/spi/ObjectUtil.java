@@ -8,19 +8,18 @@
 package org.opendaylight.protocol.pcep.spi;
 
 import io.netty.buffer.ByteBuf;
-import java.util.BitSet;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.BitArray;
 
 public final class ObjectUtil {
 
     private static final int HEADER_SIZE = 4;
 
-    private static final int OT_SF_LENGTH = 4;
+    private static final int FLAGS_SIZE = 4;
     /*
      * flags offsets inside multi-field
      */
-    private static final int P_FLAG_OFFSET = 6;
-    private static final int I_FLAG_OFFSET = 7;
+    private static final int PROCESSED = 2;
+    private static final int IGNORED = 3;
 
     private ObjectUtil() {
         throw new UnsupportedOperationException();
@@ -29,15 +28,11 @@ public final class ObjectUtil {
     public static void formatSubobject(final int objectType, final int objectClass, final Boolean processingRule, final Boolean ignore,
         final ByteBuf body, final ByteBuf out) {
         out.writeByte(objectClass);
-        BitSet flags = new BitSet(Byte.SIZE);
-        if (ignore != null) {
-            flags.set(I_FLAG_OFFSET, ignore);
-        }
-        if (processingRule != null) {
-            flags.set(P_FLAG_OFFSET, processingRule);
-        }
-        byte[] flagB = ByteArray.bitSetToBytes(flags, 1);
-        int typeByte = objectType << OT_SF_LENGTH | flagB[0];
+        final BitArray flags = new BitArray(FLAGS_SIZE);
+        flags.set(IGNORED, ignore);
+        flags.set(PROCESSED, processingRule);
+        final byte flagB = flags.toByte();
+        final int typeByte = objectType << FLAGS_SIZE | flagB;
         out.writeByte(typeByte);
         out.writeShort(body.writerIndex() + HEADER_SIZE);
         out.writeBytes(body);
