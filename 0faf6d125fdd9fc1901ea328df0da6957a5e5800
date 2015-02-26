@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_8081e8c4",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/BitArray.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-02-26T18:17:30Z",
+      "side": 1,
+      "message": "also ... check size against this.size, so we do not overflow ...",
+      "revId": "0faf6d125fdd9fc1901ea328df0da6957a5e5800",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_201b34cb",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/BitArray.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-02-26T18:17:30Z",
+      "side": 1,
+      "message": "return (...) !\u003d 0;",
+      "revId": "0faf6d125fdd9fc1901ea328df0da6957a5e5800",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_c07b70f3",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/BitArray.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-02-26T18:17:30Z",
+      "side": 1,
+      "message": "b.append(\u0027 \u0027) is faster",
+      "revId": "0faf6d125fdd9fc1901ea328df0da6957a5e5800",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_e080ecc1",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/BitArray.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-02-26T18:17:30Z",
+      "side": 1,
+      "message": ".append(\u0027]\u0027)",
+      "revId": "0faf6d125fdd9fc1901ea328df0da6957a5e5800",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
