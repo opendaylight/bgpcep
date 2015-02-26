@@ -7,18 +7,17 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeFloat32;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.BitSet;
 import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -38,7 +37,7 @@ public class PCEPMetricObjectParser implements ObjectParser, ObjectSerializer {
     /*
      * lengths of fields in bytes
      */
-    private static final int FLAGS_F_LENGTH = 1;
+    private static final int FLAGS_SIZE = 8;
     private static final int METRIC_VALUE_F_LENGTH = 4;
 
     /*
@@ -63,7 +62,7 @@ public class PCEPMetricObjectParser implements ObjectParser, ObjectSerializer {
         }
         bytes.skipBytes(RESERVED);
         final byte[] flagBytes = { bytes.readByte() };
-        final BitSet flags = ByteArray.bytesToBitSet(flagBytes);
+        final BitArray flags = BitArray.valueOf(bytes.readByte());
         final MetricBuilder builder = new MetricBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
@@ -80,14 +79,10 @@ public class PCEPMetricObjectParser implements ObjectParser, ObjectSerializer {
         final Metric mObj = (Metric) object;
         final ByteBuf body = Unpooled.buffer(SIZE);
         body.writeZero(RESERVED);
-        final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-        if (mObj.isComputed() != null) {
-            flags.set(C_FLAG_OFFSET, mObj.isComputed());
-        }
-        if (mObj.isBound() != null) {
-            flags.set(B_FLAG_OFFSET, mObj.isBound());
-        }
-        writeBitSet(flags, FLAGS_F_LENGTH, body);
+        final BitArray flags = new BitArray(FLAGS_SIZE);
+        flags.set(C_FLAG_OFFSET, mObj.isComputed());
+        flags.set(B_FLAG_OFFSET, mObj.isBound());
+        flags.toByteBuf(body);
         Preconditions.checkArgument(mObj.getMetricType() != null, "MetricType is mandatory.");
         writeUnsignedByte(mObj.getMetricType(), body);
         writeFloat32(mObj.getValue(), body);

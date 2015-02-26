@@ -7,16 +7,13 @@
  */
 package org.opendaylight.protocol.pcep.ietf.initiated00;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
-
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.BitSet;
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07StatefulCapabilityTlvParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvUtil;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.Stateful;
@@ -35,15 +32,13 @@ public final class CInitiated00StatefulCapabilityTlvParser extends Stateful07Sta
         if (buffer == null) {
             return null;
         }
-        if (buffer.readableBytes() < FLAGS_F_LENGTH) {
+        if (buffer.readableBytes() < FLAGS_F_LENGTH / Byte.SIZE) {
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: >= "
-                    + FLAGS_F_LENGTH + ".");
+                    + FLAGS_F_LENGTH / Byte.SIZE + ".");
         }
-        final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, FLAGS_F_LENGTH));
-
+        final BitArray flags = BitArray.valueOf(buffer, FLAGS_F_LENGTH);
         final StatefulBuilder sb = new StatefulBuilder();
         sb.setLspUpdateCapability(flags.get(U_FLAG_OFFSET));
-
         if (flags.get(I_FLAG_OFFSET)) {
             sb.addAugmentation(Stateful1.class, new Stateful1Builder().setInitiation(Boolean.TRUE).build());
         }
@@ -54,16 +49,12 @@ public final class CInitiated00StatefulCapabilityTlvParser extends Stateful07Sta
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
         Preconditions.checkArgument(tlv instanceof Stateful, "StatefulCapabilityTlv is mandatory.");
         final Stateful sct = (Stateful) tlv;
-        final ByteBuf body = Unpooled.buffer();
-        final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
+        final BitArray flags = new BitArray(FLAGS_F_LENGTH);
         final Stateful1 sfi = sct.getAugmentation(Stateful1.class);
         if (sfi != null) {
             flags.set(I_FLAG_OFFSET, sfi.isInitiation());
         }
-        if (sct.isLspUpdateCapability() != null) {
-            flags.set(U_FLAG_OFFSET, sct.isLspUpdateCapability());
-        }
-        writeBitSet(flags, FLAGS_F_LENGTH, body);
-        TlvUtil.formatTlv(TYPE, body, buffer);
+        flags.set(U_FLAG_OFFSET, sct.isLspUpdateCapability());
+        TlvUtil.formatTlv(TYPE, Unpooled.wrappedBuffer(flags.array()), buffer);
     }
 }

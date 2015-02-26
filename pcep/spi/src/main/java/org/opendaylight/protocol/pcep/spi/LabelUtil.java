@@ -8,30 +8,24 @@
 package org.opendaylight.protocol.pcep.spi;
 
 import io.netty.buffer.ByteBuf;
-import java.util.BitSet;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.BitArray;
 
 public final class LabelUtil {
 
-    private static final int RES_F_LENGTH = 1;
+    private static final int FLAGS_SIZE = 8;
 
-    private static final int U_FLAG_OFFSET = 0;
-
-    private static final int G_FLAG_OFFSET = 7;
+    private static final int UNIDIRECTIONAL = 0;
+    private static final int GLOBAL = 7;
 
     private LabelUtil() {
         throw new UnsupportedOperationException();
     }
 
     public static void formatLabel(final int type, final Boolean unidirectional, final Boolean global, final ByteBuf body, final ByteBuf buffer) {
-        final BitSet reserved = new BitSet(RES_F_LENGTH * Byte.SIZE);
-        if (unidirectional != null) {
-            reserved.set(U_FLAG_OFFSET, unidirectional);
-        }
-        if (global != null) {
-            reserved.set(G_FLAG_OFFSET, global);
-        }
-        buffer.writeBytes(ByteArray.bitSetToBytes(reserved, RES_F_LENGTH));
+        final BitArray reserved = new BitArray(FLAGS_SIZE);
+        reserved.set(UNIDIRECTIONAL, unidirectional);
+        reserved.set(GLOBAL, global);
+        reserved.toByteBuf(buffer);
         buffer.writeByte(type);
         buffer.writeBytes(body);
     }
