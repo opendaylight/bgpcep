@@ -54,6 +54,7 @@
         <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-concepts/{{VERSION}}</bundle>
         <feature version='${protocol-framework.version}'>odl-protocol-framework</feature>
+        <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-spi/{{VERSION}}</bundle>
     </feature>
