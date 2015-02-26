@@ -35,6 +35,15 @@ module bgp-rib {
         type inet:uri;
     }
 
+    typedef peer-id {
+        description
+            "An abstract peer identifier. The protocol part identifies
+            the type of the peer. One well-known protocol is define, which
+            has the following format: bgp://1.2.3.4, where 1.2.3.4 is the
+            peer's BGP Identifier in IPv4 dotted-quad format.";
+        type inet:uri;
+    }
+
     grouping route {
         container attributes {
             uses bgp-msg:path-attributes;
@@ -106,7 +115,12 @@ module bgp-rib {
             }
             key id;
 
-            list peers {
+            list peer {
+                key peer-id;
+                leaf peer-id {
+                    type peer-id;
+                }
+
                 container adj-rib-in {
                     uses rib;
                 }
