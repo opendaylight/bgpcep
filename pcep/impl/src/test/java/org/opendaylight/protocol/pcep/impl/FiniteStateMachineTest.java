@@ -20,6 +20,7 @@ import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcerr;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Starttls;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.Errors;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -32,7 +33,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     public void setup() {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open localPrefs = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder().setKeepalive(
                 (short) 1).build();
-        this.serverSession = new DefaultPCEPSessionNegotiator(new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE), this.channel, this.listener, (short) 1, 20, localPrefs);
+        this.serverSession = new DefaultPCEPSessionNegotiator(new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE), this.channel, this.listener, (short) 1, 20, localPrefs, true);
     }
 
     /**
@@ -51,6 +52,28 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
         assertTrue(this.msgsSend.get(1) instanceof Keepalive);
         this.serverSession.handleMessage(this.kaMsg);
         assertEquals(this.serverSession.getState(), DefaultPCEPSessionNegotiator.State.FINISHED);
+    }
+
+    @Test
+    public void testReceivedStartTLSMessasge() throws Exception {
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open localPrefs = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder().setKeepalive(
+            (short) 1).build();
+        this.serverSession = new DefaultPCEPSessionNegotiator(new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE), this.channel, this.listener, (short) 1, 20, localPrefs, false);
+        this.serverSession.handleMessage(this.startTlsMsg);
+        assertEquals(2, this.msgsSend.size());
+        assertTrue(this.msgsSend.get(0) instanceof Starttls);
+        assertTrue(this.msgsSend.get(1) instanceof Open);
+        this.serverSession.handleMessage(this.openMsg);
+        assertEquals(3, this.msgsSend.size());
+        assertTrue(this.msgsSend.get(2) instanceof Keepalive);
+        this.serverSession.handleMessage(this.startTlsMsg);
+        assertEquals(4, this.msgsSend.size());
+        assertTrue(this.msgsSend.get(3) instanceof Pcerr);
+        if (this.msgsSend.get(3) instanceof Pcerr) {
+            final Errors obj = ((Pcerr) this.msgsSend.get(3)).getPcerrMessage().getErrors().get(0);
+            assertEquals(new Short((short) 30), obj.getErrorObject().getType());
+            assertEquals(new Short((short) 1), obj.getErrorObject().getValue());
+        }
     }
 
     /**

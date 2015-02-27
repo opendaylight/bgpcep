@@ -9,10 +9,8 @@ package org.opendaylight.protocol.pcep.impl;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
-
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
@@ -22,8 +20,8 @@ public final class DefaultPCEPSessionNegotiator extends AbstractPCEPSessionNegot
     private final int maxUnknownMessages;
 
     public DefaultPCEPSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel,
-            final PCEPSessionListener listener, final short sessionId, final int maxUnknownMessages, final Open localPrefs) {
-        super(promise, channel);
+            final PCEPSessionListener listener, final short sessionId, final int maxUnknownMessages, final Open localPrefs, final boolean active) {
+        super(promise, channel, active);
         this.maxUnknownMessages = maxUnknownMessages;
         this.myLocalPrefs = new OpenBuilder().setKeepalive(localPrefs.getKeepalive()).setDeadTimer(localPrefs.getDeadTimer()).setSessionId(
                 sessionId).setTlvs(localPrefs.getTlvs()).build();
