@@ -295,7 +295,32 @@ public enum PCEPErrors {
     /**
      * MONITORING object missing
      */
-    MONITORING_OBJECT_MISSING(6, 4);
+    MONITORING_OBJECT_MISSING(6, 4),
+    /**
+     * Reception of StartTLS after any PCEP exchange
+     * TODO: error code to be assigned by IANA
+     */
+    STARTTLS_RCVD_INCORRECTLY(30, 1),
+    /**
+     * Reception of non-StartTLS or non-PCErr message
+     * TODO: error code to be assigned by IANA
+     */
+    NON_STARTTLS_MSG_RCVD(30, 2),
+    /**
+     * Failure, connection without TLS not possible
+     * TODO: error code to be assigned by IANA
+     */
+    TLS_NOT_POSSIBLE(30, 3),
+    /**
+     * Failure, connection without TLS possible
+     * TODO: error code to be assigned by IANA
+     */
+    TLS_POSSIBLE(30, 4),
+    /**
+     * No StartTLS message before StartTLSWait timer expired
+     * TODO: error code to be assigned by IANA
+     */
+    STARTTLS_TIMER_EXP(30, 5);
 
     private PCEPErrorIdentifier errorId;
     private static final Map<PCEPErrorIdentifier, PCEPErrors> VALUE_MAP;
