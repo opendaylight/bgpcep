@@ -111,7 +111,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
             public Object answer(final InvocationOnMock invocation) {
                 final Object[] args = invocation.getArguments();
                 AbstractPCEPSessionTest.this.receivedMsgs.add((Notification) args[0]);
-                return channelFuture;
+                return AbstractPCEPSessionTest.this.channelFuture;
             }
         }).when(this.clientListener).writeAndFlush(any(Notification.class));
         doReturn(null).when(this.channelFuture).addListener(Mockito.<GenericFutureListener<? extends Future<? super Void>>>any());
@@ -131,7 +131,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         this.listenerFactory = (T) ((Class)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
         this.manager = new ServerSessionManager(getDataBroker(), TOPO_IID, this.listenerFactory);
 
-        final DefaultPCEPSessionNegotiator neg = new DefaultPCEPSessionNegotiator(mock(Promise.class), this.clientListener, this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
+        final DefaultPCEPSessionNegotiator neg = new DefaultPCEPSessionNegotiator(mock(Promise.class), this.clientListener, this.manager.getSessionListener(), (short) 1, 5, this.localPrefs, true);
         this.session = neg.createSession(this.clientListener, getLocalPref(), getLocalPref());
         this.topologyRpcs = new TopologyRPCs(this.manager);
     }

@@ -8,10 +8,8 @@
 package org.opendaylight.protocol.pcep.impl;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
-
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 
@@ -27,6 +25,6 @@ public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessi
     @Override
     protected AbstractPCEPSessionNegotiator createNegotiator(final Promise<PCEPSessionImpl> promise, final PCEPSessionListener listener,
             final Channel channel, final short sessionId) {
-        return new DefaultPCEPSessionNegotiator(promise, channel, listener, sessionId, this.maxUnknownMessages, this.localPrefs);
+        return new DefaultPCEPSessionNegotiator(promise, channel, listener, sessionId, this.maxUnknownMessages, this.localPrefs, true);
     }
 }

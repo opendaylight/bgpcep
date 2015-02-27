@@ -22,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcerr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.StartTlsMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
@@ -76,8 +77,15 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     private Open localPrefs;
     private Open remotePrefs;
 
-    protected AbstractPCEPSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel) {
+    /**
+     * A switch that basically turns on immediate sending of Open message. If false, PCE stays still, without a timer, to give PCC
+     * a chance to send StartTLS.
+     */
+    private boolean active;
+
+    protected AbstractPCEPSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel, final boolean active) {
         super(promise, channel);
+        this.active = active;
     }
 
     /**
@@ -162,13 +170,14 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     protected final void startNegotiation() {
         Preconditions.checkState(this.state == State.IDLE);
         this.localPrefs = getInitialProposal();
-        final OpenMessage m = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.OpenBuilder().setOpenMessage(
-                new OpenMessageBuilder().setOpen(this.localPrefs).build()).build();
-        this.sendMessage(m);
-        this.state = State.OPEN_WAIT;
-        scheduleFailTimer();
-
-        LOG.info("PCEP session with {} started, sent proposal {}", this.channel, this.localPrefs);
+        if (this.active) {
+            final OpenMessage m = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.OpenBuilder().setOpenMessage(
+                    new OpenMessageBuilder().setOpen(this.localPrefs).build()).build();
+            this.sendMessage(m);
+            this.state = State.OPEN_WAIT;
+            scheduleFailTimer();
+            LOG.info("PCEP session with {} started, sent proposal {}", this.channel, this.localPrefs);
+        }
     }
 
     private boolean handleMessageKeepWait(final Message msg) {
@@ -257,14 +266,31 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 
     @Override
     protected final void handleMessage(final Message msg) {
-        this.failTimer.cancel(false);
-
+        if (this.active) {
+            this.failTimer.cancel(false);
+        }
         LOG.debug("Channel {} handling message {} in state {}", this.channel, msg, this.state);
-
+        if (msg instanceof StartTlsMessage && !this.state.equals(State.IDLE)) {
+            sendErrorMessage(PCEPErrors.STARTTLS_RCVD_INCORRECTLY);
+            negotiationFailed(new Exception("Illegal message encountered"));
+            this.state = State.FINISHED;
+            return;
+        }
         switch (this.state) {
         case FINISHED:
         case IDLE:
-            throw new IllegalStateException("Unexpected handleMessage in state " + this.state);
+            if (!this.active && msg instanceof Open) {
+                this.active = true;
+                startNegotiation();
+                return;
+            }
+            if (msg instanceof StartTlsMessage) {
+                this.active = true;
+                this.sendMessage(msg);
+                startNegotiation();
+                return;
+            }
+            throw new IllegalStateException("Received another message than StartTLS in state " + this.state);
         case KEEP_WAIT:
             if (handleMessageKeepWait(msg)) {
                 return;
