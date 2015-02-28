@@ -11,7 +11,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Verify;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
-import java.util.Collection;
 import java.util.Set;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -37,10 +36,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
@@ -120,7 +117,7 @@ final class TableContext {
 
         // FIXME: run the decoder process
         final ContainerNode domAttributes = (ContainerNode) attributeCodec;
-        final ContainerNode routeAttributes = Builders.containerBuilder(EMPTY_ROUTE_ATTRIBUTES).withValue((Collection<DataContainerChild<? extends PathArgument, ?>>) domAttributes.getValue()).build();
+        final ContainerNode routeAttributes = Builders.containerBuilder(EMPTY_ROUTE_ATTRIBUTES).withValue(domAttributes.getValue()).build();
 
         tableSupport.putRoutes(tx, tableId, domNlri, routeAttributes);
     }
