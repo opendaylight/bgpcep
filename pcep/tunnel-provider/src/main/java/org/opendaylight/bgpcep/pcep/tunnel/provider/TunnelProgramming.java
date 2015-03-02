@@ -97,6 +97,23 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
     private final DataBroker dataProvider;
     private final InstructionScheduler scheduler;
 
+    private final OperationResult result = new OperationResult() {
+        @Override
+        public Class<? extends DataContainer> getImplementedInterface() {
+            return OperationResult.class;
+        }
+
+        @Override
+        public FailureType getFailure() {
+            return FailureType.Unsent;
+        }
+
+        @Override
+        public List<Error> getError() {
+            return Collections.emptyList();
+        }
+    };
+
     public TunnelProgramming(final InstructionScheduler scheduler, final DataBroker dataProvider,
             final NetworkTopologyPcepService topologyService) {
         this.scheduler = Preconditions.checkNotNull(scheduler);
@@ -316,22 +333,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
                         node = sourceNode(t, tii, link).get();
                     } catch (IllegalStateException | ReadFailedException e) {
                         LOG.debug("Link or node does not exist.", e);
-                        return Futures.<OperationResult>immediateFuture(new OperationResult() {
-                            @Override
-                            public Class<? extends DataContainer> getImplementedInterface() {
-                                return OperationResult.class;
-                            }
-
-                            @Override
-                            public FailureType getFailure() {
-                                return FailureType.Unsent;
-                            }
-
-                            @Override
-                            public List<Error> getError() {
-                                return Collections.emptyList();
-                            }
-                        });
+                        return Futures.<OperationResult>immediateFuture(TunnelProgramming.this.result);
                     }
 
                     final RemoveLspInputBuilder ab = new RemoveLspInputBuilder();
@@ -376,22 +378,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
                         node = sourceNode(t, tii, link).get();
                     } catch (IllegalStateException | ReadFailedException e) {
                         LOG.debug("Link or node does not exist.", e);
-                        return Futures.<OperationResult>immediateFuture(new OperationResult() {
-                            @Override
-                            public Class<? extends DataContainer> getImplementedInterface() {
-                                return OperationResult.class;
-                            }
-
-                            @Override
-                            public FailureType getFailure() {
-                                return FailureType.Unsent;
-                            }
-
-                            @Override
-                            public List<Error> getError() {
-                                return Collections.emptyList();
-                            }
-                        });
+                        return Futures.<OperationResult>immediateFuture(TunnelProgramming.this.result);
                     }
 
                     final UpdateLspInputBuilder ab = new UpdateLspInputBuilder();

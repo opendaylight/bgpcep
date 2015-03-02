@@ -102,7 +102,6 @@ final class UriBuilder {
         if (routerIdentifier == null) {
             return null;
         }
-
         if (routerIdentifier instanceof IsisNodeCase) {
             return isoId(((IsisNodeCase) routerIdentifier).getIsisNode().getIsoSystemId());
         } else if (routerIdentifier instanceof IsisPseudonodeCase) {

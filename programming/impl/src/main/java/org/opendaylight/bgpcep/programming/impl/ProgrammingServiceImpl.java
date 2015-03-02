@@ -219,19 +219,8 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
         // Check if all dependencies are non-failed
         final List<InstructionId> unmet = new ArrayList<>();
         for (final InstructionImpl d : dependencies) {
-            switch (d.getStatus()) {
-            case Cancelled:
-            case Failed:
-            case Unknown:
+            if (d.getStatus().equals(InstructionStatus.Cancelled) || d.getStatus().equals(InstructionStatus.Failed) || d.getStatus().equals(InstructionStatus.Unknown)) {
                 unmet.add(d.getId());
-                break;
-            case Executing:
-            case Queued:
-            case Scheduled:
-            case Successful:
-                break;
-            default:
-                break;
             }
         }
         /*

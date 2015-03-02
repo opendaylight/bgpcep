@@ -66,7 +66,7 @@ public class BGPClientSessionValidator implements BGPSessionValidator {
         }
 
         final List<BgpParameters> prefs = openObj.getBgpParameters();
-        if (prefs != null && !prefs.isEmpty()) {
+        if (prefs != null) {
             if(getAs4BytesCapability(localPref.getParams()).isPresent() && !getAs4BytesCapability(prefs).isPresent()) {
                 throw new BGPDocumentedException("The peer must advertise AS4Bytes capability.", BGPError.UNSUPPORTED_CAPABILITY,
                         serializeAs4BytesCapability(getAs4BytesCapability(localPref.getParams()).get()));
