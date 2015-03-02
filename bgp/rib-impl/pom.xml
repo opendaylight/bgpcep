@@ -122,6 +122,10 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>yang-model-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-data-impl</artifactId>
         </dependency>
         <dependency>
@@ -177,11 +181,6 @@
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>binding-generator-impl</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.yangtools</groupId>
-            <artifactId>yang-model-api</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
