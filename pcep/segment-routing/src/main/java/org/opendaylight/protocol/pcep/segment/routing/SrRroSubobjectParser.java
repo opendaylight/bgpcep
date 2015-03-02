@@ -14,11 +14,11 @@ import static org.opendaylight.protocol.pcep.segment.routing.SrSubobjectParserUt
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-import java.util.BitSet;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectUtil;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.SrRroSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.SrSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.add.lsp.input.arguments.rro.subobject.subobject.type.SrRroTypeBuilder;
@@ -39,12 +39,12 @@ public class SrRroSubobjectParser implements RROSubobjectParser, RROSubobjectSer
                         .getClass());
 
         final SrRroSubobject srRroSubobject = (SrRroSubobject) subobject.getSubobjectType();
-        final BitSet bits = new BitSet(BITSET_LENGTH);
+        final BitArray bits = new BitArray(BITSET_LENGTH);
         if (srRroSubobject.getSid() == null) {
-            bits.set(S_FLAG_POSITION);
+            bits.set(S_FLAG_POSITION, Boolean.TRUE);
         }
         if (srRroSubobject.getNai() == null) {
-            bits.set(F_FLAG_POSITION);
+            bits.set(F_FLAG_POSITION, Boolean.TRUE);
         }
         final ByteBuf body = SrSubobjectParserUtil.serializeSrSubobject(srRroSubobject, bits);
         RROSubobjectUtil.formatSubobject(TYPE, body, buffer);
@@ -58,9 +58,9 @@ public class SrRroSubobjectParser implements RROSubobjectParser, RROSubobjectSer
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ";");
         }
 
-        final SrSubobject srSubobject = SrSubobjectParserUtil.parseSrSubobject(buffer, new Function<BitSet, Void>() {
+        final SrSubobject srSubobject = SrSubobjectParserUtil.parseSrSubobject(buffer, new Function<BitArray, Void>() {
             @Override
-            public Void apply(final BitSet input) {
+            public Void apply(final BitArray input) {
                 return null;
             }
         }, F_FLAG_POSITION, S_FLAG_POSITION);
