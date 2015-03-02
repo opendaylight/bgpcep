@@ -7,19 +7,17 @@
  */
 package org.opendaylight.protocol.pcep.ietf.initiated00;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.BitSet;
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07SrpObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SrpIdNumber;
@@ -50,7 +48,7 @@ public class CInitiated00SrpObjectParser extends Stateful07SrpObjectParser {
         final SrpBuilder builder = new SrpBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
-        final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(bytes, FLAGS_SIZE));
+        final BitArray flags = BitArray.valueOf(bytes, FLAGS_SIZE);
         builder.addAugmentation(Srp1.class, new Srp1Builder().setRemove(flags.get(REMOVE_FLAG)).build());
         builder.setOperationId(new SrpIdNumber(bytes.readUnsignedInt()));
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
@@ -64,11 +62,11 @@ public class CInitiated00SrpObjectParser extends Stateful07SrpObjectParser {
         Preconditions.checkArgument(object instanceof Srp, "Wrong instance of PCEPObject. Passed %s. Needed SrpObject.", object.getClass());
         final Srp srp = (Srp) object;
         final ByteBuf body = Unpooled.buffer();
-        final BitSet flags = new BitSet(FLAGS_SIZE * Byte.SIZE);
-        if (srp.getAugmentation(Srp1.class) != null && srp.getAugmentation(Srp1.class).isRemove()) {
+        final BitArray flags = new BitArray(FLAGS_SIZE);
+        if (srp.getAugmentation(Srp1.class) != null) {
             flags.set(REMOVE_FLAG, srp.getAugmentation(Srp1.class).isRemove());
         }
-        writeBitSet(flags, FLAGS_SIZE, body);
+        flags.toByteBuf(body);
         Preconditions.checkArgument(srp.getOperationId() != null, "OperationId is mandatory.");
         writeUnsignedInt(srp.getOperationId().getValue(), body);
         serializeTlvs(srp.getTlvs(), body);

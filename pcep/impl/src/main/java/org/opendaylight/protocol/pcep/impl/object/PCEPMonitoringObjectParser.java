@@ -11,14 +11,13 @@ package org.opendaylight.protocol.pcep.impl.object;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.BitSet;
 import java.util.List;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
@@ -39,7 +38,7 @@ public class PCEPMonitoringObjectParser extends AbstractObjectWithTlvsParser<Tlv
 
     public static final int TYPE = 1;
 
-    private static final int FLAGS = 3;
+    private static final int FLAGS_SIZE = 24;
     private static final int RESERVED = 1;
     private static final int L_FLAG_POS = 23;
     private static final int G_FLAG_POS = 22;
@@ -56,7 +55,7 @@ public class PCEPMonitoringObjectParser extends AbstractObjectWithTlvsParser<Tlv
         Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final MonitoringBuilder builder = new MonitoringBuilder();
         buffer.readBytes(RESERVED);
-        final BitSet flagBits = ByteArray.bytesToBitSet(buffer.readBytes(FLAGS).array());
+        final BitArray flagBits = BitArray.valueOf(buffer, FLAGS_SIZE);
         final Flags flags = new Flags(flagBits.get(G_FLAG_POS), flagBits.get(I_FLAG_POS), flagBits.get(L_FLAG_POS),
                 flagBits.get(C_FLAG_POS), flagBits.get(P_FLAG_POS));
         builder.setFlags(flags);
@@ -74,13 +73,13 @@ public class PCEPMonitoringObjectParser extends AbstractObjectWithTlvsParser<Tlv
         final ByteBuf body = Unpooled.buffer();
         body.writeZero(RESERVED);
         final Flags flags = monitoring.getFlags();
-        final BitSet flagBits = new BitSet(FLAGS);
+        final BitArray flagBits = new BitArray(FLAGS_SIZE);
         flagBits.set(I_FLAG_POS, flags.isIncomplete());
         flagBits.set(C_FLAG_POS, flags.isOverload());
         flagBits.set(P_FLAG_POS, flags.isProcessingTime());
         flagBits.set(G_FLAG_POS, flags.isGeneral());
         flagBits.set(L_FLAG_POS, flags.isLiveness());
-        ByteBufWriteUtil.writeBitSet(flagBits, FLAGS, body);
+        flagBits.toByteBuf(body);
         ByteBufWriteUtil.writeUnsignedInt(monitoring.getMonitoringId(), body);
         serializeTlvs(monitoring.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);

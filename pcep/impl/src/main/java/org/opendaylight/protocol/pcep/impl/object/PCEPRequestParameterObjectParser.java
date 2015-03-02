@@ -8,21 +8,19 @@
 
 package org.opendaylight.protocol.pcep.impl.object;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.BitSet;
 import java.util.List;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RequestId;
@@ -47,7 +45,7 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
     /*
      * lengths of fields in bytes
      */
-    private static final int FLAGS_PRI_MF_LENGTH = 4;
+    private static final int FLAGS_SIZE = 32;
 
     /*
      * lengths of subfields inside multi-field in bits
@@ -99,7 +97,7 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
         Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
-        final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(bytes, FLAGS_PRI_MF_LENGTH));
+        final BitArray flags = BitArray.valueOf(bytes, FLAGS_SIZE);
 
         final RpBuilder builder = new RpBuilder();
         builder.setIgnore(header.isIgnore());
@@ -143,42 +141,23 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
         Preconditions.checkArgument(object instanceof Rp, "Wrong instance of PCEPObject. Passed %s. Needed RPObject.", object.getClass());
         final ByteBuf body = Unpooled.buffer();
         final Rp rpObj = (Rp) object;
-        final BitSet flags = new BitSet(FLAGS_PRI_MF_LENGTH * Byte.SIZE);
-        if (rpObj.isReoptimization() != null) {
-            flags.set(R_FLAG_OFFSET, rpObj.isReoptimization());
-        }
-        if (rpObj.isBiDirectional() != null) {
-            flags.set(B_FLAG_OFFSET, rpObj.isBiDirectional());
-        }
-        if (rpObj.isLoose() != null) {
-            flags.set(O_FLAG_OFFSET, rpObj.isLoose());
-        }
-        if (rpObj.isMakeBeforeBreak() != null) {
-            flags.set(M_FLAG_OFFSET, rpObj.isMakeBeforeBreak());
-        }
-        if (rpObj.isOrder() != null) {
-            flags.set(D_FLAG_OFFSET, rpObj.isOrder());
-        }
-        if (rpObj.isPathKey() != null) {
-            flags.set(P_FLAG_OFFSET, rpObj.isPathKey());
-        }
-        if (rpObj.isSupplyOf() != null) {
-            flags.set(S_FLAG_OFFSET, rpObj.isSupplyOf());
-        }
-        if (rpObj.isFragmentation() != null) {
-            flags.set(F_FLAG_OFFSET, rpObj.isFragmentation());
-        }
-        if (rpObj.isP2mp() != null) {
-            flags.set(N_FLAG_OFFSET, rpObj.isP2mp());
-        }
-        if (rpObj.isEroCompression() != null) {
-            flags.set(E_FLAG_OFFSET, rpObj.isEroCompression());
-        }
+        final BitArray flags = new BitArray(FLAGS_SIZE);
+        flags.set(R_FLAG_OFFSET, rpObj.isReoptimization());
+        flags.set(B_FLAG_OFFSET, rpObj.isBiDirectional());
+        flags.set(O_FLAG_OFFSET, rpObj.isLoose());
+        flags.set(M_FLAG_OFFSET, rpObj.isMakeBeforeBreak());
+        flags.set(D_FLAG_OFFSET, rpObj.isOrder());
+        flags.set(P_FLAG_OFFSET, rpObj.isPathKey());
+        flags.set(S_FLAG_OFFSET, rpObj.isSupplyOf());
+        flags.set(F_FLAG_OFFSET, rpObj.isFragmentation());
+        flags.set(N_FLAG_OFFSET, rpObj.isP2mp());
+        flags.set(E_FLAG_OFFSET, rpObj.isEroCompression());
+        final byte[] res = flags.array();
         if (rpObj.getPriority() != null) {
-            final byte[] p = { 0, 0, 0, UnsignedBytes.checkedCast(rpObj.getPriority().shortValue())};
-            flags.or(ByteArray.bytesToBitSet(p));
+            final byte p = UnsignedBytes.checkedCast(rpObj.getPriority().shortValue());
+            res[res.length -1] = (byte) (res[res.length -1] | p);
         }
-        writeBitSet(flags, FLAGS_PRI_MF_LENGTH, body);
+        body.writeBytes(res);
         Preconditions.checkArgument(rpObj.getRequestId() != null, "RequestId is mandatory");
         writeUnsignedInt(rpObj.getRequestId().getValue(), body);
         serializeTlvs(rpObj.getTlvs(), body);
