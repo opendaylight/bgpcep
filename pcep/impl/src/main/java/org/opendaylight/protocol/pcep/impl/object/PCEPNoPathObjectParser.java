@@ -7,20 +7,18 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.BitSet;
 import java.util.List;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
@@ -43,7 +41,7 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<TlvsBui
     /*
      * lengths of fields in bytes
      */
-    private static final int FLAGS_F_LENGTH = 2;
+    private static final int FLAGS_SIZE = 16;
     private static final int RESERVED_F_LENGTH = 1;
 
     /*
@@ -63,8 +61,7 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<TlvsBui
         builder.setProcessingRule(header.isProcessingRule());
 
         builder.setNatureOfIssue(bytes.readUnsignedByte());
-        final byte[] flagsByte = ByteArray.readBytes(bytes, FLAGS_F_LENGTH);
-        final BitSet flags = ByteArray.bytesToBitSet(flagsByte);
+        final BitArray flags = BitArray.valueOf(bytes, FLAGS_SIZE);
         builder.setUnsatisfiedConstraints(flags.get(C_FLAG_OFFSET));
         bytes.skipBytes(RESERVED_F_LENGTH);
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
@@ -87,11 +84,9 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<TlvsBui
         final ByteBuf body = Unpooled.buffer();
         Preconditions.checkArgument(nPObj.getNatureOfIssue() != null, "NatureOfIssue is mandatory.");
         writeUnsignedByte(nPObj.getNatureOfIssue(), body);
-        final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-        if (nPObj.isUnsatisfiedConstraints() != null) {
-            flags.set(C_FLAG_OFFSET, nPObj.isUnsatisfiedConstraints());
-        }
-        writeBitSet(flags, FLAGS_F_LENGTH, body);
+        final BitArray flags = new BitArray(FLAGS_SIZE);
+        flags.set(C_FLAG_OFFSET, nPObj.isUnsatisfiedConstraints());
+        flags.toByteBuf(body);
         body.writeZero(RESERVED_F_LENGTH);
         serializeTlvs(nPObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
