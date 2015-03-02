@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.segment.routing;
 
 import static org.opendaylight.protocol.pcep.segment.routing.SrSubobjectParserUtil.BITSET_LENGTH;
@@ -13,11 +12,11 @@ import static org.opendaylight.protocol.pcep.segment.routing.SrSubobjectParserUt
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-import java.util.BitSet;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.SrEroSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.SrSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.add.lsp.input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder;
@@ -45,19 +44,14 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
         if (srEroSubobject.isMFlag() != null && srEroSubobject.isMFlag() && srEroSubobject.getSid() != null) {
             builder.setSid(srEroSubobject.getSid() << MPLS_LABEL_OFFSET);
         }
-
-        final BitSet bits = new BitSet(BITSET_LENGTH);
-        if (srEroSubobject.isMFlag() != null) {
-            bits.set(M_FLAG_POSITION, srEroSubobject.isMFlag());
-        }
-        if (srEroSubobject.isCFlags() != null) {
-            bits.set(C_FLAG_POSITION, srEroSubobject.isCFlags());
-        }
+        final BitArray bits = new BitArray(BITSET_LENGTH);
+        bits.set(M_FLAG_POSITION, srEroSubobject.isMFlag());
+        bits.set(C_FLAG_POSITION, srEroSubobject.isCFlags());
         if (srEroSubobject.getSid() == null) {
-            bits.set(S_FLAG_POSITION);
+            bits.set(S_FLAG_POSITION, Boolean.TRUE);
         }
         if (srEroSubobject.getNai() == null) {
-            bits.set(F_FLAG_POSITION);
+            bits.set(F_FLAG_POSITION, Boolean.TRUE);
         }
         final ByteBuf body = SrSubobjectParserUtil.serializeSrSubobject(builder.build(), bits);
         EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
@@ -70,11 +64,10 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
         if (buffer.readableBytes() <= SrSubobjectParserUtil.MINIMAL_LENGTH) {
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ";");
         }
-
-        final BitSet flags = new BitSet(BITSET_LENGTH);
-        final SrSubobject srSubobject = SrSubobjectParserUtil.parseSrSubobject(buffer, new Function<BitSet, Void>() {
+        final BitArray flags = new BitArray(BITSET_LENGTH);
+        final SrSubobject srSubobject = SrSubobjectParserUtil.parseSrSubobject(buffer, new Function<BitArray, Void>() {
             @Override
-            public Void apply(final BitSet input) {
+            public Void apply(final BitArray input) {
                 flags.set(C_FLAG_POSITION, input.get(C_FLAG_POSITION));
                 flags.set(M_FLAG_POSITION, input.get(M_FLAG_POSITION));
                 return null;
@@ -86,7 +79,6 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
         if (srEroSubobjectBuilder.isMFlag() != null && srEroSubobjectBuilder.isMFlag() && srEroSubobjectBuilder.getSid() != null) {
             srEroSubobjectBuilder.setSid(srEroSubobjectBuilder.getSid() >> MPLS_LABEL_OFFSET);
         }
-
         final SubobjectBuilder subobjectBuilder = new SubobjectBuilder();
         subobjectBuilder.setLoose(loose);
         subobjectBuilder.setSubobjectType(srEroSubobjectBuilder.build());

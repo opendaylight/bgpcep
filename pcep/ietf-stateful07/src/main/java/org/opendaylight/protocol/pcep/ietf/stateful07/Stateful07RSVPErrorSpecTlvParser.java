@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Address;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
@@ -18,11 +17,11 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.BitSet;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvUtil;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -49,7 +48,7 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
 
     public static final int TYPE = 21;
 
-    private static final int FLAGS_F_LENGTH = 1;
+    private static final int FLAGS_SIZE = 8;
     private static final int HEADER_LENGTH = 4;
 
     private static final int RSVP_ERROR_CLASS_NUM = 6;
@@ -59,8 +58,8 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
     private static final int USER_ERROR_CLASS_NUM = 194;
     private static final int USER_ERROR_CLASS_TYPE = 1;
 
-    private static final int IN_PLACE_FLAG_OFFSET = 7;
-    private static final int NOT_GUILTY_FLAGS_OFFSET = 6;
+    private static final int IN_PLACE = 7;
+    private static final int NOT_GUILTY = 6;
 
     @Override
     public RsvpErrorSpec parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
@@ -128,8 +127,8 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
         } else if (classType == RSVP_IPV6_ERROR_CLASS_TYPE) {
             builder.setNode(new IpAddress(Ipv6Util.addressForByteBuf(buffer)));
         }
-        final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, FLAGS_F_LENGTH));
-        builder.setFlags(new Flags(flags.get(IN_PLACE_FLAG_OFFSET), flags.get(NOT_GUILTY_FLAGS_OFFSET)));
+        final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
+        builder.setFlags(new Flags(flags.get(IN_PLACE), flags.get(NOT_GUILTY)));
         final short errorCode = buffer.readUnsignedByte();
         builder.setCode(errorCode);
         final int errorValue = buffer.readUnsignedShort();
@@ -138,9 +137,9 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
     }
 
     private void serializeRsvp(final RsvpError rsvp, final ByteBuf body) {
-        final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-        flags.set(IN_PLACE_FLAG_OFFSET, rsvp.getFlags().isInPlace());
-        flags.set(NOT_GUILTY_FLAGS_OFFSET, rsvp.getFlags().isNotGuilty());
+        final BitArray flags = new BitArray(FLAGS_SIZE);
+        flags.set(IN_PLACE, rsvp.getFlags().isInPlace());
+        flags.set(NOT_GUILTY, rsvp.getFlags().isNotGuilty());
         final IpAddress node = rsvp.getNode();
         Preconditions.checkArgument(node != null, "Node is mandatory.");
         final ByteBuf rsvpObjBuf = Unpooled.buffer();
@@ -152,7 +151,7 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
             type = RSVP_IPV6_ERROR_CLASS_TYPE;
             writeIpv6Address(node.getIpv6Address(), rsvpObjBuf);
         }
-        writeBitSet(flags, FLAGS_F_LENGTH, rsvpObjBuf);
+        flags.toByteBuf(rsvpObjBuf);
         Preconditions.checkArgument(rsvp.getCode() != null, "Code is mandatory.");
         writeUnsignedByte(rsvp.getCode(), rsvpObjBuf);
         Preconditions.checkArgument(rsvp.getValue() != null, "Value is mandatory.");
