@@ -472,6 +472,27 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         }
     }
 
+    private void augmentProtocolId(final LinkstateRoute value, final IgpLinkAttributesBuilder ilab, final LinkAttributes la, final LinkDescriptors ld) {
+        switch (value.getProtocolId()) {
+        case Direct:
+        case Static:
+        case Unknown:
+            break;
+        case IsisLevel1:
+        case IsisLevel2:
+            ilab.addAugmentation(
+                org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IgpLinkAttributes1.class,
+                isisLinkAttributes(ld.getMultiTopologyId(), la));
+            break;
+        case Ospf:
+            ilab.addAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpLinkAttributes1.class,
+                ospfLinkAttributes(ld.getMultiTopologyId(), la));
+            break;
+        default:
+            break;
+        }
+    }
+
     private void createLink(final WriteTransaction trans, final UriBuilder base,
         final LinkstateRoute value, final LinkCase l, final Attributes attributes) {
         // defensive lookup
@@ -498,25 +519,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
             }
             ilab.setName(la.getLinkName());
         }
-
-        switch (value.getProtocolId()) {
-        case Direct:
-        case Static:
-        case Unknown:
-            break;
-        case IsisLevel1:
-        case IsisLevel2:
-            ilab.addAugmentation(
-                org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IgpLinkAttributes1.class,
-                isisLinkAttributes(l.getLinkDescriptors().getMultiTopologyId(), la));
-            break;
-        case Ospf:
-            ilab.addAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpLinkAttributes1.class,
-                ospfLinkAttributes(l.getLinkDescriptors().getMultiTopologyId(), la));
-            break;
-        default:
-            break;
-        }
+        augmentProtocolId(value, ilab, la, l.getLinkDescriptors());
 
         final LinkBuilder lb = new LinkBuilder();
         lb.setLinkId(buildLinkId(base, l));

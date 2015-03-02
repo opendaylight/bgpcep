@@ -115,21 +115,13 @@ public class ExtendedCommunitiesAttributeParser implements AttributeParser,Attri
             c = parseAsTransCommunity(comm, buffer);
             break;
         case AS_TYPE_NON_TRANS:
-            ShortAsNumber as = new ShortAsNumber((long) buffer.readUnsignedShort());
-            byte[] value = ByteArray.readBytes(buffer, AS_LOCAL_ADMIN_LENGTH);
+            final ShortAsNumber as = new ShortAsNumber((long) buffer.readUnsignedShort());
+            final byte[] value = ByteArray.readBytes(buffer, AS_LOCAL_ADMIN_LENGTH);
             c = new AsSpecificExtendedCommunityCaseBuilder().setAsSpecificExtendedCommunity(
                 new AsSpecificExtendedCommunityBuilder().setTransitive(true).setGlobalAdministrator(as).setLocalAdministrator(value).build()).build();
             break;
         case ROUTE_TYPE_ONLY:
-            as = new ShortAsNumber((long) buffer.readUnsignedShort());
-            value = ByteArray.readBytes(buffer, AS_LOCAL_ADMIN_LENGTH);
-            if (comm.getCommSubType() == ROUTE_TARGET_SUBTYPE) {
-                c = new RouteTargetExtendedCommunityCaseBuilder().setRouteTargetExtendedCommunity(new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(as).setLocalAdministrator(value).build()).build();
-            } else if (comm.getCommSubType() == ROUTE_ORIGIN_SUBTYPE) {
-                c = new RouteOriginExtendedCommunityCaseBuilder().setRouteOriginExtendedCommunity(new RouteOriginExtendedCommunityBuilder().setGlobalAdministrator(as).setLocalAdministrator(value).build()).build();
-            } else {
-                throw new BGPDocumentedException("Could not parse Extended Community subtype: " + comm.getCommSubType(), BGPError.OPT_ATTR_ERROR);
-            }
+            c =  parseRouteTypeOnlyCommunity(buffer, comm.getCommSubType());
             break;
         case INET_TYPE_TRANS:
             c = parseInetTypeCommunity(comm, buffer);
@@ -150,6 +142,18 @@ public class ExtendedCommunitiesAttributeParser implements AttributeParser,Attri
             throw new BGPDocumentedException("Could not parse Extended Community type: " + comm.getCommType(), BGPError.OPT_ATTR_ERROR);
         }
         return comm.setExtendedCommunity(c).build();
+    }
+
+    private static ExtendedCommunity parseRouteTypeOnlyCommunity(final ByteBuf buffer, final int subtype) throws BGPDocumentedException {
+        final ShortAsNumber as = new ShortAsNumber((long) buffer.readUnsignedShort());
+        final byte[] value = ByteArray.readBytes(buffer, AS_LOCAL_ADMIN_LENGTH);
+        if (subtype == ROUTE_TARGET_SUBTYPE) {
+            return new RouteTargetExtendedCommunityCaseBuilder().setRouteTargetExtendedCommunity(new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(as).setLocalAdministrator(value).build()).build();
+        } else if (subtype == ROUTE_ORIGIN_SUBTYPE) {
+            return new RouteOriginExtendedCommunityCaseBuilder().setRouteOriginExtendedCommunity(new RouteOriginExtendedCommunityBuilder().setGlobalAdministrator(as).setLocalAdministrator(value).build()).build();
+        } else {
+            throw new BGPDocumentedException("Could not parse Extended Community subtype: " + subtype, BGPError.OPT_ATTR_ERROR);
+        }
     }
 
     private static ExtendedCommunity parseAsTransCommunity(final ExtendedCommunitiesBuilder comm, final ByteBuf buffer) {
