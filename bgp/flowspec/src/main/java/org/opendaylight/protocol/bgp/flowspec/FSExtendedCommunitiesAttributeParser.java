@@ -8,10 +8,10 @@
 package org.opendaylight.protocol.bgp.flowspec;
 
 import io.netty.buffer.ByteBuf;
-import java.util.BitSet;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.ExtendedCommunitiesAttributeParser;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.ReferenceCache;
@@ -58,7 +58,7 @@ public class FSExtendedCommunitiesAttributeParser extends ExtendedCommunitiesAtt
 
     private static final int RESERVED = 5;
 
-    private static final int FLAGS_SIZE = 1;
+    private static final int FLAGS_SIZE = 8;
 
     private static final int SAMPLE_BIT = 6;
 
@@ -80,7 +80,7 @@ public class FSExtendedCommunitiesAttributeParser extends ExtendedCommunitiesAtt
                 break;
             case TRAFFIC_ACTION_SUBTYPE:
                 buffer.skipBytes(RESERVED);
-                final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, FLAGS_SIZE));
+                final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
                 final boolean sample = flags.get(SAMPLE_BIT);
                 final boolean terminal = flags.get(TERMINAL_BIT);
                 c = new TrafficActionExtendedCommunityCaseBuilder().setTrafficActionExtendedCommunity(new TrafficActionExtendedCommunityBuilder().setSample(sample).setTerminalAction(terminal).build()).build();
@@ -117,14 +117,10 @@ public class FSExtendedCommunitiesAttributeParser extends ExtendedCommunitiesAtt
         else if (ex instanceof TrafficActionExtendedCommunityCase) {
             final TrafficActionExtendedCommunity trafficAction = ((TrafficActionExtendedCommunityCase) ex).getTrafficActionExtendedCommunity();
             buffer.writeZero(RESERVED);
-            final BitSet flags = new BitSet(FLAGS_SIZE);
-            if (trafficAction.isSample() != null) {
-                flags.set(SAMPLE_BIT, trafficAction.isSample());
-            }
-            if (trafficAction.isTerminalAction() != null) {
-                flags.set(TERMINAL_BIT, trafficAction.isTerminalAction());
-            }
-            ByteBufWriteUtil.writeBitSet(flags, FLAGS_SIZE, buffer);
+            final BitArray flags = new BitArray(FLAGS_SIZE);
+            flags.set(SAMPLE_BIT, trafficAction.isSample());
+            flags.set(TERMINAL_BIT, trafficAction.isTerminalAction());
+            flags.toByteBuf(buffer);
         }
         else if (ex instanceof RedirectExtendedCommunityCase) {
             final RedirectExtendedCommunity redirect = ((RedirectExtendedCommunityCase) ex).getRedirectExtendedCommunity();

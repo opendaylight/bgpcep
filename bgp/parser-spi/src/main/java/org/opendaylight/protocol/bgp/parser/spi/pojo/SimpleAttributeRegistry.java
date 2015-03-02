@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import java.util.BitSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,7 +23,6 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
@@ -76,16 +76,16 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
     }
 
     private void addAttribute(final ByteBuf buffer, final Map<Integer, RawAttribute> attributes) throws BGPDocumentedException {
-        final boolean[] flags = ByteArray.parseBits(buffer.readByte());
+        final BitSet flags = new BitSet(buffer.readByte());
         final int type = buffer.readUnsignedByte();
-        final int len = (flags[EXTENDED_LENGTH_BIT]) ? buffer.readUnsignedShort() : buffer.readUnsignedByte();
+        final int len = (flags.get(EXTENDED_LENGTH_BIT)) ? buffer.readUnsignedShort() : buffer.readUnsignedByte();
         if (!attributes.containsKey(type)) {
             final AttributeParser parser = this.handlers.getParser(type);
             if (parser == null) {
-                if (!flags[OPTIONAL_BIT]) {
+                if (!flags.get(OPTIONAL_BIT)) {
                     throw new BGPDocumentedException("Well known attribute not recognized.", BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED);
                 }
-                if (flags[TRANSITIVE_BIT]) {
+                if (flags.get(TRANSITIVE_BIT)) {
                     // FIXME: transitive attributes need to be preserved
                     LOG.warn("Losing unrecognized transitive attribute {}. Some data might be missing from the output.", type);
                 } else {

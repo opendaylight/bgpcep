@@ -14,11 +14,11 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
 import java.util.Map.Entry;
 import org.opendaylight.protocol.bgp.linkstate.attribute.sr.SrNodeAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -47,11 +47,13 @@ public final class NodeAttributesParser {
         throw new UnsupportedOperationException();
     }
 
+    private static final int FLAGS_SIZE = 8;
+
     // node flag bits
-    private static final int OVERLOAD_BIT = 7;
-    private static final int ATTACHED_BIT = 6;
-    private static final int EXTERNAL_BIT = 5;
-    private static final int ABBR_BIT = 4;
+    private static final int OVERLOAD_BIT = 0;
+    private static final int ATTACHED_BIT = 1;
+    private static final int EXTERNAL_BIT = 2;
+    private static final int ABBR_BIT = 3;
 
     /* Node Attribute TLVs */
     private static final int NODE_FLAG_BITS = 1024;
@@ -87,7 +89,7 @@ public final class NodeAttributesParser {
                 }
                 break;
             case NODE_FLAG_BITS:
-                final BitSet flags = BitSet.valueOf(ByteArray.readAllBytes(value));
+                final BitArray flags = BitArray.valueOf(value, FLAGS_SIZE);
                 builder.setNodeFlags(new NodeFlagBits(flags.get(OVERLOAD_BIT), flags.get(ATTACHED_BIT), flags.get(EXTERNAL_BIT), flags.get(ABBR_BIT)));
                 LOG.debug("Parsed Overload bit: {}, attached bit: {}, external bit: {}, area border router: {}.",
                     flags.get(OVERLOAD_BIT), flags.get(ATTACHED_BIT), flags.get(EXTERNAL_BIT), flags.get(ABBR_BIT));
@@ -189,20 +191,12 @@ public final class NodeAttributesParser {
     private static void serializeNodeFlagBits(final NodeFlagBits nodeFlagBits, final ByteBuf byteAggregator) {
         if (nodeFlagBits != null) {
             final ByteBuf nodeFlagBuf = Unpooled.buffer(1);
-            final BitSet flags = new BitSet(Byte.SIZE);
-            if (nodeFlagBits.isOverload() != null) {
-                flags.set(OVERLOAD_BIT, nodeFlagBits.isOverload());
-            }
-            if (nodeFlagBits.isAttached() != null) {
-                flags.set(ATTACHED_BIT, nodeFlagBits.isAttached());
-            }
-            if (nodeFlagBits.isExternal() != null) {
-                flags.set(EXTERNAL_BIT, nodeFlagBits.isExternal());
-            }
-            if (nodeFlagBits.isAbr() != null) {
-                flags.set(ABBR_BIT, nodeFlagBits.isAbr());
-            }
-            nodeFlagBuf.writeBytes(flags.toByteArray());
+            final BitArray flags = new BitArray(FLAGS_SIZE);
+            flags.set(OVERLOAD_BIT, nodeFlagBits.isOverload());
+            flags.set(ATTACHED_BIT, nodeFlagBits.isAttached());
+            flags.set(EXTERNAL_BIT, nodeFlagBits.isExternal());
+            flags.set(ABBR_BIT, nodeFlagBits.isAbr());
+            flags.toByteBuf(nodeFlagBuf);
             TlvUtil.writeTLV(NODE_FLAG_BITS, nodeFlagBuf, byteAggregator);
         }
     }

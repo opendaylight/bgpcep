@@ -15,11 +15,11 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.List;
 import java.util.Map.Entry;
 import org.opendaylight.protocol.bgp.linkstate.attribute.sr.SrLinkAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -58,8 +58,10 @@ public final class LinkAttributesParser {
     private static final int BANDWIDTH_LENGTH = 4;
 
     // MPLS protection mask bits
-    private static final int LDP_BIT = 7;
-    private static final int RSVP_BIT = 6;
+    private static final int FLAGS_SIZE = 8;
+
+    private static final int LDP_BIT = 0;
+    private static final int RSVP_BIT = 1;
 
     /* Link Attribute TLVs */
     private static final int REMOTE_IPV4_ROUTER_ID = 1030;
@@ -147,7 +149,7 @@ public final class LinkAttributesParser {
                 LOG.debug("Parsed Link Protection Type {}", lpt);
                 break;
             case MPLS_PROTOCOL:
-                final BitSet bits = BitSet.valueOf(ByteArray.readAllBytes(value));
+                final BitArray bits = BitArray.valueOf(value, FLAGS_SIZE);
                 builder.setMplsProtocol(new MplsProtocolMask(bits.get(LDP_BIT), bits.get(RSVP_BIT)));
                 LOG.debug("Parsed MPLS Protocols: {}", builder.getMplsProtocol());
                 break;
@@ -255,14 +257,10 @@ public final class LinkAttributesParser {
     private static void serializeMplsProtocolMask(final MplsProtocolMask mplsProtocolMask, final ByteBuf byteAggregator ) {
         if (mplsProtocolMask != null) {
             final ByteBuf mplsProtocolMaskBuf = Unpooled.buffer(1);
-            final BitSet mask = new BitSet(Byte.SIZE);
-            if (mplsProtocolMask.isLdp() != null) {
-                mask.set(LDP_BIT, mplsProtocolMask.isLdp());
-            }
-            if (mplsProtocolMask.isRsvpte() != null) {
-                mask.set(RSVP_BIT, mplsProtocolMask.isRsvpte());
-            }
-            mplsProtocolMaskBuf.writeBytes(mask.toByteArray());
+            final BitArray mask = new BitArray(FLAGS_SIZE);
+            mask.set(LDP_BIT, mplsProtocolMask.isLdp());
+            mask.set(RSVP_BIT, mplsProtocolMask.isRsvpte());
+            mask.toByteBuf(mplsProtocolMaskBuf);
             TlvUtil.writeTLV(MPLS_PROTOCOL, mplsProtocolMaskBuf, byteAggregator);
         }
     }

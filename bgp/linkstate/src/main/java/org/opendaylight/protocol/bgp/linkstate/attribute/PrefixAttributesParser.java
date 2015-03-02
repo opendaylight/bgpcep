@@ -13,11 +13,11 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
 import java.util.Map.Entry;
 import org.opendaylight.protocol.bgp.linkstate.attribute.sr.SrPrefixAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -47,7 +47,9 @@ public final class PrefixAttributesParser {
 
     private static final int ROUTE_TAG_LENGTH = 4;
     private static final int EXTENDED_ROUTE_TAG_LENGTH = 8;
-    private static final int UP_DOWN_BIT = 7;
+
+    private static final int FLAGS_SIZE = 8;
+    private static final int UP_DOWN_BIT = 0;
 
     /* Prefix Attribute TLVs */
     private static final int IGP_FLAGS = 1152;
@@ -76,7 +78,7 @@ public final class PrefixAttributesParser {
             LOG.trace("Prefix attribute TLV {}", key);
             switch (key) {
             case IGP_FLAGS:
-                final BitSet flags = BitSet.valueOf(ByteArray.readAllBytes(value));
+                final BitArray flags = BitArray.valueOf(value, FLAGS_SIZE);
                 final boolean upDownBit = flags.get(UP_DOWN_BIT);
                 builder.setIgpBits(new IgpBitsBuilder().setUpDown(new UpDown(upDownBit)).build());
                 LOG.debug("Parsed IGP flag (up/down bit) : {}", upDownBit);
@@ -141,12 +143,9 @@ public final class PrefixAttributesParser {
     static void serializePrefixAttributes(final PrefixAttributesCase prefixAttributesCase, final ByteBuf byteAggregator) {
         final PrefixAttributes prefixAtrributes = prefixAttributesCase.getPrefixAttributes();
         if (prefixAtrributes.getIgpBits() != null) {
-            final BitSet igpBit = new BitSet();
-            final Boolean bit = prefixAtrributes.getIgpBits().getUpDown().isUpDown();
-            if (bit != null) {
-                igpBit.set(UP_DOWN_BIT, bit);
-            }
-            TlvUtil.writeTLV(IGP_FLAGS, Unpooled.wrappedBuffer(igpBit.toByteArray()), byteAggregator);
+            final BitArray igpBit = new BitArray(FLAGS_SIZE);
+            igpBit.set(UP_DOWN_BIT, prefixAtrributes.getIgpBits().getUpDown().isUpDown());
+            TlvUtil.writeTLV(IGP_FLAGS, Unpooled.wrappedBuffer(igpBit.array()), byteAggregator);
         }
         if (prefixAtrributes.getRouteTags() != null) {
             final ByteBuf routeTagsBuf = Unpooled.buffer();

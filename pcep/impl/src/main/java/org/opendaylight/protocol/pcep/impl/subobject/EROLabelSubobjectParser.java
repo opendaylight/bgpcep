@@ -10,13 +10,12 @@ package org.opendaylight.protocol.pcep.impl.subobject;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.BitSet;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.LabelRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.LabelCase;
@@ -29,13 +28,11 @@ public class EROLabelSubobjectParser implements EROSubobjectParser, EROSubobject
 
     public static final int TYPE = 3;
 
-    private static final int RES_F_LENGTH = 1;
+    private static final int FLAGS_SIZE = 8;
 
     private static final int C_TYPE_F_LENGTH = 1;
 
-    private static final int RES_F_OFFSET = 0;
-
-    private static final int C_TYPE_F_OFFSET = RES_F_OFFSET + RES_F_LENGTH;
+    private static final int C_TYPE_F_OFFSET = FLAGS_SIZE / Byte.SIZE;
 
     private static final int HEADER_LENGTH = C_TYPE_F_OFFSET + C_TYPE_F_LENGTH;
 
@@ -54,7 +51,7 @@ public class EROLabelSubobjectParser implements EROSubobjectParser, EROSubobject
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: >"
                     + HEADER_LENGTH + ".");
         }
-        final BitSet reserved = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, RES_F_LENGTH));
+        final BitArray reserved = BitArray.valueOf(buffer, FLAGS_SIZE);
         final short cType = buffer.readUnsignedByte();
 
         final LabelType labelType = this.registry.parseLabel(cType, buffer.slice());
