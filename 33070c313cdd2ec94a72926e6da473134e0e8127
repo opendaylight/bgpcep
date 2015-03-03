@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a96c907_9d7b8af4",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/BitArray.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2015-03-03T12:32:50Z",
+      "side": 1,
+      "message": "true if and only if the value is true.",
+      "range": {
+        "startLine": 83,
+        "startChar": 37,
+        "endLine": 83,
+        "endChar": 66
+      },
+      "revId": "33070c313cdd2ec94a72926e6da473134e0e8127",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_7d38fe3c",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/BitArray.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2015-03-03T12:32:50Z",
+      "side": 1,
+      "message": "(size + Byte.SIZE - 1) / Byte.SIZE",
+      "range": {
+        "startLine": 150,
+        "startChar": 15,
+        "endLine": 150,
+        "endChar": 63
+      },
+      "revId": "33070c313cdd2ec94a72926e6da473134e0e8127",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a96c907_9d14eaa0",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/BitArray.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2015-03-03T12:32:50Z",
+      "side": 1,
+      "message": "This does not depend on index, so it can be computed once in constructor. Would the increased memory footprint caused by storing that value be more demanding than current need to re-compute this on every calculatePosition call?",
+      "range": {
+        "startLine": 160,
+        "startChar": 8,
+        "endLine": 160,
+        "endChar": 24
+      },
+      "revId": "33070c313cdd2ec94a72926e6da473134e0e8127",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
