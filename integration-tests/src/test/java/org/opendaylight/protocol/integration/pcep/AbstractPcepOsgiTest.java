@@ -66,7 +66,7 @@ public class AbstractPcepOsgiTest {
                 TestHelper.mdSalCoreBundles(),
 
                 TestHelper.bindingAwareSalBundles(), TestHelper.configMinumumBundles(), TestHelper.baseModelBundles(),
-                TestHelper.flowCapableModelBundles(), TestHelper.junitAndMockitoBundles());
+                TestHelper.junitAndMockitoBundles());
     }
 
     private Option pcepModules() {
