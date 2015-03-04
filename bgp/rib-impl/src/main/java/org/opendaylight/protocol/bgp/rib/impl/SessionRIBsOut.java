@@ -30,7 +30,7 @@ final class SessionRIBsOut extends AbstractAdjRIBsOut implements Runnable {
 
     @Override
     protected boolean writePDU(final Update pdu) {
-        session.sendMessage(pdu);
+        session.writeAndFlush(pdu);
         return session.isWritable();
     }
 
