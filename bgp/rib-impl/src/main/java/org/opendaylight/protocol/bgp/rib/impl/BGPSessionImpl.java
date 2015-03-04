@@ -173,7 +173,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
         LOG.info("Closing session: {}", this);
 
         if (this.state != State.IDLE) {
-            this.sendMessage(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).setErrorSubcode(
+            this.writeAndFlush(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).setErrorSubcode(
                     BGPError.CEASE.getSubcode()).build());
             removePeerSession();
             this.channel.close();
@@ -260,7 +260,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
         }
     }
 
-    synchronized void sendMessage(final Notification msg) {
+    synchronized void writeAndFlush(final Notification msg) {
         writeEpilogue(this.channel.writeAndFlush(msg), msg);
     }
 
@@ -278,7 +278,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
      * @param closeObject
      */
     private void terminate(final BGPError error) {
-        this.sendMessage(new NotifyBuilder().setErrorCode(error.getCode()).setErrorSubcode(error.getSubcode()).build());
+        this.writeAndFlush(new NotifyBuilder().setErrorCode(error.getCode()).setErrorSubcode(error.getSubcode()).build());
         this.closeWithoutMessage();
 
         this.listener.onSessionTerminated(this, new BGPTerminationReason(error));
@@ -332,7 +332,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
         long nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
 
         if (ct >= nextKeepalive) {
-            this.sendMessage(KEEP_ALIVE);
+            this.writeAndFlush(KEEP_ALIVE);
             nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
             this.sessionStats.updateSentMsgKA();
         }
