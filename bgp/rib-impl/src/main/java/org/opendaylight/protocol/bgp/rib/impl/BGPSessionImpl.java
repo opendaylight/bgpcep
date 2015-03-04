@@ -107,6 +107,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
     private final AsNumber asNumber;
     private final Ipv4Address bgpId;
     private final BGPPeerRegistry peerRegistry;
+    private final ChannelOutputLimiter limiter;
 
     private BGPSessionStats sessionStats;
 
@@ -120,6 +121,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
             final BGPPeerRegistry peerRegitry) {
         this.listener = Preconditions.checkNotNull(listener);
         this.channel = Preconditions.checkNotNull(channel);
+        this.limiter = new ChannelOutputLimiter(this);
         this.holdTimerValue = (remoteOpen.getHoldTimer() < localHoldTimer) ? remoteOpen.getHoldTimer() : localHoldTimer;
         LOG.info("BGP HoldTimer new value: {}", this.holdTimerValue);
         this.keepAlive = this.holdTimerValue / KA_TO_DEADTIMER_RATIO;
@@ -388,5 +390,9 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
     @Override
     public synchronized void resetSessionStats() {
         this.sessionStats.resetStats();
+    }
+
+    ChannelOutputLimiter getLimiter() {
+        return limiter;
     }
 }
