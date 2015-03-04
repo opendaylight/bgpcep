@@ -29,7 +29,7 @@ final class ChannelOutputLimiter extends ChannelInboundHandlerAdapter {
         this.session = Preconditions.checkNotNull(session);
     }
 
-    void write(final Notification msg) {
+    private void ensureWritable() {
         if (blocked) {
             LOG.trace("Blocked slow path tripped on session {}", session);
             synchronized (this) {
@@ -45,12 +45,20 @@ final class ChannelOutputLimiter extends ChannelInboundHandlerAdapter {
                 LOG.debug("Resuming write on session {}", session);
             }
         }
+    }
 
+    void write(final Notification msg) {
+        ensureWritable();
+        session.write(msg);
+    }
+
+    void writeAndFlush(final Notification msg) {
+        ensureWritable();
         session.sendMessage(msg);
     }
 
     void flush() {
-        // FIXME: no-op, as we do not have hatching APIs in session yet
+        session.flush();
     }
 
     @Override

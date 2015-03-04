@@ -226,29 +226,42 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
         }
     }
 
-    synchronized void sendMessage(final Notification msg) {
-        try {
-            this.channel.writeAndFlush(msg).addListener(
-                new ChannelFutureListener() {
-                    @Override
-                    public void operationComplete(final ChannelFuture f) {
-                        if (!f.isSuccess()) {
-                            LOG.info("Failed to send message {} to socket {}", msg, f.cause(), BGPSessionImpl.this.channel);
-                        } else {
-                            LOG.trace("Message {} sent to socket {}", msg, BGPSessionImpl.this.channel);
-                        }
+    @GuardedBy("this")
+    private final void writeEpilogue(final ChannelFuture future, final Notification msg) {
+        future.addListener(
+            new ChannelFutureListener() {
+                @Override
+                public void operationComplete(final ChannelFuture f) {
+                    if (!f.isSuccess()) {
+                        LOG.info("Failed to send message {} to socket {}", msg, f.cause(), BGPSessionImpl.this.channel);
+                    } else {
+                        LOG.trace("Message {} sent to socket {}", msg, BGPSessionImpl.this.channel);
                     }
-                });
-            this.lastMessageSentAt = System.nanoTime();
-            this.sessionStats.updateSentMsgTotal();
-            if (msg instanceof Update) {
-                this.sessionStats.updateSentMsgUpd();
-            } else if (msg instanceof Notify) {
-                this.sessionStats.updateSentMsgErr((Notify) msg);
-            }
+                }
+            });
+        this.lastMessageSentAt = System.nanoTime();
+        this.sessionStats.updateSentMsgTotal();
+        if (msg instanceof Update) {
+            this.sessionStats.updateSentMsgUpd();
+        } else if (msg instanceof Notify) {
+            this.sessionStats.updateSentMsgErr((Notify) msg);
+        }
+    }
+
+    void flush() {
+        this.channel.flush();
+    }
+
+    synchronized void write(final Notification msg) {
+        try {
+            writeEpilogue(this.channel.write(msg), msg);
         } catch (final Exception e) {
             LOG.warn("Message {} was not sent.", msg, e);
         }
+    }
+
+    synchronized void sendMessage(final Notification msg) {
+        writeEpilogue(this.channel.writeAndFlush(msg), msg);
     }
 
     private synchronized void closeWithoutMessage() {
