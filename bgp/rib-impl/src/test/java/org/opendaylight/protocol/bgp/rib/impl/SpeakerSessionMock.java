@@ -27,7 +27,7 @@ public class SpeakerSessionMock extends BGPSessionImpl {
     }
 
     @Override
-    public void sendMessage(final Notification msg) {
+    public void writeAndFlush(final Notification msg) {
         this.setLastMessageSentAt(System.nanoTime());
         this.client.onMessage(this, msg);
     }

@@ -54,7 +54,7 @@ final class ChannelOutputLimiter extends ChannelInboundHandlerAdapter {
 
     void writeAndFlush(final Notification msg) {
         ensureWritable();
-        session.sendMessage(msg);
+        session.writeAndFlush(msg);
     }
 
     void flush() {
