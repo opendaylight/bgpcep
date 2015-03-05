@@ -25,12 +25,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv4.routes._case.Ipv4Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv4.routes._case.ipv4.routes.Ipv4Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv4.routes._case.ipv4.routes.Ipv4RouteBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv4.routes._case.ipv4.routes.Ipv4RouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.routes.rev150305.ipv4.routes.Ipv4Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.routes.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.routes.rev150305.ipv4.routes.ipv4.routes.Ipv4RouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.routes.rev150305.ipv4.routes.ipv4.routes.Ipv4RouteKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
@@ -39,18 +39,18 @@ final class Ipv4AdjRIBsIn extends AbstractAdjRIBs<Ipv4Prefix, Ipv4Route, Ipv4Rou
 
     Ipv4AdjRIBsIn(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
         super(basePath);
-        routesBasePath = basePath.builder().child(Ipv4Routes.class).build();
+        this.routesBasePath = basePath.builder().child((Class)Ipv4Routes.class).build();
     }
 
     @Override
     @Deprecated
     public KeyedInstanceIdentifier<Ipv4Route, Ipv4RouteKey> identifierForKey(final InstanceIdentifier<Tables> basePath, final Ipv4Prefix key) {
-        return basePath.child(Ipv4Routes.class).child(Ipv4Route.class, new Ipv4RouteKey(key));
+        return basePath.child((Class)Ipv4Routes.class).child(Ipv4Route.class, new Ipv4RouteKey(key));
     }
 
     @Override
     public KeyedInstanceIdentifier<Ipv4Route, Ipv4RouteKey> identifierForKey(final Ipv4Prefix key) {
-        return routesBasePath.child(Ipv4Route.class, new Ipv4RouteKey(key));
+        return this.routesBasePath.child(Ipv4Route.class, new Ipv4RouteKey(key));
     }
 
     @Override

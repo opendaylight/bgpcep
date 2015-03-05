@@ -1,0 +1,73 @@
+module bgp-routes {
+        yang-version 1;
+        namespace "urn:opendaylight:params:xml:ns:yang:bgp-routes";
+        prefix "routes";
+
+    import bgp-rib { prefix bgp-rib; revision-date 2013-09-25; }
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+
+        organization "Cisco Systems, Inc.";
+        contact "Dana Kutenicsova <dkutenic@cisco.com>";
+
+        description
+                "This module contains the concept of IPv4 and Ipv6 routes,
+        split from bgp-rib model.
+
+                Copyright (c)2015 Cisco Systems, Inc. All rights reserved.
+
+                This program and the accompanying materials are made available
+                under the terms of the Eclipse Public License v1.0 which
+                accompanies this distribution, and is available at
+                http://www.eclipse.org/legal/epl-v10.html";
+
+        revision "2015-03-05" {
+                description
+                        "Initial revision.";
+        }
+
+    grouping ipv4-routes {
+        container ipv4-routes {
+            list ipv4-route {
+                leaf prefix {
+                    type inet:ipv4-prefix;
+                }
+                key prefix;
+
+                uses bgp-rib:route;
+            }
+        }
+    }
+
+    grouping ipv6-routes {
+        container ipv6-routes {
+            list ipv6-route {
+                leaf prefix {
+                    type inet:ipv6-prefix;
+                }
+                key prefix;
+
+                uses bgp-rib:route;
+            }
+        }
+    }
+
+    augment "/bgp-rib:application-rib/bgp-rib:tables/bgp-rib:routes" {
+        case ipv4-routes-case {
+            uses ipv4-routes;
+        }
+
+        case ipv6-routes-case {
+            uses ipv6-routes;
+        }
+    }
+
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:loc-rib/bgp-rib:tables/bgp-rib:routes" {
+        case ipv4-routes-case {
+            uses ipv4-routes;
+        }
+
+        case ipv6-routes-case {
+            uses ipv6-routes;
+        }
+    }
+}
