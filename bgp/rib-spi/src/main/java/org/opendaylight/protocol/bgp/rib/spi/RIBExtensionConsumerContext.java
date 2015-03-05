@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 
@@ -26,4 +27,21 @@ public interface RIBExtensionConsumerContext {
      *         not implemented.
      */
     @Nullable AdjRIBsFactory getAdjRIBsInFactory(@Nonnull Class<? extends AddressFamily> afi, @Nonnull Class<? extends SubsequentAddressFamily> safi);
+
+    /**
+     * Acquire a RIB implementation factory for a AFI/SAFI combination.
+     * @param key AFI/SAFI key
+     * @return RIBSupport instance, or null if the AFI/SAFI is
+     *         not implemented.
+     */
+    @Nullable RIBSupport getRIBSupport(@Nonnull TablesKey key);
+
+    /**
+     * Acquire a RIB implementation factory for a AFI/SAFI combination.
+     * @param afi Address Family Identifier
+     * @param safi Subsequent Address Family identifier
+     * @return RIBSupport instance, or null if the AFI/SAFI is
+     *         not implemented.
+     */
+    @Nullable RIBSupport getRIBSupport(@Nonnull Class<? extends AddressFamily> afi, @Nonnull Class<? extends SubsequentAddressFamily> safi);
 }
