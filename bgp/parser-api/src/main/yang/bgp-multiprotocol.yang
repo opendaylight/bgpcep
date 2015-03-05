@@ -33,6 +33,34 @@ module bgp-multiprotocol {
         reference "RFC4760";
     }
 
+    grouping ipv4-prefix {
+        leaf prefix {
+            type inet:ipv4-prefix;
+        }
+    }
+
+    grouping ipv6-prefix {
+        leaf prefix {
+            type inet:ipv6-prefix;
+        }
+    }
+
+    grouping ipv4-prefixes {
+        container destination-ipv4 {
+            list ipv4-prefixes {
+                uses ipv4-prefix;
+            }
+        }
+    }
+
+    grouping ipv6-prefixes {
+        container destination-ipv6 {
+            list ipv6-prefixes {
+                uses ipv6-prefix;
+            }
+        }
+    }
+
     grouping bgp-table-type {
         leaf afi {
             type identityref {
@@ -49,20 +77,12 @@ module bgp-multiprotocol {
     grouping destination {
         choice destination-type {
             case destination-ipv4-case {
-                container destination-ipv4 {
-                    when "../../afi = ipv4";
-                    leaf-list ipv4-prefixes {
-                        type inet:ipv4-prefix;
-                    }
-                }
+                when "../../afi = ipv4";
+                uses ipv4-prefixes;
             }
             case destination-ipv6-case {
-                container destination-ipv6 {
-                    when "../../afi = ipv6";
-                    leaf-list ipv6-prefixes {
-                        type inet:ipv6-prefix;
-                    }
-                }
+                when "../../afi = ipv6";
+                uses ipv6-prefixes;
             }
         }
     }
