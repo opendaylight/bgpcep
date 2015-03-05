@@ -47,7 +47,7 @@ final class BestPathSelector {
             final Optional<NormalizedNode<?, ?>> maybeOriginatorId = NormalizedNodes.findNode(attrs, ORIGINATOR_ID);
             final UnsignedInteger originatorId;
             if (maybeOriginatorId.isPresent()) {
-                originatorId = RouterIds.routerIdForAddress(((LeafNode<String>)maybeOriginatorId.get()).getValue());
+                originatorId = RouterIds.routerIdForAddress((String) ((LeafNode<?>)maybeOriginatorId.get()).getValue());
             } else {
                 originatorId = routerId;
             }
