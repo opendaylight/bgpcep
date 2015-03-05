@@ -8,9 +8,12 @@
 
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import java.util.Arrays;
@@ -24,6 +27,10 @@ import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeRegist
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpPeerState;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.RouteTable;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
+import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.AdjRIBsOutRegistration;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionStatistics;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
@@ -43,9 +50,14 @@ import org.slf4j.LoggerFactory;
  * Class representing a peer. We have a single instance for each peer, which provides translation from BGP events into
  * RIB actions.
  */
-public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRuntimeMXBean {
-
+public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRuntimeMXBean, TransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeer.class);
+    private static final Function<BgpTableType, TablesKey> CONVERT_TABLE_TYPE = new Function<BgpTableType, TablesKey>() {
+        @Override
+        public TablesKey apply(final BgpTableType input) {
+            return new TablesKey(input.getAfi(), input.getSafi());
+        }
+    };
 
     @GuardedBy("this")
     private final Set<TablesKey> tables = new HashSet<>();
@@ -58,20 +70,31 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
     private byte[] rawIdentifier;
     @GuardedBy("this")
     private AdjRIBsOutRegistration reg;
+    @GuardedBy("this")
+    private AdjRibInWriter writer;
 
     private BGPPeerRuntimeRegistrator registrator;
     private BGPPeerRuntimeRegistration runtimeReg;
     private long sessionEstablishedCounter = 0L;
+    private final DOMTransactionChain chain = null;
 
     public BGPPeer(final String name, final RIB rib) {
         this.rib = Preconditions.checkNotNull(rib);
         this.name = name;
+
+        // FIXME: activate this
+        // final DOMDataBroker broker = rib.getBroker();
+        // this.chain = broker.createTransactionChain(this);
     }
 
     @Override
     public synchronized void close() {
         dropConnection();
         // TODO should this perform cleanup ?
+
+        // FIXME: delete our top-level container
+        // FIXME: activate this
+        // chain.close();
     }
 
     @Override
@@ -88,6 +111,17 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
         LOG.info("Session with peer {} went up with tables: {}", this.name, session.getAdvertisedTableTypes());
 
         this.session = session;
+
+        final Set<TablesKey> tables = ImmutableSet.copyOf(Collections2.transform(session.getAdvertisedTableTypes(), CONVERT_TABLE_TYPE));
+
+        if (writer == null) {
+            // this.writer = AdjRibInWriter.create(chain, null);
+
+        }
+
+        // FIXME: activate this
+        //this.writer = writer.changeTableTypes(rib.getExtensions(), tables);
+
         this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
 
         for (final BgpTableType t : session.getAdvertisedTableTypes()) {
@@ -218,5 +252,15 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
         peerState.setRouteTable(routes);
         peerState.setSessionEstablishedCount(this.sessionEstablishedCounter);
         return peerState;
+    }
+
+    @Override
+    public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
+        LOG.error("Peer {} failed on transaction {}", this, transaction, cause);
+    }
+
+    @Override
+    public void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
+        LOG.error("Peer {} shut down successfully", this);
     }
 }
