@@ -7,10 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,17 +21,10 @@ import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
-import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
@@ -56,40 +46,9 @@ import org.slf4j.LoggerFactory;
  * structures. This is done so we maintain causality and loose coupling.
  */
 @NotThreadSafe
-final class EffectiveRibInWriter {
-    private static final Predicate<PathArgument> IS_PEER = new Predicate<PathArgument>() {
-        @Override
-        public boolean apply(final PathArgument input) {
-            return input.getNodeType().equals(Peer.QNAME);
-        }
-    };
-    private static final Predicate<PathArgument> IS_TABLES = new Predicate<PathArgument>() {
-        @Override
-        public boolean apply(final PathArgument input) {
-            return input.getNodeType().equals(Tables.QNAME);
-        }
-    };
+final class EffectiveRibInWriter implements AutoCloseable {
+
     private static final Logger LOG = LoggerFactory.getLogger(EffectiveRibInWriter.class);
-    private static final QName PEER_ID = QName.create(Peer.QNAME, "peer-id");
-
-    // FIXME: implement as id.firstIdentifierOf(IS_PEER), null indicating not found
-    private static final NodeIdentifierWithPredicates firstKeyOf(final YangInstanceIdentifier id, final Predicate<PathArgument> match) {
-        final PathArgument ret = Iterables.find(id.getPathArguments(), IS_PEER);
-        Preconditions.checkArgument(ret instanceof NodeIdentifierWithPredicates, "Non-key peer identifier %s", ret);
-        return (NodeIdentifierWithPredicates) ret;
-    }
-
-    static final NodeIdentifierWithPredicates peerKey(final YangInstanceIdentifier id) {
-        return firstKeyOf(id, IS_PEER);
-    }
-
-    static final PeerId peerId(final NodeIdentifierWithPredicates peerKey) {
-        return (PeerId) peerKey.getKeyValues().get(PEER_ID);
-    }
-
-    private static final NodeIdentifierWithPredicates tableKey(final YangInstanceIdentifier id) {
-        return firstKeyOf(id, IS_TABLES);
-    }
 
     /**
      * Maintains the mapping of PeerId -> Role inside. We are subscribed to our target leaf,
@@ -99,33 +58,7 @@ final class EffectiveRibInWriter {
      * MD-SAL assumption: we are getting one {@link DataTreeCandidate} for each expanded
      *                    wildcard path, so are searching for a particular key.
      */
-    private final class PeerRoleListener implements DOMDataTreeChangeListener {
-        @Override
-        public void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
-            synchronized (policies) {
-                for (DataTreeCandidate tc : changes) {
-                    // Obtain the peer's key
-                    final NodeIdentifierWithPredicates peerKey = peerKey(tc.getRootPath());
 
-                    // Check for removal
-                    final Optional<NormalizedNode<?, ?>> maybePeerRole = tc.getRootNode().getDataAfter();
-                    if (maybePeerRole.isPresent()) {
-                        final LeafNode<?> peerRoleLeaf = (LeafNode<?>) maybePeerRole.get();
-                        // FIXME: need codec here
-                        final PeerRole peerRole = (PeerRole) peerRoleLeaf.getValue();
-
-                        // Lookup policy based on role
-                        final AbstractImportPolicy policy = AbstractImportPolicy.forRole(peerRole);
-
-                        // Update lookup map
-                        policies.put(peerId(peerKey), policy);
-                    } else {
-                        policies.remove(peerId(peerKey));
-                    }
-                }
-            }
-        }
-    }
 
     /**
      * Maintains the individual routes for a particular table's routes under:
@@ -142,7 +75,7 @@ final class EffectiveRibInWriter {
             this.tableKey = Preconditions.checkNotNull(tableKey);
 
             // Lookup peer ID
-            this.peerId = (PeerId) Preconditions.checkNotNull(peerKey.getKeyValues().get(PEER_ID));
+            this.peerId = IdentifierUtils.peerId(peerKey);
 
             // FIXME: need target table ID
             target = null;
@@ -172,10 +105,8 @@ final class EffectiveRibInWriter {
                 final ContainerNode effectiveAttrs;
 
                 if (adverisedAttrs != null && tc.getRootNode().getDataAfter().isPresent()) {
-                    synchronized (policies) {
-                        final AbstractImportPolicy policy = policies.get(peerId);
-                        effectiveAttrs = policy.effectiveAttributes(adverisedAttrs);
-                    }
+                    final AbstractImportPolicy policy = peerPolicyTracker.policyFor(peerId);
+                    effectiveAttrs = policy.effectiveAttributes(adverisedAttrs);
                 } else {
                     effectiveAttrs = null;
                 }
@@ -207,10 +138,10 @@ final class EffectiveRibInWriter {
 
             for (DataTreeCandidate tc : changes) {
                 // Obtain the peer's key
-                final NodeIdentifierWithPredicates peerKey = peerKey(tc.getRootPath());
+                final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(tc.getRootPath());
 
                 // Lookup
-                final NodeIdentifierWithPredicates tableKey = tableKey(tc.getRootPath());
+                final NodeIdentifierWithPredicates tableKey = IdentifierUtils.tableKey(tc.getRootPath());
 
                 switch (tc.getRootNode().getModificationType()) {
                 case DELETE:
@@ -240,12 +171,19 @@ final class EffectiveRibInWriter {
         }
     }
 
-    private final Map<PeerId, AbstractImportPolicy> policies = new HashMap<>();
+    private final ImportPolicyPeerTracker peerPolicyTracker;
     private final DOMTransactionChain chain;
 
-    private EffectiveRibInWriter(final DOMTransactionChain chain) {
+    private EffectiveRibInWriter(final DOMDataTreeChangeService service, final DOMTransactionChain chain, final YangInstanceIdentifier ribId) {
         this.chain = Preconditions.checkNotNull(chain);
 
-        // FIXME: subscribe peerRoleListener, tableListener
+        this.peerPolicyTracker = new ImportPolicyPeerTracker(service, ribId);
+
+        // FIXME: subscribe tableListener
+    }
+
+    @Override
+    public void close() {
+        peerPolicyTracker.close();
     }
 }
