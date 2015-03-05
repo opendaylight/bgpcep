@@ -10,11 +10,11 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.CheckedFuture;
 import io.netty.channel.Channel;
+import io.netty.channel.DefaultChannelPromise;
 import io.netty.channel.EventLoop;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
@@ -109,6 +109,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class ApplicationPeerTest {
 
@@ -272,6 +273,7 @@ public class ApplicationPeerTest {
         Mockito.doReturn(null).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
         Mockito.doReturn(Boolean.TRUE).when(this.channel).isWritable();
         Mockito.doReturn(null).when(this.channel).close();
+        Mockito.doReturn(new DefaultChannelPromise(channel)).when(this.channel).writeAndFlush(any(Notification.class));
 
         Mockito.doReturn(new InetSocketAddress("localhost", 12345)).when(this.channel).remoteAddress();
         Mockito.doReturn(new InetSocketAddress("localhost", 12345)).when(this.channel).localAddress();
