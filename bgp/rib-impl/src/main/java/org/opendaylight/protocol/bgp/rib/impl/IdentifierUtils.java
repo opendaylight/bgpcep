@@ -1,0 +1,59 @@
+/*
+ * Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+package org.opendaylight.protocol.bgp.rib.impl;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
+import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
+
+final class IdentifierUtils {
+    private static final Predicate<PathArgument> IS_PEER = new Predicate<PathArgument>() {
+        @Override
+        public boolean apply(final PathArgument input) {
+            return input.getNodeType().equals(Peer.QNAME);
+        }
+    };
+    private static final Predicate<PathArgument> IS_TABLES = new Predicate<PathArgument>() {
+        @Override
+        public boolean apply(final PathArgument input) {
+            return input.getNodeType().equals(Tables.QNAME);
+        }
+    };
+    private static final QName PEER_ID = QName.cachedReference(QName.create(Peer.QNAME, "peer-id"));
+
+    private IdentifierUtils() {
+        throw new UnsupportedOperationException();
+    }
+
+    // FIXME: implement as id.firstIdentifierOf(IS_PEER), null indicating not found
+    private static final NodeIdentifierWithPredicates firstKeyOf(final YangInstanceIdentifier id, final Predicate<PathArgument> match) {
+        final PathArgument ret = Iterables.find(id.getPathArguments(), IS_PEER);
+        Preconditions.checkArgument(ret instanceof NodeIdentifierWithPredicates, "Non-key peer identifier %s", ret);
+        return (NodeIdentifierWithPredicates) ret;
+    }
+
+    static final NodeIdentifierWithPredicates peerKey(final YangInstanceIdentifier id) {
+        return firstKeyOf(id, IS_PEER);
+    }
+
+    static final PeerId peerId(final NodeIdentifierWithPredicates peerKey) {
+        return (PeerId) peerKey.getKeyValues().get(PEER_ID);
+    }
+
+    static final NodeIdentifierWithPredicates tableKey(final YangInstanceIdentifier id) {
+        return firstKeyOf(id, IS_TABLES);
+    }
+
+}
