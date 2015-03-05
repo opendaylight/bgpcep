@@ -26,4 +26,15 @@ public interface RIBExtensionProviderContext extends RIBExtensionConsumerContext
      */
     AutoCloseable registerAdjRIBsInFactory(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi,
             AdjRIBsFactory factory);
+
+    /**
+     * Register a RIBSupport instance for a particular AFI/SAFI combination.
+     *
+     * @param afi Address Family identifier
+     * @param safi Subsequent Address Family identifier
+     * @param support RIBSupport instance
+     * @return Registration handle. Call {@link RIBSupportRegistration#close()} method to remove it.
+     * @throws NullPointerException if any of the arguments is null
+     */
+    <T extends RIBSupport> RIBSupportRegistration<T> registerRIBSupport(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi, T support);
 }

@@ -21,6 +21,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
@@ -193,10 +194,10 @@ final class EffectiveRibInWriter {
      */
     private final class TableListener implements DOMDataTreeChangeListener {
         private final Map<YangInstanceIdentifier, ListenerRegistration<?>> routeListeners = new HashMap<>();
+        private final RIBExtensionConsumerContext registry;
         private final DOMDataTreeChangeService service;
-        private final RIBSupportRegistry registry;
 
-        TableListener(final DOMDataTreeChangeService service, final RIBSupportRegistry registry) {
+        TableListener(final DOMDataTreeChangeService service, final RIBExtensionConsumerContext registry) {
             this.registry = Preconditions.checkNotNull(registry);
             this.service = Preconditions.checkNotNull(service);
         }
@@ -219,14 +220,17 @@ final class EffectiveRibInWriter {
                     }
                     break;
                 case WRITE:
-                    // FIXME: use codec to translate or refactor registry
+                    // FIXME: use codec to translate
                     final RIBSupport ribSupport = registry.getRIBSupport(null);
-                    final TableRouteListener routeListener = new TableRouteListener(ribSupport, peerKey, tableKey);
+                    if (ribSupport != null) {
+                        final TableRouteListener routeListener = new TableRouteListener(ribSupport, peerKey, tableKey);
+                        final ListenerRegistration<?> r = service.registerDataTreeChangeListener(
+                            new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL,  tc.getRootPath()), routeListener);
 
-                    final ListenerRegistration<?> r = service.registerDataTreeChangeListener(
-                        new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL,  tc.getRootPath()), routeListener);
-
-                    routeListeners.put(tc.getRootPath(), r);
+                        routeListeners.put(tc.getRootPath(), r);
+                    } else {
+                        LOG.warn("No RIB support for table {}, ignoring advertisements from peer %s", tableKey, peerKey);
+                    }
                     break;
                 default:
                     // No-op
