@@ -25,12 +25,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv6.routes._case.Ipv6Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv6.routes._case.ipv6.routes.Ipv6Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv6.routes._case.ipv6.routes.Ipv6RouteBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv6.routes._case.ipv6.routes.Ipv6RouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.routes.rev150305.ipv6.routes.Ipv6Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.routes.rev150305.ipv6.routes.ipv6.routes.Ipv6Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.routes.rev150305.ipv6.routes.ipv6.routes.Ipv6RouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.routes.rev150305.ipv6.routes.ipv6.routes.Ipv6RouteKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
@@ -39,18 +39,18 @@ final class Ipv6AdjRIBsIn extends AbstractAdjRIBs<Ipv6Prefix, Ipv6Route, Ipv6Rou
 
     Ipv6AdjRIBsIn(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
         super(basePath);
-        routesBasePath = basePath.builder().child(Ipv6Routes.class).build();
+        this.routesBasePath = basePath.builder().child((Class)Ipv6Routes.class).build();
     }
 
     @Override
     @Deprecated
     public KeyedInstanceIdentifier<Ipv6Route, Ipv6RouteKey> identifierForKey(final InstanceIdentifier<Tables> basePath, final Ipv6Prefix key) {
-        return basePath.child(Ipv6Routes.class).child(Ipv6Route.class, new Ipv6RouteKey(key));
+        return basePath.child((Class)Ipv6Routes.class).child(Ipv6Route.class, new Ipv6RouteKey(key));
     }
 
     @Override
     public KeyedInstanceIdentifier<Ipv6Route, Ipv6RouteKey> identifierForKey(final Ipv6Prefix key) {
-        return routesBasePath.child(Ipv6Route.class, new Ipv6RouteKey(key));
+        return this.routesBasePath.child(Ipv6Route.class, new Ipv6RouteKey(key));
     }
 
     @Override
