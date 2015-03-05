@@ -31,6 +31,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.impl.spi.AdjRIBsOut;
 import org.opendaylight.protocol.bgp.rib.impl.spi.AdjRIBsOutRegistration;
@@ -114,6 +115,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final RIBTables tables;
     private final BlockingQueue<Peer> peers;
     private final DataBroker dataBroker;
+    private final RIBExtensionConsumerContext extensions;
 
     private final Runnable scheduler = new Runnable() {
         @Override
@@ -160,6 +162,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.tables = new RIBTables(extensions);
         this.peers = new LinkedBlockingQueue<>();
         this.dataBroker = dps;
+        this.extensions = Preconditions.checkNotNull(extensions);
 
         LOG.debug("Instantiating RIB table {} at {}", ribId, getInstanceIdentifier());
 
@@ -427,5 +430,16 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             //no-op
         }
         return 0;
+    }
+
+    @Override
+    public RIBExtensionConsumerContext getExtensions() {
+        return extensions;
+    }
+
+    @Override
+    public DOMDataBroker getBroker() {
+        // FIXME: implement this
+        return null;
     }
 }
