@@ -56,13 +56,6 @@
         <tcpmd5.version>1.1.0-SNAPSHOT</tcpmd5.version>
 
         <bgpcep.version>0.4.0-SNAPSHOT</bgpcep.version>
-
-        <!-- Sonar config -->
-        <sonar-jacoco-listeners.version>2.4</sonar-jacoco-listeners.version>
-        <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
-        <sonar.jacoco.reportPath>target/code-coverage/jacoco.exec</sonar.jacoco.reportPath>
-        <sonar.jacoco.itReportPath>target/code-coverage/jacoco-it.exec</sonar.jacoco.itReportPath>
-        <sonar.profile>Sonar way with Findbugs</sonar.profile>
     </properties>
 
     <dependencyManagement>
