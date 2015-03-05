@@ -59,8 +59,8 @@ final class LocRibWriter implements DOMDataTreeChangeListener {
         for (DataTreeCandidate tc : changes) {
             final YangInstanceIdentifier path = tc.getRootPath();
             final PathArgument routeId = path.getLastPathArgument();
-            final NodeIdentifierWithPredicates peerKey = EffectiveRibInWriter.peerKey(path);
-            final PeerId peerId = EffectiveRibInWriter.peerId(peerKey);
+            final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(path);
+            final PeerId peerId = IdentifierUtils.peerId(peerKey);
             final UnsignedInteger routerId = RouterIds.routerIdForPeerId(peerId);
 
             RouteEntry entry = routeEntries.get(routeId);
