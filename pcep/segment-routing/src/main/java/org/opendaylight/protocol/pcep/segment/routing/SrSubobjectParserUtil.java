@@ -5,10 +5,8 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.segment.routing;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Address;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
@@ -18,9 +16,8 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.BitSet;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -42,20 +39,18 @@ final class SrSubobjectParserUtil {
     public static final int MINIMAL_LENGTH = 4;
     public static final int BITSET_LENGTH = 8;
 
-    private static final int FLAGS_OFFSET = 1;
     private static final int SID_TYPE_BITS_OFFSET = 4;
 
     private SrSubobjectParserUtil() {
         throw new UnsupportedOperationException();
     }
 
-    public static ByteBuf serializeSrSubobject(final SrSubobject srSubobject, final BitSet bits) {
+    public static ByteBuf serializeSrSubobject(final SrSubobject srSubobject, final BitArray bits) {
         Preconditions.checkArgument(srSubobject.getNai() != null || srSubobject.getSid() != null,
                 "Both SID and NAI are absent in SR subobject.");
         final ByteBuf body = Unpooled.buffer(MINIMAL_LENGTH);
         writeUnsignedByte((short)(srSubobject.getSidType().getIntValue() << SID_TYPE_BITS_OFFSET), body);
-
-        writeBitSet(bits, FLAGS_OFFSET, body);
+        bits.toByteBuf(body);
 
         if (srSubobject.getSid() != null) {
             writeUnsignedInt(srSubobject.getSid(), body);
@@ -91,12 +86,12 @@ final class SrSubobjectParserUtil {
         return body;
     }
 
-    public static SrSubobject parseSrSubobject(final ByteBuf buffer, final Function<BitSet, Void> getFlags, final int fPosition, final int sPosition)
+    public static SrSubobject parseSrSubobject(final ByteBuf buffer, final Function<BitArray, Void> getFlags, final int fPosition, final int sPosition)
             throws PCEPDeserializerException {
         final int sidTypeByte = buffer.readByte() >> SID_TYPE_BITS_OFFSET;
         final SidType sidType = SidType.forValue(sidTypeByte);
 
-        final BitSet bitSet = ByteArray.bytesToBitSet(new byte[] { buffer.readByte() });
+        final BitArray bitSet = BitArray.valueOf(buffer.readByte());
         getFlags.apply(bitSet);
         final boolean f = bitSet.get(fPosition);
         final boolean s = bitSet.get(sPosition);

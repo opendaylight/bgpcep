@@ -230,7 +230,7 @@ public class PCEPObjectParserTest {
             /* pst-tlv */
             0x0, 0x1C, 0x0, 0x4, 0x0, 0x0, 0x0, 0x0 };
         final CInitiated00SrpObjectParser parser = new CInitiated00SrpObjectParser(this.tlvRegistry, this.viTlvRegistry);
-        SrpBuilder builder = new SrpBuilder();
+        final SrpBuilder builder = new SrpBuilder();
         builder.setProcessingRule(false);
         builder.setIgnore(false);
         builder.setOperationId(new SrpIdNumber(1L));

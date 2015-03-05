@@ -14,11 +14,11 @@ import com.google.common.primitives.UnsignedInts;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -101,21 +101,23 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
      */
     private static final int LENGTH_MAGIC = 61440;
 
-    private static final int END_OF_LIST = 7;
-    private static final int AND_BIT = 6;
+    private static final int OPERAND_LENGTH = 8;
+
+    private static final int END_OF_LIST = 0;
+    private static final int AND_BIT = 1;
     private static final int LENGTH_BITMASK = 48;
     private static final int LENGTH_SHIFT = 4;
-    private static final int LESS_THAN = 2;
-    private static final int GREATER_THAN = 1;
-    private static final int EQUAL = 0;
+    private static final int LESS_THAN = 5;
+    private static final int GREATER_THAN = 6;
+    private static final int EQUAL = 7;
 
-    private static final int NOT = 1;
-    private static final int MATCH = 0;
+    private static final int NOT = 6;
+    private static final int MATCH = 7;
 
-    private static final int LAST_FRAGMENT = 7;
-    private static final int FIRST_FRAGMENT = 6;
-    private static final int IS_A_FRAGMENT = 5;
-    private static final int DONT_FRAGMENT = 4;
+    private static final int LAST_FRAGMENT = 4;
+    private static final int FIRST_FRAGMENT = 5;
+    private static final int IS_A_FRAGMENT = 6;
+    private static final int DONT_FRAGMENT = 7;
 
     private static final int MAX_NLRI_LENGTH = 4095;
     private static final int MAX_NLRI_LENGTH_ONE_BYTE = 240;
@@ -269,42 +271,24 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
     }
 
     private static void serializeNumericOperand(final NumericOperand op, final int length, final ByteBuf buffer) {
-        final BitSet bs = new BitSet(Byte.SIZE);
-        if (op.isEndOfList() != null) {
-            bs.set(END_OF_LIST, op.isEndOfList());
-        }
-        if (op.isAndBit() != null) {
-            bs.set(AND_BIT, op.isAndBit());
-        }
-        if (op.isLessThan() != null) {
-            bs.set(LESS_THAN, op.isLessThan());
-        }
-        if (op.isGreaterThan() != null) {
-            bs.set(GREATER_THAN, op.isGreaterThan());
-        }
-        if (op.isEquals() != null) {
-            bs.set(EQUAL, op.isEquals());
-        }
+        final BitArray bs = new BitArray(OPERAND_LENGTH);
+        bs.set(END_OF_LIST, op.isEndOfList());
+        bs.set(AND_BIT, op.isAndBit());
+        bs.set(LESS_THAN, op.isLessThan());
+        bs.set(GREATER_THAN, op.isGreaterThan());
+        bs.set(EQUAL, op.isEquals());
         final byte len = (byte) (Integer.numberOfTrailingZeros(length) << LENGTH_SHIFT);
-        buffer.writeByte(bs.toByteArray()[0] | len);
+        buffer.writeByte(bs.toByte() | len);
     }
 
     private static void serializeBitmaskOperand(final BitmaskOperand op, final int length, final ByteBuf buffer) {
-        final BitSet bs = new BitSet(Byte.SIZE);
-        if (op.isEndOfList() != null) {
-            bs.set(END_OF_LIST, op.isEndOfList());
-        }
-        if (op.isAndBit() != null) {
-            bs.set(AND_BIT, op.isAndBit());
-        }
-        if (op.isMatch() != null) {
-            bs.set(MATCH, op.isMatch());
-        }
-        if (op.isNot() != null) {
-            bs.set(NOT, op.isNot());
-        }
+        final BitArray bs = new BitArray(OPERAND_LENGTH);
+        bs.set(END_OF_LIST, op.isEndOfList());
+        bs.set(AND_BIT, op.isAndBit());
+        bs.set(MATCH, op.isMatch());
+        bs.set(NOT, op.isNot());
         final byte len = (byte) (Integer.numberOfTrailingZeros(length) << LENGTH_SHIFT);
-        buffer.writeByte(bs.toByteArray()[0] | len);
+        buffer.writeByte(bs.toByte() | len);
     }
 
     @Override
@@ -562,12 +546,12 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
     }
 
     private static NumericOperand parseNumeric(final byte op) {
-        final BitSet bs = BitSet.valueOf(new long[] {UnsignedBytes.toInt(op)});
+        final BitArray bs = BitArray.valueOf(op);
         return new NumericOperand(bs.get(AND_BIT), bs.get(END_OF_LIST), bs.get(EQUAL), bs.get(GREATER_THAN), bs.get(LESS_THAN));
     }
 
     private static BitmaskOperand parseBitmask(final byte op) {
-        final BitSet bs = BitSet.valueOf(new long[] {UnsignedBytes.toInt(op)});
+        final BitArray bs = BitArray.valueOf(op);
         return new BitmaskOperand(bs.get(AND_BIT), bs.get(END_OF_LIST), bs.get(MATCH), bs.get(NOT));
     }
 
@@ -577,24 +561,16 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
     }
 
     private static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.Fragment parseFragment(final byte fragment) {
-        final BitSet bs = BitSet.valueOf(new long[] {UnsignedBytes.toInt(fragment)});
+        final BitArray bs = BitArray.valueOf(fragment);
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.Fragment(bs.get(DONT_FRAGMENT), bs.get(FIRST_FRAGMENT), bs.get(IS_A_FRAGMENT), bs.get(LAST_FRAGMENT));
     }
 
     private static byte serializeFragment(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.Fragment fragment) {
-        final BitSet bs = new BitSet(Byte.SIZE);
-        if (fragment.isDoNot() != null) {
-            bs.set(DONT_FRAGMENT, fragment.isDoNot());
-        }
-        if (fragment.isFirst() != null) {
-            bs.set(FIRST_FRAGMENT, fragment.isFirst());
-        }
-        if (fragment.isIsA() != null) {
-            bs.set(IS_A_FRAGMENT, fragment.isIsA());
-        }
-        if (fragment.isLast() != null) {
-            bs.set(LAST_FRAGMENT, fragment.isLast());
-        }
-        return bs.toByteArray()[0];
+        final BitArray bs = new BitArray(Byte.SIZE);
+        bs.set(DONT_FRAGMENT, fragment.isDoNot());
+        bs.set(FIRST_FRAGMENT, fragment.isFirst());
+        bs.set(IS_A_FRAGMENT, fragment.isIsA());
+        bs.set(LAST_FRAGMENT, fragment.isLast());
+        return bs.toByte();
     }
 }

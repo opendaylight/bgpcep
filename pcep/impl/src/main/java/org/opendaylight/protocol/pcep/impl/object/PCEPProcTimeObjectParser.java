@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.impl.object;
 
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.INT_BYTES_LENGTH;
@@ -13,12 +12,11 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.INT_BYTES_LENGTH;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.BitSet;
 import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
@@ -36,7 +34,7 @@ public class PCEPProcTimeObjectParser implements ObjectParser, ObjectSerializer 
     public static final int TYPE = 1;
 
     private static final int RESERVED = 2;
-    private static final int FLAGS = RESERVED;
+    private static final int FLAGS = 16;
     private static final int COUNT_FIELDS = 5;
     private static final int BODY_SIZE = RESERVED + FLAGS + COUNT_FIELDS * INT_BYTES_LENGTH;
     private static final int E_FLAG_POSITION = 15;
@@ -47,9 +45,9 @@ public class PCEPProcTimeObjectParser implements ObjectParser, ObjectSerializer 
         final ProcTime procTime = (ProcTime) object;
         final ByteBuf body = Unpooled.buffer(BODY_SIZE);
         body.writeZero(RESERVED);
-        final BitSet flagBits = new BitSet(FLAGS * Byte.SIZE);
+        final BitArray flagBits = new BitArray(FLAGS);
         flagBits.set(E_FLAG_POSITION, procTime.isEstimated());
-        ByteBufWriteUtil.writeBitSet(flagBits, FLAGS, body);
+        flagBits.toByteBuf(body);
         ByteBufWriteUtil.writeUnsignedInt(procTime.getCurrentProcTime(), body);
         ByteBufWriteUtil.writeUnsignedInt(procTime.getMinProcTime(), body);
         ByteBufWriteUtil.writeUnsignedInt(procTime.getMaxProcTime(), body);
@@ -62,8 +60,8 @@ public class PCEPProcTimeObjectParser implements ObjectParser, ObjectSerializer 
     public Object parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
         Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final ProcTimeBuilder builder = new ProcTimeBuilder();
-        buffer.readBytes(RESERVED);
-        final BitSet flagBits = ByteArray.bytesToBitSet(buffer.readBytes(FLAGS).array());
+        buffer.skipBytes(RESERVED);
+        final BitArray flagBits = BitArray.valueOf(buffer, FLAGS);
         builder.setEstimated(flagBits.get(E_FLAG_POSITION));
         builder.setCurrentProcTime(buffer.readUnsignedInt());
         builder.setMinProcTime(buffer.readUnsignedInt());

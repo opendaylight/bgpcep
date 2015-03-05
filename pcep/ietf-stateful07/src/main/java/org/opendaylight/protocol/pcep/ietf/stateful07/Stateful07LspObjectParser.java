@@ -13,14 +13,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.BitSet;
 import java.util.List;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.OperationalStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.error.code.tlv.LspErrorCode;
@@ -47,25 +46,16 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
     public static final int TYPE = 1;
 
     /*
-     * offset of TLVs offset of other fields are not defined as constants
-     * because of non-standard mapping of bits
-     */
-    protected static final int TLVS_OFFSET = 4;
-
-    /*
      * 12b extended to 16b so first 4b are restricted (belongs to LSP ID)
      */
-    protected static final int DELEGATE_FLAG_OFFSET = 15;
-    protected static final int SYNC_FLAG_OFFSET = 14;
-    protected static final int REMOVE_FLAG_OFFSET = 13;
-    protected static final int ADMINISTRATIVE_FLAG_OFFSET = 12;
-    protected static final int OPERATIONAL_OFFSET = 9;
+    protected static final int DELEGATE = 11;
+    protected static final int SYNC = 10;
+    protected static final int REMOVE = 9;
+    protected static final int ADMINISTRATIVE = 8;
+    protected static final int OPERATIONAL = 5;
 
     protected static final int FOUR_BITS_SHIFT = 4;
-    protected static final int TWELVE_BITS_SHIFT = 12;
-    protected static final int BODY_LENGTH = 4;
-    protected static final int FLAGS_INDEX = 3;
-    protected static final int OP_VALUE_BITS_OFFSET = 7;
+    protected static final int FLAGS_SIZE = 12;
 
     public Stateful07LspObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
         super(tlvReg, viTlvReg);
@@ -78,16 +68,16 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
         final int[] plspIdRaw = new int[] { bytes.readUnsignedByte(), bytes.readUnsignedByte(), bytes.getUnsignedByte(2), };
-        builder.setPlspId(new PlspId((long) ((plspIdRaw[0] << TWELVE_BITS_SHIFT) | (plspIdRaw[1] << FOUR_BITS_SHIFT) | (plspIdRaw[2] >> FOUR_BITS_SHIFT))));
-        final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(bytes, 2));
-        builder.setDelegate(flags.get(DELEGATE_FLAG_OFFSET));
-        builder.setSync(flags.get(SYNC_FLAG_OFFSET));
-        builder.setRemove(flags.get(REMOVE_FLAG_OFFSET));
-        builder.setAdministrative(flags.get(ADMINISTRATIVE_FLAG_OFFSET));
+        builder.setPlspId(new PlspId((long) ((plspIdRaw[0] << FLAGS_SIZE) | (plspIdRaw[1] << FOUR_BITS_SHIFT) | (plspIdRaw[2] >> FOUR_BITS_SHIFT))));
+        final BitArray flags = BitArray.valueOf(bytes, FLAGS_SIZE);
+        builder.setDelegate(flags.get(DELEGATE));
+        builder.setSync(flags.get(SYNC));
+        builder.setRemove(flags.get(REMOVE));
+        builder.setAdministrative(flags.get(ADMINISTRATIVE));
         short s = 0;
-        s |= flags.get(OPERATIONAL_OFFSET + 2) ? 1 : 0;
-        s |= (flags.get(OPERATIONAL_OFFSET + 1) ? 1 : 0) << 1;
-        s |= (flags.get(OPERATIONAL_OFFSET) ? 1 : 0) << 2;
+        s |= flags.get(OPERATIONAL + 2) ? 1 : 0;
+        s |= (flags.get(OPERATIONAL + 1) ? 1 : 0) << 1;
+        s |= (flags.get(OPERATIONAL) ? 1 : 0) << 2;
         builder.setOperational(OperationalStatus.forValue(s));
         final TlvsBuilder b = new TlvsBuilder();
         parseTlvs(b, bytes.slice());
@@ -117,25 +107,19 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         final ByteBuf body = Unpooled.buffer();
         Preconditions.checkArgument(specObj.getPlspId() != null, "PLSP-ID not present");
         writeMedium(specObj.getPlspId().getValue().intValue() << FOUR_BITS_SHIFT, body);
-        final BitSet flags = new BitSet(2 * Byte.SIZE);
-        if (specObj.isDelegate() != null) {
-            flags.set(DELEGATE_FLAG_OFFSET, specObj.isDelegate());
-        }
-        if (specObj.isRemove() != null) {
-            flags.set(REMOVE_FLAG_OFFSET, specObj.isRemove());
-        }
-        if (specObj.isSync() != null) {
-            flags.set(SYNC_FLAG_OFFSET, specObj.isSync());
-        }
-        if (specObj.isAdministrative() != null) {
-            flags.set(ADMINISTRATIVE_FLAG_OFFSET, specObj.isAdministrative());
-        }
+        final BitArray flags = new BitArray(FLAGS_SIZE);
+        flags.set(DELEGATE, specObj.isDelegate());
+        flags.set(REMOVE, specObj.isRemove());
+        flags.set(SYNC, specObj.isSync());
+        flags.set(ADMINISTRATIVE, specObj.isAdministrative());
         byte op = 0;
         if (specObj.getOperational() != null) {
             op = UnsignedBytes.checkedCast(specObj.getOperational().getIntValue());
             op = (byte) (op << FOUR_BITS_SHIFT);
         }
-        body.writeByte(ByteArray.bitSetToBytes(flags, 2)[1] | op);
+        final byte[] res = flags.array();
+        res[res.length -1] = (byte) (res[res.length -1] | op);
+        body.writeByte(res[res.length -1]);
         serializeTlvs(specObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
