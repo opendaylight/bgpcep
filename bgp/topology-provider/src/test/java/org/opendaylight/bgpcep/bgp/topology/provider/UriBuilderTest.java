@@ -20,15 +20,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.RouteDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.TopologyIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.isis.lan.identifier.IsIsRouterIdentifierBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.LinkCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LinkDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LocalNodeDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.RemoteNodeDescriptorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.LinkstateRouteBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.LinkCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.link._case.LinkDescriptorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.link._case.LocalNodeDescriptorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.link._case.RemoteNodeDescriptorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.IsisPseudonodeCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.OspfNodeCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.isis.pseudonode._case.IsisPseudonodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.ospf.node._case.OspfNodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.NodeIdentifierBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.node.identifier.c.router.identifier.IsisPseudonodeCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.node.identifier.c.router.identifier.OspfNodeCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.node.identifier.c.router.identifier.isis.pseudonode._case.IsisPseudonodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.node.identifier.c.router.identifier.ospf.node._case.OspfNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 
 public class UriBuilderTest {
@@ -53,15 +54,15 @@ public class UriBuilderTest {
         linkB.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(new Ipv4InterfaceIdentifier("127.0.0.1"))
             .setIpv4NeighborAddress(new Ipv4InterfaceIdentifier("20.20.20.20"))
             .setMultiTopologyId(new TopologyIdentifier(55)).setLinkLocalIdentifier(1L).setLinkRemoteIdentifier(2L).build());
-        final LocalNodeDescriptorsBuilder nodeB = new LocalNodeDescriptorsBuilder();
+        final NodeIdentifierBuilder nodeB = new NodeIdentifierBuilder();
         nodeB.setAsNumber(new AsNumber(12L)).setDomainId(new DomainIdentifier(15L)).setAreaId(new AreaIdentifier(17L));
         nodeB.setCRouterIdentifier(new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(22L).build()).build());
-        linkB.setLocalNodeDescriptors(nodeB.build());
-        final RemoteNodeDescriptorsBuilder nodeR = new RemoteNodeDescriptorsBuilder();
+        linkB.setLocalNodeDescriptors(new LocalNodeDescriptorsBuilder().setNodeIdentifier(nodeB.build()).build());
+        final NodeIdentifierBuilder nodeR = new NodeIdentifierBuilder();
         nodeR.setCRouterIdentifier(new IsisPseudonodeCaseBuilder().setIsisPseudonode(new IsisPseudonodeBuilder()
                 .setIsIsRouterIdentifier(new IsIsRouterIdentifierBuilder()
                     .setIsoSystemId(new IsoSystemIdentifier(new byte[]{1, 2, 3, 4, 5, 6})).build()).setPsn((short)2).build()).build());
-        linkB.setRemoteNodeDescriptors(nodeR.build());
+        linkB.setRemoteNodeDescriptors(new RemoteNodeDescriptorsBuilder().setNodeIdentifier(nodeR.build()).build());
         c.add(linkB.build());
         assertEquals("bgpls://1:Direct:10/type=foo&local-as=12&local-domain=15&local-area=17&local-router=22"
             + "&remote-router=0102.0304.0506.02&ipv4-iface=127.0.0.1&ipv4-neigh=20.20.20.20&mt=55&local-id=1&remote-id=2", c.toString());
