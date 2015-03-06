@@ -34,6 +34,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.ipv6.prefixes.DestinationIpv6Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.ipv6.prefixes.destination.ipv6.Ipv6Prefixes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.ipv6.prefixes.destination.ipv6.Ipv6PrefixesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv6CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Aggregator;
@@ -58,8 +62,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.DestinationIpv6CaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.destination.ipv6._case.DestinationIpv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
@@ -308,10 +310,10 @@ public class BGPParserTest {
 
         // check NLRI
 
-        final List<Ipv6Prefix> prefs = Lists.newArrayList();
-        prefs.add(new Ipv6Prefix("2001:db8:1:2::/64"));
-        prefs.add(new Ipv6Prefix("2001:db8:1:1::/64"));
-        prefs.add(new Ipv6Prefix("2001:db8:1::/64"));
+        final List<Ipv6Prefixes> prefs = new ArrayList<>();
+        prefs.add(new Ipv6PrefixesBuilder().setPrefix(new Ipv6Prefix("2001:db8:1:2::/64")).build());
+        prefs.add(new Ipv6PrefixesBuilder().setPrefix(new Ipv6Prefix("2001:db8:1:1::/64")).build());
+        prefs.add(new Ipv6PrefixesBuilder().setPrefix(new Ipv6Prefix("2001:db8:1::/64")).build());
 
         assertNull(message.getNlri());
 
