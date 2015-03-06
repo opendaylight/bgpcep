@@ -48,22 +48,7 @@ module bgp-multiprotocol {
 
     grouping destination {
         choice destination-type {
-            case destination-ipv4-case {
-                container destination-ipv4 {
-                    when "../../afi = ipv4";
-                    leaf-list ipv4-prefixes {
-                        type inet:ipv4-prefix;
-                    }
-                }
-            }
-            case destination-ipv6-case {
-                container destination-ipv6 {
-                    when "../../afi = ipv6";
-                    leaf-list ipv6-prefixes {
-                        type inet:ipv6-prefix;
-                    }
-                }
-            }
+            // to be augmented
         }
     }
 
