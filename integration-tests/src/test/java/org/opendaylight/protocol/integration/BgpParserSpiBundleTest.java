@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.integration;
 
 import com.google.common.collect.Lists;
-
 import java.util.Collection;
 
 public final class BgpParserSpiBundleTest extends AbstractBundleTest {
