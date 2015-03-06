@@ -11,6 +11,7 @@ package org.opendaylight.protocol.bgp.linkstate;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.linkstate.spi.NlriUtil;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 
 public class TlvUtilTest {
@@ -26,4 +27,14 @@ public class TlvUtilTest {
         }
     }
 
+    @Test(expected=UnsupportedOperationException.class)
+    public void testPrivateNlriConstructor() throws Throwable {
+        final Constructor<NlriUtil> c = NlriUtil.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (final InvocationTargetException e) {
+            throw e.getCause();
+        }
+    }
 }
