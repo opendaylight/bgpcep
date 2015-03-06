@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.CheckedFuture;
@@ -61,20 +62,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.TopologyIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.CLinkstateDestination;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.LinkCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LinkDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LocalNodeDescriptors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LocalNodeDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.RemoteNodeDescriptors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.RemoteNodeDescriptorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.LinkstateRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.LinkstateRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.LinkstateRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.LinkstateRouteKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.LinkCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.link._case.LinkDescriptorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.link._case.LocalNodeDescriptors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.link._case.LocalNodeDescriptorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.link._case.RemoteNodeDescriptors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.link._case.RemoteNodeDescriptorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.IsisNodeCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.OspfNodeCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.isis.node._case.IsisNodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.ospf.node._case.OspfNodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.NodeIdentifierBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.node.identifier.c.router.identifier.IsisNodeCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.node.identifier.c.router.identifier.OspfNodeCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.node.identifier.c.router.identifier.isis.node._case.IsisNodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.node.identifier.c.router.identifier.ospf.node._case.OspfNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
@@ -241,10 +243,10 @@ public class ApplicationPeerTest {
         iid = InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(new RibId("foo")))
             .child(LocRib.class).child(Tables.class, this.lk)
             .child((Class)LinkstateRoutes.class).child(LinkstateRoute.class, new LinkstateRouteKey(this.linkNlri));
-        final LocalNodeDescriptors lnd = new LocalNodeDescriptorsBuilder().setAsNumber(new AsNumber(72L)).setDomainId(new DomainIdentifier(673720360L))
-            .setCRouterIdentifier(new IsisNodeCaseBuilder().setIsisNode(new IsisNodeBuilder().setIsoSystemId(new IsoSystemIdentifier(new byte[] { 0, 0, 0, 0, 0, 66 })).build()).build()).build();
-        final RemoteNodeDescriptors rnd = new RemoteNodeDescriptorsBuilder().setAsNumber(new AsNumber(72L)).setDomainId(new DomainIdentifier(673720360L))
-            .setCRouterIdentifier(new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(64L).build()).build()).build();
+        final LocalNodeDescriptors lnd = new LocalNodeDescriptorsBuilder().setNodeIdentifier(new NodeIdentifierBuilder().setAsNumber(new AsNumber(72L)).setDomainId(new DomainIdentifier(673720360L))
+            .setCRouterIdentifier(new IsisNodeCaseBuilder().setIsisNode(new IsisNodeBuilder().setIsoSystemId(new IsoSystemIdentifier(new byte[] { 0, 0, 0, 0, 0, 66 })).build()).build()).build()).build();
+        final RemoteNodeDescriptors rnd = new RemoteNodeDescriptorsBuilder().setNodeIdentifier(new NodeIdentifierBuilder().setAsNumber(new AsNumber(72L)).setDomainId(new DomainIdentifier(673720360L))
+            .setCRouterIdentifier(new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(64L).build()).build()).build()).build();
         updated.put(iid, new LinkstateRouteBuilder().setProtocolId(ProtocolId.IsisLevel2).setIdentifier(new Identifier(BigInteger.ONE)).setObjectType(
             new LinkCaseBuilder().setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(new Ipv4InterfaceIdentifier(new Ipv4Address("197.20.160.42")))
                 .setIpv4NeighborAddress(new Ipv4InterfaceIdentifier(new Ipv4Address("197.20.160.40"))).setLinkLocalIdentifier(16909060L).setLinkRemoteIdentifier(168496141L).setMultiTopologyId(new TopologyIdentifier(3)).build())
@@ -273,7 +275,7 @@ public class ApplicationPeerTest {
         Mockito.doReturn(null).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
         Mockito.doReturn(Boolean.TRUE).when(this.channel).isWritable();
         Mockito.doReturn(null).when(this.channel).close();
-        Mockito.doReturn(new DefaultChannelPromise(channel)).when(this.channel).writeAndFlush(any(Notification.class));
+        Mockito.doReturn(new DefaultChannelPromise(this.channel)).when(this.channel).writeAndFlush(any(Notification.class));
 
         Mockito.doReturn(new InetSocketAddress("localhost", 12345)).when(this.channel).remoteAddress();
         Mockito.doReturn(new InetSocketAddress("localhost", 12345)).when(this.channel).localAddress();

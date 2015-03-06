@@ -12,6 +12,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.opendaylight.protocol.bgp.linkstate.spi.NlriUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
@@ -75,7 +76,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
             final DestinationType dt = mpr.getMpReachNlri().getAdvertizedRoutes().getDestinationType();
             if (dt instanceof DestinationLinkstateCase) {
                 for (final CLinkstateDestination d : ((DestinationLinkstateCase) dt).getDestinationLinkstate().getCLinkstateDestination()) {
-                    return d.getNlriType();
+                    return NlriUtil.getNlriType(d);
                 }
             }
         }
@@ -84,7 +85,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
             final DestinationType dt = mpu.getMpUnreachNlri().getWithdrawnRoutes().getDestinationType();
             if (dt instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase) {
                 for (final CLinkstateDestination d : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase) dt).getDestinationLinkstate().getCLinkstateDestination()) {
-                    return d.getNlriType();
+                    return NlriUtil.getNlriType(d);
                 }
             }
         }
