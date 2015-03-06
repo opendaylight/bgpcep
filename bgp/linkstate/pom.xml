@@ -143,7 +143,12 @@
              <artifactId>bgp-parser-spi</artifactId>
              <type>test-jar</type>
          </dependency>
-          <dependency>
+         <dependency>
+             <groupId>${project.groupId}</groupId>
+             <artifactId>bgp-inet</artifactId>
+             <scope>test</scope>
+         </dependency>
+         <dependency>
              <groupId>${project.groupId}</groupId>
              <artifactId>bgp-parser-impl</artifactId>
              <scope>test</scope>

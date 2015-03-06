@@ -1,0 +1,154 @@
+module bgp-inet {
+        yang-version 1;
+        namespace "urn:opendaylight:params:xml:ns:yang:bgp-inet";
+        prefix "bgp-inet";
+
+    import bgp-rib { prefix bgp-rib; revision-date 2013-09-25; }
+    import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import bgp-message { prefix bgp-msg; revision-date 2013-09-19; }
+
+    organization "Cisco Systems, Inc.";
+    contact "Dana Kutenicsova <dkutenic@cisco.com>";
+
+    description
+            "This module contains the concept of IPv4 and IPv6 routes,
+    split from bgp-rib and bgp-multiprotocol models.
+
+            Copyright (c)2015 Cisco Systems, Inc. All rights reserved.
+
+            This program and the accompanying materials are made available
+            under the terms of the Eclipse Public License v1.0 which
+            accompanies this distribution, and is available at
+            http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2015-03-05" {
+            description
+                    "Initial revision.";
+    }
+
+    grouping ipv4-prefix {
+        leaf prefix {
+            type inet:ipv4-prefix;
+        }
+    }
+
+    grouping ipv6-prefix {
+        leaf prefix {
+            type inet:ipv6-prefix;
+        }
+    }
+
+    grouping ipv4-prefixes {
+        container destination-ipv4 {
+            list ipv4-prefixes {
+                uses ipv4-prefix;
+            }
+        }
+    }
+
+    grouping ipv6-prefixes {
+        container destination-ipv6 {
+            list ipv6-prefixes {
+                uses ipv6-prefix;
+            }
+        }
+    }
+
+    grouping ipv4-routes {
+        container ipv4-routes {
+            list ipv4-route {
+                uses bgp-mp:ipv4-prefix;
+
+                key prefix;
+
+                uses bgp-rib:route;
+            }
+        }
+    }
+
+    grouping ipv6-routes {
+        container ipv6-routes {
+            list ipv6-route {
+                uses bgp-mp:ipv6-prefix;
+
+                key prefix;
+
+                uses bgp-rib:route;
+            }
+        }
+    }
+
+    augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
+        case destination-ipv4-case {
+            when "../../afi = ipv4";
+            uses ipv4-prefixes;
+        }
+        case destination-ipv6-case {
+            when "../../afi = ipv6";
+            uses ipv6-prefixes;
+        }
+    }
+
+    augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type" {
+        case destination-ipv4-case {
+            when "../../afi = ipv4";
+            uses ipv4-prefixes;
+        }
+        case destination-ipv6-case {
+            when "../../afi = ipv6";
+            uses ipv6-prefixes;
+        }
+    }
+
+    augment "/bgp-rib:application-rib/bgp-rib:tables/bgp-rib:routes" {
+        case ipv4-routes-case {
+            uses ipv4-routes;
+        }
+
+        case ipv6-routes-case {
+            uses ipv6-routes;
+        }
+    }
+
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:loc-rib/bgp-rib:tables/bgp-rib:routes" {
+        case ipv4-routes-case {
+            uses ipv4-routes;
+        }
+
+        case ipv6-routes-case {
+            uses ipv6-routes;
+        }
+    }
+
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:adj-rib-in/bgp-rib:tables/bgp-rib:routes" {
+        case ipv4-routes-case {
+            uses ipv4-routes;
+        }
+
+        case ipv6-routes-case {
+            uses ipv6-routes;
+        }
+    }
+
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:effective-rib-in/bgp-rib:tables/bgp-rib:routes" {
+        case ipv4-routes-case {
+            uses ipv4-routes;
+        }
+
+        case ipv6-routes-case {
+            uses ipv6-routes;
+        }
+    }
+
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:adj-rib-out/bgp-rib:tables/bgp-rib:routes" {
+        case ipv4-routes-case {
+            uses ipv4-routes;
+        }
+
+        case ipv6-routes-case {
+            uses ipv6-routes;
+        }
+    }
+}
+

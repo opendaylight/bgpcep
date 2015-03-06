@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- vi: set et smarttab sw=4 tabstop=4: -->
 <!--
- Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+ Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
 
  This program and the accompanying materials are made available under the
  terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -23,8 +23,8 @@
         <version>0.4.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>bgp-parser-mock</artifactId>
-    <description>BGP Parser Mock Implementation</description>
+    <artifactId>bgp-inet</artifactId>
+    <description>BGP IPv4/6 Support</description>
     <packaging>bundle</packaging>
     <name>${project.artifactId}</name>
     <prerequisites>
@@ -32,39 +32,31 @@
     </prerequisites>
 
     <dependencies>
-       <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-concepts</artifactId>
-        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-parser-api</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-parser-spi</artifactId>
+            <artifactId>bgp-rib-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-buffer</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-binding</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>yang-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>concepts</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.opendaylight.yangtools.model</groupId>
             <artifactId>ietf-inet-types</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-inet</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -74,6 +66,10 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.opendaylight.yangtools</groupId>
+                <artifactId>yang-maven-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
