@@ -210,37 +210,36 @@ module bgp-linkstate {
     }
 
     grouping node-identifier {
-        leaf as-number {
-            type inet:as-number;
-        }
-        leaf area-id {
-            type area-identifier;
-        }
-        leaf domain-id {
-            type domain-identifier;
-        }
-        choice c-router-identifier {
-            case isis-node-case {
-                container isis-node {
-                    uses isis-router-identifier;
-                }
+        container node-identifier {
+            leaf as-number {
+                type inet:as-number;
             }
-
-            case isis-pseudonode-case {
-                container isis-pseudonode {
-                    uses isis-lan-identifier;
-                }
+            leaf area-id {
+                type area-identifier;
             }
-
-            case ospf-node-case {
-                container ospf-node {
-                    uses ospf-router-identifier;
-                }
+            leaf domain-id {
+                type domain-identifier;
             }
-
-            case ospf-pseudonode-case {
-                container ospf-pseudonode {
-                    uses ospf-v3-lan-identifier;
+            choice c-router-identifier {
+                case isis-node-case {
+                    container isis-node {
+                        uses isis-router-identifier;
+                    }
+                }
+                case isis-pseudonode-case {
+                    container isis-pseudonode {
+                        uses isis-lan-identifier;
+                    }
+                }
+                case ospf-node-case {
+                    container ospf-node {
+                        uses ospf-router-identifier;
+                    }
+                }
+                case ospf-pseudonode-case {
+                    container ospf-pseudonode {
+                        uses ospf-v3-lan-identifier;
+                    }
                 }
             }
         }
@@ -288,35 +287,53 @@ module bgp-linkstate {
         }
     }
 
+    grouping linkstate {
+        leaf distinguisher {
+            type route-distinguisher;
+        }
+        leaf protocol-id {
+            type protocol-id;
+        }
+        leaf identifier {
+            type identifier;
+        }
+        leaf nlri-type {
+            type nlri-type;
+        }
+        choice object-type {
+            case node-case {
+                when "../../nlri-type = node";
+                container node-descriptors {
+                    uses node-identifier;
+                }
+            }
+            case link-case {
+                when "../../nlri-type = link";
+                container local-node-descriptors {
+                    uses node-identifier;
+                }
+                container remote-node-descriptors {
+                    uses node-identifier;
+                }
+                container link-descriptors {
+                    uses link-identifier;
+                }
+            }
+            case prefix-case {
+                when "../../nlri-type = 'ipv4-prefix' or ../nlri-type = 'ipv6-prefix'";
+                container advertising-node-descriptors {
+                    uses node-identifier;
+                }
+                container prefix-descriptors {
+                    uses prefix-identifiers;
+                }
+            }
+        }
+    }
+
     grouping linkstate-destination {
         list c-linkstate-destination {
-            leaf nlri-type {
-                type nlri-type;
-            }
-            leaf distinguisher {
-                type route-distinguisher;
-            }
-            leaf protocol-id {
-                type protocol-id;
-            }
-            leaf identifier {
-                type identifier;
-            }
-            container local-node-descriptors {
-                uses node-identifier;
-            }
-            container remote-node-descriptors {
-                when "../nlri-type = link";
-                uses node-identifier;
-            }
-            container link-descriptors {
-                when "../nlri-type = link";
-                uses link-identifier;
-            }
-            container prefix-descriptors {
-                when "../nlri-type = 'ipv4-prefix' or ../nlri-type = 'ipv6-prefix'";
-                uses prefix-identifiers;
-            }
+            uses linkstate;
         }
     }
 
@@ -583,41 +600,7 @@ module bgp-linkstate {
                 }
                 key "route-key";
 
-                leaf distinguisher {
-                    type route-distinguisher;
-                }
-                leaf protocol-id {
-                    type protocol-id;
-                }
-                leaf identifier {
-                    type identifier;
-                }
-
-                choice object-type {
-                    case node-case {
-                        container node-descriptors {
-                            uses node-identifier;
-                        }
-                    }
-                    case link-case {
-                        container local-node-descriptors {
-                            uses node-identifier;
-                        }
-                        container remote-node-descriptors {
-                            uses node-identifier;
-                        }
-                        container link-descriptors {
-                            uses link-identifier;
-                        }
-                    }
-                    case prefix-case {
-                        container advertising-node-descriptors {
-                            uses node-identifier;
-                        }
-
-                        uses prefix-identifiers;
-                    }
-                }
+                uses linkstate;
 
                 uses bgp-rib:route {
                     augment attributes {
