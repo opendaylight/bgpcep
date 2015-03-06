@@ -22,6 +22,10 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.ipv4.routes.Ipv4Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.ipv4.routes.ipv4.routes.Ipv4RouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.ipv4.routes.ipv4.routes.Ipv4RouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
@@ -39,10 +43,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv4.routes._case.Ipv4Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv4.routes._case.ipv4.routes.Ipv4Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv4.routes._case.ipv4.routes.Ipv4RouteBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv4.routes._case.ipv4.routes.Ipv4RouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
@@ -68,7 +68,7 @@ public class AbstractAdjRIBsTest {
     @Mock
     private Peer peer;
 
-    private Map<InstanceIdentifier<?>, Map.Entry<DataObject, Boolean>> store = Maps.newHashMap();
+    private final Map<InstanceIdentifier<?>, Map.Entry<DataObject, Boolean>> store = Maps.newHashMap();
 
     private final BGPObjectComparator bgpComparator = new BGPObjectComparator(TEST_AS_NUMBER);
 
@@ -110,6 +110,7 @@ public class AbstractAdjRIBsTest {
                 final InstanceIdentifier<Tables> basePath = (InstanceIdentifier<Tables>) args[0];
                 final Boolean uptodate = (Boolean) args[1];
                 @SuppressWarnings("rawtypes")
+                final
                 Map.Entry<DataObject, Boolean> entry = new AbstractMap.SimpleEntry(null, uptodate);
                 AbstractAdjRIBsTest.this.store.put(basePath, entry);
                 return null;
@@ -192,44 +193,44 @@ public class AbstractAdjRIBsTest {
 
         }
 
-        protected TestAdjRIBs(KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
+        protected TestAdjRIBs(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
             super(basePath);
         }
 
         @Override
-        public void addRoutes(AdjRIBsTransaction trans, Peer peer, MpReachNlri nlri, PathAttributes attributes) {
+        public void addRoutes(final AdjRIBsTransaction trans, final Peer peer, final MpReachNlri nlri, final PathAttributes attributes) {
             return;
         }
 
         @Override
-        public void removeRoutes(AdjRIBsTransaction trans, Peer peer, MpUnreachNlri nlri) {
+        public void removeRoutes(final AdjRIBsTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
             return;
         }
 
         @Override
-        public void addAdvertisement(MpReachNlriBuilder builder, Ipv4Route data) {
+        public void addAdvertisement(final MpReachNlriBuilder builder, final Ipv4Route data) {
             return;
         }
 
         @Override
         protected KeyedInstanceIdentifier<Ipv4Route, Ipv4RouteKey> identifierForKey(
-                InstanceIdentifier<Tables> basePath, Ipv4Prefix id) {
-            return basePath.child(Ipv4Routes.class).child(Ipv4Route.class,
+                final InstanceIdentifier<Tables> basePath, final Ipv4Prefix id) {
+            return basePath.child((Class)Ipv4Routes.class).child(Ipv4Route.class,
                     new Ipv4RouteKey(id));
         }
 
         @Override
-        protected void addWithdrawal(MpUnreachNlriBuilder builder, Ipv4Prefix id) {
+        protected void addWithdrawal(final MpUnreachNlriBuilder builder, final Ipv4Prefix id) {
             return;
         }
 
         @Override
-        public KeyedInstanceIdentifier<Ipv4Route, Ipv4RouteKey> routeIdentifier(InstanceIdentifier<?> id) {
+        public KeyedInstanceIdentifier<Ipv4Route, Ipv4RouteKey> routeIdentifier(final InstanceIdentifier<?> id) {
             return null;
         }
 
         @Override
-        public Ipv4Prefix keyForIdentifier(KeyedInstanceIdentifier<Ipv4Route, Ipv4RouteKey> id) {
+        public Ipv4Prefix keyForIdentifier(final KeyedInstanceIdentifier<Ipv4Route, Ipv4RouteKey> id) {
             return null;
         }
     }

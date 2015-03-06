@@ -8,13 +8,12 @@
 package org.opendaylight.protocol.integration;
 
 import com.google.common.collect.Lists;
-
 import java.util.Collection;
 
 public final class BgpParserImplBundleTest extends AbstractBundleTest {
     @Override
     protected Collection<String> prerequisiteBundles() {
-        return Lists.newArrayList("bgp-concepts", "bgp-parser-api", "bgp-parser-spi", "bgp-util", "concepts", "rsvp-api", "util");
+        return Lists.newArrayList("bgp-concepts", "bgp-ip", "bgp-parser-api", "bgp-parser-spi", "bgp-rib-api", "bgp-util", "concepts", "rsvp-api", "util");
     }
 
     @Override

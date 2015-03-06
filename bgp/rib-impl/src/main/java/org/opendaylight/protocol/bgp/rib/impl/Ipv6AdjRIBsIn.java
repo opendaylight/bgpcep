@@ -12,9 +12,15 @@ import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBs;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.DestinationIpv6Case;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.DestinationIpv6CaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.destination.ipv6._case.DestinationIpv6Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.ipv6.prefixes.DestinationIpv6Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.ipv6.prefixes.destination.ipv6.Ipv6Prefixes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.ipv6.prefixes.destination.ipv6.Ipv6PrefixesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.ipv6.routes.Ipv6Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.ipv6.routes.ipv6.routes.Ipv6Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.ipv6.routes.ipv6.routes.Ipv6RouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.ipv6.routes.ipv6.routes.Ipv6RouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv6Case;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv6CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
@@ -25,10 +31,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv6.routes._case.Ipv6Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv6.routes._case.ipv6.routes.Ipv6Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv6.routes._case.ipv6.routes.Ipv6RouteBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv6.routes._case.ipv6.routes.Ipv6RouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.AttributesBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -39,18 +41,18 @@ final class Ipv6AdjRIBsIn extends AbstractAdjRIBs<Ipv6Prefix, Ipv6Route, Ipv6Rou
 
     Ipv6AdjRIBsIn(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
         super(basePath);
-        routesBasePath = basePath.builder().child(Ipv6Routes.class).build();
+        this.routesBasePath = basePath.builder().child((Class)Ipv6Routes.class).build();
     }
 
     @Override
     @Deprecated
     public KeyedInstanceIdentifier<Ipv6Route, Ipv6RouteKey> identifierForKey(final InstanceIdentifier<Tables> basePath, final Ipv6Prefix key) {
-        return basePath.child(Ipv6Routes.class).child(Ipv6Route.class, new Ipv6RouteKey(key));
+        return basePath.child((Class)Ipv6Routes.class).child(Ipv6Route.class, new Ipv6RouteKey(key));
     }
 
     @Override
     public KeyedInstanceIdentifier<Ipv6Route, Ipv6RouteKey> identifierForKey(final Ipv6Prefix key) {
-        return routesBasePath.child(Ipv6Route.class, new Ipv6RouteKey(key));
+        return this.routesBasePath.child(Ipv6Route.class, new Ipv6RouteKey(key));
     }
 
     @Override
@@ -62,15 +64,15 @@ final class Ipv6AdjRIBsIn extends AbstractAdjRIBs<Ipv6Prefix, Ipv6Route, Ipv6Rou
                 return new Ipv6RouteBuilder().setKey(id).setAttributes(new AttributesBuilder(attributes).build()).build();
             }
         };
-        for (final Ipv6Prefix id : ((DestinationIpv6Case) nlri.getAdvertizedRoutes().getDestinationType()).getDestinationIpv6().getIpv6Prefixes()) {
-            super.add(trans, peer, id, data);
+        for (final Ipv6Prefixes id : ((DestinationIpv6Case) nlri.getAdvertizedRoutes().getDestinationType()).getDestinationIpv6().getIpv6Prefixes()) {
+            super.add(trans, peer, id.getPrefix(), data);
         }
     }
 
     @Override
     public void removeRoutes(final AdjRIBsTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
-        for (final Ipv6Prefix id : ((DestinationIpv6Case) nlri.getWithdrawnRoutes().getDestinationType()).getDestinationIpv6().getIpv6Prefixes()) {
-            super.remove(trans, peer, id);
+        for (final Ipv6Prefixes id : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv6Case) nlri.getWithdrawnRoutes().getDestinationType()).getDestinationIpv6().getIpv6Prefixes()) {
+            super.remove(trans, peer, id.getPrefix());
         }
     }
 
@@ -81,24 +83,26 @@ final class Ipv6AdjRIBsIn extends AbstractAdjRIBs<Ipv6Prefix, Ipv6Route, Ipv6Rou
             builder.setCNextHop(a.getCNextHop());
         }
         final AdvertizedRoutes ar = builder.getAdvertizedRoutes();
+        final Ipv6Prefixes p = new Ipv6PrefixesBuilder().setPrefix(data.getPrefix()).build();
         if (ar == null) {
             builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
                 new DestinationIpv6CaseBuilder().setDestinationIpv6(new DestinationIpv6Builder().setIpv6Prefixes(
-                    Lists.newArrayList(data.getPrefix())).build()).build()).build());
+                    Lists.newArrayList(p)).build()).build()).build());
         } else {
-            ((DestinationIpv6Case) ar.getDestinationType()).getDestinationIpv6().getIpv6Prefixes().add(data.getPrefix());
+            ((DestinationIpv6Case) ar.getDestinationType()).getDestinationIpv6().getIpv6Prefixes().add(p);
         }
     }
 
     @Override
     public void addWithdrawal(final MpUnreachNlriBuilder builder, final Ipv6Prefix id) {
         final WithdrawnRoutes wr = builder.getWithdrawnRoutes();
+        final Ipv6Prefixes p = new Ipv6PrefixesBuilder().setPrefix(id).build();
         if (wr == null) {
             builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
-                new DestinationIpv6CaseBuilder().setDestinationIpv6(new DestinationIpv6Builder().setIpv6Prefixes(
-                    Lists.newArrayList(id)).build()).build()).build());
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv6CaseBuilder().setDestinationIpv6(new DestinationIpv6Builder().setIpv6Prefixes(
+                    Lists.newArrayList(p)).build()).build()).build());
         } else {
-            ((DestinationIpv6Case) wr.getDestinationType()).getDestinationIpv6().getIpv6Prefixes().add(id);
+            ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv6Case) wr.getDestinationType()).getDestinationIpv6().getIpv6Prefixes().add(p);
         }
     }
 
