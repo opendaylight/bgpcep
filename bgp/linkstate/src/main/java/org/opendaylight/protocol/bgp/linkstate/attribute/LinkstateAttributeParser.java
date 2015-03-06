@@ -10,16 +10,21 @@ package org.opendaylight.protocol.bgp.linkstate.attribute;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.PathAttributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.PathAttributes1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.ObjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.CLinkstateDestination;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.LinkCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.NodeCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.PrefixCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.LinkstatePathAttribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.LinkstatePathAttributeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.linkstate.path.attribute.LinkStateAttribute;
@@ -60,7 +65,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) throws BGPParsingException {
-        final NlriType nlriType = getNlriType(builder);
+        final ObjectType nlriType = getNlriType(builder);
         if (nlriType == null) {
             LOG.warn("No Linkstate NLRI found, not parsing Linkstate attribute");
             return;
@@ -69,13 +74,13 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
         builder.addAugmentation(PathAttributes1.class, a);
     }
 
-    private NlriType getNlriType(final PathAttributesBuilder pab) {
+    private ObjectType getNlriType(final PathAttributesBuilder pab) {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1 mpr = pab.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1.class);
         if (mpr != null && mpr.getMpReachNlri() != null) {
             final DestinationType dt = mpr.getMpReachNlri().getAdvertizedRoutes().getDestinationType();
             if (dt instanceof DestinationLinkstateCase) {
                 for (final CLinkstateDestination d : ((DestinationLinkstateCase) dt).getDestinationLinkstate().getCLinkstateDestination()) {
-                    return d.getNlriType();
+                    return d.getObjectType();
                 }
             }
         }
@@ -84,14 +89,14 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
             final DestinationType dt = mpu.getMpUnreachNlri().getWithdrawnRoutes().getDestinationType();
             if (dt instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase) {
                 for (final CLinkstateDestination d : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase) dt).getDestinationLinkstate().getCLinkstateDestination()) {
-                    return d.getNlriType();
+                    return d.getObjectType();
                 }
             }
         }
         return null;
     }
 
-    private static LinkstatePathAttribute parseLinkState(final NlriType nlri, final ByteBuf buffer) throws BGPParsingException {
+    private static LinkstatePathAttribute parseLinkState(final ObjectType nlri, final ByteBuf buffer) throws BGPParsingException {
         /*
          * e.g. IS-IS Area Identifier TLV can occur multiple times
          */
@@ -103,19 +108,16 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
             map.put(type, value);
         }
         final LinkstatePathAttributeBuilder builder = new LinkstatePathAttributeBuilder();
-
-        switch (nlri) {
-        case Ipv4Prefix:
-        case Ipv6Prefix:
+        if (nlri instanceof PrefixCase) {
             builder.setLinkStateAttribute(PrefixAttributesParser.parsePrefixAttributes(map));
             return builder.build();
-        case Link:
+        } else if (nlri instanceof LinkCase) {
             builder.setLinkStateAttribute(LinkAttributesParser.parseLinkAttributes(map));
             return builder.build();
-        case Node:
+        } else if (nlri instanceof NodeCase) {
             builder.setLinkStateAttribute(NodeAttributesParser.parseNodeAttributes(map));
             return builder.build();
-        default:
+        } else {
             throw new IllegalStateException("Unhandled NLRI type " + nlri);
         }
     }
