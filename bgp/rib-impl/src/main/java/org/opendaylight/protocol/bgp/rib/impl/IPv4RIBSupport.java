@@ -7,10 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.DestinationIpv4Case;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.ipv4.routes.Ipv4Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv4.routes._case.Ipv4Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv4.routes._case.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.Attributes;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -42,26 +42,26 @@ final class IPv4RIBSupport extends AbstractIPRIBSupport {
 
     @Override
     public ChoiceNode emptyRoutes() {
-        return emptyRoutes;
+        return this.emptyRoutes;
     }
 
     @Override
     public NodeIdentifier routeAttributes() {
-        return attributes;
+        return this.attributes;
     }
 
     @Override
     protected NodeIdentifier destinationIdentifier() {
-        return destination;
+        return this.destination;
     }
 
     @Override
     protected NodeIdentifier routeIdentifier() {
-        return route;
+        return this.route;
     }
 
     @Override
     protected NodeIdentifier routesIdentifier() {
-        return routes;
+        return this.routes;
     }
 }
