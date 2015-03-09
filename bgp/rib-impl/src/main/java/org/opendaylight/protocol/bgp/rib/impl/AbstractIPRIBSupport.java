@@ -78,7 +78,7 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
         abstract void apply(DOMDataWriteTransaction tx, YangInstanceIdentifier base, MapEntryNode route, final ContainerNode attributes);
     }
 
-    private final void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tableId,
+    private void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tableId,
             final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination.getChild(routeIdentifier());
@@ -86,7 +86,7 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof MapNode) {
                     final YangInstanceIdentifier base = tableId.node(ROUTES).node(routesIdentifier());
-                    for (MapEntryNode e : ((MapNode)routes).getValue()) {
+                    for (final MapEntryNode e : ((MapNode)routes).getValue()) {
                         function.apply(tx, base, e, attributes);
                     }
                 } else {

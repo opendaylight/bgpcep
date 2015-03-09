@@ -56,40 +56,38 @@ final class LocRibWriter implements DOMDataTreeChangeListener {
          * calculations when multiple peers have changed a particular entry.
          */
         final Map<RouteUpdateKey, RouteEntry> toUpdate = new HashMap<>();
-        for (DataTreeCandidate tc : changes) {
+        for (final DataTreeCandidate tc : changes) {
             final YangInstanceIdentifier path = tc.getRootPath();
             final PathArgument routeId = path.getLastPathArgument();
             final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(path);
             final PeerId peerId = IdentifierUtils.peerId(peerKey);
             final UnsignedInteger routerId = RouterIds.routerIdForPeerId(peerId);
 
-            RouteEntry entry = routeEntries.get(routeId);
+            RouteEntry entry = this.routeEntries.get(routeId);
             if (tc.getRootNode().getDataAfter().isPresent()) {
                 if (entry == null) {
                     entry = new RouteEntry();
-                    routeEntries.put(routeId, entry);
+                    this.routeEntries.put(routeId, entry);
                 }
 
                 entry.addRoute(routerId, (ContainerNode) tc.getRootNode().getDataAfter().get());
-            } else if (entry != null) {
-                if (entry.removeRoute(routerId)) {
-                    routeEntries.remove(routeId);
-                    entry = null;
-                }
+            } else if (entry != null && entry.removeRoute(routerId)) {
+                this.routeEntries.remove(routeId);
+                entry = null;
             }
 
             toUpdate.put(new RouteUpdateKey(peerId, routeId), entry);
         }
 
-        final DOMDataWriteTransaction tx = chain.newWriteOnlyTransaction();
+        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
 
         // Now walk all updated entries
-        for (Entry<RouteUpdateKey, RouteEntry> e : toUpdate.entrySet()) {
+        for (final Entry<RouteUpdateKey, RouteEntry> e : toUpdate.entrySet()) {
             final RouteEntry entry = e.getValue();
             final NormalizedNode<?, ?> value;
 
             if (entry != null) {
-                if (!entry.selectBest(ourAs)) {
+                if (!entry.selectBest(this.ourAs)) {
                     // Best path has not changed, no need to do anything else. Proceed to next route.
                     continue;
                 }
@@ -100,9 +98,9 @@ final class LocRibWriter implements DOMDataTreeChangeListener {
             }
 
             if (value != null) {
-                tx.put(LogicalDatastoreType.OPERATIONAL, target.node(e.getKey().getRouteId()), value);
+                tx.put(LogicalDatastoreType.OPERATIONAL, this.target.node(e.getKey().getRouteId()), value);
             } else {
-                tx.delete(LogicalDatastoreType.OPERATIONAL, target.node(e.getKey().getRouteId()));
+                tx.delete(LogicalDatastoreType.OPERATIONAL, this.target.node(e.getKey().getRouteId()));
             }
 
             /*
@@ -114,23 +112,23 @@ final class LocRibWriter implements DOMDataTreeChangeListener {
              * if we have two eBGP peers, for example, there is no reason why we should perform the translation
              * multiple times.
              */
-            for (Entry<PeerRole, AbstractExportPolicy> pe : AbstractExportPolicy.POLICIES.entrySet()) {
-                final Map<PeerId, YangInstanceIdentifier> toPeers = peersToUpdate.get(pe.getKey());
+            for (final Entry<PeerRole, AbstractExportPolicy> pe : AbstractExportPolicy.POLICIES.entrySet()) {
+                final Map<PeerId, YangInstanceIdentifier> toPeers = this.peersToUpdate.get(pe.getKey());
                 if (toPeers == null || toPeers.isEmpty()) {
                     continue;
                 }
 
                 final ContainerNode attributes = null;
                 final PeerId peerId = e.getKey().getPeerId();
-                final ContainerNode effectiveAttributes = pe.getValue().effectiveAttributes(peers.get(peerId), attributes);
+                final ContainerNode effectiveAttributes = pe.getValue().effectiveAttributes(this.peers.get(peerId), attributes);
 
-                for (Entry<PeerId, YangInstanceIdentifier> pid : toPeers.entrySet()) {
+                for (final Entry<PeerId, YangInstanceIdentifier> pid : toPeers.entrySet()) {
                     // This points to adj-rib-out for a particlar peer/table combination
                     final YangInstanceIdentifier routeTarget = pid.getValue().node(e.getKey().getRouteId());
 
                     if (effectiveAttributes != null && value != null && !peerId.equals(pid.getKey())) {
                         tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
-                        tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(ribSupport.routeAttributes()), effectiveAttributes);
+                        tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(this.ribSupport.routeAttributes()), effectiveAttributes);
                     } else {
                         tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);
                     }
