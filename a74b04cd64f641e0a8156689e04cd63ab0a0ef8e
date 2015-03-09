@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_69179052",
+        "filename": "bgp/linkstate/src/main/yang/bgp-linkstate.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-03-09T15:50:26Z",
+      "side": 1,
+      "message": "we really should not have this container here, as that changes the RIB API.",
+      "revId": "a74b04cd64f641e0a8156689e04cd63ab0a0ef8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
