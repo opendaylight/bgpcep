@@ -18,6 +18,9 @@ import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 
+/**
+ * Class supporting IPv6 unicast RIBs.
+ */
 final class IPv6RIBSupport extends AbstractIPRIBSupport {
     private static final IPv6RIBSupport SINGLETON = new IPv6RIBSupport();
     private final ChoiceNode emptyRoutes = Builders.choiceBuilder()
