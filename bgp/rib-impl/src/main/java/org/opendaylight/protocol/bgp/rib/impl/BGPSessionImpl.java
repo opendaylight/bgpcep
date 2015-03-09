@@ -227,7 +227,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
     }
 
     @GuardedBy("this")
-    private final void writeEpilogue(final ChannelFuture future, final Notification msg) {
+    private void writeEpilogue(final ChannelFuture future, final Notification msg) {
         future.addListener(
             new ChannelFutureListener() {
                 @Override
@@ -406,6 +406,6 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
     }
 
     ChannelOutputLimiter getLimiter() {
-        return limiter;
+        return this.limiter;
     }
 }
