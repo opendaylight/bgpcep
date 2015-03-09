@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_695f9073",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BestPathSelectorTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-09T15:01:32Z",
+      "side": 1,
+      "message": "a lot of the variables can be moved as global to the class to avoid code repetition",
+      "range": {
+        "startLine": 84,
+        "startChar": 80,
+        "endLine": 84,
+        "endChar": 83
+      },
+      "revId": "d34a47752b2acff13617a6ae9bc40258c67d09d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
