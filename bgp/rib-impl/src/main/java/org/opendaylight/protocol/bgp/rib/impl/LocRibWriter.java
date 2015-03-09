@@ -61,40 +61,38 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
          * calculations when multiple peers have changed a particular entry.
          */
         final Map<RouteUpdateKey, RouteEntry> toUpdate = new HashMap<>();
-        for (DataTreeCandidate tc : changes) {
+        for (final DataTreeCandidate tc : changes) {
             final YangInstanceIdentifier path = tc.getRootPath();
             final PathArgument routeId = path.getLastPathArgument();
             final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(path);
             final PeerId peerId = IdentifierUtils.peerId(peerKey);
             final UnsignedInteger routerId = RouterIds.routerIdForPeerId(peerId);
 
-            RouteEntry entry = routeEntries.get(routeId);
+            RouteEntry entry = this.routeEntries.get(routeId);
             if (tc.getRootNode().getDataAfter().isPresent()) {
                 if (entry == null) {
                     entry = new RouteEntry();
-                    routeEntries.put(routeId, entry);
+                    this.routeEntries.put(routeId, entry);
                 }
 
                 entry.addRoute(routerId, (ContainerNode) tc.getRootNode().getDataAfter().get());
-            } else if (entry != null) {
-                if (entry.removeRoute(routerId)) {
-                    routeEntries.remove(routeId);
-                    entry = null;
-                }
+            } else if (entry != null && entry.removeRoute(routerId)) {
+                this.routeEntries.remove(routeId);
+                entry = null;
             }
 
             toUpdate.put(new RouteUpdateKey(peerId, routeId), entry);
         }
 
-        final DOMDataWriteTransaction tx = chain.newWriteOnlyTransaction();
+        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
 
         // Now walk all updated entries
-        for (Entry<RouteUpdateKey, RouteEntry> e : toUpdate.entrySet()) {
+        for (final Entry<RouteUpdateKey, RouteEntry> e : toUpdate.entrySet()) {
             final RouteEntry entry = e.getValue();
             final NormalizedNode<?, ?> value;
 
             if (entry != null) {
-                if (!entry.selectBest(ourAs)) {
+                if (!entry.selectBest(this.ourAs)) {
                     // Best path has not changed, no need to do anything else. Proceed to next route.
                     continue;
                 }
@@ -105,9 +103,9 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             }
 
             if (value != null) {
-                tx.put(LogicalDatastoreType.OPERATIONAL, target.node(e.getKey().getRouteId()), value);
+                tx.put(LogicalDatastoreType.OPERATIONAL, this.target.node(e.getKey().getRouteId()), value);
             } else {
-                tx.delete(LogicalDatastoreType.OPERATIONAL, target.node(e.getKey().getRouteId()));
+                tx.delete(LogicalDatastoreType.OPERATIONAL, this.target.node(e.getKey().getRouteId()));
             }
 
             /*
@@ -126,7 +124,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
                     final PeerId peerId = e.getKey().getPeerId();
                     final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(peerId, attributes);
 
-                    for (Entry<PeerId, YangInstanceIdentifier> pid : peerGroup.getPeers()) {
+                    for (final Entry<PeerId, YangInstanceIdentifier> pid : peerGroup.getPeers()) {
                         // This points to adj-rib-out for a particular peer/table combination
                         final YangInstanceIdentifier routeTarget = pid.getValue().node(e.getKey().getRouteId());
 
