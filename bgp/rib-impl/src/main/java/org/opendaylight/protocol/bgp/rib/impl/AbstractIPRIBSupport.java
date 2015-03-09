@@ -100,7 +100,7 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof MapNode) {
                     final YangInstanceIdentifier base = tablePath.node(ROUTES).node(routesContainerIdentifier());
-                    for (MapEntryNode e : ((MapNode)routes).getValue()) {
+                    for (final MapEntryNode e : ((MapNode)routes).getValue()) {
                         function.apply(tx, base, e, attributes);
                     }
                 } else {

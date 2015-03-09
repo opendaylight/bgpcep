@@ -76,7 +76,7 @@ final class BestPathSelector {
      * @param state attributes of the new route
      * @return true if the existing path is better, false if the new path is better
      */
-    private boolean selectPath(final @Nonnull UnsignedInteger originatorId, final @Nonnull BestPathState state) {
+    private boolean selectPath(@Nonnull final UnsignedInteger originatorId, @Nonnull final BestPathState state) {
         // 1. prefer path with accessible nexthop
         // - we assume that all nexthops are accessible
 
@@ -86,16 +86,14 @@ final class BestPathSelector {
          * FIXME: for eBGP cases (when the LOCAL_PREF is missing), we should assign a policy-based preference
          *        before we ever get here.
          */
-        if (bestState.getLocalPref() == null && state.getLocalPref() != null) {
+        if (this.bestState.getLocalPref() == null && state.getLocalPref() != null) {
             return true;
         }
-        if (bestState.getLocalPref() != null && state.getLocalPref() == null) {
+        if (this.bestState.getLocalPref() != null && state.getLocalPref() == null) {
             return false;
         }
-        if (state.getLocalPref() != null) {
-            if (state.getLocalPref() > this.bestState.getLocalPref()) {
-                return true;
-            }
+        if (state.getLocalPref() != null && state.getLocalPref() > this.bestState.getLocalPref()) {
+            return true;
         }
 
         // 3. prefer learned path

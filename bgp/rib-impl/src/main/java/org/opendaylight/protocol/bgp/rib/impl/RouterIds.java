@@ -42,11 +42,11 @@ final class RouterIds {
      * @param address Router ID as a dotted-quad
      * @return Router ID as an {@link UnsignedInteger}
      */
-    public static UnsignedInteger routerIdForAddress(final @Nonnull String address) {
+    public static UnsignedInteger routerIdForAddress(@Nonnull final String address) {
         return ROUTER_IDS.getUnchecked(address);
     }
 
-    public static UnsignedInteger routerIdForPeerId(final @Nonnull PeerId peerId) {
+    public static UnsignedInteger routerIdForPeerId(@Nonnull final PeerId peerId) {
         Preconditions.checkArgument(peerId.getValue().startsWith(BGP_PREFIX), "Unhandled peer ID %s", peerId);
         return BGP_ROUTER_IDS.getUnchecked(peerId);
     }

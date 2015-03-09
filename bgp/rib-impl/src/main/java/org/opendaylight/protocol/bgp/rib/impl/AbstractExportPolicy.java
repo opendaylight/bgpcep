@@ -35,6 +35,8 @@ abstract class AbstractExportPolicy {
             case RrClient:
                 // Client iBGP -> eBGP, propagate
                 return attributes;
+            default:
+                break;
             }
             return attributes;
         }
@@ -70,6 +72,8 @@ abstract class AbstractExportPolicy {
             case RrClient:
                 // Client iBGP -> Non-Client iBGP, reflect
                 return toClientAttributes(attributes);
+            default:
+                break;
             }
             return attributes;
         }
@@ -94,9 +98,9 @@ abstract class AbstractExportPolicy {
             case RrClient:
                 // Client iBGP -> Client iBGP, reflect
                 return ToInternalExportPolicy.toClientAttributes(attributes);
+            default:
+                throw new IllegalStateException("Unhandled source role " + sourceRole);
             }
-
-            throw new IllegalStateException("Unhandled source role " + sourceRole);
         }
     }
 

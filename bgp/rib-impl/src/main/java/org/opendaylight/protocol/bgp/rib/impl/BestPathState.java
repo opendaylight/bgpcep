@@ -43,54 +43,54 @@ final class BestPathState {
     private Long localPref;
     private Long multiExitDisc;
     private BgpOrigin origin;
-    private final Long peerAs = 0L;
-    private final int asPathLength = 0;
+    private static final Long peerAs = 0L;
+    private static final int asPathLength = 0;
     private boolean resolved;
 
     BestPathState(final ContainerNode attributes) {
         this.attributes = Preconditions.checkNotNull(attributes);
     }
 
+    private static BgpOrigin fromString(final String originStr) {
+        switch (originStr) {
+        case "igp":
+            return BgpOrigin.Igp;
+        case "egp":
+            return BgpOrigin.Egp;
+        case "incomplete":
+            return BgpOrigin.Incomplete;
+        default:
+            throw new IllegalArgumentException("Unhandleed origin value " + originStr);
+        }
+    }
+
     private void resolveValues() {
-        if (resolved) {
+        if (this.resolved) {
             return;
         }
 
-        final Optional<NormalizedNode<?, ?>> maybeLocalPref = NormalizedNodes.findNode(attributes, LOCAL_PREF);
+        final Optional<NormalizedNode<?, ?>> maybeLocalPref = NormalizedNodes.findNode(this.attributes, LOCAL_PREF);
         if (maybeLocalPref.isPresent()) {
-            localPref = (Long) ((LeafNode<?>)maybeLocalPref.get()).getValue();
+            this.localPref = (Long) ((LeafNode<?>)maybeLocalPref.get()).getValue();
         } else {
-            localPref = null;
+            this.localPref = null;
         }
 
-        final Optional<NormalizedNode<?, ?>> maybeMultiExitDisc = NormalizedNodes.findNode(attributes, MED);
+        final Optional<NormalizedNode<?, ?>> maybeMultiExitDisc = NormalizedNodes.findNode(this.attributes, MED);
         if (maybeMultiExitDisc.isPresent()) {
-            multiExitDisc = (Long) ((LeafNode<?>)maybeMultiExitDisc.get()).getValue();
+            this.multiExitDisc = (Long) ((LeafNode<?>)maybeMultiExitDisc.get()).getValue();
         } else {
-            multiExitDisc = null;
+            this.multiExitDisc = null;
         }
 
-        final Optional<NormalizedNode<?, ?>> maybeOrigin = NormalizedNodes.findNode(attributes, ORIGIN);
+        final Optional<NormalizedNode<?, ?>> maybeOrigin = NormalizedNodes.findNode(this.attributes, ORIGIN);
         if (maybeOrigin.isPresent()) {
-            final String originStr = (String) ((LeafNode<?>)maybeOrigin.get()).getValue();
-            switch (originStr) {
-            case "igp":
-                origin = BgpOrigin.Igp;
-                break;
-            case "egp":
-                origin = BgpOrigin.Egp;
-                break;
-            case "incomplete":
-                origin = BgpOrigin.Incomplete;
-                break;
-            default:
-                throw new IllegalArgumentException("Unhandleed origin value " + originStr);
-            }
+            this.origin = fromString((String) ((LeafNode<?>)maybeOrigin.get()).getValue());
         } else {
-            origin = null;
+            this.origin = null;
         }
 
-        final Optional<NormalizedNode<?, ?>> maybeSegments = NormalizedNodes.findNode(attributes, AS_PATH);
+        final Optional<NormalizedNode<?, ?>> maybeSegments = NormalizedNodes.findNode(this.attributes, AS_PATH);
         if (maybeSegments.isPresent()) {
             final UnkeyedListNode segments = (UnkeyedListNode) maybeSegments.get();
 
@@ -98,34 +98,34 @@ final class BestPathState {
                 // FIXME: peer AS number
 
                 // FIXME: asPathLength = countAsPath(this.bestState.getAsPath().getSegments());
-                boolean haveSegment;
-                for (UnkeyedListEntryNode s : segments.getValue()) {
+                final boolean haveSegment;
+                for (final UnkeyedListEntryNode s : segments.getValue()) {
 
                 }
             }
         }
 
-        resolved = true;
+        this.resolved = true;
     }
 
     Long getLocalPref() {
         resolveValues();
-        return localPref;
+        return this.localPref;
     }
 
     Long getMultiExitDisc() {
         resolveValues();
-        return multiExitDisc;
+        return this.multiExitDisc;
     }
 
     BgpOrigin getOrigin() {
         resolveValues();
-        return origin;
+        return this.origin;
     }
 
     Long getPeerAs() {
         resolveValues();
-        return peerAs;
+        return this.peerAs;
     }
 
     int getAsPathLength() {

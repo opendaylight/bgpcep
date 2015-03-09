@@ -65,5 +65,5 @@ abstract class AbstractImportPolicy {
      * @param attributes received attributes
      * @return Filtered attributes, or null if the advertisement should be ignored.
      */
-    abstract @Nullable ContainerNode effectiveAttributes(@Nullable ContainerNode attributes);
+    @Nullable abstract ContainerNode effectiveAttributes(@Nullable ContainerNode attributes);
 }
