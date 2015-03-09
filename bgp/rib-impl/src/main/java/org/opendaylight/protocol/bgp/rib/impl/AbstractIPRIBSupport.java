@@ -15,6 +15,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
@@ -32,12 +33,11 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractIPRIBSupport.class);
     private static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
 
-    protected AbstractIPRIBSupport() {
-
+    protected AbstractIPRIBSupport(final QName routesContainer) {
+        super(routesContainer);
     }
 
     protected abstract NodeIdentifier routeIdentifier();
-    protected abstract NodeIdentifier routesIdentifier();
 
     @Override
     public final Collection<Class<? extends DataObject>> cacheableAttributeObjects() {
@@ -78,14 +78,14 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
         abstract void apply(DOMDataWriteTransaction tx, YangInstanceIdentifier base, MapEntryNode route, final ContainerNode attributes);
     }
 
-    private final void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tableId,
+    private final void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
             final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination.getChild(routeIdentifier());
             if (maybeRoutes.isPresent()) {
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof MapNode) {
-                    final YangInstanceIdentifier base = tableId.node(ROUTES).node(routesIdentifier());
+                    final YangInstanceIdentifier base = tablePath.node(ROUTES).node(routesContainerIdentifier());
                     for (MapEntryNode e : ((MapNode)routes).getValue()) {
                         function.apply(tx, base, e, attributes);
                     }
@@ -97,12 +97,12 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
     }
 
     @Override
-    protected void putDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tableId, final ContainerNode destination, final ContainerNode attributes) {
-        processDestination(tx, tableId, destination, attributes, ApplyRoute.PUT);
+    protected void putDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode destination, final ContainerNode attributes) {
+        processDestination(tx, tablePath, destination, attributes, ApplyRoute.PUT);
     }
 
     @Override
-    protected void deleteDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tableId, final ContainerNode destination) {
-        processDestination(tx, tableId, destination, null, ApplyRoute.DELETE);
+    protected void deleteDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode destination) {
+        processDestination(tx, tablePath, destination, null, ApplyRoute.DELETE);
     }
 }
