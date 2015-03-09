@@ -95,15 +95,19 @@ final class TableContext {
         return tableId;
     }
 
-    void clearTable(final DOMDataWriteTransaction tx) {
+    static void clearTable(final DOMDataWriteTransaction tx, final RIBSupport tableSupport, final YangInstanceIdentifier tableId) {
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> tb =
                 ImmutableNodes.mapEntryBuilder().withNodeIdentifier((NodeIdentifierWithPredicates)tableId.getLastPathArgument()).withChild(EMPTY_TABLE_ATTRIBUTES);
 
         final ChoiceNode routes = tableSupport.emptyRoutes();
-        Verify.verifyNotNull(routes, "Null empty routes in %s", this);
+        Verify.verifyNotNull(routes, "Null empty routes in %s", tableSupport);
         Verify.verify(Routes.QNAME.equals(routes.getNodeType()), "Empty routes have unexpected identifier %s, expected %s", routes.getNodeType(), Routes.QNAME);
 
         tx.put(LogicalDatastoreType.OPERATIONAL, tableId, tb.withChild(routes).build());
+    }
+
+    void clearTable(final DOMDataWriteTransaction tx) {
+        clearTable(tx, tableSupport, tableId);
     }
 
     void removeTable(final DOMDataWriteTransaction tx) {
