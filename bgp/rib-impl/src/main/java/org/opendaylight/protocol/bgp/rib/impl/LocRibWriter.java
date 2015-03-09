@@ -22,6 +22,7 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -35,14 +36,14 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     private final YangInstanceIdentifier target;
     private final DOMTransactionChain chain;
     private final ExportPolicyPeerTracker peerPolicyTracker;
-    private final RIBSupport ribSupport;
+    private final NodeIdentifier attributesIdentifier;
     private final Long ourAs;
 
     LocRibWriter(final RIBSupport ribSupport, final DOMTransactionChain chain, final YangInstanceIdentifier target, final Long ourAs) {
         this.chain = Preconditions.checkNotNull(chain);
         this.target = Preconditions.checkNotNull(target);
         this.ourAs = Preconditions.checkNotNull(ourAs);
-        this.ribSupport = Preconditions.checkNotNull(ribSupport);
+        this.attributesIdentifier = ribSupport.routeAttributesIdentifier();
 
         // FIXME: proper values
         this.peerPolicyTracker = new ExportPolicyPeerTracker(null, null);
@@ -131,7 +132,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
 
                         if (effectiveAttributes != null && value != null && !peerId.equals(pid.getKey())) {
                             tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
-                            tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(ribSupport.routeAttributes()), effectiveAttributes);
+                            tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(attributesIdentifier), effectiveAttributes);
                         } else {
                             tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);
                         }
