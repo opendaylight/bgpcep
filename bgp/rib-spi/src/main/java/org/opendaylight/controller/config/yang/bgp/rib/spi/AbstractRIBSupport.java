@@ -9,11 +9,14 @@ package org.opendaylight.controller.config.yang.bgp.rib.spi;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Optional;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.unreach.nlri.WithdrawnRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.Attributes;
+import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
@@ -29,9 +32,30 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     private static final NodeIdentifier ADVERTIZED_ROUTES = new NodeIdentifier(AdvertizedRoutes.QNAME);
     private static final NodeIdentifier WITHDRAWN_ROUTES = new NodeIdentifier(WithdrawnRoutes.QNAME);
     private static final NodeIdentifier DESTINATION_TYPE = new NodeIdentifier(DestinationType.QNAME);
+    private final NodeIdentifier routesContainerIdentifier;
+    private final NodeIdentifier routeAttributesIdentifier;
 
-    protected AbstractRIBSupport() {
+    /**
+     * Default constructor. Requires the QName of the container augmented under the routes choice
+     * node in instantiations of the rib grouping. It is assumed that this container is defined by
+     * the same model which populates it with route grouping instantiation, and by extension with
+     * the route attributes container.
+     *
+     * @param routesContainer QName of the container in routes choice, must not be null.
+     */
+    protected AbstractRIBSupport(final @Nonnull QName routesContainer) {
+        this.routesContainerIdentifier = new NodeIdentifier(routesContainer);
+        this.routeAttributesIdentifier = new NodeIdentifier(QName.cachedReference(QName.create(routesContainer, Attributes.QNAME.getLocalName())));
+    }
 
+    /**
+     * Return the {@link NodeIdentifier} of the AFI/SAFI-specific container under
+     * the RIB routes.
+     *
+     * @return Container identifier, may not be null.
+     */
+    protected final NodeIdentifier routesContainerIdentifier() {
+        return routesContainerIdentifier;
     }
 
     protected abstract NodeIdentifier destinationIdentifier();
@@ -66,6 +90,11 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         }
 
         return null;
+    }
+
+    @Override
+    public final NodeIdentifier routeAttributesIdentifier() {
+        return routeAttributesIdentifier;
     }
 
     @Override
