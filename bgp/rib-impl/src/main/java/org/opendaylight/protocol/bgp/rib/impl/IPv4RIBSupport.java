@@ -18,6 +18,9 @@ import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 
+/**
+ * Class supporting IPv4 unicast RIBs.
+ */
 final class IPv4RIBSupport extends AbstractIPRIBSupport {
     private static final IPv4RIBSupport SINGLETON = new IPv4RIBSupport();
     private final ChoiceNode emptyRoutes = Builders.choiceBuilder()
@@ -29,8 +32,6 @@ final class IPv4RIBSupport extends AbstractIPRIBSupport {
     private final NodeIdentifier routes = new NodeIdentifier(Ipv4Routes.QNAME);
     private final NodeIdentifier route = new NodeIdentifier(Ipv4Route.QNAME);
     private final NodeIdentifier attributes = new NodeIdentifier(QName.create(Ipv4Route.QNAME, Attributes.QNAME.getLocalName()));
-
-    private static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix");
 
     private IPv4RIBSupport() {
 

@@ -22,6 +22,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +48,23 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
     @Override
     public final Collection<Class<? extends DataObject>> cacheableNlriObjects() {
         return Collections.emptySet();
+    }
+
+    @Override
+    public final YangInstanceIdentifier routePath(final YangInstanceIdentifier routesPath, final PathArgument routeId) {
+        return routesPath.node(routesIdentifier()).node(routeId);
+    }
+
+    @Override
+    public final Collection<DataTreeCandidateNode> changedRoutes(final DataTreeCandidateNode routes) {
+        final DataTreeCandidateNode myRoutes = routes.getModifiedChild(routesIdentifier());
+        if (myRoutes == null) {
+            return Collections.emptySet();
+        }
+
+        // Well, given the remote possibility of augmentation, we should perform a filter here,
+        // to make sure the type matches what routeType() reports.
+        return myRoutes.getChildNodes();
     }
 
     private static enum ApplyRoute {
