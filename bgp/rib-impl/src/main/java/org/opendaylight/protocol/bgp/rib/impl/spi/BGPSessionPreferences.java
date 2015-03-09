@@ -32,7 +32,7 @@ public final class BGPSessionPreferences {
      * @param as local AS number
      * @param hold preferred hold timer value, in seconds
      * @param bgpId local BGP Identifier
-     * @param param advertized parameters
+     * @param params advertized parameters
      */
     public BGPSessionPreferences(final AsNumber as, final int hold, final Ipv4Address bgpId, final List<BgpParameters> params) {
         this.as = as;

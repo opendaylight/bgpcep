@@ -17,7 +17,7 @@ public interface MessageRegistry {
     /**
      * Finds parser for given message type in the registry. Delegates parsing to found parser.
      *
-     * @param type message type, key in parser registry
+     * @param messageType message type, key in parser registry
      * @param buffer message wrapped in ByteBuf
      * @param errors list of error messages, that is filled during parsing
      * @return null if the parser for this message could not be found

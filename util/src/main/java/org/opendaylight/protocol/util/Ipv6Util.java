@@ -145,7 +145,7 @@ public final class Ipv6Util {
      * Creates a list of Ipv6 Prefixes from given byte array.
      *
      * @param bytes to be converted to List of Ipv6Prefixes.
-     * @return List<Ipv6Prefix>
+     * @return A List of Ipv6Prefixes
      */
     public static List<Ipv6Prefix> prefixListForBytes(final byte[] bytes) {
         if (bytes.length == 0) {

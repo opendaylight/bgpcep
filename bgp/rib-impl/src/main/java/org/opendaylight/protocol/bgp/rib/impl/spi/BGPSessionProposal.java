@@ -14,7 +14,6 @@ public interface BGPSessionProposal {
     /**
      * Returns BGPSessionPreferences for this IP address.
      *
-     * @param address serves as constraint, the implementation can also take time into consideration
      * @return BGPSessionPreferences with acceptable session characteristics
      */
     BGPSessionPreferences getProposal();

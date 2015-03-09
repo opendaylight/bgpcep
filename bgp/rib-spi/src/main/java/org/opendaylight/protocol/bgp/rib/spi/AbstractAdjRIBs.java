@@ -179,7 +179,7 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
     public abstract I keyForIdentifier(KeyedInstanceIdentifier<D, K> id);
 
     /**
-     * Common backend for {@link AdjRIBsIn#addRoutes()} implementations.
+     * Common backend for {@link AdjRIBsIn#addRoutes(AdjRIBsTransaction, Peer, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes)} implementations.
      * If a new route is added, check first for its existence in Map of entries.
      * If the route is already there, change it's state. Then check for peer in
      * Map of peers, if it's not there, add it.
@@ -206,7 +206,7 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
     }
 
     /**
-     * Common backend for {@link AdjRIBsIn#removeRoutes()} implementations.
+     * Common backend for {@link AdjRIBsIn#removeRoutes(AdjRIBsTransaction, Peer, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri)} implementations.
      *
      * @param trans Transaction context
      * @param peer Originating peer

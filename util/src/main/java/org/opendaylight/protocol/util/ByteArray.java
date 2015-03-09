@@ -157,7 +157,7 @@ public final class ByteArray {
      * Cuts 'count' number of bytes from the beginning of given byte array.
      *
      * @param bytes array to be cut, cannot be null
-     * @param count how many bytes needed to be cut, needs to be > 0
+     * @param count how many bytes needed to be cut, needs to be greater than 0
      * @return bytes array without first 'count' bytes
      */
     public static byte[] cutBytes(final byte[] bytes, final int count) {
@@ -251,11 +251,11 @@ public final class ByteArray {
     }
 
     /**
-     * Copies range of bits from passed byte and align to right.<br/>
+     * Copies range of bits from passed byte and align to right.<br>
      *
      * @param src source byte to copy from
      * @param fromBit bit from which will copy (inclusive) - numbered from 0
-     * @param length of bits to by copied - <1,8>
+     * @param length of bits to by copied, valid values are 1 through 8
      * @return copied value aligned to right
      */
     public static byte copyBitsRange(final byte src, final int fromBit, final int length) {

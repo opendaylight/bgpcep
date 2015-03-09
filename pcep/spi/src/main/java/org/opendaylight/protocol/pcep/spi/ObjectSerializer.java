@@ -15,7 +15,7 @@ public interface ObjectSerializer {
 
     /**
      * Serializes given object to bytes wrapped in given ByteBuf.
-     * @param message PCEP object to be serialized
+     * @param object PCEP object to be serialized
      * @param buffer ByteBuf wrapper around serialized object
      */
     void serializeObject(final Object object, final ByteBuf buffer);

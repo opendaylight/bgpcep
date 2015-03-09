@@ -103,7 +103,7 @@ public class ExtendedCommunitiesAttributeParser implements AttributeParser,Attri
     /**
      * Parse Extended Community according to their type.
      *
-     * @param bytes byte array to be parsed
+     * @param buffer byte array to be parsed
      * @return new Specific Extended Community
      * @throws BGPDocumentedException if the type is not recognized
      */

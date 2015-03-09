@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Bgp Session negotiator. Common for local -> remote and remote -> local connections.
+ * Bgp Session negotiator. Common for local-to-remote and remote-to-local connections.
  * One difference is session validation performed by injected BGPSessionValidator when OPEN message is received.
  */
 public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegotiator<Notification, BGPSessionImpl> {

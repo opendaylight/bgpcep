@@ -59,7 +59,7 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
     *
     * @param refCache
     *
-    * @param bytes byte array to be parsed
+    * @param buffer byte array to be parsed
     * @return new Community
     * @throws BGPDocumentedException
     */

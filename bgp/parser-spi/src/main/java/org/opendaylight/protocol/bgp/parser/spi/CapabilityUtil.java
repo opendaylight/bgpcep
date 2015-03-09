@@ -18,7 +18,7 @@ public final class CapabilityUtil {
     /**
      * Adds header to capability value.
      *
-     * @param type of the capability
+     * @param code type of the capability
      * @param value capability value
      * @param buffer ByteBuf where the capability will be copied with its header
      */

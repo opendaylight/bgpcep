@@ -178,7 +178,7 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
     /**
      * Serializes Flowspec NLRI to ByteBuf.
      *
-     * @param flow flowspec NLRI to be serialized
+     * @param flows flowspec NLRI to be serialized
      */
     public static void serializeNlri(final List<Flowspec> flows, final ByteBuf buffer) {
         final ByteBuf nlriByteBuf = Unpooled.buffer();
