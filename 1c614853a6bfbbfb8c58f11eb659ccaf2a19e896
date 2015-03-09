@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_69f8f0e5",
+        "filename": "bgp/linkstate/src/main/yang/bgp-linkstate.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-03-09T11:30:11Z",
+      "side": 1,
+      "message": "these should be mandatory, if possible",
+      "revId": "1c614853a6bfbbfb8c58f11eb659ccaf2a19e896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_a9eef820",
+        "filename": "bgp/linkstate/src/main/yang/bgp-linkstate.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-03-09T11:30:11Z",
+      "side": 1,
+      "message": "please remove this leaf and the \u0027when\u0027 statements below.",
+      "revId": "1c614853a6bfbbfb8c58f11eb659ccaf2a19e896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
