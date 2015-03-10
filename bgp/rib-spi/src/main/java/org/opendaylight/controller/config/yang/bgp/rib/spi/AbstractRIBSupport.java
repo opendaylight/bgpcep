@@ -61,7 +61,14 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         return routesContainerIdentifier;
     }
 
-    protected abstract NodeIdentifier destinationIdentifier();
+    /**
+     * Return the {@link NodeIdentifier} of the AFI/SAFI-specific container under
+     * the NLRI destination.
+     *
+     * @return Container identifier, may not be null.
+     */
+    @Nonnull protected abstract NodeIdentifier destinationContainerIdentifier();
+
     protected abstract void deleteDestinationRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tablePath, ContainerNode destination);
     protected abstract void putDestinationRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tablePath, ContainerNode destination, ContainerNode attributes);
 
@@ -121,7 +128,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     public final void deleteRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode nlri) {
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = nlri.getChild(WITHDRAWN_ROUTES);
         if (maybeRoutes.isPresent()) {
-            final ContainerNode destination = getDestination(maybeRoutes.get(), destinationIdentifier());
+            final ContainerNode destination = getDestination(maybeRoutes.get(), destinationContainerIdentifier());
             if (destination != null) {
                 deleteDestinationRoutes(tx, tablePath, destination);
             }
@@ -134,7 +141,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     public final void putRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode nlri, final ContainerNode attributes) {
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = nlri.getChild(ADVERTIZED_ROUTES);
         if (maybeRoutes.isPresent()) {
-            final ContainerNode destination = getDestination(maybeRoutes.get(), destinationIdentifier());
+            final ContainerNode destination = getDestination(maybeRoutes.get(), destinationContainerIdentifier());
             if (destination != null) {
                 putDestinationRoutes(tx, tablePath, destination, attributes);
             }

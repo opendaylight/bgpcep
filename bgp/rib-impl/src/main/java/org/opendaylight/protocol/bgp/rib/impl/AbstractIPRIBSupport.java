@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.base.Optional;
 import java.util.Collection;
 import java.util.Collections;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.config.yang.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -74,7 +75,12 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
         super(routesContainer);
     }
 
-    protected abstract NodeIdentifier routeIdentifier();
+    /**
+     * Return the NodeIdentifier corresponding to the list containing individual routes.
+     *
+     * @return The NodeIdentifier for individual route list.
+     */
+    @Nonnull protected abstract NodeIdentifier routeIdentifier();
 
     @Override
     public final Collection<Class<? extends DataObject>> cacheableAttributeObjects() {

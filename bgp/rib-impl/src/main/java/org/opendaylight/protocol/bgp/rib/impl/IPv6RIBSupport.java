@@ -43,7 +43,7 @@ final class IPv6RIBSupport extends AbstractIPRIBSupport {
     }
 
     @Override
-    protected NodeIdentifier destinationIdentifier() {
+    protected NodeIdentifier destinationContainerIdentifier() {
         return destination;
     }
 
