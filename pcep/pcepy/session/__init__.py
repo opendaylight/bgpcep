@@ -7,6 +7,5 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 
-from ._session import *
-from .bus import Bus
-
+from ._session import *  # noqa
+from .bus import Bus  # noqa
