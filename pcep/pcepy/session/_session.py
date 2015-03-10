@@ -16,7 +16,7 @@ except ImportError:
 import time
 import weakref
 
-from .bus import resolve_timeout, min_timeout
+from .bus import resolve_timeout
 from pcepy import message as _message
 
 # Standard assigned port for PCEP
@@ -24,6 +24,7 @@ PCEP_PORT = 4189
 
 import logging
 _LOGGER = logging.getLogger('pcepy.session')
+
 
 class Node(object):
     """A representation for an IP address with optional port;
@@ -38,8 +39,8 @@ class Node(object):
     compatible type(s) before use.
     """
 
-    ROLE_PCE = 'role.pce' # The node is a PCE (server or open connection)
-    ROLE_PCC = 'role.pcc' # The node is a PCC (client or open connection)
+    ROLE_PCE = 'role.pce'  # The node is a PCE (server or open connection)
+    ROLE_PCC = 'role.pcc'  # The node is a PCC (client or open connection)
 
     PORT_SUP = 1 << 16
 
@@ -76,10 +77,9 @@ class Node(object):
 
     def __eq__(self, other):
         return (self.role == other.role
-            and self.name == other.name
-            and self.address == other.address
-            and self.port == other.port
-        )
+                and self.name == other.name
+                and self.address == other.address
+                and self.port == other.port)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -119,7 +119,7 @@ class Session(object):
     CONFIG_NAME = 'session.name'
     STATE_CLOSING = '_session.closing'
 
-    _socket = None # Subclasses must set socket for each instance
+    _socket = None  # Subclasses must set socket for each instance
 
     def __init__(self, peer, local, config):
         self._peer = weakref.ref(peer)
@@ -172,9 +172,8 @@ class Session(object):
 
     def _update_name(self):
         """Update name to reflect change in node port(s)"""
-        self._name = (self[Session.CONFIG_NAME]
-            or '%s[%s/%s]' % (self.__class__.__name__, self.peer, self._local)
-        )
+        self._name = (self[Session.CONFIG_NAME] or
+                      '%s[%s/%s]' % (self.__class__.__name__, self.peer, self._local))
 
     def is_server(self):
         """Return if this is a server socket session"""
@@ -289,9 +288,10 @@ class PcepServer(Session):
             )
         except (_socket.error, ValueError, IndexError) as error:
             self._error = error
-            if self.peer.emit('on_socket_error', session=self,
-                error=error, action='open',
-            ) is not CANCEL_EVENT:
+            if self.peer.emit('on_socket_error',
+                              session=self,
+                              error=error,
+                              action='open') is not CANCEL_EVENT:
                 self.closing = True
         super(PcepServer, self).open(bus)
 
@@ -300,13 +300,16 @@ class PcepServer(Session):
             accept_socket, address = self._socket.accept()
         except _socket.error as error:
             self._error = error
-            self.peer.emit('on_socket_error', session=self,
-                error=error, action='accept'
-            )
+            self.peer.emit('on_socket_error',
+                           session=self,
+                           error=error,
+                           action='accept')
             return
-        self.peer.emit('on_connection', server=self,
-            socket=accept_socket, address=address
-        )
+
+        self.peer.emit('on_connection',
+                       server=self,
+                       socket=accept_socket,
+                       address=address)
 
 
 class _PcepSession(Session):
@@ -382,13 +385,11 @@ class _PcepSession(Session):
     def send(self, message):
         """Called by peer to send the message"""
         if self.closing:
-            _LOGGER.warning('%s: Sending %s message <%s> to a closing session'
-                % (self, message.__class__.__name__, id(message))
-            )
+            _LOGGER.warning('%s: Sending %s message <%s> to a closing session' % (
+                            self, message.__class__.__name__, id(message)))
         else:
-            _LOGGER.info('%s: Sending %s message <%s>'
-                % (self, message.__class__.__name__, id(message))
-            )
+            _LOGGER.info('%s: Sending %s message <%s>' % (
+                         self, message.__class__.__name__, id(message)))
         self._outbox.put(message)
         self.bus.hail()
 
@@ -399,9 +400,7 @@ class _PcepSession(Session):
             )
         except _socket.error as error:
             self._error = error
-            self.peer.emit('on_socket_error', session=self,
-                error=error, action='read'
-            )
+            self.peer.emit('on_socket_error', session=self, error=error, action='read')
             self.closing = True
             return
 
@@ -413,15 +412,12 @@ class _PcepSession(Session):
             try:
                 message = self._outbox.get_nowait()
             except queue.Empty:
-                _LOGGER.error('Session %s wants write while nothing to write'
-                    % self
-                )
+                _LOGGER.error('Session %s wants write while nothing to write' % self)
                 return
 
-            if self.peer.emit('on_transmit', session=self,
-                message=message
-            ) is CANCEL_EVENT:
+            if self.peer.emit('on_transmit', session=self, message=message) is CANCEL_EVENT:
                 return
+
             transmission = _message.Transmission(session=self)
             self._last_sent = transmission.time
             message.transmission = transmission
@@ -432,12 +428,9 @@ class _PcepSession(Session):
             try:
                 written = message.write(self.__outgoing, 0)
             except Exception as error:
-                _LOGGER.exception('%s: Cannot serialize message <%s>: %s'
-                    % (self, id(message), error)
-                )
-                self.peer.emit('on_message_error', session=self,
-                    message=message, error=error, action='send'
-                )
+                _LOGGER.exception('%s: Cannot serialize message <%s>: %s' % (
+                                  self, id(message), error))
+                self.peer.emit('on_message_error', session=self, message=message, error=error, action='send')
                 del self.__outgoing[:]
                 self.__message = None
                 return
@@ -447,19 +440,15 @@ class _PcepSession(Session):
                     '%s: Message <%s> written size %s != reserved size %s'
                     % (self, id(message), written, size)
                 )
-            _LOGGER.debug('%s: Message <%s> written to <%s>[%s]: %s'
-                % (self, id(message), id(self.__outgoing), len(self.__outgoing),
-                    _message.data.to_hex(self.__outgoing)
-                )
-            )
+            _LOGGER.debug('%s: Message <%s> written to <%s>[%s]: %s' % (
+                          self, id(message), id(self.__outgoing), len(self.__outgoing),
+                          _message.data.to_hex(self.__outgoing)))
 
         try:
             written = self._socket.send(self.__outgoing)
         except _socket.error as error:
             self._error = error
-            self.peer.emit('on_socket_error', session=self,
-                error=error, action='send'
-            )
+            self.peer.emit('on_socket_error', session=self, error=error, action='send')
             self.closing = True
             return
         del self.__outgoing[:written]
@@ -470,32 +459,23 @@ class _PcepSession(Session):
             self.__message = None
 
     def want_close(self):
-        return (self._error
-            or (not self.want_write()
-                and super(_PcepSession, self).want_close()
-            )
-        )
+        return (self._error or (not self.want_write() and super(_PcepSession, self).want_close()))
 
     def want_write(self):
         return bool(self.__outgoing) or not self._outbox.empty()
 
     def close(self):
         if self.want_write():
-            _LOGGER.warning('%s: closing with %s bytes and %s messages to write'
-                % (self, len(self.__outgoing), self._outbox.qsize())
-            )
+            _LOGGER.warning('%s: closing with %s bytes and %s messages to write' % (
+                            self, len(self.__outgoing), self._outbox.qsize()))
         super(_PcepSession, self).close()
 
     def _read_header(self, header):
         """Read header and adjust want_read for the rest of message."""
         header.read(self.__incoming, 0, len(self.__incoming))
         length = header.length
-        if (header.version != _message.code.PCEP_VERSION
-            or not length or length % 4
-        ):
-            if self.peer.emit('on_bad_header', session=self,
-                header=header
-            ) is CANCEL_EVENT:
+        if (header.version != _message.code.PCEP_VERSION or not length or length % 4):
+            if self.peer.emit('on_bad_header', session=self, header=header) is CANCEL_EVENT:
                 del self.__incoming[:]
                 return
 
@@ -504,29 +484,21 @@ class _PcepSession(Session):
 
     def _read_message(self):
         """Read message (header)"""
-        _LOGGER.debug('%s: reading incoming data <%s>[%s]: %s'
-            % (self, id(self.__incoming), len(self.__incoming),
-                _message.data.to_hex(self.__incoming)
-            )
-        )
+        _LOGGER.debug('%s: reading incoming data <%s>[%s]: %s' % (
+                      self, id(self.__incoming), len(self.__incoming),
+                      _message.data.to_hex(self.__incoming)))
         header = self._header
         if self.__want_read == header.size:
             self._read_header(header)
 
         if self.__want_read > len(self.__incoming):
-            return # need more data
+            return  # need more data
 
         try:
-            message = _message.Message.get_message(
-                self.__incoming, header.type_id
-            )
+            message = _message.Message.get_message(self.__incoming, header.type_id)
         except Exception as error:
-            _LOGGER.exception('%s: Cannot parse message in <%s>: %s'
-                % (self, id(self.__incoming), error)
-            )
-            self.peer.emit('on_message_error', session=self,
-                message=message, error=error, action='read'
-            )
+            _LOGGER.exception('%s: Cannot parse message in <%s>: %s' % (self, id(self.__incoming), error))
+            self.peer.emit('on_message_error', session=self, message=message, error=error, action='read')
             return
         finally:
             del self.__incoming[:]
@@ -541,6 +513,7 @@ class _PcepSession(Session):
         """Update name to reflect change in node port(s)"""
         super(_PcepSession, self)._update_name()
         self._name += '->[%s]' % self._remote
+
 
 class PcepAccept(_PcepSession):
     """A PCEP session accepted by a PcepServer."""
@@ -585,9 +558,7 @@ class PcepClient(_PcepSession):
             self._socket.bind(socket_address)
         except (_socket.error, ValueError, IndexError) as error:
             self._error = error
-            self.peer.emit('on_socket_error', session=self,
-                error=error, action='open',
-            )
+            self.peer.emit('on_socket_error', session=self, error=error, action='open')
             self.closing = True
             return
 
@@ -604,9 +575,7 @@ class PcepClient(_PcepSession):
                     raise error
         except (_socket.error, ValueError, IndexError) as error:
             self._error = error
-            self.peer.emit('on_socket_error', session=self,
-                error=error, action='connect',
-            )
+            self.peer.emit('on_socket_error', session=self, error=error, action='connect')
             self.closing = True
             return
 
@@ -623,9 +592,7 @@ class PcepClient(_PcepSession):
             if error:
                 error = _socket.error(error, os.strerror(error))
                 self._error = error
-                self.peer.emit('on_socket_error', session=self,
-                    error=error, action='connect'
-                )
+                self.peer.emit('on_socket_error', session=self, error=error, action='connect')
                 self.closing = True
                 return
             self._established = True
@@ -639,9 +606,7 @@ class PcepClient(_PcepSession):
         if not self._established:
             error = _socket.timeout('Connection to "%s" timed out' % self._remote)
             self._error = error
-            self.peer.emit('on_socket_error', session=self,
-                error=error, action='connect'
-            )
+            self.peer.emit('on_socket_error', session=self, error=error, action='connect')
             del self[PcepClient.STATE_CONNECTAT]
             self.closing = True
         else:
@@ -654,4 +619,3 @@ class PcepClient(_PcepSession):
         if self._established:
             return super(PcepClient, self).timeout()
         return self._config.get(PcepClient.STATE_CONNECTAT)
-
