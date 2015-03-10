@@ -14,6 +14,7 @@ import threading
 import logging
 _LOGGER = logging.getLogger('pcepy.session.bus')
 
+
 class Bus(threading.Thread):
     """Manage all PCEP connections (sockets) in a dedicated thread"""
 
@@ -83,7 +84,7 @@ class Bus(threading.Thread):
                         connection.close()
                         break
                 else:
-                    break # No change
+                    break  # No change
             if not self.working():
                 break
             if not retries:
@@ -127,10 +128,11 @@ class Bus(threading.Thread):
         """Called whenever there is something on the control pipe"""
         pass
 
+
 class CtlPipe(object):
     """Pipe-based control channel"""
 
-    #TIP: could also be used for per-PCE control with named pipes
+    # TIP: could also be used for per-PCE control with named pipes
 
     def __init__(self, owner):
         self.owner = owner
@@ -181,6 +183,7 @@ def resolve_timeout(timeout, now=None):
         return timeout
     return now + timeout
 
+
 def min_timeout(time1, time2):
     """Return the earliest timeout, if any."""
     if time1 is None:
@@ -191,4 +194,3 @@ def min_timeout(time1, time2):
         return time1
     else:
         return time2
-
