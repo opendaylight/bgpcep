@@ -99,6 +99,7 @@
     </feature>
 
     <feature name='odl-bgpcep-pcep-topology-provider' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-programming-impl</feature>
         <feature version='${project.version}'>odl-bgpcep-pcep-stateful02</feature>
         <feature version='${project.version}'>odl-bgpcep-pcep-stateful07</feature>
         <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
