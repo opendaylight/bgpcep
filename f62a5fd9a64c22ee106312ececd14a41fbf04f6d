@@ -16,6 +16,24 @@
       "revId": "f62a5fd9a64c22ee106312ececd14a41fbf04f6d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_ba4f1892",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-10T10:53:41Z",
+      "side": 1,
+      "message": "when the point comes, I\u0027ll remove both modifiers",
+      "parentUuid": "5a93c517_1ab08c8a",
+      "revId": "f62a5fd9a64c22ee106312ececd14a41fbf04f6d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
