@@ -13,9 +13,16 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 
+/**
+ * Interface implemented for AFI/SAFI-specific RIB extensions. The extensions need
+ * to register an implementation of this class and the RIB core then calls into it
+ * to inquire about details specific to that particular model.
+ */
 public interface RIBSupport {
     /**
      * Return the table-type-specific empty routes container, as augmented into the
@@ -25,11 +32,20 @@ public interface RIBSupport {
      * @return Protocol-specific case in the routes choice, may not be null.
      */
     @Nonnull ChoiceNode emptyRoutes();
-    @Nonnull NodeIdentifier routeAttributes();
+
+    /**
+     * Return the localized identifier of the attributes route member, as expanded
+     * from the route grouping in the specific augmentation of the base routes choice.
+     *
+     * @return The attributes identifier, may not be null.
+     */
+    @Nonnull NodeIdentifier routeAttributesIdentifier();
 
     @Nonnull Collection<Class<? extends DataObject>> cacheableAttributeObjects();
     @Nonnull Collection<Class<? extends DataObject>> cacheableNlriObjects();
-    void deleteRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tableId, @Nonnull ContainerNode nlri);
-    void putRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tableId, @Nonnull ContainerNode nlri, @Nonnull ContainerNode attributes);
+    void deleteRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath, @Nonnull ContainerNode nlri);
+    void putRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath, @Nonnull ContainerNode nlri, @Nonnull ContainerNode attributes);
 
+    @Nonnull Collection<DataTreeCandidateNode> changedRoutes(@Nonnull DataTreeCandidateNode routes);
+    @Nonnull YangInstanceIdentifier routePath(@Nonnull YangInstanceIdentifier routesPath, @Nonnull PathArgument routeId);
 }
