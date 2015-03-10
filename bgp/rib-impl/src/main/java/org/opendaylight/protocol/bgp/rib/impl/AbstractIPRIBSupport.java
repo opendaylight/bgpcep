@@ -18,11 +18,16 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
+import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,8 +35,40 @@ import org.slf4j.LoggerFactory;
  * Common {@link org.opendaylight.protocol.bgp.rib.spi.RIBSupport} class for IPv4 and IPv6 addresses.
  */
 abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
+    private static abstract class ApplyRoute {
+        abstract void apply(DOMDataWriteTransaction tx, YangInstanceIdentifier base, MapEntryNode route, final ContainerNode attributes);
+    }
+
+    private static final class DeleteRoute extends ApplyRoute {
+        @Override
+        void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final MapEntryNode route, final ContainerNode attributes) {
+            tx.delete(LogicalDatastoreType.OPERATIONAL, base.node(route.getIdentifier()));
+        }
+    }
+
+    private final class PutRoute extends ApplyRoute {
+        @Override
+        void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final MapEntryNode route, final ContainerNode attributes) {
+            final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = ImmutableNodes.mapEntryBuilder();
+            b.withNodeIdentifier(route.getIdentifier());
+
+            // FIXME: All route children, there should be a utility somewhere to do this
+            for (DataContainerChild<? extends PathArgument, ?> child : route.getValue()) {
+                b.withChild(child);
+            }
+
+            // Add attributes
+            final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> cb = Builders.containerBuilder(attributes);
+            cb.withNodeIdentifier(routeAttributesIdentifier());
+            b.withChild(cb.build());
+            tx.put(LogicalDatastoreType.OPERATIONAL, base.node(route.getIdentifier()), b.build());
+        }
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(AbstractIPRIBSupport.class);
     private static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
+    private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
+    private final ApplyRoute putRoute = new PutRoute();
 
     protected AbstractIPRIBSupport(final QName routesContainer) {
         super(routesContainer);
@@ -47,35 +84,6 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
     @Override
     public final Collection<Class<? extends DataObject>> cacheableNlriObjects() {
         return Collections.emptySet();
-    }
-
-    private static enum ApplyRoute {
-        DELETE() {
-            @Override
-            void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final MapEntryNode route, final ContainerNode attributes) {
-                // FIXME: we need convert the namespace here, as per the comment below
-                tx.delete(LogicalDatastoreType.OPERATIONAL, base.node(route.getIdentifier()));
-            }
-        },
-        PUT() {
-            @Override
-            void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final MapEntryNode route, final ContainerNode attributes) {
-                /*
-                 * FIXME: We have a problem with namespaces, as the namespace defining the content
-                 *        in the message and the namespace defining the content in rib differ.
-                 *        Moving ipv4/ipv6 routes out into a separate model would solve the problem,
-                 *        but that's going to break our REST compatibility. Is there a generic
-                 *        solution to this problem?
-                 *
-                 *        Even if there is not, we need to transition to that separate model, so
-                 *        we get uniform and fast translation.
-                 */
-                // FIXME: use attributes
-                tx.put(LogicalDatastoreType.OPERATIONAL, base.node(route.getIdentifier()), route);
-            }
-        };
-
-        abstract void apply(DOMDataWriteTransaction tx, YangInstanceIdentifier base, MapEntryNode route, final ContainerNode attributes);
     }
 
     private final void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
@@ -98,11 +106,11 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
 
     @Override
     protected void putDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode destination, final ContainerNode attributes) {
-        processDestination(tx, tablePath, destination, attributes, ApplyRoute.PUT);
+        processDestination(tx, tablePath, destination, attributes, putRoute);
     }
 
     @Override
     protected void deleteDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode destination) {
-        processDestination(tx, tablePath, destination, null, ApplyRoute.DELETE);
+        processDestination(tx, tablePath, destination, null, DELETE_ROUTE);
     }
 }
