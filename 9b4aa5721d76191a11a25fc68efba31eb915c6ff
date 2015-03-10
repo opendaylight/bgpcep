@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_fae1209b",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractIPRIBSupport.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-10T10:05:13Z",
+      "side": 1,
+      "message": "annotations are first always: @Nonnull protected abstract",
+      "range": {
+        "startLine": 83,
+        "startChar": 62,
+        "endLine": 83,
+        "endChar": 65
+      },
+      "revId": "9b4aa5721d76191a11a25fc68efba31eb915c6ff",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_9aeedc8a",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/spi/AbstractRIBSupport.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-10T10:05:13Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 70,
+        "startChar": 77,
+        "endLine": 70,
+        "endChar": 80
+      },
+      "revId": "9b4aa5721d76191a11a25fc68efba31eb915c6ff",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
