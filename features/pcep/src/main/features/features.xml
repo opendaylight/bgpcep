@@ -24,10 +24,10 @@
         <feature version='${project.version}'>odl-bgpcep-pcep-stateful07</feature>
         <feature version='${project.version}'>odl-bgpcep-pcep-segment-routing</feature>
         <feature version='${project.version}'>odl-bgpcep-pcep-topology</feature>
-        <feature version='${project.version}'>odl-bgpcep-pcep-topology-provider</feature>
-        <feature version='${project.version}'>odl-bgpcep-pcep-tunnel-provider</feature>
         <feature version='${project.version}'>odl-bgpcep-programming</feature>
         <feature version='${project.version}'>odl-bgpcep-programming-impl</feature>
+        <feature version='${project.version}'>odl-bgpcep-pcep-topology-provider</feature>
+        <feature version='${project.version}'>odl-bgpcep-pcep-tunnel-provider</feature>
     </feature>
 
     <feature name='odl-bgpcep-dependencies' version='${project.version}'>
