@@ -37,22 +37,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Ipv4InterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.isis.lan.identifier.IsIsRouterIdentifierBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.CLinkstateDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.CLinkstateDestinationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.c.linkstate.destination.LinkDescriptorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.c.linkstate.destination.LocalNodeDescriptorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.c.linkstate.destination.PrefixDescriptorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.c.linkstate.destination.RemoteNodeDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.LinkCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.NodeCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.PrefixCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LinkDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LocalNodeDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.RemoteNodeDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.node._case.NodeDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.AdvertisingNodeDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.PrefixDescriptorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.LinkstateRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.LinkstateRouteBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.LinkCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.NodeCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.PrefixCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.node._case.NodeDescriptorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.prefix._case.AdvertisingNodeDescriptorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.IsisPseudonodeCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.isis.pseudonode._case.IsisPseudonodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase;
@@ -161,14 +160,13 @@ public class LinkstateAdjRIBsInTest extends AbstractDataBrokerTest {
 
         this.dBuilder.setProtocolId(ProtocolId.Direct);
         this.dBuilder.setIdentifier(new Identifier(new BigInteger(new byte[] { 5 })));
-        this.dBuilder.setLocalNodeDescriptors(new LocalNodeDescriptorsBuilder().setAsNumber(TEST_AS_NUMBER).build());
     }
 
     @Test
     public void testAddPrefix() {
-        this.dBuilder.setNlriType(NlriType.Ipv4Prefix);
-        this.dBuilder.setPrefixDescriptors(new PrefixDescriptorsBuilder().setIpReachabilityInformation(
-            new IpPrefix(new Ipv4Prefix("12.34.35.55/32"))).build());
+        this.dBuilder.setObjectType(new PrefixCaseBuilder()
+            .setAdvertisingNodeDescriptors(new AdvertisingNodeDescriptorsBuilder().setAsNumber(TEST_AS_NUMBER).build())
+            .setPrefixDescriptors(new PrefixDescriptorsBuilder().setIpReachabilityInformation(new IpPrefix(new Ipv4Prefix("12.34.35.55/32"))).build()).build());
         this.destinations.add(this.dBuilder.build());
         this.builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
             new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
@@ -189,11 +187,10 @@ public class LinkstateAdjRIBsInTest extends AbstractDataBrokerTest {
             new DestinationLinkstateCaseBuilder().build()).build());
         this.lrib.addRoutes(this.adjRibTx, this.peer, this.builder.build(), null);
 
-        this.dBuilder.setNlriType(NlriType.Node);
-        this.dBuilder.setRemoteNodeDescriptors(new RemoteNodeDescriptorsBuilder().setCRouterIdentifier(
+        this.dBuilder.setObjectType(new NodeCaseBuilder().setNodeDescriptors(new NodeDescriptorsBuilder().setAsNumber(TEST_AS_NUMBER).setCRouterIdentifier(
             new IsisPseudonodeCaseBuilder().setIsisPseudonode(
                 new IsisPseudonodeBuilder().setIsIsRouterIdentifier(
-                    new IsIsRouterIdentifierBuilder().setIsoSystemId(new IsoSystemIdentifier(new byte[] { 1, 2, 3, 4, 5, 6 })).build()).build()).build()).build());
+                    new IsIsRouterIdentifierBuilder().setIsoSystemId(new IsoSystemIdentifier(new byte[] { 1, 2, 3, 4, 5, 6 })).build()).build()).build()).build()).build());
         this.destinations.add(this.dBuilder.build());
         this.builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
             new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
@@ -209,13 +206,15 @@ public class LinkstateAdjRIBsInTest extends AbstractDataBrokerTest {
 
     @Test
     public void testAddRemoveLink() {
-        this.dBuilder.setNlriType(NlriType.Link);
-        this.dBuilder.setRemoteNodeDescriptors(new RemoteNodeDescriptorsBuilder().setCRouterIdentifier(
+        final LinkCaseBuilder lCase = new LinkCaseBuilder();
+        lCase.setLocalNodeDescriptors(new LocalNodeDescriptorsBuilder().setAsNumber(TEST_AS_NUMBER).build());
+        lCase.setRemoteNodeDescriptors(new RemoteNodeDescriptorsBuilder().setAsNumber(TEST_AS_NUMBER).setCRouterIdentifier(
             new IsisPseudonodeCaseBuilder().setIsisPseudonode(
                 new IsisPseudonodeBuilder().setIsIsRouterIdentifier(
                     new IsIsRouterIdentifierBuilder().setIsoSystemId(new IsoSystemIdentifier(new byte[] { 1, 2, 3, 4, 5, 6 })).build()).build()).build()).build());
-        this.dBuilder.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(
+        lCase.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(
             new Ipv4InterfaceIdentifier(new Ipv4Address("127.0.0.1"))).build());
+        this.dBuilder.setObjectType(lCase.build());
         this.destinations.add(this.dBuilder.build());
         this.builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
             new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
@@ -245,33 +244,29 @@ public class LinkstateAdjRIBsInTest extends AbstractDataBrokerTest {
     public void testAddAdvertisement() {
         final PrefixCaseBuilder pcb = new PrefixCaseBuilder();
         pcb.setAdvertisingNodeDescriptors(new AdvertisingNodeDescriptorsBuilder().build());
-        pcb.setIpReachabilityInformation(new IpPrefix(new Ipv4Prefix("127.0.0.1/32"))).build();
+        pcb.setPrefixDescriptors(new PrefixDescriptorsBuilder().setIpReachabilityInformation(new IpPrefix(new Ipv4Prefix("127.0.0.1/32"))).build()).build();
         LinkstateRoute data = new LinkstateRouteBuilder().setObjectType(pcb.build()).build();
         final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
         this.lrib.addAdvertisement(mpBuilder, data);
         final List<CLinkstateDestination> dests = ((DestinationLinkstateCase) mpBuilder.getAdvertizedRoutes().getDestinationType()).getDestinationLinkstate().getCLinkstateDestination();
-        assertEquals(NlriType.Ipv4Prefix, dests.get(0).getNlriType());
 
         final NodeCaseBuilder ncb = new NodeCaseBuilder();
         ncb.setNodeDescriptors(new NodeDescriptorsBuilder().build());
         data = new LinkstateRouteBuilder().setObjectType(ncb.build()).build();
         this.lrib.addAdvertisement(mpBuilder, data);
         assertEquals(2, dests.size());
-        assertEquals(NlriType.Node, dests.get(1).getNlriType());
 
         final LinkCaseBuilder lcb = new LinkCaseBuilder();
-        lcb.setLocalNodeDescriptors(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.link._case.LocalNodeDescriptorsBuilder().build());
-        lcb.setRemoteNodeDescriptors(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.link._case.RemoteNodeDescriptorsBuilder().build());
-        lcb.setLinkDescriptors(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.link._case.LinkDescriptorsBuilder().build());
+        lcb.setLocalNodeDescriptors(new LocalNodeDescriptorsBuilder().build());
+        lcb.setRemoteNodeDescriptors(new RemoteNodeDescriptorsBuilder().build());
+        lcb.setLinkDescriptors(new LinkDescriptorsBuilder().build());
         data = new LinkstateRouteBuilder().setObjectType(lcb.build()).build();
         this.lrib.addAdvertisement(mpBuilder, data);
         assertEquals(3, dests.size());
-        assertEquals(NlriType.Link, dests.get(2).getNlriType());
     }
 
     @Test
     public void testAddWithdrawal() {
-        this.dBuilder.setNlriType(NlriType.Node);
         final MpUnreachNlriBuilder paBuilder = new MpUnreachNlriBuilder().setWithdrawnRoutes(
             new WithdrawnRoutesBuilder().setDestinationType(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder().setDestinationLinkstate(

@@ -18,12 +18,15 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.AreaIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.DomainIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.OspfInterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.isis.lan.identifier.IsIsRouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.isis.lan.identifier.IsIsRouterIdentifierBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.c.linkstate.destination.LocalNodeDescriptorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.c.linkstate.destination.RemoteNodeDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LocalNodeDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.RemoteNodeDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.node._case.NodeDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.AdvertisingNodeDescriptorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.CRouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.IsisNodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.IsisNodeCaseBuilder;
@@ -64,7 +67,7 @@ public final class NodeNlriParser {
     private static final int AREA_ID = 514;
     private static final int IGP_ROUTER_ID = 515;
 
-    static NodeIdentifier parseNodeDescriptors(final ByteBuf buffer, final boolean local) throws BGPParsingException {
+    static NodeIdentifier parseNodeDescriptors(final ByteBuf buffer, final NlriType nlriType, final boolean local) throws BGPParsingException {
         AsNumber asnumber = null;
         DomainIdentifier bgpId = null;
         AreaIdentifier ai = null;
@@ -98,9 +101,21 @@ public final class NodeNlriParser {
             }
         }
         LOG.trace("Finished parsing Node descriptors.");
-        return (local) ? new LocalNodeDescriptorsBuilder().setAsNumber(asnumber).setDomainId(bgpId).setAreaId(ai).setCRouterIdentifier(
-            routerId).build()
-            : new RemoteNodeDescriptorsBuilder().setAsNumber(asnumber).setDomainId(bgpId).setAreaId(ai).setCRouterIdentifier(routerId).build();
+        switch (nlriType) {
+        case Link:
+            if (local) {
+                return new LocalNodeDescriptorsBuilder().setAsNumber(asnumber).setAreaId(ai).setCRouterIdentifier(routerId).setDomainId(bgpId).build();
+            } else {
+                return new RemoteNodeDescriptorsBuilder().setAsNumber(asnumber).setAreaId(ai).setCRouterIdentifier(routerId).setDomainId(bgpId).build();
+            }
+        case Node:
+            return new NodeDescriptorsBuilder().setAsNumber(asnumber).setAreaId(ai).setCRouterIdentifier(routerId).setDomainId(bgpId).build();
+        case Ipv4Prefix:
+        case Ipv6Prefix:
+            return new AdvertisingNodeDescriptorsBuilder().setAsNumber(asnumber).setAreaId(ai).setCRouterIdentifier(routerId).setDomainId(bgpId).build();
+        default:
+            throw new IllegalStateException("NLRI type not recognized.");
+        }
     }
 
     private static CRouterIdentifier parseRouterId(final ByteBuf value) throws BGPParsingException {

@@ -33,18 +33,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeFlagBits;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.TopologyIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.ObjectType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.LinkCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.NodeCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.PrefixCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LinkDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.LinkstateRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.Attributes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.ObjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.AttributeType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.link._case.LinkAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.node._case.NodeAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.prefix._case.PrefixAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.LinkCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.NodeCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.PrefixCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.link._case.LinkDescriptors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.object.type.node._case.NodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.CRouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.IsisNodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.IsisPseudonodeCase;
@@ -233,7 +232,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         }
 
         private void removePrefix(final PrefixCase p) {
-            this.prefixes.remove(new PrefixKey(p.getIpReachabilityInformation()));
+            this.prefixes.remove(new PrefixKey(p.getPrefixDescriptors().getIpReachabilityInformation()));
         }
 
         private void unadvertized() {
@@ -267,7 +266,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         return new LinkId(new UriBuilder(base, "link").add(link).toString());
     }
 
-    private NodeId buildNodeId(final UriBuilder base, final NodeIdentifier node) {
+    private NodeId buildNodeId(final UriBuilder base, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier node) {
         return new NodeId(new UriBuilder(base, "node").add("", node).toString());
     }
 
@@ -619,7 +618,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
     }
 
     private org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpNodeAttributes1 ospfNodeAttributes(
-        final NodeDescriptors node, final NodeAttributes na) {
+        final NodeIdentifier node, final NodeAttributes na) {
         final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.TedBuilder tb = new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.TedBuilder();
         final OspfNodeAttributesBuilder ab = new OspfNodeAttributesBuilder();
         if (na != null) {
@@ -654,7 +653,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
             ab.build()).build();
     }
 
-    private void augmentProtocolId(final LinkstateRoute value, final IgpNodeAttributesBuilder inab, final NodeAttributes na, final NodeDescriptors nd) {
+    private void augmentProtocolId(final LinkstateRoute value, final IgpNodeAttributesBuilder inab, final NodeAttributes na, final NodeIdentifier nd) {
         switch (value.getProtocolId()) {
         case Direct:
         case Static:
@@ -760,7 +759,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 
     private void createPrefix(final WriteTransaction trans, final UriBuilder base,
         final LinkstateRoute value, final PrefixCase p, final Attributes attributes) {
-        final IpPrefix ippfx = p.getIpReachabilityInformation();
+        final IpPrefix ippfx = p.getPrefixDescriptors().getIpReachabilityInformation();
         if (ippfx == null) {
             LOG.warn("IP reachability not present in prefix {} route {}, skipping it", p, value);
             return;

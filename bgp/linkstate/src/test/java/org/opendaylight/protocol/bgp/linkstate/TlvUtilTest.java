@@ -25,5 +25,4 @@ public class TlvUtilTest {
             throw e.getCause();
         }
     }
-
 }

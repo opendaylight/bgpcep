@@ -40,14 +40,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Ipv4InterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.OspfInterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.CLinkstateDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.CLinkstateDestinationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.c.linkstate.destination.LinkDescriptorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.c.linkstate.destination.LocalNodeDescriptorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.c.linkstate.destination.RemoteNodeDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.LinkCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.NodeCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LinkDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LocalNodeDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.RemoteNodeDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.node._case.NodeDescriptorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.OspfNodeCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.OspfPseudonodeCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.ospf.node._case.OspfNodeBuilder;
@@ -329,15 +331,14 @@ public class ParserTest {
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
             new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("25.25.25.1")).build()).build();
 
-        final LocalNodeDescriptorsBuilder lndBuilder = new LocalNodeDescriptorsBuilder().setAsNumber(new AsNumber((long) 100)).setDomainId(
+        final LocalNodeDescriptorsBuilder ndBuilder = new LocalNodeDescriptorsBuilder().setAsNumber(new AsNumber((long) 100)).setDomainId(
             new DomainIdentifier(0x19191901L)).setAreaId(new AreaIdentifier(0L));
 
-        final RemoteNodeDescriptorsBuilder rndBuilder = new RemoteNodeDescriptorsBuilder().setAsNumber(new AsNumber((long) 100)).setDomainId(
+        final RemoteNodeDescriptorsBuilder rdBuilder = new RemoteNodeDescriptorsBuilder().setAsNumber(new AsNumber((long) 100)).setDomainId(
             new DomainIdentifier(0x19191901L)).setAreaId(new AreaIdentifier(0L));
 
         final CLinkstateDestinationBuilder clBuilder = new CLinkstateDestinationBuilder();
         clBuilder.setIdentifier(new Identifier(BigInteger.ONE));
-        clBuilder.setNlriType(NlriType.Link);
         clBuilder.setProtocolId(ProtocolId.Ospf);
 
         final PathAttributes1Builder lsBuilder = new PathAttributes1Builder();
@@ -347,32 +348,26 @@ public class ParserTest {
         mpBuilder.setCNextHop(nextHop);
 
         final List<CLinkstateDestination> linkstates = Lists.newArrayList();
-        clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
+        final LinkCaseBuilder lCase = new LinkCaseBuilder().setLocalNodeDescriptors(ndBuilder.setCRouterIdentifier(
             new OspfPseudonodeCaseBuilder().setOspfPseudonode(
                 new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L).setLanInterface(new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
-        clBuilder.setRemoteNodeDescriptors(rndBuilder.setCRouterIdentifier(
+        lCase.setRemoteNodeDescriptors(rdBuilder.setCRouterIdentifier(
             new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x03030304L).build()).build()).build());
-        clBuilder.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(
+        lCase.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(
             new Ipv4InterfaceIdentifier(new Ipv4Address("11.11.11.3"))).build());
-        linkstates.add(clBuilder.build());
+        linkstates.add(clBuilder.setObjectType(lCase.build()).build());
 
-        clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
-            new OspfPseudonodeCaseBuilder().setOspfPseudonode(
-                new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L).setLanInterface(new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
-        clBuilder.setRemoteNodeDescriptors(rndBuilder.setCRouterIdentifier(
+        lCase.setRemoteNodeDescriptors(rdBuilder.setCRouterIdentifier(
             new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x01010102L).build()).build()).build());
-        clBuilder.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(
+        lCase.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(
             new Ipv4InterfaceIdentifier(new Ipv4Address("11.11.11.1"))).build());
-        linkstates.add(clBuilder.build());
+        linkstates.add(clBuilder.setObjectType(lCase.build()).build());
 
-        clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
+        lCase.setLocalNodeDescriptors(ndBuilder.setCRouterIdentifier(
             new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x01010102L).build()).build()).build());
-        clBuilder.setRemoteNodeDescriptors(rndBuilder.setCRouterIdentifier(
-            new OspfPseudonodeCaseBuilder().setOspfPseudonode(
-                new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L).setLanInterface(new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
-        clBuilder.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(
-            new Ipv4InterfaceIdentifier(new Ipv4Address("11.11.11.1"))).build());
-        linkstates.add(clBuilder.build());
+        lCase.setRemoteNodeDescriptors(rdBuilder.setCRouterIdentifier(
+            new OspfPseudonodeCaseBuilder().setOspfPseudonode(new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L).setLanInterface(new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
+        linkstates.add(clBuilder.setObjectType(lCase.build()).build());
 
         lsBuilder.setMpReachNlri(mpBuilder.build());
 
@@ -531,27 +526,27 @@ public class ParserTest {
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
             new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("25.25.25.1")).build()).build();
 
-        final LocalNodeDescriptorsBuilder lndBuilder = new LocalNodeDescriptorsBuilder().setAsNumber(new AsNumber((long) 100)).setDomainId(
-            new DomainIdentifier(0x19191901L)).setAreaId(new AreaIdentifier(0L));
-
         final CLinkstateDestinationBuilder clBuilder = new CLinkstateDestinationBuilder();
         clBuilder.setIdentifier(new Identifier(BigInteger.ONE));
-        clBuilder.setNlriType(NlriType.Node);
         clBuilder.setProtocolId(ProtocolId.Ospf);
 
+        final NodeDescriptorsBuilder n = new NodeDescriptorsBuilder();
+        n.setAsNumber(new AsNumber((long) 100)).setDomainId(new DomainIdentifier(0x19191901L)).setAreaId(new AreaIdentifier(0L));
+
         final List<CLinkstateDestination> linkstates = Lists.newArrayList();
-        clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
+        final NodeCaseBuilder nCase = new NodeCaseBuilder();
+        nCase.setNodeDescriptors(n.setCRouterIdentifier(
             new OspfPseudonodeCaseBuilder().setOspfPseudonode(
                 new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L).setLanInterface(new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
-        linkstates.add(clBuilder.build());
+        linkstates.add(clBuilder.setObjectType(nCase.build()).build());
 
-        clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
+        nCase.setNodeDescriptors(n.setCRouterIdentifier(
             new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x03030304L).build()).build()).build());
-        linkstates.add(clBuilder.build());
+        linkstates.add(clBuilder.setObjectType(nCase.build()).build());
 
-        clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
+        nCase.setNodeDescriptors(n.setCRouterIdentifier(
             new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x01010102L).build()).build()).build());
-        linkstates.add(clBuilder.build());
+        linkstates.add(clBuilder.setObjectType(nCase.build()).build());
 
         final PathAttributes1Builder lsBuilder = new PathAttributes1Builder();
         final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
