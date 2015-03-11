@@ -86,7 +86,7 @@ final class SrSubobjectParserUtil {
         return body;
     }
 
-    public static SrSubobject parseSrSubobject(final ByteBuf buffer, final Function<BitArray, Void> getFlags, final int fPosition, final int sPosition)
+    public static SrSubobject parseSrSubobject(final ByteBuf buffer, final Function<BitArray, Void> getFlags, final int fPosition, final int sPosition, final int cPosition, final int mPosition)
             throws PCEPDeserializerException {
         final int sidTypeByte = buffer.readByte() >> SID_TYPE_BITS_OFFSET;
         final SidType sidType = SidType.forValue(sidTypeByte);
@@ -102,6 +102,12 @@ final class SrSubobjectParserUtil {
         final Long sid;
         if (!s) {
             sid = buffer.readUnsignedInt();
+            final boolean c = bitSet.get(cPosition);
+            final boolean m = bitSet.get(mPosition);
+
+            if (c) {
+
+            }
         } else {
             sid = null;
         }

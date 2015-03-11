@@ -29,8 +29,10 @@ public class SrRroSubobjectParser implements RROSubobjectParser, RROSubobjectSer
 
     public static final int TYPE = 6;
 
-    private static final int S_FLAG_POSITION = 7;
-    private static final int F_FLAG_POSITION = 6;
+    private static final int M_FLAG_POSITION = 7;
+    private static final int C_FLAG_POSITION = 6;
+    private static final int S_FLAG_POSITION = 5;
+    private static final int F_FLAG_POSITION = 4;
 
     @Override
     public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
@@ -57,15 +59,16 @@ public class SrRroSubobjectParser implements RROSubobjectParser, RROSubobjectSer
         if (buffer.readableBytes() <= MINIMAL_LENGTH) {
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ";");
         }
-
+        final BitArray flags = new BitArray(BITSET_LENGTH);
         final SrSubobject srSubobject = SrSubobjectParserUtil.parseSrSubobject(buffer, new Function<BitArray, Void>() {
             @Override
             public Void apply(final BitArray input) {
+                flags.set(C_FLAG_POSITION, input.get(C_FLAG_POSITION));
+                flags.set(M_FLAG_POSITION, input.get(M_FLAG_POSITION));
                 return null;
             }
-        }, F_FLAG_POSITION, S_FLAG_POSITION);
+        }, F_FLAG_POSITION, S_FLAG_POSITION, C_FLAG_POSITION, M_FLAG_POSITION);
         final SrRroTypeBuilder srRroSubobjectBuilder = new SrRroTypeBuilder(srSubobject);
-
         final SubobjectBuilder subobjectBuilder = new SubobjectBuilder();
         subobjectBuilder.setSubobjectType(srRroSubobjectBuilder.build());
         return subobjectBuilder.build();

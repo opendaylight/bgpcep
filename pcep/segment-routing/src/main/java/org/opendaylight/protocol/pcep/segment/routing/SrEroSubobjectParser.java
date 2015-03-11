@@ -72,7 +72,7 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
                 flags.set(M_FLAG_POSITION, input.get(M_FLAG_POSITION));
                 return null;
             }
-        }, F_FLAG_POSITION, S_FLAG_POSITION);
+        }, F_FLAG_POSITION, S_FLAG_POSITION, C_FLAG_POSITION, M_FLAG_POSITION);
         final SrEroTypeBuilder srEroSubobjectBuilder = new SrEroTypeBuilder(srSubobject);
         srEroSubobjectBuilder.setCFlags(flags.get(C_FLAG_POSITION));
         srEroSubobjectBuilder.setMFlag(flags.get(M_FLAG_POSITION));
