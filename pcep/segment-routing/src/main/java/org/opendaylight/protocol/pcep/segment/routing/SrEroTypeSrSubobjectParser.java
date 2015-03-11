@@ -17,13 +17,12 @@ import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.BitArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.SrEroSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.SrSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.add.lsp.input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder;
 
-public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
+public class SrEroTypeSrSubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
 
     public static final int TYPE = 5;
 
@@ -35,25 +34,25 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
 
     @Override
     public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof SrEroSubobject,
-                "Unknown subobject instance. Passed %s. Needed SrEroSubobject.", subobject.getSubobjectType()
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof SrSubobject,
+                "Unknown subobject instance. Passed %s. Needed SrSubobject.", subobject.getSubobjectType()
                         .getClass());
 
-        final SrEroSubobject srEroSubobject = (SrEroSubobject) subobject.getSubobjectType();
-        final SrEroTypeBuilder builder = new SrEroTypeBuilder(srEroSubobject);
-        if (srEroSubobject.isMFlag() != null && srEroSubobject.isMFlag() && srEroSubobject.getSid() != null) {
-            builder.setSid(srEroSubobject.getSid() << MPLS_LABEL_OFFSET);
+        final SrSubobject srSubobject = (SrSubobject) subobject.getSubobjectType();
+        final SrEroTypeBuilder srEroTypeBuilder = new SrEroTypeBuilder(srSubobject);
+        if (srSubobject.isMFlag() != null && srSubobject.isMFlag() && srSubobject.getSid() != null) {
+            srEroTypeBuilder.setSid(srSubobject.getSid() << MPLS_LABEL_OFFSET);
         }
         final BitArray bits = new BitArray(BITSET_LENGTH);
-        bits.set(M_FLAG_POSITION, srEroSubobject.isMFlag());
-        bits.set(C_FLAG_POSITION, srEroSubobject.isCFlags());
-        if (srEroSubobject.getSid() == null) {
+        bits.set(M_FLAG_POSITION, srSubobject.isMFlag());
+        bits.set(C_FLAG_POSITION, srSubobject.isCFlag());
+        if (srSubobject.getSid() == null) {
             bits.set(S_FLAG_POSITION, Boolean.TRUE);
         }
-        if (srEroSubobject.getNai() == null) {
+        if (srSubobject.getNai() == null) {
             bits.set(F_FLAG_POSITION, Boolean.TRUE);
         }
-        final ByteBuf body = SrSubobjectParserUtil.serializeSrSubobject(builder.build(), bits);
+        final ByteBuf body = SrSubobjectParserUtil.serializeSrSubobject(srEroTypeBuilder.build(), bits);
         EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
     }
 
@@ -72,16 +71,16 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
                 flags.set(M_FLAG_POSITION, input.get(M_FLAG_POSITION));
                 return null;
             }
-        }, F_FLAG_POSITION, S_FLAG_POSITION);
-        final SrEroTypeBuilder srEroSubobjectBuilder = new SrEroTypeBuilder(srSubobject);
-        srEroSubobjectBuilder.setCFlags(flags.get(C_FLAG_POSITION));
-        srEroSubobjectBuilder.setMFlag(flags.get(M_FLAG_POSITION));
-        if (srEroSubobjectBuilder.isMFlag() != null && srEroSubobjectBuilder.isMFlag() && srEroSubobjectBuilder.getSid() != null) {
-            srEroSubobjectBuilder.setSid(srEroSubobjectBuilder.getSid() >> MPLS_LABEL_OFFSET);
+        }, F_FLAG_POSITION, S_FLAG_POSITION, C_FLAG_POSITION, M_FLAG_POSITION);
+        final SrEroTypeBuilder srEroTypeBuilder = new SrEroTypeBuilder(srSubobject);
+        srEroTypeBuilder.setCFlag(flags.get(C_FLAG_POSITION));
+        srEroTypeBuilder.setMFlag(flags.get(M_FLAG_POSITION));
+        if (srEroTypeBuilder.isMFlag() != null && srEroTypeBuilder.isMFlag() && srEroTypeBuilder.getSid() != null) {
+            srEroTypeBuilder.setSid(srEroTypeBuilder.getSid() >> MPLS_LABEL_OFFSET);
         }
         final SubobjectBuilder subobjectBuilder = new SubobjectBuilder();
         subobjectBuilder.setLoose(loose);
-        subobjectBuilder.setSubobjectType(srEroSubobjectBuilder.build());
+        subobjectBuilder.setSubobjectType(srEroTypeBuilder.build());
         return subobjectBuilder.build();
     }
 

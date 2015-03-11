@@ -34,10 +34,10 @@ public class SegmentRoutingActivator extends AbstractPCEPExtensionProviderActiva
         regs.add(context.registerTlvSerializer(SrPceCapability.class, new SrPceCapabilityTlvParser()));
 
         /* Subobjects */
-        regs.add(context.registerEROSubobjectParser(SrEroSubobjectParser.TYPE, new SrEroSubobjectParser()));
-        regs.add(context.registerEROSubobjectSerializer(SrEroType.class, new SrEroSubobjectParser()));
-        regs.add(context.registerRROSubobjectParser(SrRroSubobjectParser.TYPE, new SrRroSubobjectParser()));
-        regs.add(context.registerRROSubobjectSerializer(SrRroType.class, new SrRroSubobjectParser()));
+        regs.add(context.registerEROSubobjectParser(SrEroTypeSrSubobjectParser.TYPE, new SrEroTypeSrSubobjectParser()));
+        regs.add(context.registerEROSubobjectSerializer(SrEroType.class, new SrEroTypeSrSubobjectParser()));
+        regs.add(context.registerRROSubobjectParser(SrRroTypeSrSubobjectParser.TYPE, new SrRroTypeSrSubobjectParser()));
+        regs.add(context.registerRROSubobjectSerializer(SrRroType.class, new SrRroTypeSrSubobjectParser()));
 
         /* Objects */
         final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
