@@ -44,12 +44,14 @@ final class ExportPolicyPeerTracker extends AbstractPeerRoleTracker {
 
     private final Map<YangInstanceIdentifier, PeerRole> peerRoles = new HashMap<>();
     private volatile Map<PeerRole, PeerExportGroup> groups = Collections.emptyMap();
+    private final PolicyDatabase policyDatabase;
 
-    protected ExportPolicyPeerTracker(final DOMDataTreeChangeService service, final YangInstanceIdentifier ribId) {
+    ExportPolicyPeerTracker(final DOMDataTreeChangeService service, final YangInstanceIdentifier ribId, final PolicyDatabase policyDatabase) {
         super(service, ribId);
+        this.policyDatabase = Preconditions.checkNotNull(policyDatabase);
     }
 
-    private static Map<PeerRole, PeerExportGroup> createGroups(final Map<YangInstanceIdentifier, PeerRole> peerPathRoles) {
+    private Map<PeerRole, PeerExportGroup> createGroups(final Map<YangInstanceIdentifier, PeerRole> peerPathRoles) {
         if (peerPathRoles.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -67,7 +69,7 @@ final class ExportPolicyPeerTracker extends AbstractPeerRoleTracker {
 
         final Map<PeerRole, PeerExportGroup> ret = new EnumMap<>(PeerRole.class);
         for (Entry<PeerRole, Collection<YangInstanceIdentifier>> e : roleToIds.asMap().entrySet()) {
-            final AbstractExportPolicy policy = AbstractExportPolicy.forRole(e.getKey());
+            final AbstractExportPolicy policy = policyDatabase.exportPolicyForRole(e.getKey());
             final Collection<Entry<PeerId, YangInstanceIdentifier>> peers = ImmutableList.copyOf(Collections2.transform(e.getValue(), GENERATE_PEERID));
 
             ret.put(e.getKey(), new PeerExportGroup(peers, peerRoles, policy));

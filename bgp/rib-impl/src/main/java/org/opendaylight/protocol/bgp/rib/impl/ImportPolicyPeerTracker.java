@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.base.Preconditions;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
@@ -20,9 +21,11 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
  */
 final class ImportPolicyPeerTracker extends AbstractPeerRoleTracker {
     private final Map<PeerId, AbstractImportPolicy> policies = new ConcurrentHashMap<>();
+    private final PolicyDatabase policyDatabase;
 
-    protected ImportPolicyPeerTracker(final DOMDataTreeChangeService service, final YangInstanceIdentifier ribId) {
+    protected ImportPolicyPeerTracker(final DOMDataTreeChangeService service, final YangInstanceIdentifier ribId, final PolicyDatabase policyDatabase) {
         super(service, ribId);
+        this.policyDatabase = Preconditions.checkNotNull(policyDatabase);
     }
 
     @Override
@@ -31,7 +34,7 @@ final class ImportPolicyPeerTracker extends AbstractPeerRoleTracker {
 
         if (role != null) {
             // Lookup policy based on role
-            final AbstractImportPolicy policy = AbstractImportPolicy.forRole(role);
+            final AbstractImportPolicy policy = policyDatabase.importPolicyForRole(role);
 
             // Update lookup map
             policies.put(peer, policy);
