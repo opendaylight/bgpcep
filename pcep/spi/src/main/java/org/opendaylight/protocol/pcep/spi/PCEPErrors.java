@@ -285,6 +285,10 @@ public enum PCEPErrors {
      */
     SID_AND_NAI_ABSENT_IN_RRO(10, 7),
     /**
+     * Segment Routing error: Non-identical RRO subobjects.
+     */
+    SID_IDENTICAL_RRO_SUBOBJECTS(10, 8),
+    /**
      * Invalid traffic engineering path setup type: Unsupported path setup type
      */
     UNSUPPORTED_PST(21, 1),
