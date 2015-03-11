@@ -11,6 +11,7 @@ import ipaddr
 
 from pcepy import session as _session
 
+
 class Context(object):
     """The Context is a container and environment for all library objects.
     It should be the first object created.
@@ -22,13 +23,13 @@ class Context(object):
     It also serves as a single authority for IP address/network handling.
     """
 
-    def __init__(self, config = None):
+    def __init__(self, config=None):
         super(Context, self).__init__()
         if config is None:
             config = dict()
         self._config = config
-        self._nodes = list() # Node
-        self._peers = dict() # name -> Peer
+        self._nodes = list()  # Node
+        self._peers = dict()  # name -> Peer
         self._bus = _session.Bus()
 
     @property
@@ -51,18 +52,18 @@ class Context(object):
         """Get or create a node for role matching name and/or address[:port].
         Raises ValueError if node cannot be found nor created.
         """
-        nodes = [ node for node in self._nodes if node.role == role ]
+        nodes = [node for node in self._nodes if node.role == role]
 
         if name is None:
             if address is None:
                 raise ValueError('Undefined node')
             name = '<unknown>'
         else:
-            nodes = [ node for node in nodes if node.name == name ]
+            nodes = [node for node in nodes if node.name == name]
 
         if address is not None:
             address = self.address_from(address)
-            nodes = [ node for node in nodes if node.address == address ]
+            nodes = [node for node in nodes if node.address == address]
 
         portless = None
         for node in nodes:
@@ -126,4 +127,3 @@ class Context(object):
     def __contains__(self, key):
         """Convenience access to config dict or context."""
         return key in self._config
-
