@@ -76,7 +76,7 @@ public class SrEroSubobjectParserTest {
 
     private static final byte[] srEroSubobjectWithoutNAI  = {
         0x05,0x08,(byte) 0x10,0x08,
-        0x00,0x01,(byte) 0xe2,0x40,
+        0x00,0x01,(byte) 0xe2,0x40
     };
 
     private static final byte[] srEroSubobjectWithoutSID  = {
@@ -111,7 +111,7 @@ public class SrEroSubobjectParserTest {
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
         builder.setSidType(SidType.Ipv4NodeId);
         builder.setSid(123456L);
-        builder.setCFlags(false);
+        builder.setCFlag(false);
         builder.setMFlag(false);
         builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddress(new Ipv4Address("74.125.43.99"))).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build()).setLoose(false);
@@ -128,7 +128,7 @@ public class SrEroSubobjectParserTest {
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
         builder.setSidType(SidType.Ipv6NodeId);
         builder.setSid(123456L);
-        builder.setCFlags(false);
+        builder.setCFlag(false);
         builder.setMFlag(false);
         builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddress(new Ipv6Address("fe80:cd00::211e:729c"))).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build()).setLoose(false);
@@ -145,7 +145,7 @@ public class SrEroSubobjectParserTest {
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
         builder.setSidType(SidType.Ipv4Adjacency);
         builder.setSid(123456L);
-        builder.setCFlags(false);
+        builder.setCFlag(false);
         builder.setMFlag(false);
         builder.setNai(new IpAdjacencyBuilder().setLocalIpAddress(new IpAddress(new Ipv4Address("74.125.43.99")))
                 .setRemoteIpAddress(new IpAddress(new Ipv4Address("74.125.43.100"))).build());
@@ -163,7 +163,7 @@ public class SrEroSubobjectParserTest {
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
         builder.setSidType(SidType.Ipv6Adjacency);
         builder.setSid(123456L);
-        builder.setCFlags(false);
+        builder.setCFlag(false);
         builder.setMFlag(false);
         builder.setNai(new IpAdjacencyBuilder().setLocalIpAddress(new IpAddress(new Ipv6Address("fe80:cd00::211e:729c")))
                 .setRemoteIpAddress(new IpAddress(new Ipv6Address("fe80:cd00::211e:729d"))).build());
@@ -181,7 +181,7 @@ public class SrEroSubobjectParserTest {
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
         builder.setSidType(SidType.Unnumbered);
         builder.setSid(123456L);
-        builder.setCFlags(false);
+        builder.setCFlag(false);
         builder.setMFlag(false);
         builder.setNai(new UnnumberedAdjacencyBuilder().setLocalNodeId(1L).setLocalInterfaceId(2L).setRemoteNodeId(3L).setRemoteInterfaceId(4L).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build()).setLoose(false);
@@ -198,7 +198,7 @@ public class SrEroSubobjectParserTest {
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
         builder.setSidType(SidType.Ipv4NodeId);
         builder.setSid(123456L);
-        builder.setCFlags(false);
+        builder.setCFlag(false);
         builder.setMFlag(false);
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build()).setLoose(false);
 
@@ -213,7 +213,7 @@ public class SrEroSubobjectParserTest {
         final SrEroSubobjectParser parser = new SrEroSubobjectParser();
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
         builder.setSidType(SidType.Ipv4NodeId);
-        builder.setCFlags(false);
+        builder.setCFlag(false);
         builder.setMFlag(false);
         builder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddress(new Ipv4Address("74.125.43.99"))).build());
         final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(builder.build()).setLoose(false);
@@ -228,7 +228,7 @@ public class SrEroSubobjectParserTest {
     public void testSrEroSubobjectIpv4NodeIdNAIMFlag() throws PCEPDeserializerException {
         final SrEroSubobjectParser parser = new SrEroSubobjectParser();
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
-        builder.setCFlags(false);
+        builder.setCFlag(false);
         builder.setMFlag(true);
         builder.setSidType(SidType.Ipv4NodeId);
         builder.setSid(30140L);

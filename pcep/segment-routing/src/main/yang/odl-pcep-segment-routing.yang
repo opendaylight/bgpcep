@@ -16,7 +16,7 @@ module odl-pcep-segment-routing {
 
     description
         "This module contains the data model of PCEP Extensions for Segment Routing,
-        draft-ietf-pce-segment-routing-00.
+        draft-ietf-pce-segment-routing-01.
 
         Copyright (c)2015 Cisco Systems, Inc. All rights reserved.
 
@@ -28,12 +28,12 @@ module odl-pcep-segment-routing {
     revision "2015-01-12" {
         description
             "Upgrade from draft-sivabalan-pce-segment-routing-02.";
-        reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-00";
+        reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-01";
     }
 
     grouping sr-pce-capability-tlv {
         description "SR-PCE-CAPABILITY TLV";
-        reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-00#section-5.1.1";
+        reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-01#section-5.1.1";
 
         container sr-pce-capability {
             uses pcep:tlv;
@@ -46,17 +46,17 @@ module odl-pcep-segment-routing {
     }
 
     augment "/msg:open/msg:open-message/msg:open/msg:tlvs" {
-        reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-00#section-5.1";
+        reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-01#section-5.1";
         uses sr-pce-capability-tlv;
     }
 
     augment "/msg:pcerr/msg:pcerr-message/msg:error-type/msg:session-case/msg:session/msg:open/msg:tlvs" {
-        reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-00#section-5.1";
+        reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-01#section-5.1";
         uses sr-pce-capability-tlv;
     }
 
     typedef sid-type {
-        reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-00#section-5.3.1";
+        reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-01#section-5.3.1";
         type enumeration {
             enum ipv4-node-id {
                 value 1;
@@ -77,17 +77,24 @@ module odl-pcep-segment-routing {
     }
 
     grouping sr-subobject {
+        description "Common grouping for both SR-ERO and SR-RRO subobjects as they share the same content representation.";
+        leaf c-flag {
+            type boolean;
+            default false;
+        }
+        leaf m-flag {
+            type boolean;
+            default false;
+        }
         leaf sid-type {
             type sid-type;
         }
-
         leaf sid {
             description "Segment Identifier";
             type uint32;
         }
-
         choice nai {
-            reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-00#section-5.3.2";
+            reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-01#section-5.3.2";
             description "Node or Adjacency Identifier";
             case ip-node-id {
                 when "../sid-type = 'ipv4-node-id' or ../sid-type = 'ipv6-node-id'";
@@ -132,21 +139,14 @@ module odl-pcep-segment-routing {
         }
     }
 
+    // kept both groupings in case draft changes and they won't be equal
     grouping sr-ero-subobject {
-        reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-00#section-5.3.1";
-        leaf c-flags {
-            type boolean;
-            default false;
-        }
-        leaf m-flag {
-            type boolean;
-            default false;
-        }
+        reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-01#section-5.3.1";
         uses sr-subobject;
     }
 
     grouping sr-rro-subobject {
-        reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-00#section-5.4";
+        reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-01#section-5.4";
         uses sr-subobject;
     }
 
