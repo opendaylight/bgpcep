@@ -9,7 +9,7 @@ package org.opendaylight.protocol.pcep.segment.routing;
 
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.SrEroSubobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.SrSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.setup.type.tlv.PathSetupType;
@@ -25,10 +25,10 @@ public final class SrEroUtil {
     protected static PCEPErrors validateSrEroSubobjects(final Ero ero) {
         if (ero.getSubobject() != null) {
             for (final Subobject subobject : ero.getSubobject()) {
-                if (!(subobject.getSubobjectType() instanceof SrEroSubobject)) {
+                if (!(subobject.getSubobjectType() instanceof SrSubobject)) {
                     return PCEPErrors.NON_IDENTICAL_ERO_SUBOBJECTS;
                 }
-                final SrEroSubobject srEroSubobject = (SrEroSubobject) subobject.getSubobjectType();
+                final SrSubobject srEroSubobject = (SrSubobject) subobject.getSubobjectType();
                 if (srEroSubobject.isMFlag() != null && srEroSubobject.isMFlag() && srEroSubobject.getSid() < MPLS_LABEL_MIN_VALUE) {
                     return PCEPErrors.BAD_LABEL_VALUE;
                 }
