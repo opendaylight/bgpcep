@@ -1,0 +1,136 @@
+/*
+ * Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+package org.opendaylight.protocol.bgp.linkstate;
+
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableSet;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
+import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.bgp.rib.rib.loc.rib.tables.routes.LinkstateRoutesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.CLinkstateDestination;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.LinkstateRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.LinkstateRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstate;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
+import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
+import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public final class LinkstateRIBSupport extends AbstractRIBSupport {
+    private static abstract class ApplyRoute {
+        abstract void apply(DOMDataWriteTransaction tx, YangInstanceIdentifier base, NodeIdentifierWithPredicates routeKey, DataContainerNode<?> route, final ContainerNode attributes);
+    }
+
+    private final class PutRoute extends ApplyRoute {
+
+        @Override
+        void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final NodeIdentifierWithPredicates routeKey,
+            final DataContainerNode<?> route, final ContainerNode attributes) {
+            // TODO Auto-generated method stub
+
+        }
+    }
+
+    private static final Logger LOG = LoggerFactory.getLogger(LinkstateRIBSupport.class);
+
+    private final static QName ROUTE_KEY = QName.cachedReference(QName.create(LinkstateRoute.QNAME, "route-key"));
+    private static final LinkstateRIBSupport SINGLETON = new LinkstateRIBSupport();
+    private final ChoiceNode emptyRoutes = Builders.choiceBuilder()
+        .withNodeIdentifier(new NodeIdentifier(Routes.QNAME))
+        .addChild(Builders.containerBuilder()
+            .withNodeIdentifier(new NodeIdentifier(LinkstateRoutes.QNAME))
+            .addChild(ImmutableNodes.mapNodeBuilder(LinkstateRoute.QNAME).build()).build()).build();
+    private final NodeIdentifier destination = new NodeIdentifier(DestinationLinkstate.QNAME);
+    private final NodeIdentifier route = new NodeIdentifier(LinkstateRoute.QNAME);
+    private final NodeIdentifier nlriRoutesList = new NodeIdentifier(CLinkstateDestination.QNAME);
+    private final NodeIdentifier routeKeyLeaf = new NodeIdentifier(ROUTE_KEY);
+    private final ApplyRoute putRoute = new PutRoute();
+
+    protected LinkstateRIBSupport() {
+       super(LinkstateRoutesCase.class, LinkstateRoutes.class, LinkstateRoute.class);
+    }
+
+    public static LinkstateRIBSupport getInstance() {
+        return SINGLETON;
+    }
+
+    @Override
+    public ChoiceNode emptyRoutes() {
+        return this.emptyRoutes;
+    }
+
+    @Override
+    public ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
+        return ImmutableSet.of();
+    }
+
+    @Override
+    public ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
+        return ImmutableSet.of();
+    }
+
+    @Override
+    protected void deleteDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
+        final ContainerNode destination) {
+        // TODO Auto-generated method stub
+
+    }
+
+    private final void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
+        final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
+        if (destination != null) {
+            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination.getChild(this.nlriRoutesList);
+            if (maybeRoutes.isPresent()) {
+                final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
+                if (routes instanceof UnkeyedListNode) {
+                    final YangInstanceIdentifier base = tablePath.node(ROUTES).node(routesContainerIdentifier()).node(this.route);
+                    for (final UnkeyedListEntryNode e : ((UnkeyedListNode)routes).getValue()) {
+                        final NodeIdentifierWithPredicates routeKey = createRouteKey(e);
+                            function.apply(tx, base, routeKey,  e, attributes);
+                    }
+                } else {
+                    LOG.warn("Routes {} are not a map", routes);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void putDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
+        final ContainerNode destination, final ContainerNode attributes) {
+        processDestination(tx, tablePath, destination, attributes, this.putRoute);
+    }
+
+    private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode linkstate) {
+        final ByteBuf buffer = Unpooled.buffer();
+        // LinkstateNlriParser.serializeNlri(linkstate, buffer);
+        return new NodeIdentifierWithPredicates(LinkstateRoute.QNAME, ROUTE_KEY, ByteArray.readAllBytes(buffer));
+    }
+
+    @Override
+    protected NodeIdentifier destinationContainerIdentifier() {
+        return this.destination;
+    }
+}

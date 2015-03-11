@@ -30,6 +30,7 @@ public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
             public AdjRIBsIn<?, ?> createAdjRIBs(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
                 return new LinkstateAdjRIBsIn(basePath);
             }
-        }));
+        }),
+        context.registerRIBSupport(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class, LinkstateRIBSupport.getInstance()));
     }
 }
