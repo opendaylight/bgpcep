@@ -46,7 +46,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         this.attributesIdentifier = ribSupport.routeAttributesIdentifier();
 
         // FIXME: proper values
-        this.peerPolicyTracker = new ExportPolicyPeerTracker(null, null);
+        this.peerPolicyTracker = new ExportPolicyPeerTracker(null, null, null);
     }
 
     @Override
