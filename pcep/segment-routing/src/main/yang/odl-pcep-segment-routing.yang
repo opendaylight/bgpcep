@@ -147,7 +147,7 @@ module odl-pcep-segment-routing {
 
     grouping sr-rro-subobject {
         reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-00#section-5.4";
-        uses sr-subobject;
+        uses sr-ero-subobject;
     }
 
     //ERO augmentations
