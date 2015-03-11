@@ -26,7 +26,8 @@ final class IPv6RIBSupport extends AbstractIPRIBSupport {
             .addChild(Builders.containerBuilder()
                 .withNodeIdentifier(new NodeIdentifier(Ipv6Routes.QNAME))
                 .withChild(ImmutableNodes.mapNodeBuilder(Ipv6Route.QNAME).build()).build()).build();
-    private final NodeIdentifier destination = new NodeIdentifier(DestinationIpv6Case.QNAME);
+    private final NodeIdentifier advertisedDestination = new NodeIdentifier(DestinationIpv6Case.QNAME);
+    private final NodeIdentifier withdrawnDestination = new NodeIdentifier(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ip.rev150305.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv6Case.QNAME);
     private final NodeIdentifier route = new NodeIdentifier(Ipv6Route.QNAME);
 
     private IPv6RIBSupport() {
@@ -43,8 +44,13 @@ final class IPv6RIBSupport extends AbstractIPRIBSupport {
     }
 
     @Override
-    protected NodeIdentifier destinationContainerIdentifier() {
-        return this.destination;
+    protected NodeIdentifier advertisedDestinationContainerIdentifier() {
+        return this.advertisedDestination;
+    }
+
+    @Override
+    protected NodeIdentifier withdrawnDestinationContainerIdentifier() {
+        return this.withdrawnDestination;
     }
 
     @Override
