@@ -153,7 +153,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
     }
 
     private ObjectName createTimerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
-        ObjectName nameCreated = transaction.createModule(HashedWheelTimerModuleFactory.NAME, TIMER_INSTANCE_NAME);
+        final ObjectName nameCreated = transaction.createModule(HashedWheelTimerModuleFactory.NAME, TIMER_INSTANCE_NAME);
         return nameCreated;
 
     }
@@ -164,6 +164,8 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         final BindingBrokerImplModuleMXBean mxBean = transaction.newMXBeanProxy(objectName, BindingBrokerImplModuleMXBean.class);
         mxBean.setDataBroker(dataBrokerON);
         mxBean.setNotificationService(notificationBrokerON);
+        mxBean.setBindingMappingService(lookupMappingServiceInstance(transaction));
+        mxBean.setDomAsyncBroker(lookupDomBrokerInstance(transaction));
         return objectName;
     }
 
@@ -176,9 +178,20 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
             throws InstanceAlreadyExistsException, InstanceNotFoundException {
         final ObjectName nameCreated = transaction.createModule(ForwardedCompatibleDataBrokerImplModuleFactory.NAME, COMPATIBLE_DATA_BROKER_INSTANCE_NAME);
         final ForwardedCompatibleDataBrokerImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, ForwardedCompatibleDataBrokerImplModuleMXBean.class);
-        mxBean.setBindingMappingService(lookupMappingServiceInstance(transaction));
-        mxBean.setDomAsyncBroker(lookupDomBrokerInstance(transaction));
+        mxBean.setDataBroker(lookupDataBrokerInstance(transaction));
         return nameCreated;
+    }
+
+    private static ObjectName lookupDataBrokerInstance(final ConfigTransactionJMXClient transaction) {
+        try {
+            return transaction.lookupConfigBean(BindingAsyncDataBrokerImplModuleFactory.NAME, BINDING_ASYNC_BROKER_INSTANCE_NAME);
+        } catch (final InstanceNotFoundException e) {
+            try {
+                return transaction.createModule(RuntimeMappingModuleFactory.NAME, RuntimeMappingModuleFactory.SINGLETON_NAME);
+            } catch (final InstanceAlreadyExistsException e1) {
+                throw new IllegalStateException(e1);
+            }
+        }
     }
 
     public ObjectName createAsyncDataBrokerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException, InstanceNotFoundException {
@@ -205,7 +218,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
     private static ObjectName lookupSchemaServiceInstance(final ConfigTransactionJMXClient transaction) {
         try {
             return transaction.lookupConfigBean(SchemaServiceImplSingletonModuleFactory.NAME, SchemaServiceImplSingletonModuleFactory.SINGLETON_NAME);
-        } catch (InstanceNotFoundException e) {
+        } catch (final InstanceNotFoundException e) {
             try {
                 return transaction.createModule(SchemaServiceImplSingletonModuleFactory.NAME, SchemaServiceImplSingletonModuleFactory.SINGLETON_NAME);
             } catch (final InstanceAlreadyExistsException e1) {
@@ -266,7 +279,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
     }
 
     public List<String> getYangModelsPaths() {
-        List<String> paths = Lists.newArrayList("/META-INF/yang/ietf-inet-types.yang", "/META-INF/yang/programming.yang");
+        final List<String> paths = Lists.newArrayList("/META-INF/yang/ietf-inet-types.yang", "/META-INF/yang/programming.yang");
         return paths;
     }
 
@@ -281,9 +294,9 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
     // TODO move back to AbstractConfigTest
     private static Collection<ByteSource> getFilesAsByteSources(final List<String> paths) {
         final Collection<ByteSource> resources = new ArrayList<>();
-        List<String> failedToFind = new ArrayList<>();
-        for (String path : paths) {
-            URL url = AbstractInstructionSchedulerTest.class.getResource(path);
+        final List<String> failedToFind = new ArrayList<>();
+        for (final String path : paths) {
+            final URL url = AbstractInstructionSchedulerTest.class.getResource(path);
             if (url == null) {
                 failedToFind.add(path);
             } else {
