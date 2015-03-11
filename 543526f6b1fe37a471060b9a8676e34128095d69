@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_71ca12a3",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-11T15:10:35Z",
+      "side": 1,
+      "message": "if you decide to change the section, change the whole URL correctly, this one does not point where you want it to point",
+      "revId": "543526f6b1fe37a471060b9a8676e34128095d69",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_d1d52644",
+        "filename": "pcep/spi/src/main/java/org/opendaylight/protocol/pcep/spi/PCEPErrors.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-11T15:10:35Z",
+      "side": 1,
+      "message": "NON_IDENTICAL",
+      "range": {
+        "startLine": 290,
+        "startChar": 38,
+        "endLine": 290,
+        "endChar": 40
+      },
+      "revId": "543526f6b1fe37a471060b9a8676e34128095d69",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
