@@ -134,7 +134,7 @@ module odl-pcep-segment-routing {
 
     grouping sr-ero-subobject {
         reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-00#section-5.3.1";
-        leaf c-flags {
+        leaf c-flag {
             type boolean;
             default false;
         }
@@ -147,6 +147,14 @@ module odl-pcep-segment-routing {
 
     grouping sr-rro-subobject {
         reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-00#section-5.4";
+        leaf c-flag {
+            type boolean;
+            default false;
+        }
+        leaf m-flag {
+            type boolean;
+            default false;
+        }
         uses sr-subobject;
     }
 
