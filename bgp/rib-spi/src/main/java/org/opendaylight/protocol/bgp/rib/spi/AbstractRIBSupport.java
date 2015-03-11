@@ -16,6 +16,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.unreach.nlri.WithdrawnRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.Attributes;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -34,6 +35,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     private static final NodeIdentifier ADVERTIZED_ROUTES = new NodeIdentifier(AdvertizedRoutes.QNAME);
     private static final NodeIdentifier WITHDRAWN_ROUTES = new NodeIdentifier(WithdrawnRoutes.QNAME);
     private static final NodeIdentifier DESTINATION_TYPE = new NodeIdentifier(DestinationType.QNAME);
+    protected static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
     private final NodeIdentifier routesContainerIdentifier;
     private final NodeIdentifier routeAttributesIdentifier;
 
@@ -57,16 +59,24 @@ public abstract class AbstractRIBSupport implements RIBSupport {
      * @return Container identifier, may not be null.
      */
     protected final NodeIdentifier routesContainerIdentifier() {
-        return routesContainerIdentifier;
+        return this.routesContainerIdentifier;
     }
 
     /**
      * Return the {@link NodeIdentifier} of the AFI/SAFI-specific container under
-     * the NLRI destination.
+     * the NLRI advertised routes.
      *
      * @return Container identifier, may not be null.
      */
-    @Nonnull protected abstract NodeIdentifier destinationContainerIdentifier();
+    @Nonnull protected abstract NodeIdentifier advertisedDestinationContainerIdentifier();
+
+    /**
+     * Return the {@link NodeIdentifier} of the AFI/SAFI-specific container under
+     * the NLRI withdrawn routes.
+     *
+     * @return Container identifier, may not be null.
+     */
+    @Nonnull protected abstract NodeIdentifier withdrawnDestinationContainerIdentifier();
 
     protected abstract void deleteDestinationRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tablePath, ContainerNode destination);
     protected abstract void putDestinationRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tablePath, ContainerNode destination, ContainerNode attributes);
@@ -103,12 +113,12 @@ public abstract class AbstractRIBSupport implements RIBSupport {
 
     @Override
     public final NodeIdentifier routeAttributesIdentifier() {
-        return routeAttributesIdentifier;
+        return this.routeAttributesIdentifier;
     }
 
     @Override
     public final Collection<DataTreeCandidateNode> changedRoutes(final DataTreeCandidateNode routes) {
-        final DataTreeCandidateNode myRoutes = routes.getModifiedChild(routesContainerIdentifier);
+        final DataTreeCandidateNode myRoutes = routes.getModifiedChild(this.routesContainerIdentifier);
         if (myRoutes == null) {
             return Collections.emptySet();
         }
@@ -120,14 +130,14 @@ public abstract class AbstractRIBSupport implements RIBSupport {
 
     @Override
     public final YangInstanceIdentifier routePath(final YangInstanceIdentifier routesPath, final PathArgument routeId) {
-        return routesPath.node(routesContainerIdentifier).node(routeId);
+        return routesPath.node(this.routesContainerIdentifier).node(routeId);
     }
 
     @Override
     public final void deleteRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode nlri) {
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = nlri.getChild(WITHDRAWN_ROUTES);
         if (maybeRoutes.isPresent()) {
-            final ContainerNode destination = getDestination(maybeRoutes.get(), destinationContainerIdentifier());
+            final ContainerNode destination = getDestination(maybeRoutes.get(), withdrawnDestinationContainerIdentifier());
             if (destination != null) {
                 deleteDestinationRoutes(tx, tablePath, destination);
             }
@@ -140,7 +150,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     public final void putRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode nlri, final ContainerNode attributes) {
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = nlri.getChild(ADVERTIZED_ROUTES);
         if (maybeRoutes.isPresent()) {
-            final ContainerNode destination = getDestination(maybeRoutes.get(), destinationContainerIdentifier());
+            final ContainerNode destination = getDestination(maybeRoutes.get(), advertisedDestinationContainerIdentifier());
             if (destination != null) {
                 putDestinationRoutes(tx, tablePath, destination, attributes);
             }
