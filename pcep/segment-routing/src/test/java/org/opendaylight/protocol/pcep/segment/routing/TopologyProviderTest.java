@@ -115,7 +115,7 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
 
     private static Ero createSrEroObject(final String nai) {
         final SrEroTypeBuilder srEroBuilder = new SrEroTypeBuilder();
-        srEroBuilder.setCFlags(false);
+        srEroBuilder.setCFlag(false);
         srEroBuilder.setMFlag(false);
         srEroBuilder.setSidType(SidType.Ipv4NodeId);
         srEroBuilder.setSid(123456L);

@@ -12,3 +12,5 @@ target
 *.iml
 *.iws
 .idea
+.gitignore
+bin/
