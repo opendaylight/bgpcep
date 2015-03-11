@@ -105,7 +105,7 @@ public class SrObjectParserTest {
         final List<Subobject> subobjects = Lists.newArrayList();
 
         final SrEroTypeBuilder srEroSubBuilder = new SrEroTypeBuilder();
-        srEroSubBuilder.setCFlags(false);
+        srEroSubBuilder.setCFlag(false);
         srEroSubBuilder.setMFlag(false);
         srEroSubBuilder.setSidType(SidType.Ipv4NodeId);
         srEroSubBuilder.setSid(123456L);
