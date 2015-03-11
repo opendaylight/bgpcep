@@ -14,7 +14,6 @@ import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -54,7 +53,7 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
             b.withNodeIdentifier(route.getIdentifier());
 
             // FIXME: All route children, there should be a utility somewhere to do this
-            for (DataContainerChild<? extends PathArgument, ?> child : route.getValue()) {
+            for (final DataContainerChild<? extends PathArgument, ?> child : route.getValue()) {
                 b.withChild(child);
             }
 
@@ -67,7 +66,6 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractIPRIBSupport.class);
-    private static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
     private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
     private final ApplyRoute putRoute = new PutRoute();
 
@@ -100,7 +98,7 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof MapNode) {
                     final YangInstanceIdentifier base = tablePath.node(ROUTES).node(routesContainerIdentifier());
-                    for (MapEntryNode e : ((MapNode)routes).getValue()) {
+                    for (final MapEntryNode e : ((MapNode)routes).getValue()) {
                         function.apply(tx, base, e, attributes);
                     }
                 } else {
@@ -112,7 +110,7 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
 
     @Override
     protected void putDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode destination, final ContainerNode attributes) {
-        processDestination(tx, tablePath, destination, attributes, putRoute);
+        processDestination(tx, tablePath, destination, attributes, this.putRoute);
     }
 
     @Override
