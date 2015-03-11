@@ -126,7 +126,9 @@ final class EffectiveRibInWriter implements AutoCloseable {
             }
         }
 
-        private void processTableChildren(final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final AbstractImportPolicy policy, final YangInstanceIdentifier tablePath, final Collection<DataTreeCandidateNode> children) {
+        private void processTableChildren(final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final NodeIdentifierWithPredicates peerKey, final YangInstanceIdentifier tablePath, final Collection<DataTreeCandidateNode> children) {
+            final AbstractImportPolicy policy = peerPolicyTracker.policyFor(IdentifierUtils.peerId(peerKey));
+
             for (DataTreeCandidateNode child : children) {
                 switch (child.getModificationType()) {
                 case DELETE:
@@ -171,8 +173,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
             final RIBSupport ribSupport = getRibSupport(tableKey);
             final YangInstanceIdentifier tablePath = effectiveTablePath(peerKey, tableKey);
 
-            final AbstractImportPolicy policy = peerPolicyTracker.policyFor(IdentifierUtils.peerId(peerKey));
-            processTableChildren(tx, ribSupport, policy, tablePath, table.getChildNodes());
+            processTableChildren(tx, ribSupport, peerKey, tablePath, table.getChildNodes());
         }
 
         private void writeTable(final DOMDataWriteTransaction tx, final NodeIdentifierWithPredicates peerKey, final NodeIdentifierWithPredicates tableKey, final DataTreeCandidateNode table) {
@@ -182,8 +183,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
             // Create an empty table
             TableContext.clearTable(tx, ribSupport, tablePath);
 
-            final AbstractImportPolicy policy = peerPolicyTracker.policyFor(IdentifierUtils.peerId(peerKey));
-            processTableChildren(tx, ribSupport, policy, tablePath, table.getChildNodes());
+            processTableChildren(tx, ribSupport, peerKey, tablePath, table.getChildNodes());
         }
 
         @Override
@@ -242,8 +242,8 @@ final class EffectiveRibInWriter implements AutoCloseable {
     private final AdjInTracker adjInTracker;
 
     private EffectiveRibInWriter(final DOMDataTreeChangeService service, final DOMTransactionChain chain, final YangInstanceIdentifier ribId) {
-        this.peerPolicyTracker = new ImportPolicyPeerTracker(service, ribId);
-        // FIXME: proper argument
+        // FIXME: proper arguments
+        this.peerPolicyTracker = new ImportPolicyPeerTracker(service, ribId, null);
         this.adjInTracker = new AdjInTracker(service, null, chain, ribId);
     }
 
