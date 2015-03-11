@@ -19,34 +19,42 @@ import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectUtil;
 import org.opendaylight.protocol.util.BitArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.SrRroSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.SrSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.add.lsp.input.arguments.rro.subobject.subobject.type.SrRroTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectBuilder;
 
-public class SrRroSubobjectParser implements RROSubobjectParser, RROSubobjectSerializer {
+public class SrRroTypeSrSubobjectParser implements RROSubobjectParser, RROSubobjectSerializer {
 
     public static final int TYPE = 6;
 
-    private static final int S_FLAG_POSITION = 7;
-    private static final int F_FLAG_POSITION = 6;
+    private static final int M_FLAG_POSITION = 7;
+    private static final int C_FLAG_POSITION = 6;
+    private static final int S_FLAG_POSITION = 5;
+    private static final int F_FLAG_POSITION = 4;
+    private static final int MPLS_LABEL_OFFSET = 12;
 
     @Override
     public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof SrRroSubobject,
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof SrSubobject,
                 "Unknown subobject instance. Passed %s. Needed SrRroSubobject.", subobject.getSubobjectType()
                         .getClass());
 
-        final SrRroSubobject srRroSubobject = (SrRroSubobject) subobject.getSubobjectType();
+        final SrSubobject srRroSubobject = (SrSubobject) subobject.getSubobjectType();
+        final SrRroTypeBuilder builder = new SrRroTypeBuilder(srRroSubobject);
+        if (srRroSubobject.isCFlag() != null && srRroSubobject.isMFlag() && srRroSubobject.getSid() != null) {
+            builder.setSid(srRroSubobject.getSid() << MPLS_LABEL_OFFSET);
+        }
         final BitArray bits = new BitArray(BITSET_LENGTH);
+        bits.set(M_FLAG_POSITION, srRroSubobject.isMFlag());
+        bits.set(C_FLAG_POSITION, srRroSubobject.isCFlag());
         if (srRroSubobject.getSid() == null) {
             bits.set(S_FLAG_POSITION, Boolean.TRUE);
         }
         if (srRroSubobject.getNai() == null) {
             bits.set(F_FLAG_POSITION, Boolean.TRUE);
         }
-        final ByteBuf body = SrSubobjectParserUtil.serializeSrSubobject(srRroSubobject, bits);
+        final ByteBuf body = SrSubobjectParserUtil.serializeSrSubobject(builder.build(), bits);
         RROSubobjectUtil.formatSubobject(TYPE, body, buffer);
     }
 
@@ -57,15 +65,21 @@ public class SrRroSubobjectParser implements RROSubobjectParser, RROSubobjectSer
         if (buffer.readableBytes() <= MINIMAL_LENGTH) {
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ";");
         }
-
+        final BitArray flags = new BitArray(BITSET_LENGTH);
         final SrSubobject srSubobject = SrSubobjectParserUtil.parseSrSubobject(buffer, new Function<BitArray, Void>() {
             @Override
             public Void apply(final BitArray input) {
+                flags.set(C_FLAG_POSITION, input.get(C_FLAG_POSITION));
+                flags.set(M_FLAG_POSITION, input.get(M_FLAG_POSITION));
                 return null;
             }
-        }, F_FLAG_POSITION, S_FLAG_POSITION);
+        }, F_FLAG_POSITION, S_FLAG_POSITION, C_FLAG_POSITION, M_FLAG_POSITION);
         final SrRroTypeBuilder srRroSubobjectBuilder = new SrRroTypeBuilder(srSubobject);
-
+        srRroSubobjectBuilder.setCFlag(flags.get(C_FLAG_POSITION));
+        srRroSubobjectBuilder.setMFlag(flags.get(M_FLAG_POSITION));
+        if (srRroSubobjectBuilder.isMFlag() != null && srRroSubobjectBuilder.isMFlag() && srRroSubobjectBuilder.getSid() != null) {
+            srRroSubobjectBuilder.setSid(srRroSubobjectBuilder.getSid() >> MPLS_LABEL_OFFSET);
+        }
         final SubobjectBuilder subobjectBuilder = new SubobjectBuilder();
         subobjectBuilder.setSubobjectType(srRroSubobjectBuilder.build());
         return subobjectBuilder.build();

@@ -14,8 +14,10 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
@@ -86,7 +88,7 @@ final class SrSubobjectParserUtil {
         return body;
     }
 
-    public static SrSubobject parseSrSubobject(final ByteBuf buffer, final Function<BitArray, Void> getFlags, final int fPosition, final int sPosition)
+    public static SrSubobject parseSrSubobject(final ByteBuf buffer, final Function<BitArray, Void> getFlags, final int fPosition, final int sPosition, final int cPosition, final int mPosition)
             throws PCEPDeserializerException {
         final int sidTypeByte = buffer.readByte() >> SID_TYPE_BITS_OFFSET;
         final SidType sidType = SidType.forValue(sidTypeByte);
@@ -157,6 +159,14 @@ final class SrSubobjectParserUtil {
             @Override
             public Nai getNai() {
                 return nai;
+            }
+            @Override
+            public Boolean isCFlag() {
+                return bitSet.get(cPosition);
+            }
+            @Override
+            public Boolean isMFlag() {
+                return bitSet.get(mPosition);
             }
         };
     }
