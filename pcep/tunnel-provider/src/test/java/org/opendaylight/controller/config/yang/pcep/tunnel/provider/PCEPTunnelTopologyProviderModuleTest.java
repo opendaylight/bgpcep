@@ -89,10 +89,10 @@ public class PCEPTunnelTopologyProviderModuleTest extends AbstractInstructionSch
     private ObjectName createPCEPTopologyProviderModuleInstance(final ConfigTransactionJMXClient transaction, final TopologyId topologyId)
             throws Exception {
         final ObjectName objectName = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
+        final ObjectName asyncDataBrokerON = createAsyncDataBrokerInstance(transaction);
         final ObjectName dataBrokerON = createCompatibleDataBrokerInstance(transaction);
         final ObjectName notificationBrokerON = createNotificationBrokerInstance(transaction);
         final ObjectName bindingBrokerON = createBindingBrokerImpl(transaction, dataBrokerON, notificationBrokerON);
-        final ObjectName asyncDataBrokerON = createAsyncDataBrokerInstance(transaction);
         final ObjectName schedulerON = createInstructionSchedulerModuleInstance(transaction, asyncDataBrokerON, bindingBrokerON,
                 notificationBrokerON);
         final ObjectName sourceTopology = PCEPTopologyProviderModuleTest.createPCEPTopologyProviderModuleInstance(transaction,

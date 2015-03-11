@@ -17,7 +17,7 @@ public class InstructionSchedulerImplModuleTest extends AbstractInstructionSched
 
     @Test
     public void testCreateBean() throws Exception {
-        CommitStatus status = createInstance();
+        final CommitStatus status = createInstance();
         assertBeanCount(1, FACTORY_NAME);
         assertStatus(status, 10, 0, 0);
     }
@@ -25,18 +25,19 @@ public class InstructionSchedulerImplModuleTest extends AbstractInstructionSched
     @Test
     public void testReusingOldInstance() throws Exception {
         createInstance();
-        ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
-        CommitStatus status = transaction.commit();
+        final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
         assertStatus(status, 0, 0, 10);
     }
 
     private CommitStatus createInstance() throws Exception {
         final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ObjectName asyncDataBroker = createAsyncDataBrokerInstance(transaction);
         final ObjectName dataBrokerON = createCompatibleDataBrokerInstance(transaction);
         final ObjectName notificationBrokerON = createNotificationBrokerInstance(transaction);
-        createInstructionSchedulerModuleInstance(transaction, createAsyncDataBrokerInstance(transaction), createBindingBrokerImpl(transaction,
+        createInstructionSchedulerModuleInstance(transaction, asyncDataBroker , createBindingBrokerImpl(transaction,
                 dataBrokerON, notificationBrokerON), notificationBrokerON);
         return transaction.commit();
     }
