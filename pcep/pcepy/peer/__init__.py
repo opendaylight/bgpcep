@@ -7,7 +7,6 @@
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 
 
-from .context import Context
-from .pce import Pce
-from .pcc import Pcc
-
+from .context import Context  # noqa
+from .pce import Pce  # noqa
+from .pcc import Pcc  # noqa
