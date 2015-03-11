@@ -77,15 +77,21 @@ module odl-pcep-segment-routing {
     }
 
     grouping sr-subobject {
+        leaf c-flag {
+            type boolean;
+            default false;
+        }
+        leaf m-flag {
+            type boolean;
+            default false;
+        }
         leaf sid-type {
             type sid-type;
         }
-
         leaf sid {
             description "Segment Identifier";
             type uint32;
         }
-
         choice nai {
             reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-00#section-5.3.2";
             description "Node or Adjacency Identifier";
@@ -132,16 +138,9 @@ module odl-pcep-segment-routing {
         }
     }
 
+    // kept both groupings in case draft changes and they won't be equal
     grouping sr-ero-subobject {
         reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-00#section-5.3.1";
-        leaf c-flags {
-            type boolean;
-            default false;
-        }
-        leaf m-flag {
-            type boolean;
-            default false;
-        }
         uses sr-subobject;
     }
 
