@@ -14,8 +14,8 @@ import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.add.lsp.input.arguments.ero.subobject.subobject.type.SrEroType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.add.lsp.input.arguments.rro.subobject.subobject.type.SrRroType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.SrEroSubobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.SrRroSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.sr.pce.capability.tlv.SrPceCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.setup.type.tlv.PathSetupType;
@@ -35,9 +35,9 @@ public class SegmentRoutingActivator extends AbstractPCEPExtensionProviderActiva
 
         /* Subobjects */
         regs.add(context.registerEROSubobjectParser(SrEroSubobjectParser.TYPE, new SrEroSubobjectParser()));
-        regs.add(context.registerEROSubobjectSerializer(SrEroType.class, new SrEroSubobjectParser()));
+        regs.add(context.registerEROSubobjectSerializer(SrEroSubobject.class, new SrEroSubobjectParser()));
         regs.add(context.registerRROSubobjectParser(SrRroSubobjectParser.TYPE, new SrRroSubobjectParser()));
-        regs.add(context.registerRROSubobjectSerializer(SrRroType.class, new SrRroSubobjectParser()));
+        regs.add(context.registerRROSubobjectSerializer(SrRroSubobject.class, new SrRroSubobjectParser()));
 
         /* Objects */
         final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
