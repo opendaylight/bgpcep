@@ -83,7 +83,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
@@ -229,10 +228,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         for (final BgpTableType t : localTables) {
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
             // create locRibWriter for each table
-            // FIXME: temporary create writer only for Ipv4
-            if (key.getAfi().equals(Ipv4AddressFamily.class) || key.getAfi().equals(Ipv6AddressFamily.class)) {
-                LocRibWriter.create(this.ribContextRegistry, key, this.createPeerChain(this), getYangRibId(), localAs, (DOMDataTreeChangeService) service, pd);
-            }
+            LocRibWriter.create(this.ribContextRegistry, key, this.createPeerChain(this), getYangRibId(), localAs, (DOMDataTreeChangeService) service, pd);
         }
     }
 
