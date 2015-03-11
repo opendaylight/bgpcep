@@ -11,6 +11,7 @@ from . import base
 
 from pcepy import message as _message
 
+
 class Lsp(object):
     """A MPLS-TE Label-switched path"""
 
@@ -66,7 +67,7 @@ class StateDb(object):
         self._peer = peer
         self._session = session
 
-        self._lsps = dict() # lsp_id in session -> Lsp
+        self._lsps = dict()  # lsp_id in session -> Lsp
         self._version = 1
 
     def add(self, lsp):
@@ -80,7 +81,7 @@ class StateDb(object):
 
     @version.setter
     def version(self):
-        self._version = version
+        self._version = version  # noqa
 
     def bump(self):
         """Bump state database version"""
@@ -103,8 +104,7 @@ class StateDb(object):
             return
         if dbv.db_version < self._version:
             base._LOGGER.warning('Session "%s" database version lowered'
-            ' from %s to %s' % (self._session, self._version, dbv.db_version)
-            )
+                                 ' from %s to %s' % (self._session, self._version, dbv.db_version))
         self._version = dbv.db_version
 
     def can_avoid(self, pcc_open, pce_open):
@@ -162,6 +162,7 @@ class Await(object):
             return name is not None and criterion == name.lsp_name
         return False
 
+
 class Awaited(object):
     """Manage [timeouts on] arrival of messages satisfying criteria."""
 
@@ -169,7 +170,7 @@ class Awaited(object):
         self._owner = owner
         self._session = session
 
-        self._awaits = dict() # user_key -> Await
+        self._awaits = dict()  # user_key -> Await
         self._timeout = None
 
     def add(self, key, await):
@@ -180,10 +181,9 @@ class Awaited(object):
 
     def match(self, against):
         """Return and remove a list of awaits matching."""
-        matches = [ key
-            for key, await in self._awaits.items()
-            if await.match(against)
-        ]
+        matches = [key
+                   for key, await in self._awaits.items()
+                   if await.match(against)]
         if matches:
             for key in matches:
                 del self._awaits[key]
@@ -192,10 +192,9 @@ class Awaited(object):
 
     def out(self, now):
         """Return and remove a list of awaits timed out now"""
-        matches = [ key
-            for key, await in self._awaits.items()
-            if await.timeout and await.timeout <= now
-        ]
+        matches = [key
+                   for key, await in self._awaits.items()
+                   if await.timeout and await.timeout <= now]
         if matches:
             for key in matches:
                 del self._awaits[key]
@@ -218,4 +217,3 @@ class Awaited(object):
     @property
     def timeout(self):
         return self._timeout
-
