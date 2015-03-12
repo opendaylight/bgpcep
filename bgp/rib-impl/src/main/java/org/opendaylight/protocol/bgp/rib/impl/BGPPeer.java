@@ -63,9 +63,13 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
     private BGPPeerRuntimeRegistration runtimeReg;
     private long sessionEstablishedCounter = 0L;
 
+    @GuardedBy("this")
+    private AdjRibInWriter ribWriter;
+
     public BGPPeer(final String name, final RIB rib) {
         this.rib = Preconditions.checkNotNull(rib);
         this.name = name;
+        // ribWriter = AdjRibInWriter.create(ribId, role, chain);
     }
 
     @Override
