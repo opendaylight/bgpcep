@@ -46,6 +46,8 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
@@ -112,6 +114,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 public class ApplicationPeerTest {
 
@@ -136,7 +140,13 @@ public class ApplicationPeerTest {
     WriteTransaction transWrite;
 
     @Mock
+    DOMDataWriteTransaction domTransWrite;
+
+    @Mock
     BindingTransactionChain chain;
+
+    @Mock
+    DOMTransactionChain domChain;
 
     @Mock
     ApplicationPeer peer;
@@ -185,8 +195,10 @@ public class ApplicationPeerTest {
         this.a2 = new org.opendaylight.protocol.bgp.linkstate.RIBActivator();
         this.a2.startRIBExtensionProvider(context);
         Mockito.doReturn(this.chain).when(this.dps).createTransactionChain(Mockito.any(RIBImpl.class));
+        Mockito.doReturn(this.domChain).when(this.dom).createTransactionChain(Mockito.any(BGPPeer.class));
         Mockito.doReturn(this.o).when(this.future).get();
         Mockito.doNothing().when(this.transWrite).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class), Mockito.any(Rib.class));
+        Mockito.doNothing().when(this.domTransWrite).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
         Mockito.doAnswer(new Answer<Object>() {
 
             @Override
@@ -199,8 +211,10 @@ public class ApplicationPeerTest {
         Mockito.doNothing().when(this.transWrite).merge(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class), Mockito.any(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes.class));
         Mockito.doReturn(false).when(this.o).isPresent();
         Mockito.doReturn(this.future).when(this.transWrite).submit();
+        Mockito.doReturn(this.future).when(this.domTransWrite).submit();
         Mockito.doNothing().when(this.future).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
         Mockito.doReturn(this.transWrite).when(this.chain).newWriteOnlyTransaction();
+        Mockito.doReturn(this.domTransWrite).when(this.domChain).newWriteOnlyTransaction();
         Mockito.doReturn(this.eventLoop).when(this.channel).eventLoop();
         Mockito.doReturn("channel").when(this.channel).toString();
         Mockito.doAnswer(new Answer<Object>() {

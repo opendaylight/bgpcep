@@ -12,6 +12,7 @@ import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -58,4 +59,11 @@ public interface RIB {
      * @return A new transaction chain.
      */
     DOMTransactionChain createPeerChain(TransactionChainListener listener);
+
+    /**
+     * Return the RIB extensions available to the RIB instance.
+     *
+     * @return RIB extensions handle.
+     */
+    RIBExtensionConsumerContext getRibExtensions();
 }
