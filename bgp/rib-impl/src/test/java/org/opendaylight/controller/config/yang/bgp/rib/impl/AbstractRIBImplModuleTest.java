@@ -111,55 +111,55 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        List<ModuleFactory> moduleFactories = getModuleFactories();
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, moduleFactories.toArray(new ModuleFactory[moduleFactories.size()])));
+        final List<ModuleFactory> moduleFactories = getModuleFactories();
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.mockedContext, moduleFactories.toArray(new ModuleFactory[moduleFactories.size()])));
 
-        Filter mockedFilter = mock(Filter.class);
-        Mockito.doReturn(mockedFilter).when(mockedContext).createFilter(Mockito.anyString());
+        final Filter mockedFilter = mock(Filter.class);
+        Mockito.doReturn(mockedFilter).when(this.mockedContext).createFilter(Mockito.anyString());
 
         final ServiceReference<?> emptyServiceReference = mock(ServiceReference.class, "Empty");
         final ServiceReference<?> classLoadingStrategySR = mock(ServiceReference.class, "ClassLoadingStrategy");
         final ServiceReference<?> dataProviderServiceReference = mock(ServiceReference.class, "Data Provider");
 
-        Mockito.doReturn(mockedFilter).when(mockedContext).createFilter(Mockito.anyString());
+        Mockito.doReturn(mockedFilter).when(this.mockedContext).createFilter(Mockito.anyString());
 
-        Mockito.doNothing().when(mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
-        Mockito.doNothing().when(mockedContext).removeServiceListener(any(ServiceListener.class));
+        Mockito.doNothing().when(this.mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
+        Mockito.doNothing().when(this.mockedContext).removeServiceListener(any(ServiceListener.class));
 
-        Mockito.doNothing().when(mockedContext).addBundleListener(any(BundleListener.class));
-        Mockito.doNothing().when(mockedContext).removeBundleListener(any(BundleListener.class));
+        Mockito.doNothing().when(this.mockedContext).addBundleListener(any(BundleListener.class));
+        Mockito.doNothing().when(this.mockedContext).removeBundleListener(any(BundleListener.class));
 
-        Mockito.doReturn(new Bundle[] {}).when(mockedContext).getBundles();
+        Mockito.doReturn(new Bundle[] {}).when(this.mockedContext).getBundles();
 
-        Mockito.doReturn(new ServiceReference[] {}).when(mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
+        Mockito.doReturn(new ServiceReference[] {}).when(this.mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
 
         Mockito.doReturn("Empty reference").when(emptyServiceReference).toString();
         Mockito.doReturn("Data Provider Service Reference").when(dataProviderServiceReference).toString();
         Mockito.doReturn("Class loading stategy reference").when(classLoadingStrategySR).toString();
 
-        Mockito.doReturn(emptyServiceReference).when(mockedContext).getServiceReference(any(Class.class));
-        Mockito.doReturn(dataProviderServiceReference).when(mockedContext).getServiceReference(DataBroker.class);
-        Mockito.doReturn(classLoadingStrategySR).when(mockedContext).getServiceReference(GeneratedClassLoadingStrategy.class);
+        Mockito.doReturn(emptyServiceReference).when(this.mockedContext).getServiceReference(any(Class.class));
+        Mockito.doReturn(dataProviderServiceReference).when(this.mockedContext).getServiceReference(DataBroker.class);
+        Mockito.doReturn(classLoadingStrategySR).when(this.mockedContext).getServiceReference(GeneratedClassLoadingStrategy.class);
 
-        Mockito.doReturn(mockedDataProvider).when(mockedContext).getService(dataProviderServiceReference);
-        Mockito.doReturn(GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy()).when(mockedContext).getService(classLoadingStrategySR);
-        Mockito.doReturn(null).when(mockedContext).getService(emptyServiceReference);
+        Mockito.doReturn(this.mockedDataProvider).when(this.mockedContext).getService(dataProviderServiceReference);
+        Mockito.doReturn(GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy()).when(this.mockedContext).getService(classLoadingStrategySR);
+        Mockito.doReturn(null).when(this.mockedContext).getService(emptyServiceReference);
 
-        Mockito.doReturn(mockedTransaction).when(mockedDataProvider).newReadWriteTransaction();
+        Mockito.doReturn(this.mockedTransaction).when(this.mockedDataProvider).newReadWriteTransaction();
 
-        Mockito.doReturn(null).when(mockedTransaction).read(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(InstanceIdentifier.class));
-        Mockito.doNothing().when(mockedTransaction).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(InstanceIdentifier.class), any(DataObject.class));
-        Mockito.doNothing().when(mockedTransaction).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(InstanceIdentifier.class));
+        Mockito.doReturn(null).when(this.mockedTransaction).read(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(InstanceIdentifier.class));
+        Mockito.doNothing().when(this.mockedTransaction).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(InstanceIdentifier.class), any(DataObject.class));
+        Mockito.doNothing().when(this.mockedTransaction).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(InstanceIdentifier.class));
 
-        Mockito.doReturn(mockedFuture).when(mockedTransaction).submit();
-        Mockito.doReturn(TRANSACTION_NAME).when(mockedTransaction).getIdentifier();
+        Mockito.doReturn(this.mockedFuture).when(this.mockedTransaction).submit();
+        Mockito.doReturn(TRANSACTION_NAME).when(this.mockedTransaction).getIdentifier();
 
-        Mockito.doReturn(null).when(mockedFuture).get();
+        Mockito.doReturn(null).when(this.mockedFuture).get();
 
-        GlobalBundleScanningSchemaServiceImpl schemaService = GlobalBundleScanningSchemaServiceImpl.createInstance(this.mockedContext);
-        YangContextParser parser = new YangParserImpl();
-        SchemaContext context = parser.parseSources(getFilesAsByteSources(getYangModelsPaths()));
-        URLSchemaContextResolver mockedContextResolver = Mockito.mock(URLSchemaContextResolver.class);
+        final GlobalBundleScanningSchemaServiceImpl schemaService = GlobalBundleScanningSchemaServiceImpl.createInstance(this.mockedContext);
+        final YangContextParser parser = new YangParserImpl();
+        final SchemaContext context = parser.parseSources(getFilesAsByteSources(getYangModelsPaths()));
+        final URLSchemaContextResolver mockedContextResolver = Mockito.mock(URLSchemaContextResolver.class);
         Mockito.doReturn(Optional.of(context)).when(mockedContextResolver).getSchemaContext();
 
         final Field contextResolverField = schemaService.getClass().getDeclaredField("contextResolver");
@@ -187,8 +187,8 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
             return new BundleContextServiceRegistrationHandler() {
                 @Override
                 public void handleServiceRegistration(final Class<?> clazz, final Object serviceInstance, final Dictionary<String, ?> props) {
-                    SchemaContextListener listener = (SchemaContextListener) serviceInstance;
-                    YangContextParser parser = new YangParserImpl();
+                    final SchemaContextListener listener = (SchemaContextListener) serviceInstance;
+                    final YangContextParser parser = new YangParserImpl();
                     final SchemaContext context;
                     try {
                         context = parser.parseSources(getFilesAsByteSources(getYangModelsPaths()));
@@ -211,25 +211,26 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     }
 
     protected CommitStatus createInstance() throws Exception {
-        ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         createRIBImplModuleInstance(transaction);
         return transaction.commit();
     }
 
     protected CommitStatus createRIBImplModuleInstance(final RibId ribId, final Long localAs, final Ipv4Address bgpId) throws Exception {
-        ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         createRIBImplModuleInstance(transaction, ribId, localAs, bgpId, createAsyncDataBrokerInstance(transaction));
         return transaction.commit();
     }
 
     private ObjectName createRIBImplModuleInstance(final ConfigTransactionJMXClient transaction, final RibId ribId, final Long localAs,
             final Ipv4Address bgpId, final ObjectName dataBroker) throws Exception {
-        ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
-        RIBImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, RIBImplModuleMXBean.class);
-        ObjectName reconnectObjectName = TimedReconnectStrategyModuleTest.createInstance(transaction, SESSION_RS_INSTANCE_NAME);
+        final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
+        final RIBImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, RIBImplModuleMXBean.class);
+        final ObjectName reconnectObjectName = TimedReconnectStrategyModuleTest.createInstance(transaction, SESSION_RS_INSTANCE_NAME);
         mxBean.setSessionReconnectStrategy(reconnectObjectName);
         mxBean.setDataProvider(dataBroker);
-        ObjectName reconnectStrategyON = TimedReconnectStrategyModuleTest.createInstance(transaction, TCP_RS_INSTANCE_NAME);
+        mxBean.setDomDataProvider(lookupDomAsyncDataBroker(transaction));
+        final ObjectName reconnectStrategyON = TimedReconnectStrategyModuleTest.createInstance(transaction, TCP_RS_INSTANCE_NAME);
         mxBean.setTcpReconnectStrategy(reconnectStrategyON);
         mxBean.setBgpDispatcher(BGPDispatcherImplModuleTest.createInstance(transaction));
         mxBean.setExtensions(createRibExtensionsInstance(transaction));
@@ -260,14 +261,14 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
     private static ObjectName lookupDomAsyncDataBroker(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
         try {
-            return transaction.lookupConfigBean(DomInmemoryDataBrokerModuleFactory.NAME, DOM_ASYNC_DATA_BROKER_INSTANCE);
-        } catch (InstanceNotFoundException e) {
+            return transaction.lookupConfigBean(DomInmemoryDataBrokerModuleFactory.NAME, DOM_BROKER_INSTANCE_NAME);
+        } catch (final InstanceNotFoundException e) {
             try {
-                final ObjectName nameCreated = transaction.createModule(DomInmemoryDataBrokerModuleFactory.NAME, DOM_ASYNC_DATA_BROKER_INSTANCE);
+                final ObjectName nameCreated = transaction.createModule(DomInmemoryDataBrokerModuleFactory.NAME, DOM_BROKER_INSTANCE_NAME);
                 final DomInmemoryDataBrokerModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, DomInmemoryDataBrokerModuleMXBean.class);
                 mxBean.setSchemaService(lookupSchemaServiceInstance(transaction));
                 return nameCreated;
-            } catch (InstanceAlreadyExistsException e1) {
+            } catch (final InstanceAlreadyExistsException e1) {
                 throw new IllegalStateException(e1);
             }
         }
@@ -276,10 +277,10 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     private static ObjectName lookupMappingServiceInstance(final ConfigTransactionJMXClient transaction) {
         try {
             return transaction.lookupConfigBean(RuntimeMappingModuleFactory.NAME, RuntimeMappingModuleFactory.SINGLETON_NAME);
-        } catch (InstanceNotFoundException e) {
+        } catch (final InstanceNotFoundException e) {
             try {
                 return transaction.createModule(RuntimeMappingModuleFactory.NAME, RuntimeMappingModuleFactory.SINGLETON_NAME);
-            } catch (InstanceAlreadyExistsException e1) {
+            } catch (final InstanceAlreadyExistsException e1) {
                 throw new IllegalStateException(e1);
             }
         }
@@ -288,23 +289,23 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     private static ObjectName lookupSchemaServiceInstance(final ConfigTransactionJMXClient transaction) {
         try {
             return transaction.lookupConfigBean(SchemaServiceImplSingletonModuleFactory.NAME, SchemaServiceImplSingletonModuleFactory.SINGLETON_NAME);
-        } catch (InstanceNotFoundException e) {
+        } catch (final InstanceNotFoundException e) {
             try {
                 return transaction.createModule(SchemaServiceImplSingletonModuleFactory.NAME, SchemaServiceImplSingletonModuleFactory.SINGLETON_NAME);
-            } catch (InstanceAlreadyExistsException e1) {
+            } catch (final InstanceAlreadyExistsException e1) {
                 throw new IllegalStateException(e1);
             }
         }
     }
 
     private ObjectName createRibExtensionsInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
-        ObjectName nameCreated = transaction.createModule(RIBExtensionsImplModuleFactory.NAME, RIB_EXTENSIONS_INSTANCE_NAME);
+        final ObjectName nameCreated = transaction.createModule(RIBExtensionsImplModuleFactory.NAME, RIB_EXTENSIONS_INSTANCE_NAME);
         transaction.newMXBeanProxy(nameCreated, RIBExtensionsImplModuleMXBean.class);
         return nameCreated;
     }
 
     public List<String> getYangModelsPaths() {
-        List<String> paths = Lists.newArrayList("/META-INF/yang/bgp-rib.yang", "/META-INF/yang/ietf-inet-types.yang",
+        final List<String> paths = Lists.newArrayList("/META-INF/yang/bgp-rib.yang", "/META-INF/yang/ietf-inet-types.yang",
                 "/META-INF/yang/bgp-message.yang", "/META-INF/yang/bgp-multiprotocol.yang", "/META-INF/yang/bgp-types.yang",
                 "/META-INF/yang/network-concepts.yang", "/META-INF/yang/ieee754.yang");
         return paths;
@@ -313,9 +314,9 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     // TODO move back to AbstractConfigTest
     private static Collection<ByteSource> getFilesAsByteSources(final List<String> paths) {
         final Collection<ByteSource> resources = new ArrayList<>();
-        List<String> failedToFind = new ArrayList<>();
-        for (String path : paths) {
-            URL url = AbstractRIBImplModuleTest.class.getResource(path);
+        final List<String> failedToFind = new ArrayList<>();
+        for (final String path : paths) {
+            final URL url = AbstractRIBImplModuleTest.class.getResource(path);
             if (url == null) {
                 failedToFind.add(path);
             } else {

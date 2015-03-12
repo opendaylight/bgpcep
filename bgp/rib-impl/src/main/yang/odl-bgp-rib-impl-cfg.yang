@@ -12,6 +12,7 @@ module odl-bgp-rib-impl-cfg {
     import odl-bgp-rib-spi-cfg { prefix ribspi; revision-date 2013-11-15; }
     import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
     import opendaylight-md-sal-binding {prefix mdsb; revision-date 2013-10-28; }
+    import opendaylight-md-sal-dom {prefix sal; revision-date 2013-10-28; }
     import netty { prefix netty; revision-date 2013-11-19; }
     import config { prefix config; revision-date 2013-04-05; }
     import protocol-framework { prefix pf; revision-date 2014-03-13; }
@@ -633,6 +634,15 @@ module odl-bgp-rib-impl-cfg {
                     refine type {
                         mandatory true;
                         config:required-identity mdsb:binding-async-data-broker;
+                    }
+                }
+            }
+
+            container dom-data-provider {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity sal:dom-async-data-broker;
                     }
                 }
             }

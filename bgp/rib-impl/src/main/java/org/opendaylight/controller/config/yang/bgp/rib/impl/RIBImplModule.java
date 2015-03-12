@@ -51,6 +51,8 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        return new RIBImpl(getRibId(), new AsNumber(getLocalAs()), getBgpRibId(), getExtensionsDependency(), getBgpDispatcherDependency(), getTcpReconnectStrategyDependency(), getSessionReconnectStrategyDependency(), getDataProviderDependency(), getLocalTableDependency());
+        return new RIBImpl(getRibId(), new AsNumber(getLocalAs()), getBgpRibId(), getExtensionsDependency(),
+            getBgpDispatcherDependency(), getTcpReconnectStrategyDependency(), getSessionReconnectStrategyDependency(),
+            getDataProviderDependency(), getDomDataProviderDependency(), getLocalTableDependency());
     }
 }
