@@ -11,7 +11,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-
 import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Before;
@@ -59,7 +58,7 @@ public class AdjacencyRIBsInTest extends AbstractDataBrokerTest {
 
     private WriteTransaction trans;
 
-    private final DefaultRibReference rib = new DefaultRibReference(InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(new RibId("test"))).build());
+    private final DefaultRibReference rib = new DefaultRibReference(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(new RibId("test"))));
 
     private final RIBActivator act = new RIBActivator();
 

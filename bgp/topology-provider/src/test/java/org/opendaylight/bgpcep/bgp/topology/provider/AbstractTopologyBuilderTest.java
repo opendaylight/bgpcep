@@ -36,7 +36,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public abstract class AbstractTopologyBuilderTest extends AbstractDataBrokerTest {
 
     protected static final TopologyId TEST_TOPOLOGY_ID = new TopologyId("test-topo");
-    protected static RibReference LOC_RIB_REF = new DefaultRibReference(InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(new RibId("test-rib")))).build());
+    protected static RibReference LOC_RIB_REF = new DefaultRibReference(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(new RibId("test-rib")))));
 
     protected ListenerRegistration<DataChangeListener> reg;
 
