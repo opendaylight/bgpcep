@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Verify;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
+import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -34,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ExtendedCommunity;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
@@ -85,19 +87,26 @@ final class TableContext {
         acb.addAll(tableSupport.cacheableAttributeObjects());
 
         // FIXME: new Codec.create(acb.build(), tableSupport.cacheableNlriObjects());
-        attributeCodec = null;
+        this.attributeCodec = null;
 
         // FIXME: new Codec.create(tableSupport.cacheableNlriObjects());
-        nlriCodec = null;
+        this.nlriCodec = null;
     }
 
     YangInstanceIdentifier getTableId() {
-        return tableId;
+        return this.tableId;
     }
 
     static void clearTable(final DOMDataWriteTransaction tx, final RIBSupport tableSupport, final YangInstanceIdentifier tableId) {
-        final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> tb =
-                ImmutableNodes.mapEntryBuilder().withNodeIdentifier((NodeIdentifierWithPredicates)tableId.getLastPathArgument()).withChild(EMPTY_TABLE_ATTRIBUTES);
+        final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> tb = ImmutableNodes.mapEntryBuilder();
+        tb.withNodeIdentifier((NodeIdentifierWithPredicates)tableId.getLastPathArgument());
+        tb.withChild(EMPTY_TABLE_ATTRIBUTES);
+
+        // tableId is keyed, but that fact is not directly visible from YangInstanceIdentifier, see BUG-2796
+        final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) tableId.getLastPathArgument();
+        for (final Entry<QName, Object> e : tableKey.getKeyValues().entrySet()) {
+                    tb.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
+        }
 
         final ChoiceNode routes = tableSupport.emptyRoutes();
         Verify.verifyNotNull(routes, "Null empty routes in %s", tableSupport);
@@ -107,29 +116,29 @@ final class TableContext {
     }
 
     void clearTable(final DOMDataWriteTransaction tx) {
-        clearTable(tx, tableSupport, tableId);
+        clearTable(tx, this.tableSupport, this.tableId);
     }
 
     void removeTable(final DOMDataWriteTransaction tx) {
-        tx.delete(LogicalDatastoreType.OPERATIONAL, tableId);
+        tx.delete(LogicalDatastoreType.OPERATIONAL, this.tableId);
     }
 
     void writeRoutes(final Object codecFactory, final DOMDataWriteTransaction tx, final MpReachNlri nlri, final PathAttributes attributes) {
 
         // FIXME: run the decoder process
-        final ContainerNode domNlri = (ContainerNode) nlriCodec;
+        final ContainerNode domNlri = (ContainerNode) this.nlriCodec;
 
         // FIXME: run the decoder process
-        final ContainerNode domAttributes = (ContainerNode) attributeCodec;
+        final ContainerNode domAttributes = (ContainerNode) this.attributeCodec;
         final ContainerNode routeAttributes = Builders.containerBuilder(EMPTY_ROUTE_ATTRIBUTES).withValue(domAttributes.getValue()).build();
 
-        tableSupport.putRoutes(tx, tableId, domNlri, routeAttributes);
+        this.tableSupport.putRoutes(tx, this.tableId, domNlri, routeAttributes);
     }
 
     void removeRoutes(final Object object, final DOMDataWriteTransaction tx, final MpUnreachNlri nlri) {
         // FIXME: run the decoder process
-        final ContainerNode domNlri = (ContainerNode) nlriCodec;
+        final ContainerNode domNlri = (ContainerNode) this.nlriCodec;
 
-        tableSupport.deleteRoutes(tx, tableId, domNlri);
+        this.tableSupport.deleteRoutes(tx, this.tableId, domNlri);
     }
 }

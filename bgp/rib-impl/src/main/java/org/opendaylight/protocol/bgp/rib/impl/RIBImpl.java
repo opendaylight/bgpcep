@@ -121,6 +121,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final BlockingQueue<Peer> peers;
     private final DataBroker dataBroker;
     private final DOMDataBroker domDataBroker;
+    private final RIBExtensionConsumerContext extensions;
 
     private final Runnable scheduler = new Runnable() {
         @Override
@@ -168,6 +169,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.peers = new LinkedBlockingQueue<>();
         this.dataBroker = dps;
         this.domDataBroker = Preconditions.checkNotNull(domDataBroker);
+        this.extensions = Preconditions.checkNotNull(extensions);
 
         LOG.debug("Instantiating RIB table {} at {}", ribId, getInstanceIdentifier());
 
@@ -448,5 +450,10 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     @Override
     public DOMTransactionChain createPeerChain(final TransactionChainListener listener) {
         return domDataBroker.createTransactionChain(listener);
+    }
+
+    @Override
+    public RIBExtensionConsumerContext getRibExtensions() {
+        return extensions;
     }
 }
