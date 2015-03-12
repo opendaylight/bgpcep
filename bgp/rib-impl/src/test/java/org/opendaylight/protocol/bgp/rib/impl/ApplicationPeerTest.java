@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.CheckedFuture;
@@ -209,7 +208,7 @@ public class ApplicationPeerTest {
             }
         }).when(this.transWrite).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class));
         this.r = new RIBImpl(new RibId("test"), new AsNumber(5L), new Ipv4Address("127.0.0.1"),
-            context , this.dispatcher, this.tcpStrategyFactory, this.tcpStrategyFactory, this.dps, localTables);
+            context , this.dispatcher, this.tcpStrategyFactory, this.tcpStrategyFactory, this.dps, null, localTables);
         this.peer = new ApplicationPeer(new ApplicationRibId("t"), new Ipv4Address("127.0.0.1"), this.r);
         final ReadOnlyTransaction readTx = Mockito.mock(ReadOnlyTransaction.class);
         Mockito.doReturn(readTx).when(this.dps).newReadOnlyTransaction();
