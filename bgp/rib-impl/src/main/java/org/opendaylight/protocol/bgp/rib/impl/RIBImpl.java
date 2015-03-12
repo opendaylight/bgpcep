@@ -31,6 +31,8 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
+import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.impl.spi.AdjRIBsOut;
 import org.opendaylight.protocol.bgp.rib.impl.spi.AdjRIBsOutRegistration;
@@ -114,6 +116,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final RIBTables tables;
     private final BlockingQueue<Peer> peers;
     private final DataBroker dataBroker;
+    private final DOMDataBroker domDataBroker;
 
     private final Runnable scheduler = new Runnable() {
         @Override
@@ -147,7 +150,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
     public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final RIBExtensionConsumerContext extensions,
         final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory,
-        final ReconnectStrategyFactory sessionStrategyFactory, final DataBroker dps, final List<BgpTableType> localTables) {
+        final ReconnectStrategyFactory sessionStrategyFactory, final DataBroker dps, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables) {
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))));
         this.chain = dps.createTransactionChain(this);
         this.localAs = Preconditions.checkNotNull(localAs);
@@ -160,6 +163,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.tables = new RIBTables(extensions);
         this.peers = new LinkedBlockingQueue<>();
         this.dataBroker = dps;
+        this.domDataBroker = Preconditions.checkNotNull(domDataBroker);
 
         LOG.debug("Instantiating RIB table {} at {}", ribId, getInstanceIdentifier());
 
@@ -427,5 +431,10 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             //no-op
         }
         return 0;
+    }
+
+    @Override
+    public DOMTransactionChain createPeerChain(final TransactionChainListener listener) {
+        return domDataBroker.createTransactionChain(listener);
     }
 }
