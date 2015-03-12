@@ -8,9 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.collect.Lists;
-
 import java.util.List;
-
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsFactory;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
@@ -26,14 +24,14 @@ public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
 
     @Override
     protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
-        AdjRIBsFactory adj1 = new AdjRIBsFactory() {
+        final AdjRIBsFactory adj1 = new AdjRIBsFactory() {
             @Override
             public AdjRIBsIn<?, ?> createAdjRIBs(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
                 return new Ipv4AdjRIBsIn(basePath);
             }
         };
 
-        AdjRIBsFactory adj2 = new AdjRIBsFactory() {
+        final AdjRIBsFactory adj2 = new AdjRIBsFactory() {
             @Override
             public AdjRIBsIn<?, ?> createAdjRIBs(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
                 return new Ipv6AdjRIBsIn(basePath);
@@ -41,6 +39,8 @@ public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
         };
         return Lists.newArrayList(
                 context.registerAdjRIBsInFactory(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, adj1),
-                context.registerAdjRIBsInFactory(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, adj2));
+                context.registerAdjRIBsInFactory(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, adj2),
+                context.registerRIBSupport(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, IPv4RIBSupport.getInstance()),
+                context.registerRIBSupport(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, IPv6RIBSupport.getInstance()));
     }
 }
