@@ -152,7 +152,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final RIBExtensionConsumerContext extensions,
         final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory,
         final ReconnectStrategyFactory sessionStrategyFactory, final DataBroker dps, final List<BgpTableType> localTables) {
-        super(InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))).build());
+        super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))));
         this.chain = dps.createTransactionChain(this);
         this.localAs = Preconditions.checkNotNull(localAs);
         this.comparator = new BGPObjectComparator(localAs);

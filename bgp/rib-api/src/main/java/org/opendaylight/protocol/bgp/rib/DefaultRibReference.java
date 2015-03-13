@@ -7,15 +7,23 @@
  */
 package org.opendaylight.protocol.bgp.rib;
 
-import org.opendaylight.protocol.concepts.DefaultInstanceReference;
+import com.google.common.base.Preconditions;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibKey;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 /**
  *
  */
-public class DefaultRibReference extends DefaultInstanceReference<Rib> implements RibReference {
-    public DefaultRibReference(final InstanceIdentifier<Rib> instanceIdentifier) {
-        super(instanceIdentifier);
+public class DefaultRibReference implements RibReference {
+    private final KeyedInstanceIdentifier<Rib, RibKey> instanceIdentifier;
+
+    public DefaultRibReference(final KeyedInstanceIdentifier<Rib, RibKey> instanceIdentifier) {
+        this.instanceIdentifier = Preconditions.checkNotNull(instanceIdentifier);
+    }
+
+    @Override
+    public final KeyedInstanceIdentifier<Rib, RibKey> getInstanceIdentifier() {
+        return instanceIdentifier;
     }
 }
