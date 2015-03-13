@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.DestinationIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.Ipv4Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
@@ -26,7 +26,7 @@ final class IPv4RIBSupport extends AbstractIPRIBSupport {
             .addChild(Builders.containerBuilder()
                 .withNodeIdentifier(new NodeIdentifier(Ipv4Routes.QNAME))
                 .withChild(ImmutableNodes.mapNodeBuilder(Ipv4Route.QNAME).build()).build()).build();
-    private final NodeIdentifier destination = new NodeIdentifier(DestinationIpv4Case.QNAME);
+    private final NodeIdentifier destination = new NodeIdentifier(DestinationIpv4.QNAME);
     private final NodeIdentifier route = new NodeIdentifier(Ipv4Route.QNAME);
 
     private IPv4RIBSupport() {
