@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_174b795a",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing/SrSubobjectParserUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-13T15:10:32Z",
+      "side": 1,
+      "message": "what was wrong with the previous one-liner?",
+      "range": {
+        "startLine": 95,
+        "startChar": 50,
+        "endLine": 95,
+        "endChar": 52
+      },
+      "revId": "514d675bc5b9bdaa8e1ffa4f311d75b722a3f284",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_f7792d94",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing/SrSubobjectParserUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-13T15:10:32Z",
+      "side": 1,
+      "message": "first reading of M\u0026C flags",
+      "revId": "514d675bc5b9bdaa8e1ffa4f311d75b722a3f284",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_976ea9c8",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing/SrSubobjectParserUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-13T15:10:32Z",
+      "side": 1,
+      "message": "second reading of M\u0026C flags",
+      "range": {
+        "startLine": 107,
+        "startChar": 50,
+        "endLine": 107,
+        "endChar": 52
+      },
+      "revId": "514d675bc5b9bdaa8e1ffa4f311d75b722a3f284",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_d774319e",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing/SrSubobjectParserUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-13T15:10:32Z",
+      "side": 1,
+      "message": "comment why is it empty? //FIXME: TODO: or remove the condition",
+      "revId": "514d675bc5b9bdaa8e1ffa4f311d75b722a3f284",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_b773a5b0",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-13T15:10:32Z",
+      "side": 1,
+      "message": "why do we need both if they are the same?",
+      "range": {
+        "startLine": 149,
+        "startChar": 91,
+        "endLine": 149,
+        "endChar": 93
+      },
+      "revId": "514d675bc5b9bdaa8e1ffa4f311d75b722a3f284",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_375f9510",
+        "filename": "pcep/segment-routing/src/test/java/org/opendaylight/protocol/pcep/segment/routing/SrRroSubobjectParserTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-13T15:10:32Z",
+      "side": 1,
+      "message": "please make a test where the values are true",
+      "range": {
+        "startLine": 104,
+        "startChar": 30,
+        "endLine": 104,
+        "endChar": 32
+      },
+      "revId": "514d675bc5b9bdaa8e1ffa4f311d75b722a3f284",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
