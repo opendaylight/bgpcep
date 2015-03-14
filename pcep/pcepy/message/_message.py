@@ -7,7 +7,8 @@
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 
 from . import base
-from . import object # Note: object here is a module
+from . import object  # Note: object here is a module
+
 
 # RFC 5440 PCEP
 class Open(base.Message):
@@ -22,7 +23,8 @@ class Open(base.Message):
 class Keepalive(base.Message):
     type_id = 2
 
-    _sequence = [ ]
+    _sequence = []
+
 
 # RFC 5886 MON
 class GMon(base.Group):
@@ -32,12 +34,14 @@ class GMon(base.Group):
         ('pce', object.PceId, '*'),
     ]
 
+
 # RFC 5440 PCEP
 class GRro(base.Group):
     _sequence = [
         ('rro', object.Rro, 1),
         ('rbw', object.Bandwidth, '?'),
     ]
+
 
 # RFC 5440 PCEP
 # Note: RFC 5520 PK says there's either a PatkKey,
@@ -46,46 +50,50 @@ class GRro(base.Group):
 class Request(base.Group):
     _sequence = [
         ('rp', object.Rp, 1),
-        ('pk', object.PathKey, '?'), # RFC 5520 PK
-        ('ep', object.Endpoints, '?'), # Actually required
-        ('lsp', object.Lsp, '?'), # D STATEFUL
+        ('pk', object.PathKey, '?'),  # RFC 5520 PK
+        ('ep', object.Endpoints, '?'),  # Actually required
+        ('lsp', object.Lsp, '?'),  # D STATEFUL
         ('lspa', object.Lspa, '?'),
         ('bw', object.Bandwidth, '?'),
         ('metric', object.Metric, '*'),
-        ('of', object.Of, '?'), # RFC 5541 OF
+        ('of', object.Of, '?'),  # RFC 5541 OF
         ('grro', GRro, '?'),
         ('iro', object.Iro, '?'),
         ('lb', object.LoadBalancing, '?'),
-        ('xro', object.Xro, '?'), # RFC 5521 XRO
+        ('xro', object.Xro, '?'),  # RFC 5521 XRO
     ]
+
 
 # RFC 5440 PCEP
 class GSvec(base.Group):
     _sequence = [
         ('svec', object.Svec, 1),
-        ('of', object.Of, '?'), # RFC 5541 OF
-        ('metric', object.Metric, '*'), # RFC 5541 OF
+        ('of', object.Of, '?'),  # RFC 5541 OF
+        ('metric', object.Metric, '*'),  # RFC 5541 OF
     ]
+
 
 # RFC 5440 PCEP
 class PCReq(base.Message):
     type_id = 3
 
     _sequence = [
-        ('gmon', GMon, '?'), # RFC 5886 MON
+        ('gmon', GMon, '?'),  # RFC 5886 MON
         ('gsvec', GSvec, '*'),
         ('request', Request, '+'),
     ]
 
+
 # RFC 5440 PCEP
 class PcePathAttributes(base.Group):
     _sequence = [
-        ('of', object.Of, '?'), # RFC 5541 OF
+        ('of', object.Of, '?'),  # RFC 5541 OF
         ('lspa', object.Lspa, '?'),
         ('bw', object.Bandwidth, '?'),
         ('metric', object.Metric, '*'),
-        ('iro', object.Iro, '?'), # Not in D STATEFUL-01
+        ('iro', object.Iro, '?'),  # Not in D STATEFUL-01
     ]
+
 
 # RFC 5440 PCEP
 class PcePath(base.Group):
@@ -93,6 +101,7 @@ class PcePath(base.Group):
         ('ero', object.Ero, 1),
         ('pcepa', PcePathAttributes, '?'),
     ]
+
 
 # RFC 5886 MON
 class MetricPce(base.Group):
@@ -102,17 +111,19 @@ class MetricPce(base.Group):
         ('ol', object.Overload, '?'),
     ]
 
+
 # RFC 5440 PCEP
 class Response(base.Group):
     _sequence = [
         ('rp', object.Rp, 1),
-        ('gmon', GMon, '?'), # Without pce list # RFC 5886 MON
-        ('lsp', object.Lsp, '?'), # D STATEFUL
+        ('gmon', GMon, '?'),  # Without pce list # RFC 5886 MON
+        ('lsp', object.Lsp, '?'),  # D STATEFUL
         ('nopath', object.NoPath, '?'),
         ('pcepa', PcePathAttributes, '?'),
         ('path', PcePath, '*'),
-        ('mp', MetricPce, '*'), # RFC 5886 MON
+        ('mp', MetricPce, '*'),  # RFC 5886 MON
     ]
+
 
 # RFC 5440 PCEP
 class PCRep(base.Message):
@@ -122,12 +133,14 @@ class PCRep(base.Message):
         ('response', Response, '+'),
     ]
 
+
 # RFC 5440 PCEP
 class GNotify(base.Group):
     _sequence = [
         ('rp', object.Rp, '*'),
         ('notify', object.Notification, '+'),
     ]
+
 
 # RFC 5440 PCEP
 class PCNtf(base.Message):
@@ -137,14 +150,16 @@ class PCNtf(base.Message):
         ('gnotify', GNotify, '+'),
     ]
 
+
 # RFC 5440 PCEP
 class GError(base.Group):
     """Unified PCEP error item"""
     _sequence = [
         ('rp', object.Rp, '*'),
         ('error', object.Error, '+'),
-        ('lsp', object.Lsp, '?'), # D STATEFUL
+        ('lsp', object.Lsp, '?'),  # D STATEFUL
     ]
+
 
 # RFC 5440 PCEP
 class PCErr(base.Message):
@@ -155,6 +170,7 @@ class PCErr(base.Message):
         ('open', object.Open, '?'),
     ]
 
+
 # RFC 5440 PCEP
 class Close(base.Message):
     type_id = 7
@@ -162,6 +178,7 @@ class Close(base.Message):
     _sequence = [
         ('close', object.Close, 1)
     ]
+
 
 # RFC 5886 MON
 class PCMonReq(base.Message):
@@ -173,15 +190,17 @@ class PCMonReq(base.Message):
         ('request', Request, '+'),
     ]
 
+
 # RFC 5886 MON
 class PCMonRep(base.Message):
     type_id = 9
 
     _sequence = [
-        ('gmon', GMon, '?'), # Without pce list
+        ('gmon', GMon, '?'),  # Without pce list
         ('rp', object.Rp, '*'),
         ('mp', MetricPce, '*'),
     ]
+
 
 # D STATEFUL
 class PccPath(base.Group):
@@ -193,12 +212,14 @@ class PccPath(base.Group):
         ('metric', object.Metric, '*'),
     ]
 
+
 # D STATEFUL
 class StateReport(base.Group):
     _sequence = [
         ('lsp', object.Lsp, 1),
         ('path', PccPath, '*'),
     ]
+
 
 # D STATEFUL
 class PCRpt(base.Message):
@@ -215,6 +236,7 @@ class UpdateRequest(base.Group):
         ('lsp', object.Lsp, 1),
         ('path', PcePath, '*'),
     ]
+
 
 # D STATEFUL
 class PCUpd(base.Message):
@@ -235,6 +257,7 @@ class CreateRequest(base.Group):
         ('metric', object.Metric, '*'),
     ]
 
+
 # D STATEFUL
 class PCCreate(base.Message):
     type_id = 12
@@ -243,8 +266,8 @@ class PCCreate(base.Message):
         ('create', CreateRequest, '+'),
     ]
 
+
 # We do not need special handling for unknown messages
 class Unknown(base.Message):
     pass
 base.Message.unknown_class = Unknown
-
