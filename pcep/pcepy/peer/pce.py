@@ -6,14 +6,13 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 
-
-import time
 import socket as _socket
 
 from . import base
 from . import lsp as _lsp
 from pcepy import session as _session
 from pcepy import message as _message
+
 
 class Pce(base.Peer):
     """A simulated Path Computation Element"""
@@ -106,12 +105,13 @@ class Listener(base.Handler):
         socket = eventargs['socket']
         address, port = eventargs['address'][:2]
         address = peer.context.address_from(address)
-        node = peer.context.get_node(_session.Node.ROLE_PCC,
-            address=address, port=port
-        )
+        node = peer.context.get_node(
+            _session.Node.ROLE_PCC,
+            address=address,
+            port=port)
         session = peer.create_session(server.local, socket, node)
         base._LOGGER.debug('Created accepted session %s' % session)
-        del server[Listener.CONFIG_TIMEOUT] #TODO: only if not expecting more
+        del server[Listener.CONFIG_TIMEOUT]  # TODO: only if not expecting more
 
     def on_timeout(self, peer, eventargs):
         session = eventargs['session']
@@ -122,9 +122,10 @@ class Listener(base.Handler):
             return
 
         del session[Listener.STATE_TIMEOUT]
-        peer.emit('on_socket_error', session=session,
-            error=_socket.timeout('%s: timed out' % session)
-        )
+        peer.emit(
+            'on_socket_error',
+            session=session,
+            error=_socket.timeout('%s: timed out' % session))
         session.closing = True
 
     def timeout(self, session):
@@ -174,9 +175,7 @@ class Reporter(base.Handler):
         remote_open = session[base.Opener.STATE_REMOTE_OPEN]
         avoid = statedb.can_avoid(pce_open=local_open, pcc_open=remote_open)
         if avoid:
-            base._LOGGER.info('Session "%s" has valid database version "%s"'
-                % (session, statedb.version)
-            )
+            base._LOGGER.info('Session "%s" has valid database version "%s"' % (session, statedb.version))
             state = Reporter.RS_AVOID
         else:
             state = Reporter.RS_SYNCING
@@ -198,21 +197,18 @@ class Reporter(base.Handler):
             report_lsp = report.poll('lsp')
             if report_lsp is None:
                 peer.make_pcep_error(
-                    origin = self,
-                    session = session,
-                    cause = report,
-                    send = _message.code.Error.MandatoryObjectMissing_LSP,
-                    closing = False
-                )
+                    origin=self,
+                    session=session,
+                    cause=report,
+                    send=_message.code.Error.MandatoryObjectMissing_LSP,
+                    closing=False)
                 continue
             lsp = statedb[report_lsp.lsp_id]
             if lsp is None:
                 new = True
                 name = report_lsp.get(_message.tlv.LspSymbolicName)
                 if name is None:
-                    base._LOGGER.error('New LSP "%s" missing name in "%s"'
-                        % (report_lsp, session)
-                    )
+                    base._LOGGER.error('New LSP "%s" missing name in "%s"' % (report_lsp, session))
                     # FIXME: should be a PCEP error
                 else:
                     name = name.lsp_name
@@ -220,20 +216,22 @@ class Reporter(base.Handler):
             else:
                 new = False
 
-            peer.emit('on_state_report', session=session,
-                lsp = lsp, report = report, new = new
-            )
+            peer.emit(
+                'on_state_report',
+                session=session,
+                lsp=lsp,
+                report=report,
+                new=new)
 
             try:
                 statedb.get_version(report_lsp, use_dbv)
             except ValueError as value_error:
                 peer.make_pcep_error(
-                    origin = self,
-                    session = session,
-                    cause = (report, value_error),
-                    send = _message.code.Error.MandatoryObjectMissing_DBV,
-                    closing = True
-                )
+                    origin=self,
+                    session=session,
+                    cause=(report, value_error),
+                    send=_message.code.Error.MandatoryObjectMissing_DBV,
+                    closing=True)
                 return
 
             if new:
@@ -241,27 +239,23 @@ class Reporter(base.Handler):
             lsp.report = report
 
             for key in awaited.match(report):
-                peer.emit('on_await_report', session=session,
-                    key = key, arrived = report
-                )
+                peer.emit(
+                    'on_await_report',
+                    session=session,
+                    key=key,
+                    arrived=report)
 
             if not report_lsp.synchronize:
                 if state != Reporter.RS_SYNCED:
                     state = Reporter.RS_SYNCED
                     session[Reporter.STATE_STATE] = state
-                    peer.emit('on_synchronized', session=session,
-                        statedb = statedb
-                    )
+                    peer.emit('on_synchronized', session=session, statedb=statedb)
             elif state == Reporter.RS_AVOID:
-                base._LOGGER.warning('Session "%s": synchronization not avoided'
-                    % session
-                )
+                base._LOGGER.warning('Session "%s": synchronization not avoided' % session)
                 state = Reporter.RS_SYNCING
                 session[Reporter.STATE_STATE] = state
             else:
-                base._LOGGER.error('Session "%s": already synchronized'
-                    % session
-                )
+                base._LOGGER.error('Session "%s": already synchronized' % session)
 
     def on_timeout(self, peer, eventargs):
         session = eventargs['session']
@@ -271,9 +265,11 @@ class Reporter(base.Handler):
             return
         outs = awaited.out(now)
         for out in outs:
-            peer.emit('on_await_report', session=session,
-                key = out, arrived = None
-            )
+            peer.emit(
+                'on_await_report',
+                session=session,
+                key=out,
+                arrived=None)
 
     def timeout(self, session):
         awaited = session[Reporter.STATE_AWAITED]
@@ -296,4 +292,3 @@ class Reporter(base.Handler):
     def _get_await(self, session, key, criterion, timeout=None):
         """Transform a criterium into an Await object."""
         return _lsp.Await(key, criterion, criterion.get('timeout', timeout))
-
