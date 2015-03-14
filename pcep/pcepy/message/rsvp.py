@@ -13,6 +13,7 @@
 from . import data
 from . import base
 
+
 # RFC 5440 PCEP -> RFC 3209 RSVP-TE LSP
 class Ipv4Prefix(base.Rsvp):
     type_id = 1
@@ -73,6 +74,7 @@ class Ipv4PathKey(base.Rsvp):
     type_id = 64
     path_key = data.Int(offset=0, size=16)
     pce_id = data.Ipv4(offset=16)
+
 
 # RFC 5520 PK
 class Ipv6PathKey(base.Rsvp):
@@ -148,9 +150,8 @@ class Exr(base.Rsvp):
     def read(self, buf, off, end):
         ono = super(Exr, self).read(buf, off, end)
         if self._header.length != end - off:
-            _LOGGER.error('Length %s in Exr header not matching [%s:%s]'
-                % (self._header.length, off, end)
-            )
+            base._LOGGER.error('Length %s in Exr header not matching [%s:%s]' %
+                               (self._header.length, off, end))
         self._ro.header.length = end - ono
         return self._ro.read(buf, ono, end)
 
@@ -204,18 +205,17 @@ class Unknown(base.Rsvp):
         length = self._header.length - self._header.size
         end = off + length
         if end > max_end:
-            base._LOGGER.error("Rsvp data length (%s) exceeds limit [%s:%s]"
-                % (length, off, max_end)
-            )
-        end = max_end # always read the whole portion
+            base._LOGGER.error("Rsvp data length (%s) exceeds limit [%s:%s]" %
+                               (length, off, max_end))
+        end = max_end  # always read the whole portion
         self._octets = buf[off:end]
         return end
 
     def write(self, buf, off):
         base._LOGGER.warn("Writing Unknown [%s]" % self._header)
         off = super(Unknown, self).write(buf, off)
-        end = off + len(octets)
-        buf[off:end] = octets
+        end = off + len(octets)  # noqa
+        buf[off:end] = octets  # noqa
         return end
 
     def __str__(self):
@@ -225,5 +225,3 @@ class Unknown(base.Rsvp):
         )
 
 base.Rsvp.unknown_class = Unknown
-
-
