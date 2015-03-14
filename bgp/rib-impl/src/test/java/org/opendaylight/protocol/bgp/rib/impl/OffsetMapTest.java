@@ -11,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-public class OffsetMapTests {
+public class OffsetMapTest {
 
     private final String LOCAL_ADDRESS = "127.0.0.1";
     private final int LOCAL_ADDRESS_DECIMAL = 0x7f000001;
