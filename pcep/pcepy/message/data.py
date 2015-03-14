@@ -1,6 +1,6 @@
 # Atomic data types and Block base
 
-# Copyright (c) 2012,2013 Cisco Systems, Inc. and others.  All rights reserved.
+# Copyright (c) 2012, 2015 Cisco Systems, Inc. and others.  All rights reserved.
 #
 # This program and the accompanying materials are made available under the
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -11,6 +11,7 @@ import struct
 
 import logging
 _LOGGER = logging.getLogger('pcepy.message')
+
 
 class Bits(object):
     """A fixed single field - an atomic value occupying a continuous sequence
@@ -139,6 +140,7 @@ class Flag(Bits):
             # buf[off] &= ~bit
             pass
 
+
 class Int(Bits):
 
     _value = 0
@@ -150,13 +152,9 @@ class Int(Bits):
     def _set_value(self, value):
         value = int(value)
         if value < 0:
-            raise ValueError("Value %d is negative for field %s"
-                % (value, self._name)
-            )
+            raise ValueError("Value %d is negative for field %s" % (value, self._name))
         if value >= self._sup:
-            raise ValueError("Value %d too large for field %s of bitlength %d"
-                % (value, self._name, self._size)
-            )
+            raise ValueError("Value %d too large for field %s of bitlength %d" % (value, self._name, self._size))
         return value
 
     def read(self, buf, off, instance):
@@ -170,9 +168,9 @@ class Int(Bits):
             value |= buf[off]
             span -= 8
             off += 1
-        if span: # kill bits in last byte after us
+        if span:  # kill bits in last byte after us
             value >>= -span
-        if startbit: # kill bits before startbit
+        if startbit:  # kill bits before startbit
             value %= 1 << self._size
         instance.__dict__[self._ikey] = value
 
@@ -186,14 +184,10 @@ class Int(Bits):
         if value == 0:
             return
         if value < 0:
-            _LOGGER.error("Value %d is negative for field %s"
-                % (value, self._name)
-            )
+            _LOGGER.error("Value %d is negative for field %s" % (value, self._name))
             value = 0
         if value >= self._sup:
-            _LOGGER.error("Value %d too large for field %s of bitlength %d"
-                % (value, self._name, self._size)
-            )
+            _LOGGER.error("Value %d too large for field %s of bitlength %d" % (value, self._name, self._size))
             value %= self._sup
 
         # copy bits from first byte
@@ -255,6 +249,7 @@ class Float(Bits):
         wbytes = struct.pack(">f", value)
         buf[off:off+4] = wbytes
 
+
 def _int_to_bytes(value, length):
     """Convert an int to the byte array it really represents."""
     buf = bytearray(length)
@@ -264,12 +259,14 @@ def _int_to_bytes(value, length):
     buf.reverse()
     return buf
 
+
 class Ipv4(Int):
     """An Int block representing an IPv4 address."""
     _size = 32
 
     def _str_value(self, value):
         return to_hex(_int_to_bytes(value, self._size // 8))
+
 
 class Ipv6(Int):
     """An Int block representing an IPv6 address."""
@@ -278,22 +275,19 @@ class Ipv6(Int):
     def _str_value(self, value):
         return to_hex(_int_to_bytes(value, self._size // 8))
 
+
 class Unset(Flag):
     """Bits added to each block to mark reserved/unassigned bits"""
 
     def read(self, buf, off, instance):
         super(Unset, self).read(buf, off, instance)
         if instance.__dict__.get(self._ikey):
-            _LOGGER.warning("Reading at <%s>[%s]: Bit %s is set"
-                % (id(buf), off, self._offset)
-            )
+            _LOGGER.warning("Reading at <%s>[%s]: Bit %s is set" % (id(buf), off, self._offset))
 
     def write(self, buf, off, instance):
         super(Unset, self).write(buf, off, instance)
         if instance.__dict__.get(self._ikey):
-            _LOGGER.warning("Writing at <%s>[%s]: Bit %s is set"
-                % (id(buf), off, self._offset)
-            )
+            _LOGGER.warning("Writing at <%s>[%s]: Bit %s is set" % (id(buf), off, self._offset))
 
 
 def padlen(length, base):
@@ -302,6 +296,7 @@ def padlen(length, base):
     if rest:
         length += base - rest
     return length
+
 
 def padded(buf, base=4, fill=b'\0', length=None):
     """Return buf padded with fill to length or to a multiple of base"""
@@ -313,6 +308,7 @@ def padded(buf, base=4, fill=b'\0', length=None):
     if length:
         buf = buf + fill * length
     return bytes(buf)
+
 
 def to_hex(octets):
     """Return a human-readable hexadecimal representation of octets."""
@@ -334,14 +330,19 @@ def to_hex(octets):
         items.append(b'|')
     return b''.join(items)
 
+
 class SizeError(Exception):
-    """Exception thrown when a Block refuses to read a buffer due to unsatisfied
+    """Size Error Exception
+
+    Exception thrown when a Block refuses to read a buffer due to unsatisfied
     size constraints. The calling function may then choose to replace this Block
     with an Unknown Block of a shared superclass."""
     pass
 
+
 class _BlockMeta(type):
-    """Metaclass for Block classes.
+    """Metaclass for Block classes
+
     Adds the _size, _bits attributes, and all Unset bits (named _unset_<offset>).
     _size is the fixed size of the block, padded to _block_pad attribute (default 4).
     _bits is a list of all Bits attributes defined for this block (including Unset)
@@ -384,7 +385,7 @@ class _BlockMeta(type):
                 bits.append(unset)
                 attrs[unset.name] = unset
 
-        bits.sort(key = lambda item: item.name)
+        bits.sort(key=lambda item: item.name)
         attrs['_size'] = size
         attrs['_bits'] = bits
         return super(_BlockMeta, mcs).__new__(mcs, name, bases, attrs)
@@ -392,9 +393,9 @@ class _BlockMeta(type):
 # Kludge for python 2 and 3 syntax compatibility
 _BlockBase = _BlockMeta('_BlockBase', (object, ), dict(
     # updated by metaclass
-    _bits = None,
-    _size = None,
-))
+    _bits=None,
+    _size=None))
+
 
 class Block(_BlockBase):
     """A group of Bits occupying a continuous sequence of bytes.
@@ -462,9 +463,8 @@ class Block(_BlockBase):
         """
         end = off + self._size
         if end > max_end:
-            _errmsg = ("Block[%s] cannot fit [%d:%d], it needs [%d:%d]"
-                % (self.__class__.__name__, off, max_end, off, end)
-            )
+            _errmsg = ("Block[%s] cannot fit [%d:%d], it needs [%d:%d]" %
+                       (self.__class__.__name__, off, max_end, off, end))
             raise SizeError(_errmsg)
         for bits in self._bits:
             bits.read(buf, off, self)
@@ -493,9 +493,7 @@ class Block(_BlockBase):
                 values.append(bits.str(self))
         if unsets:
             unsets.sort()
-            values.append('UNSET: [%s]' % ' '.join(
-                [ str(off) for off in unsets ]
-            ))
+            values.append('UNSET: [%s]' % ' '.join([str(off) for off in unsets]))
         separator = format.get('data', ', ')
         prefix = prefix or ''
         output = ''
@@ -503,11 +501,12 @@ class Block(_BlockBase):
             if value:
                 output += prefix + value + separator
         return output
-        #return prefix + separator.join(value for value in values if value)
+        # return prefix + separator.join(value for value in values if value)
 
 
 class HeadBlock(Block):
-    """Base class for Blocks that start with a fixed header.
+    """Base class for Blocks that start with a fixed header
+
     The header is a Block of its own and its size counts to the respective
     HeadBlock's total size (as computed by the _get_size method).
 
@@ -528,6 +527,7 @@ class HeadBlock(Block):
 
     # the Block class for the header object
     _header_class = None
+
     @classmethod
     def get_header(cls, clone=None):
         return cls._header_class(clone=clone)
@@ -535,8 +535,7 @@ class HeadBlock(Block):
     def __init__(self, clone=None):
         super(HeadBlock, self).__init__(clone=clone)
         self._header = self.get_header(
-            clone = None if clone is None else clone.header
-        )
+            clone=None if clone is None else clone.header)
         self._report_length = None
 
     def _get_size(self):
@@ -558,9 +557,7 @@ class HeadBlock(Block):
         self._report_length = length
 
     def update(self, updates):
-        updated = (super(HeadBlock, self).update(updates)
-            + self._header.update(updates)
-        )
+        updated = (super(HeadBlock, self).update(updates) + self._header.update(updates))
         if 'report_length' in updates:
             self.report_length = updates['report_length']
             updated += 1
@@ -570,9 +567,8 @@ class HeadBlock(Block):
         length = None
         if self._report_length is not None:
             length = self._header.length
-            _LOGGER.info('Block %s reporting length %s instead of %s'
-                % (self.__class__.__name__, self._report_length, length)
-            )
+            _LOGGER.info('Block %s reporting length %s instead of %s' %
+                         (self.__class__.__name__, self._report_length, length))
             self._header.length = self._report_length
         off = self._header.write(buf, off)
         if length is not None:
@@ -585,9 +581,7 @@ class HeadBlock(Block):
     def show(self, format, prefix=''):
         if self.__class__.__bases__[0].__name__ == 'Object':
             separator = format.get('obj_sep', ' ')
-        elif self.__class__.__bases__[0].__name__ == 'Tlv' or \
-            self.__class__.__bases__[0].__name__ == 'Rsvp':
-
+        elif self.__class__.__bases__[0].__name__ == 'Tlv' or self.__class__.__bases__[0].__name__ == 'Rsvp':
             separator = format.get('item_sep', ' ')
         else:
             separator = ' '
@@ -598,10 +592,11 @@ class HeadBlock(Block):
         output += super(HeadBlock, self).show(format, n_prefix)
         return output
 
+
 class Blob(object):
     """Arbitrary data in place of any message Block."""
 
-    def __init__(self, octets = b'', size=None):
+    def __init__(self, octets=b'', size=None):
         if size is not None:
             octets = b'\0' * size
         self.octets = octets
@@ -645,4 +640,3 @@ class Blob(object):
 
     def __str__(self):
         return 'Blob octets="%s"' % to_hex(self.octets)
-
