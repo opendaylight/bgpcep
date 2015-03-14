@@ -15,6 +15,7 @@ from . import data
 import logging
 _LOGGER = logging.getLogger('pcepy.message')
 
+
 class TlvHeader(data.Block):
     """Common TLV header (the TL part)"""
     type_id = data.Int(offset=0, size=16)
@@ -28,14 +29,16 @@ class TlvHeader(data.Block):
         output += super(TlvHeader, self).show(format, n_prefix)
         return output
 
+
 class Tlv(data.HeadBlock):
     """Base class for PCEP type-length-value triplets appendable to Objects"""
-    _block_pad = 1 # For BlockMeta;
-    type_id = 0 # Set in each child
+    _block_pad = 1  # For BlockMeta;
+    type_id = 0     # Set in each child
     _header_class = TlvHeader
-    _fixed = True # size
+    _fixed = True   # size
 
-    unknown_class = None # class of unknown tlvs
+    unknown_class = None  # class of unknown tlvs
+
     @classmethod
     def get_subclass(cls, type_id):
         for subcls in cls.__subclasses__():
@@ -61,21 +64,15 @@ class Tlv(data.HeadBlock):
             self.update(updates)
 
     def read(self, buf, off, end):
-        _LOGGER.debug('Reading %s Tlv from <%s>[%s:%s]'
-            % (self.__class__.__name__, id(buf), off, end)
-        )
+        _LOGGER.debug('Reading %s Tlv from <%s>[%s:%s]' % (self.__class__.__name__, id(buf), off, end))
         ono = self._header.read(buf, off, end)
         if self._fixed and self._header.length != self._size:
-            raise data.SizeError('Length %s in Tlv header not matching size'
-                % (self._header.length, self._size)
-            )
+            raise data.SizeError('Length %s in Tlv header not matching size' % (self._header.length, self._size))
         super(Tlv, self).read(buf, ono, end)
         return off + Tlv.size_from_length(self._size)
 
     def write(self, buf, off):
-        _LOGGER.debug('Writing %s Tlv to <%s>[%s:]'
-            % (self.__class__.__name__, id(buf), off)
-        )
+        _LOGGER.debug('Writing %s Tlv to <%s>[%s:]' % (self.__class__.__name__, id(buf), off))
         super(Tlv, self).write(buf, off)
         return off + Tlv.size_from_length(self._size)
 
@@ -92,9 +89,10 @@ class Tlv(data.HeadBlock):
     def __str__(self):
         return self.show({})
 
+
 class RsvpHeader(data.Block):
     """Unified Rsvp Header"""
-    _block_pad = 2 # For BlockMeta
+    _block_pad = 2  # For BlockMeta
 
     # This flag is defined for ERO and XRO; it has different meaning in either
     # of them (it means 'mandatory' in XRO and is False when it is mandatory).
@@ -110,14 +108,16 @@ class RsvpHeader(data.Block):
         output += super(RsvpHeader, self).show(format, n_prefix)
         return output
 
+
 class Rsvp(data.HeadBlock):
     """Base class for RSVP-TE subobjects of E/I/R/X route objects and PK."""
-    _block_pad = 2 # For BlockMeta; 2 because of header - use Unset if necessary
-    type_id = 0 # Set in each child
+    _block_pad = 2  # For BlockMeta; 2 because of header - use Unset if necessary
+    type_id = 0     # Set in each child
     _header_class = RsvpHeader
-    _fixed = True # size
+    _fixed = True   # size
 
-    unknown_class = None # class of unknown rsvp subobjects
+    unknown_class = None  # class of unknown rsvp subobjects
+
     @classmethod
     def get_subclass(cls, type_id):
         for subcls in cls.__subclasses__():
@@ -140,20 +140,14 @@ class Rsvp(data.HeadBlock):
             self.update(updates)
 
     def read(self, buf, off, end):
-        _LOGGER.debug('Reading %s Rsvp from <%s>[%s:%s]'
-            % (self.__class__.__name__, id(buf), off, end)
-        )
+        _LOGGER.debug('Reading %s Rsvp from <%s>[%s:%s]' % (self.__class__.__name__, id(buf), off, end))
         off = self._header.read(buf, off, end)
         if self._fixed and self._header.length != self._header.size + self._size:
-            raise data.SizeError('Length %s in Rsvp header not matching size'
-                % (self._header.length, self._size)
-            )
+            raise data.SizeError('Length %s in Rsvp header not matching size' % (self._header.length, self._size))
         return super(Rsvp, self).read(buf, off, end)
 
     def write(self, buf, off):
-        _LOGGER.debug('Writing %s Rsvp to <%s>[%d:]'
-            % (self.__class__.__name__, id(buf), off)
-        )
+        _LOGGER.debug('Writing %s Rsvp to <%s>[%d:]' % (self.__class__.__name__, id(buf), off))
         return super(Rsvp, self).write(buf, off)
 
     def __str__(self):
@@ -168,6 +162,7 @@ class Rsvp(data.HeadBlock):
         output += self.header.show(format, n_prefix) + separator
         output += super(Rsvp, self).show(format, n_prefix) + separator
         return output
+
 
 class ObjectHeader(data.Block):
     """Common object header"""
@@ -185,24 +180,24 @@ class ObjectHeader(data.Block):
         output += super(ObjectHeader, self).show(format, n_prefix)
         return output
 
+
 class Object(data.HeadBlock):
     """Base class for PCEP message objects.
     Its body may be trailed by a list of items (Tlvs or Rsvp subobjects)."""
-    class_id = 0 # Set in each child
-    type_id = 0  # Set in each child
+    class_id = 0  # Set in each child
+    type_id = 0   # Set in each child
     _header_class = ObjectHeader
     _item_class = Tlv
-    _allow_items = True # Disabled in Unknown, SVEC
+    _allow_items = True  # Disabled in Unknown, SVEC
 
-    unknown_class = None # class of unknown objects
+    unknown_class = None  # class of unknown objects
+
     @classmethod
-    def get_subclass(cls, class_id, type_id = 1):
+    def get_subclass(cls, class_id, type_id=1):
         for subcls in Object.__subclasses__() + RouteObject.__subclasses__():
             if subcls.class_id == class_id and subcls.type_id == type_id:
                 return subcls
-        _LOGGER.warning('No Object for class %d and type %d'
-            % (class_id, type_id)
-        )
+        _LOGGER.warning('No Object for class %d and type %d' % (class_id, type_id))
         return cls.unknown_class
 
     def __init__(self, *items, **updates):
@@ -223,7 +218,7 @@ class Object(data.HeadBlock):
             self._header.type_id = type(self).type_id
             self._get_size()
         else:
-            self._items = [ item.clone() for item in clone.items ]
+            self._items = [item.clone() for item in clone.items]
         if updates:
             self.update(updates)
         self._items.extend(items)
@@ -250,8 +245,7 @@ class Object(data.HeadBlock):
     def _get_size(self):
         """Provide value for size property. Also updates length in header."""
         size = (super(Object, self)._get_size() +
-            sum(item.size for item in self._items)
-        )
+                sum(item.size for item in self._items))
         self._header.length = size
         return size
 
@@ -260,14 +254,10 @@ class Object(data.HeadBlock):
         If items are allowed, may include Blobs as some of them;
         else may return end offset less than end.
         """
-        _LOGGER.debug("Reading %s Object from <%s>[%s:%s]"
-            % (self.__class__.__name__, id(buf), off, end)
-        )
+        _LOGGER.debug("Reading %s Object from <%s>[%s:%s]" % (self.__class__.__name__, id(buf), off, end))
         off = self._header.read(buf, off, end)
         if self._header.length - self._header.size != end - off:
-            _LOGGER.error('Length %s in object header not matching [%s:%s]'
-                % (self._header.length, off, end)
-            )
+            _LOGGER.error('Length %s in object header not matching [%s:%s]' % (self._header.length, off, end))
         ono = super(Object, self).read(buf, off, end)
 
         if not self._allow_items:
@@ -280,9 +270,7 @@ class Object(data.HeadBlock):
             try:
                 header.read(buf, ono, end)
             except data.SizeError as error:
-                _LOGGER.error("Cannot read %s header: %s"
-                    % (icls.__name__, error)
-                )
+                _LOGGER.error("Cannot read %s header: %s" % (icls.__name__, error))
                 blob = data.Blob()
                 ono = blob.read(buf, ono, end)
                 items.append(blob)
@@ -315,11 +303,9 @@ class Object(data.HeadBlock):
         return ono
 
     def write(self, buf, off):
-        _LOGGER.debug('Writing %s Object to <%s>[%d:]'
-            % (self.__class__.__name__, id(buf), off)
-        )
+        _LOGGER.debug('Writing %s Object to <%s>[%d:]' % (self.__class__.__name__, id(buf), off))
         off = super(Object, self).write(buf, off)
-        if self._items: # May be None (Svec)
+        if self._items:  # May be None (Svec)
             for item in self._items:
                 off = item.write(buf, off)
         return off
@@ -339,17 +325,18 @@ class Object(data.HeadBlock):
             output += item.show(format, n_prefix)
 
         # Items
-        #output += prefix + 'Items:' + separator
-        #if self._items:
-            #output += separator.join(item.show(format, prefix * 2) for item \
-                #in self._items)
-        #else:
-            #output += prefix * 2 + 'No items' + separator
+        # output += prefix + 'Items:' + separator
+        # if self._items:
+        #     output += separator.join(item.show(format, prefix * 2) for item \
+        #         in self._items)
+        # else:
+        #     output += prefix * 2 + 'No items' + separator
 
         return output
 
     def __str__(self):
         return self.show({})
+
 
 class RouteObject(Object):
     """Base class for Routing Objects (Rsvp containers).
@@ -387,7 +374,7 @@ class Group(object):
 
     def __init__(self, **pushes):
         """Initialize a Group, optionally with items to push"""
-        self._matches = dict() # name -> Object/List/Group
+        self._matches = dict()  # name -> Object/List/Group
         self._valid = True
         self._present = False
         if pushes:
@@ -407,14 +394,14 @@ class Group(object):
         """Grab objects into group from offset.
         Return end position."""
         valid = True
-        selfid = '%s <%s>' % (self.__class__.__name__, id(self))
+        selfid = '%s <%s>' % (self.__class__.__name__, id(self))  # noqa
         present = False
         olen = len(objects)
         _badobject = (data.Blob, Object.unknown_class)
         self._matches.clear()
 
         for key, clsdef, sigil in self._sequence:
-            #_LOGGER.debug('Grabbing %s (%s) into %s' % (key, sigil, selfid))
+            # _LOGGER.debug('Grabbing %s (%s) into %s' % (key, sigil, selfid))
             val = None
             group = self._is_group(clsdef)
             is_list = self._is_list(sigil)
@@ -424,9 +411,9 @@ class Group(object):
             while off < olen:
                 item = objects[off]
                 if isinstance(item, _badobject):
-                    #_LOGGER.warning('Bad element %s while reading %s in %s'
-                    #    % (item.__class__.__name__, key, selfid)
-                    #)
+                    # _LOGGER.warning('Bad element %s while reading %s in %s'
+                    #     % (item.__class__.__name__, key, selfid)
+                    # )
                     valid = False
                     off += 1
                     continue
@@ -437,14 +424,14 @@ class Group(object):
                     if not newval.present:
                         newval = None
                     elif not newval.valid:
-                        #_LOGGER.warning('Invalid %s while reading %s in %s'
-                        #    % (clsdef, key, selfid)
-                        #)
+                        # _LOGGER.warning('Invalid %s while reading %s in %s'
+                        #     % (clsdef, key, selfid)
+                        # )
                         valid = False
                 elif isinstance(item, clsdef):
-                    #_LOGGER.debug('Grabbed %s as %s in %s'
-                    #   % (item.__class__.__name__, key, selfid)
-                    #)
+                    # _LOGGER.debug('Grabbed %s as %s in %s'
+                    #    % (item.__class__.__name__, key, selfid)
+                    # )
                     newval = item
                     off += 1
                 if newval is None:
@@ -458,7 +445,7 @@ class Group(object):
                 self._matches[key] = val
                 present = True
             elif not self._is_opt(sigil):
-                #_LOGGER.warning('Missing %s in %s' % (key, selfid))
+                # _LOGGER.warning('Missing %s in %s' % (key, selfid))
                 valid = False
 
         self._valid = valid
@@ -475,7 +462,7 @@ class Group(object):
                     valid = False
                 continue
             if not self._is_list(sigil):
-                val = [ val ]
+                val = [val]
             elif not val and not self._is_opt(sigil):
                 valid = False
                 continue
@@ -536,7 +523,6 @@ class Group(object):
         for key, item in pushes.items():
             self.push(key, item)
 
-
     def __str__(self):
         """Give a shallow view of objects in group."""
         if not self._matches:
@@ -553,7 +539,7 @@ class Group(object):
                     val = 'missing'
             else:
                 if not is_list:
-                    val = [ val ]
+                    val = [val]
                 val = ' + '.join([
                     str(v) if is_group else v.__class__.__name__
                     for v in val
@@ -625,13 +611,14 @@ class Message(Group):
 
     Messages should not be transmitted more than once or share objects.
     """
-    type_id  = 0 # Set in each child
+    type_id = 0  # Set in each child
 
     def clone(self):
         """Create a new instance of this Message, initialized by this one."""
         return type(self)(clone=self)
 
-    unknown_class = None # class of unknown messages
+    unknown_class = None  # class of unknown messages
+
     @classmethod
     def get_subclass(cls, type_id):
         for subcls in cls.__subclasses__():
@@ -674,7 +661,7 @@ class Message(Group):
             self._objects = list()
         else:
             self._header = MessageHeader(clone=clone.header)
-            self._objects = [ obj.clone() for obj in clone.objects ]
+            self._objects = [obj.clone() for obj in clone.objects]
 
         if objects:
             if pushes:
@@ -764,9 +751,7 @@ class Message(Group):
 
     def _get_size(self):
         """Provide value for size property. Also updates length in header."""
-        size = ( self._header.size +
-            sum(obj.size for obj in self._objects)
-        )
+        size = (self._header.size + sum(obj.size for obj in self._objects))
         self._header.length = size
         return size
 
@@ -775,14 +760,10 @@ class Message(Group):
         Then grab() groups. Set and return if valid overall.
         """
         valid = self.__class__ is not Message.unknown_class
-        _LOGGER.debug("Reading %s Message from <%s>[%s:%s]"
-            % (self.__class__.__name__, id(buf), off, end)
-        )
+        _LOGGER.debug("Reading %s Message from <%s>[%s:%s]" % (self.__class__.__name__, id(buf), off, end))
         ono = self._header.read(buf, off, end)
         if self._header.length != end - off:
-            _LOGGER.error('Length %s in message header not matching [%s:%s]'
-                % (self._header.length, off, end)
-            )
+            _LOGGER.error('Length %s in message header not matching [%s:%s]' % (self._header.length, off, end))
             valid = False
 
         objects = self._objects
@@ -841,16 +822,12 @@ class Message(Group):
             self.__class__.__name__,
             id(self)
         )
-        _LOGGER.info('Writing %s to <%s>[%d:]'
-            % (msgid, id(buf), off)
-        )
+        _LOGGER.info('Writing %s to <%s>[%d:]' % (msgid, id(buf), off))
 
         length = None
         if self._report_length is not None:
             length = self._header.length
-            _LOGGER.info('In %s: reporting length %s instead of %s'
-                % (msgid, self._report_length, length)
-            )
+            _LOGGER.info('In %s: reporting length %s instead of %s' % (msgid, self._report_length, length))
             self._header.length = self._report_length
         off = self._header.write(buf, off)
         if length is not None:
@@ -875,6 +852,6 @@ class Message(Group):
         for obj in self.objects:
             output += obj.show(format, n_prefix)
 
-        #output += separator + prefix + super(Message, self).__str__()
+        # output += separator + prefix + super(Message, self).__str__()
 
         return output
