@@ -6,11 +6,11 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 
-
 from . import base
 from . import lsp as _lsp
 from pcepy import session as _session
 from pcepy import message as _message
+
 
 class Pcc(base.Peer):
     """A simulated Path Computation Client"""
@@ -34,9 +34,7 @@ class Pcc(base.Peer):
         if session_remote_config:
             session_config.update(session_remote_config)
 
-        pcep_session = _session.PcepClient(
-            self, local, remote, session_config
-        )
+        pcep_session = _session.PcepClient(self, local, remote, session_config)
         self._sessions.append(pcep_session)
         self.context.bus.add(pcep_session)
         return pcep_session
@@ -80,9 +78,7 @@ class Updater(base.Handler):
         remote_open = session[base.Opener.STATE_REMOTE_OPEN]
         avoid = statedb.can_avoid(pcc_open=local_open, pce_open=remote_open)
         if avoid:
-            base._LOGGER.info('Session "%s" has valid database version "%s"'
-                % (session, statedb.version)
-            )
+            base._LOGGER.info('Session "%s" has valid database version "%s"' % (session, statedb.version))
         else:
             self._send_state_sync(peer, session)
 
@@ -98,36 +94,39 @@ class Updater(base.Handler):
 
         if session[base.Opener.STATE_PCEPTYPE] != base.Opener.PCEPTYPE_STATEFULA:
             peer.make_pcep_error(
-                origin = self,
-                session = session,
-                cause = message,
-                send = _message.code.Error.InvalidOperation_DelegationNotActive,
-                closing = False,
-            )
+                origin=self,
+                session=session,
+                cause=message,
+                send=_message.code.Error.InvalidOperation_DelegationNotActive,
+                closing=False)
             return
 
         for update in message.poll('update'):
             if not update.have('lsp'):
                 peer.make_pcep_error(
-                    origin = self,
-                    session = session,
-                    cause = update,
-                    send = _message.code.Error.MandatoryObjectMissing_LSP,
-                    closing = False,
-                )
+                    origin=self,
+                    session=session,
+                    cause=update,
+                    send=_message.code.Error.MandatoryObjectMissing_LSP,
+                    closing=False)
                 continue
             lsp_id = update.poll('lsp').lsp_id
             lsp = statedb[lsp_id]
-            peer.emit('on_update_request', session=session,
-                lsp_id = lsp_id, lsp = lsp, update = update
-            )
+            peer.emit(
+                'on_update_request',
+                session=session,
+                lsp_id=lsp_id,
+                lsp=lsp,
+                update=update)
             if lsp is not None:
                 lsp.update = update
 
             for key in awaited.match(update):
-                peer.emit('on_await_update', session=session,
-                    key = key, arrived = update
-                )
+                peer.emit(
+                    'on_await_update',
+                    session=session,
+                    key=key,
+                    arrived=update)
 
     def on_timeout(self, peer, eventargs):
         session = eventargs['session']
@@ -137,9 +136,11 @@ class Updater(base.Handler):
             return
         outs = awaited.out(now)
         for out in outs:
-            peer.emit('on_await_report', session=session,
-                key = out, arrived = None
-            )
+            peer.emit(
+                'on_await_report',
+                session=session,
+                key=out,
+                arrived=None)
 
     def timeout(self, session):
         awaited = session[Updater.STATE_AWAITED]
@@ -167,8 +168,8 @@ class Updater(base.Handler):
         """Send state reports from current database."""
         statedb = session[Updater.STATE_STATEDB]
 
-        reports = [ self._make_report(peer, session, lsp) for lsp in statedb ]
-        reports = [ report for report in reports if report is not None ]
+        reports = [self._make_report(peer, session, lsp) for lsp in statedb]
+        reports = [report for report in reports if report is not None]
         count = len(reports)
         if not count:
             return
@@ -177,7 +178,7 @@ class Updater(base.Handler):
 
         for report in reports:
             lsp = report.poll('lsp')
-            if lsp is not None: # possibly sending bad report
+            if lsp is not None:  # possibly sending bad report
                 lsp.synchronize = True
                 if use_dbv:
                     statedb.put_version(lsp)
@@ -203,4 +204,3 @@ class Updater(base.Handler):
     def _get_await(self, session, key, criterion, timeout=None):
         """Transform a criterium into an Await object."""
         return _lsp.Await(key, criterion, criterion.get('timeout', timeout))
-
