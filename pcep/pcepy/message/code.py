@@ -11,6 +11,7 @@ _LOGGER = logging.getLogger('pcepy.message')
 
 PCEP_VERSION = 1
 
+
 class _CodeMeta(type):
     """Metaclass for Code classes: Converts the _values definitions
     into true objects and adds access to individual components by _names"""
@@ -48,15 +49,15 @@ class _CodeMeta(type):
 
                 code = (main_code, sub_default)
                 code_instance = cls(
-                    name = name,
-                    explanation = main_expl,
-                    code = code,
-                    known = True,
+                    name=name,
+                    explanation=main_expl,
+                    code=code,
+                    known=True,
                 )
                 setattr(cls, name, code_instance)
                 codes[code] = code_instance
 
-                if len(defs) ==  2:
+                if len(defs) == 2:
                     continue
 
                 for sub_name, sub_defs in defs[2].items():
@@ -65,10 +66,10 @@ class _CodeMeta(type):
                     sub_name = name + '_' + sub_name
                     code = (main_code, sub_defs[0])
                     code_instance = cls(
-                        name = sub_name,
-                        explanation = main_expl + ': ' + sub_defs[1],
-                        code = code,
-                        known = True,
+                        name=sub_name,
+                        explanation=main_expl + ': ' + sub_defs[1],
+                        code=code,
+                        known=True,
                     )
                     setattr(cls, sub_name, code_instance)
                     codes[code] = code_instance
@@ -78,12 +79,14 @@ class _CodeMeta(type):
 # Kludge for python 2 and 3 syntax compatibility
 _CodeBase = _CodeMeta('_CodeBase', (object, ), dict(
     # updated by metaclass
-    _value = 0,
-    _codes = None,
+    _value=0,
+    _codes=None,
 ))
 
+
 class _Code(_CodeBase):
-    """Base class for code-holding types.
+    """Base class for code-holding types
+
     Subclassess shall use a list _names for code component names (at most two)
     and dict _values for code value definitions (see example uses for syntax).
     """
@@ -97,7 +100,7 @@ class _Code(_CodeBase):
         if not isinstance(code, tuple):
             code = (code, cls._value)
         result = cls._codes.get(code)
-        if result is None: # Create one
+        if result is None:  # Create one
             parent = cls._codes.get((code[0], cls._value))
             if parent is not None:
                 name = parent.name + '_' + cls.unknown_name
@@ -107,10 +110,10 @@ class _Code(_CodeBase):
                 expl = cls.unknown_explanation
 
             result = cls(
-                name = name,
-                explanation = expl,
-                code = code,
-                known = False,
+                name=name,
+                explanation=expl,
+                code=code,
+                known=False,
             )
             cls._codes[code] = result
             _LOGGER.debug('Created unknown code "%s"' % result)
@@ -142,9 +145,8 @@ class _Code(_CodeBase):
         return '%s.%s[%s]: %s' % (
             self.__class__.__name__,
             self._name,
-            ', '.join([ '%s: %s' % codeval
-                for codeval in zip(self._names, self._code)
-            ]),
+            ', '.join(['%s: %s' % codeval
+                      for codeval in zip(self._names, self._code)]),
             self._explanation
         )
 
@@ -153,227 +155,181 @@ class _Code(_CodeBase):
 class Error(_Code):
     """Content of an ERROR object"""
 
-    _names = [ 'error_type', 'error_value' ]
+    _names = ['error_type', 'error_value']
 
     _values = dict(
-    EstablishmentFailure = (1, 'Session establishment failure', dict(
-        ReceivedNotOpen =   (1,
-            'Reception of an invalid Open message or non-Open message'
-        ),
+        EstablishmentFailure=(1, 'Session establishment failure', dict(
+            ReceivedNotOpen=(1, 'Reception of an invalid Open message or non-Open message'),
 
-        OpenWaitExpired =   (2,
-            'No Open message received after the expiration' +
-            ' of the OpenWait timer'
-        ),
+            OpenWaitExpired=(2, 'No Open message received after the expiration of the OpenWait timer'),
 
-        Nonnegotiable =     (3,
-            'Unacceptable and non-negotiable session characteristics'
-        ),
+            Nonnegotiable=(3, 'Unacceptable and non-negotiable session characteristics'),
 
-        Negotiable =        (4,
-            'Unacceptable but negotiable session characteristics'
-        ),
+            Negotiable=(4, 'Unacceptable but negotiable session characteristics'),
 
-        StillUnacceptable = (5,
-            'Reception of an Open message with still unacceptable' +
-            ' session characteristics'
-        ),
+            StillUnacceptable=(5, 'Reception of an Open message with still unacceptable session characteristics'),
 
-        ErrorUnacceptable = (6,
-            'Reception of an Error message proposing unacceptable' +
-            ' session characteristics'
-        ),
+            ErrorUnacceptable=(6, 'Reception of an Error message proposing unacceptable session characteristics'),
 
-        KeepWaitExpired =   (7,
-            'No KeepAlive or PCErr received before expiration of' +
-            ' the KeepWait timer'
-        ),
+            KeepWaitExpired=(7, 'No KeepAlive or PCErr received before expiration of the KeepWait timer'),
 
-        PcepVersion =       (8,
-            'PCEP version not supported'
-        ),
-    )),
+            PcepVersion=(8, 'PCEP version not supported'),
+        )),
 
 
-    CapabilityNotSupported = (2, 'Capability not supported'),
+        CapabilityNotSupported=(2, 'Capability not supported'),
 
-    UnknownObject = (3, 'Unknown object', dict(
-        Class = 1,
-        Type  = 2,
-    )),
+        UnknownObject=(3, 'Unknown object', dict(
+            Class=1,
+            Type=2,
+        )),
 
-    UnsupportedObject = (4, 'Not supported object', dict(
-        Class = 1,
-        Type  = 2,
-    )),
+        UnsupportedObject=(4, 'Not supported object', dict(
+            Class=1,
+            Type=2,
+        )),
 
-    PolicyViolation = (5, 'Policy violation', dict(
-        MetricCBit = (1,
-            'C bit of METRIC object set (request rejected)'
-        ),
+        PolicyViolation=(5, 'Policy violation', dict(
+            MetricCBit=(1, 'C bit of METRIC object set (request rejected)'),
 
-        RpOBit =     (2,
-            'O bit of RP object set (request rejected)'
-        ),
+            RpOBit=(2, 'O bit of RP object set (request rejected)'),
 
-        # RFC 5541 OF
-        OFunction =  (3,
-            'Objective function not allowed (request rejected)'
-        ),
+            # RFC 5541 OF
+            OFunction=(3, 'Objective function not allowed (request rejected)'),
 
-        RpOFBit =    (4,
-            'OF bit of RP object set (request rejected)'
-        ),
+            RpOFBit=(4, 'OF bit of RP object set (request rejected)'),
 
-        # RFC 5886 MON
-        Monitoring = (6,
-            'Monitoring message supported but rejected'
-        ),
-    )),
+            # RFC 5886 MON
+            Monitoring=(6, 'Monitoring message supported but rejected'),
+        )),
 
-    MandatoryObjectMissing = (6, 'Mandatory object missing', dict(
-        RP   = ( 1, 'RP object missing'),
-        RRO  = ( 2, 'RRO object missing for a reoptimization request'),
-        EP   = ( 3, 'END-POINTS object missing'),
+        MandatoryObjectMissing=(6, 'Mandatory object missing', dict(
+            RP=(1, 'RP object missing'),
+            RRO=(2, 'RRO object missing for a reoptimization request'),
+            EP=(3, 'END-POINTS object missing'),
 
-        # RFC 5886 MON
-        MON  = ( 4, 'MONITORING object missing'),
+            # RFC 5886 MON
+            MON=(4, 'MONITORING object missing'),
+
+            # D STATEFUL
+            LSP=(8, 'LSP object missing'),
+            ERO=(9,
+                 'ERO object missing for a path in an LSP Update Request' +
+                 ' where TE-LSP setup is requested'),
+            BW=(10,
+                'BANDWIDTH object missing for a path in an LSP Update Request' +
+                ' where TE-LSP setup is requested'),
+            LSPA=(11,
+                  'BANDWIDTH object missing for a path in an LSP Update Request' +
+                  ' where TE-LSP setup is requested'),
+            DBV=(12, 'LSP-DB-VERSION TLV is missing'),
+        )),
+
+        SyncRpMissing=(7, 'Synchronized path computation request missing'),
+
+        UnknownRequest=(8, 'Unknown request reference'),
+
+        SessionEstablished=(9, 'Attempt to establish a second PCEP session'),
+
+        InvalidObject=(10, 'Reception of an invalid object', dict(
+            PFlagNotSet=(1, 'P flag not set although required by RFC5440'),
+        )),
+
+        # RFC 5521 XRO
+        UnrecognizedExrs=(11, 'Unrecognized EXRS subobject'),
 
         # D STATEFUL
-        LSP  = ( 8, 'LSP object missing'),
-        ERO  = ( 9,
-            'ERO object missing for a path in an LSP Update Request' +
-            ' where TE-LSP setup is requested'
-        ),
-        BW   = (10,
-            'BANDWIDTH object missing for a path in an LSP Update Request' +
-            ' where TE-LSP setup is requested'
-        ),
-        LSPA = (11,
-            'BANDWIDTH object missing for a path in an LSP Update Request' +
-            ' where TE-LSP setup is requested'
-        ),
-        DBV = (12,
-            'LSP-DB-VERSION TLV is missing'
-        ),
-    )),
+        InvalidOperation=(19, 'Invalid operation', dict(
+            LspNotDelegated=(1, 'Attempted LSP update request for a non-delegated LSP'),
+            DelegationNotActive=(
+                2,
+                'Attempted LSP update request if active stateful' +
+                ' PCE capability was not negotiated'),
+        )),
 
-    SyncRpMissing = (7, 'Synchronized path computation request missing'),
+        # D STATEFUL
+        StateSync=(20, 'LSP state synchronization error', dict(
+            CannotProcess=(1, 'State report cannot be processed'),
+            BadDbVersion=(2, 'LSP database version mismatch'),
+            NoDbVersion=(3, 'LSP-DB-VERSION TLV missing when state synchronization avoidance enabled'),
+        )),
+    )  # Error._value
 
-    UnknownRequest = (8, 'Unknown request reference'),
-
-    SessionEstablished = (9, 'Attempt to establish a second PCEP session'),
-
-    InvalidObject = (10, 'Reception of an invalid object', dict(
-        PFlagNotSet = (1, 'P flag not set although required by RFC5440'),
-    )),
-
-    # RFC 5521 XRO
-    UnrecognizedExrs = (11, 'Unrecognized EXRS subobject'),
-
-    # D STATEFUL
-    InvalidOperation = (19, 'Invalid operation', dict(
-        LspNotDelegated     = (1,
-            'Attempted LSP update request for a non-delegated LSP'
-        ),
-
-        DelegationNotActive = (2,
-            'Attempted LSP update request if active stateful' +
-            ' PCE capability was not negotiated'
-        ),
-    )),
-
-    # D STATEFUL
-    StateSync = (20, 'LSP state synchronization error', dict(
-        CannotProcess = (1, 'State report cannot be processed'),
-        BadDbVersion  = (2, 'LSP database version mismatch'),
-        NoDbVersion   = (3,
-            'LSP-DB-VERSION TLV missing when state synchronization' +
-            ' avoidance enabled'
-        ),
-    )),
-
-    ) #Error._value
 
 # RFC 5440 PCEP
 class Close(_Code):
     """Reason for closure of an PCEP session"""
 
-    _names = [ 'reason' ]
+    _names = ['reason']
 
     _values = dict(
-    NoExplanation    = (1, 'No explanation'),
-    DeadtimerExpired = (2, 'DeadTimer expired'),
-    MalformedMessage = (3, 'Reception of a malformed PCEP message'),
-    TooManyUnknown   = (4,
-        'Reception of an unacceptable number of unknown requests or responses',
-    ),
-    TooManyUnrecognized = (5,
-        'Reception of an unacceptable number of unrecognized PCEP messages'
-    ),
+        NoExplanation=(1, 'No explanation'),
+        DeadtimerExpired=(2, 'DeadTimer expired'),
+        MalformedMessage=(3, 'Reception of a malformed PCEP message'),
+        TooManyUnknown=(4, 'Reception of an unacceptable number of unknown requests or responses'),
+        TooManyUnrecognized=(5, 'Reception of an unacceptable number of unrecognized PCEP messages'),
     )
+
 
 # RFC 5440 PCEP
 class Notification(_Code):
     """Contents of an Notification object"""
 
-    _names = [ 'notify_type', 'notify_value' ]
+    _names = ['notify_type', 'notify_value']
 
     _values = dict(
-    RequestCancelled = (1, 'Pending request cancelled', dict(
-        ByPcc = (1, 'Cancelled by PCC'),
-        ByPce = (2, 'Cancelled by PCE'),
-    )),
+        RequestCancelled=(1, 'Pending request cancelled', dict(
+            ByPcc=(1, 'Cancelled by PCC'),
+            ByPce=(2, 'Cancelled by PCE'),
+        )),
 
-    OverloadedPce    = (2, 'Overloaded PCE', dict(
-        Now = (1, 'Overloaded'),
-        End = (2, 'Overload ended'),
-    )),
+        OverloadedPce=(2, 'Overloaded PCE', dict(
+            Now=(1, 'Overloaded'),
+            End=(2, 'Overload ended'),
+        )),
     )
+
 
 # RFC 5440 PCEP
 class Metric(_Code):
     """Known type of METRIC objects"""
 
-    _names = [ 'metric_type' ]
+    _names = ['metric_type']
 
     _values = dict(
-    IGP  = 1,
-    TE   = 2,
-    HOPS = 3,
+        IGP=1,
+        TE=2,
+        HOPS=3,
 
-    # RFC 5541 OF
-    ABC  = ( 4, 'Aggregate bandwidth consumption'),
-    LMLL = ( 5, 'Load of the most loaded link'),
-    CIC  = ( 6, 'Cumulative IGP cost'),
-    CTC  = ( 7, 'Cumulative TE cost'),
+        # RFC 5541 OF
+        ABC=(4, 'Aggregate bandwidth consumption'),
+        LMLL=(5, 'Load of the most loaded link'),
+        CIC=(6, 'Cumulative IGP cost'),
+        CTC=(7, 'Cumulative TE cost'),
 
-    # RFC 6006 P2MP
-    P2MI = ( 8, 'P2MP IGM'),
-    P2MT = ( 9, 'P2MP TE'),
-    P2MH = (10, 'P2MP HOPS'),
+        # RFC 6006 P2MP
+        P2MI=(8, 'P2MP IGM'),
+        P2MT=(9, 'P2MP TE'),
+        P2MH=(10, 'P2MP HOPS')
     )
+
 
 # D STATEFUL
 class LspUpdateError(_Code):
     """Error code inside an LSP Update Error Code TLV"""
 
-    _names = [ 'lsp_update_error_code' ]
+    _names = ['lsp_update_error_code']
 
     _values = dict(
-    SetupFail = (1, 'Setup failed outside of node'),
-    LspDown   = (2, 'LSP not operational'),
-    )
+        SetupFail=(1, 'Setup failed outside of node'),
+        LspDown=(2, 'LSP not operational'))
+
 
 # RFC 5440 PCEP
 class NoPath(_Code):
 
-    _names = [ 'nature' ]
+    _names = ['nature']
 
     _values = dict(
-    NoPathFound =    (0,
-        'No path satisfying the set of constraints could be found'
-    ),
-    PceChainBroken = (1, 'PCE chain broken'),
-    )
-
+        NoPathFound=(0, 'No path satisfying the set of constraints could be found'),
+        PceChainBroken=(1, 'PCE chain broken'))
