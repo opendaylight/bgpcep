@@ -1,6 +1,6 @@
 # PCEP message objects
 
-# Copyright (c) 2012,2013 Cisco Systems, Inc. and others.  All rights reserved.
+# Copyright (c) 2012, 2015 Cisco Systems, Inc. and others.  All rights reserved.
 #
 # This program and the accompanying materials are made available under the
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -13,10 +13,11 @@ from . import data
 from . import base
 from . import code
 
+
 # RFC 5440 PCEP
 class Open(base.Object):
     class_id = 1
-    type_id  = 1
+    type_id = 1
 
     version = data.Int(offset=0, size=3, value=code.PCEP_VERSION)
     keepalive = data.Int(offset=8, size=8)
@@ -27,17 +28,17 @@ class Open(base.Object):
 # RFC 5440 PCEP
 class Rp(base.Object):
     class_id = 2
-    type_id  = 1
+    type_id = 1
 
-    fragmentation = data.Flag(offset=18)   # RFC 6006 P2MP
-    p2mp = data.Flag(offset=19)            # RFC 6006 P2MP
-    ero_compression = data.Flag(offset=20) # RFC 6006 P2MP
-    make_bf_break = data.Flag(offset=21)   # RFC 5557 GCO
-    report_order = data.Flag(offset=22)    # RFC 5557 GCO
-    path_key = data.Flag(offset=23)        # RFC 5520 PK
-    supply_of = data.Flag(offset=24)       # RFC 5541 OF
-    vspt = data.Flag(offset=25)            # RFC 5441 BRPC
-    strict = data.Flag(offset=26)          # RFC 5440 PCEP
+    fragmentation = data.Flag(offset=18)    # RFC 6006 P2MP
+    p2mp = data.Flag(offset=19)             # RFC 6006 P2MP
+    ero_compression = data.Flag(offset=20)  # RFC 6006 P2MP
+    make_bf_break = data.Flag(offset=21)    # RFC 5557 GCO
+    report_order = data.Flag(offset=22)     # RFC 5557 GCO
+    path_key = data.Flag(offset=23)         # RFC 5520 PK
+    supply_of = data.Flag(offset=24)        # RFC 5541 OF
+    vspt = data.Flag(offset=25)             # RFC 5441 BRPC
+    strict = data.Flag(offset=26)           # RFC 5440 PCEP
     bidirectional = data.Flag(offset=27)
     reoptimize = data.Flag(offset=28)
     priority = data.Int(offset=29, size=3)
@@ -51,7 +52,7 @@ class Rp(base.Object):
 # RFC 5440 PCEP
 class NoPath(base.Object):
     class_id = 3
-    type_id  = 1
+    type_id = 1
 
     nature = data.Int(offset=0, size=8)
     constraints = data.Flag(offset=8)
@@ -75,7 +76,7 @@ class NoPath(base.Object):
 # RFC 5440 PCEP
 class Ipv4Endpoints(base.Object):
     class_id = 4
-    type_id  = 1
+    type_id = 1
 
     source = data.Ipv4(offset=0)
     destination = data.Ipv4(offset=32)
@@ -91,10 +92,11 @@ class Ipv4Endpoints(base.Object):
         super(Ipv4Endpoints, self).__init__(*items, **updates)
         self._header.process = True
 
+
 # RFC 5440 PCEP
 class Ipv6Endpoints(base.Object):
     class_id = 4
-    type_id  = 2
+    type_id = 2
 
     source = data.Ipv6(offset=0)
     destination = data.Ipv6(offset=128)
@@ -117,7 +119,7 @@ Endpoints = Ipv4Endpoints, Ipv6Endpoints
 # RFC 5440 PCEP
 class Bandwidth(base.Object):
     class_id = 5
-    type_id  = 1
+    type_id = 1
 
     bandwidth = data.Float(offset=0)
 
@@ -125,7 +127,7 @@ class Bandwidth(base.Object):
 # RFC 5440 PCEP
 class Metric(base.Object):
     class_id = 6
-    type_id  = 1
+    type_id = 1
 
     bound = data.Flag(offset=23)
     compute = data.Flag(offset=22)
@@ -151,19 +153,19 @@ class Metric(base.Object):
 # RFC 5440 PCEP
 class Ero(base.RouteObject):
     class_id = 7
-    type_id  = 1
+    type_id = 1
 
 
 # RFC 5440 PCEP
 class Rro(base.RouteObject):
     class_id = 8
-    type_id  = 1
+    type_id = 1
 
 
 # RFC 5440 PCEP
 class Lspa(base.Object):
     class_id = 9
-    type_id  = 1
+    type_id = 1
 
     exclude_any = data.Int(offset=0, size=32)
     include_any = data.Int(offset=32, size=32)
@@ -177,13 +179,13 @@ class Lspa(base.Object):
 # RFC 5440 PCEP
 class Iro(base.RouteObject):
     class_id = 10
-    type_id  = 1
+    type_id = 1
 
 
 # RFC 5440 PCEP
 class Svec(base.Object):
     class_id = 11
-    type_id  = 1
+    type_id = 1
     _allow_items = False
     __rp_id_sup = 1 << 32
 
@@ -191,8 +193,8 @@ class Svec(base.Object):
     node_diverse = data.Flag(offset=30)
     srlg_diverse = data.Flag(offset=29)
 
-    linkdir_diverse = data.Flag(offset=20)  # RFC 6006 P2MP
-    partpath_diverse = data.Flag(offset=19) # RFC 6006 P2MP
+    linkdir_diverse = data.Flag(offset=20)   # RFC 6006 P2MP
+    partpath_diverse = data.Flag(offset=19)  # RFC 6006 P2MP
 
     def __init__(self, *items, **updates):
         if 'clone' in updates:
@@ -236,9 +238,8 @@ class Svec(base.Object):
         ono = super(Svec, self).read(buf, off, max_end)
         end = off + self._header.length
         if end > max_end:
-            _errmsg = ("SVEC length (%s) exceeds limit [%s:%s]"
-                % (self._header.length, off, max_end)
-            )
+            _errmsg = ("SVEC length (%s) exceeds limit [%s:%s]" %
+                       (self._header.length, off, max_end))
             raise data.SizeError(_errmsg)
         rp_ids = self._rp_ids
         trail = (end - ono) % 4
@@ -273,14 +274,14 @@ class Svec(base.Object):
     def __str__(self):
         return '%s, rp_ids=[%s]' % (
             super(Svec, self).__str__(),
-            ', '.join([ str(rp_id) for rp_id in self._rp_ids])
+            ', '.join([str(rp_id) for rp_id in self._rp_ids])
         )
 
 
 # RFC 5440 PCEP
 class Notification(base.Object):
     class_id = 12
-    type_id  = 1
+    type_id = 1
 
     notify_type = data.Int(offset=16, size=8)
     notify_value = data.Int(offset=24, size=8)
@@ -310,7 +311,7 @@ class Notification(base.Object):
 # RFC 5440 PCEP
 class Error(base.Object):
     class_id = 13
-    type_id  = 1
+    type_id = 1
 
     error_type = data.Int(offset=16, size=8)
     error_value = data.Int(offset=24, size=8)
@@ -340,7 +341,7 @@ class Error(base.Object):
 # RFC 5440 PCEP
 class LoadBalancing(base.Object):
     class_id = 14
-    type_id  = 1
+    type_id = 1
 
     max_lsp = data.Int(offset=24, size=8)
     min_bandwidth = data.Float(offset=32)
@@ -349,7 +350,7 @@ class LoadBalancing(base.Object):
 # RFC 5440 PCEP
 class Close(base.Object):
     class_id = 15
-    type_id  = 1
+    type_id = 1
 
     reason = data.Int(offset=24, size=8)
 
@@ -406,6 +407,7 @@ class Ipv4PccIdReq(base.Object):
 
     address = data.Ipv4(offset=0)
 
+
 # RFC 5886 MON
 class Ipv6PccIdReq(base.Object):
     class_id = 20
@@ -430,6 +432,7 @@ class Ipv4PceId(base.Object):
     type_id = 1
 
     address = data.Ipv4(offset=0)
+
 
 # RFC 5886 MON
 class Ipv6PceId(base.Object):
@@ -465,7 +468,7 @@ class Overload(base.Object):
 # D STATEFUL
 class Lsp(base.Object):
     class_id = 32
-    type_id  = 1
+    type_id = 1
 
     lsp_id = data.Int(offset=0, size=20)
     delegate = data.Flag(offset=31)
@@ -516,10 +519,9 @@ class Unknown(base.Object):
         length = self._header.length - self._header.size
         end = off + length
         if end > max_end:
-            base._LOGGER.error("Object data length (%s) exceeds limit [%s:%s]"
-                % (length, off, max_end)
-            )
-        end = max_end # always read the whole portion
+            base._LOGGER.error("Object data length (%s) exceeds limit [%s:%s]" %
+                               (length, off, max_end))
+        end = max_end  # always read the whole portion
         self._octets = buf[off:end]
         return end
 
@@ -533,8 +535,6 @@ class Unknown(base.Object):
     def __str__(self):
         return '%soctets="%s"' % (
             super(Unknown, self).__str__(),
-            data.to_hex(self._octets)
-        )
+            data.to_hex(self._octets))
 
 base.Object.unknown_class = Unknown
-
