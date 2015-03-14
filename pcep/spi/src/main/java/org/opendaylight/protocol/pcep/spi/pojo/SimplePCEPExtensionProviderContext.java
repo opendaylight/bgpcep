@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.spi.pojo;
 
 import javax.annotation.concurrent.ThreadSafe;
-
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
@@ -25,6 +24,8 @@ import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
+import org.opendaylight.protocol.pcep.spi.SubobjectParser;
+import org.opendaylight.protocol.pcep.spi.SubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -38,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.EnterpriseSpecificInformation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.SubobjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 
@@ -49,6 +51,7 @@ public class SimplePCEPExtensionProviderContext implements PCEPExtensionProvider
     private final SimpleLabelRegistry labelReg = new SimpleLabelRegistry();
     private final SimpleMessageRegistry msgReg = new SimpleMessageRegistry();
     private final SimpleObjectRegistry objReg = new SimpleObjectRegistry();
+    private final SimpleSubobjectRegistry subReg = new SimpleSubobjectRegistry();
     private final SimpleEROSubobjectRegistry eroSubReg = new SimpleEROSubobjectRegistry();
     private final SimpleRROSubobjectRegistry rroSubReg = new SimpleRROSubobjectRegistry();
     private final SimpleXROSubobjectRegistry xroSubReg = new SimpleXROSubobjectRegistry();
@@ -195,5 +198,16 @@ public class SimplePCEPExtensionProviderContext implements PCEPExtensionProvider
     @Override
     public VendorInformationObjectRegistry getVendorInformationObjectRegistry() {
         return this.viObjReg;
+    }
+
+    @Override
+    public AutoCloseable registerSubobjectParser(final int subType, final SubobjectParser parser) {
+        return this.subReg.registerSubobjectParser(subType, parser);
+    }
+
+    @Override
+    public AutoCloseable registerSubobjectSerializer(final Class<? extends CSubobject> subClass,
+        final SubobjectSerializer serializer) {
+        return this.subReg.registerSubobjectSerializer(subClass, serializer);
     }
 }
