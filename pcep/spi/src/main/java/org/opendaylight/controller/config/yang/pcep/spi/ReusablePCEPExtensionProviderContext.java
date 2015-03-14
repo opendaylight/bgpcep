@@ -18,6 +18,8 @@ import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
+import org.opendaylight.protocol.pcep.spi.SubobjectParser;
+import org.opendaylight.protocol.pcep.spi.SubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -32,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.EnterpriseSpecificInformation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.SubobjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 
@@ -208,5 +211,16 @@ public class ReusablePCEPExtensionProviderContext implements AutoCloseable, PCEP
     @Override
     public AutoCloseable registerVendorInformationObjectParser(final EnterpriseNumber enterpriseNumber, final ObjectParser parser) {
         return this.delegate.registerVendorInformationObjectParser(enterpriseNumber, parser);
+    }
+
+    @Override
+    public AutoCloseable registerSubobjectParser(final int subobjectType, final SubobjectParser parser) {
+        return this.delegate.registerSubobjectParser(subobjectType, parser);
+    }
+
+    @Override
+    public AutoCloseable registerSubobjectSerializer(final Class<? extends CSubobject> subobjectClass,
+        final SubobjectSerializer serializer) {
+        return this.delegate.registerSubobjectSerializer(subobjectClass, serializer);
     }
 }
