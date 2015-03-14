@@ -6,7 +6,6 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 
-import time
 import weakref
 import traceback
 import logging
@@ -17,8 +16,9 @@ from pcepy import message as _message
 resolve_timeout = _session.resolve_timeout
 min_timeout = _session.min_timeout
 
-EMIT_RESULT = 'EMIT_RESULT' # key to put into eventargs
+EMIT_RESULT = 'EMIT_RESULT'  # key to put into eventargs
 CANCEL_EVENT = _session.CANCEL_EVENT
+
 
 class Peer(object):
     """Base class for PCEP peers (PCE or PCC).
@@ -170,9 +170,7 @@ class Peer(object):
             send = _message.object.Error(code=send)
         elif isinstance(send, _message.code.Close):
             send = _message.object.Close(code=send)
-        elif not isinstance(send,
-            (_message.object.Error, _message.object.Close)
-        ):
+        elif not isinstance(send, (_message.object.Error, _message.object.Close)):
             is_applied = False
 
         if is_applied:
@@ -182,7 +180,7 @@ class Peer(object):
             tlvs = kwargs.get('object_tlv')
             if tlvs is not None:
                 if not isinstance(tlvs, list):
-                    tlvs = [ tlvs ]
+                    tlvs = [tlvs]
                 for tlv in tlvs:
                     send.add(tlv)
 
@@ -202,9 +200,7 @@ class Peer(object):
         elif isinstance(send, _message.Message):
             is_applied = False
         else:
-            raise ValueError("Cannot send instance of %s on PCEP error"
-                % send.__class__.__name__
-            )
+            raise ValueError("Cannot send instance of %s on PCEP error" % send.__class__.__name__)
 
         updates = kwargs.get('message_set')
         if updates:
@@ -217,12 +213,13 @@ class Peer(object):
 
     def _emit_pcep_error(self, origin, session, cause, message, closing):
         """Process the error created by make_pcep_error"""
-        result = self.emit('on_pcep_error', session=session,
-            origin = origin,
-            cause = cause,
-            message = message,
-            closing = closing,
-        )
+        result = self.emit(
+            'on_pcep_error',
+            session=session,
+            origin=origin,
+            cause=cause,
+            message=message,
+            closing=closing)
         if message:
             session.send(message)
         if closing:
@@ -252,11 +249,7 @@ class Peer(object):
         """Ask all sessions to close"""
         for session in self._sessions:
             if not session.closing:
-                session.send(_message.Close(
-                    _message.object.Close(
-                        code = _message.code.Close.NoExplanation
-                    )
-                ))
+                session.send(_message.Close(_message.object.Close(code=_message.code.Close.NoExplanation)))
                 session.closing = True
 
     def __str__(self):
@@ -333,7 +326,7 @@ class Opener(Handler):
     CONFIG_PCEPTYPE = 'session.pceptype'
 
     PCEPTYPE_STATELESS = 'pcep.stateless'
-    PCEPTYPE_STATEFUL  = 'pcep.stateful'
+    PCEPTYPE_STATEFUL = 'pcep.stateful'
     PCEPTYPE_STATEFULA = 'pcep.stateful_active'
     PCEPTYPE_STATEFULI = 'pcep.stateful_instantiation'
 
@@ -379,7 +372,6 @@ class Opener(Handler):
         open = self._make_open(peer, session)
         self._send_open(peer, session, open)
 
-
     def on_message(self, peer, eventargs):
         session = eventargs['session']
         message = eventargs['message']
@@ -387,36 +379,29 @@ class Opener(Handler):
 
         if session.closing or not state or state == Opener.OS_FAILED:
             _LOGGER.warning(
-                "Session %s received %s Message while closing and/or failed"
-                % (session, message.__class__.__name__)
-            )
+                "Session %s received %s Message while closing and/or failed" % (session, message.__class__.__name__))
             return
 
         is_open = isinstance(message, _message.Open)
 
         if state == Opener.OS_UP:
             if is_open:
-                _LOGGER.error(
-                    "Session %s received open message while already open"
-                    % session
-                )
+                _LOGGER.error("Session %s received open message while already open" % session)
             return
 
         open = message.get(_message.object.Open)
-        error_code = None # we are sending
+        error_code = None  # we are sending
 
         # SEE APPENDIX A of RFC 5440 for following logic:
         if state == Opener.OS_OPENWAIT:
 
             if not is_open or not open:
                 peer.make_pcep_error(
-                    origin = self,
-                    session = session,
-                    cause = message,
-                    send = _message.code.Error\
-                        .EstablishmentFailure_ReceivedNotOpen,
-                    closing = True,
-                )
+                    origin=self,
+                    session=session,
+                    cause=message,
+                    send=_message.code.Error.EstablishmentFailure_ReceivedNotOpen,
+                    closing=True)
                 session[Opener.STATE_STATE] = Opener.OS_FAILED
                 return
 
@@ -466,13 +451,12 @@ class Opener(Handler):
                     .EstablishmentFailure_Nonnegotiable
 
             peer.make_pcep_error(
-                origin = self,
-                session = session,
-                cause = message,
-                send = error_code,
-                closing = closing,
-                message_set = dict(open=accept_open),
-            )
+                origin=self,
+                session=session,
+                cause=message,
+                send=error_code,
+                closing=closing,
+                message_set=dict(open=accept_open))
             if closing:
                 session[Opener.STATE_STATE] = Opener.OS_FAILED
             return
@@ -493,9 +477,7 @@ class Opener(Handler):
 
         if isinstance(message, _message.PCErr):
             error = message.get(_message.object.Error)
-            if (open and error.code == _message.code.Error\
-                    .EstablishmentFailure_Negotiable
-            ):
+            if (open and error.code == _message.code.Error.EstablishmentFailure_Negotiable):
                 accept_open = self._accept_error(peer, session, open)
                 if accept_open:
                     self._send_open(peer, session, accept_open)
@@ -519,12 +501,11 @@ class Opener(Handler):
                 .EstablishmentFailure_ReceivedNotOpen
 
         peer.make_pcep_error(
-            origin = self,
-            session = session,
-            cause = message,
-            send = error_code,
-            closing = True,
-        )
+            origin=self,
+            session=session,
+            cause=message,
+            send=error_code,
+            closing=True)
 
     def on_timeout(self, peer, eventargs):
         session = eventargs['session']
@@ -549,12 +530,11 @@ class Opener(Handler):
 
         session[Opener.STATE_STATE] = Opener.OS_FAILED
         peer.make_pcep_error(
-            origin = self,
-            session = session,
-            cause = (now, timeout),
-            send = error_code,
-            closing = True,
-        )
+            origin=self,
+            session=session,
+            cause=(now, timeout),
+            send=error_code,
+            closing=True)
 
     def timeout(self, session):
         return min_timeout(
@@ -563,9 +543,8 @@ class Opener(Handler):
 
     def _get_pceptype(self, peer, session):
         """Return PCEP session type for new session"""
-        return (session[Opener.CONFIG_PCEPTYPE]
-            or peer.get(Opener.CONFIG_PCEPTYPE, self.PCEPTYPE_DEFAULT)
-        )
+        return (session[Opener.CONFIG_PCEPTYPE] or
+                peer.get(Opener.CONFIG_PCEPTYPE, self.PCEPTYPE_DEFAULT))
 
     def _get_sessionid(self, peer, session):
         """Return PCEP session id for new session"""
@@ -637,7 +616,7 @@ class Opener(Handler):
         """Accept an open object from remote peer's error message.
         Returns new Open object to be sent, or None if unacceptable.
         """
-        pass # may be implemented later
+        pass  # may be implemented later
 
     def _session_open(self, peer, session):
         """Bring session up and setup negotiated session state"""
@@ -682,7 +661,6 @@ class Keeper(Handler):
         self._set_keepalive(peer, session)
         self._set_deadtimer(peer, session)
 
-
     def on_message(self, peer, eventargs):
         self._set_deadtimer(peer, eventargs['session'])
 
@@ -697,16 +675,15 @@ class Keeper(Handler):
         timeout = session[Keeper.STATE_DEADTIMERAT]
         if timeout and timeout <= now:
             peer.make_pcep_error(
-                origin = self,
-                session = session,
-                cause = (now, timeout),
-                send = _message.code.Close.DeadtimerExpired,
-                closing = True,
-            )
+                origin=self,
+                session=session,
+                cause=(now, timeout),
+                send=_message.code.Close.DeadtimerExpired,
+                closing=True)
             return
 
         timeout = session[Keeper.STATE_KEEPALIVEAT]
-        if timeout and timeout <= now: # should always happen
+        if timeout and timeout <= now:  # should always happen
             del session[Keeper.STATE_KEEPALIVEAT]
             session.send(_message.Keepalive())
 
@@ -726,9 +703,8 @@ class Keeper(Handler):
         keepalive = session[Keeper.STATE_KEEPALIVE]
         if keepalive and not session.closing:
             session[Keeper.STATE_KEEPALIVEAT] = resolve_timeout(keepalive)
-            _LOGGER.debug('Setting keepalive timeout to %0.1f on %s'
-                % (session[Keeper.STATE_KEEPALIVEAT], session)
-            )
+            _LOGGER.debug('Setting keepalive timeout to %0.1f on %s' %
+                          (session[Keeper.STATE_KEEPALIVEAT], session))
         else:
             del session[Keeper.STATE_DEADTIMERAT]
 
@@ -740,9 +716,8 @@ class Keeper(Handler):
         session[Keeper.STATE_DEADTIMERAT] = resolve_timeout(
             session[Keeper.STATE_REMOTE_DEADTIMER]
         )
-        _LOGGER.debug('Setting deadtimer timeout to %0.1f on %s'
-            % (session[Keeper.STATE_DEADTIMERAT], session)
-        )
+        _LOGGER.debug('Setting deadtimer timeout to %0.1f on %s' %
+                      (session[Keeper.STATE_DEADTIMERAT], session))
 
 
 class Closer(Handler):
@@ -758,17 +733,17 @@ class Closer(Handler):
         session = eventargs['session']
         header = eventargs['header']
         peer.make_pcep_error(
-            origin = self,
-            session = session,
-            cause = header,
-            send = _message.code.Close.MalformedMessage,
-            closing = True
-        )
+            origin=self,
+            session=session,
+            cause=header,
+            send=_message.code.Close.MalformedMessage,
+            closing=True)
 
     def on_close(self, peer, eventargs):
         session = eventargs['session']
         if not session.is_server():
             peer._sessions.remove(session)
+
 
 class Logger(Handler):
     """Log every event; possibly tracing its call stack"""
@@ -790,4 +765,3 @@ class Logger(Handler):
             self.__dict__[name] = meth
             return meth
         raise AttributeError(name)
-
