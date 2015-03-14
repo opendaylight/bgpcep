@@ -20,10 +20,10 @@
 
 from . import data
 from . import base
-from . import tlv
-from . import rsvp
-from . import object
-from ._message import *
+from . import tlv  # noqa
+from . import rsvp  # noqa
+from . import object  # noqa
+from ._message import *  # noqa
 
 SizeError = data.SizeError
 Blob = data.Blob
@@ -32,4 +32,3 @@ Transmission = base.Transmission
 Object = base.Object
 Tlv = base.Tlv
 Rsvp = base.Rsvp
-
