@@ -10,14 +10,15 @@ from . import data
 from . import base
 from . import code
 
+
 # RFC 5440 PCEP
 class NoPathVector(base.Tlv):
     type_id = 1
     unavailable = data.Flag(offset=31)
     destination = data.Flag(offset=30)
     source = data.Flag(offset=29)
-    pks_failure = data.Flag(offset=27) # RFC 5520 PK
-    p2mp_reachability = data.Flag(offset=24) # RFC 6006 P2MP
+    pks_failure = data.Flag(offset=27)        # RFC 5520 PK
+    p2mp_reachability = data.Flag(offset=24)  # RFC 6006 P2MP
 
 
 # RFC 5440 PCEP
@@ -30,6 +31,7 @@ class OverloadedDuration(base.Tlv):
 class RequestMissing(base.Tlv):
     type_id = 3
     rp_id = data.Int(offset=0, size=32)
+
 
 # RFC 5541 OF
 class OfList(base.Tlv):
@@ -74,14 +76,11 @@ class OfList(base.Tlv):
         off = super(OfList, self).read(buf, off, max_end)
         end = off + data.padlen(self._header.length, 4)
         if self._header.length % 2:
-            _errmsg = ('OfListTlv length (%s) is not even'
-                % self._header.length
-            )
+            _errmsg = ('OfListTlv length (%s) is not even' % self._header.length)
             raise data.SizeError(_errmsg)
         if end > max_end:
-            _errmsg = ('OfListTlv length (%s) exceeds limit [%s:%s]'
-                % (self._header.length, off, max_end)
-            )
+            _errmsg = ('OfListTlv length (%s) exceeds limit [%s:%s]' %
+                       (self._header.length, off, max_end))
             raise data.SizeError(_errmsg)
         of_codes = self._of_codes
         list_end = off + self._header.length
@@ -159,18 +158,16 @@ class LspSymbolicName(base.Tlv):
         off = super(LspSymbolicName, self).read(buf, off, max_end)
         end = off + data.padlen(self._header.length, 4)
         if end > max_end:
-            _errmsg = ('LspSymbolicNameTlv length (%s) exceeds limit [%s:%s]'
-                % (self._header.length, off, max_end)
-            )
+            _errmsg = ('LspSymbolicNameTlv length (%s) exceeds limit [%s:%s]' %
+                       (self._header.length, off, max_end))
             raise data.SizeError(_errmsg)
         self._lsp_name = buf[off:end]
         self._lsp_name_length = self._header.length
-        base._LOGGER.debug('Reading lsp_name from <%s>[%s:%s] = "%s" + "%s"'
-            % (id(buf), off, end,
-                self._lsp_name[:self._lsp_name_length],
-                data.to_hex(self._lsp_name[self._lsp_name_length:]),
-            )
-        )
+        base._LOGGER.debug(
+            'Reading lsp_name from <%s>[%s:%s] = "%s" + "%s"' %
+            (id(buf), off, end,
+             self._lsp_name[:self._lsp_name_length],
+             data.to_hex(self._lsp_name[self._lsp_name_length:])))
         self._check_lsp_name()
         return end
 
@@ -193,9 +190,8 @@ class LspSymbolicName(base.Tlv):
         if bytes(self._lsp_name[nlen:plen]).replace(b'\0', b''):
             fails.append('padding contains set bits')
         if fails:
-            base._LOGGER.warning('LSP name "%s" check: %s'
-                % (data.to_hex(self._lsp_name), '; '.join(fails))
-            )
+            base._LOGGER.warning('LSP name "%s" check: %s' %
+                                 (data.to_hex(self._lsp_name), '; '.join(fails)))
         return fails
 
     def __str__(self):
@@ -212,6 +208,7 @@ class Ipv4LspIdentifiers(base.Tlv):
     lsp_id = data.Int(offset=32, size=16)
     tunnel_id = data.Int(offset=32+16, size=16)
     extended_tunnel_id = data.Int(offset=32+32, size=32)
+
 
 # D STATEFUL
 class Ipv6LspIdentifiers(base.Tlv):
@@ -250,6 +247,7 @@ class Ipv4RsvpErrorSpec(base.Tlv):
     error_code = data.Int(offset=32+8, size=8)
     error_value = data.Int(offset=32+16, size=16)
 
+
 # D STATEFUL
 class Ipv6RsvpErrorSpec(base.Tlv):
     type_id = 22
@@ -266,6 +264,7 @@ RsvpErrorSpec = Ipv4RsvpErrorSpec, Ipv6RsvpErrorSpec
 class LspStateDbVersion(base.Tlv):
     type_id = 23
     db_version = data.Int(offset=0, size=64)
+
 
 # D STATEFUL
 class NodeIdentifier(base.Tlv):
@@ -314,15 +313,13 @@ class NodeIdentifier(base.Tlv):
         off = super(NodeIdentifier, self).read(buf, off, max_end)
         end = off + data.padlen(self._header.length, 4)
         if end > max_end:
-            base._LOGGER.error("Tlv value length (%s) exceeds limit [%s:%s]"
-                % (self._header.length, off, max_end)
-            )
+            base._LOGGER.error("Tlv value length (%s) exceeds limit [%s:%s]" %
+                               (self._header.length, off, max_end))
             end = max_end
         self._node_id = buf[off:end]
         self._node_id_length = self._header.length
-        base._LOGGER.debug('Reading node_id from <%s>[%s:%s] = "%s"'
-            % (id(buf), off, end, data.to_hex(self._node_id))
-        )
+        base._LOGGER.debug('Reading node_id from <%s>[%s:%s] = "%s"' %
+                           (id(buf), off, end, data.to_hex(self._node_id)))
         return end
 
     def write(self, buf, off):
@@ -385,15 +382,13 @@ class Unknown(base.Tlv):
         off = super(Unknown, self).read(buf, off, max_end)
         end = off + data.padlen(self._header.length, 4)
         if end > max_end:
-            base._LOGGER.error("Tlv value length (%s) exceeds limit [%s:%s]"
-                % (self._header.length, off, max_end)
-            )
+            base._LOGGER.error("Tlv value length (%s) exceeds limit [%s:%s]" %
+                               (self._header.length, off, max_end))
             end = max_end
         self._octets = buf[off:end]
         self._octets_length = self._header.length
-        base._LOGGER.debug('Reading octets from <%s>[%s:%s] = "%s"'
-            % (id(buf), off, end, data.to_hex(self._octets))
-        )
+        base._LOGGER.debug('Reading octets from <%s>[%s:%s] = "%s"' %
+                           (id(buf), off, end, data.to_hex(self._octets)))
         return end
 
     def write(self, buf, off):
@@ -410,5 +405,3 @@ class Unknown(base.Tlv):
         )
 
 base.Tlv.unknown_class = Unknown
-
-
