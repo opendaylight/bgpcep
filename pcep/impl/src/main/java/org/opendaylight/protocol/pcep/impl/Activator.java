@@ -63,6 +63,7 @@ import org.opendaylight.protocol.pcep.impl.subobject.RROPathKey128SubobjectParse
 import org.opendaylight.protocol.pcep.impl.subobject.RROPathKey32SubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.RROUnnumberedInterfaceSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.Type1LabelParser;
+import org.opendaylight.protocol.pcep.impl.subobject.UnnnumberedSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.WavebandSwitchingLabelParser;
 import org.opendaylight.protocol.pcep.impl.subobject.XROAsNumberSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.XROIpv4PrefixSubobjectParser;
@@ -330,6 +331,12 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
         regs.add(context.registerRROSubobjectSerializer(
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.UnnumberedCase.class,
             unnumberedParser));
+
+        final UnnnumberedSubobjectParser unnumbered = new UnnnumberedSubobjectParser();
+        regs.add(context.registerSubobjectParser(UnnnumberedSubobjectParser.TYPE, unnumbered));
+        regs.add(context.registerSubobjectSerializer(
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.UnnumberedSubobject.class,
+            unnumbered));
 
         final RROPathKey32SubobjectParser pathKeyParser =  new RROPathKey32SubobjectParser();
         regs.add(context.registerRROSubobjectParser(RROPathKey32SubobjectParser.TYPE, pathKeyParser));
