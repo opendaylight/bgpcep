@@ -1,0 +1,153 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_796e6ccb",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing/SegmentRoutingActivator.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-16T16:05:12Z",
+      "side": 1,
+      "message": "- don\u0027t rename the classes\n- take a look on how Bandwidth is parsed in pcep-impl",
+      "range": {
+        "startLine": 40,
+        "startChar": 103,
+        "endLine": 40,
+        "endChar": 108
+      },
+      "revId": "e00a450726c03fe1f136264475b4b0933d1640ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_997338b1",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing/SrEroTypeSrSubobjectParser.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-16T16:05:12Z",
+      "side": 1,
+      "message": "compare this class to SrRrroTypeSubobjectParser, they are almost identical, remove duplicate lines",
+      "range": {
+        "startLine": 25,
+        "startChar": 94,
+        "endLine": 25,
+        "endChar": 95
+      },
+      "revId": "e00a450726c03fe1f136264475b4b0933d1640ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_3968e4b9",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing/SrEroTypeSrSubobjectParser.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-16T16:05:12Z",
+      "side": 1,
+      "message": "learn what Function does before modifying",
+      "range": {
+        "startLine": 67,
+        "startChar": 118,
+        "endLine": 67,
+        "endChar": 119
+      },
+      "revId": "e00a450726c03fe1f136264475b4b0933d1640ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_b99b94c8",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing/SrSubobjectParserUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-16T16:05:12Z",
+      "side": 1,
+      "message": "you put the flags m,c along with f,s flag in yang, we can\u0027t be all of them parsed in the same place?",
+      "revId": "e00a450726c03fe1f136264475b4b0933d1640ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_d9a0e0f6",
+        "filename": "pcep/segment-routing/src/test/java/org/opendaylight/protocol/pcep/segment/routing/SrEroTypeSrSubobjectParserTest.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-16T16:05:12Z",
+      "side": 1,
+      "message": "use hexa for clarity",
+      "range": {
+        "startLine": 79,
+        "startChar": 32,
+        "endLine": 79,
+        "endChar": 33
+      },
+      "revId": "e00a450726c03fe1f136264475b4b0933d1640ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_39af84e5",
+        "filename": "pcep/segment-routing/src/test/java/org/opendaylight/protocol/pcep/segment/routing/SrEroTypeSrSubobjectParserTest.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-16T16:05:12Z",
+      "side": 1,
+      "message": "what was wrong with the original value?",
+      "revId": "e00a450726c03fe1f136264475b4b0933d1640ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_59acd0ed",
+        "filename": "pcep/segment-routing/src/test/java/org/opendaylight/protocol/pcep/segment/routing/SrRroTypeSrSubobjectParserTest.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-16T16:05:12Z",
+      "side": 1,
+      "message": "do we need both (rro, ero) test files?",
+      "range": {
+        "startLine": 31,
+        "startChar": 44,
+        "endLine": 31,
+        "endChar": 45
+      },
+      "revId": "e00a450726c03fe1f136264475b4b0933d1640ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
