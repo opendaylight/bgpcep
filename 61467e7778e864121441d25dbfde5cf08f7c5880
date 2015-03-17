@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_44fce43e",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/AbstractPCEPSessionNegotiator.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-03-17T09:59:59Z",
+      "side": 1,
+      "message": "this is not right. the specification does not allow for seamless (lazy) StartTLS initialization. Each PCEP speaker has to be either TLS-enabled or not.",
+      "revId": "61467e7778e864121441d25dbfde5cf08f7c5880",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
