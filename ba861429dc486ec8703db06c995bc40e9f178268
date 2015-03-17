@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_8a8993cc",
+        "filename": "pcep/tunnel-provider/src/main/java/org/opendaylight/bgpcep/pcep/tunnel/provider/TunnelProgramming.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-03-17T18:41:02Z",
+      "side": 1,
+      "message": "looks like this could be a constant, along with the enclosing future from the two callsites.\n\nCan you create a constant future and return that?",
+      "revId": "ba861429dc486ec8703db06c995bc40e9f178268",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_4a938bfa",
+        "filename": "programming/impl/src/main/java/org/opendaylight/bgpcep/programming/impl/ProgrammingServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-03-17T18:41:02Z",
+      "side": 1,
+      "message": "this makes it less readable :-(",
+      "revId": "ba861429dc486ec8703db06c995bc40e9f178268",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
