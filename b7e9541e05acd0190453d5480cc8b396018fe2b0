@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_e403b071",
+        "filename": "pcep/pcepy/setup.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-03-17T08:16:07Z",
+      "side": 1,
+      "message": "please add a copyright header to make it clear this can be freely modified.",
+      "revId": "b7e9541e05acd0190453d5480cc8b396018fe2b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_84f8ac7d",
+        "filename": "pcep/pcepy/tox.ini",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-03-17T08:16:07Z",
+      "side": 1,
+      "message": "please add a copyright header to make it clear this can be freely modified.",
+      "revId": "b7e9541e05acd0190453d5480cc8b396018fe2b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
