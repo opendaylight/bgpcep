@@ -142,111 +142,119 @@ module odl-pcep-segment-routing {
         }
     }
 
+	grouping sr-ero-subobject {
+		uses sr-subobject;
+	}
+	
+	grouping sr-rro-subobject {
+		uses sr-subobject;
+	}
+	
     //ERO augmentations
     augment "/msg:pcrep/msg:pcrep-message/msg:replies/msg:result/msg:success-case/msg:success/msg:paths/msg:ero/msg:subobject/msg:subobject-type" {
         case sr-ero-type {
-            uses sr-subobject;
+            uses sr-ero-subobject;
         }
     }
 
     //stateful07
     augment "/crabbe:pcinitiate/crabbe:pcinitiate-message/crabbe:requests/crabbe:ero/crabbe:subobject/crabbe:subobject-type" {
         case sr-ero-type {
-            uses sr-subobject;
+        	uses sr-ero-subobject;
         }
     }
 
     augment "/stateful:pcrpt/stateful:pcrpt-message/stateful:reports/stateful:path/stateful:ero/stateful:subobject/stateful:subobject-type" {
         case sr-ero-type {
-            uses sr-subobject;
+            uses sr-ero-subobject;
         }
     }
 
     augment "/stateful:pcupd/stateful:pcupd-message/stateful:updates/stateful:path/stateful:ero/stateful:subobject/stateful:subobject-type" {
         case sr-ero-type {
-            uses sr-subobject;
+            uses sr-ero-subobject;
         }
     }
 
     //nt-pcep
     augment "/pn:add-lsp/pn:input/pn:arguments/pn:ero/pn:subobject/pn:subobject-type" {
         case sr-ero-type {
-            uses sr-subobject;
+            uses sr-ero-subobject;
         }
     }
 
     augment "/pn:update-lsp/pn:input/pn:arguments/pn:ero/pn:subobject/pn:subobject-type" {
         case sr-ero-type {
-            uses sr-subobject;
+            uses sr-ero-subobject;
         }
     }
 
     augment "/nt:network-topology/nt:topology/nt:node/pn:path-computation-client/pn:reported-lsp/pn:path/pn:ero/pn:subobject/pn:subobject-type" {
         case sr-ero-type {
-            uses sr-subobject;
+            uses sr-ero-subobject;
         }
     }
 
     //RRO augmentations
     augment "/msg:pcreq/msg:pcreq-message/msg:requests/msg:segment-computation/msg:p2p/msg:reported-route/msg:rro/msg:subobject/msg:subobject-type" {
         case sr-rro-type {
-            uses sr-subobject;
+            uses sr-rro-subobject;
         }
     }
 
     augment "/msg:pcreq/msg:pcreq-message/msg:requests/msg:segment-computation/msg:p2p/msg:rro/msg:subobject/msg:subobject-type" {
         case sr-rro-type {
-            uses sr-subobject;
+            uses sr-rro-subobject;
         }
     }
 
     augment "/msg:pcrep/msg:pcrep-message/msg:replies/msg:result/msg:failure-case/msg:rro/msg:subobject/msg:subobject-type" {
         case sr-rro-type {
-            uses sr-subobject;
+            uses sr-rro-subobject;
         }
     }
 
     augment "/msg:pcrep/msg:pcrep-message/msg:replies/msg:result/msg:success-case/msg:success/msg:paths/msg:rro/msg:subobject/msg:subobject-type" {
         case sr-rro-type {
-            uses sr-subobject;
+            uses sr-rro-subobject;
         }
     }
 
     //stateful07
     augment "/crabbe:pcinitiate/crabbe:pcinitiate-message/crabbe:requests/crabbe:rro/crabbe:subobject/crabbe:subobject-type" {
         case sr-rro-type {
-            uses sr-subobject;
+            uses sr-rro-subobject;
         }
     }
 
     augment "/stateful:pcrpt/stateful:pcrpt-message/stateful:reports/stateful:path/stateful:rro/stateful:subobject/stateful:subobject-type" {
         case sr-rro-type {
-            uses sr-subobject;
+            uses sr-rro-subobject;
         }
     }
 
     augment "/stateful:pcupd/stateful:pcupd-message/stateful:updates/stateful:path/stateful:rro/stateful:subobject/stateful:subobject-type" {
         case sr-rro-type {
-            uses sr-subobject;
+            uses sr-rro-subobject;
         }
     }
 
     //nt-pcep
     augment "/pn:add-lsp/pn:input/pn:arguments/pn:rro/pn:subobject/pn:subobject-type" {
         case sr-rro-type {
-            uses sr-subobject;
+            uses sr-rro-subobject;
         }
     }
 
     augment "/pn:update-lsp/pn:input/pn:arguments/pn:rro/pn:subobject/pn:subobject-type" {
         case sr-rro-type {
-            uses sr-subobject;
+            uses sr-rro-subobject;
         }
     }
 
     augment "/nt:network-topology/nt:topology/nt:node/pn:path-computation-client/pn:reported-lsp/pn:path/pn:rro/pn:subobject/pn:subobject-type" {
         case sr-rro-type {
-            uses sr-subobject;
+            uses sr-rro-subobject;
         }
     }
 }

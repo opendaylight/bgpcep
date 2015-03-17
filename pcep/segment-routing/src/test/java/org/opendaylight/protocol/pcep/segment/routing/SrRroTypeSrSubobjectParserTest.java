@@ -96,7 +96,7 @@ public class SrRroTypeSrSubobjectParserTest {
 
     @Test
     public void testSrRroSubobjectIpv4NodeIdNAI() throws PCEPDeserializerException {
-        final SrRroTypeSrSubobjectParser parser = new SrRroTypeSrSubobjectParser();
+        final SrRroSubobjectParser parser = new SrRroSubobjectParser();
         final SrRroTypeBuilder builder = new SrRroTypeBuilder();
         builder.setSidType(SidType.Ipv4NodeId);
         builder.setSid(123456L);
@@ -113,7 +113,7 @@ public class SrRroTypeSrSubobjectParserTest {
 
     @Test
     public void testSrRroSubobjectIpv6NodeIdNAI() throws PCEPDeserializerException {
-        final SrRroTypeSrSubobjectParser parser = new SrRroTypeSrSubobjectParser();
+        final SrRroSubobjectParser parser = new SrRroSubobjectParser();
         final SrRroTypeBuilder builder = new SrRroTypeBuilder();
         builder.setSidType(SidType.Ipv6NodeId);
         builder.setCFlag(false);
@@ -130,7 +130,7 @@ public class SrRroTypeSrSubobjectParserTest {
 
     @Test
     public void testSrRroSubobjectIpv4AdjacencyNAI() throws PCEPDeserializerException {
-        final SrRroTypeSrSubobjectParser parser = new SrRroTypeSrSubobjectParser();
+        final SrRroSubobjectParser parser = new SrRroSubobjectParser();
         final SrRroTypeBuilder builder = new SrRroTypeBuilder();
         builder.setSidType(SidType.Ipv4Adjacency);
         builder.setSid(123456L);
@@ -148,7 +148,7 @@ public class SrRroTypeSrSubobjectParserTest {
 
     @Test
     public void testSrRroSubobjectIpv6AdjacencyNAI() throws PCEPDeserializerException {
-        final SrRroTypeSrSubobjectParser parser = new SrRroTypeSrSubobjectParser();
+        final SrRroSubobjectParser parser = new SrRroSubobjectParser();
         final SrRroTypeBuilder builder = new SrRroTypeBuilder();
         builder.setSidType(SidType.Ipv6Adjacency);
         builder.setSid(123456L);
@@ -166,7 +166,7 @@ public class SrRroTypeSrSubobjectParserTest {
 
     @Test
     public void testSrRroSubobjectUnnumberedNAI() throws PCEPDeserializerException {
-        final SrRroTypeSrSubobjectParser parser = new SrRroTypeSrSubobjectParser();
+        final SrRroSubobjectParser parser = new SrRroSubobjectParser();
         final SrRroTypeBuilder builder = new SrRroTypeBuilder();
         builder.setSidType(SidType.Unnumbered);
         builder.setSid(123456L);
@@ -183,7 +183,7 @@ public class SrRroTypeSrSubobjectParserTest {
 
     @Test
     public void testSrRroSubobjectWithoutNAI() throws PCEPDeserializerException {
-        final SrRroTypeSrSubobjectParser parser = new SrRroTypeSrSubobjectParser();
+        final SrRroSubobjectParser parser = new SrRroSubobjectParser();
         final SrRroTypeBuilder builder = new SrRroTypeBuilder();
         builder.setSidType(SidType.Ipv4NodeId);
         builder.setSid(123470L);
@@ -199,7 +199,7 @@ public class SrRroTypeSrSubobjectParserTest {
 
     @Test
     public void testSrRroSubobjectWithoutBody() throws PCEPDeserializerException {
-        final SrRroTypeSrSubobjectParser parser = new SrRroTypeSrSubobjectParser();
+        final SrRroSubobjectParser parser = new SrRroSubobjectParser();
         final SrRroTypeBuilder builder = new SrRroTypeBuilder();
         builder.setSidType(SidType.Ipv4NodeId);
         builder.setCFlag(false);
