@@ -16,6 +16,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.unreach.nlri.WithdrawnRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.Attributes;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -34,6 +35,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     private static final NodeIdentifier ADVERTIZED_ROUTES = new NodeIdentifier(AdvertizedRoutes.QNAME);
     private static final NodeIdentifier WITHDRAWN_ROUTES = new NodeIdentifier(WithdrawnRoutes.QNAME);
     private static final NodeIdentifier DESTINATION_TYPE = new NodeIdentifier(DestinationType.QNAME);
+    protected static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
     private final NodeIdentifier routesContainerIdentifier;
     private final NodeIdentifier routeAttributesIdentifier;
 
@@ -57,7 +59,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
      * @return Container identifier, may not be null.
      */
     protected final NodeIdentifier routesContainerIdentifier() {
-        return routesContainerIdentifier;
+        return this.routesContainerIdentifier;
     }
 
     /**
@@ -68,7 +70,33 @@ public abstract class AbstractRIBSupport implements RIBSupport {
      */
     @Nonnull protected abstract NodeIdentifier destinationContainerIdentifier();
 
+    /**
+     * Given the destination as ContainerNode, implementation needs to parse the DOM model
+     * from this point onward:
+     *
+     * {@code /bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type }
+     *
+     * and delete the routes from its RIBs.
+     *
+     * @param tx DOMDataWriteTransaction to be passed into implementation
+     * @param tablePath YangInstanceIdentifier to be passed into implementation
+     * @param destination ContainerNode DOM representation of NLRI in Update message
+     */
     protected abstract void deleteDestinationRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tablePath, ContainerNode destination);
+
+    /**
+     * Given the destination as ContainerNode, implementation needs to parse the DOM model
+     * from this point onward:
+     *
+     * {@code /bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type }
+     *
+     * and put the routes to its RIBs.
+     *
+     * @param tx DOMDataWriteTransaction to be passed into implementation
+     * @param tablePath YangInstanceIdentifier to be passed into implementation
+     * @param destination ContainerNode DOM representation of NLRI in Update message
+     * @param attributes ContainerNode to be passed into implementation
+     */
     protected abstract void putDestinationRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tablePath, ContainerNode destination, ContainerNode attributes);
 
     private static ContainerNode getDestination(final DataContainerChild<? extends PathArgument, ?> routes, final NodeIdentifier destinationId) {
@@ -103,12 +131,12 @@ public abstract class AbstractRIBSupport implements RIBSupport {
 
     @Override
     public final NodeIdentifier routeAttributesIdentifier() {
-        return routeAttributesIdentifier;
+        return this.routeAttributesIdentifier;
     }
 
     @Override
     public final Collection<DataTreeCandidateNode> changedRoutes(final DataTreeCandidateNode routes) {
-        final DataTreeCandidateNode myRoutes = routes.getModifiedChild(routesContainerIdentifier);
+        final DataTreeCandidateNode myRoutes = routes.getModifiedChild(this.routesContainerIdentifier);
         if (myRoutes == null) {
             return Collections.emptySet();
         }
@@ -120,7 +148,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
 
     @Override
     public final YangInstanceIdentifier routePath(final YangInstanceIdentifier routesPath, final PathArgument routeId) {
-        return routesPath.node(routesContainerIdentifier).node(routeId);
+        return routesPath.node(this.routesContainerIdentifier).node(routeId);
     }
 
     @Override
