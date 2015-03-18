@@ -87,6 +87,7 @@ final class AdjRibInWriter {
      * method returns, the old instance must not be reasonably used.
      *
      * @param tableTypes New tables, must not be null
+     * @param tableTypes set of TableKey
      * @return New writer
      */
     AdjRibInWriter changeTableTypes(final RIBExtensionConsumerContext registry, final Set<TablesKey> tableTypes) {

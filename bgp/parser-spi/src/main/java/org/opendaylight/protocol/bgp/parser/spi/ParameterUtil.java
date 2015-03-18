@@ -9,6 +9,9 @@ package org.opendaylight.protocol.bgp.parser.spi;
 
 import io.netty.buffer.ByteBuf;
 
+/**
+ * Utility class which is intended for formatting parameter.
+ */
 public final class ParameterUtil {
 
     private ParameterUtil() {

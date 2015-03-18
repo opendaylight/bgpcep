@@ -27,8 +27,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Read text file, parse BGP messages. File can contain comments or other data. BGP messages are detected using 16 ff
- * marker. New lines and spaces are ignored. Use {@link ByteArray#bytesToHexString(byte[])} for serializing bytes to
- * this format.
+ * marker. New lines and spaces are ignored.
  */
 @Immutable
 public final class HexDumpBGPFileParser {

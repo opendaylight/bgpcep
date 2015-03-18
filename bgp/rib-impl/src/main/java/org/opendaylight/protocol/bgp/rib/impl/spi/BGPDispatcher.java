@@ -8,9 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import io.netty.util.concurrent.Future;
-
 import java.net.InetSocketAddress;
-
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
@@ -26,7 +24,9 @@ public interface BGPDispatcher extends BGPServerDispatcher {
      * Creates BGP client.
      *
      * @param address Peer address
+     * @param remoteAS remote AS
      * @param peerRegistry BGP peer registry
+     * @param stragegy reconnection strategy
      * @return Future promising a client session
      */
     Future<? extends BGPSession> createClient(InetSocketAddress address, AsNumber remoteAs,

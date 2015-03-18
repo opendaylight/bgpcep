@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import com.google.common.base.Preconditions;
-
 import org.opendaylight.protocol.util.NoopReferenceCache;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -48,7 +47,7 @@ public final class CommunityUtil {
      * Creates a new Community given AS number value and semantics using generated CommunitiesBuilder.
      *
      * @param asn long
-     * @param semantics long
+     * @param semantics int
      * @return new Community
      */
     public Community create(final long asn, final int semantics) {
@@ -70,7 +69,7 @@ public final class CommunityUtil {
      *
      * @param refCache reference cache to use
      * @param asn long
-     * @param semantics long
+     * @param semantics int
      * @return new Community
      */
     public static Community create(final ReferenceCache refCache, final long asn, final int semantics) {

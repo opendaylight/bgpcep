@@ -32,6 +32,7 @@ public abstract class AbstractPCEPSessionNegotiatorFactory implements
      * Create a new negotiator. This method needs to be implemented by subclasses to actually provide a negotiator.
      *
      * @param promise Session promise to be completed by the negotiator
+     * @param listener PCEPSessionListener
      * @param channel Associated channel
      * @param sessionId Session ID assigned to the resulting session
      * @return a PCEP session negotiator

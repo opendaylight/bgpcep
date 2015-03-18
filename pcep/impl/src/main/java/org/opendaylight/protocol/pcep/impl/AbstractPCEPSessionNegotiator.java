@@ -116,7 +116,6 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
      * Create the protocol session.
      *
      * @param channel Underlying channel.
-     * @param sessionId Assigned session ID.
      * @param localPrefs Session preferences proposed by us and accepted by the peer.
      * @param remotePrefs Session preferences proposed by the peer and accepted by us.
      * @return New protocol session.

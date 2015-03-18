@@ -158,7 +158,7 @@ public final class Ipv4Util {
      * Creates a list of Ipv4 Prefixes from given byte array.
      *
      * @param bytes to be converted to List of Ipv4Prefixes.
-     * @return List<Ipv4Prefix>
+     * @return A list of Ipv4Prefixes
      */
     public static List<Ipv4Prefix> prefixListForBytes(final byte[] bytes) {
         if (bytes.length == 0) {
