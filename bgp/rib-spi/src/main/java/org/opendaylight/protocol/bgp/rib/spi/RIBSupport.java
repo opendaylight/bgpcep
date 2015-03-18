@@ -43,9 +43,42 @@ public interface RIBSupport {
 
     @Nonnull Collection<Class<? extends DataObject>> cacheableAttributeObjects();
     @Nonnull Collection<Class<? extends DataObject>> cacheableNlriObjects();
+
+    /**
+     * Given the NLRI as ContainerNode, this method should extract withdrawn routes
+     * from the DOM model and delete them from RIBs.
+     *
+     * @param tx DOMDataWriteTransaction
+     * @param tablePath YangInstanceIdentifier
+     * @param nlri ContainerNode DOM representation of NLRI in Update message
+     */
     void deleteRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath, @Nonnull ContainerNode nlri);
+
+    /**
+     * Given the NLRI as ContainerNode, this method should extract advertised routes
+     * from the DOM model and put them into RIBs.
+     *
+     * @param tx DOMDataWriteTransaction
+     * @param tablePath YangInstanceIdentifier
+     * @param nlri ContainerNode DOM representation of NLRI in Update message
+     * @param attributes ContainerNode
+     */
     void putRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath, @Nonnull ContainerNode nlri, @Nonnull ContainerNode attributes);
 
+    /**
+     * Returns routes that were modified within this RIB support instance.
+     *
+     * @param routes DataTreeCandidateNode
+     * @return collection of modified nodes or empty collection if no node was modified
+     */
     @Nonnull Collection<DataTreeCandidateNode> changedRoutes(@Nonnull DataTreeCandidateNode routes);
+
+    /**
+     * Constructs an instance identifier path to routeId.
+     *
+     * @param routesPath YangInstanceIdentifier base path
+     * @param routeId PathArgument leaf path
+     * @return YangInstanceIdentifier with routesPath + specific RIB support routes path + routeId
+     */
     @Nonnull YangInstanceIdentifier routePath(@Nonnull YangInstanceIdentifier routesPath, @Nonnull PathArgument routeId);
 }
