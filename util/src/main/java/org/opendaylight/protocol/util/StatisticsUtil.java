@@ -36,10 +36,9 @@ public final class StatisticsUtil {
     }
 
     /**
-     * Get current time in seconds.
+     * Get current time in seconds. See also {@link System#currentTimeMillis()}.
      *
      * @return the difference, measured in seconds, between the current time and midnight, January 1, 1970 UTC.
-     * @see System.currentTimeMillis()
      */
     public static long getCurrentTimestampInSeconds() {
         return TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());

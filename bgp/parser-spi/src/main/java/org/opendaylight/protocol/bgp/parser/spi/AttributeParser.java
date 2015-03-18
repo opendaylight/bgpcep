@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
@@ -18,6 +17,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
  */
 public interface AttributeParser {
     /**
+     * Parses attribute from ByteBuf buffer
+     *
      * @param buffer encoded attribute body in Bytebuf
      * @param builder Path attributes builder. Guaranteed to contain all valid attributes whose type is numerically
      *        lower than this attribute's type.

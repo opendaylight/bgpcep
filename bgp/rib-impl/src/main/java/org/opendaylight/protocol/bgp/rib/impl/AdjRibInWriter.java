@@ -129,6 +129,7 @@ final class AdjRibInWriter {
      * @param newPeerId new peer BGP identifier
      * @param registry RIB extension registry
      * @param tableTypes New tables, must not be null
+     * @param tableTypes set of TableKey
      * @return New writer
      */
     AdjRibInWriter transform(final Ipv4Address newPeerId, final RIBExtensionConsumerContext registry, final Set<TablesKey> tableTypes) {
