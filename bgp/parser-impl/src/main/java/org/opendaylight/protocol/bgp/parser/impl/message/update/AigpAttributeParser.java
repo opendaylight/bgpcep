@@ -60,10 +60,8 @@ public class AigpAttributeParser implements AttributeParser, AttributeSerializer
     /**
      * Reads data from buffer until reaches TLV of type AIGP TLV.
      *
-     * @param buffer
-     *          TLVs in ByteBuf format
-     * @return
-     *          instance of AigpTlv class or null if buffer contains unknown TLV type
+     * @param buffer TLVs in ByteBuf format
+     * @return instance of AigpTlv class or null if buffer contains unknown TLV type
      */
     private static AigpTlv parseAigpTLV(final ByteBuf buffer) {
         final int tlvType = buffer.readByte();

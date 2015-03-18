@@ -76,7 +76,7 @@ public class BGPSynchronization {
     /**
      * For each received Update message, the upd sync variable needs to be updated to true, for particular AFI/SAFI
      * combination. Currently we only assume Unicast SAFI. From the Update message we have to extract the AFI. Each
-     * Update message can contain BGP Object with one type of AFI. If the object is BGP Link, BGP Node or BGPPrefix<?>
+     * Update message can contain BGP Object with one type of AFI. If the object is BGP Link, BGP Node or a BGPPrefix
      * the AFI is Linkstate. In case of BGPRoute, the AFI depends on the IP Address of the prefix.
      *
      * @param msg received Update message

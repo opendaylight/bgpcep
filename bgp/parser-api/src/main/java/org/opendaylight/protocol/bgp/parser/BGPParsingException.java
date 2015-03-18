@@ -16,6 +16,7 @@ public class BGPParsingException extends Exception {
     private static final long serialVersionUID = 1L;
 
     /**
+     * Creates new BGPParsingException with specific error message.
      *
      * @param err error message string.
      */
@@ -24,6 +25,7 @@ public class BGPParsingException extends Exception {
     }
 
     /**
+     * Creates new BGPParsingException with specific message and cause.
      *
      * @param message exception message
      * @param cause primary exception

@@ -68,7 +68,7 @@ final class RIBEntry<I, D extends Identifiable<K> & Route, K extends Identifier<
      *
      * @param comparator
      * @param initial
-     * @return
+     * @return candidate for founded initial route
      */
     private RIBEntryData<I, D, K> findCandidate(final BGPObjectComparator comparator, final RIBEntryData<I, D, K> initial) {
         RIBEntryData<I, D, K> newState = initial;

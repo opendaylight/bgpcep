@@ -15,7 +15,7 @@ public interface EROSubobjectRegistry {
     /**
      * Finds parser for given subobject type in the registry. Delegates parsing to found parser.
      *
-     * @param type subobject type, key in parser registry
+     * @param subobjectType subobject type, key in parser registry
      * @param buffer subobject wrapped in ByteBuf
      * @param loose ERO specific common field
      * @return null if the parser for this subobject could not be found

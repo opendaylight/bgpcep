@@ -79,6 +79,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
      * Parses common parts for Link State Nodes, Links and Prefixes, that includes protocol ID and identifier tlv.
      *
      * @param nlri as byte array
+     * @param isVpn flags which determines that destination has route distinguisher
      * @return {@link CLinkstateDestination}
      * @throws BGPParsingException if parsing was unsuccessful
      */
@@ -167,6 +168,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
      * Serializes Linkstate NLRI to byte array. We need this as NLRI serves as a key in upper layers.
      *
      * @param destination Linkstate NLRI to be serialized
+     * @param buffer where Linkstate NLRI will be serialized
      */
     public static void serializeNlri(final CLinkstateDestination destination, final ByteBuf buffer) {
         final ByteBuf nlriByteBuf = Unpooled.buffer();

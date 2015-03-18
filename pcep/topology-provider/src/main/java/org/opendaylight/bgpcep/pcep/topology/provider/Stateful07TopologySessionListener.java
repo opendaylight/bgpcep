@@ -82,6 +82,8 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
     private final AtomicLong requestId = new AtomicLong(1L);
 
     /**
+     * Creates a new stateful topology session listener for given server session manager.
+     *
      * @param serverSessionManager
      */
     Stateful07TopologySessionListener(final ServerSessionManager serverSessionManager) {

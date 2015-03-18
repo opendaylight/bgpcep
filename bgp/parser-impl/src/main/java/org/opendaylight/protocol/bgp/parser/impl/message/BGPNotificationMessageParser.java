@@ -39,7 +39,7 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
      * Serializes BGP Notification message.
      *
      * @param msg to be serialized
-     * @param ByteBuf where the message will be serialized
+     * @param bytes ByteBuf where the message will be serialized
      */
     @Override
     public void serializeMessage(final Notification msg, final ByteBuf bytes) {
@@ -62,7 +62,8 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
      * Parses BGP Notification message to bytes.
      *
      * @param body ByteBuf to be parsed
-     * @return BGPNotification message
+     * @param messageLength the length of the message
+     * @return {@link Notify} which represents BGP notification message
      * @throws BGPDocumentedException if parsing goes wrong
      */
     @Override
