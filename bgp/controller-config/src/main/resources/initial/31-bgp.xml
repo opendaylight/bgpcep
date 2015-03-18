@@ -64,7 +64,7 @@
                     <name>bgp-linkstate</name>
                     <!-- IANA has issued an early allocation for the BGP Linkstate path attribute (=29).
                         To preserve (TYPE = 99) set value bellow to false; to use IANA assigned type set the value to true or remove (true by default)-->
-                    <iana-linkstate-attribute-type>false</iana-linkstate-attribute-type>
+                    <iana-linkstate-attribute-type>true</iana-linkstate-attribute-type>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-dispatcher-impl</type>
