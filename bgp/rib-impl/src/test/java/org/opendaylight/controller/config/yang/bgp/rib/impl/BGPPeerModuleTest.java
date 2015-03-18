@@ -10,7 +10,6 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.Lists;
 import java.util.Collections;
@@ -32,8 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.tcpmd5.cfg.rev140427.Rfc2385Key;
-import org.opendaylight.yangtools.yang.data.impl.codec.CodecRegistry;
-import org.opendaylight.yangtools.yang.data.impl.codec.IdentityCodec;
+import org.opendaylight.yangtools.sal.binding.generator.util.BindingRuntimeContext;
 
 public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
 
@@ -44,14 +42,11 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
     private static final PortNumber portNumber = new PortNumber(1);
 
     @Override
-    protected CodecRegistry getCodecRegistry() {
-        final IdentityCodec<?> idCodec = mock(IdentityCodec.class);
-        doReturn(Ipv4AddressFamily.class).when(idCodec).deserialize(Ipv4AddressFamily.QNAME);
-        doReturn(MplsLabeledVpnSubsequentAddressFamily.class).when(idCodec).deserialize(MplsLabeledVpnSubsequentAddressFamily.QNAME);
-
-        final CodecRegistry codecReg = super.getCodecRegistry();
-        doReturn(idCodec).when(codecReg).getIdentityCodec();
-        return codecReg;
+    protected BindingRuntimeContext getBindingRuntimeContext() {
+        final BindingRuntimeContext ret = super.getBindingRuntimeContext();
+        doReturn(Ipv4AddressFamily.class).when(ret).getIdentityClass(Ipv4AddressFamily.QNAME);
+        doReturn(MplsLabeledVpnSubsequentAddressFamily.class).when(ret).getIdentityClass(MplsLabeledVpnSubsequentAddressFamily.QNAME);
+        return ret;
     }
 
     @Override
