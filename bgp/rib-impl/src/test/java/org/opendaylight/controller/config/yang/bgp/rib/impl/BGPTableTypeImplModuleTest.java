@@ -3,11 +3,9 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.ObjectName;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.ConflictingVersionException;
@@ -20,8 +18,7 @@ import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
-import org.opendaylight.yangtools.yang.data.impl.codec.CodecRegistry;
-import org.opendaylight.yangtools.yang.data.impl.codec.IdentityCodec;
+import org.opendaylight.yangtools.sal.binding.generator.util.BindingRuntimeContext;
 
 public class BGPTableTypeImplModuleTest extends AbstractConfigTest {
 
@@ -37,15 +34,12 @@ public class BGPTableTypeImplModuleTest extends AbstractConfigTest {
     }
 
     @Override
-    protected CodecRegistry getCodecRegistry() {
-        IdentityCodec<?> idCodec = mock(IdentityCodec.class);
-        doReturn(Ipv4AddressFamily.class).when(idCodec).deserialize(Ipv4AddressFamily.QNAME);
-        doReturn(MplsLabeledVpnSubsequentAddressFamily.class).when(idCodec).deserialize(MplsLabeledVpnSubsequentAddressFamily.QNAME);
-        doReturn(Ipv6AddressFamily.class).when(idCodec).deserialize(Ipv6AddressFamily.QNAME);
-
-        CodecRegistry codecReg = super.getCodecRegistry();
-        doReturn(idCodec).when(codecReg).getIdentityCodec();
-        return codecReg;
+    protected BindingRuntimeContext getBindingRuntimeContext() {
+        final BindingRuntimeContext ret = super.getBindingRuntimeContext();
+        doReturn(Ipv4AddressFamily.class).when(ret).getIdentityClass(Ipv4AddressFamily.QNAME);
+        doReturn(MplsLabeledVpnSubsequentAddressFamily.class).when(ret).getIdentityClass(MplsLabeledVpnSubsequentAddressFamily.QNAME);
+        doReturn(Ipv6AddressFamily.class).when(ret).getIdentityClass(Ipv6AddressFamily.QNAME);
+        return ret;
     }
 
     @Test
