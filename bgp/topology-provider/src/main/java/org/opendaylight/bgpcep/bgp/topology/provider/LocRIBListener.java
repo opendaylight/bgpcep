@@ -20,7 +20,6 @@ public interface LocRIBListener extends EventListener {
      *        modifications propagated. The transaction is not shared with any other entity and will be cleaned up by
      *        the caller if it is not committed before this method returns.
      * @param event Data change event
-     * @param depth Subscription path depth.
      */
     void onLocRIBChange(ReadWriteTransaction trans, AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> event);
 }

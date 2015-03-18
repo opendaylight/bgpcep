@@ -32,7 +32,7 @@ public final class MessageUtil {
      * Adds header to message value.
      *
      * @param type of the message
-     * @param value message value
+     * @param body message body
      * @param buffer ByteBuf where the message will be copied with its header
      */
     public static void formatMessage(final int type, final ByteBuf body, final ByteBuf buffer) {

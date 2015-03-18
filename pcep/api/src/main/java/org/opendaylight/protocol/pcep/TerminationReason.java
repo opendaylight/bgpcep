@@ -28,13 +28,17 @@ public enum TerminationReason {
     }
 
     /**
-     * @return integer value
+     * Gets value of termination reason.
+     *
+     * @return short value
      */
     public short getShortValue() {
         return this.value;
     }
 
     /**
+     * Gets termination reason for specific short value.
+     *
      * @param valueArg
      * @return corresponding TerminationReason item
      */

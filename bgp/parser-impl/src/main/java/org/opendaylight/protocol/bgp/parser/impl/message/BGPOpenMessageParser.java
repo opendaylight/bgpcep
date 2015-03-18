@@ -99,7 +99,8 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
      * Parses given byte array to BGP Open message
      *
      * @param body byte array representing BGP Open message, without header
-     * @return BGP Open Message
+     * @param messageLength the length of the message
+     * @return {@link Open} BGP Open Message
      * @throws BGPDocumentedException if the parsing was unsuccessful
      */
     @Override

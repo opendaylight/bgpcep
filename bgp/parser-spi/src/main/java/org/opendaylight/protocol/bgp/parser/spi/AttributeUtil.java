@@ -26,6 +26,7 @@ public final class AttributeUtil {
      * Adds header to attribute value. If the length of the attribute value exceeds one-byte length field,
      * set EXTENDED bit and write length as 2B field.
      *
+     * @param flags
      * @param type of the attribute
      * @param value attribute value
      * @param buffer ByteBuf where the attribute will be copied with its header

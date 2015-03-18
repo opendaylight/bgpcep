@@ -178,7 +178,8 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
     /**
      * Serializes Flowspec NLRI to ByteBuf.
      *
-     * @param flow flowspec NLRI to be serialized
+     * @param flows flowspec NLRI to be serialized
+     * @param buffer where flowspec NLRI will be serialized
      */
     public static void serializeNlri(final List<Flowspec> flows, final ByteBuf buffer) {
         final ByteBuf nlriByteBuf = Unpooled.buffer();
@@ -316,6 +317,12 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
                 .setDestinationFlowspec(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.flowspec._case.DestinationFlowspecBuilder().setFlowspec(dst).build()).build()).build());
     }
 
+    /**
+     * Parses Flowspec NLRI into list of Flowspec.
+     *
+     * @param nlri byte representation of NLRI which will be parsed
+     * @return list of Flowspec
+     */
     public static List<Flowspec> parseNlri(final ByteBuf nlri) throws BGPParsingException {
         if (!nlri.isReadable()) {
             return null;

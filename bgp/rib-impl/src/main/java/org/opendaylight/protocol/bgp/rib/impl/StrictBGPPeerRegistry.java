@@ -158,10 +158,10 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     }
 
     /**
-     * Create IpAddress from SocketAddress. Only InetSocketAddress is accepted with inner address: Inet4Address and Inet6Address.
+     * Creates IpAddress from SocketAddress. Only InetSocketAddress is accepted with inner address: Inet4Address and Inet6Address.
      *
-     * @throws IllegalArgumentException if submitted socket address is not InetSocketAddress[ipv4 | ipv6]
      * @param socketAddress socket address to transform
+     * @throws IllegalArgumentException if submitted socket address is not InetSocketAddress[ipv4 | ipv6]
      */
     public static IpAddress getIpAddress(final SocketAddress socketAddress) {
         Preconditions.checkNotNull(socketAddress);

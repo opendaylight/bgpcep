@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.spi;
 
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobject;
 
 public interface RROSubobjectRegistry {
@@ -17,7 +16,7 @@ public interface RROSubobjectRegistry {
      *
      * @param type subobject type, key in parser registry
      * @param buffer subobject wrapped in ByteBuf
-     * @return null if the parser for this subobject could not be found
+     * @return null if the parser for this subobject could not be found otherwise returns parser
      * @throws PCEPDeserializerException if the parsing did not succeed
      */
     Subobject parseSubobject(final int type, final ByteBuf buffer) throws PCEPDeserializerException;

@@ -55,7 +55,9 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
     /**
      * Parses AS_PATH from bytes.
      *
-     * @param buffer bytes to be parsed @return new ASPath object
+     * @param refCache ReferenceCache shared reference of object
+     * @param buffer bytes to be parsed
+     * @return new ASPath object
      * @throws BGPDocumentedException if there is no AS_SEQUENCE present (mandatory)
      * @throws BGPParsingException
      */

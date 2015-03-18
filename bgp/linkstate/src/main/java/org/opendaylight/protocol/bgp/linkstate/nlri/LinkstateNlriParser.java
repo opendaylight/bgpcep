@@ -8,14 +8,11 @@
 package org.opendaylight.protocol.bgp.linkstate.nlri;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
@@ -96,6 +93,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
      * Parses common parts for Link State Nodes, Links and Prefixes, that includes protocol ID and identifier tlv.
      *
      * @param nlri as byte array
+     * @param isVpn flag which determines that destination has route distinguisher
      * @return {@link CLinkstateDestination}
      * @throws BGPParsingException if parsing was unsuccessful
      */
@@ -187,6 +185,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
      * Serializes Linkstate NLRI to byte array. We need this as NLRI serves as a key in upper layers.
      *
      * @param destination Linkstate NLRI to be serialized
+     * @param buffer where Linkstate NLRI will be serialized
      */
     public static void serializeNlri(final CLinkstateDestination destination, final ByteBuf buffer) {
         final ByteBuf nlriByteBuf = Unpooled.buffer();

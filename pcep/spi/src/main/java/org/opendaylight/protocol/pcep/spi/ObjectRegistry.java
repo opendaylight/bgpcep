@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.spi;
 
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 
@@ -16,8 +15,9 @@ public interface ObjectRegistry {
     /**
      * Finds parser for given object type and class in the registry. Delegates parsing to found parser.
      *
-     * @param objectType object type
      * @param objectClass object class
+     * @param objectType object type
+     * @param header ObjectHeader
      * @param buffer object wrapped in ByteBuf
      * @return null if the parser for this object could not be found
      * @throws PCEPDeserializerException if the parsing did not succeed
