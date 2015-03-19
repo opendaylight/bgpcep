@@ -132,33 +132,34 @@ final class AdjRibInWriter {
      * @return New writer
      */
     AdjRibInWriter transform(final Ipv4Address newPeerId, final RIBExtensionConsumerContext registry, final Set<TablesKey> tableTypes) {
-        final DOMDataWriteTransaction tx = chain.newWriteOnlyTransaction();
+        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
 
         final YangInstanceIdentifier newTablesRoot;
         if (!newPeerId.equals(this.peerId)) {
-            if (peerId != null) {
+            if (this.peerId != null) {
                 // Wipe old peer data completely
-                tx.delete(LogicalDatastoreType.OPERATIONAL, ribPath.node(Peer.QNAME).node(new NodeIdentifierWithPredicates(Peer.QNAME, PEER_ID_QNAME, peerId.getValue())));
+                tx.delete(LogicalDatastoreType.OPERATIONAL, this.ribPath.node(Peer.QNAME).node(new NodeIdentifierWithPredicates(Peer.QNAME, PEER_ID_QNAME, this.peerId.getValue())));
             }
 
             // Install new empty peer structure
             final NodeIdentifierWithPredicates peerKey = new NodeIdentifierWithPredicates(Peer.QNAME, PEER_ID_QNAME, newPeerId.getValue());
-            final YangInstanceIdentifier newPeerPath = ribPath.node(Peer.QNAME).node(peerKey);
+            final YangInstanceIdentifier newPeerPath = this.ribPath.node(Peer.QNAME).node(peerKey);
 
             final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> pb = Builders.mapEntryBuilder();
             pb.withNodeIdentifier(peerKey);
             pb.withChild(ImmutableNodes.leafNode(PEER_ID, newPeerId.getValue()));
-            pb.withChild(ImmutableNodes.leafNode(PEER_ROLE, role));
+            pb.withChild(ImmutableNodes.leafNode(PEER_ROLE, this.role));
             pb.withChild(EMPTY_ADJRIBIN);
 
             tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath, pb.build());
+            LOG.debug("New peer {} structure installed.", newPeerPath);
 
             newTablesRoot = newPeerPath.node(EMPTY_ADJRIBIN.getIdentifier()).node(TABLES);
         } else {
-            newTablesRoot = tablesRoot;
+            newTablesRoot = this.tablesRoot;
 
             // Wipe tables which are not present in the new types
-            for (Entry<TablesKey, TableContext> e : tables.entrySet()) {
+            for (final Entry<TablesKey, TableContext> e : this.tables.entrySet()) {
                 if (!tableTypes.contains(e.getKey())) {
                     e.getValue().removeTable(tx);
                 }
@@ -167,8 +168,8 @@ final class AdjRibInWriter {
 
         // Now create new table instances, potentially creating their empty entries
         final Builder<TablesKey, TableContext> tb = ImmutableMap.builder();
-        for (TablesKey k : tableTypes) {
-            TableContext ctx = tables.get(k);
+        for (final TablesKey k : tableTypes) {
+            TableContext ctx = this.tables.get(k);
             if (ctx == null) {
                 final RIBSupport rs = registry.getRIBSupport(k);
                 if (rs == null) {
@@ -189,13 +190,13 @@ final class AdjRibInWriter {
             } else {
                 tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME).node(ATTRIBUTES_UPTODATE_FALSE.getNodeType()), ATTRIBUTES_UPTODATE_FALSE);
             }
-
+            LOG.debug("Created table instance {}", ctx);
             tb.put(k, ctx);
         }
 
         tx.submit();
 
-        return new AdjRibInWriter(ribPath, chain, role, newTablesRoot, tb.build());
+        return new AdjRibInWriter(this.ribPath, this.chain, this.role, newTablesRoot, tb.build());
     }
 
     /**
@@ -204,21 +205,21 @@ final class AdjRibInWriter {
      * @param tableTypes Tables to clean.
      */
     void cleanTables(final Collection<TablesKey> tableTypes) {
-        final DOMDataWriteTransaction tx = chain.newWriteOnlyTransaction();
+        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
 
-        for (TablesKey k : tableTypes) {
+        for (final TablesKey k : tableTypes) {
             LOG.debug("Clearing table {}", k);
-            tables.get(k).clearTable(tx);
+            this.tables.get(k).clearTable(tx);
         }
 
         tx.submit();
     }
 
     void markTablesUptodate(final Collection<TablesKey> tableTypes) {
-        final DOMDataWriteTransaction tx = chain.newWriteOnlyTransaction();
+        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
 
-        for (TablesKey k : tableTypes) {
-            final TableContext ctx = tables.get(k);
+        for (final TablesKey k : tableTypes) {
+            final TableContext ctx = this.tables.get(k);
             tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME).node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
         }
 
@@ -227,26 +228,26 @@ final class AdjRibInWriter {
 
     void updateRoutes(final MpReachNlri nlri, final PathAttributes attributes) {
         final TablesKey key = new TablesKey(nlri.getAfi(), nlri.getSafi());
-        final TableContext ctx = tables.get(key);
+        final TableContext ctx = this.tables.get(key);
         if (ctx == null) {
             LOG.debug("No table for {}, not accepting NLRI {}", key, nlri);
             return;
         }
 
-        final DOMDataWriteTransaction tx = chain.newWriteOnlyTransaction();
+        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         ctx.writeRoutes(null, tx, nlri, attributes);
         tx.submit();
     }
 
     void removeRoutes(final MpUnreachNlri nlri) {
         final TablesKey key = new TablesKey(nlri.getAfi(), nlri.getSafi());
-        final TableContext ctx = tables.get(key);
+        final TableContext ctx = this.tables.get(key);
         if (ctx == null) {
             LOG.debug("No table for {}, not accepting NLRI {}", key, nlri);
             return;
         }
 
-        final DOMDataWriteTransaction tx = chain.newWriteOnlyTransaction();
+        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         ctx.removeRoutes(null, tx, nlri);
         tx.submit();
     }

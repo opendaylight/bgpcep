@@ -176,7 +176,8 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
 
         // put empty BgpRib if not exists
-        trans.put(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier(), new RibBuilder().setKey(new RibKey(ribId)).setId(ribId).setLocRib(
+        trans.put(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier(),
+            new RibBuilder().setKey(new RibKey(ribId)).setPeer(Collections.<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer> emptyList()).setId(ribId).setLocRib(
             new LocRibBuilder().setTables(Collections.<Tables> emptyList()).build()).build(), true);
 
         for (final BgpTableType t : localTables) {
@@ -449,11 +450,11 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
     @Override
     public DOMTransactionChain createPeerChain(final TransactionChainListener listener) {
-        return domDataBroker.createTransactionChain(listener);
+        return this.domDataBroker.createTransactionChain(listener);
     }
 
     @Override
     public RIBExtensionConsumerContext getRibExtensions() {
-        return extensions;
+        return this.extensions;
     }
 }
