@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_c3e22103",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleAttributeRegistry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-19T14:28:09Z",
+      "side": 1,
+      "message": "new ArrayList\u003c\u003e();",
+      "revId": "d82995f7161292ac966de06f998ac7af6627e08a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_23f185cd",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleAttributeRegistry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-19T14:28:09Z",
+      "side": 1,
+      "message": "why do we still have this condition here? Log what do you add to unrecognizedAttributes",
+      "revId": "d82995f7161292ac966de06f998ac7af6627e08a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_03c0094f",
+        "filename": "bgp/parser-spi/src/test/java/org/opendaylight/protocol/bgp/parser/spi/pojo/UnrecognizedAttributesTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-19T14:28:09Z",
+      "side": 1,
+      "message": "you don\u0027t have to use constants in test, but if you want to, make them static",
+      "revId": "d82995f7161292ac966de06f998ac7af6627e08a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_43ee11ee",
+        "filename": "bgp/parser-spi/src/test/java/org/opendaylight/protocol/bgp/parser/spi/pojo/UnrecognizedAttributesTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-19T14:28:09Z",
+      "side": 1,
+      "message": "lowercase name",
+      "revId": "d82995f7161292ac966de06f998ac7af6627e08a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
