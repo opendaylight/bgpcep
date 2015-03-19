@@ -52,6 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.MultiExitDiscBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.OriginBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.OriginatorIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.UnrecognizedAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.as.path.SegmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.Nlri;
@@ -237,6 +238,8 @@ public class BGPParserTest {
         paBuilder.setCommunities(comms);
         assertEquals(paBuilder.getCommunities(), attrs.getCommunities());
 
+        paBuilder.setUnrecognizedAttributes(Lists.<UnrecognizedAttributes>newArrayList());
+
         builder.setPathAttributes(paBuilder.build());
 
         assertEquals(builder.build(), message);
@@ -361,7 +364,7 @@ public class BGPParserTest {
         paBuilder.addAugmentation(PathAttributes1.class, new PathAttributes1Builder().setMpReachNlri(mpBuilder.build()).build());
         assertEquals(paBuilder.getAugmentation(PathAttributes1.class).getMpReachNlri(),
             attrs.getAugmentation(PathAttributes1.class).getMpReachNlri());
-
+        paBuilder.setUnrecognizedAttributes(Lists.<UnrecognizedAttributes>newArrayList());
         // check API message
 
         builder.setPathAttributes(paBuilder.build());
@@ -461,7 +464,7 @@ public class BGPParserTest {
 
         paBuilder.setAggregator(aggregator);
         assertEquals(paBuilder.getAggregator(), attrs.getAggregator());
-
+        paBuilder.setUnrecognizedAttributes(Lists.<UnrecognizedAttributes>newArrayList());
         builder.setPathAttributes(paBuilder.build());
 
         assertEquals(builder.build(), message);
@@ -563,6 +566,7 @@ public class BGPParserTest {
         paBuilder.setExtendedCommunities(comms);
         assertEquals(paBuilder.getExtendedCommunities(), attrs.getExtendedCommunities());
 
+        paBuilder.setUnrecognizedAttributes(Lists.<UnrecognizedAttributes>newArrayList());
         // check API message
         builder.setPathAttributes(paBuilder.build());
         assertEquals(builder.build(), message);

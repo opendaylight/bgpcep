@@ -9,7 +9,9 @@ package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -24,6 +26,9 @@ import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.Values;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.UnrecognizedAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.UnrecognizedAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.UnrecognizedAttributesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
@@ -46,6 +51,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(SimpleAttributeRegistry.class);
     private static final int OPTIONAL_BIT = 0;
     private static final int TRANSITIVE_BIT = 1;
+    private static final List<UnrecognizedAttributes> unrecognizedAttributes = new ArrayList<>();
     @SuppressWarnings("unused")
     private static final int PARTIAL_BIT = 2;
     private static final int EXTENDED_LENGTH_BIT = 3;
@@ -53,6 +59,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
     private final Map<AbstractRegistration, AttributeSerializer> serializers = new LinkedHashMap<>();
     private final AtomicReference<Iterable<AttributeSerializer>> roSerializers =
         new AtomicReference<Iterable<AttributeSerializer>>(this.serializers.values());
+
 
     AutoCloseable registerAttributeParser(final int attributeType, final AttributeParser parser) {
         Preconditions.checkArgument(attributeType >= 0 && attributeType <= Values.UNSIGNED_BYTE_MAX_VALUE);
@@ -85,11 +92,17 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
                 if (!flags.get(OPTIONAL_BIT)) {
                     throw new BGPDocumentedException("Well known attribute not recognized.", BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED);
                 }
+                final UnrecognizedAttributes unrecognizedAttribute = new UnrecognizedAttributesBuilder()
+                    .setKey(new UnrecognizedAttributesKey((short)type))
+                    .setPartial(flags.get(PARTIAL_BIT))
+                    .setTransitive(flags.get(TRANSITIVE_BIT))
+                    .setType((short)type)
+                    .setValue(buffer.readBytes(len).array()).build();
+                unrecognizedAttributes.add(unrecognizedAttribute);
+                LOG.debug("Unrecognized attribute were parsed.", unrecognizedAttribute);
                 if (flags.get(TRANSITIVE_BIT)) {
                     // FIXME: transitive attributes need to be preserved
                     LOG.warn("Losing unrecognized transitive attribute {}. Some data might be missing from the output.", type);
-                } else {
-                    LOG.warn("Ignoring unrecognized attribute type {}. Some data might be missing from the output.", type);
                 }
             } else {
                 attributes.put(type, new RawAttribute(parser, buffer.readSlice(len)));
@@ -116,6 +129,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
             final RawAttribute a = e.getValue();
             a.parser.parseAttribute(a.buffer, builder);
         }
+        builder.setUnrecognizedAttributes(unrecognizedAttributes);
         return builder.build();
     }
 
