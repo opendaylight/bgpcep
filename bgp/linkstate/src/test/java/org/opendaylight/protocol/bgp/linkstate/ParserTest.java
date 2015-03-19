@@ -69,6 +69,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AsPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.LocalPrefBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.OriginBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.UnrecognizedAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
@@ -406,6 +407,7 @@ public class ParserTest {
         paBuilder.addAugmentation(
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.PathAttributes1.class,
             lsAttrBuilder.build());
+        paBuilder.setUnrecognizedAttributes(Collections.<UnrecognizedAttributes> emptyList());
 
         assertEquals(
             lsAttrBuilder.build().getLinkstatePathAttribute(),
@@ -576,6 +578,7 @@ public class ParserTest {
         assertEquals(paBuilder.getLocalPref(), attrs.getLocalPref());
 
         paBuilder.addAugmentation(PathAttributes1.class, lsBuilder.build());
+        paBuilder.setUnrecognizedAttributes(new ArrayList<UnrecognizedAttributes>());
 
         final MpReachNlri mp = attrs.getAugmentation(PathAttributes1.class).getMpReachNlri();
         assertEquals(mpBuilder.getAfi(), mp.getAfi());
