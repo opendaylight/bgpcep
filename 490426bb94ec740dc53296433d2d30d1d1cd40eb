@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_c073f7af",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSNlriParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-19T07:54:09Z",
+      "side": 1,
+      "message": "serialized",
+      "revId": "490426bb94ec740dc53296433d2d30d1d1cd40eb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_6068e3ba",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/LinkstateNlriParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-19T07:54:09Z",
+      "side": 1,
+      "message": "flag",
+      "revId": "490426bb94ec740dc53296433d2d30d1d1cd40eb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_8065efe2",
+        "filename": "bgp/parser-mock/src/main/java/org/opendaylight/protocol/bgp/parser/mock/BGPMessageParserMock.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-19T07:54:09Z",
+      "side": 1,
+      "message": "BGPMessageParserMock",
+      "revId": "490426bb94ec740dc53296433d2d30d1d1cd40eb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_00a1dff7",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibInWriter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-19T07:54:09Z",
+      "side": 1,
+      "message": "this should be @param registry",
+      "revId": "490426bb94ec740dc53296433d2d30d1d1cd40eb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_60af83e4",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/spi/BGPDispatcher.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-19T07:54:09Z",
+      "side": 1,
+      "message": "strategy",
+      "range": {
+        "startLine": 29,
+        "startChar": 36,
+        "endLine": 29,
+        "endChar": 44
+      },
+      "revId": "490426bb94ec740dc53296433d2d30d1d1cd40eb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_20b97b2e",
+        "filename": "pcep/spi/src/main/java/org/opendaylight/protocol/pcep/spi/RROSubobjectRegistry.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-19T07:54:09Z",
+      "side": 1,
+      "message": "parses",
+      "revId": "490426bb94ec740dc53296433d2d30d1d1cd40eb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
