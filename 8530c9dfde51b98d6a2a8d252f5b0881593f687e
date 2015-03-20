@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_d473b9af",
+        "filename": "bgp/linkstate/src/test/java/org/opendaylight/protocol/bgp/linkstate/ParserTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-20T08:08:58Z",
+      "side": 1,
+      "message": "new ArrayList\u003c\u003e()",
+      "revId": "8530c9dfde51b98d6a2a8d252f5b0881593f687e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_7468a5ba",
+        "filename": "bgp/parser-impl/src/test/java/org/opendaylight/protocol/bgp/parser/impl/BGPParserTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-20T08:08:58Z",
+      "side": 1,
+      "message": "new ArrayList\u003c\u003e()",
+      "revId": "8530c9dfde51b98d6a2a8d252f5b0881593f687e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_34621dd9",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleAttributeRegistry.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-20T08:08:58Z",
+      "side": 1,
+      "message": "remove this warning,as this bit is used",
+      "revId": "8530c9dfde51b98d6a2a8d252f5b0881593f687e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_545fa90e",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleAttributeRegistry.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-20T08:08:58Z",
+      "side": 1,
+      "message": "ByteArray.readBytes(len)",
+      "revId": "8530c9dfde51b98d6a2a8d252f5b0881593f687e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_f49b55c7",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleAttributeRegistry.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-20T08:08:58Z",
+      "side": 1,
+      "message": "remove this if, you are already preserving the attribute",
+      "revId": "8530c9dfde51b98d6a2a8d252f5b0881593f687e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_14a121f8",
+        "filename": "bgp/parser-spi/src/test/java/org/opendaylight/protocol/bgp/parser/spi/pojo/UnrecognizedAttributesTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-20T08:08:58Z",
+      "side": 1,
+      "message": "Copyright header is missing.",
+      "revId": "8530c9dfde51b98d6a2a8d252f5b0881593f687e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
