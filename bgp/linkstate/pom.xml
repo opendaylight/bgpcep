@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
         <artifactId>bgp-parent</artifactId>
-        <version>0.3.4-Helium-SR3</version>
+        <version>0.3.5-SNAPSHOT</version>
     </parent>
 
     <artifactId>bgp-linkstate</artifactId>
