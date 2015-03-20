@@ -13,6 +13,7 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -36,10 +37,26 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.DestinationIpv4Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.destination.ipv4.Ipv4Prefixes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.destination.ipv4.Ipv4PrefixesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +97,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
         // FIXME: make this configurable
         final PeerRole role = PeerRole.Ibgp;
 
-        ribWriter = AdjRibInWriter.create(((RibReference)rib).getInstanceIdentifier().getKey(), role, chain);
+        this.ribWriter = AdjRibInWriter.create(((RibReference)rib).getInstanceIdentifier().getKey(), role, chain);
     }
 
     @Override
@@ -90,12 +107,73 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
     }
 
     @Override
-    public void onMessage(final BGPSession session, final Notification message) {
-        if (message instanceof Update) {
-            this.rib.updateTables(this, (Update) message);
-        } else {
-            LOG.info("Ignoring unhandled message class {}", message.getClass());
+    public void onMessage(final BGPSession session, final Notification msg) {
+        if (!(msg instanceof Update)) {
+            LOG.info("Ignoring unhandled message class {}", msg.getClass());
+            return;
         }
+        final Update message = (Update) msg;
+        this.rib.updateTables(this, message);
+        // update AdjRibs
+        final PathAttributes attrs = message.getPathAttributes();
+        MpReachNlri mpReach = null;
+        if (message.getNlri() != null) {
+            mpReach = prefixesToMpReach(message);
+        } else if (attrs.getAugmentation(PathAttributes1.class) != null) {
+            mpReach = attrs.getAugmentation(PathAttributes1.class).getMpReachNlri();
+        }
+        if (mpReach != null) {
+            this.ribWriter.updateRoutes(mpReach, attrs);
+            return;
+        }
+        MpUnreachNlri mpUnreach = null;
+        if (message.getWithdrawnRoutes() != null) {
+            mpUnreach = prefixesToMpUnreach(message);
+        } else if (attrs.getAugmentation(PathAttributes2.class) != null) {
+            mpUnreach = attrs.getAugmentation(PathAttributes2.class).getMpUnreachNlri();
+        }
+        if (mpUnreach != null) {
+            this.ribWriter.removeRoutes(mpUnreach);
+        }
+    }
+
+    /**
+     * Creates MPReach for the prefixes to be handled in the same way as linkstate routes
+     *
+     * @param message Update message containing prefixes in NLRI
+     * @return MpReachNlri with prefixes from the nlri field
+     */
+    private MpReachNlri prefixesToMpReach(final Update message) {
+        final List<Ipv4Prefixes> prefixes = new ArrayList<>();
+        for (final Ipv4Prefix p : message.getNlri().getNlri()) {
+            prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
+        }
+        final MpReachNlriBuilder b = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
+            UnicastSubsequentAddressFamily.class).setAdvertizedRoutes(
+                new AdvertizedRoutesBuilder().setDestinationType(
+                    new DestinationIpv4CaseBuilder().setDestinationIpv4(
+                        new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build());
+        if (message.getPathAttributes() != null) {
+            b.setCNextHop(message.getPathAttributes().getCNextHop());
+        }
+        return b.build();
+    }
+
+    /**
+     * Create MPUnreach for the prefixes to be handled in the same way as linkstate routes
+     *
+     * @param message Update message containing withdrawn routes
+     * @return MpUnreachNlri with prefixes from the withdrawn routes field
+     */
+    private MpUnreachNlri prefixesToMpUnreach(final Update message) {
+        final List<Ipv4Prefixes> prefixes = new ArrayList<>();
+        for (final Ipv4Prefix p : message.getWithdrawnRoutes().getWithdrawnRoutes()) {
+            prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
+        }
+        return new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setWithdrawnRoutes(
+                new WithdrawnRoutesBuilder().setDestinationType(
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
+                        new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build()).build();
     }
 
     @Override
@@ -112,7 +190,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
             this.rib.initTable(this, key);
         }
 
-        this.ribWriter = ribWriter.transform(session.getBgpId(), rib.getRibExtensions(), tables);
+        this.ribWriter = this.ribWriter.transform(session.getBgpId(), this.rib.getRibExtensions(), this.tables);
 
         // Not particularly nice, but what can
         if (session instanceof BGPSessionImpl) {
@@ -126,7 +204,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
 
     private synchronized void cleanup() {
         // FIXME: BUG-196: support graceful restart
-        this.ribWriter.cleanTables(tables);
+        this.ribWriter.cleanTables(this.tables);
         for (final TablesKey key : this.tables) {
             this.rib.clearTable(this, key);
         }
