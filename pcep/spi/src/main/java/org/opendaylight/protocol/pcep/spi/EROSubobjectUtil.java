@@ -11,8 +11,8 @@ import io.netty.buffer.ByteBuf;
 
 public final class EROSubobjectUtil {
 
+    public static final int ERO_TYPE = 5;
     private static final int HEADER_SIZE = 2;
-
     private static final int LOOSE_BIT = 7;
 
     private EROSubobjectUtil() {
