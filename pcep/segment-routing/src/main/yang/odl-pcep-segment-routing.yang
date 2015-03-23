@@ -81,6 +81,16 @@ module odl-pcep-segment-routing {
             type sid-type;
         }
 
+        leaf c-flag {
+            type boolean;
+            default false;
+        }
+
+        leaf m-flag {
+            type boolean;
+            default false;
+        }
+
         leaf sid {
             description "Segment Identifier";
             type uint32;
@@ -134,14 +144,6 @@ module odl-pcep-segment-routing {
 
     grouping sr-ero-subobject {
         reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-00#section-5.3.1";
-        leaf c-flags {
-            type boolean;
-            default false;
-        }
-        leaf m-flag {
-            type boolean;
-            default false;
-        }
         uses sr-subobject;
     }
 

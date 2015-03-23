@@ -46,7 +46,7 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
         }
         final BitArray bits = new BitArray(BITSET_LENGTH);
         bits.set(M_FLAG_POSITION, srEroSubobject.isMFlag());
-        bits.set(C_FLAG_POSITION, srEroSubobject.isCFlags());
+        bits.set(C_FLAG_POSITION, srEroSubobject.isCFlag());
         if (srEroSubobject.getSid() == null) {
             bits.set(S_FLAG_POSITION, Boolean.TRUE);
         }
@@ -74,7 +74,7 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
             }
         }, F_FLAG_POSITION, S_FLAG_POSITION);
         final SrEroTypeBuilder srEroSubobjectBuilder = new SrEroTypeBuilder(srSubobject);
-        srEroSubobjectBuilder.setCFlags(flags.get(C_FLAG_POSITION));
+        srEroSubobjectBuilder.setCFlag(flags.get(C_FLAG_POSITION));
         srEroSubobjectBuilder.setMFlag(flags.get(M_FLAG_POSITION));
         if (srEroSubobjectBuilder.isMFlag() != null && srEroSubobjectBuilder.isMFlag() && srEroSubobjectBuilder.getSid() != null) {
             srEroSubobjectBuilder.setSid(srEroSubobjectBuilder.getSid() >> MPLS_LABEL_OFFSET);
