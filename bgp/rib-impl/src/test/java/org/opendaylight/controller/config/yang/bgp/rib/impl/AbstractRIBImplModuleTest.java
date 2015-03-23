@@ -230,6 +230,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         mxBean.setSessionReconnectStrategy(reconnectObjectName);
         mxBean.setDataProvider(dataBroker);
         mxBean.setDomDataProvider(lookupDomAsyncDataBroker(transaction));
+        mxBean.setCodecTreeFactory(lookupMappingServiceInstance(transaction));
         final ObjectName reconnectStrategyON = TimedReconnectStrategyModuleTest.createInstance(transaction, TCP_RS_INSTANCE_NAME);
         mxBean.setTcpReconnectStrategy(reconnectStrategyON);
         mxBean.setBgpDispatcher(BGPDispatcherImplModuleTest.createInstance(transaction));
