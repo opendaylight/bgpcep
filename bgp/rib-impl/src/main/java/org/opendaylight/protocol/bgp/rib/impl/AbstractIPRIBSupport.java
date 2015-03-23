@@ -8,8 +8,8 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Optional;
-import java.util.Collection;
-import java.util.Collections;
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableSet;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -83,13 +83,13 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
     @Nonnull protected abstract NodeIdentifier routeIdentifier();
 
     @Override
-    public final Collection<Class<? extends DataObject>> cacheableAttributeObjects() {
-        return Collections.emptySet();
+    public final ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
+        return ImmutableSet.of();
     }
 
     @Override
-    public final Collection<Class<? extends DataObject>> cacheableNlriObjects() {
-        return Collections.emptySet();
+    public final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
+        return ImmutableSet.of();
     }
 
     private final void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
