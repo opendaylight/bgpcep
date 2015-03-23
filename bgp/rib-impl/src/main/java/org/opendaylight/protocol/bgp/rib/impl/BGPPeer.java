@@ -119,7 +119,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
         MpReachNlri mpReach = null;
         if (message.getNlri() != null) {
             mpReach = prefixesToMpReach(message);
-        } else if (attrs.getAugmentation(PathAttributes1.class) != null) {
+        } else if (attrs != null && attrs.getAugmentation(PathAttributes1.class) != null) {
             mpReach = attrs.getAugmentation(PathAttributes1.class).getMpReachNlri();
         }
         if (mpReach != null) {
@@ -129,7 +129,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
         MpUnreachNlri mpUnreach = null;
         if (message.getWithdrawnRoutes() != null) {
             mpUnreach = prefixesToMpUnreach(message);
-        } else if (attrs.getAugmentation(PathAttributes2.class) != null) {
+        } else if (attrs != null && attrs.getAugmentation(PathAttributes2.class) != null) {
             mpUnreach = attrs.getAugmentation(PathAttributes2.class).getMpUnreachNlri();
         }
         if (mpUnreach != null) {
