@@ -20,8 +20,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
-import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
-import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
@@ -35,7 +35,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes;
-import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -80,18 +79,16 @@ final class AdjRibInWriter {
     private final DOMTransactionChain chain;
     private final Ipv4Address peerId = null;
     private final String role;
-    private final BindingCodecTreeFactory codecFactory;
 
     /*
      * FIXME: transaction chain has to be instantiated in caller, so it can terminate us when it fails.
      */
-    private AdjRibInWriter(final YangInstanceIdentifier ribPath, final DOMTransactionChain chain, final String role, final YangInstanceIdentifier tablesRoot, final Map<TablesKey, TableContext> tables, final BindingCodecTreeFactory codecFactory) {
+    private AdjRibInWriter(final YangInstanceIdentifier ribPath, final DOMTransactionChain chain, final String role, final YangInstanceIdentifier tablesRoot, final Map<TablesKey, TableContext> tables) {
         this.ribPath = Preconditions.checkNotNull(ribPath);
         this.chain = Preconditions.checkNotNull(chain);
         this.tables = Preconditions.checkNotNull(tables);
         this.role = Preconditions.checkNotNull(role);
         this.tablesRoot = tablesRoot;
-        this.codecFactory = codecFactory;
     }
 
     // We could use a codec, but this should be fine, too
@@ -115,13 +112,13 @@ final class AdjRibInWriter {
      * @param chain transaction chain
      * @return A fresh writer instance
      */
-    static AdjRibInWriter create(@Nonnull final RibKey key, @Nonnull final PeerRole role, @Nonnull final DOMTransactionChain chain, final BindingCodecTreeFactory codecFactory) {
+    static AdjRibInWriter create(@Nonnull final RibKey key, @Nonnull final PeerRole role, @Nonnull final DOMTransactionChain chain) {
         final InstanceIdentifierBuilder b = YangInstanceIdentifier.builder();
         b.node(BgpRib.QNAME);
         b.node(Rib.QNAME);
         b.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, key.getId().getValue());
 
-        return new AdjRibInWriter(b.build(), chain, roleString(role), null, Collections.<TablesKey, TableContext>emptyMap(), codecFactory);
+        return new AdjRibInWriter(b.build(), chain, roleString(role), null, Collections.<TablesKey, TableContext>emptyMap());
     }
 
     /**
@@ -134,7 +131,7 @@ final class AdjRibInWriter {
      * @param tableTypes New tables, must not be null
      * @return New writer
      */
-    AdjRibInWriter transform(final Ipv4Address newPeerId, final RIBExtensionConsumerContext registry, final Set<TablesKey> tableTypes) {
+    AdjRibInWriter transform(final Ipv4Address newPeerId, final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
 
         final YangInstanceIdentifier newTablesRoot;
@@ -174,7 +171,7 @@ final class AdjRibInWriter {
         for (final TablesKey k : tableTypes) {
             TableContext ctx = this.tables.get(k);
             if (ctx == null) {
-                final RIBSupport rs = registry.getRIBSupport(k);
+                final RIBSupportContext rs = registry.getRIBSupportContext(k);
                 if (rs == null) {
                     LOG.warn("No support for table type {}, skipping it", k);
                     continue;
@@ -188,7 +185,7 @@ final class AdjRibInWriter {
                 final NodeIdentifierWithPredicates key = new NodeIdentifierWithPredicates(Tables.QNAME, keyValues);
                 idb.nodeWithKey(key.getNodeType(), keyValues);
 
-                ctx = new TableContext(rs, idb.build(), this.codecFactory);
+                ctx = new TableContext(rs, idb.build());
                 ctx.clearTable(tx);
             } else {
                 tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME).node(ATTRIBUTES_UPTODATE_FALSE.getNodeType()), ATTRIBUTES_UPTODATE_FALSE);
@@ -199,7 +196,7 @@ final class AdjRibInWriter {
 
         tx.submit();
 
-        return new AdjRibInWriter(this.ribPath, this.chain, this.role, newTablesRoot, tb.build(), this.codecFactory);
+        return new AdjRibInWriter(this.ribPath, this.chain, this.role, newTablesRoot, tb.build());
     }
 
     /**
@@ -238,7 +235,7 @@ final class AdjRibInWriter {
         }
 
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
-        ctx.writeRoutes(null, tx, nlri, attributes);
+        ctx.writeRoutes(tx, nlri, attributes);
         tx.submit();
     }
 
@@ -251,7 +248,8 @@ final class AdjRibInWriter {
         }
 
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
-        ctx.removeRoutes(null, tx, nlri);
+        ctx.removeRoutes(tx, nlri);
         tx.submit();
     }
+
 }
