@@ -57,6 +57,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -78,6 +79,9 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
 
     @Mock
     ReconnectStrategyFactory sessionStrategy;
+
+    @Mock
+    BindingCodecTreeFactory codecFactory;
 
     @Before
     public void setUp() throws Exception {
@@ -105,7 +109,7 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
     }
 
     private void runTestWithTables(final List<BgpTableType> tables) {
-        final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID), new AsNumber(72L), new Ipv4Address("127.0.0.1"), this.ext, this.dispatcher, this.tcpStrategyFactory, this.sessionStrategy, getDataBroker(), getDomBroker(), tables);
+        final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID), new AsNumber(72L), new Ipv4Address("127.0.0.1"), this.ext, this.dispatcher, this.tcpStrategyFactory, this.codecFactory, this.sessionStrategy, getDataBroker(), getDomBroker(), tables);
         final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), rib);
 
         final ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);

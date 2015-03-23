@@ -129,6 +129,10 @@
                         <type xmlns:sal="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">sal:dom-async-data-broker</type>
                         <name>pingpong-broker</name>
                     </dom-data-provider>
+                    <codec-tree-factory>
+                        <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-codec-tree-factory</type>
+                        <name>runtime-mapping-singleton</name>
+                    </codec-tree-factory>
                     <session-reconnect-strategy>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:protocol:framework">prefix:reconnect-strategy-factory</type>
                         <name>example-reconnect-strategy-factory</name>

@@ -111,6 +111,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -147,6 +148,9 @@ public class ApplicationPeerTest {
 
     @Mock
     DOMTransactionChain domChain;
+
+    @Mock
+    BindingCodecTreeFactory codecFactory;
 
     @Mock
     ApplicationPeer peer;
@@ -227,7 +231,7 @@ public class ApplicationPeerTest {
             }
         }).when(this.transWrite).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class));
         this.r = new RIBImpl(new RibId("test"), new AsNumber(5L), new Ipv4Address("127.0.0.1"),
-            context , this.dispatcher, this.tcpStrategyFactory, this.tcpStrategyFactory, this.dps, this.dom, localTables);
+            context , this.dispatcher, this.tcpStrategyFactory, this.codecFactory, this.tcpStrategyFactory, this.dps, this.dom, localTables);
         this.peer = new ApplicationPeer(new ApplicationRibId("t"), new Ipv4Address("127.0.0.1"), this.r);
         final ReadOnlyTransaction readTx = Mockito.mock(ReadOnlyTransaction.class);
         Mockito.doReturn(readTx).when(this.dps).newReadOnlyTransaction();

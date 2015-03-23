@@ -638,6 +638,15 @@ module odl-bgp-rib-impl-cfg {
                 }
             }
 
+            container codec-tree-factory {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity mdsb:binding-codec-tree-factory;
+                    }
+                }
+            }
+
             container dom-data-provider {
                 uses config:service-ref {
                     refine type {
