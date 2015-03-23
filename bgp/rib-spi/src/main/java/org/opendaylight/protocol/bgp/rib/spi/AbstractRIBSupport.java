@@ -78,6 +78,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         return this.listClass;
     }
 
+
     /**
      * Return the {@link NodeIdentifier} of the AFI/SAFI-specific container under
      * the RIB routes.

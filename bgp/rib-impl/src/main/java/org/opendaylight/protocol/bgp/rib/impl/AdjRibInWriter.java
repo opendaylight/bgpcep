@@ -20,8 +20,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
-import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
-import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
@@ -134,7 +134,7 @@ final class AdjRibInWriter {
      * @param tableTypes New tables, must not be null
      * @return New writer
      */
-    AdjRibInWriter transform(final Ipv4Address newPeerId, final RIBExtensionConsumerContext registry, final Set<TablesKey> tableTypes) {
+    AdjRibInWriter transform(final Ipv4Address newPeerId, final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
 
         final YangInstanceIdentifier newTablesRoot;
@@ -174,7 +174,7 @@ final class AdjRibInWriter {
         for (final TablesKey k : tableTypes) {
             TableContext ctx = this.tables.get(k);
             if (ctx == null) {
-                final RIBSupport rs = registry.getRIBSupport(k);
+                final RIBSupportContext rs = registry.getRIBSupportContext(k);
                 if (rs == null) {
                     LOG.warn("No support for table type {}, skipping it", k);
                     continue;
@@ -238,7 +238,7 @@ final class AdjRibInWriter {
         }
 
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
-        ctx.writeRoutes(null, tx, nlri, attributes);
+        ctx.writeRoutes(tx, nlri, attributes);
         tx.submit();
     }
 
@@ -251,7 +251,8 @@ final class AdjRibInWriter {
         }
 
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
-        ctx.removeRoutes(null, tx, nlri);
+        ctx.removeRoutes(tx, nlri);
         tx.submit();
     }
+
 }

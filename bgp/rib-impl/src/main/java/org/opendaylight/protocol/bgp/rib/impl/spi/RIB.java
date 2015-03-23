@@ -68,5 +68,5 @@ public interface RIB {
      */
     RIBExtensionConsumerContext getRibExtensions();
 
-    BindingCodecTreeFactory getCodecFactory();
+    RIBSupportContextRegistry getRibSupportContext();
 }
