@@ -11,6 +11,7 @@ import io.netty.buffer.ByteBuf;
 
 public final class RROSubobjectUtil {
 
+    public static final int RRO_TYPE = 6;
     private static final int HEADER_SIZE = 2;
 
     private RROSubobjectUtil() {

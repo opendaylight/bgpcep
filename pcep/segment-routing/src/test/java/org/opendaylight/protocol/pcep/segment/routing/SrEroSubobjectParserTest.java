@@ -15,6 +15,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Before;
 import org.junit.Test;
+import org.opendaylight.protocol.pcep.segment.routing.parsers.ReportedLspSrEroSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
@@ -22,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.SidType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.add.lsp.input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.network.topology.topology.node.path.computation.client.reported.lsp.path.ero.subobject.subobject.type.SrEroTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.sr.subobject.nai.IpAdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.sr.subobject.nai.IpNodeIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.sr.subobject.nai.UnnumberedAdjacencyBuilder;
@@ -107,7 +108,7 @@ public class SrEroSubobjectParserTest {
 
     @Test
     public void testSrEroSubobjectIpv4NodeIdNAI() throws PCEPDeserializerException {
-        final SrEroSubobjectParser parser = new SrEroSubobjectParser();
+        final ReportedLspSrEroSubobjectParser parser = new ReportedLspSrEroSubobjectParser();
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
         builder.setSidType(SidType.Ipv4NodeId);
         builder.setSid(123456L);
@@ -124,7 +125,7 @@ public class SrEroSubobjectParserTest {
 
     @Test
     public void testSrEroSubobjectIpv6NodeIdNAI() throws PCEPDeserializerException {
-        final SrEroSubobjectParser parser = new SrEroSubobjectParser();
+        final ReportedLspSrEroSubobjectParser parser = new ReportedLspSrEroSubobjectParser();
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
         builder.setSidType(SidType.Ipv6NodeId);
         builder.setSid(123456L);
@@ -141,7 +142,7 @@ public class SrEroSubobjectParserTest {
 
     @Test
     public void testSrEroSubobjectIpv4AdjacencyNAI() throws PCEPDeserializerException {
-        final SrEroSubobjectParser parser = new SrEroSubobjectParser();
+        final ReportedLspSrEroSubobjectParser parser = new ReportedLspSrEroSubobjectParser();
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
         builder.setSidType(SidType.Ipv4Adjacency);
         builder.setSid(123456L);
@@ -159,7 +160,7 @@ public class SrEroSubobjectParserTest {
 
     @Test
     public void testSrEroSubobjectIpv6AdjacencyNAI() throws PCEPDeserializerException {
-        final SrEroSubobjectParser parser = new SrEroSubobjectParser();
+        final ReportedLspSrEroSubobjectParser parser = new ReportedLspSrEroSubobjectParser();
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
         builder.setSidType(SidType.Ipv6Adjacency);
         builder.setSid(123456L);
@@ -177,7 +178,7 @@ public class SrEroSubobjectParserTest {
 
     @Test
     public void testSrEroSubobjectUnnumberedNAI() throws PCEPDeserializerException {
-        final SrEroSubobjectParser parser = new SrEroSubobjectParser();
+        final ReportedLspSrEroSubobjectParser parser = new ReportedLspSrEroSubobjectParser();
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
         builder.setSidType(SidType.Unnumbered);
         builder.setSid(123456L);
@@ -194,7 +195,7 @@ public class SrEroSubobjectParserTest {
 
     @Test
     public void testSrEroSubobjectWithoutNAI() throws PCEPDeserializerException {
-        final SrEroSubobjectParser parser = new SrEroSubobjectParser();
+        final ReportedLspSrEroSubobjectParser parser = new ReportedLspSrEroSubobjectParser();
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
         builder.setSidType(SidType.Ipv4NodeId);
         builder.setSid(123456L);
@@ -210,7 +211,7 @@ public class SrEroSubobjectParserTest {
 
     @Test
     public void testSrEroSubobjectWithoutBody() throws PCEPDeserializerException {
-        final SrEroSubobjectParser parser = new SrEroSubobjectParser();
+        final ReportedLspSrEroSubobjectParser parser = new ReportedLspSrEroSubobjectParser();
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
         builder.setSidType(SidType.Ipv4NodeId);
         builder.setCFlag(false);
@@ -226,7 +227,7 @@ public class SrEroSubobjectParserTest {
 
     @Test
     public void testSrEroSubobjectIpv4NodeIdNAIMFlag() throws PCEPDeserializerException {
-        final SrEroSubobjectParser parser = new SrEroSubobjectParser();
+        final ReportedLspSrEroSubobjectParser parser = new ReportedLspSrEroSubobjectParser();
         final SrEroTypeBuilder builder = new SrEroTypeBuilder();
         builder.setCFlag(false);
         builder.setMFlag(true);
