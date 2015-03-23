@@ -14,6 +14,8 @@ import java.util.Collection;
 import javax.annotation.Nonnull;
 
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -44,6 +46,10 @@ public interface RIBSupport {
      * @return The attributes identifier, may not be null.
      */
     @Nonnull NodeIdentifier routeAttributesIdentifier();
+
+    @Nonnull Class<? extends Routes> routesCaseClass();
+    @Nonnull Class<? extends DataObject> routesContainerClass();
+    @Nonnull Class<? extends Route> routesListClass();
 
     @Nonnull ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects();
     @Nonnull ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects();

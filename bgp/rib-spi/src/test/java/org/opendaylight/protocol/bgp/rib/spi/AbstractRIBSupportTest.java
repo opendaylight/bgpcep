@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableCollection;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.DestinationIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.destination.ipv4.Ipv4Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.Ipv4Routes;
@@ -41,7 +42,7 @@ public class AbstractRIBSupportTest {
 
     static ContainerNode dest;
 
-    private final RIBSupport testSupport = new AbstractRIBSupport(Ipv4Routes.QNAME) {
+    private final RIBSupport testSupport = new AbstractRIBSupport(Ipv4RoutesCase.class,Ipv4Routes.class,Ipv4Route.class) {
 
         @Override
         public ChoiceNode emptyRoutes() {
