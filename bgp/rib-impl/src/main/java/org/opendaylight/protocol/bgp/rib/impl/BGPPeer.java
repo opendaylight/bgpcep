@@ -97,7 +97,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
         // FIXME: make this configurable
         final PeerRole role = PeerRole.Ibgp;
 
-        this.ribWriter = AdjRibInWriter.create(((RibReference)rib).getInstanceIdentifier().getKey(), role, chain);
+        this.ribWriter = AdjRibInWriter.create(((RibReference)rib).getInstanceIdentifier().getKey(), role, chain, rib.getCodecFactory());
     }
 
     @Override

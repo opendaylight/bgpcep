@@ -35,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -79,16 +80,18 @@ final class AdjRibInWriter {
     private final DOMTransactionChain chain;
     private final Ipv4Address peerId = null;
     private final String role;
+    private final BindingCodecTreeFactory codecFactory;
 
     /*
      * FIXME: transaction chain has to be instantiated in caller, so it can terminate us when it fails.
      */
-    private AdjRibInWriter(final YangInstanceIdentifier ribPath, final DOMTransactionChain chain, final String role, final YangInstanceIdentifier tablesRoot, final Map<TablesKey, TableContext> tables) {
+    private AdjRibInWriter(final YangInstanceIdentifier ribPath, final DOMTransactionChain chain, final String role, final YangInstanceIdentifier tablesRoot, final Map<TablesKey, TableContext> tables, final BindingCodecTreeFactory codecFactory) {
         this.ribPath = Preconditions.checkNotNull(ribPath);
         this.chain = Preconditions.checkNotNull(chain);
         this.tables = Preconditions.checkNotNull(tables);
         this.role = Preconditions.checkNotNull(role);
         this.tablesRoot = tablesRoot;
+        this.codecFactory = codecFactory;
     }
 
     // We could use a codec, but this should be fine, too
@@ -112,13 +115,13 @@ final class AdjRibInWriter {
      * @param chain transaction chain
      * @return A fresh writer instance
      */
-    static AdjRibInWriter create(@Nonnull final RibKey key, @Nonnull final PeerRole role, @Nonnull final DOMTransactionChain chain) {
+    static AdjRibInWriter create(@Nonnull final RibKey key, @Nonnull final PeerRole role, @Nonnull final DOMTransactionChain chain, final BindingCodecTreeFactory codecFactory) {
         final InstanceIdentifierBuilder b = YangInstanceIdentifier.builder();
         b.node(BgpRib.QNAME);
         b.node(Rib.QNAME);
         b.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, key.getId().getValue());
 
-        return new AdjRibInWriter(b.build(), chain, roleString(role), null, Collections.<TablesKey, TableContext>emptyMap());
+        return new AdjRibInWriter(b.build(), chain, roleString(role), null, Collections.<TablesKey, TableContext>emptyMap(), codecFactory);
     }
 
     /**
@@ -185,7 +188,7 @@ final class AdjRibInWriter {
                 final NodeIdentifierWithPredicates key = new NodeIdentifierWithPredicates(Tables.QNAME, keyValues);
                 idb.nodeWithKey(key.getNodeType(), keyValues);
 
-                ctx = new TableContext(rs, idb.build());
+                ctx = new TableContext(rs, idb.build(), this.codecFactory);
                 ctx.clearTable(tx);
             } else {
                 tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME).node(ATTRIBUTES_UPTODATE_FALSE.getNodeType()), ATTRIBUTES_UPTODATE_FALSE);
@@ -196,7 +199,7 @@ final class AdjRibInWriter {
 
         tx.submit();
 
-        return new AdjRibInWriter(this.ribPath, this.chain, this.role, newTablesRoot, tb.build());
+        return new AdjRibInWriter(this.ribPath, this.chain, this.role, newTablesRoot, tb.build(), this.codecFactory);
     }
 
     /**

@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ExtendedCommunity;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -54,6 +55,8 @@ final class TableContext {
     private static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(Attributes.QNAME);
     private static final ContainerNode EMPTY_ROUTE_ATTRIBUTES = ImmutableNodes.containerNode(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.Attributes.QNAME);
     private static final Set<Class<? extends DataObject>> ATTRIBUTE_CACHEABLES;
+
+    private final BindingCodecTreeFactory codecFactory;
 
     static {
         final Builder<Class<? extends DataObject>> acb = ImmutableSet.builder();
@@ -77,7 +80,7 @@ final class TableContext {
     private final Object attributeCodec;
     private final Object nlriCodec;
 
-    TableContext(final RIBSupport tableSupport, final YangInstanceIdentifier tableId) {
+    TableContext(final RIBSupport tableSupport, final YangInstanceIdentifier tableId, final BindingCodecTreeFactory codecFactory) {
         this.tableSupport = Preconditions.checkNotNull(tableSupport);
         this.tableId = Preconditions.checkNotNull(tableId);
 
@@ -90,6 +93,8 @@ final class TableContext {
 
         // FIXME: new Codec.create(tableSupport.cacheableNlriObjects());
         this.nlriCodec = null;
+
+        this.codecFactory = codecFactory;
     }
 
     YangInstanceIdentifier getTableId() {

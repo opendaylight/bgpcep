@@ -460,4 +460,9 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     public RIBExtensionConsumerContext getRibExtensions() {
         return this.extensions;
     }
+
+    @Override
+    public BindingCodecTreeFactory getCodecFactory() {
+        return this.codecFactory;
+    }
 }
