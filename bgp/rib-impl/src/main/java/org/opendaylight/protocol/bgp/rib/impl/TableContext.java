@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Verify;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
+import com.google.common.collect.Iterables;
 import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -29,12 +30,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ExtendedCommunity;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTree;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTreeFactory;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTreeNode;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeCachingCodec;
+import org.opendaylight.yangtools.sal.binding.generator.util.BindingRuntimeContext;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -42,6 +49,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodeContainer;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 
@@ -52,8 +60,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContaine
  */
 @NotThreadSafe
 final class TableContext {
-    private static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(Attributes.QNAME);
-    private static final ContainerNode EMPTY_ROUTE_ATTRIBUTES = ImmutableNodes.containerNode(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.Attributes.QNAME);
+    private static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes.QNAME);
     private static final Set<Class<? extends DataObject>> ATTRIBUTE_CACHEABLES;
 
     private final BindingCodecTreeFactory codecFactory;
@@ -77,7 +84,7 @@ final class TableContext {
 
     private final YangInstanceIdentifier tableId;
     private final RIBSupport tableSupport;
-    private final Object attributeCodec;
+    private BindingNormalizedNodeCachingCodec<Attributes> attributeCodec;
     private final Object nlriCodec;
 
     TableContext(final RIBSupport tableSupport, final YangInstanceIdentifier tableId, final BindingCodecTreeFactory codecFactory) {
@@ -87,18 +94,37 @@ final class TableContext {
         final Builder<Class<? extends DataObject>> acb = ImmutableSet.builder();
         acb.addAll(ATTRIBUTE_CACHEABLES);
         acb.addAll(tableSupport.cacheableAttributeObjects());
-
         // FIXME: new Codec.create(acb.build(), tableSupport.cacheableNlriObjects());
         this.attributeCodec = null;
-
         // FIXME: new Codec.create(tableSupport.cacheableNlriObjects());
         this.nlriCodec = null;
-
         this.codecFactory = codecFactory;
     }
 
     YangInstanceIdentifier getTableId() {
         return this.tableId;
+    }
+
+    void onRuntimeContextUpdated(BindingRuntimeContext context) {
+        BindingCodecTree codecTree = codecFactory.create(context);
+
+
+        BindingCodecTreeNode<?> currentCodec = codecTree.getSubtreeCodec(tableId);
+        NormalizedNodeContainer<?,?,?> emptySubtree = tableSupport.emptyRoutes();
+        currentCodec = currentCodec.yangPathArgumentChild(emptySubtree.getIdentifier());
+        // FIXME: Walk to first map node.
+        while (!Route.class.isAssignableFrom(currentCodec.getBindingClass())) {
+            emptySubtree = (NormalizedNodeContainer<?,?,?>) Iterables.getOnlyElement(emptySubtree.getValue());
+            currentCodec.yangPathArgumentChild(emptySubtree.getIdentifier());
+        }
+
+        /*
+         *  Binding codec tree allows resolution of children by binding class,
+         *  where correct namespace is derived from parent node if child class
+         *  was resolved using grouping.
+         */
+        BindingCodecTreeNode<Attributes> attrContext = currentCodec.streamChild(Attributes.class);
+        attributeCodec = attrContext.createCachingCodec(tableSupport.cacheableAttributeObjects());
     }
 
     static void clearTable(final DOMDataWriteTransaction tx, final RIBSupport tableSupport, final YangInstanceIdentifier tableId) {
@@ -132,13 +158,11 @@ final class TableContext {
         // FIXME: run the decoder process
         final ContainerNode domNlri = (ContainerNode) this.nlriCodec;
 
+        Attributes routeBaAttributes = new AttributesBuilder(attributes).build();
         // FIXME: run the decoder process
-        final ContainerNode domAttributes = (ContainerNode) this.attributeCodec;
+        final ContainerNode routeAttributes = (ContainerNode) attributeCodec.serialize(routeBaAttributes);
 
-        // FIXME : causes ApplicationPeerTest to fail, uncomment, when codecs are ready
-        //final ContainerNode routeAttributes = Builders.containerBuilder(EMPTY_ROUTE_ATTRIBUTES).withValue(domAttributes.getValue()).build();
-
-        //this.tableSupport.putRoutes(tx, this.tableId, domNlri, routeAttributes);
+        this.tableSupport.putRoutes(tx, this.tableId, domNlri, routeAttributes);
     }
 
     void removeRoutes(final Object object, final DOMDataWriteTransaction tx, final MpUnreachNlri nlri) {
