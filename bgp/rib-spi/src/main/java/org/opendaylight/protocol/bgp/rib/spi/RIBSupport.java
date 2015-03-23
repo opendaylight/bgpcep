@@ -7,8 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import com.google.common.collect.ImmutableCollection;
+
 import java.util.Collection;
+
 import javax.annotation.Nonnull;
+
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -41,8 +45,8 @@ public interface RIBSupport {
      */
     @Nonnull NodeIdentifier routeAttributesIdentifier();
 
-    @Nonnull Collection<Class<? extends DataObject>> cacheableAttributeObjects();
-    @Nonnull Collection<Class<? extends DataObject>> cacheableNlriObjects();
+    @Nonnull ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects();
+    @Nonnull ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects();
 
     /**
      * Given the NLRI as ContainerNode, this method should extract withdrawn routes

@@ -9,7 +9,8 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Collection;
+import com.google.common.collect.ImmutableCollection;
+
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -48,12 +49,12 @@ public class AbstractRIBSupportTest {
         }
 
         @Override
-        public Collection<Class<? extends DataObject>> cacheableAttributeObjects() {
+        public ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
             return null;
         }
 
         @Override
-        public Collection<Class<? extends DataObject>> cacheableNlriObjects() {
+        public ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
             return null;
         }
 
