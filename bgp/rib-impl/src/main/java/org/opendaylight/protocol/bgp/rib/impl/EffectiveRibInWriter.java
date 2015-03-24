@@ -17,7 +17,8 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
-import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.graceful.restart._case.graceful.restart.capability.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
@@ -59,12 +60,12 @@ final class EffectiveRibInWriter implements AutoCloseable {
      * Maintains {@link TableRouteListener} instances.
      */
     private final class AdjInTracker implements AutoCloseable, DOMDataTreeChangeListener {
-        private final RIBExtensionConsumerContext registry;
+        private final RIBSupportContextRegistry registry;
         private final YangInstanceIdentifier ribId;
         private final ListenerRegistration<?> reg;
         private final DOMTransactionChain chain;
 
-        AdjInTracker(final DOMDataTreeChangeService service, final RIBExtensionConsumerContext registry, final DOMTransactionChain chain, final YangInstanceIdentifier ribId) {
+        AdjInTracker(final DOMDataTreeChangeService service, final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier ribId) {
             this.registry = Preconditions.checkNotNull(registry);
             this.chain = Preconditions.checkNotNull(chain);
             this.ribId = Preconditions.checkNotNull(ribId);
@@ -160,9 +161,9 @@ final class EffectiveRibInWriter implements AutoCloseable {
             }
         }
 
-        private RIBSupport getRibSupport(final NodeIdentifierWithPredicates tableKey) {
+        private RIBSupportContext getRibSupport(final NodeIdentifierWithPredicates tableKey) {
             // FIXME: use codec to translate tableKey
-            return registry.getRIBSupport(null);
+            return registry.getRIBSupportContext(null);
         }
 
         private YangInstanceIdentifier effectiveTablePath(final NodeIdentifierWithPredicates peerKey, final NodeIdentifierWithPredicates tableKey) {
@@ -170,20 +171,20 @@ final class EffectiveRibInWriter implements AutoCloseable {
         }
 
         private void modifyTable(final DOMDataWriteTransaction tx, final NodeIdentifierWithPredicates peerKey, final NodeIdentifierWithPredicates tableKey, final DataTreeCandidateNode table) {
-            final RIBSupport ribSupport = getRibSupport(tableKey);
+            final RIBSupportContext ribSupport = getRibSupport(tableKey);
             final YangInstanceIdentifier tablePath = effectiveTablePath(peerKey, tableKey);
 
-            processTableChildren(tx, ribSupport, peerKey, tablePath, table.getChildNodes());
+            processTableChildren(tx, ribSupport.getRibSupport(), peerKey, tablePath, table.getChildNodes());
         }
 
         private void writeTable(final DOMDataWriteTransaction tx, final NodeIdentifierWithPredicates peerKey, final NodeIdentifierWithPredicates tableKey, final DataTreeCandidateNode table) {
-            final RIBSupport ribSupport = getRibSupport(tableKey);
+            final RIBSupportContext ribSupport = getRibSupport(tableKey);
             final YangInstanceIdentifier tablePath = effectiveTablePath(peerKey, tableKey);
 
             // Create an empty table
-            TableContext.clearTable(tx, ribSupport, tablePath);
+            ribSupport.clearTable(tx,tablePath);
 
-            processTableChildren(tx, ribSupport, peerKey, tablePath, table.getChildNodes());
+            processTableChildren(tx, ribSupport.getRibSupport(), peerKey, tablePath, table.getChildNodes());
         }
 
         @Override
