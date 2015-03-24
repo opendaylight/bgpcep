@@ -16,9 +16,31 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import org.opendaylight.controller.config.api.DependencyResolver;
+import org.opendaylight.controller.config.api.DynamicMBeanWithInstance;
+import org.opendaylight.controller.config.spi.Module;
+import org.osgi.framework.BundleContext;
+
 /**
 *
 */
 public class RIBImplModuleFactory extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModuleFactory {
+
+    // FIXME: Remove this once DataBroker exports schema context
+    @Override
+    public Module createModule(String instanceName, DependencyResolver dependencyResolver, BundleContext bundleContext) {
+        RIBImplModule module = (RIBImplModule) super.createModule(instanceName, dependencyResolver, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
+
+    // FIXME: Remove this once DataBroker exports schema context
+    @Override
+    public Module createModule(String instanceName, DependencyResolver dependencyResolver,
+            DynamicMBeanWithInstance old, BundleContext bundleContext) throws Exception {
+        RIBImplModule module = (RIBImplModule)  super.createModule(instanceName, dependencyResolver, old, bundleContext);
+        module.setBundleContext(bundleContext);
+        return module;
+    }
 
 }
