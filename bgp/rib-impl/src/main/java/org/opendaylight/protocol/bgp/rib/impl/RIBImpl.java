@@ -39,6 +39,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.AdjRIBsOut;
 import org.opendaylight.protocol.bgp.rib.impl.spi.AdjRIBsOutRegistration;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBs;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.BGPObjectComparator;
@@ -82,11 +83,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.model.api.SchemaContext;
+import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-public final class RIBImpl extends DefaultRibReference implements AutoCloseable, RIB, TransactionChainListener {
+public final class RIBImpl extends DefaultRibReference implements AutoCloseable, RIB, TransactionChainListener, SchemaContextListener {
     private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
     private static final Update EOR = new UpdateBuilder().build();
     private static final TablesKey IPV4_UNICAST_TABLE = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
@@ -124,6 +127,8 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final DOMDataBroker domDataBroker;
     private final RIBExtensionConsumerContext extensions;
     private final BindingCodecTreeFactory codecFactory;
+
+    private final RIBSupportContextRegistryImpl ribContextRegistry;
 
     private final Runnable scheduler = new Runnable() {
         @Override
@@ -173,6 +178,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.domDataBroker = Preconditions.checkNotNull(domDataBroker);
         this.extensions = Preconditions.checkNotNull(extensions);
         this.codecFactory = codecFactory;
+        this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions,codecFactory);
 
         LOG.debug("Instantiating RIB table {} at {}", ribId, getInstanceIdentifier());
 
@@ -459,5 +465,15 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     @Override
     public RIBExtensionConsumerContext getRibExtensions() {
         return this.extensions;
+    }
+
+    @Override
+    public RIBSupportContextRegistry getRibSupportContext() {
+        return this.ribContextRegistry;
+    }
+
+    @Override
+    public void onGlobalContextUpdated(final SchemaContext context) {
+        this.ribContextRegistry.onSchemaContextUpdated(context);
     }
 }
