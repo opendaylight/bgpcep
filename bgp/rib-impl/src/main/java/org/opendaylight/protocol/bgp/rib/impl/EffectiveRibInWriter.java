@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Verify;
 import java.util.Collection;
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeListener;
@@ -128,9 +129,9 @@ final class EffectiveRibInWriter implements AutoCloseable {
         }
 
         private void processTableChildren(final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final NodeIdentifierWithPredicates peerKey, final YangInstanceIdentifier tablePath, final Collection<DataTreeCandidateNode> children) {
-            final AbstractImportPolicy policy = peerPolicyTracker.policyFor(IdentifierUtils.peerId(peerKey));
+            final AbstractImportPolicy policy = EffectiveRibInWriter.this.peerPolicyTracker.policyFor(IdentifierUtils.peerId(peerKey));
 
-            for (DataTreeCandidateNode child : children) {
+            for (final DataTreeCandidateNode child : children) {
                 switch (child.getModificationType()) {
                 case DELETE:
                     tx.delete(LogicalDatastoreType.OPERATIONAL, tablePath.node(child.getIdentifier()));
@@ -149,7 +150,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
                     // ensured that we have them in at target, so a subsequent delete will not fail :)
                     if (TABLE_ROUTES.equals(child.getIdentifier())) {
                         final YangInstanceIdentifier routesPath = tablePath.node(Routes.QNAME);
-                        for (DataTreeCandidateNode route : ribSupport.changedRoutes(child)) {
+                        for (final DataTreeCandidateNode route : ribSupport.changedRoutes(child)) {
                             processRoute(tx, ribSupport, policy, routesPath, route);
                         }
                     }
@@ -167,7 +168,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
         }
 
         private YangInstanceIdentifier effectiveTablePath(final NodeIdentifierWithPredicates peerKey, final NodeIdentifierWithPredicates tableKey) {
-            return ribId.node(peerKey).node(EffectiveRibIn.QNAME).node(tableKey);
+            return this.ribId.node(peerKey).node(EffectiveRibIn.QNAME).node(tableKey);
         }
 
         private void modifyTable(final DOMDataWriteTransaction tx, final NodeIdentifierWithPredicates peerKey, final NodeIdentifierWithPredicates tableKey, final DataTreeCandidateNode table) {
@@ -189,9 +190,9 @@ final class EffectiveRibInWriter implements AutoCloseable {
 
         @Override
         public void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
-            final DOMDataWriteTransaction tx = chain.newWriteOnlyTransaction();
+            final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
 
-            for (DataTreeCandidate tc : changes) {
+            for (final DataTreeCandidate tc : changes) {
                 final YangInstanceIdentifier rootPath = tc.getRootPath();
 
                 // Obtain the peer's key
@@ -235,22 +236,28 @@ final class EffectiveRibInWriter implements AutoCloseable {
         @Override
         public void close() {
             // FIXME: wipe all effective routes?
-            reg.close();
+            this.reg.close();
         }
     }
 
     private final ImportPolicyPeerTracker peerPolicyTracker;
     private final AdjInTracker adjInTracker;
 
-    private EffectiveRibInWriter(final DOMDataTreeChangeService service, final DOMTransactionChain chain, final YangInstanceIdentifier ribId) {
-        // FIXME: proper arguments
-        this.peerPolicyTracker = new ImportPolicyPeerTracker(service, ribId, null);
-        this.adjInTracker = new AdjInTracker(service, null, chain, ribId);
+    static EffectiveRibInWriter create(@Nonnull final DOMDataTreeChangeService service, @Nonnull final DOMTransactionChain chain,
+        @Nonnull final YangInstanceIdentifier ribId, @Nonnull final PolicyDatabase pd, @Nonnull final RIBSupportContextRegistry registry) {
+        return new EffectiveRibInWriter(service, chain, ribId, pd, registry);
+    }
+
+    private EffectiveRibInWriter(final DOMDataTreeChangeService service, final DOMTransactionChain chain, final YangInstanceIdentifier ribId,
+        final PolicyDatabase pd, final RIBSupportContextRegistry registry) {
+
+        this.peerPolicyTracker = new ImportPolicyPeerTracker(service, ribId, pd);
+        this.adjInTracker = new AdjInTracker(service, registry, chain, ribId);
     }
 
     @Override
     public void close() {
-        adjInTracker.close();
-        peerPolicyTracker.close();
+        this.adjInTracker.close();
+        this.peerPolicyTracker.close();
     }
 }
