@@ -21,9 +21,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import java.net.InetAddress;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
+import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
@@ -40,7 +43,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.LspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.Tlvs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcupd.message.pcupd.message.Updates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -66,6 +68,8 @@ public class SimpleSessionListener implements PCEPSessionListener {
     private final boolean pcError;
     private final String address;
     private final AtomicLong plspIDs;
+    @GuardedBy("this")
+    private final Map<Long, byte[]> pathNames = new HashMap<>();
 
     public SimpleSessionListener(final int lspsCount, final boolean pcError, final InetAddress address) {
         Preconditions.checkArgument(lspsCount >= 0);
@@ -85,8 +89,9 @@ public class SimpleSessionListener implements PCEPSessionListener {
             if (this.pcError) {
                 session.sendMessage(MsgBuilderUtil.createErrorMsg(getRandomError(), srpId));
             } else {
-                final Tlvs tlvs = createLspTlvs(updates.getLsp().getPlspId().getValue(), false,
-                        getDestinationAddress(updates.getPath().getEro().getSubobject()), this.address, this.address);
+                final Tlvs tlvs = createLspTlvs(updates.getLsp().getPlspId().getValue(), true,
+                        getDestinationAddress(updates.getPath().getEro().getSubobject()), this.address, this.address,
+                        Optional.fromNullable(pathNames.get(updates.getLsp().getPlspId().getValue())));
                 final Pcrpt pcRpt = createPcRtpMessage(new LspBuilder(updates.getLsp()).setTlvs(tlvs).build(),
                         Optional.fromNullable(createSrp(srpId)), updToRptPath(updates.getPath()));
                 session.sendMessage(pcRpt);
@@ -100,14 +105,17 @@ public class SimpleSessionListener implements PCEPSessionListener {
                 final Pcrpt pcRpt;
                 if (request.getSrp().getAugmentation(Srp1.class) != null && request.getSrp().getAugmentation(Srp1.class).isRemove()) {
                     pcRpt = createPcRtpMessage(request.getLsp(), Optional.fromNullable(request.getSrp()), reqToRptPath(request));
+                    this.pathNames.remove(request.getLsp().getPlspId().getValue());
                 } else {
                     final LspBuilder lspBuilder = new LspBuilder(request.getLsp());
                     lspBuilder.setPlspId(new PlspId(this.plspIDs.incrementAndGet()));
                     lspBuilder.addAugmentation(Lsp1.class, new Lsp1Builder().setCreate(true).build());
-                    final Tlvs tlvs = createLspTlvs(lspBuilder.getPlspId().getValue(), false,
-                            ((Ipv4Case) request.getEndpointsObj().getAddressFamily()).getIpv4().getDestinationIpv4Address().getValue(), this.address, this.address);
-                    lspBuilder.setTlvs(new TlvsBuilder(tlvs).setSymbolicPathName(request.getLsp().getTlvs().getSymbolicPathName()).build());
+                    final Tlvs tlvs = createLspTlvs(lspBuilder.getPlspId().getValue(), true,
+                            ((Ipv4Case) request.getEndpointsObj().getAddressFamily()).getIpv4().getDestinationIpv4Address().getValue(), this.address, this.address,
+                            Optional.of(request.getLsp().getTlvs().getSymbolicPathName().getPathName().getValue()));
+                    lspBuilder.setTlvs(tlvs);
                     pcRpt = createPcRtpMessage(lspBuilder.build(), Optional.fromNullable(request.getSrp()), reqToRptPath(request));
+                    this.pathNames.put(lspBuilder.getPlspId().getValue(), tlvs.getSymbolicPathName().getPathName().getValue());
                 }
                 session.sendMessage(pcRpt);
             }
@@ -119,7 +127,7 @@ public class SimpleSessionListener implements PCEPSessionListener {
         LOG.debug("Session up.");
         for (int i = 1; i <= this.lspsCount; i++) {
             final Tlvs tlvs = MsgBuilderUtil.createLspTlvs(i, true, ENDPOINT_ADDRESS, this.address,
-                    this.address);
+                    this.address, Optional.<byte[]>absent());
             session.sendMessage(createPcRtpMessage(
                     createLsp(i, true, Optional.<Tlvs> fromNullable(tlvs)), Optional.<Srp> absent(),
                     createPath(Lists.newArrayList(DEFAULT_ENDPOINT_HOP))));
