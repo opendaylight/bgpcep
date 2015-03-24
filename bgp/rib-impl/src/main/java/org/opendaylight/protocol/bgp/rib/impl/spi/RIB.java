@@ -66,4 +66,6 @@ public interface RIB {
      * @return RIB extensions handle.
      */
     RIBExtensionConsumerContext getRibExtensions();
+
+    RIBSupportContextRegistry getRibSupportContext();
 }
