@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.bgp.rib.rib.loc.rib.tables.routes.Ipv6RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.prefixes.DestinationIpv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.routes.Ipv6Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.routes.ipv6.routes.Ipv6Route;
@@ -30,7 +31,7 @@ final class IPv6RIBSupport extends AbstractIPRIBSupport {
     private final NodeIdentifier route = new NodeIdentifier(Ipv6Route.QNAME);
 
     private IPv6RIBSupport() {
-        super(Ipv6Routes.QNAME);
+        super(Ipv6RoutesCase.class, Ipv6Routes.class, Ipv6Route.class);
     }
 
     static IPv6RIBSupport getInstance() {

@@ -14,9 +14,9 @@ import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -54,7 +54,7 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
             b.withNodeIdentifier(route.getIdentifier());
 
             // FIXME: All route children, there should be a utility somewhere to do this
-            for (DataContainerChild<? extends PathArgument, ?> child : route.getValue()) {
+            for (final DataContainerChild<? extends PathArgument, ?> child : route.getValue()) {
                 b.withChild(child);
             }
 
@@ -71,8 +71,9 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
     private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
     private final ApplyRoute putRoute = new PutRoute();
 
-    protected AbstractIPRIBSupport(final QName routesContainer) {
-        super(routesContainer);
+    protected AbstractIPRIBSupport(final Class<? extends Routes> cazeClass,
+        final Class<? extends DataObject> containerClass, final Class<? extends Route> listClass) {
+        super(cazeClass, containerClass, listClass);
     }
 
     /**
@@ -112,7 +113,7 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
 
     @Override
     protected void putDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode destination, final ContainerNode attributes) {
-        processDestination(tx, tablePath, destination, attributes, putRoute);
+        processDestination(tx, tablePath, destination, attributes, this.putRoute);
     }
 
     @Override
