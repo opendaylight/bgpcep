@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import javax.annotation.Nonnull;
@@ -17,14 +18,18 @@ import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
-import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
+import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
@@ -37,21 +42,21 @@ import org.slf4j.LoggerFactory;
  */
 abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
     private static abstract class ApplyRoute {
-        abstract void apply(DOMDataWriteTransaction tx, YangInstanceIdentifier base, MapEntryNode route, final ContainerNode attributes);
+        abstract void apply(DOMDataWriteTransaction tx, YangInstanceIdentifier base, NodeIdentifierWithPredicates routeKey, DataContainerNode<?> route, final ContainerNode attributes);
     }
 
     private static final class DeleteRoute extends ApplyRoute {
         @Override
-        void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final MapEntryNode route, final ContainerNode attributes) {
-            tx.delete(LogicalDatastoreType.OPERATIONAL, base.node(route.getIdentifier()));
+        void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, NodeIdentifierWithPredicates routeKey, final DataContainerNode<?> route, final ContainerNode attributes) {
+            tx.delete(LogicalDatastoreType.OPERATIONAL, base.node(routeKey));
         }
     }
 
     private final class PutRoute extends ApplyRoute {
         @Override
-        void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final MapEntryNode route, final ContainerNode attributes) {
+        void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, NodeIdentifierWithPredicates routeKey, final DataContainerNode<?> route, final ContainerNode attributes) {
             final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = ImmutableNodes.mapEntryBuilder();
-            b.withNodeIdentifier(route.getIdentifier());
+            b.withNodeIdentifier(routeKey);
 
             // FIXME: All route children, there should be a utility somewhere to do this
             for (final DataContainerChild<? extends PathArgument, ?> child : route.getValue()) {
@@ -62,7 +67,7 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
             final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> cb = Builders.containerBuilder(attributes);
             cb.withNodeIdentifier(routeAttributesIdentifier());
             b.withChild(cb.build());
-            tx.put(LogicalDatastoreType.OPERATIONAL, base.node(route.getIdentifier()), b.build());
+            tx.put(LogicalDatastoreType.OPERATIONAL, base.node(routeKey), b.build());
         }
     }
 
@@ -83,6 +88,21 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
      */
     @Nonnull protected abstract NodeIdentifier routeIdentifier();
 
+    /**
+     * Return the NodeIdentifier corresponding to the list containing individual routes.
+     *
+     * @return The NodeIdentifier for individual route list.
+     */
+    @Nonnull protected abstract NodeIdentifier nlriRoutesListIdentifier();
+
+
+    @Nonnull protected abstract NodeIdentifier routeKeyLeafIdentifier();
+
+    @Nonnull protected abstract QName keyLeafQName();
+
+    @Nonnull protected abstract QName routeQName();
+
+
     @Override
     public final ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
         return ImmutableSet.of();
@@ -96,13 +116,15 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
     private final void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
             final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
-            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination.getChild(routeIdentifier());
+            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination.getChild(nlriRoutesListIdentifier());
             if (maybeRoutes.isPresent()) {
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
-                if (routes instanceof MapNode) {
-                    final YangInstanceIdentifier base = tablePath.node(ROUTES).node(routesContainerIdentifier());
-                    for (final MapEntryNode e : ((MapNode)routes).getValue()) {
-                        function.apply(tx, base, e, attributes);
+                if (routes instanceof UnkeyedListNode) {
+                    // Instance identifier to table/(choice routes)/(map of route)
+                    final YangInstanceIdentifier base = tablePath.node(ROUTES).node(routesContainerIdentifier()).node(routeIdentifier());
+                    for (final UnkeyedListEntryNode e : ((UnkeyedListNode)routes).getValue()) {
+                        NodeIdentifierWithPredicates routeKey = createRouteKey(e);
+                        function.apply(tx, base, routeKey,  e, attributes);
                     }
                 } else {
                     LOG.warn("Routes {} are not a map", routes);
@@ -110,6 +132,14 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
             }
         }
     }
+
+    private NodeIdentifierWithPredicates createRouteKey(UnkeyedListEntryNode e) {
+        Optional<DataContainerChild<? extends PathArgument, ?>> maybeKeyLeaf = e.getChild(routeKeyLeafIdentifier());
+        Preconditions.checkState(maybeKeyLeaf.isPresent());
+        Object keyValue = ((LeafNode<?>) maybeKeyLeaf.get()).getValue();
+        return new NodeIdentifierWithPredicates(routeQName(), keyLeafQName(), keyValue);
+    }
+
 
     @Override
     protected void putDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode destination, final ContainerNode attributes) {
@@ -120,4 +150,6 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
     protected void deleteDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode destination) {
         processDestination(tx, tablePath, destination, null, DELETE_ROUTE);
     }
+
+
 }

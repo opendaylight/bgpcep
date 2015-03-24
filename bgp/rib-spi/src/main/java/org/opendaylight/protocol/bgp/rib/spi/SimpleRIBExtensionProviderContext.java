@@ -8,16 +8,28 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.base.Preconditions;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
+import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
+import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
+import org.opendaylight.yangtools.yang.binding.YangModuleInfo;
+import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderContext {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SimpleRIBExtensionProviderContext.class);
+
     private final ConcurrentMap<TablesKey, AdjRIBsFactory> factories = new ConcurrentHashMap<>();
     private final ConcurrentMap<TablesKey, RIBSupport> supports = new ConcurrentHashMap<>();
+    private final ModuleInfoBackedContext classLoadingStrategy = ModuleInfoBackedContext.create();
 
     @Override
     public final synchronized AbstractRegistration registerAdjRIBsInFactory(final Class<? extends AddressFamily> afi,
@@ -50,8 +62,8 @@ public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderCo
     public <T extends RIBSupport> RIBSupportRegistration<T> registerRIBSupport(final Class<? extends AddressFamily> afi,
             final Class<? extends SubsequentAddressFamily> safi, final T support) {
         final TablesKey key = new TablesKey(afi, safi);
-
         final RIBSupport prev = this.supports.putIfAbsent(key, support);
+        addClassLoadingSupport(afi,safi,support);
         Preconditions.checkArgument(prev == null, "AFI %s SAFI %s is already registered with %s", afi, safi, prev);
 
         return new AbstractRIBSupportRegistration<T>(support) {
@@ -62,6 +74,25 @@ public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderCo
         };
     }
 
+    private void addClassLoadingSupport(Class<?> afi, Class<?> safi, RIBSupport s) {
+        Set<YangModuleInfo> moduleInfos = getModuleInfos(afi,safi,s.routesListClass(),s.routesContainerClass(),s.routesCaseClass());
+        if(!moduleInfos.isEmpty()) {
+            classLoadingStrategy.addModuleInfos(moduleInfos);
+        }
+    }
+
+    private static Set<YangModuleInfo> getModuleInfos(Class<?>... clazzes) {
+        Set<YangModuleInfo> moduleInfos = new HashSet<>();
+        for(Class<?> clz : clazzes) {
+            try {
+                moduleInfos.add(BindingReflections.getModuleInfo(clz));
+            } catch (Exception e) {
+                LOG.debug("Could not find module info for class {}",clz);
+            }
+        }
+        return moduleInfos;
+    }
+
     @Override
     public RIBSupport getRIBSupport(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
         return getRIBSupport(new TablesKey(afi, safi));
@@ -70,5 +101,10 @@ public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderCo
     @Override
     public RIBSupport getRIBSupport(final TablesKey key) {
         return this.supports.get(Preconditions.checkNotNull(key));
+    }
+
+    @Override
+    public GeneratedClassLoadingStrategy getClassLoadingStrategy() {
+        return classLoadingStrategy;
     }
 }
