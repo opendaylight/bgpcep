@@ -16,9 +16,14 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import java.util.Hashtable;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
+import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
+import org.osgi.framework.BundleContext;
 
 /**
  *
@@ -26,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 public final class RIBImplModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
 
     private static final String IS_NOT_SET = "is not set.";
+    private BundleContext bundleContext;
 
     public RIBImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier name,
             final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -51,8 +57,25 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        return new RIBImpl(getRibId(), new AsNumber(getLocalAs()), getBgpRibId(), getExtensionsDependency(),
+        RIBImpl rib = new RIBImpl(getRibId(), new AsNumber(getLocalAs()), getBgpRibId(), getExtensionsDependency(),
             getBgpDispatcherDependency(), getTcpReconnectStrategyDependency(), getCodecTreeFactoryDependency(), getSessionReconnectStrategyDependency(),
             getDataProviderDependency(), getDomDataProviderDependency(), getLocalTableDependency());
+        registerSchemaContextListener(rib);
+        return rib;
+    }
+
+    private void registerSchemaContextListener(RIBImpl rib) {
+        DOMDataBroker domBroker = getDomDataProviderDependency();
+        if(domBroker instanceof SchemaService) {
+            ((SchemaService) domBroker).registerSchemaContextListener(rib);
+        } else {
+            // FIXME:Get bundle context and register global schema service from bundle
+            // context.
+            bundleContext.registerService(SchemaContextListener.class, rib, new Hashtable<String,String>());
+        }
+    }
+
+    public void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 }
