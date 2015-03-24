@@ -26,10 +26,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.AdjRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
@@ -112,13 +110,8 @@ final class AdjRibInWriter {
      * @param chain transaction chain
      * @return A fresh writer instance
      */
-    static AdjRibInWriter create(@Nonnull final RibKey key, @Nonnull final PeerRole role, @Nonnull final DOMTransactionChain chain) {
-        final InstanceIdentifierBuilder b = YangInstanceIdentifier.builder();
-        b.node(BgpRib.QNAME);
-        b.node(Rib.QNAME);
-        b.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, key.getId().getValue());
-
-        return new AdjRibInWriter(b.build(), chain, roleString(role), null, Collections.<TablesKey, TableContext>emptyMap());
+    static AdjRibInWriter create(@Nonnull final YangInstanceIdentifier ribId, @Nonnull final PeerRole role, @Nonnull final DOMTransactionChain chain) {
+        return new AdjRibInWriter(ribId, chain, roleString(role), null, Collections.<TablesKey, TableContext>emptyMap());
     }
 
     /**
