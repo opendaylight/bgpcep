@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.Collections;
 import javax.annotation.Nonnull;
@@ -16,8 +17,11 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.unreach.nlri.WithdrawnRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.Attributes;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -36,8 +40,12 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     private static final NodeIdentifier WITHDRAWN_ROUTES = new NodeIdentifier(WithdrawnRoutes.QNAME);
     private static final NodeIdentifier DESTINATION_TYPE = new NodeIdentifier(DestinationType.QNAME);
     protected static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
+
     private final NodeIdentifier routesContainerIdentifier;
     private final NodeIdentifier routeAttributesIdentifier;
+    private final Class<? extends Routes> cazeClass;
+    private final Class<? extends DataObject> containerClass;
+    private final Class<? extends Route> listClass;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -47,9 +55,27 @@ public abstract class AbstractRIBSupport implements RIBSupport {
      *
      * @param routesContainer QName of the container in routes choice, must not be null.
      */
-    protected AbstractRIBSupport(final @Nonnull QName routesContainer) {
-        this.routesContainerIdentifier = new NodeIdentifier(routesContainer);
-        this.routeAttributesIdentifier = new NodeIdentifier(QName.cachedReference(QName.create(routesContainer, Attributes.QNAME.getLocalName())));
+    protected AbstractRIBSupport(final Class<? extends Routes> cazeClass, final Class<? extends DataObject> containerClass, final Class<? extends Route> listClass) {
+        this.routesContainerIdentifier = new NodeIdentifier(BindingReflections.findQName(containerClass));
+        this.routeAttributesIdentifier = new NodeIdentifier(QName.cachedReference(QName.create(BindingReflections.findQName(containerClass), Attributes.QNAME.getLocalName())));
+        this.cazeClass = Preconditions.checkNotNull(cazeClass);
+        this.containerClass = Preconditions.checkNotNull(containerClass);
+        this.listClass = Preconditions.checkNotNull(listClass);
+    }
+
+    @Override
+    public final Class<? extends Routes> routesCaseClass() {
+        return this.cazeClass;
+    }
+
+    @Override
+    public final Class<? extends DataObject> routesContainerClass() {
+        return this.containerClass;
+    }
+
+    @Override
+    public final Class<? extends Route> routesListClass() {
+        return this.listClass;
     }
 
     /**
