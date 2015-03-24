@@ -85,7 +85,7 @@ public class SimpleSessionListener implements PCEPSessionListener {
             if (this.pcError) {
                 session.sendMessage(MsgBuilderUtil.createErrorMsg(getRandomError(), srpId));
             } else {
-                final Tlvs tlvs = createLspTlvs(updates.getLsp().getPlspId().getValue(), false,
+                final Tlvs tlvs = createLspTlvs(updates.getLsp().getPlspId().getValue(), true,
                         getDestinationAddress(updates.getPath().getEro().getSubobject()), this.address, this.address);
                 final Pcrpt pcRpt = createPcRtpMessage(new LspBuilder(updates.getLsp()).setTlvs(tlvs).build(),
                         Optional.fromNullable(createSrp(srpId)), updToRptPath(updates.getPath()));
