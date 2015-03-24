@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5a93c517_e4adda32",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing/AbstractSrSubobjectParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-24T12:31:09Z",
+      "side": 1,
+      "message": "\u0027\u003e\u003e\u003e\u0027 done, but sid variable needs to be final in order to be used in new SrSubobject() - line 154, so tmp value preserved.",
+      "parentUuid": "5a93c517_e4863ab9",
+      "revId": "f502a27e5848dffb50c99216499f1e84c9118020",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a93c517_8493b6f9",
         "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing.yang",
         "patchSetId": 13
@@ -30,6 +48,24 @@
       "writtenOn": "2015-03-24T12:15:16Z",
       "side": 1,
       "message": "please add description/reference",
+      "revId": "f502a27e5848dffb50c99216499f1e84c9118020",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_c4b0de8d",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing.yang",
+        "patchSetId": 13
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-24T12:31:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a93c517_8493b6f9",
       "revId": "f502a27e5848dffb50c99216499f1e84c9118020",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
