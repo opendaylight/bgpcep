@@ -109,8 +109,8 @@ public final class MsgBuilderUtil {
         return pathBuilder.build();
     }
 
-    public static Tlvs createLspTlvs(final long lspId, final boolean symbolicPathName, String tunnelEndpoint,
-            String tunnelSender, String extendedTunnelAddress) {
+    public static Tlvs createLspTlvs(final long lspId, final boolean symbolicPathName, final String tunnelEndpoint,
+            final String tunnelSender, final String extendedTunnelAddress, final Optional<byte[]> symbolicName) {
         final TlvsBuilder tlvs = new TlvsBuilder().setLspIdentifiers(new LspIdentifiersBuilder()
                 .setLspId(new LspId(lspId))
                 .setAddressFamily(
@@ -122,9 +122,14 @@ public final class MsgBuilderUtil {
                                                 new Ipv4ExtendedTunnelId(extendedTunnelAddress))
                                         .build()).build()).setTunnelId(new TunnelId((int) lspId)).build());
         if (symbolicPathName) {
-            final String pathName = "pcc_" + tunnelSender + "_tunnel_" + lspId;
+            final byte[] pathName;
+            if (symbolicName.isPresent()) {
+                pathName = symbolicName.get();
+            } else {
+                pathName = ("pcc_" + tunnelSender + "_tunnel_" + lspId).getBytes(Charsets.UTF_8);
+            }
             tlvs.setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(
-                    new SymbolicPathName(pathName.getBytes(Charsets.UTF_8))).build());
+                    new SymbolicPathName(pathName)).build());
         }
         return tlvs.build();
     }
