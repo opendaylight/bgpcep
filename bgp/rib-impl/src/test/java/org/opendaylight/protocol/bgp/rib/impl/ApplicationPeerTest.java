@@ -12,6 +12,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.CheckedFuture;
 import io.netty.channel.Channel;
@@ -112,11 +113,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTreeFactory;
+import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
 public class ApplicationPeerTest {
 
@@ -233,11 +237,23 @@ public class ApplicationPeerTest {
         this.r = new RIBImpl(new RibId("test"), new AsNumber(5L), new Ipv4Address("127.0.0.1"),
             context , this.dispatcher, this.tcpStrategyFactory, this.codecFactory, this.tcpStrategyFactory, this.dps, this.dom, localTables);
         this.peer = new ApplicationPeer(new ApplicationRibId("t"), new Ipv4Address("127.0.0.1"), this.r);
+        this.r.onGlobalContextUpdated(createSchemaContext());
         final ReadOnlyTransaction readTx = Mockito.mock(ReadOnlyTransaction.class);
         Mockito.doReturn(readTx).when(this.dps).newReadOnlyTransaction();
         final CheckedFuture<Optional<DataObject>, ReadFailedException> readFuture = Mockito.mock(CheckedFuture.class);
         Mockito.doReturn(Optional.<DataObject>absent()).when(readFuture).checkedGet();
         Mockito.doReturn(readFuture).when(readTx).read(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class));
+    }
+
+    private SchemaContext createSchemaContext() {
+        ModuleInfoBackedContext ctx = ModuleInfoBackedContext.create();
+
+        try {
+            ctx.registerModuleInfo(BindingReflections.getModuleInfo(LinkstateRoute.class));
+        } catch (Exception e) {
+            throw Throwables.propagate(e);
+        }
+        return ctx.tryToCreateSchemaContext().get();
     }
 
     @After
