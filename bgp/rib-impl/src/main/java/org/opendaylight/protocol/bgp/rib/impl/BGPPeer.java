@@ -190,7 +190,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
             this.rib.initTable(this, key);
         }
 
-        this.ribWriter = this.ribWriter.transform(session.getBgpId(), this.rib.getRibExtensions(), this.tables);
+        this.ribWriter = this.ribWriter.transform(session.getBgpId(), this.rib.getRibSupportContext(), this.tables);
 
         // Not particularly nice, but what can
         if (session instanceof BGPSessionImpl) {
