@@ -19,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 /**
  * Internal reference to a RIB instance.
@@ -68,4 +69,11 @@ public interface RIB {
     RIBExtensionConsumerContext getRibExtensions();
 
     RIBSupportContextRegistry getRibSupportContext();
+
+    /**
+     * Return YangInstanceIdentifier of BGP Rib with its RibId.
+     *
+     * @return YangInstanceIdentifier
+     */
+    YangInstanceIdentifier getYangRibId();
 }

@@ -33,6 +33,8 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataBrokerExtension;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.impl.spi.AdjRIBsOut;
@@ -79,11 +81,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRibBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
 import org.slf4j.Logger;
@@ -94,6 +99,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
     private static final Update EOR = new UpdateBuilder().build();
     private static final TablesKey IPV4_UNICAST_TABLE = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    private static final QName RIB_ID_QNAME = QName.cachedReference(QName.create(Rib.QNAME, "id"));
 
     /*
      * FIXME: performance: this needs to be turned into a Peer->offset map.
@@ -128,9 +134,8 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final DataBroker dataBroker;
     private final DOMDataBroker domDataBroker;
     private final RIBExtensionConsumerContext extensions;
-
+    private final YangInstanceIdentifier yangRibId;
     private final RIBSupportContextRegistryImpl ribContextRegistry;
-
     private final Runnable scheduler = new Runnable() {
         @Override
         public void run() {
@@ -180,10 +185,24 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.domDataBroker = Preconditions.checkNotNull(domDataBroker);
         this.extensions = Preconditions.checkNotNull(extensions);
         this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions,codecFactory, classStrategy);
+        this.yangRibId = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME).nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
 
         LOG.debug("Instantiating RIB table {} at {}", ribId, getInstanceIdentifier());
 
         final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
+
+        final PolicyDatabase pd  = new PolicyDatabase(localAs.getValue(), localBgpId, new ClusterIdentifier(localBgpId));
+        /*if (clusterId == null) {
+              clusterId is not present, fallback to bgpId
+            pd = new PolicyDatabase(localAs.getValue(), localBgpId, new ClusterIdentifier(localBgpId));
+        } else {
+            pd = new PolicyDatabase(as, bgpId, clusterId);
+        } */
+
+        final DOMDataBrokerExtension service = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
+        final DOMTransactionChain domChain = this.createPeerChain(this);
+        // put clusterId
+        EffectiveRibInWriter.create((DOMDataTreeChangeService) service, domChain, getYangRibId(), pd, this.ribContextRegistry);
 
         // put empty BgpRib if not exists
         trans.put(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier(),
@@ -207,6 +226,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             public void onFailure(final Throwable t) {
                 LOG.error("Failed to initiate RIB {}", getInstanceIdentifier(), t);
             }
+
         });
     }
 
@@ -456,6 +476,11 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             //no-op
         }
         return 0;
+    }
+
+    @Override
+    public YangInstanceIdentifier getYangRibId() {
+        return this.yangRibId;
     }
 
     @Override

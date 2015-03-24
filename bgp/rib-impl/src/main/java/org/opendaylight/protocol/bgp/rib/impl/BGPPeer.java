@@ -29,7 +29,6 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
-import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.impl.spi.AdjRIBsOutRegistration;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionStatistics;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
@@ -97,7 +96,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
         // FIXME: make this configurable
         final PeerRole role = PeerRole.Ibgp;
 
-        this.ribWriter = AdjRibInWriter.create(((RibReference)rib).getInstanceIdentifier().getKey(), role, chain);
+        this.ribWriter = AdjRibInWriter.create(rib.getYangRibId(), role, chain);
     }
 
     @Override

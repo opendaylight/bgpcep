@@ -48,6 +48,10 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataBrokerExtension;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeListener;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -175,6 +179,9 @@ public class ApplicationPeerTest {
     @Mock
     Optional<Rib> o;
 
+    @Mock
+    DOMDataTreeChangeService service;
+
     BGPSessionImpl session;
 
     List<InstanceIdentifier<?>> routes;
@@ -214,6 +221,10 @@ public class ApplicationPeerTest {
         this.a2.startRIBExtensionProvider(context);
         Mockito.doReturn(this.chain).when(this.dps).createTransactionChain(Mockito.any(RIBImpl.class));
         Mockito.doReturn(this.domChain).when(this.dom).createTransactionChain(Mockito.any(BGPPeer.class));
+        final Map<Class<? extends DOMDataBrokerExtension>, DOMDataBrokerExtension> map = new HashMap<>();
+        map.put(DOMDataTreeChangeService.class, this.service);
+        Mockito.doReturn(null).when(this.service).registerDataTreeChangeListener(Mockito.any(DOMDataTreeIdentifier.class), Mockito.any(DOMDataTreeChangeListener.class));
+        Mockito.doReturn(map).when(this.dom).getSupportedExtensions();
         Mockito.doReturn(this.o).when(this.future).get();
         Mockito.doNothing().when(this.transWrite).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class), Mockito.any(Rib.class));
         Mockito.doNothing().when(this.domTransWrite).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
