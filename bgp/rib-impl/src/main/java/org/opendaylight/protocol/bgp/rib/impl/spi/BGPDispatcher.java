@@ -24,7 +24,7 @@ public interface BGPDispatcher extends BGPServerDispatcher {
      * Creates BGP client.
      *
      * @param address Peer address
-     * @param remoteAS remote AS
+     * @param remoteAs remote AS
      * @param peerRegistry BGP peer registry
      * @param strategy reconnection strategy
      * @return Future promising a client session

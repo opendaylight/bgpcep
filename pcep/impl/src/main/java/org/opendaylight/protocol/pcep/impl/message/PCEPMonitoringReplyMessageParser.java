@@ -42,7 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 /**
  * Parser for {@link Pcmonrep}
- * @see https://tools.ietf.org/html/rfc5886#section-3.2
+ * @see <a href="https://tools.ietf.org/html/rfc5886#section-3.2">Path Monitoring Replay Message</a>
  */
 public class PCEPMonitoringReplyMessageParser extends AbstractMessageParser {
 
