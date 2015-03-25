@@ -30,7 +30,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 /**
  * Parser for {@link Monitoring}
- * @see https://tools.ietf.org/html/rfc5886#section-4.1
+ * @see <a href="https://tools.ietf.org/html/rfc5886#section-4.1">Monitoring Object</a>
+ *
  */
 public class PCEPMonitoringObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 

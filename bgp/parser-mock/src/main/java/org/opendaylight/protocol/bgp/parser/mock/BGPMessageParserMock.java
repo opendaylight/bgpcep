@@ -15,7 +15,7 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
- * Mock implementation of {@link BGPMessageParser}. It implements the required interface by having two internal maps,
+ * Mock implementation of {@link MessageRegistry}. It implements the required interface by having two internal maps,
  * each used in one of the methods. It looks up the key provided to the method and returns whatever value is stored in
  * the map.
  */

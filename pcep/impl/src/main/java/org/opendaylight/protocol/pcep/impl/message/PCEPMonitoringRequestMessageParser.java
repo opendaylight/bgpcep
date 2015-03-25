@@ -31,7 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 /**
  * Parser for {@link Pcmonreq}
- * @see https://tools.ietf.org/html/rfc5886#section-3.3
+ * @see <a href="https://tools.ietf.org/html/rfc5886#section-3.1">Monitoring Request Message</a>
  */
 public class PCEPMonitoringRequestMessageParser extends PCEPRequestMessageParser {
 

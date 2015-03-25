@@ -43,6 +43,11 @@ public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEP
 
     /**
      * Creates an instance of PCEPDispatcherImpl, gets the default selector and opens it.
+     *
+     * @param registry a message registry
+     * @param negotiatorFactory a negotiation factory
+     * @param bossGroup accepts an incoming connection
+     * @param workerGroup handles the traffic of accepted connection
      */
     public PCEPDispatcherImpl(final MessageRegistry registry,
         final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> negotiatorFactory,
@@ -52,6 +57,13 @@ public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEP
 
     /**
      * Creates an instance of PCEPDispatcherImpl, gets the default selector and opens it.
+     *
+     * @param registry a message registry
+     * @param negotiatorFactory a negotiation factory
+     * @param bossGroup accepts an incoming connection
+     * @param workerGroup handles the traffic of accepted connection
+     * @param cf MD5ChannelFactory
+     * @param scf MD5ServerChannelFactory
      */
     public PCEPDispatcherImpl(final MessageRegistry registry,
         final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> negotiatorFactory,
