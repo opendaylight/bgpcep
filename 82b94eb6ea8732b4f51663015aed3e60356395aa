@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_d1e41d0f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/IPv4RIBSupport.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-03-25T06:37:09Z",
+      "side": 1,
+      "message": "missing spaces",
+      "revId": "82b94eb6ea8732b4f51663015aed3e60356395aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_91ee95eb",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupport.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-03-25T06:37:09Z",
+      "side": 1,
+      "message": "put the result into a local variable and use it twice, as we perform the same lookup on the next line. Alternatively use NodeIdentifier.getNodeType()",
+      "revId": "82b94eb6ea8732b4f51663015aed3e60356395aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_31bb01e7",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/RIBSupport.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-03-25T06:37:09Z",
+      "side": 1,
+      "message": "missing javadocs",
+      "revId": "82b94eb6ea8732b4f51663015aed3e60356395aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_51c00d50",
+        "filename": "bgp/rib-spi/src/test/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupportTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-03-25T06:37:09Z",
+      "side": 1,
+      "message": "missing spaces",
+      "revId": "82b94eb6ea8732b4f51663015aed3e60356395aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
