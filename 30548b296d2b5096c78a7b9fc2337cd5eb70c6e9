@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_11ba85de",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-03-25T06:40:04Z",
+      "side": 1,
+      "message": "these two lines may cause NPEs, I think",
+      "revId": "30548b296d2b5096c78a7b9fc2337cd5eb70c6e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
