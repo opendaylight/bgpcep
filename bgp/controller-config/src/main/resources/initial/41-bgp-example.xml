@@ -101,6 +101,7 @@
                     <rib-id>example-bgp-rib</rib-id>
                     <local-as>64496</local-as>
                     <bgp-rib-id>192.0.2.2</bgp-rib-id>
+                    <cluster-id>192.0.2.3</cluster-id>
                     <local-table>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
                         <name>ipv4-unicast</name>

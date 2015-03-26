@@ -231,7 +231,7 @@ public class ApplicationPeerTest {
             }
         }).when(this.transWrite).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class));
         this.r = new RIBImpl(new RibId("test"), new AsNumber(5L), new Ipv4Address("127.0.0.1"),
-            context , this.dispatcher, this.tcpStrategyFactory, this.codecFactory, this.tcpStrategyFactory, this.dps, this.dom, localTables);
+            new Ipv4Address("128.0.0.1"), context , this.dispatcher, this.tcpStrategyFactory, this.codecFactory, this.tcpStrategyFactory, this.dps, this.dom, localTables);
         this.peer = new ApplicationPeer(new ApplicationRibId("t"), new Ipv4Address("127.0.0.1"), this.r);
         final ReadOnlyTransaction readTx = Mockito.mock(ReadOnlyTransaction.class);
         Mockito.doReturn(readTx).when(this.dps).newReadOnlyTransaction();

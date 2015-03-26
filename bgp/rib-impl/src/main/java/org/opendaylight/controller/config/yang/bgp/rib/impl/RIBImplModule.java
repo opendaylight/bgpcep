@@ -47,11 +47,12 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
         JmxAttributeValidationException.checkNotNull(getTcpReconnectStrategy(), IS_NOT_SET, tcpReconnectStrategyJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getSessionReconnectStrategy(), IS_NOT_SET, sessionReconnectStrategyJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getLocalTable(), IS_NOT_SET, localTableJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getClusterId(), IS_NOT_SET, clusterIdJmxAttribute);
     }
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        return new RIBImpl(getRibId(), new AsNumber(getLocalAs()), getBgpRibId(), getExtensionsDependency(),
+        return new RIBImpl(getRibId(), new AsNumber(getLocalAs()), getBgpRibId(), getClusterId(), getExtensionsDependency(),
             getBgpDispatcherDependency(), getTcpReconnectStrategyDependency(), getCodecTreeFactoryDependency(), getSessionReconnectStrategyDependency(),
             getDataProviderDependency(), getDomDataProviderDependency(), getLocalTableDependency());
     }
