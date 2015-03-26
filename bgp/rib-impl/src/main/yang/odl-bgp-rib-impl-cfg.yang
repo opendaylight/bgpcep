@@ -682,6 +682,12 @@ module odl-bgp-rib-impl-cfg {
                 type rib:rib-id;
                 mandatory true;
             }
+
+            leaf cluster-id {
+                description "IBGP identifier. Needed by route reflection.";
+                reference "https://tools.ietf.org/html/rfc4456#section-7";
+                type inet:ipv4-address;
+            }
         }
     }
 }
