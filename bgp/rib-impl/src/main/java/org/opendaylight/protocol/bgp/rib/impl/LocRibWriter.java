@@ -13,14 +13,19 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeListener;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -39,19 +44,25 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     private final NodeIdentifier attributesIdentifier;
     private final Long ourAs;
 
-    LocRibWriter(final RIBSupport ribSupport, final DOMTransactionChain chain, final YangInstanceIdentifier target, final Long ourAs) {
+    LocRibWriter(final RIBSupport ribSupport, final DOMTransactionChain chain, final YangInstanceIdentifier target, final Long ourAs,
+        final DOMDataTreeChangeService service, final PolicyDatabase pd) {
         this.chain = Preconditions.checkNotNull(chain);
         this.target = Preconditions.checkNotNull(target);
         this.ourAs = Preconditions.checkNotNull(ourAs);
         this.attributesIdentifier = ribSupport.routeAttributesIdentifier();
+        this.peerPolicyTracker = new ExportPolicyPeerTracker(service, target, pd);
 
-        // FIXME: proper values
-        this.peerPolicyTracker = new ExportPolicyPeerTracker(null, null, null);
+        service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, target.node(LocRib.QNAME)), this);
+    }
+
+    public static LocRibWriter create(@Nonnull final RIBSupport ribSupport, @Nonnull final DOMTransactionChain chain, @Nonnull final YangInstanceIdentifier target,
+        @Nonnull final AsNumber ourAs, @Nonnull final DOMDataTreeChangeService service, @Nonnull final PolicyDatabase pd) {
+        return new LocRibWriter(ribSupport, chain, target, ourAs.getValue(), service, pd);
     }
 
     @Override
     public void close() {
-        peerPolicyTracker.close();
+        this.peerPolicyTracker.close();
     }
 
     @Override
@@ -117,8 +128,8 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
              * if we have two eBGP peers, for example, there is no reason why we should perform the translation
              * multiple times.
              */
-            for (PeerRole role : PeerRole.values()) {
-                final PeerExportGroup peerGroup = peerPolicyTracker.getPeerGroup(role);
+            for (final PeerRole role : PeerRole.values()) {
+                final PeerExportGroup peerGroup = this.peerPolicyTracker.getPeerGroup(role);
                 if (peerGroup != null) {
                     final ContainerNode attributes = null;
                     final PeerId peerId = e.getKey().getPeerId();
@@ -130,7 +141,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
 
                         if (effectiveAttributes != null && value != null && !peerId.equals(pid.getKey())) {
                             tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
-                            tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(attributesIdentifier), effectiveAttributes);
+                            tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(this.attributesIdentifier), effectiveAttributes);
                         } else {
                             tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);
                         }

@@ -211,6 +211,13 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             if (this.tables.create(trans, this, key) == null) {
                 LOG.debug("Did not create local table for unhandled table type {}", t);
             }
+
+            // reusing the for cycle
+            // create locRibWriter for each table
+            // FIXME: temporary create writer only for Ipv4
+            if (key.getAfi().equals(Ipv4AddressFamily.class)) {
+                LocRibWriter.create(this.ribContextRegistry.getRIBSupportContext(key).getRibSupport(), domChain, getYangRibId(), localAs, (DOMDataTreeChangeService) service, pd);
+            }
         }
 
         Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
