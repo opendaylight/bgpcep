@@ -86,6 +86,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
     protected static final RibId RIB_ID = new RibId("test");
     protected static final Ipv4Address BGP_ID = new Ipv4Address("192.168.1.1");
+    protected static final Ipv4Address CLUSTER_ID = new Ipv4Address("192.168.1.2");
 
     private static final String SESSION_RS_INSTANCE_NAME = "session-reconnect-strategy-factory";
     private static final String TCP_RS_INSTANCE_NAME = "tcp-reconnect-strategy-factory";
@@ -216,14 +217,14 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         return transaction.commit();
     }
 
-    protected CommitStatus createRIBImplModuleInstance(final RibId ribId, final Long localAs, final Ipv4Address bgpId) throws Exception {
+    protected CommitStatus createRIBImplModuleInstance(final RibId ribId, final Long localAs, final Ipv4Address bgpId, final Ipv4Address clusterId) throws Exception {
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
-        createRIBImplModuleInstance(transaction, ribId, localAs, bgpId, createAsyncDataBrokerInstance(transaction));
+        createRIBImplModuleInstance(transaction, ribId, localAs, bgpId, clusterId, createAsyncDataBrokerInstance(transaction));
         return transaction.commit();
     }
 
     private ObjectName createRIBImplModuleInstance(final ConfigTransactionJMXClient transaction, final RibId ribId, final Long localAs,
-            final Ipv4Address bgpId, final ObjectName dataBroker) throws Exception {
+            final Ipv4Address bgpId, final Ipv4Address clusterId, final ObjectName dataBroker) throws Exception {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final RIBImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, RIBImplModuleMXBean.class);
         final ObjectName reconnectObjectName = TimedReconnectStrategyModuleTest.createInstance(transaction, SESSION_RS_INSTANCE_NAME);
@@ -238,17 +239,18 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         mxBean.setRibId(ribId);
         mxBean.setLocalAs(localAs);
         mxBean.setBgpRibId(bgpId);
+        mxBean.setClusterId(clusterId);
         return nameCreated;
     }
 
     protected ObjectName createRIBImplModuleInstance(final ConfigTransactionJMXClient transaction) throws Exception {
-        return createRIBImplModuleInstance(transaction, RIB_ID, 5000L, BGP_ID,
+        return createRIBImplModuleInstance(transaction, RIB_ID, 5000L, BGP_ID, CLUSTER_ID,
                 createAsyncDataBrokerInstance(transaction));
     }
 
     public ObjectName createRIBImplModuleInstance(final ConfigTransactionJMXClient transaction, final ObjectName dataBroker)
             throws Exception {
-        return createRIBImplModuleInstance(transaction, RIB_ID, 5000L, BGP_ID, dataBroker);
+        return createRIBImplModuleInstance(transaction, RIB_ID, 5000L, BGP_ID, CLUSTER_ID, dataBroker);
     }
 
     public ObjectName createAsyncDataBrokerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException, InstanceNotFoundException {

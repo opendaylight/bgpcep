@@ -109,7 +109,7 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
     }
 
     private void runTestWithTables(final List<BgpTableType> tables) {
-        final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID), new AsNumber(72L), new Ipv4Address("127.0.0.1"), this.ext, this.dispatcher, this.tcpStrategyFactory, this.codecFactory, this.sessionStrategy, getDataBroker(), getDomBroker(), tables);
+        final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID), new AsNumber(72L), new Ipv4Address("127.0.0.1"), null, this.ext, this.dispatcher, this.tcpStrategyFactory, this.codecFactory, this.sessionStrategy, getDataBroker(), getDomBroker(), tables);
         final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), rib);
 
         final ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);
