@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_95bd1c6b",
+        "filename": "bgp/controller-config/src/main/resources/initial/41-bgp-example.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-26T13:30:20Z",
+      "side": 1,
+      "message": "as it\u0027s not mandatory, comment this line and put a comment there, that if cluster-id is not present, it\u0027s value is the same as bgp-id",
+      "revId": "abf7bdc13e471d12d3639e0042c8faca2cd51167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_95c8bc23",
+        "filename": "bgp/rib-impl/src/main/yang/odl-bgp-rib-impl-cfg.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 687,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-26T13:30:20Z",
+      "side": 1,
+      "message": "put link to RFC as reference",
+      "revId": "abf7bdc13e471d12d3639e0042c8faca2cd51167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_f54900b8",
+        "filename": "bgp/rib-impl/src/main/yang/odl-bgp-rib-impl-cfg.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 688,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-26T13:30:20Z",
+      "side": 1,
+      "message": "it\u0027s not mandatory",
+      "revId": "abf7bdc13e471d12d3639e0042c8faca2cd51167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
