@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_38abddd7",
+        "filename": "bgp/controller-config/src/main/resources/initial/41-bgp-example.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-26T14:50:29Z",
+      "side": 1,
+      "message": "\u003c!-- \u003ccluster-id\u003e192.0.2.3\u003c/cluster-id\u003e --\u003e",
+      "revId": "127bf4818d340cd337c5faa28a675d46f3975fa1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_78808546",
+        "filename": "bgp/rib-impl/src/main/yang/odl-bgp-rib-impl-cfg.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 688,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-03-26T14:50:29Z",
+      "side": 1,
+      "message": "section?",
+      "revId": "127bf4818d340cd337c5faa28a675d46f3975fa1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
