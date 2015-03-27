@@ -122,6 +122,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
         this.listener = Preconditions.checkNotNull(listener);
         this.channel = Preconditions.checkNotNull(channel);
         this.limiter = new ChannelOutputLimiter(this);
+        this.channel.pipeline().addLast(this.limiter);
         this.holdTimerValue = (remoteOpen.getHoldTimer() < localHoldTimer) ? remoteOpen.getHoldTimer() : localHoldTimer;
         LOG.info("BGP HoldTimer new value: {}", this.holdTimerValue);
         this.keepAlive = this.holdTimerValue / KA_TO_DEADTIMER_RATIO;
