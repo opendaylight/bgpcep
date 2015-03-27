@@ -16,6 +16,8 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.CheckedFuture;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultChannelPromise;
 import io.netty.channel.EventLoop;
 import java.math.BigInteger;
@@ -193,6 +195,9 @@ public class ApplicationPeerTest {
     Channel channel;
 
     @Mock
+    ChannelPipeline pipeline;
+
+    @Mock
     private EventLoop eventLoop;
 
     private final byte[] linkNlri = new byte[] { 0, 2, 0, 0x65, 2, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, (byte) 0x1a,
@@ -248,6 +253,8 @@ public class ApplicationPeerTest {
         Mockito.doReturn(this.domTransWrite).when(this.domChain).newWriteOnlyTransaction();
         Mockito.doReturn(this.eventLoop).when(this.channel).eventLoop();
         Mockito.doReturn("channel").when(this.channel).toString();
+        Mockito.doReturn(this.pipeline).when(this.channel).pipeline();
+        Mockito.doReturn(this.pipeline).when(this.pipeline).addLast(Mockito.any(ChannelHandler.class));
         Mockito.doAnswer(new Answer<Object>() {
 
             @Override
