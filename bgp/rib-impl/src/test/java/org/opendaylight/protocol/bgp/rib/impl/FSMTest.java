@@ -131,6 +131,7 @@ public class FSMTest {
         doReturn(new InetSocketAddress(peerAddress, 179)).when(this.speakerListener).localAddress();
         doReturn(this.pipeline).when(this.speakerListener).pipeline();
         doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class), any(ChannelHandler.class));
+        doReturn(this.pipeline).when(this.pipeline).addLast(any(ChannelHandler.class));
         doReturn(mock(ChannelFuture.class)).when(this.speakerListener).close();
         this.classicOpen = new OpenBuilder().setMyAsNumber(30).setHoldTimer(3).setVersion(new ProtocolVersion((short) 4)).setBgpParameters(
             tlvs).setBgpIdentifier(new Ipv4Address("1.1.1.2")).build();
