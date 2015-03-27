@@ -137,6 +137,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final YangInstanceIdentifier yangRibId;
     private final RIBSupportContextRegistryImpl ribContextRegistry;
     private final EffectiveRibInWriter efWriter;
+    private final DOMDataBrokerExtension service;
 
     private final Runnable scheduler = new Runnable() {
         @Override
@@ -221,8 +222,8 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         final PolicyDatabase pd  = new PolicyDatabase(localAs.getValue(), localBgpId, this.clusterId);
 
         final DOMDataBrokerExtension service = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
-        final DOMTransactionChain domChain = this.createPeerChain(this);
-        this.efWriter = EffectiveRibInWriter.create((DOMDataTreeChangeService) service, this.createPeerChain(this), getYangRibId(), pd, this.ribContextRegistry);
+        this.service = service;
+        this.efWriter = EffectiveRibInWriter.create(getService(), this.createPeerChain(this), getYangRibId(), pd, this.ribContextRegistry);
         LOG.debug("Effective RIB created.");
 
         for (final BgpTableType t : localTables) {
@@ -230,7 +231,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             // create locRibWriter for each table
             // FIXME: temporary create writer only for Ipv4
             if (key.getAfi().equals(Ipv4AddressFamily.class)) {
-                LocRibWriter.create(this.ribContextRegistry.getRIBSupportContext(key).getRibSupport(), key, this.createPeerChain(this), getYangRibId(), localAs, (DOMDataTreeChangeService) service, pd);
+                LocRibWriter.create(this.ribContextRegistry.getRIBSupportContext(key).getRibSupport(), key, this.createPeerChain(this), getYangRibId(), localAs, getService(), pd);
             }
         }
     }
@@ -486,6 +487,10 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             //no-op
         }
         return 0;
+    }
+
+    public DOMDataTreeChangeService getService() {
+        return (DOMDataTreeChangeService) this.service;
     }
 
     @Override
