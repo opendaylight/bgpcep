@@ -16,6 +16,8 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.CheckedFuture;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultChannelPromise;
 import io.netty.channel.EventLoop;
 import java.math.BigInteger;
@@ -191,6 +193,9 @@ public class ApplicationPeerTest {
     Channel channel;
 
     @Mock
+    ChannelPipeline pipeline;
+
+    @Mock
     private EventLoop eventLoop;
 
     private final byte[] linkNlri = new byte[] { 0, 2, 0, 0x65, 2, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, (byte) 0x1a,
@@ -206,9 +211,9 @@ public class ApplicationPeerTest {
     @Before
     public void setUp() throws InterruptedException, ExecutionException, ReadFailedException {
         MockitoAnnotations.initMocks(this);
-        ModuleInfoBackedContext strategy = createClassLoadingStrategy();
-        SchemaContext schemaContext = strategy.tryToCreateSchemaContext().get();
-        codecFactory = createCodecFactory(strategy,schemaContext);
+        final ModuleInfoBackedContext strategy = createClassLoadingStrategy();
+        final SchemaContext schemaContext = strategy.tryToCreateSchemaContext().get();
+        this.codecFactory = createCodecFactory(strategy,schemaContext);
         final List<BgpTableType> localTables = new ArrayList<>();
         this.routes = new ArrayList<>();
         localTables.add(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
@@ -245,6 +250,8 @@ public class ApplicationPeerTest {
         Mockito.doReturn(this.domTransWrite).when(this.domChain).newWriteOnlyTransaction();
         Mockito.doReturn(this.eventLoop).when(this.channel).eventLoop();
         Mockito.doReturn("channel").when(this.channel).toString();
+        Mockito.doReturn(this.pipeline).when(this.channel).pipeline();
+        Mockito.doReturn(this.pipeline).when(this.pipeline).addLast(Mockito.any(ChannelHandler.class));
         Mockito.doAnswer(new Answer<Object>() {
 
             @Override
@@ -265,20 +272,20 @@ public class ApplicationPeerTest {
         Mockito.doReturn(readFuture).when(readTx).read(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class));
     }
 
-    private BindingCodecTreeFactory createCodecFactory(ClassLoadingStrategy str, SchemaContext ctx) {
-        DataObjectSerializerGenerator generator = StreamWriterGenerator.create(JavassistUtils.forClassPool(ClassPool.getDefault()));
-        BindingNormalizedNodeCodecRegistry codec = new BindingNormalizedNodeCodecRegistry(generator);
+    private BindingCodecTreeFactory createCodecFactory(final ClassLoadingStrategy str, final SchemaContext ctx) {
+        final DataObjectSerializerGenerator generator = StreamWriterGenerator.create(JavassistUtils.forClassPool(ClassPool.getDefault()));
+        final BindingNormalizedNodeCodecRegistry codec = new BindingNormalizedNodeCodecRegistry(generator);
         codec.onBindingRuntimeContextUpdated(BindingRuntimeContext.create(str, ctx));
         return codec;
     }
 
     private ModuleInfoBackedContext createClassLoadingStrategy() {
-        ModuleInfoBackedContext ctx = ModuleInfoBackedContext.create();
+        final ModuleInfoBackedContext ctx = ModuleInfoBackedContext.create();
 
         try {
             ctx.registerModuleInfo(BindingReflections.getModuleInfo(LinkstateRoute.class));
             ctx.registerModuleInfo(BindingReflections.getModuleInfo(Ipv4Route.class));
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw Throwables.propagate(e);
         }
         return ctx;
