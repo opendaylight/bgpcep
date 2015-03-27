@@ -53,6 +53,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.slf4j.Logger;
@@ -171,8 +172,13 @@ class RIBSupportContextImpl extends RIBSupportContext {
         return (ContainerNode) this.reachNlriCodec.serialize(nlri);
     }
 
+    public Attributes deserializeAttributes(final NormalizedNode<?,?> attributes) {
+        Preconditions.checkState(this.attributesCodec != null, "Attributes codec not available");
+        return this.attributesCodec.deserialize(attributes);
+    }
+
     private ContainerNode serializeAttributes(final Attributes pathAttr) {
-        Preconditions.checkState(this.attributesCodec != null, "MpReachNlri codec not available");
+        Preconditions.checkState(this.attributesCodec != null, "Attributes codec not available");
         final AttributesBuilder a = new AttributesBuilder(pathAttr);
         a.addAugmentation(Attributes1.class, null);
         a.addAugmentation(Attributes2.class, null);
