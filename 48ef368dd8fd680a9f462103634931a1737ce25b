@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_29786dc3",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 21
+      },
+      "writtenOn": "2015-03-27T13:12:41Z",
+      "side": 1,
+      "message": "Should be node(BgpRib.QNAME).node(Rib.QNAME).nodeWithKey(Rib.QNAME,...)",
+      "range": {
+        "startLine": 185,
+        "startChar": 56,
+        "endLine": 185,
+        "endChar": 129
+      },
+      "revId": "48ef368dd8fd680a9f462103634931a1737ce25b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
