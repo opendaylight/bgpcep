@@ -22,6 +22,8 @@ public final class BitArray {
 
     private final byte[] backingArray;
 
+    private final int offset;
+
     /**
      * Creates a BitArray with fixed size of bits. For sizes smaller than
      * 8 the whole byte is allocated.
@@ -33,12 +35,14 @@ public final class BitArray {
         Preconditions.checkArgument(size >= 1, "Minimum size is 1 bit.");
         this.size = size;
         this.backingArray = new byte[calculateBytes(size)];
+        this.offset = (calculateBytes(this.size) * Byte.SIZE) - this.size;
     }
 
     private BitArray(final byte[] backingArray, final int size) {
         Preconditions.checkNotNull(backingArray, "Byte Array cannot be null");
-        this.backingArray = backingArray;
         this.size = size;
+        this.backingArray = backingArray;
+        this.offset = (calculateBytes(this.size) * Byte.SIZE) - this.size;
     }
 
     /**
@@ -80,7 +84,7 @@ public final class BitArray {
     }
 
     /**
-     * Sets bit on given position to the value given as parameter.
+     * If the value given is TRUE, sets bit on given position.
      * Checks for null value. Index is counted from the rightmost
      * bit as 0 to size -1 being the leftmost bit.
      *
@@ -147,7 +151,7 @@ public final class BitArray {
      * @return minimum byte size to contain the position of the bit
      */
     private static int calculateBytes(final int size) {
-        return size/Byte.SIZE + (size % Byte.SIZE == 0 ? 0 : 1);
+        return (size + Byte.SIZE - 1) / Byte.SIZE;
     }
 
     /**
@@ -157,8 +161,7 @@ public final class BitArray {
      * @return position in byte array
      */
     private int calculatePosition(final int index) {
-        final int offset = (calculateBytes(this.size) * Byte.SIZE) - this.size;
-        return (index + offset) / Byte.SIZE;
+        return (index + this.offset) / Byte.SIZE;
     }
 
     /**
