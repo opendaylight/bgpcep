@@ -13,6 +13,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.protocol.pcep.impl.Util;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -31,10 +32,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.Metric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.metrics.MetricPce;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.metrics.MetricPceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.object.Monitoring;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.object.Of;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.object.Overload;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcc.id.req.object.PccIdReq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pce.id.object.PceId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.PcrepMessageBuilder;
@@ -49,7 +48,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.success._case.SuccessBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.success._case.success.Paths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.success._case.success.PathsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.proc.time.object.ProcTime;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.objects.VendorInformationObject;
 
@@ -90,36 +88,46 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         }
         if (reply.getResult() instanceof FailureCase) {
             final FailureCase f = ((FailureCase) reply.getResult());
-            if (f != null) {
-                serializeObject(f.getNoPath(), buffer);
-                serializeObject(f.getLspa(), buffer);
-                serializeObject(f.getBandwidth(), buffer);
-                if (f.getMetrics() != null) {
-                    for (final Metrics m : f.getMetrics()) {
-                        serializeObject(m.getMetric(), buffer);
-                    }
-                }
-                serializeObject(f.getIro(), buffer);
-            }
+            serializeFailure(f, buffer);
             return;
         }
         final SuccessCase s = (SuccessCase) reply.getResult();
-        if (s != null && s.getSuccess() != null) {
-            for (final Paths p : s.getSuccess().getPaths()) {
-                serializeObject(p.getEro(), buffer);
-                serializeObject(p.getLspa(), buffer);
-                serializeObject(p.getOf(), buffer);
-                serializeObject(p.getBandwidth(), buffer);
-                if (p.getMetrics() != null) {
-                    for (final Metrics m : p.getMetrics()) {
-                        serializeObject(m.getMetric(), buffer);
-                    }
-                }
-                serializeObject(p.getIro(), buffer);
-            }
-            serializeVendorInformationObjects(s.getSuccess().getVendorInformationObject(), buffer);
-        }
+        serializeSuccess(s, buffer);
         serializeMonitoringMetrics(reply, buffer);
+    }
+
+    private void serializeFailure(final FailureCase f, final ByteBuf buffer) {
+        if (f == null) {
+            return;
+        }
+        serializeObject(f.getNoPath(), buffer);
+        serializeObject(f.getLspa(), buffer);
+        serializeObject(f.getBandwidth(), buffer);
+        if (f.getMetrics() != null) {
+            for (final Metrics m : f.getMetrics()) {
+                serializeObject(m.getMetric(), buffer);
+            }
+        }
+        serializeObject(f.getIro(), buffer);
+    }
+
+    private void serializeSuccess(final SuccessCase s, final ByteBuf buffer) {
+        if (s == null || s.getSuccess() == null) {
+            return;
+        }
+        for (final Paths p : s.getSuccess().getPaths()) {
+            serializeObject(p.getEro(), buffer);
+            serializeObject(p.getLspa(), buffer);
+            serializeObject(p.getOf(), buffer);
+            serializeObject(p.getBandwidth(), buffer);
+            if (p.getMetrics() != null) {
+                for (final Metrics m : p.getMetrics()) {
+                    serializeObject(m.getMetric(), buffer);
+                }
+            }
+            serializeObject(p.getIro(), buffer);
+        }
+        serializeVendorInformationObjects(s.getSuccess().getVendorInformationObject(), buffer);
     }
 
     private void serializeMonitoring(final Replies reply, final ByteBuf buffer) {
@@ -183,37 +191,15 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         Result res = null;
         if (!objects.isEmpty()) {
             if (objects.get(0) instanceof NoPath) {
-                final NoPath noPath = (NoPath) objects.get(0);
-                objects.remove(0);
-                final FailureCaseBuilder builder = new FailureCaseBuilder();
-                builder.setNoPath(noPath);
-                while (!objects.isEmpty() && !(objects.get(0) instanceof PceId)) {
-                    this.parseAttributes(builder, objects);
-                }
-                res = builder.build();
+                res = handleNoPath((NoPath) objects.get(0), objects);
             } else if (objects.get(0) instanceof Ero) {
-                final Ero ero = (Ero) objects.get(0);
-                objects.remove(0);
-                final SuccessBuilder builder = new SuccessBuilder();
-                final List<Paths> paths = new ArrayList<>();
-                final PathsBuilder pBuilder = new PathsBuilder();
-                pBuilder.setEro(ero);
-                while (!objects.isEmpty() && !(objects.get(0) instanceof PceId)) {
-                    final List<VendorInformationObject> vendorInfoObjects = addVendorInformationObjects(objects);
-                    if (!vendorInfoObjects.isEmpty()) {
-                        builder.setVendorInformationObject(vendorInfoObjects);
-                    }
-                    this.parsePath(pBuilder, objects);
-                    paths.add(pBuilder.build());
-                }
-                builder.setPaths(paths);
-                res = new SuccessCaseBuilder().setSuccess(builder.build()).build();
+                res = handleEro((Ero) objects.get(0), objects);
             }
         }
         final List<MetricPce> metricPceList = new ArrayList<>();
         if (!objects.isEmpty() && objects.get(0) instanceof PceId) {
             while (!objects.isEmpty()) {
-                metricPceList.add(validateMetricPce(objects));
+                metricPceList.add(Util.validateMonitoringMetrics(objects));
             }
         }
         if (!vendorInfo.isEmpty()) {
@@ -223,6 +209,34 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
             repliesBuilder.setMetricPce(metricPceList);
         }
         return repliesBuilder.setRp(rp).setResult(res).build();
+    }
+
+    private Result handleNoPath(final NoPath noPath, final List<Object> objects) {
+        objects.remove(0);
+        final FailureCaseBuilder builder = new FailureCaseBuilder();
+        builder.setNoPath(noPath);
+        while (!objects.isEmpty() && !(objects.get(0) instanceof PceId)) {
+            this.parseAttributes(builder, objects);
+        }
+        return builder.build();
+    }
+
+    private Result handleEro(final Ero ero, final List<Object> objects) {
+        objects.remove(0);
+        final SuccessBuilder builder = new SuccessBuilder();
+        final List<Paths> paths = new ArrayList<>();
+        final PathsBuilder pBuilder = new PathsBuilder();
+        pBuilder.setEro(ero);
+        while (!objects.isEmpty() && !(objects.get(0) instanceof PceId)) {
+            final List<VendorInformationObject> vendorInfoObjects = addVendorInformationObjects(objects);
+            if (!vendorInfoObjects.isEmpty()) {
+                builder.setVendorInformationObject(vendorInfoObjects);
+            }
+            this.parsePath(pBuilder, objects);
+            paths.add(pBuilder.build());
+        }
+        builder.setPaths(paths);
+        return new SuccessCaseBuilder().setSuccess(builder.build()).build();
     }
 
     protected void parseAttributes(final FailureCaseBuilder builder, final List<Object> objects) {
@@ -335,47 +349,5 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 
     private enum State {
         INIT, LSPA_IN, OF_IN, BANDWIDTH_IN, METRIC_IN, IRO_IN, END
-    }
-
-    protected MetricPce validateMetricPce(final List<Object> objects) throws PCEPDeserializerException {
-        final MetricPceBuilder metricPceBuilder = new MetricPceBuilder();
-        if (!(objects.get(0) instanceof PceId)) {
-            throw new PCEPDeserializerException("metric-pce-list must start with PCE-ID object.");
-        }
-        metricPceBuilder.setPceId((PceId) (objects.get(0)));
-        objects.remove(0);
-        MetricPceState state = MetricPceState.START;
-        while (!objects.isEmpty() && !state.equals(MetricPceState.END)) {
-            final Object obj = objects.get(0);
-            switch(state) {
-            case START :
-                state = MetricPceState.PROC_TIME;
-                if (obj instanceof ProcTime) {
-                    metricPceBuilder.setProcTime((ProcTime) obj);
-                    break;
-                }
-            case PROC_TIME :
-                state = MetricPceState.OVERLOAD;
-                if (obj instanceof Overload) {
-                    metricPceBuilder.setOverload((Overload) obj);
-                    break;
-                }
-            case OVERLOAD :
-                state = MetricPceState.END;
-                break;
-            case END :
-                break;
-            default:
-                break;
-            }
-            if (!state.equals(MetricPceState.END)) {
-                objects.remove(0);
-            }
-        }
-        return metricPceBuilder.build();
-    }
-
-    private enum MetricPceState {
-        START, PROC_TIME, OVERLOAD, END;
     }
 }

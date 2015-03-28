@@ -199,18 +199,17 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         while (!objects.isEmpty()) {
             final RequestsBuilder rBuilder = new RequestsBuilder();
             Rp rpObj = null;
-            if (objects.get(0) instanceof Rp) {
-                rpObj = (Rp) objects.get(0);
-                objects.remove(0);
-                if (!rpObj.isProcessingRule()) {
-                    errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.<Rp>absent()));
-                } else {
-                    rBuilder.setRp(rpObj);
-                }
-            } else {
+            if (!(objects.get(0) instanceof Rp)) {
                 // if RP obj is missing return error only
                 errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.<Rp>absent()));
                 return null;
+            }
+            rpObj = (Rp) objects.get(0);
+            objects.remove(0);
+            if (!rpObj.isProcessingRule()) {
+                errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.<Rp>absent()));
+            } else {
+                rBuilder.setRp(rpObj);
             }
             final List<VendorInformationObject> vendorInfo = addVendorInformationObjects(objects);
             if (!vendorInfo.isEmpty()) {
@@ -221,7 +220,6 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 if (objects.get(0) instanceof PathKey) {
                     rBuilder.setPathKeyExpansion(new PathKeyExpansionBuilder().setPathKey((PathKey) objects.get(0)).build());
                 }
-                continue;
             }
 
             final P2pBuilder p2pBuilder = new P2pBuilder();

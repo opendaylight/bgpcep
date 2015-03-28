@@ -14,6 +14,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.protocol.pcep.impl.Util;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -24,7 +25,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.metrics.MetricPce;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.metrics.MetricPceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.object.Monitoring;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.response.monitoring.metrics.list.GeneralMetricsList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.response.monitoring.metrics.list.GeneralMetricsListBuilder;
@@ -32,12 +32,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.response.monitoring.metrics.list.SpecificMetricsListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.response.monitoring.metrics.list.specific.metrics.list.SpecificMetrics;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.monitoring.response.monitoring.metrics.list.specific.metrics.list.SpecificMetricsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.object.Overload;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcc.id.req.object.PccIdReq;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pce.id.object.PceId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcmonrep.message.PcmonrepMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcmonrep.message.PcmonrepMessageBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.proc.time.object.ProcTime;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
 
 /**
@@ -119,7 +116,7 @@ public class PCEPMonitoringReplyMessageParser extends AbstractMessageParser {
                 objects.remove(0);
             }
             while (!objects.isEmpty() && !(objects.get(0) instanceof Rp)) {
-                metricPceList.add(validateMonitoringMetrics(objects));
+                metricPceList.add(Util.validateMonitoringMetrics(objects));
             }
             if (smb.getRp() != null) {
                 smb.setMetricPce(metricPceList);
@@ -136,47 +133,4 @@ public class PCEPMonitoringReplyMessageParser extends AbstractMessageParser {
         }
         return new PcmonrepBuilder().setPcmonrepMessage(builder.build()).build();
     }
-
-    private MetricPce validateMonitoringMetrics(final List<Object> objects) throws PCEPDeserializerException {
-        final MetricPceBuilder metricPceBuilder = new MetricPceBuilder();
-        if (!(objects.get(0) instanceof PceId)) {
-            throw new PCEPDeserializerException("metric-pce-list must start with PCE-ID object.");
-        }
-        metricPceBuilder.setPceId((PceId) (objects.get(0)));
-        objects.remove(0);
-        State state = State.START;
-        while (!objects.isEmpty() && !state.equals(State.END)) {
-            final Object obj = objects.get(0);
-            switch(state) {
-            case START :
-                state = State.PROC_TIME;
-                if (obj instanceof ProcTime) {
-                    metricPceBuilder.setProcTime((ProcTime) obj);
-                    break;
-                }
-            case PROC_TIME :
-                state = State.OVERLOAD;
-                if (obj instanceof Overload) {
-                    metricPceBuilder.setOverload((Overload) obj);
-                    break;
-                }
-            case OVERLOAD :
-                state = State.END;
-                break;
-            case END :
-                break;
-            default:
-                break;
-            }
-            if (!state.equals(State.END)) {
-                objects.remove(0);
-            }
-        }
-        return metricPceBuilder.build();
-    }
-
-    private enum State {
-        START, PROC_TIME, OVERLOAD, END;
-    }
-
 }
