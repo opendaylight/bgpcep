@@ -210,48 +210,44 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     }
 
     private boolean handleMessageOpenWait(final Message msg) {
-        if (msg instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open) {
-            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessage o = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open) msg).getOpenMessage();
-            final Open open = o.getOpen();
-            if (isProposalAcceptable(open)) {
-                this.sendMessage(KEEPALIVE);
-                this.remotePrefs = open;
-                this.remoteOK = true;
-                if (this.localOK) {
-                    negotiationSuccessful(createSession(this.channel, this.localPrefs, this.remotePrefs));
-                    LOG.info("PCEP peer {} completed negotiation", this.channel);
-                    this.state = State.FINISHED;
-                } else {
-                    scheduleFailTimer();
-                    this.state = State.KEEP_WAIT;
-                    LOG.debug("Channel {} moved to KeepWait state with remoteOK=1", this.channel);
-                }
-                return true;
-            }
-
-            if (this.openRetry) {
-                sendErrorMessage(PCEPErrors.SECOND_OPEN_MSG);
-                negotiationFailed(new IllegalStateException("OPEN renegotiation failed"));
+        if (!(msg instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open)) {
+            return false;
+        }
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessage o = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open) msg).getOpenMessage();
+        final Open open = o.getOpen();
+        if (isProposalAcceptable(open)) {
+            this.sendMessage(KEEPALIVE);
+            this.remotePrefs = open;
+            this.remoteOK = true;
+            if (this.localOK) {
+                negotiationSuccessful(createSession(this.channel, this.localPrefs, this.remotePrefs));
+                LOG.info("PCEP peer {} completed negotiation", this.channel);
                 this.state = State.FINISHED;
-                return true;
+            } else {
+                scheduleFailTimer();
+                this.state = State.KEEP_WAIT;
+                LOG.debug("Channel {} moved to KeepWait state with remoteOK=1", this.channel);
             }
-
-            final Open newPrefs = getCounterProposal(open);
-            if (newPrefs == null) {
-                sendErrorMessage(PCEPErrors.NON_ACC_NON_NEG_SESSION_CHAR);
-                negotiationFailed(new IllegalStateException("Peer sent unacceptable session parameters"));
-                this.state = State.FINISHED;
-                return true;
-            }
-
-            this.sendMessage(Util.createErrorMessage(PCEPErrors.NON_ACC_NEG_SESSION_CHAR, newPrefs));
-
-            this.openRetry = true;
-            this.state = this.localOK ? State.OPEN_WAIT : State.KEEP_WAIT;
-            scheduleFailTimer();
             return true;
         }
-        return false;
+        if (this.openRetry) {
+            sendErrorMessage(PCEPErrors.SECOND_OPEN_MSG);
+            negotiationFailed(new IllegalStateException("OPEN renegotiation failed"));
+            this.state = State.FINISHED;
+            return true;
+        }
+        final Open newPrefs = getCounterProposal(open);
+        if (newPrefs == null) {
+            sendErrorMessage(PCEPErrors.NON_ACC_NON_NEG_SESSION_CHAR);
+            negotiationFailed(new IllegalStateException("Peer sent unacceptable session parameters"));
+            this.state = State.FINISHED;
+            return true;
+        }
+        this.sendMessage(Util.createErrorMessage(PCEPErrors.NON_ACC_NEG_SESSION_CHAR, newPrefs));
+        this.openRetry = true;
+        this.state = this.localOK ? State.OPEN_WAIT : State.KEEP_WAIT;
+        scheduleFailTimer();
+        return true;
     }
 
     @Override
