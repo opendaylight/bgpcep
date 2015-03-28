@@ -59,12 +59,16 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         final SrpBuilder builder = new SrpBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
-        bytes.skipBytes(FLAGS_SIZE / Byte.SIZE);
+        parseFlags(builder, bytes);
         builder.setOperationId(new SrpIdNumber(bytes.readUnsignedInt()));
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes.slice());
         builder.setTlvs(tlvsBuilder.build());
         return builder.build();
+    }
+
+    protected void parseFlags(final SrpBuilder builder, final ByteBuf bytes) {
+        bytes.skipBytes(FLAGS_SIZE / Byte.SIZE);
     }
 
     @Override
@@ -82,12 +86,16 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         Preconditions.checkArgument(object instanceof Srp, "Wrong instance of PCEPObject. Passed %s . Needed SrpObject.", object.getClass());
         final Srp srp = (Srp) object;
         final ByteBuf body = Unpooled.buffer();
-        body.writeZero(FLAGS_SIZE / Byte.SIZE);
+        serializeFlags(srp, body);
         final SrpIdNumber srpId = srp.getOperationId();
         Preconditions.checkArgument(srpId != null, "SrpId is mandatory.");
         writeUnsignedInt(srpId.getValue(), body);
         serializeTlvs(srp.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+    }
+
+    protected void serializeFlags(final Srp srp, final ByteBuf body) {
+        body.writeZero(FLAGS_SIZE / Byte.SIZE);
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {

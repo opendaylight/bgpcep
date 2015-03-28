@@ -69,6 +69,14 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         builder.setProcessingRule(header.isProcessingRule());
         final int[] plspIdRaw = new int[] { bytes.readUnsignedByte(), bytes.readUnsignedByte(), bytes.getUnsignedByte(2), };
         builder.setPlspId(new PlspId((long) ((plspIdRaw[0] << FLAGS_SIZE) | (plspIdRaw[1] << FOUR_BITS_SHIFT) | (plspIdRaw[2] >> FOUR_BITS_SHIFT))));
+        parseFlags(builder, bytes);
+        final TlvsBuilder b = new TlvsBuilder();
+        parseTlvs(b, bytes.slice());
+        builder.setTlvs(b.build());
+        return builder.build();
+    }
+
+    protected void parseFlags(final LspBuilder builder, final ByteBuf bytes) {
         final BitArray flags = BitArray.valueOf(bytes, FLAGS_SIZE);
         builder.setDelegate(flags.get(DELEGATE));
         builder.setSync(flags.get(SYNC));
@@ -79,10 +87,6 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         s |= (flags.get(OPERATIONAL + 1) ? 1 : 0) << 1;
         s |= (flags.get(OPERATIONAL) ? 1 : 0) << 2;
         builder.setOperational(OperationalStatus.forValue(s));
-        final TlvsBuilder b = new TlvsBuilder();
-        parseTlvs(b, bytes.slice());
-        builder.setTlvs(b.build());
-        return builder.build();
     }
 
     @Override
@@ -107,11 +111,7 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         final ByteBuf body = Unpooled.buffer();
         Preconditions.checkArgument(specObj.getPlspId() != null, "PLSP-ID not present");
         writeMedium(specObj.getPlspId().getValue().intValue() << FOUR_BITS_SHIFT, body);
-        final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(DELEGATE, specObj.isDelegate());
-        flags.set(REMOVE, specObj.isRemove());
-        flags.set(SYNC, specObj.isSync());
-        flags.set(ADMINISTRATIVE, specObj.isAdministrative());
+        final BitArray flags = serializeFlags(specObj);
         byte op = 0;
         if (specObj.getOperational() != null) {
             op = UnsignedBytes.checkedCast(specObj.getOperational().getIntValue());
@@ -122,6 +122,15 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         body.writeByte(res[res.length -1]);
         serializeTlvs(specObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+    }
+
+    protected BitArray serializeFlags(final Lsp specObj) {
+        final BitArray flags = new BitArray(FLAGS_SIZE);
+        flags.set(DELEGATE, specObj.isDelegate());
+        flags.set(REMOVE, specObj.isRemove());
+        flags.set(SYNC, specObj.isSync());
+        flags.set(ADMINISTRATIVE, specObj.isAdministrative());
+        return flags;
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
