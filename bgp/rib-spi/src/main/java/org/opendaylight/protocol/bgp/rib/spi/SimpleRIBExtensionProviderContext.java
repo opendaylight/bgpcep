@@ -63,7 +63,7 @@ public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderCo
             final Class<? extends SubsequentAddressFamily> safi, final T support) {
         final TablesKey key = new TablesKey(afi, safi);
         final RIBSupport prev = this.supports.putIfAbsent(key, support);
-        addClassLoadingSupport(afi,safi,support);
+        addClassLoadingSupport(afi, safi, support);
         Preconditions.checkArgument(prev == null, "AFI %s SAFI %s is already registered with %s", afi, safi, prev);
 
         return new AbstractRIBSupportRegistration<T>(support) {
@@ -75,19 +75,20 @@ public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderCo
     }
 
     private void addClassLoadingSupport(Class<?> afi, Class<?> safi, RIBSupport s) {
-        Set<YangModuleInfo> moduleInfos = getModuleInfos(afi,safi,s.routesListClass(),s.routesContainerClass(),s.routesCaseClass());
+        final Set<YangModuleInfo> moduleInfos =
+                getModuleInfos(afi, safi, s.routesListClass(), s.routesContainerClass(), s.routesCaseClass());
         if(!moduleInfos.isEmpty()) {
             classLoadingStrategy.addModuleInfos(moduleInfos);
         }
     }
 
     private static Set<YangModuleInfo> getModuleInfos(Class<?>... clazzes) {
-        Set<YangModuleInfo> moduleInfos = new HashSet<>();
+        final Set<YangModuleInfo> moduleInfos = new HashSet<>();
         for(Class<?> clz : clazzes) {
             try {
                 moduleInfos.add(BindingReflections.getModuleInfo(clz));
             } catch (Exception e) {
-                LOG.debug("Could not find module info for class {}",clz);
+                LOG.debug("Could not find module info for class {}", clz, e);
             }
         }
         return moduleInfos;
