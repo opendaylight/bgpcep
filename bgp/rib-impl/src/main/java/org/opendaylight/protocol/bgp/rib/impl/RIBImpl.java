@@ -184,7 +184,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.dataBroker = dps;
         this.domDataBroker = Preconditions.checkNotNull(domDataBroker);
         this.extensions = Preconditions.checkNotNull(extensions);
-        this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions,codecFactory, classStrategy);
+        this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, codecFactory, classStrategy);
         this.yangRibId = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME).nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
 
         LOG.debug("Instantiating RIB table {} at {}", ribId, getInstanceIdentifier());

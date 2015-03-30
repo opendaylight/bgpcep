@@ -68,6 +68,13 @@ public interface RIB {
      */
     RIBExtensionConsumerContext getRibExtensions();
 
+    /**
+     * Return the RIB extensions available to the RIB instance
+     * with additional RIB specific context such as
+     * translation between DOM and Binding.
+     *
+     * @return RIB extensions handle.
+     */
     RIBSupportContextRegistry getRibSupportContext();
 
     /**

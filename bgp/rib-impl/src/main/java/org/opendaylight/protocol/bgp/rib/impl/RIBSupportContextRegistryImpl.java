@@ -22,7 +22,7 @@ import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadi
 import org.opendaylight.yangtools.sal.binding.generator.util.BindingRuntimeContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
-public class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
+class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
 
     private final LoadingCache<RIBSupport, RIBSupportContextImpl> contexts = CacheBuilder.newBuilder()
             .build(new CacheLoader<RIBSupport, RIBSupportContextImpl>(){
