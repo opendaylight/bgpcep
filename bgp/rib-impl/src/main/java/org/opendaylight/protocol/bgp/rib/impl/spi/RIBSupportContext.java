@@ -14,11 +14,50 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
+/**
+ *
+ * {@link RIBSupport} wrapper which provides additional functionality
+ * such as logic to update / remove routes using Binding DTOs
+ * for BGP messages.
+ *
+ */
 public abstract class RIBSupportContext {
 
+    /**
+     *
+     * Clears specified Rib table using supplied transaction.
+     *
+     * @param tx Transaction to to be used
+     * @param tableId Instance Identifier of table to be cleared.
+     */
     public abstract void clearTable(DOMDataWriteTransaction tx, YangInstanceIdentifier tableId);
+
+    /**
+     * Removes supplied routes from RIB table using supplied transaction.
+     *
+     * @param tx Transaction to be used
+     * @param tableId Instance Identifier of table to be updated
+     * @param nlri UnreachNlri which contains routes to be removed.
+     */
     public abstract void deleteRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tableId, MpUnreachNlri nlri);
+
+    /**
+     *
+     * Writes supplied routes and attributes to RIB table using supplied transaction.
+     *
+     *
+     * @param tx Transaction to be used
+     * @param tableId Instance Identifier of table to be updated
+     * @param nlri ReachNlri which contains routes to be written.
+     * @param attributes Attributes which should be written.
+     */
     public abstract void writeRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tableId, MpReachNlri nlri,
             PathAttributes attributes);
+
+    /**
+     * Returns backing RIB support.
+     *
+     * @return
+     */
     public abstract RIBSupport getRibSupport();
 }
