@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_01f3059f",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/message/PCEPErrorMessageParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-03-30T13:13:35Z",
+      "side": 1,
+      "message": "add javadocs, point out that this method is expected to be subclassed.",
+      "revId": "bb6ed4ec8fd0986ec2df07ec98e9130b5d3215be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
