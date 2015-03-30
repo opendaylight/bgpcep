@@ -50,16 +50,6 @@ public class RIBImplModuleTest extends AbstractRIBImplModuleTest {
     }
 
     @Test
-    public void testValidationExceptionBgpClusterIdNotSet() throws Exception {
-        try {
-            createRIBImplModuleInstance(RIB_ID, 500L, BGP_ID, null);
-            fail();
-        } catch (final ValidationException e) {
-            assertTrue(e.getMessage().contains("ClusterId is not set."));
-        }
-    }
-
-    @Test
     public void testCreateBean() throws Exception {
         final CommitStatus status = createInstance();
         assertBeanCount(1, FACTORY_NAME);
