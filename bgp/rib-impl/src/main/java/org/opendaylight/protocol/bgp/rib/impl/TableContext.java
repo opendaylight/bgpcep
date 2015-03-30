@@ -46,10 +46,10 @@ final class TableContext {
     }
 
     void writeRoutes(final DOMDataWriteTransaction tx, final MpReachNlri nlri, final PathAttributes attributes) {
-        this.tableSupport.writeRoutes(tx,tableId,nlri,attributes);
+        this.tableSupport.writeRoutes(tx, tableId, nlri, attributes);
     }
 
     void removeRoutes(final DOMDataWriteTransaction tx, final MpUnreachNlri nlri) {
-        this.tableSupport.deleteRoutes(tx, this.tableId,nlri);
+        this.tableSupport.deleteRoutes(tx, this.tableId, nlri);
     }
 }

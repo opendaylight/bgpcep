@@ -7,12 +7,18 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
+import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
-
-
 
 public interface RIBSupportContextRegistry {
 
-    public abstract RIBSupportContext getRIBSupportContext(TablesKey key);
+    /**
+     * Acquire a RIB Support Context for a AFI/SAFI combination.
+     * @param afi Address Family Identifier
+     * @param safi Subsequent Address Family identifier
+     * @return RIBSupport instance, or null if the AFI/SAFI is
+     *         not implemented.
+    */
+    public abstract @Nullable RIBSupportContext getRIBSupportContext(TablesKey key);
 
 }
