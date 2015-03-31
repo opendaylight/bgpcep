@@ -136,6 +136,8 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final RIBExtensionConsumerContext extensions;
     private final YangInstanceIdentifier yangRibId;
     private final RIBSupportContextRegistryImpl ribContextRegistry;
+    private final EffectiveRibInWriter efWriter;
+
     private final Runnable scheduler = new Runnable() {
         @Override
         public void run() {
@@ -195,7 +197,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
         final DOMDataBrokerExtension service = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
         final DOMTransactionChain domChain = this.createPeerChain(this);
-        EffectiveRibInWriter.create((DOMDataTreeChangeService) service, domChain, getYangRibId(), pd, this.ribContextRegistry);
+        this.efWriter = EffectiveRibInWriter.create((DOMDataTreeChangeService) service, domChain, getYangRibId(), pd, this.ribContextRegistry);
         LOG.debug("Effective RIB created.");
 
         // put empty BgpRib if not exists

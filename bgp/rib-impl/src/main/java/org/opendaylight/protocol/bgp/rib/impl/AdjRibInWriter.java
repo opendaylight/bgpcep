@@ -181,7 +181,7 @@ final class AdjRibInWriter {
             } else {
                 tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME).node(ATTRIBUTES_UPTODATE_FALSE.getNodeType()), ATTRIBUTES_UPTODATE_FALSE);
             }
-            LOG.debug("Created table instance {}", ctx);
+            LOG.debug("Created table instance {}", ctx.getTableId());
             tb.put(k, ctx);
         }
 
@@ -227,6 +227,7 @@ final class AdjRibInWriter {
 
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         ctx.writeRoutes(tx, nlri, attributes);
+        LOG.trace("Write routes {}", nlri);
         tx.submit();
     }
 
@@ -237,7 +238,7 @@ final class AdjRibInWriter {
             LOG.debug("No table for {}, not accepting NLRI {}", key, nlri);
             return;
         }
-
+        LOG.trace("Removing routes {}", nlri);
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         ctx.removeRoutes(tx, nlri);
         tx.submit();
