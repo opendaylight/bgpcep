@@ -22,6 +22,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
+import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
@@ -33,7 +34,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes;
-import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.InstanceIdentifierBuilder;
@@ -173,11 +173,9 @@ final class AdjRibInWriter {
                 // We will use table keys very often, make sure they are optimized
                 final InstanceIdentifierBuilder idb = YangInstanceIdentifier.builder(newTablesRoot);
 
-                // FIXME: use codec to translate the key
-                final Map<QName, Object> keyValues = ImmutableMap.<QName, Object>of(AFI_QNAME, BindingReflections.getQName(k.getAfi()), SAFI_QNAME, BindingReflections.getQName(k.getSafi()));
-                final NodeIdentifierWithPredicates key = new NodeIdentifierWithPredicates(Tables.QNAME, keyValues);
-                idb.nodeWithKey(key.getNodeType(), keyValues);
-
+                // TODO: Use returned value once Instance Identifier builder allows for it.
+                final NodeIdentifierWithPredicates key = RibSupportUtils.toYangTablesKey(k);
+                idb.nodeWithKey(key.getNodeType(), key.getKeyValues());
                 ctx = new TableContext(rs, idb.build());
                 ctx.clearTable(tx);
             } else {
