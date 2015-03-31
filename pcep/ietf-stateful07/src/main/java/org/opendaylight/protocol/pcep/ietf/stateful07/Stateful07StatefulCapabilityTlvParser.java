@@ -39,18 +39,26 @@ public class Stateful07StatefulCapabilityTlvParser implements TlvParser, TlvSeri
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: >= "
                     + FLAGS_F_LENGTH / Byte.SIZE + ".");
         }
-        final BitArray flags = BitArray.valueOf(buffer, FLAGS_F_LENGTH);
         final StatefulBuilder sb = new StatefulBuilder();
-        sb.setLspUpdateCapability(flags.get(U_FLAG_OFFSET));
+        parseFlags(sb, buffer);
         return sb.build();
+    }
+
+    protected void parseFlags(final StatefulBuilder sb, final ByteBuf buffer) {
+        final BitArray flags = BitArray.valueOf(buffer, FLAGS_F_LENGTH);
+        sb.setLspUpdateCapability(flags.get(U_FLAG_OFFSET));
     }
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
         Preconditions.checkArgument(tlv instanceof Stateful, "StatefulCapabilityTlv is mandatory.");
         final Stateful sct = (Stateful) tlv;
+        TlvUtil.formatTlv(TYPE, Unpooled.wrappedBuffer(serializeFlags(sct).array()), buffer);
+    }
+
+    protected BitArray serializeFlags(final Stateful sct) {
         final BitArray flags = new BitArray(FLAGS_F_LENGTH);
         flags.set(U_FLAG_OFFSET, sct.isLspUpdateCapability());
-        TlvUtil.formatTlv(TYPE, Unpooled.wrappedBuffer(flags.array()), buffer);
+        return flags;
     }
 }
