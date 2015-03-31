@@ -77,6 +77,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
         }
 
         private void processRoute(final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final AbstractImportPolicy policy, final YangInstanceIdentifier routesPath, final DataTreeCandidateNode route) {
+            LOG.debug("Process route {}", route);
             switch (route.getModificationType()) {
             case DELETE:
                 // Delete has already been affected by the store in caller, so this is a no-op.
@@ -190,6 +191,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
 
         @Override
         public void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
+            LOG.trace("Data changed called to effective RIB. Change : {}", changes);
             final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
 
             for (final DataTreeCandidate tc : changes) {

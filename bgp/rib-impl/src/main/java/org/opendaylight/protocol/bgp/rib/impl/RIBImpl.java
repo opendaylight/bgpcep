@@ -127,7 +127,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final BindingTransactionChain chain;
     private final AsNumber localAs;
     private final Ipv4Address bgpIdentifier;
-    private final Ipv4Address clusterId;
+    private final ClusterIdentifier clusterId;
     private final Set<BgpTableType> localTables;
     private final RIBTables tables;
     private final BlockingQueue<Peer> peers;
@@ -168,13 +168,13 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
     public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final Ipv4Address clusterId, final RIBExtensionConsumerContext extensions,
         final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory, final BindingCodecTreeFactory codecFactory,
-        final ReconnectStrategyFactory sessionStrategyFactory, final DataBroker dps, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables, GeneratedClassLoadingStrategy classStrategy) {
+        final ReconnectStrategyFactory sessionStrategyFactory, final DataBroker dps, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables, final GeneratedClassLoadingStrategy classStrategy) {
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))));
         this.chain = dps.createTransactionChain(this);
         this.localAs = Preconditions.checkNotNull(localAs);
         this.comparator = new BGPObjectComparator(localAs);
         this.bgpIdentifier = Preconditions.checkNotNull(localBgpId);
-        this.clusterId = clusterId == null ? localBgpId : clusterId;
+        this.clusterId = (clusterId == null) ? new ClusterIdentifier(localBgpId) : new ClusterIdentifier(clusterId);
         this.dispatcher = Preconditions.checkNotNull(dispatcher);
         this.sessionStrategyFactory = Preconditions.checkNotNull(sessionStrategyFactory);
         this.tcpStrategyFactory = Preconditions.checkNotNull(tcpStrategyFactory);
@@ -191,18 +191,12 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
         final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
 
-        final PolicyDatabase pd  = new PolicyDatabase(localAs.getValue(), localBgpId, new ClusterIdentifier(localBgpId));
-        /*if (clusterId == null) {
-              clusterId is not present, fallback to bgpId
-            pd = new PolicyDatabase(localAs.getValue(), localBgpId, new ClusterIdentifier(localBgpId));
-        } else {
-            pd = new PolicyDatabase(as, bgpId, clusterId);
-        } */
+        final PolicyDatabase pd  = new PolicyDatabase(localAs.getValue(), localBgpId, this.clusterId);
 
         final DOMDataBrokerExtension service = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
         final DOMTransactionChain domChain = this.createPeerChain(this);
-        // put clusterId
         EffectiveRibInWriter.create((DOMDataTreeChangeService) service, domChain, getYangRibId(), pd, this.ribContextRegistry);
+        LOG.debug("Effective RIB created.");
 
         // put empty BgpRib if not exists
         trans.put(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier(),
