@@ -8,13 +8,10 @@
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.pcep.impl.message.PCEPErrorMessageParser;
-import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -36,7 +33,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.RequestCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.RequestCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.SessionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.SessionCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.request._case.RequestBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.request._case.request.Rps;
@@ -54,15 +50,7 @@ public final class Stateful07ErrorMessageParser extends PCEPErrorMessageParser {
     }
 
     @Override
-    public void serializeMessage(final Message message, final ByteBuf out) {
-        Preconditions.checkArgument(message instanceof PcerrMessage, "Wrong instance of Message. Passed instance of %s. Need ErrorMessage.", message.getClass());
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessage err = ((PcerrMessage) message).getPcerrMessage();
-
-        if (err.getErrors() == null || err.getErrors().isEmpty()) {
-            throw new IllegalArgumentException("Errors should not be empty.");
-        }
-        final ByteBuf buffer = Unpooled.buffer();
-
+    protected void serializeCases(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessage err, final ByteBuf buffer) {
         if (err.getErrorType() instanceof RequestCase) {
             final List<Rps> rps = ((RequestCase) err.getErrorType()).getRequest().getRps();
             for (final Rps r : rps) {
@@ -75,13 +63,6 @@ public final class Stateful07ErrorMessageParser extends PCEPErrorMessageParser {
                 serializeObject(s.getSrp(), buffer);
             }
         }
-        for (final Errors e : err.getErrors()) {
-            serializeObject(e.getErrorObject(), buffer);
-        }
-        if (err.getErrorType() instanceof SessionCase) {
-            serializeObject(((SessionCase) err.getErrorType()).getSession().getOpen(), buffer);
-        }
-        MessageUtil.formatMessage(TYPE, buffer, out);
     }
 
     @Override
