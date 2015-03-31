@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 
+@Deprecated
 public interface RouteEncoder {
     Update updateMessageFor(Object key, Route route);
 }

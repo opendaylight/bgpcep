@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 import org.opendaylight.protocol.bgp.rib.spi.RouteEncoder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 
+@Deprecated
 public interface AdjRIBsOut {
     void put(final RouteEncoder ribOut, final Object key, final Route newValue);
 }

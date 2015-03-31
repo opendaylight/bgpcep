@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
  * on ordering specified by the supplied comparator.
  *
  */
+@Deprecated
 final class RIBEntry<I, D extends Identifiable<K> & Route, K extends Identifier<D>> {
     private static final Logger LOG = LoggerFactory.getLogger(RIBEntry.class);
     private static final int DEFAULT_MAP_SIZE = 2;

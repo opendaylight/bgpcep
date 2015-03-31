@@ -12,6 +12,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
+@Deprecated
 public interface AdjRIBsFactory {
     /*
      * Create an instance of route tables for the specified backend data store. Note that the

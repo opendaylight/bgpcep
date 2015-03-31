@@ -14,6 +14,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 /**
  * An execution context for a single LocRib transaction.
  */
+@Deprecated
 public interface AdjRIBsTransaction {
 
     BGPObjectComparator comparator();

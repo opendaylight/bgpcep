@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  * This comparator is intended to implement BGP Best Path Selection algorithm, as described at
  * <a href="http://www.cisco.com/en/US/tech/tk365/technologies_tech_note09186a0080094431.shtml">here</a>
  */
+@Deprecated
 public final class BGPObjectComparator implements Comparator<RIBEntryData<?, ?, ?>>, Serializable {
 
     private static final long serialVersionUID = 3299599519482155374L;

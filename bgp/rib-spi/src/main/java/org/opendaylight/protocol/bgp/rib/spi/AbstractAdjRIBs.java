@@ -39,6 +39,7 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated
 @ThreadSafe
 public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K extends Identifier<D>> implements AdjRIBsIn<I, D>, RouteEncoder {
     protected abstract static class RIBEntryData<I, D extends Identifiable<K> & Route, K extends Identifier<D>> {

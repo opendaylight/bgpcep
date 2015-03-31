@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import org.opendaylight.yangtools.concepts.AbstractObjectRegistration;
 
+@Deprecated
 public abstract class AdjRIBsOutRegistration extends AbstractObjectRegistration<AdjRIBsOut> {
     protected AdjRIBsOutRegistration(final AdjRIBsOut instance) {
         super(instance);

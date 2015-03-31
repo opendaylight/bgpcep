@@ -231,10 +231,12 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         });
     }
 
+    @Deprecated
     synchronized void initTables(final byte[] remoteBgpId) {
     }
 
     @Override
+    @Deprecated
     public synchronized void updateTables(final Peer peer, final Update message) {
         final AdjRIBsTransactionImpl trans = new AdjRIBsTransactionImpl(this.ribOuts, this.comparator, this.chain.newWriteOnlyTransaction());
 
@@ -346,6 +348,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         });
     }
 
+    @Deprecated
     @Override
     public synchronized void clearTable(final Peer peer, final TablesKey key) {
         final AdjRIBsIn<?, ?> ari = this.tables.get(key);
@@ -377,6 +380,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     }
 
     @SuppressWarnings("unchecked")
+    @Deprecated
     protected <K, V extends Route> AdjRIBsIn<K, V> getTable(final TablesKey key) {
         return (AdjRIBsIn<K, V>) this.tables.get(key);
     }
@@ -419,6 +423,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         return this.dispatcher;
     }
 
+    @Deprecated
     @Override
     public void initTable(final Peer bgpPeer, final TablesKey key) {
         // FIXME: BUG-196: support graceful restart

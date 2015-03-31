@@ -37,10 +37,13 @@ public interface RIB {
      */
     @Nonnull Set<? extends BgpTableType> getLocalTables();
 
+    @Deprecated
     void initTable(Peer bgpPeer, TablesKey key);
 
+    @Deprecated
     void clearTable(Peer bgpPeer, TablesKey key);
 
+    @Deprecated
     void updateTables(Peer bgpPeer, Update message);
 
     BGPDispatcher getDispatcher();

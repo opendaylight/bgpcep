@@ -8,11 +8,10 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Preconditions;
-
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 
+@Deprecated
 final class SessionRIBsOut extends AbstractAdjRIBsOut implements Runnable {
     private final AtomicBoolean scheduled = new AtomicBoolean(false);
     private final BGPSessionImpl session;

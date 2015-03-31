@@ -8,12 +8,10 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Preconditions;
-
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
-
 import org.opendaylight.protocol.bgp.rib.impl.spi.AdjRIBsOut;
 import org.opendaylight.protocol.bgp.rib.spi.RouteEncoder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
@@ -24,6 +22,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
  * A per-peer collection of data which needs to be sent out. This class is kept lockfree
  * on purpose.
  */
+@Deprecated
 abstract class AbstractAdjRIBsOut implements AdjRIBsOut {
     private final ConcurrentMap<Object, AdjRIBOutEntry<Object, Route>> data = new ConcurrentHashMap<>();
     private final Queue<Object> queue = new ConcurrentLinkedQueue<>();
