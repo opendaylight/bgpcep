@@ -64,6 +64,7 @@ class RIBSupportContextImpl extends RIBSupportContext {
     private static final Logger LOG = LoggerFactory.getLogger(RIBSupportContextImpl.class);
     private static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes.QNAME);
     private static final Set<Class<? extends DataObject>> ATTRIBUTE_CACHEABLES;
+
     private static final InstanceIdentifier<Tables> TABLE_BASE_II = InstanceIdentifier.builder(BgpRib.class)
             .child(Rib.class)
             .child(LocRib.class)
@@ -158,17 +159,15 @@ class RIBSupportContextImpl extends RIBSupportContext {
 
     @Override
     public void deleteRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tableId, final MpUnreachNlri nlri) {
-
-
         this.tableSupport.deleteRoutes(tx, tableId, serialiazeUnreachNlri(nlri));
     }
 
-    private ContainerNode serialiazeUnreachNlri(MpUnreachNlri nlri) {
+    private ContainerNode serialiazeUnreachNlri(final MpUnreachNlri nlri) {
         Preconditions.checkState(unreachNlriCodec != null, "MpReachNlri codec not available");
         return (ContainerNode) unreachNlriCodec.serialize(nlri);
     }
 
-    private ContainerNode serialiazeReachNlri(MpReachNlri nlri) {
+    private ContainerNode serialiazeReachNlri(final MpReachNlri nlri) {
         Preconditions.checkState(reachNlriCodec != null, "MpReachNlri codec not available");
         return (ContainerNode) reachNlriCodec.serialize(nlri);
     }
