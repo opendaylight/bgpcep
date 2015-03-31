@@ -58,12 +58,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
             throw new IllegalArgumentException("Errors should not be empty.");
         }
         final ByteBuf buffer = Unpooled.buffer();
-        if (err.getErrorType() instanceof RequestCase) {
-            final List<Rps> rps = ((RequestCase) err.getErrorType()).getRequest().getRps();
-            for (final Rps r : rps) {
-                serializeObject(r.getRp(), buffer);
-            }
-        }
+        serializeCases(err, buffer);
         for (final Errors e : err.getErrors()) {
             serializeObject(e.getErrorObject(), buffer);
         }
@@ -72,6 +67,18 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
             serializeObject(((SessionCase) err.getErrorType()).getSession().getOpen(), buffer);
         }
         MessageUtil.formatMessage(TYPE, buffer, out);
+    }
+
+    /**
+     * If needed, subclasses can ovveride this method.
+     */
+    protected void serializeCases(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessage err, final ByteBuf buffer) {
+        if (err.getErrorType() instanceof RequestCase) {
+            final List<Rps> rps = ((RequestCase) err.getErrorType()).getRequest().getRps();
+            for (final Rps r : rps) {
+                serializeObject(r.getRp(), buffer);
+            }
+        }
     }
 
     @Override
