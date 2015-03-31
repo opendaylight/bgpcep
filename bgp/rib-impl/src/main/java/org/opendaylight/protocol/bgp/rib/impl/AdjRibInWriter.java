@@ -28,9 +28,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.AdjRibIn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.EffectiveRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes;
@@ -58,18 +58,17 @@ final class AdjRibInWriter {
 
     private static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_FALSE = ImmutableNodes.leafNode(QName.create(Attributes.QNAME, "uptodate"), Boolean.FALSE);
     private static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_TRUE = ImmutableNodes.leafNode(ATTRIBUTES_UPTODATE_FALSE.getNodeType(), Boolean.TRUE);
-    private static final QName RIB_ID_QNAME = QName.cachedReference(QName.create(Rib.QNAME, "id"));
-    private static final QName AFI_QNAME = QName.cachedReference(QName.create(Tables.QNAME, "afi"));
-    private static final QName SAFI_QNAME = QName.cachedReference(QName.create(Tables.QNAME, "safi"));
     private static final QName PEER_ID_QNAME = QName.cachedReference(QName.create(Peer.QNAME, "peer-id"));
     private static final QName PEER_ROLE_QNAME = QName.cachedReference(QName.create(Peer.QNAME, "peer-role"));
     private static final NodeIdentifier ADJRIBIN = new NodeIdentifier(AdjRibIn.QNAME);
+    private static final NodeIdentifier EFFRIBIN = new NodeIdentifier(EffectiveRibIn.QNAME);
     private static final NodeIdentifier PEER_ID = new NodeIdentifier(PEER_ID_QNAME);
     private static final NodeIdentifier PEER_ROLE = new NodeIdentifier(PEER_ROLE_QNAME);
     private static final NodeIdentifier TABLES = new NodeIdentifier(Tables.QNAME);
 
     // FIXME: is there a utility method to construct this?
     private static final ContainerNode EMPTY_ADJRIBIN = Builders.containerBuilder().withNodeIdentifier(ADJRIBIN).addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build()).build();
+    private static final ContainerNode EMPTY_EFFRIBIN = Builders.containerBuilder().withNodeIdentifier(EFFRIBIN).addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build()).build();
 
     private final Map<TablesKey, TableContext> tables;
     private final YangInstanceIdentifier tablesRoot;
@@ -143,6 +142,7 @@ final class AdjRibInWriter {
             pb.withChild(ImmutableNodes.leafNode(PEER_ID, newPeerId.getValue()));
             pb.withChild(ImmutableNodes.leafNode(PEER_ROLE, this.role));
             pb.withChild(EMPTY_ADJRIBIN);
+            pb.withChild(EMPTY_EFFRIBIN);
 
             tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath, pb.build());
             LOG.debug("New peer {} structure installed.", newPeerPath);
@@ -181,7 +181,7 @@ final class AdjRibInWriter {
             } else {
                 tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME).node(ATTRIBUTES_UPTODATE_FALSE.getNodeType()), ATTRIBUTES_UPTODATE_FALSE);
             }
-            LOG.debug("Created table instance {}", ctx);
+            LOG.debug("Created table instance {}", ctx.getTableId());
             tb.put(k, ctx);
         }
 
@@ -227,6 +227,7 @@ final class AdjRibInWriter {
 
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         ctx.writeRoutes(tx, nlri, attributes);
+        LOG.trace("Write routes {}", nlri);
         tx.submit();
     }
 
@@ -237,7 +238,7 @@ final class AdjRibInWriter {
             LOG.debug("No table for {}, not accepting NLRI {}", key, nlri);
             return;
         }
-
+        LOG.trace("Removing routes {}", nlri);
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         ctx.removeRoutes(tx, nlri);
         tx.submit();

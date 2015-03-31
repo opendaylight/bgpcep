@@ -21,10 +21,10 @@ import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.graceful.restart._case.graceful.restart.capability.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.AdjRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.EffectiveRibIn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -71,8 +71,9 @@ final class EffectiveRibInWriter implements AutoCloseable {
             this.chain = Preconditions.checkNotNull(chain);
             this.ribId = Preconditions.checkNotNull(ribId);
 
-            final YangInstanceIdentifier tableId = ribId.node(Peer.QNAME).node(AdjRibIn.QNAME).node(Tables.QNAME);
+            final YangInstanceIdentifier tableId = ribId.node(Peer.QNAME).node(Peer.QNAME).node(AdjRibIn.QNAME).node(Tables.QNAME);
             final DOMDataTreeIdentifier treeId = new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, tableId);
+            LOG.debug("Registered Effective RIB on {}", tableId);
             this.reg = service.registerDataTreeChangeListener(treeId, this);
         }
 
@@ -130,6 +131,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
         }
 
         private void processTableChildren(final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final NodeIdentifierWithPredicates peerKey, final YangInstanceIdentifier tablePath, final Collection<DataTreeCandidateNode> children) {
+            LOG.debug("Process table children {}", children);
             final AbstractImportPolicy policy = EffectiveRibInWriter.this.peerPolicyTracker.policyFor(IdentifierUtils.peerId(peerKey));
 
             for (final DataTreeCandidateNode child : children) {
@@ -251,7 +253,6 @@ final class EffectiveRibInWriter implements AutoCloseable {
 
     private EffectiveRibInWriter(final DOMDataTreeChangeService service, final DOMTransactionChain chain, final YangInstanceIdentifier ribId,
         final PolicyDatabase pd, final RIBSupportContextRegistry registry) {
-
         this.peerPolicyTracker = new ImportPolicyPeerTracker(service, ribId, pd);
         this.adjInTracker = new AdjInTracker(service, registry, chain, ribId);
     }
