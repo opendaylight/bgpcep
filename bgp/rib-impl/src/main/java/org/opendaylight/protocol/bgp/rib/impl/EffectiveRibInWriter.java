@@ -164,8 +164,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
         }
 
         private RIBSupportContext getRibSupport(final NodeIdentifierWithPredicates tableKey) {
-            // FIXME: use codec to translate tableKey
-            return this.registry.getRIBSupportContext(null);
+            return this.registry.getRIBSupportContext(tableKey);
         }
 
         private YangInstanceIdentifier effectiveTablePath(final NodeIdentifierWithPredicates peerKey, final NodeIdentifierWithPredicates tableKey) {

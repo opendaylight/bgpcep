@@ -20,6 +20,7 @@ import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTree;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.yangtools.sal.binding.generator.util.BindingRuntimeContext;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
 class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
@@ -28,7 +29,7 @@ class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
             .build(new CacheLoader<RIBSupport, RIBSupportContextImpl>(){
 
                 @Override
-                public RIBSupportContextImpl load(RIBSupport key) {
+                public RIBSupportContextImpl load(final RIBSupport key) {
                     return createContext(key);
                 };
             });
@@ -38,39 +39,50 @@ class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
     private final GeneratedClassLoadingStrategy classContext;
     private volatile BindingCodecTree latestCodecTree;
 
-    private RIBSupportContextRegistryImpl(RIBExtensionConsumerContext extensions, BindingCodecTreeFactory codecFactory,
-            GeneratedClassLoadingStrategy strategy) {
+    private RIBSupportContextRegistryImpl(final RIBExtensionConsumerContext extensions, final BindingCodecTreeFactory codecFactory,
+            final GeneratedClassLoadingStrategy strategy) {
         this.extensionContext = Preconditions.checkNotNull(extensions);
         this.codecFactory = Preconditions.checkNotNull(codecFactory);
         this.classContext = Preconditions.checkNotNull(strategy);
     }
 
-    static RIBSupportContextRegistryImpl create(RIBExtensionConsumerContext extensions,
-            BindingCodecTreeFactory codecFactory, GeneratedClassLoadingStrategy classStrategy) {
+    static RIBSupportContextRegistryImpl create(final RIBExtensionConsumerContext extensions,
+            final BindingCodecTreeFactory codecFactory, final GeneratedClassLoadingStrategy classStrategy) {
         return new RIBSupportContextRegistryImpl(extensions, codecFactory, classStrategy);
     }
 
     @Override
-    public RIBSupportContext getRIBSupportContext(TablesKey key) {
-        RIBSupport ribSupport = extensionContext.getRIBSupport(key);
+    public RIBSupportContext getRIBSupportContext(final TablesKey key) {
+        final RIBSupport ribSupport = extensionContext.getRIBSupport(key);
         if(ribSupport != null) {
             return contexts.getUnchecked(ribSupport);
         }
         return null;
     }
 
-    private RIBSupportContextImpl createContext(RIBSupport ribSupport) {
-        RIBSupportContextImpl ribContext = new RIBSupportContextImpl(ribSupport);
+    @Override
+    public RIBSupportContext getRIBSupportContext(final NodeIdentifierWithPredicates key) {
+        final RIBSupport ribSupport = extensionContext.getRIBSupport(key);
+        if(ribSupport != null) {
+            return contexts.getUnchecked(ribSupport);
+        }
+        return null;
+    }
+
+    private RIBSupportContextImpl createContext(final RIBSupport ribSupport) {
+        final RIBSupportContextImpl ribContext = new RIBSupportContextImpl(ribSupport);
         if(latestCodecTree != null) {
+            // FIXME: Do we need to recalculate latestCodecTree? E.g. new rib support was added
+            // after bgp was started.
             ribContext.onCodecTreeUpdated(latestCodecTree);
         }
         return ribContext;
     }
 
-    void onSchemaContextUpdated(SchemaContext context) {
-        BindingRuntimeContext runtimeContext = BindingRuntimeContext.create(classContext, context);
+    void onSchemaContextUpdated(final SchemaContext context) {
+        final BindingRuntimeContext runtimeContext = BindingRuntimeContext.create(classContext, context);
         latestCodecTree  = codecFactory.create(runtimeContext);
-        for(RIBSupportContextImpl rib : contexts.asMap().values()) {
+        for(final RIBSupportContextImpl rib : contexts.asMap().values()) {
             rib.onCodecTreeUpdated(latestCodecTree);
         }
     }
