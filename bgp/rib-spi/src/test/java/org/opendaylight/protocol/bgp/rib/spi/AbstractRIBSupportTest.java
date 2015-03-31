@@ -94,7 +94,7 @@ public class AbstractRIBSupportTest {
     public void testRoutePath() {
         final YangInstanceIdentifier routePath = YangInstanceIdentifier.of(Routes.QNAME);
         final NodeIdentifier routeId = new NodeIdentifier(Ipv4Route.QNAME);
-        final String result = "/(urn:opendaylight:params:xml:ns:yang:bgp-rib?revision=2013-09-25)routes/(urn:opendaylight:params:xml:ns:yang:bgp-inet?revision=2015-03-05)ipv4-routes/ipv4-route";
+        final String result = "/(urn:opendaylight:params:xml:ns:yang:bgp-rib?revision=2013-09-25)routes/(urn:opendaylight:params:xml:ns:yang:bgp-inet?revision=2015-03-05)ipv4-routes/ipv4-route/ipv4-route";
         assertEquals(result, this.testSupport.routePath(routePath, routeId).toString());
     }
 

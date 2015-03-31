@@ -22,13 +22,13 @@ final class IdentifierUtils {
     private static final Predicate<PathArgument> IS_PEER = new Predicate<PathArgument>() {
         @Override
         public boolean apply(final PathArgument input) {
-            return input.getNodeType().equals(Peer.QNAME);
+            return input instanceof NodeIdentifierWithPredicates && Peer.QNAME.equals(input.getNodeType());
         }
     };
     private static final Predicate<PathArgument> IS_TABLES = new Predicate<PathArgument>() {
         @Override
         public boolean apply(final PathArgument input) {
-            return input.getNodeType().equals(Tables.QNAME);
+            return Tables.QNAME.equals(input.getNodeType());
         }
     };
     private static final QName PEER_ID = QName.cachedReference(QName.create(Peer.QNAME, "peer-id"));

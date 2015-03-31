@@ -42,10 +42,12 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     protected static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
 
     private final NodeIdentifier routesContainerIdentifier;
+    private final NodeIdentifier routesListIdentifier;
     private final NodeIdentifier routeAttributesIdentifier;
     private final Class<? extends Routes> cazeClass;
     private final Class<? extends DataObject> containerClass;
     private final Class<? extends Route> listClass;
+
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -64,6 +66,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         this.cazeClass = Preconditions.checkNotNull(cazeClass);
         this.containerClass = Preconditions.checkNotNull(containerClass);
         this.listClass = Preconditions.checkNotNull(listClass);
+        this.routesListIdentifier = new NodeIdentifier(BindingReflections.findQName(listClass));
     }
 
     @Override
@@ -169,15 +172,18 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         if (myRoutes == null) {
             return Collections.emptySet();
         }
-
+        final DataTreeCandidateNode routesMap = routes.getModifiedChild(this.routesListIdentifier);
+        if (routesMap == null) {
+            return Collections.emptySet();
+        }
         // Well, given the remote possibility of augmentation, we should perform a filter here,
         // to make sure the type matches what routeType() reports.
-        return myRoutes.getChildNodes();
+        return routesMap.getChildNodes();
     }
 
     @Override
     public final YangInstanceIdentifier routePath(final YangInstanceIdentifier routesPath, final PathArgument routeId) {
-        return routesPath.node(this.routesContainerIdentifier).node(routeId);
+        return routesPath.node(this.routesContainerIdentifier).node(this.routesListIdentifier).node(routeId);
     }
 
     @Override

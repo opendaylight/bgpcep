@@ -21,10 +21,10 @@ import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.graceful.restart._case.graceful.restart.capability.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.AdjRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.EffectiveRibIn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -71,8 +71,9 @@ final class EffectiveRibInWriter implements AutoCloseable {
             this.chain = Preconditions.checkNotNull(chain);
             this.ribId = Preconditions.checkNotNull(ribId);
 
-            final YangInstanceIdentifier tableId = ribId.node(Peer.QNAME).node(AdjRibIn.QNAME).node(Tables.QNAME);
+            final YangInstanceIdentifier tableId = ribId.node(Peer.QNAME).node(Peer.QNAME).node(AdjRibIn.QNAME).node(Tables.QNAME).node(Tables.QNAME);
             final DOMDataTreeIdentifier treeId = new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, tableId);
+            LOG.debug("Registered Effective RIB on {}", tableId);
             this.reg = service.registerDataTreeChangeListener(treeId, this);
         }
 
@@ -91,11 +92,11 @@ final class EffectiveRibInWriter implements AutoCloseable {
             case SUBTREE_MODIFIED:
             case WRITE:
                 // Lookup per-table attributes from RIBSupport
-                final ContainerNode adverisedAttrs = (ContainerNode) NormalizedNodes.findNode(route.getDataAfter(), ribSupport.routeAttributesIdentifier()).orNull();
+                final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(route.getDataAfter(), ribSupport.routeAttributesIdentifier()).orNull();
                 final ContainerNode effectiveAttrs;
 
-                if (adverisedAttrs != null) {
-                    effectiveAttrs = policy.effectiveAttributes(adverisedAttrs);
+                if (advertisedAttrs != null) {
+                    effectiveAttrs = policy.effectiveAttributes(advertisedAttrs);
 
                     /*
                      * Speed hack: if we determine that the policy has passed the attributes
@@ -106,7 +107,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
                      * it may not be that common, in which case it does not make sense to pay
                      * the full equals price.
                      */
-                    if (effectiveAttrs == adverisedAttrs) {
+                    if (effectiveAttrs == advertisedAttrs) {
                         return;
                     }
                 } else {
@@ -119,7 +120,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
                 if (effectiveAttrs != null) {
                     tx.put(LogicalDatastoreType.OPERATIONAL, routeId.node(ribSupport.routeAttributesIdentifier()), effectiveAttrs);
                 } else {
-                    LOG.warn("Route {} advertised empty attributes", route.getDataAfter());
+                    LOG.warn("Route {} advertised empty attributes", routeId);
                     tx.delete(LogicalDatastoreType.OPERATIONAL,  routeId);
                 }
                 break;
@@ -133,6 +134,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
             final AbstractImportPolicy policy = EffectiveRibInWriter.this.peerPolicyTracker.policyFor(IdentifierUtils.peerId(peerKey));
 
             for (final DataTreeCandidateNode child : children) {
+                LOG.debug("Process table children {}", child);
                 switch (child.getModificationType()) {
                 case DELETE:
                     tx.delete(LogicalDatastoreType.OPERATIONAL, tablePath.node(child.getIdentifier()));
@@ -168,7 +170,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
         }
 
         private YangInstanceIdentifier effectiveTablePath(final NodeIdentifierWithPredicates peerKey, final NodeIdentifierWithPredicates tableKey) {
-            return this.ribId.node(Peer.QNAME).node(peerKey).node(EffectiveRibIn.QNAME).node(tableKey);
+            return this.ribId.node(Peer.QNAME).node(peerKey).node(EffectiveRibIn.QNAME).node(Tables.QNAME).node(tableKey);
         }
 
         private void modifyTable(final DOMDataWriteTransaction tx, final NodeIdentifierWithPredicates peerKey, final NodeIdentifierWithPredicates tableKey, final DataTreeCandidateNode table) {
@@ -251,7 +253,6 @@ final class EffectiveRibInWriter implements AutoCloseable {
 
     private EffectiveRibInWriter(final DOMDataTreeChangeService service, final DOMTransactionChain chain, final YangInstanceIdentifier ribId,
         final PolicyDatabase pd, final RIBSupportContextRegistry registry) {
-
         this.peerPolicyTracker = new ImportPolicyPeerTracker(service, ribId, pd);
         this.adjInTracker = new AdjInTracker(service, registry, chain, ribId);
     }
