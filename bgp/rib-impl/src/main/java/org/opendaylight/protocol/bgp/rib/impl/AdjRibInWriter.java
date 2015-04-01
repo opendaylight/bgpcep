@@ -23,10 +23,10 @@ import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.AdjRibIn;
@@ -74,18 +74,19 @@ final class AdjRibInWriter {
     private final YangInstanceIdentifier tablesRoot;
     private final YangInstanceIdentifier ribPath;
     private final DOMTransactionChain chain;
-    private final Ipv4Address peerId = null;
+    private final PeerId peerId;
     private final String role;
 
     /*
      * FIXME: transaction chain has to be instantiated in caller, so it can terminate us when it fails.
      */
-    private AdjRibInWriter(final YangInstanceIdentifier ribPath, final DOMTransactionChain chain, final String role, final YangInstanceIdentifier tablesRoot, final Map<TablesKey, TableContext> tables) {
+    private AdjRibInWriter(final YangInstanceIdentifier ribPath, final DOMTransactionChain chain, final PeerId peerId, final String role, final YangInstanceIdentifier tablesRoot, final Map<TablesKey, TableContext> tables) {
         this.ribPath = Preconditions.checkNotNull(ribPath);
         this.chain = Preconditions.checkNotNull(chain);
         this.tables = Preconditions.checkNotNull(tables);
         this.role = Preconditions.checkNotNull(role);
         this.tablesRoot = tablesRoot;
+        this.peerId = peerId;
     }
 
     // We could use a codec, but this should be fine, too
@@ -110,7 +111,7 @@ final class AdjRibInWriter {
      * @return A fresh writer instance
      */
     static AdjRibInWriter create(@Nonnull final YangInstanceIdentifier ribId, @Nonnull final PeerRole role, @Nonnull final DOMTransactionChain chain) {
-        return new AdjRibInWriter(ribId, chain, roleString(role), null, Collections.<TablesKey, TableContext>emptyMap());
+        return new AdjRibInWriter(ribId, chain, null, roleString(role), null, Collections.<TablesKey, TableContext>emptyMap());
     }
 
     /**
@@ -123,7 +124,7 @@ final class AdjRibInWriter {
      * @param tableTypes New tables, must not be null
      * @return New writer
      */
-    AdjRibInWriter transform(final Ipv4Address newPeerId, final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes) {
+    AdjRibInWriter transform(final PeerId newPeerId, final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
 
         final YangInstanceIdentifier newTablesRoot;
@@ -187,7 +188,7 @@ final class AdjRibInWriter {
 
         tx.submit();
 
-        return new AdjRibInWriter(this.ribPath, this.chain, this.role, newTablesRoot, tb.build());
+        return new AdjRibInWriter(this.ribPath, this.chain, newPeerId, this.role, newTablesRoot, tb.build());
     }
 
     /**
