@@ -10,9 +10,15 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.primitives.UnsignedInteger;
 import java.util.Objects;
 import javax.annotation.concurrent.NotThreadSafe;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A single route entry inside a route table. Maintains the attributes of
@@ -23,6 +29,9 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
  */
 @NotThreadSafe
 final class RouteEntry {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RouteEntry.class);
+
     private static final ContainerNode[] EMPTY_ATTRIBUTES = new ContainerNode[0];
 
     private OffsetMap offsets = OffsetMap.EMPTY;
@@ -30,25 +39,25 @@ final class RouteEntry {
     private BestPath bestPath;
 
     void addRoute(final UnsignedInteger routerId, final ContainerNode attributes) {
-        int offset = offsets.offsetOf(routerId);
+        int offset = this.offsets.offsetOf(routerId);
         if (offset < 0) {
-            final OffsetMap newOffsets = offsets.with(routerId);
+            final OffsetMap newOffsets = this.offsets.with(routerId);
             offset = newOffsets.offsetOf(routerId);
 
-            final ContainerNode[] newAttributes = newOffsets.expand(offsets, this.values, offset);
+            final ContainerNode[] newAttributes = newOffsets.expand(this.offsets, this.values, offset);
             this.values = newAttributes;
             this.offsets = newOffsets;
         }
 
-        offsets.setValue(this.values, offset, attributes);
+        this.offsets.setValue(this.values, offset, attributes);
     }
 
     // Indicates whether this was the last route
     boolean removeRoute(final UnsignedInteger routerId) {
-        if (offsets.size() != 1) {
+        if (this.offsets.size() != 1) {
             // FIXME: actually shrink the array
-            int offset = offsets.offsetOf(routerId);
-            offsets.setValue(values, offset, null);
+            final int offset = this.offsets.offsetOf(routerId);
+            this.offsets.setValue(this.values, offset, null);
             return false;
         } else {
             return true;
@@ -66,21 +75,23 @@ final class RouteEntry {
         for (int i = 0; i < this.offsets.size(); ++i) {
             final UnsignedInteger routerId = this.offsets.getRouterId(i);
             final ContainerNode attributes = this.offsets.getValue(this.values, i);
-
+            LOG.trace("Processing router id {} attributes {}", routerId, attributes);
             selector.processPath(routerId, attributes);
         }
 
         // Get the newly-selected best path.
         final BestPath newBestPath = selector.result();
         // FIXME: run deeper comparison
-        final boolean ret = !Objects.equals(bestPath, newBestPath);
-
-        bestPath = newBestPath;
+        final boolean ret = !Objects.equals(this.bestPath, newBestPath);
+        LOG.trace("Previous best {}, current best {}, result {}", this.bestPath, newBestPath, ret);
+        this.bestPath = newBestPath;
         return ret;
     }
 
     NormalizedNode<?, ?> bestValue(final PathArgument key) {
-        // TODO Auto-generated method stub
-        return null;
+        final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = Builders.mapEntryBuilder();
+        b.withNodeIdentifier((NodeIdentifierWithPredicates) key);
+        b.addChild(this.bestPath.getState().getAttributes());
+        return b.build();
     }
 }

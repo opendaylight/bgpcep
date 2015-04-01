@@ -157,4 +157,7 @@ final class BestPathState {
         return first.getAList().getAsSequence().get(0).getAs();
     }
 
+    ContainerNode getAttributes() {
+        return this.attributes;
+    }
 }
