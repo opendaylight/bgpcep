@@ -136,6 +136,8 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final RIBExtensionConsumerContext extensions;
     private final YangInstanceIdentifier yangRibId;
     private final RIBSupportContextRegistryImpl ribContextRegistry;
+    private final EffectiveRibInWriter efWriter;
+
     private final Runnable scheduler = new Runnable() {
         @Override
         public void run() {
@@ -191,13 +193,6 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
         final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
 
-        final PolicyDatabase pd  = new PolicyDatabase(localAs.getValue(), localBgpId, this.clusterId);
-
-        final DOMDataBrokerExtension service = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
-        final DOMTransactionChain domChain = this.createPeerChain(this);
-        EffectiveRibInWriter.create((DOMDataTreeChangeService) service, domChain, getYangRibId(), pd, this.ribContextRegistry);
-        LOG.debug("Effective RIB created.");
-
         // put empty BgpRib if not exists
         trans.put(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier(),
             new RibBuilder().setKey(new RibKey(ribId)).setPeer(Collections.<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer> emptyList()).setId(ribId).setLocRib(
@@ -207,13 +202,6 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
             if (this.tables.create(trans, this, key) == null) {
                 LOG.debug("Did not create local table for unhandled table type {}", t);
-            }
-
-            // reusing the for cycle
-            // create locRibWriter for each table
-            // FIXME: temporary create writer only for Ipv4
-            if (key.getAfi().equals(Ipv4AddressFamily.class)) {
-                LocRibWriter.create(this.ribContextRegistry.getRIBSupportContext(key).getRibSupport(), domChain, getYangRibId(), localAs, (DOMDataTreeChangeService) service, pd);
             }
         }
 
@@ -229,6 +217,22 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             }
 
         });
+
+        final PolicyDatabase pd  = new PolicyDatabase(localAs.getValue(), localBgpId, this.clusterId);
+
+        final DOMDataBrokerExtension service = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
+        final DOMTransactionChain domChain = this.createPeerChain(this);
+        this.efWriter = EffectiveRibInWriter.create((DOMDataTreeChangeService) service, domChain, getYangRibId(), pd, this.ribContextRegistry);
+        LOG.debug("Effective RIB created.");
+
+        for (final BgpTableType t : localTables) {
+            final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
+            // create locRibWriter for each table
+            // FIXME: temporary create writer only for Ipv4
+            if (key.getAfi().equals(Ipv4AddressFamily.class)) {
+                //LocRibWriter.create(this.ribContextRegistry.getRIBSupportContext(key).getRibSupport(), domChain, getYangRibId(), localAs, (DOMDataTreeChangeService) service, pd);
+            }
+        }
     }
 
     @Deprecated
