@@ -31,14 +31,12 @@ public class PathSetupTypeTlvParser implements TlvParser, TlvSerializer {
     private static final int PST_LENGTH = 1;
     private static final int OFFSET = CONTENT_LENGTH - PST_LENGTH;
     private static final short RSVP_TE_PST = 0;
-    private static final short SR_PST = 1;
     private static final String UNSUPPORTED_PST = "Unsupported path setup type.";
 
     protected static final Set<Short> PSTS = Sets.newHashSet();
 
     public PathSetupTypeTlvParser() {
         PSTS.add(RSVP_TE_PST);
-        PSTS.add(SR_PST);
     }
 
     @Override
