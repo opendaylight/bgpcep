@@ -112,7 +112,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
             return;
         }
         final Update message = (Update) msg;
-        this.rib.updateTables(this, message);
+        //this.rib.updateTables(this, message);
         // update AdjRibs
         final PathAttributes attrs = message.getPathAttributes();
         MpReachNlri mpReach = null;
