@@ -168,16 +168,20 @@ public abstract class AbstractRIBSupport implements RIBSupport {
 
     @Override
     public final Collection<DataTreeCandidateNode> changedRoutes(final DataTreeCandidateNode routes) {
+        LOG.trace("Changed routes called with {} identifier {}", routes, routes.getIdentifier());
         final DataTreeCandidateNode myRoutes = routes.getModifiedChild(this.routesContainerIdentifier);
         if (myRoutes == null) {
             return Collections.emptySet();
         }
-        final DataTreeCandidateNode routesMap = routes.getModifiedChild(this.routesListIdentifier);
+        LOG.trace("MyRoutes {} identifier {}", myRoutes, myRoutes.getIdentifier());
+        final DataTreeCandidateNode routesMap = myRoutes.getModifiedChild(this.routesListIdentifier);
         if (routesMap == null) {
             return Collections.emptySet();
         }
+        LOG.trace("RoutesMap {} identifier {}", routesMap, routesMap.getIdentifier());
         // Well, given the remote possibility of augmentation, we should perform a filter here,
         // to make sure the type matches what routeType() reports.
+        LOG.trace("Returning children {}", routesMap.getChildNodes());
         return routesMap.getChildNodes();
     }
 
