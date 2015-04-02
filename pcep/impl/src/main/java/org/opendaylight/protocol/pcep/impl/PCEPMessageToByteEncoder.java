@@ -8,12 +8,11 @@
 package org.opendaylight.protocol.pcep.impl;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.slf4j.Logger;
@@ -37,6 +36,6 @@ public final class PCEPMessageToByteEncoder extends MessageToByteEncoder<Message
     protected void encode(final ChannelHandlerContext ctx, final Message msg, final ByteBuf out) {
         Preconditions.checkNotNull(msg);
         this.registry.serializeMessage(msg, out);
-        LOG.debug("Encoded : {}", msg);
+        LOG.trace("Encoded : {}", ByteBufUtil.hexDump(out));
     }
 }
