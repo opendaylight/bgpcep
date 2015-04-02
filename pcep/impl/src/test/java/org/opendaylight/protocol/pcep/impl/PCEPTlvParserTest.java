@@ -68,7 +68,7 @@ public class PCEPTlvParserTest {
 
     private static final byte[] PST_TLV_BYTES = { 0x0, 0x1C, 0x0, 0x4, 0x0, 0x0, 0x0, 0x0 };
 
-    private static final byte[] PST_TLV_BYTES_UNSUPPORTED = { 0x0, 0x1C, 0x0, 0x4, 0x0, 0x0, 0x0, 0x2 };
+    private static final byte[] PST_TLV_BYTES_UNSUPPORTED = { 0x0, 0x1C, 0x0, 0x4, 0x0, 0x0, 0x0, 0x1 };
 
     private final AbstractVendorSpecificTlvParser vsParser = new AbstractVendorSpecificTlvParser() {
 
@@ -200,7 +200,7 @@ public class PCEPTlvParserTest {
     @Test(expected=IllegalArgumentException.class)
     public void testUnsupportedPSTSerializer() {
         final PathSetupTypeTlvParser parser = new PathSetupTypeTlvParser();
-        final PathSetupType pstTlv = new PathSetupTypeBuilder().setPst((short) 2).build();
+        final PathSetupType pstTlv = new PathSetupTypeBuilder().setPst((short) 1).build();
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(pstTlv, buff);
     }
