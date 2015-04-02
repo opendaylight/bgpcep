@@ -31,9 +31,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.EffectiveRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
-import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
-import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -76,11 +73,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         @Nonnull final AsNumber ourAs, @Nonnull final DOMDataTreeChangeService service, @Nonnull final PolicyDatabase pd) {
 
         final YangInstanceIdentifier tableId = target.node(Peer.QNAME).node(Peer.QNAME).node(EffectiveRibIn.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
-
-        final QName list = BindingReflections.findQName(ribSupport.routesListClass());
-        final YangInstanceIdentifier routeId = tableId.node(Routes.QNAME).node(BindingReflections.findQName(ribSupport.routesContainerClass())).node(list);
-
-        return new LocRibWriter(ribSupport, chain, routeId, ourAs.getValue(), service, pd);
+        return new LocRibWriter(ribSupport, chain, tableId, ourAs.getValue(), service, pd);
     }
 
     @Override
@@ -111,32 +104,31 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         final Map<RouteUpdateKey, RouteEntry> toUpdate = new HashMap<>();
         for (final DataTreeCandidate tc : changes) {
             printChildren(tc.getRootNode());
-
             final YangInstanceIdentifier path = tc.getRootPath();
             final PathArgument routeId = path.getLastPathArgument();
             final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(path);
             final PeerId peerId = IdentifierUtils.peerId(peerKey);
             final UnsignedInteger routerId = RouterIds.routerIdForPeerId(peerId);
-
-            RouteEntry entry = this.routeEntries.get(routeId);
-            if (tc.getRootNode().getDataAfter().isPresent()) {
-                if (entry == null) {
-                    entry = new RouteEntry();
-                    this.routeEntries.put(routeId, entry);
-                    LOG.trace("Created new entry for {}", routeId);
+            for (final DataTreeCandidateNode route : this.ribSupport.changedRoutes(tc.getRootNode())) {
+                LOG.debug("Walking through first {}", route);
+                RouteEntry entry = this.routeEntries.get(routeId);
+                if (route.getDataAfter().isPresent()) {
+                    if (entry == null) {
+                        entry = new RouteEntry();
+                        this.routeEntries.put(routeId, entry);
+                        LOG.trace("Created new entry for {}", routeId);
+                    }
+                    final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(route.getDataAfter(), this.ribSupport.routeAttributesIdentifier()).orNull();
+                    entry.addRoute(routerId, advertisedAttrs);
+                    LOG.trace("Added route from {} attributes{}", routerId, advertisedAttrs);
+                } else if (entry != null && entry.removeRoute(routerId)) {
+                    this.routeEntries.remove(routeId);
+                    entry = null;
+                    LOG.trace("Removed route from {}", routerId);
                 }
-
-                final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(tc.getRootNode().getDataAfter(), this.ribSupport.routeAttributesIdentifier()).orNull();
-                entry.addRoute(routerId, advertisedAttrs);
-                LOG.trace("Added route from {} attributes{}", routerId, advertisedAttrs);
-            } else if (entry != null && entry.removeRoute(routerId)) {
-                this.routeEntries.remove(routeId);
-                entry = null;
-                LOG.trace("Removed route from {}", routerId);
+                LOG.debug("Updated route {} entry {}", routeId, entry);
+                toUpdate.put(new RouteUpdateKey(peerId, routeId), entry);
             }
-
-            LOG.debug("Updated route {} entry {}", routeId, entry);
-            toUpdate.put(new RouteUpdateKey(peerId, routeId), entry);
         }
 
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
