@@ -222,7 +222,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
         final DOMDataBrokerExtension service = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
         final DOMTransactionChain domChain = this.createPeerChain(this);
-        this.efWriter = EffectiveRibInWriter.create((DOMDataTreeChangeService) service, domChain, getYangRibId(), pd, this.ribContextRegistry);
+        this.efWriter = EffectiveRibInWriter.create((DOMDataTreeChangeService) service, this.createPeerChain(this), getYangRibId(), pd, this.ribContextRegistry);
         LOG.debug("Effective RIB created.");
 
         for (final BgpTableType t : localTables) {
@@ -230,7 +230,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             // create locRibWriter for each table
             // FIXME: temporary create writer only for Ipv4
             if (key.getAfi().equals(Ipv4AddressFamily.class)) {
-                LocRibWriter.create(this.ribContextRegistry.getRIBSupportContext(key).getRibSupport(), key, domChain, getYangRibId(), localAs, (DOMDataTreeChangeService) service, pd);
+                LocRibWriter.create(this.ribContextRegistry.getRIBSupportContext(key).getRibSupport(), key, this.createPeerChain(this), getYangRibId(), localAs, (DOMDataTreeChangeService) service, pd);
             }
         }
     }

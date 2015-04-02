@@ -108,6 +108,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
                      * the full equals price.
                      */
                     if (effectiveAttrs == advertisedAttrs) {
+                        LOG.trace("Effective and local attributes are equal. Quit processing route {}", route);
                         return;
                     }
                 } else {
