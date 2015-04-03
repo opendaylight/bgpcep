@@ -34,10 +34,57 @@ public class SegmentRoutingActivator extends AbstractPCEPExtensionProviderActiva
         regs.add(context.registerTlvSerializer(SrPceCapability.class, new SrPceCapabilityTlvParser()));
 
         /* Subobjects */
-        regs.add(context.registerEROSubobjectParser(SrEroSubobjectParser.TYPE, new SrEroSubobjectParser()));
-        regs.add(context.registerEROSubobjectSerializer(SrEroType.class, new SrEroSubobjectParser()));
-        regs.add(context.registerRROSubobjectParser(SrRroSubobjectParser.TYPE, new SrRroSubobjectParser()));
-        regs.add(context.registerRROSubobjectSerializer(SrRroType.class, new SrRroSubobjectParser()));
+        final SrEroSubobjectParser srEroSubobjectParser = new SrEroSubobjectParser();
+        regs.add(context.registerEROSubobjectParser(SrEroSubobjectParser.TYPE, srEroSubobjectParser));
+        regs.add(context.registerEROSubobjectSerializer(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.network.topology.topology.node.path.computation.client.reported.lsp.path.ero.subobject.subobject.type.SrEroType.class,
+                srEroSubobjectParser));
+        regs.add(context.registerEROSubobjectSerializer(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.pcinitiate.pcinitiate.message.requests.ero.subobject.subobject.type.SrEroType.class,
+                srEroSubobjectParser));
+        regs.add(context.registerEROSubobjectSerializer(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.pcrep.pcrep.message.replies.result.success._case.success.paths.ero.subobject.subobject.type.SrEroType.class,
+                srEroSubobjectParser));
+        regs.add(context.registerEROSubobjectSerializer(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.pcrpt.pcrpt.message.reports.path.ero.subobject.subobject.type.SrEroType.class,
+                srEroSubobjectParser));
+        regs.add(context.registerEROSubobjectSerializer(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.pcupd.pcupd.message.updates.path.ero.subobject.subobject.type.SrEroType.class,
+                srEroSubobjectParser));
+        regs.add(context.registerEROSubobjectSerializer(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.update.lsp.input.arguments.ero.subobject.subobject.type.SrEroType.class,
+                srEroSubobjectParser));
+        regs.add(context.registerEROSubobjectSerializer(SrEroType.class, srEroSubobjectParser));
+
+        final SrRroSubobjectParser srRroSubobjectParser = new SrRroSubobjectParser();
+        regs.add(context.registerRROSubobjectParser(SrRroSubobjectParser.TYPE, srRroSubobjectParser));
+        regs.add(context.registerRROSubobjectSerializer(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.network.topology.topology.node.path.computation.client.reported.lsp.path.rro.subobject.subobject.type.SrRroType.class,
+                srRroSubobjectParser));
+        regs.add(context.registerRROSubobjectSerializer(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.pcinitiate.pcinitiate.message.requests.rro.subobject.subobject.type.SrRroType.class,
+                srRroSubobjectParser));
+        regs.add(context.registerRROSubobjectSerializer(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.pcrep.pcrep.message.replies.result.failure._case.rro.subobject.subobject.type.SrRroType.class,
+                srRroSubobjectParser));
+        regs.add(context.registerRROSubobjectSerializer(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.pcreq.pcreq.message.requests.segment.computation.p2p.reported.route.rro.subobject.subobject.type.SrRroType.class,
+                srRroSubobjectParser));
+        regs.add(context.registerRROSubobjectSerializer(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.pcrpt.pcrpt.message.reports.path.rro.subobject.subobject.type.SrRroType.class,
+                srRroSubobjectParser));
+        regs.add(context.registerRROSubobjectSerializer(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.pcupd.pcupd.message.updates.path.rro.subobject.subobject.type.SrRroType.class,
+                srRroSubobjectParser));
+        regs.add(context.registerRROSubobjectSerializer(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.update.lsp.input.arguments.rro.subobject.subobject.type.SrRroType.class, srRroSubobjectParser));
+        regs.add(context.registerRROSubobjectSerializer(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.pcrep.pcrep.message.replies.result.success._case.success.paths.rro.subobject.subobject.type.SrRroType.class,
+                srRroSubobjectParser));
+        regs.add(context.registerRROSubobjectSerializer(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.pcreq.pcreq.message.requests.segment.computation.p2p.rro.subobject.subobject.type.SrRroType.class,
+                srRroSubobjectParser));
+        regs.add(context.registerRROSubobjectSerializer(SrRroType.class, srRroSubobjectParser));
 
         /* Objects */
         final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
