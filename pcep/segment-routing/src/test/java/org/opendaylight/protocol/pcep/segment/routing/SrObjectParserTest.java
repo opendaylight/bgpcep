@@ -123,4 +123,27 @@ public class SrObjectParserTest {
         assertArrayEquals(srEroObjectBytes, ByteArray.getAllBytes(buffer));
     }
 
+    @Test
+    public void testSrEroSerializerWithUpdateLspAugmentation() throws PCEPDeserializerException {
+        final PCEPExplicitRouteObjectParser parser = new PCEPExplicitRouteObjectParser(this.ctx.getEROSubobjectHandlerRegistry());
+
+        final EroBuilder builder = new EroBuilder();
+        builder.setProcessingRule(false);
+        builder.setIgnore(false);
+
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.update.lsp.input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder srEroSubBuilder =
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.update.lsp.input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder();
+        srEroSubBuilder.setCFlag(false);
+        srEroSubBuilder.setMFlag(false);
+        srEroSubBuilder.setSidType(SidType.Ipv4NodeId);
+        srEroSubBuilder.setSid(123456L);
+        srEroSubBuilder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddress(new Ipv4Address("74.125.43.99"))).build());
+        final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(srEroSubBuilder.build()).setLoose(false);
+        builder.setSubobject(Lists.newArrayList(subobjBuilder.build()));
+
+        final ByteBuf buffer = Unpooled.buffer();
+        parser.serializeObject(builder.build(), buffer);
+        assertArrayEquals(srEroObjectBytes, ByteArray.getAllBytes(buffer));
+    }
+
 }
