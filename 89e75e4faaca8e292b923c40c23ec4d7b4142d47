@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_dbf73858",
+        "filename": "pcep/spi/src/main/java/org/opendaylight/protocol/pcep/spi/EROSubobjectUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-04-03T14:35:44Z",
+      "side": 1,
+      "message": "why? the type should be present in the parser",
+      "revId": "89e75e4faaca8e292b923c40c23ec4d7b4142d47",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
