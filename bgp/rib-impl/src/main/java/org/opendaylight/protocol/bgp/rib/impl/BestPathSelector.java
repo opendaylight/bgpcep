@@ -22,8 +22,11 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class BestPathSelector {
+    private static final Logger LOG = LoggerFactory.getLogger(BestPathSelector.class);
     private static final Collection<PathArgument> ORIGINATOR_ID = ImmutableList.<PathArgument>of(new NodeIdentifier(OriginatorId.QNAME), new NodeIdentifier(QName.create(OriginatorId.QNAME, "originator")));
 
     private final Long ourAs;
@@ -57,7 +60,8 @@ final class BestPathSelector {
              * are better.
              */
             final BestPathState state = new BestPathState(attrs);
-            if (this.bestOriginatorId == null || selectPath(originatorId, state)) {
+            if (this.bestOriginatorId == null || !selectPath(originatorId, state)) {
+                LOG.trace("Selecting path from router {} state {}", routerId, state);
                 this.bestOriginatorId = originatorId;
                 this.bestRouterId = routerId;
                 this.bestState = state;
