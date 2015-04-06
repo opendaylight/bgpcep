@@ -11,10 +11,9 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
-import org.opendaylight.protocol.framework.ReconnectStrategy;
+import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
@@ -63,12 +62,12 @@ public final class PCCDispatcher extends PCEPDispatcherImpl {
         }
     }
 
-    public synchronized Future<PCEPSessionImpl> createClient(final InetSocketAddress localAddress, final InetSocketAddress remoteAddress,
-            final ReconnectStrategy strategy, final SessionListenerFactory<PCEPSessionListener> listenerFactory,
+    public synchronized void createClient(final InetSocketAddress localAddress, final InetSocketAddress remoteAddress,
+            final ReconnectStrategyFactory strategyFactory, final SessionListenerFactory<PCEPSessionListener> listenerFactory,
             final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> negotiatorFactory, final KeyMapping keys) {
         this.localAddress = localAddress;
         this.keys = keys;
-        final Future<PCEPSessionImpl> futureClient = super.createClient(remoteAddress, strategy, new PipelineInitializer<PCEPSessionImpl>() {
+        super.createReconnectingClient(remoteAddress, strategyFactory, new PipelineInitializer<PCEPSessionImpl>() {
             @Override
             public void initializeChannel(final SocketChannel ch, final Promise<PCEPSessionImpl> promise) {
                 ch.pipeline().addLast(PCCDispatcher.this.factory.getDecoders());
@@ -79,7 +78,6 @@ public final class PCCDispatcher extends PCEPDispatcherImpl {
         });
         this.localAddress = null;
         this.keys = null;
-        return futureClient;
     }
 
     private static final class DeafultKeyAccessFactory {

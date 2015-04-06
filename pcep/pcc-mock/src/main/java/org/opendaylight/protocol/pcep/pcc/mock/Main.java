@@ -24,9 +24,12 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.protocol.framework.ReconnectImmediatelyStrategy;
+import org.opendaylight.protocol.framework.NeverReconnectStrategy;
+import org.opendaylight.protocol.framework.ReconnectStrategy;
+import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
+import org.opendaylight.protocol.framework.TimedReconnectStrategy;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.ietf.initiated00.CrabbeInitiatedActivator;
 import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
@@ -70,6 +73,7 @@ public final class Main {
         short ka = DEFAULT_KEEP_ALIVE;
         short dt = DEFAULT_DEAD_TIMER;
         String password = null;
+        int reconnectTime = -1;
 
         getRootLogger(lc).setLevel(ch.qos.logback.classic.Level.INFO);
         int argIdx = 0;
@@ -92,17 +96,19 @@ public final class Main {
                 dt = Short.valueOf(args[++argIdx]);
             } else if (args[argIdx].equals("--password")) {
                 password = args[++argIdx];
+            } else if (args[argIdx].equals("--reconnect")) {
+                reconnectTime = Integer.valueOf(args[++argIdx]).intValue() * 1000;
             } else {
                 LOG.warn("WARNING: Unrecognized argument: {}", args[argIdx]);
             }
             argIdx++;
         }
-        createPCCs(lsps, pcError, pccCount, localAddress, remoteAddress, ka, dt, password);
+        createPCCs(lsps, pcError, pccCount, localAddress, remoteAddress, ka, dt, password, reconnectTime);
     }
 
     public static void createPCCs(final int lspsPerPcc, final boolean pcerr, final int pccCount,
             final InetSocketAddress localAddress, final List<InetSocketAddress> remoteAddress, final short keepalive, final short deadtimer,
-            final String password) throws InterruptedException, ExecutionException {
+            final String password, final int reconnectTime) throws InterruptedException, ExecutionException {
         startActivators();
         InetAddress currentAddress = localAddress.getAddress();
         final Open openMessage = getOpenMessage(keepalive, deadtimer);
@@ -110,17 +116,18 @@ public final class Main {
                 getSessionNegotiatorFactory(openMessage));
         for (int i = 0; i < pccCount; i++) {
             createPCC(lspsPerPcc, pcerr, new InetSocketAddress(currentAddress, localAddress.getPort()),
-                    remoteAddress, openMessage, pccDispatcher, password);
+                    remoteAddress, openMessage, pccDispatcher, password, reconnectTime);
             currentAddress = InetAddresses.increment(currentAddress);
         }
     }
 
+    @SuppressWarnings("deprecation")
     private static void createPCC(final int lspsPerPcc, final boolean pcerr, final InetSocketAddress localAddress,
             final List<InetSocketAddress> remoteAddress, final Open openMessage, final PCCDispatcher pccDispatcher,
-            final String password) throws InterruptedException, ExecutionException {
+            final String password, final int reconnectTime) throws InterruptedException, ExecutionException {
         final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf = getSessionNegotiatorFactory(openMessage);
         for (final InetSocketAddress pceAddress : remoteAddress) {
-            pccDispatcher.createClient(localAddress, pceAddress, new ReconnectImmediatelyStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_STRATEGY_TIMEOUT), new SessionListenerFactory<PCEPSessionListener>() {
+            pccDispatcher.createClient(localAddress, pceAddress, reconnectTime == -1 ? getNeverReconnectStrategyFactory() : getTimedReconnectStrategyFactory(reconnectTime), new SessionListenerFactory<PCEPSessionListener>() {
                 @Override
                 public PCEPSessionListener getSessionListener() {
                     return new SimpleSessionListener(lspsPerPcc, pcerr, localAddress.getAddress());
@@ -129,6 +136,7 @@ public final class Main {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private static SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> getSessionNegotiatorFactory(final Open openMessage) {
         return new DefaultPCEPSessionNegotiatorFactory(openMessage, 0);
     }
@@ -180,6 +188,28 @@ public final class Main {
         pccActivator.start(ctx);
         stateful.start(ctx);
         activator.start(ctx);
+    }
+
+    @SuppressWarnings("deprecation")
+    private static ReconnectStrategyFactory getNeverReconnectStrategyFactory() {
+        return new ReconnectStrategyFactory() {
+
+            @Override
+            public ReconnectStrategy createReconnectStrategy() {
+                return new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_STRATEGY_TIMEOUT);
+            }
+        };
+    }
+
+    @SuppressWarnings("deprecation")
+    private static ReconnectStrategyFactory getTimedReconnectStrategyFactory(final int reconnectTime) {
+        return new ReconnectStrategyFactory() {
+
+            @Override
+            public ReconnectStrategy createReconnectStrategy() {
+                return new TimedReconnectStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_STRATEGY_TIMEOUT, reconnectTime, 1.0, null, null, null);
+            }
+        };
     }
 
 }
