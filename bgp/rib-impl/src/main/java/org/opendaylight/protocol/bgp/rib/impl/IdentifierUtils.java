@@ -47,7 +47,8 @@ final class IdentifierUtils {
     private static YangInstanceIdentifier firstIdentifierOf(final YangInstanceIdentifier id, final Predicate<PathArgument> match) {
         final int idx = Iterables.indexOf(id.getPathArguments(), match);
         Preconditions.checkArgument(idx != -1, "Failed to find %s in %s", match, id);
-        return YangInstanceIdentifier.create(Iterables.limit(id.getPathArguments(), idx));
+        // we want the element at index idx to be included in the list
+        return YangInstanceIdentifier.create(Iterables.limit(id.getPathArguments(), idx + 1));
     }
 
     static YangInstanceIdentifier peerPath(final YangInstanceIdentifier id) {

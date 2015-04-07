@@ -24,12 +24,17 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Maintains the mapping of PeerId -> Role. Subclasses get notified of changes and can do their
  * own thing.
  */
 abstract class AbstractPeerRoleTracker implements AutoCloseable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractPeerRoleTracker.class);
+
     /**
      * We are subscribed to our target leaf, but that is a wildcard:
      *     /bgp-rib/rib/peer/peer-role
@@ -38,9 +43,11 @@ abstract class AbstractPeerRoleTracker implements AutoCloseable {
      *                    wildcard path, so are searching for a particular key.
      */
     private final class PeerRoleListener implements DOMDataTreeChangeListener {
+
         @Override
         public void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
-            for (DataTreeCandidate tc : changes) {
+            LOG.debug("Data Changed for Peer role {}", changes);
+            for (final DataTreeCandidate tc : changes) {
                 // Obtain the peer's path
                 final YangInstanceIdentifier peerPath = IdentifierUtils.peerPath(tc.getRootPath());
 
@@ -65,14 +72,13 @@ abstract class AbstractPeerRoleTracker implements AutoCloseable {
 
     protected AbstractPeerRoleTracker(final @Nonnull DOMDataTreeChangeService service, @Nonnull final YangInstanceIdentifier ribId) {
         // Slightly evil, but our users should be fine with this
-        registration = service.registerDataTreeChangeListener(
-            new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, ribId.node(Peer.QNAME).node(PEER_ROLE)),
-            new PeerRoleListener());
+        final YangInstanceIdentifier roleId = ribId.node(Peer.QNAME).node(Peer.QNAME).node(PEER_ROLE);
+        this.registration = service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, roleId), new PeerRoleListener());
     }
 
     @Override
     public void close() {
-        registration.close();
+        this.registration.close();
     }
 
     /**
