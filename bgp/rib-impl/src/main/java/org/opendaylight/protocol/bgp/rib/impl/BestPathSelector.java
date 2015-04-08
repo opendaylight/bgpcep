@@ -97,7 +97,7 @@ final class BestPathSelector {
             return false;
         }
         if (state.getLocalPref() != null && state.getLocalPref() > this.bestState.getLocalPref()) {
-            return true;
+            return false;
         }
 
         // 3. prefer learned path
