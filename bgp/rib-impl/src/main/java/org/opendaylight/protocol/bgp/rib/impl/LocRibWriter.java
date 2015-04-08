@@ -31,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.EffectiveRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -60,11 +61,16 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     LocRibWriter(final RIBSupport ribSupport, final DOMTransactionChain chain, final YangInstanceIdentifier target, final Long ourAs,
         final DOMDataTreeChangeService service, final PolicyDatabase pd, final TablesKey tablesKey) {
         this.chain = Preconditions.checkNotNull(chain);
-        this.locRibTarget = Preconditions.checkNotNull(target).node(LocRib.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
+        this.locRibTarget = Preconditions.checkNotNull(target).node(LocRib.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey)).node(Routes.QNAME);
         this.ourAs = Preconditions.checkNotNull(ourAs);
         this.attributesIdentifier = ribSupport.routeAttributesIdentifier();
         this.peerPolicyTracker = new ExportPolicyPeerTracker(service, target, pd);
         this.ribSupport = ribSupport;
+
+        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+        tx.merge(LogicalDatastoreType.OPERATIONAL, this.locRibTarget, ribSupport.emptyRoutes());
+        tx.submit();
+
         final YangInstanceIdentifier tableId = target.node(Peer.QNAME).node(Peer.QNAME).node(EffectiveRibIn.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
         service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, tableId), this);
     }
@@ -107,7 +113,6 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             final PeerId peerId = IdentifierUtils.peerId(peerKey);
             final UnsignedInteger routerId = RouterIds.routerIdForPeerId(peerId);
             for (final DataTreeCandidateNode child : tc.getRootNode().getChildNodes()) {
-                tx.merge(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(child.getIdentifier()), child.getDataAfter().get());
                 for (final DataTreeCandidateNode route : this.ribSupport.changedRoutes(child)) {
                     final PathArgument routeId = route.getIdentifier();
                     RouteEntry entry = this.routeEntries.get(routeId);
