@@ -41,7 +41,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +60,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     LocRibWriter(final RIBSupport ribSupport, final DOMTransactionChain chain, final YangInstanceIdentifier target, final Long ourAs,
         final DOMDataTreeChangeService service, final PolicyDatabase pd, final TablesKey tablesKey) {
         this.chain = Preconditions.checkNotNull(chain);
-        this.locRibTarget = Preconditions.checkNotNull(target).node(LocRib.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey)).node(Routes.QNAME);
+        this.locRibTarget = YangInstanceIdentifier.create(target.node(LocRib.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey)).node(Routes.QNAME).getPathArguments());
         this.ourAs = Preconditions.checkNotNull(ourAs);
         this.attributesIdentifier = ribSupport.routeAttributesIdentifier();
         this.peerPolicyTracker = new ExportPolicyPeerTracker(service, target, pd);
@@ -83,19 +82,6 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     @Override
     public void close() {
         this.peerPolicyTracker.close();
-    }
-
-    private static void printChildren(final DataTreeCandidateNode root) {
-        LOG.debug("Candidate node {} type {} identifier {}", root, root.getModificationType(), root.getIdentifier());
-        if (ModificationType.WRITE.equals(root.getModificationType())) {
-            LOG.debug("Data after {}", root.getDataAfter());
-        }
-        if (root.getChildNodes().isEmpty()) {
-            return;
-        }
-        for (final DataTreeCandidateNode child : root.getChildNodes()) {
-            printChildren(child);
-        }
     }
 
     @Override
@@ -154,6 +140,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             } else {
                 value = null;
             }
+
             final YangInstanceIdentifier writePath = this.ribSupport.routePath(this.locRibTarget, e.getKey().getRouteId());
             if (value != null) {
                 LOG.debug("Write route to LocRib {}", value);
