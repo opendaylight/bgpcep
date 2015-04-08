@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.QNameModule;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeWithValue;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -83,10 +84,10 @@ final class AttributeOperations {
 
         this.clusterListContainer = new NodeIdentifier(QName.cachedReference(QName.create(namespace, ClusterId.QNAME.getLocalName())));
         this.clusterListLeaf = new NodeIdentifier(QName.cachedReference(QName.create(namespace, "cluster")));
-        this.clusterListPath = ImmutableList.<PathArgument>of(clusterListContainer, clusterListLeaf);
+        this.clusterListPath = ImmutableList.<PathArgument>of(this.clusterListContainer, this.clusterListLeaf);
         this.originatorIdContainer = new NodeIdentifier(QName.cachedReference(QName.create(namespace, OriginatorId.QNAME.getLocalName())));
         this.originatorIdLeaf = new NodeIdentifier(QName.cachedReference(QName.create(namespace, "originator")));
-        this.originatorIdPath = ImmutableList.<PathArgument>of(originatorIdContainer, originatorIdLeaf);
+        this.originatorIdPath = ImmutableList.<PathArgument>of(this.originatorIdContainer, this.originatorIdLeaf);
     }
 
     static AttributeOperations getInstance(final ContainerNode attributes) {
@@ -94,7 +95,7 @@ final class AttributeOperations {
     }
 
     private Collection<UnkeyedListEntryNode> reusableSequence(final UnkeyedListEntryNode segment) {
-        final Optional<NormalizedNode<?, ?>> maybeAsSequence = NormalizedNodes.findNode(segment, asPathChoice, asPathList, asPathSequence);
+        final Optional<NormalizedNode<?, ?>> maybeAsSequence = NormalizedNodes.findNode(segment, this.asPathChoice, this.asPathList, this.asPathSequence);
         if (maybeAsSequence.isPresent()) {
             final UnkeyedListNode asList = (UnkeyedListNode) maybeAsSequence.get();
             if (asList.getSize() < 255) {
@@ -119,14 +120,14 @@ final class AttributeOperations {
          * perform a wholesale replace.
          */
         final CollectionNodeBuilder<UnkeyedListEntryNode, UnkeyedListNode> sb = Builders.unkeyedListBuilder();
-        sb.withNodeIdentifier(asPathSegments);
+        sb.withNodeIdentifier(this.asPathSegments);
 
-        final Optional<NormalizedNode<?, ?>> maybeOldAsSegments = NormalizedNodes.findNode(attributes, asPathContainer, asPathSegments);
-        if (maybeOldAsSegments.isPresent()) {
+        final Optional<NormalizedNode<?, ?>> maybeOldAsSegments = NormalizedNodes.findNode(attributes, this.asPathContainer, this.asPathSegments);
+        if (maybeOldAsSegments.isPresent() && !((UnkeyedListNode) maybeOldAsSegments.get()).getValue().isEmpty()) {
             // Builder of inner list
             final CollectionNodeBuilder<UnkeyedListEntryNode, UnkeyedListNode> ilb = Builders.unkeyedListBuilder();
-            ilb.withNodeIdentifier(asPathSegments);
-            ilb.withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(asPathSequence).withChild(ImmutableNodes.leafNode(asPathId, localAs)).build());
+            ilb.withNodeIdentifier(this.asPathSegments);
+            ilb.withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(this.asPathSequence).withChild(ImmutableNodes.leafNode(this.asPathId, localAs)).build());
 
             /*
              * We need to check the first entry in the outer list, to check if the choice is a-list. If it is and its
@@ -137,23 +138,23 @@ final class AttributeOperations {
             final UnkeyedListEntryNode firstSegment = oldAsSegments.next();
             final Collection<UnkeyedListEntryNode> reusable = reusableSequence(firstSegment);
             if (reusable != null) {
-                for (UnkeyedListEntryNode child : reusable) {
+                for (final UnkeyedListEntryNode child : reusable) {
                     ilb.withChild(child);
                 }
             }
 
             // Builder of inner container
             final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> icb = Builders.containerBuilder();
-            icb.withNodeIdentifier(asPathList);
+            icb.withNodeIdentifier(this.asPathList);
             icb.withChild(ilb.build());
 
             // Choice inside the outer list
             final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> ocb = Builders.choiceBuilder();
-            ocb.withNodeIdentifier(asPathChoice);
+            ocb.withNodeIdentifier(this.asPathChoice);
             ocb.withChild(icb.build());
 
             // Add the new first segment
-            sb.withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(asPathSegments).withChild(ocb.build()).build());
+            sb.withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(this.asPathSegments).withChild(ocb.build()).build());
 
             // If we did not merge into the original segment, add it
             if (reusable == null) {
@@ -167,16 +168,16 @@ final class AttributeOperations {
         } else {
             // Segments are completely empty, create a completely new AS_PATH container with
             // a single entry
-            sb.withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(asPathSegments).withChild(
-                Builders.choiceBuilder().withNodeIdentifier(asPathChoice).withChild(
-                    Builders.containerBuilder().withNodeIdentifier(asPathList).withChild(
-                        Builders.unkeyedListBuilder().withNodeIdentifier(asPathSequence).withChild(
-                            Builders.unkeyedListEntryBuilder().withNodeIdentifier(asPathSequence).withChild(
-                                ImmutableNodes.leafNode(asPathId, localAs)).build()).build()).build()).build()).build());
+            sb.withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(this.asPathSegments).withChild(
+                Builders.choiceBuilder().withNodeIdentifier(this.asPathChoice).withChild(
+                    Builders.containerBuilder().withNodeIdentifier(this.asPathList).withChild(
+                        Builders.unkeyedListBuilder().withNodeIdentifier(this.asPathSequence).withChild(
+                            Builders.unkeyedListEntryBuilder().withNodeIdentifier(this.asPathSequence).withChild(
+                                ImmutableNodes.leafNode(this.asPathId, localAs)).build()).build()).build()).build()).build());
 
         }
 
-        b.withChild(Builders.containerBuilder().withNodeIdentifier(asPathContainer).withChild(sb.build()).build());
+        b.withChild(Builders.containerBuilder().withNodeIdentifier(this.asPathContainer).withChild(sb.build()).build());
         return b.build();
     }
 
@@ -187,17 +188,17 @@ final class AttributeOperations {
 
         // Create a new CLUSTER_LIST builder
         final ListNodeBuilder<Object, LeafSetEntryNode<Object>> clb = Builders.leafSetBuilder();
-        clb.withNodeIdentifier(clusterListLeaf);
+        clb.withNodeIdentifier(this.clusterListLeaf);
 
         // prepend local CLUSTER_ID
-        clb.withChild(Builders.leafSetEntryBuilder().withValue(clusterId).build());
+        clb.withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(ClusterId.QNAME, clusterId)).withValue(clusterId).build());
 
         // if there was a CLUSTER_LIST attribute, add all other entries
-        final Optional<NormalizedNode<?, ?>> maybeClusterList = NormalizedNodes.findNode(attributes, clusterListPath);
+        final Optional<NormalizedNode<?, ?>> maybeClusterList = NormalizedNodes.findNode(attributes, this.clusterListPath);
         if (maybeClusterList.isPresent()) {
             final NormalizedNode<?, ?> clusterList = maybeClusterList.get();
             if (clusterList instanceof LeafSetNode) {
-                for (LeafSetEntryNode<?> n : ((LeafSetNode<?>)clusterList).getValue()) {
+                for (final LeafSetEntryNode<?> n : ((LeafSetNode<?>)clusterList).getValue()) {
                     // There's no way we can safely avoid this cast
                     @SuppressWarnings("unchecked")
                     final LeafSetEntryNode<Object> child = (LeafSetEntryNode<Object>)n;
@@ -212,16 +213,16 @@ final class AttributeOperations {
 
         // Now wrap it in a container and add it to attributes
         final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> cb = Builders.containerBuilder();
-        cb.withNodeIdentifier(clusterListContainer);
+        cb.withNodeIdentifier(this.clusterListContainer);
         cb.withChild(clb.build());
         b.withChild(cb.build());
 
         // add ORIGINATOR_ID if not present
-        final Optional<NormalizedNode<?, ?>> maybeOriginatorId = NormalizedNodes.findNode(attributes, originatorIdPath);
+        final Optional<NormalizedNode<?, ?>> maybeOriginatorId = NormalizedNodes.findNode(attributes, this.originatorIdPath);
         if (!maybeOriginatorId.isPresent()) {
             final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> oib = Builders.containerBuilder();
-            oib.withNodeIdentifier(originatorIdContainer);
-            oib.withChild(ImmutableNodes.leafNode(originatorIdLeaf, originatorId.getValue()));
+            oib.withNodeIdentifier(this.originatorIdContainer);
+            oib.withChild(ImmutableNodes.leafNode(this.originatorIdLeaf, originatorId.getValue()));
             b.withChild(oib.build());
         }
 
@@ -238,7 +239,7 @@ final class AttributeOperations {
         // indicates whether we performed a modification. If we have not modified the
         // attributes, we can reuse them.
         boolean ret = false;
-        for (DataContainerChild<? extends PathArgument, ?> child : attributes.getValue()) {
+        for (final DataContainerChild<? extends PathArgument, ?> child : attributes.getValue()) {
             if (isTransitiveAttribute(child)) {
                 target.withChild(child);
             } else {
@@ -259,12 +260,12 @@ final class AttributeOperations {
         final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> b = Builders.containerBuilder();
         b.withNodeIdentifier(attributes.getIdentifier());
 
-        boolean modified = spliceTransitives(b, attributes);
+        final boolean modified = spliceTransitives(b, attributes);
         return modified ? b.build() : attributes;
     }
 
     LeafSetNode<?> getClusterList(final ContainerNode attributes) {
-        final Optional<NormalizedNode<?, ?>> maybeClusterList = NormalizedNodes.findNode(attributes, clusterListPath);
+        final Optional<NormalizedNode<?, ?>> maybeClusterList = NormalizedNodes.findNode(attributes, this.clusterListPath);
         if (maybeClusterList.isPresent()) {
             final NormalizedNode<?, ?> clusterList = maybeClusterList.get();
             if (clusterList instanceof LeafSetNode) {
@@ -278,7 +279,7 @@ final class AttributeOperations {
     }
 
     Object getOriginatorId(final ContainerNode attributes) {
-        final Optional<NormalizedNode<?, ?>> maybeOriginatorId = NormalizedNodes.findNode(attributes, originatorIdPath);
+        final Optional<NormalizedNode<?, ?>> maybeOriginatorId = NormalizedNodes.findNode(attributes, this.originatorIdPath);
         if (!maybeOriginatorId.isPresent()) {
             LOG.debug("No ORIGINATOR_ID present");
             return null;

@@ -10,13 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.primitives.UnsignedInteger;
 import java.util.Objects;
 import javax.annotation.concurrent.NotThreadSafe;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,10 +82,7 @@ final class RouteEntry {
         return ret;
     }
 
-    NormalizedNode<?, ?> bestValue(final PathArgument key) {
-        final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = Builders.mapEntryBuilder();
-        b.withNodeIdentifier((NodeIdentifierWithPredicates) key);
-        b.addChild(this.bestPath.getState().getAttributes());
-        return b.build();
+    public ContainerNode attributes() {
+        return this.bestPath.getState().getAttributes();
     }
 }
