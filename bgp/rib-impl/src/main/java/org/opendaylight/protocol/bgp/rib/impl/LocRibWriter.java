@@ -26,6 +26,7 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.EffectiveRibIn;
@@ -37,10 +38,14 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
+import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -135,7 +140,10 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
                     LOG.trace("Continuing");
                     continue;
                 }
-                value = entry.bestValue(e.getKey().getRouteId());
+                final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = Builders.mapEntryBuilder();
+                b.withNodeIdentifier((NodeIdentifierWithPredicates) e.getKey().getRouteId());
+                b.addChild(entry.attributes());
+                value = b.build();
                 LOG.trace("Selected best value {}", value);
             } else {
                 value = null;
@@ -159,18 +167,15 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
              * if we have two eBGP peers, for example, there is no reason why we should perform the translation
              * multiple times.
              */
-            // FIXME: temporary disable AdjRibsOut
-            /*for (final PeerRole role : PeerRole.values()) {
+            for (final PeerRole role : PeerRole.values()) {
                 final PeerExportGroup peerGroup = this.peerPolicyTracker.getPeerGroup(role);
                 if (peerGroup != null) {
-                    final ContainerNode attributes = null;
+                    final ContainerNode attributes = entry.attributes();
                     final PeerId peerId = e.getKey().getPeerId();
                     final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(peerId, attributes);
-
                     for (final Entry<PeerId, YangInstanceIdentifier> pid : peerGroup.getPeers()) {
                         // This points to adj-rib-out for a particular peer/table combination
                         final YangInstanceIdentifier routeTarget = pid.getValue().node(e.getKey().getRouteId());
-
                         if (effectiveAttributes != null && value != null && !peerId.equals(pid.getKey())) {
                             LOG.debug("Write route to AdjRibsOut {}", value);
                             tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
@@ -181,9 +186,8 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
                         }
                     }
                 }
-            }*/
+            }
         }
-
         tx.submit();
     }
 }
