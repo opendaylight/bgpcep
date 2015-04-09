@@ -54,6 +54,21 @@ public class BestPathSelectorTest {
     }
 
     @Test
+    public void testBestPathWithHigherLocalPref() {
+        selector.processPath(ROUTER_ID2, createStateFromPrefMedOrigin());   // local-pref 123
+        BestPath processedPath = selector.result();
+        assertEquals(123L, processedPath.getState().getLocalPref().longValue());
+
+        selector.processPath(ROUTER_ID2, createStateFromPrefMedOriginASPath());   // local-pref 321
+        processedPath = selector.result();
+        assertEquals(321L, processedPath.getState().getLocalPref().longValue());
+
+        selector.processPath(ROUTER_ID2, createStateFromPrefMedOrigin());   // local-pref 123
+        processedPath = selector.result();
+        assertEquals(321L, processedPath.getState().getLocalPref().longValue());
+    }
+
+    @Test
     public void testBestPathForNonEquality() {
         selector.processPath(ROUTER_ID3, createStateFromPrefMedOrigin());
         final BestPath processedPath = selector.result();
