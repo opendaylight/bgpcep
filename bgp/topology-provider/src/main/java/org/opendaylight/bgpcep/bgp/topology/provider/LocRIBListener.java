@@ -8,12 +8,15 @@
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import java.util.EventListener;
-
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+/**
+ * @deprecated This interface is slated for removal in a future release.
+ */
+@Deprecated
 public interface LocRIBListener extends EventListener {
     /**
      * @param trans Modification transaction. The implementation must explicitly commit it if it wishes to have its

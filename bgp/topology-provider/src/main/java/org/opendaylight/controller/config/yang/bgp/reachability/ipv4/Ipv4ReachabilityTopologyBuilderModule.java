@@ -20,11 +20,8 @@ import java.util.concurrent.ExecutionException;
 import org.opendaylight.bgpcep.bgp.topology.provider.Ipv4ReachabilityTopologyBuilder;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeService;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -60,9 +57,8 @@ public final class Ipv4ReachabilityTopologyBuilderModule extends
     @Override
     public java.lang.AutoCloseable createInstance() {
         final Ipv4ReachabilityTopologyBuilder b = new Ipv4ReachabilityTopologyBuilder(getDataProviderDependency(), getLocalRibDependency(), getTopologyId());
-        final InstanceIdentifier<Tables> i = b.tableInstanceIdentifier(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-        final ListenerRegistration<DataChangeListener> r = getDataProviderDependency().registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, i, b, DataChangeScope.SUBTREE);
-        LOG.debug("Registered listener {} on {} (topology {})", b, i, b.getInstanceIdentifier());
+        final ListenerRegistration<?> r = b.start((DataTreeChangeService) getDataProviderDependency(), Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+        LOG.debug("Registered listener {} on topology {}", b, b.getInstanceIdentifier());
 
         final class TopologyReferenceAutocloseable extends DefaultTopologyReference implements AutoCloseable {
             public TopologyReferenceAutocloseable(final InstanceIdentifier<Topology> instanceIdentifier) {
