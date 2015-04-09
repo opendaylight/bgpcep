@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_cc368ee7",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-04-09T10:51:34Z",
+      "side": 1,
+      "message": "can we get rid of the fixme completely?",
+      "revId": "d8525eb37a120ba15ea3f871fa344aa0d3780a83",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
