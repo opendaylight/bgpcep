@@ -62,8 +62,8 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
     }
 
     protected AbstractReachabilityTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
-            final TopologyId topologyId, final Class<T> idClass) {
-        super(dataProvider, locRibReference, topologyId, new TopologyTypesBuilder().build(), idClass);
+            final TopologyId topologyId) {
+        super(dataProvider, locRibReference, topologyId, new TopologyTypesBuilder().build());
     }
 
     private NodeId advertizingNode(final Attributes attrs) {
