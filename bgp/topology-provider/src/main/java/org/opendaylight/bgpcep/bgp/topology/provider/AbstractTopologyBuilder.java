@@ -10,18 +10,19 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeService;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
@@ -42,25 +43,23 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
-import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCloseable, DataChangeListener, LocRIBListener, TopologyReference, TransactionChainListener {
+public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCloseable, DataTreeChangeListener<T>, TopologyReference, TransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologyBuilder.class);
     private final InstanceIdentifier<Topology> topology;
     private final BindingTransactionChain chain;
     private final RibReference locRibReference;
-    private final Class<T> idClass;
 
     @GuardedBy("this")
     private boolean closed = false;
 
     protected AbstractTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
-            final TopologyId topologyId, final TopologyTypes types, final Class<T> idClass) {
+            final TopologyId topologyId, final TopologyTypes types) {
         this.locRibReference = Preconditions.checkNotNull(locRibReference);
-        this.idClass = Preconditions.checkNotNull(idClass);
         this.chain = dataProvider.createTransactionChain(this);
 
         final TopologyKey tk = new TopologyKey(Preconditions.checkNotNull(topologyId));
@@ -87,10 +86,27 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
         });
     }
 
+    @Deprecated
+    protected AbstractTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
+            final TopologyId topologyId, final TopologyTypes types, final Class<T> idClass) {
+        this(dataProvider, locRibReference, topologyId, types);
+    }
+
+    @Deprecated
     public final InstanceIdentifier<Tables> tableInstanceIdentifier(final Class<? extends AddressFamily> afi,
             final Class<? extends SubsequentAddressFamily> safi) {
         return this.locRibReference.getInstanceIdentifier().builder().child(LocRib.class).child(Tables.class, new TablesKey(afi, safi)).build();
     }
+
+    public final ListenerRegistration<AbstractTopologyBuilder<T>> start(final DataTreeChangeService service, final Class<? extends AddressFamily> afi,
+            final Class<? extends SubsequentAddressFamily> safi) {
+        final InstanceIdentifier<Tables> tablesId = this.locRibReference.getInstanceIdentifier().child(LocRib.class).child(Tables.class, new TablesKey(afi, safi));
+        final DataTreeIdentifier<T> id = new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, getRouteWildcard(tablesId));
+
+        return service.registerDataTreeChangeListener(id, this);
+    }
+
+    protected abstract InstanceIdentifier<T> getRouteWildcard(InstanceIdentifier<Tables> tablesId);
 
     protected abstract void createObject(ReadWriteTransaction trans, InstanceIdentifier<T> id, T value);
 
@@ -101,52 +117,47 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
         return this.topology;
     }
 
-    private void addIdentifier(final InstanceIdentifier<?> i, final String set, final Set<InstanceIdentifier<T>> out) {
-        final InstanceIdentifier<T> id = i.firstIdentifierOf(this.idClass);
-        if (id != null) {
-            out.add(id);
-        } else {
-            LOG.debug("Identifier {} in {} set does not contain listening class {}, ignoring it", i, set, this.idClass);
-        }
+    @Override
+    public final synchronized void close() throws TransactionCommitFailedException {
+        LOG.info("Shutting down builder for {}", getInstanceIdentifier());
+        final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
+        trans.delete(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier());
+        trans.submit().checkedGet();
+        this.chain.close();
+        this.closed = true;
     }
 
     @Override
-    public final synchronized void onLocRIBChange(final ReadWriteTransaction trans,
-            final AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> event) {
-        LOG.debug("Received data change {} event with transaction {}", event, trans.getIdentifier());
+    public synchronized void onDataTreeChanged(final Collection<DataTreeModification<T>> changes) {
         if (this.closed) {
             LOG.trace("Transaction chain was already closed, skipping update.");
             return;
         }
 
-        // FIXME: speed this up
-        final Set<InstanceIdentifier<T>> ids = new HashSet<>();
-        for (final InstanceIdentifier<?> i : event.getRemovedPaths()) {
-            addIdentifier(i, "remove", ids);
-        }
-        for (final InstanceIdentifier<?> i : event.getUpdatedData().keySet()) {
-            addIdentifier(i, "update", ids);
-        }
-        for (final InstanceIdentifier<?> i : event.getCreatedData().keySet()) {
-            addIdentifier(i, "create", ids);
-        }
+        final ReadWriteTransaction trans = this.chain.newReadWriteTransaction();
+        LOG.debug("Received data change {} event with transaction {}", changes, trans.getIdentifier());
 
-        final Map<InstanceIdentifier<?>, ? extends DataObject> o = event.getOriginalData();
-        final Map<InstanceIdentifier<?>, DataObject> u = event.getUpdatedData();
-        final Map<InstanceIdentifier<?>, DataObject> c = event.getCreatedData();
-        for (final InstanceIdentifier<T> i : ids) {
-            final T oldValue = this.idClass.cast(o.get(i));
-            T newValue = this.idClass.cast(u.get(i));
-            if (newValue == null) {
-                newValue = this.idClass.cast(c.get(i));
-            }
-
-            LOG.debug("Updating object {} value {} -> {}", i, oldValue, newValue);
-            if (oldValue != null) {
-                removeObject(trans, i, oldValue);
-            }
-            if (newValue != null) {
-                createObject(trans, i, newValue);
+        for (final DataTreeModification<T> change : changes) {
+            try {
+                final DataObjectModification<T> root = change.getRootNode();
+                switch (root.getModificationType()) {
+                case DELETE:
+                    removeObject(trans, change.getRootPath().getRootIdentifier(), root.getDataBefore());
+                    break;
+                case SUBTREE_MODIFIED:
+                case WRITE:
+                    if (root.getDataBefore() != null) {
+                        removeObject(trans, change.getRootPath().getRootIdentifier(), root.getDataBefore());
+                    }
+                    createObject(trans, change.getRootPath().getRootIdentifier(), root.getDataAfter());
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unhandled modification type " + root.getModificationType());
+                }
+            } catch (final RuntimeException e) {
+                LOG.warn("Data change {} was not completely propagated to listener {}, aborting", change, this, e);
+                trans.cancel();
+                return;
             }
         }
 
@@ -161,28 +172,6 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
                 LOG.error("Failed to propagate change by listener {}", AbstractTopologyBuilder.this);
             }
         });
-    }
-
-    @Override
-    public final synchronized void close() throws TransactionCommitFailedException {
-        LOG.info("Shutting down builder for {}", getInstanceIdentifier());
-        final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
-        trans.delete(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier());
-        trans.submit().checkedGet();
-        this.chain.close();
-        this.closed = true;
-    }
-
-    @Override
-    public final void onDataChanged(final AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
-        final ReadWriteTransaction trans = this.chain.newReadWriteTransaction();
-
-        try {
-            onLocRIBChange(trans, change);
-        } catch (final RuntimeException e) {
-            LOG.warn("Data change {} was not completely propagated to listener {}", change, this, e);
-            return;
-        }
     }
 
     @Override
