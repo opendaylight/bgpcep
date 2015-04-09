@@ -231,7 +231,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             // create locRibWriter for each table
             // FIXME: temporary create writer only for Ipv4
             if (key.getAfi().equals(Ipv4AddressFamily.class) || key.getAfi().equals(Ipv6AddressFamily.class)) {
-                LocRibWriter.create(this.ribContextRegistry.getRIBSupportContext(key).getRibSupport(), key, this.createPeerChain(this), getYangRibId(), localAs, (DOMDataTreeChangeService) service, pd);
+                LocRibWriter.create(this.ribContextRegistry, key, this.createPeerChain(this), getYangRibId(), localAs, (DOMDataTreeChangeService) service, pd);
             }
         }
     }
