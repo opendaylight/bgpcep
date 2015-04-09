@@ -120,9 +120,9 @@ public class BestPathSelectionTest {
     @Test
     public void testCompare() {
         assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr1),
-            new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr2)) < 0);
+            new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr2)) > 0);
         assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr2),
-            new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr1)) > 0);
+            new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr1)) < 0);
 
         assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr2),
             new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr3)) < 0);

@@ -59,7 +59,7 @@ public final class BGPObjectComparator implements Comparator<RIBEntryData<?, ?, 
         // 2. prefer path with higher LOCAL_PREF
         if ((o1.getLocalPref() != null || o2.getLocalPref() != null)
                 && (o1.getLocalPref() != null && !o1.getLocalPref().equals(o2.getLocalPref()))) {
-            return o1.getLocalPref().getPref().compareTo(o2.getLocalPref().getPref());
+            return o2.getLocalPref().getPref().compareTo(o1.getLocalPref().getPref());
         }
 
         // 3. prefer learned path
