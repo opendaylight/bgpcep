@@ -16,6 +16,24 @@
       "revId": "d8525eb37a120ba15ea3f871fa344aa0d3780a83",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_cc920e9f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-04-09T11:12:43Z",
+      "side": 1,
+      "message": "Unfortunately not, because linkstate and flowspec rib supports are non-existent.",
+      "parentUuid": "5a93c517_cc368ee7",
+      "revId": "d8525eb37a120ba15ea3f871fa344aa0d3780a83",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
