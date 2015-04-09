@@ -119,7 +119,7 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
         private RIBEntryData<I, D, K> findCandidate(final BGPObjectComparator comparator, final RIBEntryData<I, D, K> initial) {
             RIBEntryData<I, D, K> newState = initial;
             for (final RIBEntryData<I, D, K> s : this.candidates.values()) {
-                if (newState == null || comparator.compare(newState, s) > 0) {
+                if (newState == null || comparator.compare(newState, s) < 0) {
                     newState = s;
                 }
             }
