@@ -22,6 +22,8 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -29,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.AdjRibOut;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.EffectiveRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
@@ -60,27 +63,35 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     private final NodeIdentifier attributesIdentifier;
     private final Long ourAs;
     private final RIBSupport ribSupport;
+    private final NodeIdentifierWithPredicates tableKey;
+    private final RIBSupportContextRegistry registry;
+    private final YangInstanceIdentifier adjRibOutTarget;
+    private final YangInstanceIdentifier ribId;
 
-    LocRibWriter(final RIBSupport ribSupport, final DOMTransactionChain chain, final YangInstanceIdentifier target, final Long ourAs,
+    LocRibWriter(final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier target, final Long ourAs,
         final DOMDataTreeChangeService service, final PolicyDatabase pd, final TablesKey tablesKey) {
         this.chain = Preconditions.checkNotNull(chain);
-        this.locRibTarget = YangInstanceIdentifier.create(target.node(LocRib.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey)).node(Routes.QNAME).getPathArguments());
+        this.tableKey = RibSupportUtils.toYangTablesKey(tablesKey);
+        this.locRibTarget = YangInstanceIdentifier.create(target.node(LocRib.QNAME).node(Tables.QNAME).node(this.tableKey).node(Routes.QNAME).getPathArguments());
         this.ourAs = Preconditions.checkNotNull(ourAs);
-        this.attributesIdentifier = ribSupport.routeAttributesIdentifier();
+        this.registry = registry;
+        this.ribSupport = this.registry.getRIBSupportContext(tablesKey).getRibSupport();
+        this.attributesIdentifier = this.ribSupport.routeAttributesIdentifier();
         this.peerPolicyTracker = new ExportPolicyPeerTracker(service, target, pd);
-        this.ribSupport = ribSupport;
+        this.adjRibOutTarget = target.node(Peer.QNAME).node(Peer.QNAME).node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey);
+        this.ribId = target;
 
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
-        tx.merge(LogicalDatastoreType.OPERATIONAL, this.locRibTarget, ribSupport.emptyRoutes());
+        tx.merge(LogicalDatastoreType.OPERATIONAL, this.locRibTarget, this.ribSupport.emptyRoutes());
         tx.submit();
 
-        final YangInstanceIdentifier tableId = target.node(Peer.QNAME).node(Peer.QNAME).node(EffectiveRibIn.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
+        final YangInstanceIdentifier tableId = target.node(Peer.QNAME).node(Peer.QNAME).node(EffectiveRibIn.QNAME).node(Tables.QNAME).node(this.tableKey);
         service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, tableId), this);
     }
 
-    public static LocRibWriter create(@Nonnull final RIBSupport ribSupport, @Nonnull final TablesKey tablesKey, @Nonnull final DOMTransactionChain chain, @Nonnull final YangInstanceIdentifier target,
+    public static LocRibWriter create(@Nonnull final RIBSupportContextRegistry registry, @Nonnull final TablesKey tablesKey, @Nonnull final DOMTransactionChain chain, @Nonnull final YangInstanceIdentifier target,
         @Nonnull final AsNumber ourAs, @Nonnull final DOMDataTreeChangeService service, @Nonnull final PolicyDatabase pd) {
-        return new LocRibWriter(ribSupport, chain, target, ourAs.getValue(), service, pd, tablesKey);
+        return new LocRibWriter(registry, chain, target, ourAs.getValue(), service, pd, tablesKey);
     }
 
     @Override
@@ -174,7 +185,10 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
                     final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(peerId, attributes);
                     for (final Entry<PeerId, YangInstanceIdentifier> pid : peerGroup.getPeers()) {
                         // This points to adj-rib-out for a particular peer/table combination
-                        final YangInstanceIdentifier routeTarget = pid.getValue().node(e.getKey().getRouteId());
+                        final RIBSupportContext ribCtx = this.registry.getRIBSupportContext(this.tableKey);
+                        // FIXME: the table should be created for a peer only once
+                        ribCtx.clearTable(tx, pid.getValue().node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey));
+                        final YangInstanceIdentifier routeTarget = this.ribSupport.routePath(pid.getValue().node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey).node(Routes.QNAME), e.getKey().getRouteId());
                         if (effectiveAttributes != null && value != null && !peerId.equals(pid.getKey())) {
                             LOG.debug("Write route to AdjRibsOut {}", value);
                             tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
