@@ -15,11 +15,16 @@ import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Ipv4InterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Ipv6InterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.TopologyIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LinkDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LinkDescriptorsBuilder;
+import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +42,14 @@ public final class LinkNlriParser {
     private static final int IPV4_NEIGHBOR_ADDRESS = 260;
     private static final int IPV6_IFACE_ADDRESS = 261;
     private static final int IPV6_NEIGHBOR_ADDRESS = 262;
+
+    /* Link Descriptor QNames */
+    private static final NodeIdentifier IPV4_IFACE_NID = new NodeIdentifier(QName.cachedReference(QName.create(LinkDescriptors.QNAME, "ipv4-interface-address")));
+    private static final NodeIdentifier IPV6_IFACE_NID = new NodeIdentifier(QName.cachedReference(QName.create(LinkDescriptors.QNAME, "ipv6-interface-address")));
+    private static final NodeIdentifier IPV4_NEIGHBOR_NID = new NodeIdentifier(QName.cachedReference(QName.create(LinkDescriptors.QNAME, "ipv4-neighbor-address")));
+    private static final NodeIdentifier IPV6_NEIGHBOR_NID = new NodeIdentifier(QName.cachedReference(QName.create(LinkDescriptors.QNAME, "ipv6-neighbor-address")));
+    private static final NodeIdentifier LINK_LOCAL_NID = new NodeIdentifier(QName.cachedReference(QName.create(LinkDescriptors.QNAME, "link-local-identifier")));
+    private static final NodeIdentifier LINK_REMOTE_NID = new NodeIdentifier(QName.cachedReference(QName.create(LinkDescriptors.QNAME, "link-remote-identifier")));
 
     static LinkDescriptors parseLinkDescriptors(final ByteBuf buffer) throws BGPParsingException {
         final LinkDescriptorsBuilder builder = new LinkDescriptorsBuilder();
@@ -106,6 +119,30 @@ public final class LinkNlriParser {
         }
         if (descriptors.getMultiTopologyId() != null) {
             TlvUtil.writeTLV(TlvUtil.MULTI_TOPOLOGY_ID, Unpooled.copyShort(descriptors.getMultiTopologyId().getValue()), buffer);
+        }
+    }
+
+    static void serializeLinkDescriptors(final ContainerNode descriptors, final ByteBuf buffer) {
+        if (descriptors.getChild(LINK_LOCAL_NID).isPresent() && descriptors.getChild(LINK_REMOTE_NID).isPresent()) {
+            final ByteBuf identifierBuf = Unpooled.buffer();
+            identifierBuf.writeInt(((Long)descriptors.getChild(LINK_LOCAL_NID).get().getValue()).intValue());
+            identifierBuf.writeInt(((Long)descriptors.getChild(LINK_REMOTE_NID).get().getValue()).intValue());
+            TlvUtil.writeTLV(LINK_LR_IDENTIFIERS, identifierBuf, buffer);
+        }
+        if (descriptors.getChild(IPV4_IFACE_NID).isPresent()) {
+            TlvUtil.writeTLV(IPV4_IFACE_ADDRESS, Ipv4Util.byteBufForAddress(new Ipv4Address((String)descriptors.getChild(IPV4_IFACE_NID).get().getValue())), buffer);
+        }
+        if (descriptors.getChild(IPV6_IFACE_NID).isPresent()) {
+            TlvUtil.writeTLV(IPV6_IFACE_ADDRESS, Ipv6Util.byteBufForAddress(new Ipv6Address((String)descriptors.getChild(IPV6_IFACE_NID).get().getValue())), buffer);
+        }
+        if (descriptors.getChild(IPV4_NEIGHBOR_NID).isPresent()) {
+            TlvUtil.writeTLV(IPV4_NEIGHBOR_ADDRESS, Ipv4Util.byteBufForAddress(new Ipv4Address((String)descriptors.getChild(IPV4_NEIGHBOR_NID).get().getValue())), buffer);
+        }
+        if (descriptors.getChild(IPV6_NEIGHBOR_NID).isPresent()) {
+            TlvUtil.writeTLV(IPV6_NEIGHBOR_ADDRESS, Ipv6Util.byteBufForAddress(new Ipv6Address((String)descriptors.getChild(IPV6_NEIGHBOR_NID).get().getValue())), buffer);
+        }
+        if (descriptors.getChild(TlvUtil.MULTI_TOPOLOGY_NID).isPresent()) {
+            TlvUtil.writeTLV(TlvUtil.MULTI_TOPOLOGY_ID, Unpooled.copyShort((Short)descriptors.getChild(TlvUtil.MULTI_TOPOLOGY_NID).get().getValue()), buffer);
         }
     }
 }
