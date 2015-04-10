@@ -9,6 +9,9 @@ package org.opendaylight.protocol.bgp.linkstate.spi;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.PrefixDescriptors;
+import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +26,7 @@ public final class TlvUtil {
     public static final int TOPOLOGY_ID_OFFSET = 0x3fff;
 
     public static final int MULTI_TOPOLOGY_ID = 263;
+    public static final NodeIdentifier MULTI_TOPOLOGY_NID = new NodeIdentifier(QName.cachedReference(QName.create(PrefixDescriptors.QNAME, "topology-identifier")));
     public static final int LOCAL_IPV4_ROUTER_ID = 1028;
     public static final int LOCAL_IPV6_ROUTER_ID = 1029;
 
