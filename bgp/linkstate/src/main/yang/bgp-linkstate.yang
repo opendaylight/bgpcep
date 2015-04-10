@@ -654,4 +654,22 @@ module bgp-linkstate {
             uses linkstate-routes;
         }
     }
+
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:adj-rib-in/bgp-rib:tables/bgp-rib:routes" {
+        case linkstate-routes-case {
+            uses linkstate-routes;
+        }
+    }
+
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:effective-rib-in/bgp-rib:tables/bgp-rib:routes" {
+        case linkstate-routes-case {
+            uses linkstate-routes;
+        }
+    }
+
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:adj-rib-out/bgp-rib:tables/bgp-rib:routes" {
+        case linkstate-routes-case {
+            uses linkstate-routes;
+        }
+    }
 }
