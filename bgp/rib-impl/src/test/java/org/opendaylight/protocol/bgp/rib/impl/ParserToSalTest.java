@@ -134,7 +134,6 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
         reg.close();
     }
 
-    // FIXME: Re-enable once linkstate RIB is introduced.
     @Test
     public void testWithLinkstate() throws InterruptedException, ExecutionException {
         final List<BgpTableType> tables = ImmutableList.of(
