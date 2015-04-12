@@ -19,7 +19,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.ClusterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.OriginatorId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Aggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AsPath;
@@ -28,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.LocalPref;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.MultiExitDisc;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Origin;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
@@ -126,8 +126,8 @@ class RIBSupportContextImpl extends RIBSupportContext {
             .streamChild(this.tableSupport.routesListClass());
 
         this.attributesCodec = routeListCodec.streamChild(Attributes.class).createCachingCodec(this.cacheableAttributes);
-        this.reachNlriCodec = tree.getSubtreeCodec(MP_REACH_NLRI_II).createCachingCodec(tableSupport.cacheableNlriObjects());
-        this.unreachNlriCodec = tree.getSubtreeCodec(MP_UNREACH_NLRI_II).createCachingCodec(tableSupport.cacheableNlriObjects());
+        this.reachNlriCodec = tree.getSubtreeCodec(MP_REACH_NLRI_II).createCachingCodec(this.tableSupport.cacheableNlriObjects());
+        this.unreachNlriCodec = tree.getSubtreeCodec(MP_UNREACH_NLRI_II).createCachingCodec(this.tableSupport.cacheableNlriObjects());
     }
 
     @Override
@@ -163,17 +163,17 @@ class RIBSupportContextImpl extends RIBSupportContext {
     }
 
     private ContainerNode serialiazeUnreachNlri(final MpUnreachNlri nlri) {
-        Preconditions.checkState(unreachNlriCodec != null, "MpReachNlri codec not available");
-        return (ContainerNode) unreachNlriCodec.serialize(nlri);
+        Preconditions.checkState(this.unreachNlriCodec != null, "MpReachNlri codec not available");
+        return (ContainerNode) this.unreachNlriCodec.serialize(nlri);
     }
 
     private ContainerNode serialiazeReachNlri(final MpReachNlri nlri) {
-        Preconditions.checkState(reachNlriCodec != null, "MpReachNlri codec not available");
-        return (ContainerNode) reachNlriCodec.serialize(nlri);
+        Preconditions.checkState(this.reachNlriCodec != null, "MpReachNlri codec not available");
+        return (ContainerNode) this.reachNlriCodec.serialize(nlri);
     }
 
     private ContainerNode serializeAttributes(final PathAttributes pathAttr) {
-        Preconditions.checkState(attributesCodec != null, "MpReachNlri codec not available");
+        Preconditions.checkState(this.attributesCodec != null, "MpReachNlri codec not available");
         final Attributes attr = new AttributesBuilder(pathAttr).build();
         return (ContainerNode) this.attributesCodec.serialize(attr);
     }
