@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_33bf49fd",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateRIBSupport.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-04-12T13:10:12Z",
+      "side": 1,
+      "message": "no need for this to be public",
+      "revId": "1e57ec2ee7bb5def783f985509fc3f696ced0449",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_53ba150b",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateRIBSupport.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-04-12T13:10:12Z",
+      "side": 1,
+      "message": "\u0027static final\u0027",
+      "revId": "1e57ec2ee7bb5def783f985509fc3f696ced0449",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_133c8d92",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateRIBSupport.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-04-12T13:10:12Z",
+      "side": 1,
+      "message": "private?",
+      "revId": "1e57ec2ee7bb5def783f985509fc3f696ced0449",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_b342790e",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateRIBSupport.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-04-12T13:10:12Z",
+      "side": 1,
+      "message": "package-visible is sufficient",
+      "revId": "1e57ec2ee7bb5def783f985509fc3f696ced0449",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_f33801a2",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateRIBSupport.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-04-12T13:10:12Z",
+      "side": 1,
+      "message": "private implies final",
+      "range": {
+        "startLine": 101,
+        "startChar": 9,
+        "endLine": 101,
+        "endChar": 12
+      },
+      "revId": "1e57ec2ee7bb5def783f985509fc3f696ced0449",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
