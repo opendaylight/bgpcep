@@ -564,6 +564,26 @@ module bgp-linkstate {
         }
     }
 
+    grouping linkstate-path-attribute {
+        choice link-state-attribute {
+            case node-attributes-case {
+                container node-attributes {
+                    uses node-state;
+                }
+            }
+            case link-attributes-case {
+                container link-attributes {
+                    uses link-state;
+                }
+            }
+            case prefix-attributes-case {
+                container prefix-attributes {
+                    uses prefix-state;
+                }
+            }
+        }
+    }
+
     grouping linkstate-routes {
         container linkstate-routes {
             list linkstate-route {
@@ -598,23 +618,7 @@ module bgp-linkstate {
 
                 uses bgp-rib:route {
                     augment attributes {
-                        choice attribute-type {
-                            case node-case {
-                                container node-attributes {
-                                    uses node-state;
-                                }
-                            }
-                            case link-case {
-                                container link-attributes {
-                                    uses link-state;
-                                }
-                            }
-                            case prefix-case {
-                                container prefix-attributes {
-                                    uses prefix-state;
-                                }
-                            }
-                        }
+                        uses linkstate-path-attribute;
                     }
                 }
             }
@@ -622,25 +626,7 @@ module bgp-linkstate {
     }
 
     augment "/bgp-msg:update/bgp-msg:path-attributes" {
-        container linkstate-path-attribute {
-            choice link-state-attribute {
-                case node-attributes-case {
-                    container node-attributes {
-                        uses node-state;
-                    }
-                }
-                case link-attributes-case {
-                    container link-attributes {
-                        uses link-state;
-                    }
-                }
-                case prefix-attributes-case {
-                    container prefix-attributes {
-                        uses prefix-state;
-                    }
-                }
-            }
-        }
+        uses linkstate-path-attribute;
     }
 
     augment "/bgp-rib:application-rib/bgp-rib:tables/bgp-rib:routes" {

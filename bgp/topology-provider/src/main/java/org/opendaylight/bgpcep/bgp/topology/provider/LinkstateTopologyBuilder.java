@@ -38,12 +38,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.NodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.PrefixCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LinkDescriptors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.LinkStateAttribute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.LinkAttributesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.NodeAttributesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.PrefixAttributesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.link.attributes._case.LinkAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.node.attributes._case.NodeAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.prefix.attributes._case.PrefixAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.LinkstateRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.Attributes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.AttributeType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.link._case.LinkAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.node._case.NodeAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.prefix._case.PrefixAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.CRouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.IsisNodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.IsisPseudonodeCase;
@@ -498,10 +501,9 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         final LinkAttributes la;
         final Attributes1 attr = attributes.getAugmentation(Attributes1.class);
         if (attr != null) {
-            final AttributeType attrType = attr.getAttributeType();
+            final LinkStateAttribute attrType = attr.getLinkStateAttribute();
             if (attrType != null) {
-                la = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.LinkCase)
-                    attrType).getLinkAttributes();
+                la = ((LinkAttributesCase)attrType).getLinkAttributes();
             } else {
                 LOG.debug("Missing attribute type in link {} route {}, skipping it", l, value);
                 la = null;
@@ -683,10 +685,9 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         //defensive lookup
         final Attributes1 attr = attributes.getAugmentation(Attributes1.class);
         if (attr != null) {
-            final AttributeType attrType = attr.getAttributeType();
+            final LinkStateAttribute attrType = attr.getLinkStateAttribute();
             if (attrType != null) {
-                na = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.NodeCase)
-                    attrType).getNodeAttributes();
+                na = ((NodeAttributesCase)attrType).getNodeAttributes();
             } else {
                 LOG.debug("Missing attribute type in node {} route {}, skipping it", n, value);
                 na = null;
@@ -775,10 +776,9 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         // Very defensive lookup
         final Attributes1 attr = attributes.getAugmentation(Attributes1.class);
         if (attr != null) {
-            final AttributeType attrType = attr.getAttributeType();
+            final LinkStateAttribute attrType = attr.getLinkStateAttribute();
             if (attrType != null) {
-                pa = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.PrefixCase)
-                    attrType).getPrefixAttributes();
+                pa = ((PrefixAttributesCase)attrType).getPrefixAttributes();
             } else {
                 LOG.debug("Missing attribute type in IP {} prefix {} route {}, skipping it", ippfx, p, value);
                 pa = null;

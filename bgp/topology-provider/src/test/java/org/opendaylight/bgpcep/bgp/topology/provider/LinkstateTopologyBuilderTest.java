@@ -45,18 +45,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.node._case.NodeDescriptorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.AdvertisingNodeDescriptorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.PrefixDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.LinkAttributesCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.NodeAttributesCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.PrefixAttributesCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.link.attributes._case.LinkAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.node.attributes._case.NodeAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.prefix.attributes._case.PrefixAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.LinkstateRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.LinkstateRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.LinkstateRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.LinkstateRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.Attributes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.LinkCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.NodeCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.PrefixCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.link._case.LinkAttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.node._case.NodeAttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.attributes.attribute.type.prefix._case.PrefixAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.IsisNodeCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.isis.node._case.IsisNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
@@ -214,7 +214,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         return createBaseBuilder(protocolId)
             .setObjectType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.NodeCaseBuilder().setNodeDescriptors(new NodeDescriptorsBuilder().setCRouterIdentifier(new IsisNodeCaseBuilder().setIsisNode(new IsisNodeBuilder().setIsoSystemId(new IsoSystemIdentifier(new byte[]{ 0, 0, 1, 2, 3, 4 })).build()).build()).setAsNumber(asNumber).build()).build())
             .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.AttributesBuilder()
-                .addAugmentation(Attributes1.class, new Attributes1Builder().setAttributeType(new NodeCaseBuilder().setNodeAttributes(new NodeAttributesBuilder().setDynamicHostname(nodeName).setIpv4RouterId(new Ipv4RouterIdentifier(ipv4RouterId)).build()).build()).build()).build())
+                .addAugmentation(Attributes1.class, new Attributes1Builder().setLinkStateAttribute(new NodeAttributesCaseBuilder().setNodeAttributes(new NodeAttributesBuilder().setDynamicHostname(nodeName).setIpv4RouterId(new Ipv4RouterIdentifier(ipv4RouterId)).build()).build()).build()).build())
             .build();
     }
 
@@ -225,8 +225,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                 .setPrefixDescriptors(new PrefixDescriptorsBuilder().setIpReachabilityInformation(new IpPrefix(new Ipv4Prefix(ipv4Prefix))).build())
                 .build())
             .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.AttributesBuilder()
-                .addAugmentation(Attributes1.class, new Attributes1Builder().setAttributeType(
-                        new PrefixCaseBuilder().setPrefixAttributes(new PrefixAttributesBuilder().setOspfForwardingAddress(new IpAddress(new Ipv4Address(ospfFwdAddress))).setPrefixMetric(new IgpMetric(igpMetric)).build()).build()).build()).build())
+                .addAugmentation(Attributes1.class, new Attributes1Builder().setLinkStateAttribute(new PrefixAttributesCaseBuilder().setPrefixAttributes(new PrefixAttributesBuilder().setOspfForwardingAddress(new IpAddress(new Ipv4Address(ospfFwdAddress))).setPrefixMetric(new IgpMetric(igpMetric)).build()).build()).build()).build())
              .build();
     }
 
@@ -238,7 +237,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                 .setLinkDescriptors(new LinkDescriptorsBuilder().setMultiTopologyId(new TopologyIdentifier(1)).build())
                 .build())
             .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.AttributesBuilder()
-                .addAugmentation(Attributes1.class, new Attributes1Builder().setAttributeType(new LinkCaseBuilder().setLinkAttributes(
+                .addAugmentation(Attributes1.class, new Attributes1Builder().setLinkStateAttribute(new LinkAttributesCaseBuilder().setLinkAttributes(
                     new LinkAttributesBuilder().setSharedRiskLinkGroups(Lists.newArrayList(new SrlgId(5L), new SrlgId(15L))).setAdminGroup(new AdministrativeGroup(0L))
                         .setMaxLinkBandwidth(new Bandwidth(new byte[]{0x00, 0x00, (byte) 0xff, (byte) 0xff}))
                         .setMaxReservableBandwidth(new Bandwidth(new byte[]{0x00, 0x00, (byte) 0xff, (byte) 0x1f}))
