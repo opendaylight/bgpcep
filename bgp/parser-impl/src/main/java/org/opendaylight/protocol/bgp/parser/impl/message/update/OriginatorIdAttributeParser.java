@@ -15,9 +15,9 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.OriginatorId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.OriginatorIdBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.OriginatorIdBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class OriginatorIdAttributeParser implements AttributeParser,AttributeSerializer {
@@ -25,15 +25,15 @@ public final class OriginatorIdAttributeParser implements AttributeParser,Attrib
     public static final int TYPE = 9;
 
     @Override
-    public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) {
+    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) {
         Preconditions.checkArgument(buffer.readableBytes() == Ipv4Util.IP4_LENGTH, "Length of byte array for ORIGINATOR_ID should be %s, but is %s", Ipv4Util.IP4_LENGTH, buffer.readableBytes());
         builder.setOriginatorId(new OriginatorIdBuilder().setOriginator(Ipv4Util.addressForByteBuf(buffer)).build());
     }
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(attribute instanceof PathAttributes, "Attribute parameter is not a PathAttribute object.");
-        final OriginatorId originator = ((PathAttributes) attribute).getOriginatorId();
+        Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
+        final OriginatorId originator = ((Attributes) attribute).getOriginatorId();
         if (originator == null) {
             return;
         }

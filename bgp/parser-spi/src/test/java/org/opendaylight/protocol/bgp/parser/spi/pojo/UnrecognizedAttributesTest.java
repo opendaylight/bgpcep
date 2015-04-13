@@ -20,8 +20,8 @@ import org.junit.rules.ExpectedException;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.UnrecognizedAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.UnrecognizedAttributesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.UnrecognizedAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.UnrecognizedAttributesKey;
 
 public class UnrecognizedAttributesTest {
 
@@ -37,8 +37,8 @@ public class UnrecognizedAttributesTest {
 
     @Test
     public void testUnrecognizedAttributesWithoutOptionalFlag() throws BGPDocumentedException, BGPParsingException {
-        expException.expect(BGPDocumentedException.class);
-        expException.expectMessage("Well known attribute not recognized.");
+        this.expException.expect(BGPDocumentedException.class);
+        this.expException.expectMessage("Well known attribute not recognized.");
         simpleAttrReg.parseAttributes(Unpooled.wrappedBuffer(new byte[] { 0x03, 0x00, 0x05, 0x01, 0x02, 0x03, 0x04, 0x05 }));
     }
 

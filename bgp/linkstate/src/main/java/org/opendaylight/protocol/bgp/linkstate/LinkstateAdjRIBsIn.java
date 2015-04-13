@@ -20,7 +20,6 @@ import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateDestination;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.PathAttributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.ObjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.CLinkstateDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.CLinkstateDestinationBuilder;
@@ -43,23 +42,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.LinkstateRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.linkstate.route.Attributes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.linkstate._case.DestinationLinkstate;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.unreach.nlri.WithdrawnRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.linkstate._case.DestinationLinkstate;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.Attributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.AttributesBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
@@ -70,7 +68,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBs<CLinkstateDestination, Li
     private abstract static class LinkstateRIBEntryData<A extends LinkStateAttribute> extends RIBEntryData<CLinkstateDestination, LinkstateRoute, LinkstateRouteKey> {
         private final A lsattr;
 
-        protected LinkstateRIBEntryData(final Peer peer, final PathAttributes attributes, final A lsattr) {
+        protected LinkstateRIBEntryData(final Peer peer, final Attributes attributes, final A lsattr) {
             super(peer, attributes);
             this.lsattr = lsattr;
         }
@@ -85,7 +83,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBs<CLinkstateDestination, Li
             builder.setIdentifier(key.getIdentifier());
             builder.setProtocolId(key.getProtocolId());
             builder.setDistinguisher(key.getDistinguisher());
-            builder.setAttributes(new AttributesBuilder(getPathAttributes()).addAugmentation(Attributes1.class,
+            builder.setAttributes(new AttributesBuilder(getAttributes()).addAugmentation(Attributes1.class,
                 new Attributes1Builder().setLinkStateAttribute(Preconditions.checkNotNull(createAttributes(this.lsattr))).build()).build());
             builder.setObjectType(Preconditions.checkNotNull(key.getObjectType()));
 
@@ -124,7 +122,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBs<CLinkstateDestination, Li
     }
 
     private static LinkstateRIBEntryData<PrefixAttributesCase> createPrefixData(final Peer peer,
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes, final LinkStateAttribute lsattr) {
+        final Attributes attributes, final LinkStateAttribute lsattr) {
         return new LinkstateRIBEntryData<PrefixAttributesCase>(peer, attributes, (PrefixAttributesCase) lsattr) {
             @Override
             protected LinkStateAttribute createAttributes(final PrefixAttributesCase lsattr) {
@@ -138,7 +136,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBs<CLinkstateDestination, Li
     }
 
     private static LinkstateRIBEntryData<LinkAttributesCase> createLinkData(final Peer peer,
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes, final LinkStateAttribute lsattr) {
+        final Attributes attributes, final LinkStateAttribute lsattr) {
         return new LinkstateRIBEntryData<LinkAttributesCase>(peer, attributes, (LinkAttributesCase) lsattr) {
             @Override
             protected LinkStateAttribute createAttributes(final LinkAttributesCase lsattr) {
@@ -152,7 +150,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBs<CLinkstateDestination, Li
     }
 
     private static LinkstateRIBEntryData<NodeAttributesCase> createNodeData(final Peer peer,
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes, final LinkStateAttribute lsattr) {
+        final Attributes attributes, final LinkStateAttribute lsattr) {
         return new LinkstateRIBEntryData<NodeAttributesCase>(peer, attributes, (NodeAttributesCase) lsattr) {
             @Override
             protected LinkStateAttribute createAttributes(final NodeAttributesCase lsattr) {
@@ -167,7 +165,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBs<CLinkstateDestination, Li
 
     @Override
     public void addRoutes(final AdjRIBsTransaction trans, final Peer peer, final MpReachNlri nlri,
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
+        final Attributes attributes) {
         LOG.debug("Passed nlri {}", nlri);
         final LinkstateDestination keys = ((DestinationLinkstateCase) nlri.getAdvertizedRoutes().getDestinationType()).getDestinationLinkstate();
         if (keys == null) {
@@ -177,10 +175,10 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBs<CLinkstateDestination, Li
         LOG.debug("Iterating over route destinations {}", keys);
         for (final CLinkstateDestination key : keys.getCLinkstateDestination()) {
             LOG.debug("Processing route key {}", key);
-            final LinkStateAttribute lsattr = null;
-            final PathAttributes1 pa = attributes.getAugmentation(PathAttributes1.class);
+            LinkStateAttribute lsattr = null;
+            final Attributes1 pa = attributes.getAugmentation(Attributes1.class);
             if (pa != null) {
-                pa.getLinkStateAttribute();
+                lsattr = pa.getLinkStateAttribute();
             }
             RIBEntryData<CLinkstateDestination, LinkstateRoute, LinkstateRouteKey> data = null;
             final ObjectType ot = key.getObjectType();
@@ -197,7 +195,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBs<CLinkstateDestination, Li
 
     @Override
     public void removeRoutes(final AdjRIBsTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
-        final DestinationLinkstate keys = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase) nlri.getWithdrawnRoutes().getDestinationType()).getDestinationLinkstate();
+        final DestinationLinkstate keys = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase) nlri.getWithdrawnRoutes().getDestinationType()).getDestinationLinkstate();
 
         for (final CLinkstateDestination key : keys.getCLinkstateDestination()) {
             super.remove(trans, peer, key);
@@ -230,11 +228,11 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBs<CLinkstateDestination, Li
         final WithdrawnRoutes wr = builder.getWithdrawnRoutes();
         if (wr == null) {
             builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder().setDestinationLinkstate(
-                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder()
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder().setDestinationLinkstate(
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder()
                         .setCLinkstateDestination(Lists.newArrayList(id)).build()).build()).build());
         } else {
-            ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase) wr.getDestinationType())
+            ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase) wr.getDestinationType())
             .getDestinationLinkstate().getCLinkstateDestination().add(id);
         }
     }

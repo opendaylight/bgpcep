@@ -25,9 +25,9 @@ import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.Nlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.NlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.WithdrawnRoutesBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -81,8 +81,8 @@ public class BGPUpdateMessageParser implements MessageParser, MessageSerializer 
         }
         if (totalPathAttrLength > 0) {
             try {
-                final PathAttributes pathAttributes = this.reg.parseAttributes(buffer.readSlice(totalPathAttrLength));
-                eventBuilder.setPathAttributes(pathAttributes);
+                final Attributes pathAttributes = this.reg.parseAttributes(buffer.readSlice(totalPathAttrLength));
+                eventBuilder.setAttributes(pathAttributes);
             } catch (final BGPParsingException | RuntimeException e) {
                 // Catch everything else and turn it into a BGPDocumentedException
                 LOG.warn("Could not parse BGP attributes", e);
@@ -116,9 +116,9 @@ public class BGPUpdateMessageParser implements MessageParser, MessageSerializer 
         } else {
             messageBody.writeZero(WITHDRAWN_ROUTES_LENGTH_SIZE);
         }
-        if (update.getPathAttributes() != null) {
+        if (update.getAttributes() != null) {
             final ByteBuf pathAttributesBuf = Unpooled.buffer();
-            this.reg.serializeAttribute(update.getPathAttributes(), pathAttributesBuf);
+            this.reg.serializeAttribute(update.getAttributes(), pathAttributesBuf);
             messageBody.writeShort(pathAttributesBuf.writerIndex());
             messageBody.writeBytes(pathAttributesBuf);
         } else {

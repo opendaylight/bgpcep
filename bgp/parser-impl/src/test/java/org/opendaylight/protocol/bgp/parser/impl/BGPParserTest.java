@@ -37,34 +37,34 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.prefixes.DestinationIpv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.prefixes.destination.ipv6.Ipv6Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.prefixes.destination.ipv6.Ipv6PrefixesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv6CaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv6CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Aggregator;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AggregatorBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AsPathBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AtomicAggregateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ClusterIdBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Communities;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ExtendedCommunities;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ExtendedCommunitiesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.LocalPrefBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.MultiExitDiscBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.OriginBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.OriginatorIdBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.UnrecognizedAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.as.path.Segments;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.as.path.SegmentsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Aggregator;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.AggregatorBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.AsPathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.AtomicAggregateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.ClusterIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Communities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.ExtendedCommunities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.ExtendedCommunitiesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.LocalPrefBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.MultiExitDiscBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.OriginBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.OriginatorIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.UnrecognizedAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.as.path.Segments;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.as.path.SegmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.Nlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.NlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.WithdrawnRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
@@ -216,9 +216,9 @@ public class BGPParserTest {
 
         // check path attributes
 
-        final PathAttributes attrs = message.getPathAttributes();
+        final Attributes attrs = message.getAttributes();
 
-        final PathAttributesBuilder paBuilder = new PathAttributesBuilder();
+        final AttributesBuilder paBuilder = new AttributesBuilder();
 
         paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
         assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
@@ -240,7 +240,7 @@ public class BGPParserTest {
 
         paBuilder.setUnrecognizedAttributes(Collections.<UnrecognizedAttributes> emptyList());
 
-        builder.setPathAttributes(paBuilder.build());
+        builder.setAttributes(paBuilder.build());
 
         assertEquals(builder.build(), message);
 
@@ -335,9 +335,9 @@ public class BGPParserTest {
 
         // check path attributes
 
-        final PathAttributes attrs = message.getPathAttributes();
+        final Attributes attrs = message.getAttributes();
 
-        final PathAttributesBuilder paBuilder = new PathAttributesBuilder();
+        final AttributesBuilder paBuilder = new AttributesBuilder();
 
         paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
         assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
@@ -361,13 +361,13 @@ public class BGPParserTest {
         mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
             new DestinationIpv6CaseBuilder().setDestinationIpv6(new DestinationIpv6Builder().setIpv6Prefixes(prefs).build()).build()).build());
 
-        paBuilder.addAugmentation(PathAttributes1.class, new PathAttributes1Builder().setMpReachNlri(mpBuilder.build()).build());
-        assertEquals(paBuilder.getAugmentation(PathAttributes1.class).getMpReachNlri(),
-            attrs.getAugmentation(PathAttributes1.class).getMpReachNlri());
+        paBuilder.addAugmentation(Attributes1.class, new Attributes1Builder().setMpReachNlri(mpBuilder.build()).build());
+        assertEquals(paBuilder.getAugmentation(Attributes1.class).getMpReachNlri(),
+            attrs.getAugmentation(Attributes1.class).getMpReachNlri());
         paBuilder.setUnrecognizedAttributes(Collections.<UnrecognizedAttributes> emptyList());
         // check API message
 
-        builder.setPathAttributes(paBuilder.build());
+        builder.setAttributes(paBuilder.build());
         assertEquals(builder.build(), message);
 
         final ByteBuf buffer = Unpooled.buffer();
@@ -446,9 +446,9 @@ public class BGPParserTest {
             new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.9")).build()).build();
 
         // check path attributes
-        final PathAttributes attrs = message.getPathAttributes();
+        final Attributes attrs = message.getAttributes();
 
-        final PathAttributesBuilder paBuilder = new PathAttributesBuilder();
+        final AttributesBuilder paBuilder = new AttributesBuilder();
 
         paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Incomplete).build());
         assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
@@ -465,7 +465,7 @@ public class BGPParserTest {
         paBuilder.setAggregator(aggregator);
         assertEquals(paBuilder.getAggregator(), attrs.getAggregator());
         paBuilder.setUnrecognizedAttributes(Collections.<UnrecognizedAttributes> emptyList());
-        builder.setPathAttributes(paBuilder.build());
+        builder.setAttributes(paBuilder.build());
 
         assertEquals(builder.build(), message);
 
@@ -544,9 +544,9 @@ public class BGPParserTest {
                     new Ipv4Address("192.168.1.0")).setLocalAdministrator(new byte[] { 0x12, 0x34 }).build()).build()).build());
 
         // check path attributes
-        final PathAttributes attrs = message.getPathAttributes();
+        final Attributes attrs = message.getAttributes();
 
-        final PathAttributesBuilder paBuilder = new PathAttributesBuilder();
+        final AttributesBuilder paBuilder = new AttributesBuilder();
 
         paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build());
         assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
@@ -568,7 +568,7 @@ public class BGPParserTest {
 
         paBuilder.setUnrecognizedAttributes(Collections.<UnrecognizedAttributes> emptyList());
         // check API message
-        builder.setPathAttributes(paBuilder.build());
+        builder.setAttributes(paBuilder.build());
         assertEquals(builder.build(), message);
 
         final ByteBuf buffer = Unpooled.buffer();
@@ -648,8 +648,8 @@ public class BGPParserTest {
         final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(6), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
         final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
 
-        final Class<? extends AddressFamily> afi = message.getPathAttributes().getAugmentation(PathAttributes2.class).getMpUnreachNlri().getAfi();
-        final Class<? extends SubsequentAddressFamily> safi = message.getPathAttributes().getAugmentation(PathAttributes2.class).getMpUnreachNlri().getSafi();
+        final Class<? extends AddressFamily> afi = message.getAttributes().getAugmentation(Attributes2.class).getMpUnreachNlri().getAfi();
+        final Class<? extends SubsequentAddressFamily> safi = message.getAttributes().getAugmentation(Attributes2.class).getMpUnreachNlri().getSafi();
 
         assertEquals(Ipv6AddressFamily.class, afi);
         assertEquals(UnicastSubsequentAddressFamily.class, safi);
@@ -679,8 +679,8 @@ public class BGPParserTest {
         final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(6), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
         final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
 
-        final Class<? extends AddressFamily> afi = message.getPathAttributes().getAugmentation(PathAttributes2.class).getMpUnreachNlri().getAfi();
-        final Class<? extends SubsequentAddressFamily> safi = message.getPathAttributes().getAugmentation(PathAttributes2.class).getMpUnreachNlri().getSafi();
+        final Class<? extends AddressFamily> afi = message.getAttributes().getAugmentation(Attributes2.class).getMpUnreachNlri().getAfi();
+        final Class<? extends SubsequentAddressFamily> safi = message.getAttributes().getAugmentation(Attributes2.class).getMpUnreachNlri().getSafi();
 
         assertEquals(Ipv6AddressFamily.class, afi);
         assertEquals(UnicastSubsequentAddressFamily.class, safi);
