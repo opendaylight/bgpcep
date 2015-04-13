@@ -617,7 +617,7 @@ module bgp-linkstate {
                 uses linkstate;
 
                 uses bgp-rib:route {
-                    augment attributes {
+                    augment bgp-msg:path-attributes {
                         uses linkstate-path-attribute;
                     }
                 }
