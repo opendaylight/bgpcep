@@ -19,8 +19,8 @@ import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCase;
@@ -66,7 +66,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
         super(dataProvider, locRibReference, topologyId, new TopologyTypesBuilder().build(), idClass);
     }
 
-    private NodeId advertizingNode(final Attributes attrs) {
+    private NodeId advertizingNode(final PathAttributes attrs) {
         final CNextHop nh = attrs.getCNextHop();
         if (nh instanceof Ipv4NextHopCase) {
             final Ipv4NextHop ipv4 = ((Ipv4NextHopCase) nh).getIpv4NextHop();
@@ -99,7 +99,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
     }
 
     private InstanceIdentifier<IgpNodeAttributes> ensureNodePresent(final ReadWriteTransaction trans, final NodeId ni) {
-        final NodeUsage present = nodes.get(ni);
+        final NodeUsage present = this.nodes.get(ni);
         if (present != null) {
             return present.attrId;
         }
@@ -111,11 +111,11 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
             .addAugmentation(Node1.class, new Node1Builder().setIgpNodeAttributes(
                 new IgpNodeAttributesBuilder().setPrefix(Collections.<Prefix>emptyList()).build()).build()).build());
 
-        nodes.put(ni, new NodeUsage(ret));
+        this.nodes.put(ni, new NodeUsage(ret));
         return ret;
     }
 
-    protected abstract Attributes getAttributes(final T value);
+    protected abstract PathAttributes getAttributes(final T value);
 
     protected abstract IpPrefix getPrefix(final T value);
 
@@ -134,7 +134,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
     @Override
     protected final void removeObject(final ReadWriteTransaction trans, final InstanceIdentifier<T> id, final T value) {
         final NodeId ni = advertizingNode(getAttributes(value));
-        final NodeUsage present = nodes.get(ni);
+        final NodeUsage present = this.nodes.get(ni);
         Preconditions.checkState(present != null, "Removing prefix from non-existent node %s", present);
 
         final PrefixKey pk = new PrefixKey(getPrefix(value));
@@ -157,7 +157,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
                 present.useCount = attrs.getPrefix().size();
                 if (present.useCount == 0) {
                     trans.delete(LogicalDatastoreType.OPERATIONAL, nodeInstanceId(ni));
-                    nodes.remove(ni);
+                    this.nodes.remove(ni);
                 }
             }
         }
