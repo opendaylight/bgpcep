@@ -31,7 +31,7 @@ import org.opendaylight.protocol.bgp.parser.spi.ParameterParser;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
@@ -70,7 +70,7 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
     protected NlriSerializer nlriSerializer;
 
     @Override
-    protected List<AutoCloseable> startImpl(BGPExtensionProviderContext context) {
+    protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
         initMock();
         final List<AutoCloseable> regs = Lists.newArrayList();
         regs.add(context.registerAttributeParser(TYPE, this.attrParser));
