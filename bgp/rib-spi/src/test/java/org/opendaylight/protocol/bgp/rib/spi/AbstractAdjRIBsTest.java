@@ -27,8 +27,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4RouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4RouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.PathAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
@@ -43,7 +43,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -162,7 +161,7 @@ public class AbstractAdjRIBsTest {
     @Test
     public void testUpdateMsgFor() {
         final TestAdjRIBs adjsRib = new TestAdjRIBs(TABLES_IID);
-        final Update update1 = adjsRib.updateMessageFor(IPV4_PREFIX1, new Ipv4RouteBuilder().setAttributes(new AttributesBuilder().build()).build());
+        final Update update1 = adjsRib.updateMessageFor(IPV4_PREFIX1, new Ipv4RouteBuilder().setPathAttributes(new PathAttributesBuilder().build()).build());
         final PathAttributes1 attr1 = update1.getPathAttributes().getAugmentation(PathAttributes1.class);
         Assert.assertNotNull(attr1);
         Assert.assertEquals(Ipv4AddressFamily.class, attr1.getMpReachNlri().getAfi());
@@ -188,7 +187,7 @@ public class AbstractAdjRIBsTest {
 
             @Override
             protected Ipv4Route getDataObject(final Ipv4Prefix key, final Ipv4RouteKey id) {
-                return new Ipv4RouteBuilder().setKey(id).setAttributes(new AttributesBuilder(this.attributes).build()).build();
+                return new Ipv4RouteBuilder().setKey(id).setPathAttributes(new PathAttributesBuilder(this.attributes).build()).build();
             }
 
         }
