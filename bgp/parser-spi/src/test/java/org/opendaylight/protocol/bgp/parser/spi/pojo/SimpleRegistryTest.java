@@ -34,7 +34,7 @@ import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
@@ -55,7 +55,7 @@ public class SimpleRegistryTest {
     public void setUp() {
         this.ctx = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
         this.activator = new BgpTestActivator();
-        this.activator.start(ctx);
+        this.activator.start(this.ctx);
     }
 
     @After
@@ -65,7 +65,7 @@ public class SimpleRegistryTest {
 
     @Test
     public void testSimpleAttribute() throws BGPDocumentedException, BGPParsingException {
-        final AttributeRegistry attrReg = ctx.getAttributeRegistry();
+        final AttributeRegistry attrReg = this.ctx.getAttributeRegistry();
         final byte[] attributeBytes = {
             0x00, 0x00, 0x00
         };
@@ -78,7 +78,7 @@ public class SimpleRegistryTest {
 
     @Test
     public void testSimpleParameter() throws Exception {
-        final ParameterRegistry paramReg = ctx.getParameterRegistry();
+        final ParameterRegistry paramReg = this.ctx.getParameterRegistry();
         final BgpParameters param = Mockito.mock(BgpParameters.class);
         Mockito.doReturn(BgpParameters.class).when(param).getImplementedInterface();
         final byte[] paramBytes = {
@@ -93,7 +93,7 @@ public class SimpleRegistryTest {
 
     @Test
     public void testSimpleCapability() throws Exception {
-        final CapabilityRegistry capaRegistry = ctx.getCapabilityRegistry();
+        final CapabilityRegistry capaRegistry = this.ctx.getCapabilityRegistry();
         final byte[] capabilityBytes = {
             0x0, 0x00
         };
@@ -108,7 +108,7 @@ public class SimpleRegistryTest {
 
     @Test
     public void testSimpleMessageRegistry() throws Exception {
-        final MessageRegistry msgRegistry = ctx.getMessageRegistry();
+        final MessageRegistry msgRegistry = this.ctx.getMessageRegistry();
 
         final byte[] msgBytes = {
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
@@ -129,21 +129,21 @@ public class SimpleRegistryTest {
 
     @Test
     public void testAfiRegistry() throws Exception {
-        final AddressFamilyRegistry afiRegistry = ctx.getAddressFamilyRegistry();
+        final AddressFamilyRegistry afiRegistry = this.ctx.getAddressFamilyRegistry();
         assertEquals(Ipv4AddressFamily.class, afiRegistry.classForFamily(1));
         assertEquals(1, afiRegistry.numberForClass(Ipv4AddressFamily.class).intValue());
     }
 
     @Test
     public void testSafiRegistry() throws Exception {
-        final SubsequentAddressFamilyRegistry safiRegistry = ctx.getSubsequentAddressFamilyRegistry();
+        final SubsequentAddressFamilyRegistry safiRegistry = this.ctx.getSubsequentAddressFamilyRegistry();
         assertEquals(UnicastSubsequentAddressFamily.class, safiRegistry.classForFamily(1));
         assertEquals(1, safiRegistry.numberForClass(UnicastSubsequentAddressFamily.class).intValue());
     }
 
     @Test
     public void testMpReachParser() throws BGPParsingException {
-        final NlriRegistry nlriReg = ctx.getNlriRegistry();
+        final NlriRegistry nlriReg = this.ctx.getNlriRegistry();
         final byte[] mpReachBytes = {
             0x00, 0x01, 0x01, 0x04, 0x7f, 0x00, 0x00, 0x01, 0x00
         };
@@ -161,7 +161,7 @@ public class SimpleRegistryTest {
 
     @Test
     public void testMpUnReachParser() throws BGPParsingException {
-        final NlriRegistry nlriReg = ctx.getNlriRegistry();
+        final NlriRegistry nlriReg = this.ctx.getNlriRegistry();
         final byte[] mpUnreachBytes = {
             0x00, 0x01, 0x01
         };
