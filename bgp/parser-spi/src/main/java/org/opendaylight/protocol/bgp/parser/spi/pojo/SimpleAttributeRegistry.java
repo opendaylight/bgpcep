@@ -27,11 +27,11 @@ import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Values;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.UnrecognizedAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.UnrecognizedAttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.UnrecognizedAttributesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.PathAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.PathAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.path.attributes.UnrecognizedAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.path.attributes.UnrecognizedAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.path.attributes.UnrecognizedAttributesKey;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.slf4j.Logger;
@@ -98,7 +98,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
                     .setTransitive(flags.get(TRANSITIVE_BIT))
                     .setType((short)type)
                     .setValue(ByteArray.readBytes(buffer, len)).build();
-                unrecognizedAttributes.add(unrecognizedAttribute);
+                this.unrecognizedAttributes.add(unrecognizedAttribute);
                 LOG.debug("Unrecognized attribute were parsed: {}", unrecognizedAttribute);
             } else {
                 attributes.put(type, new RawAttribute(parser, buffer.readSlice(len)));
@@ -125,7 +125,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
             final RawAttribute a = e.getValue();
             a.parser.parseAttribute(a.buffer, builder);
         }
-        builder.setUnrecognizedAttributes(unrecognizedAttributes);
+        builder.setUnrecognizedAttributes(this.unrecognizedAttributes);
         return builder.build();
     }
 

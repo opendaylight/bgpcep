@@ -18,7 +18,8 @@ import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.PathAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1Builder;
@@ -30,7 +31,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.Attributes;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -84,7 +84,7 @@ public class ApplicationPeer implements AutoCloseable, Peer, DataChangeListener 
             ribsIn.addAdvertisement(reachBuilder, (Route)data.getValue());
             final PathAttributesBuilder pa = new PathAttributesBuilder();
             pa.addAugmentation(PathAttributes1.class, new PathAttributes1Builder().setMpReachNlri(reachBuilder.build()).build());
-            this.addAttributes(pa, r.getAttributes());
+            this.addAttributes(pa, r.getPathAttributes());
             pa.setCNextHop(reachBuilder.getCNextHop());
             ub.setPathAttributes(pa.build());
             LOG.debug("Updating RIB with {}", ub.build());
@@ -92,7 +92,7 @@ public class ApplicationPeer implements AutoCloseable, Peer, DataChangeListener 
         }
     }
 
-    private void addAttributes(final PathAttributesBuilder pa, final Attributes a) {
+    private void addAttributes(final PathAttributesBuilder pa, final PathAttributes a) {
         if (a != null) {
             pa.setAggregator(a.getAggregator());
             pa.setAsPath(a.getAsPath());

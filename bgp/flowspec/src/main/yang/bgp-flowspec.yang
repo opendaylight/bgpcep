@@ -304,7 +304,7 @@ module bgp-flowspec {
                 }
                 key "route-key";
                 uses bgp-rib:route {
-                    augment attributes {
+                    augment bgp-msg:path-attributes {
                         uses flowspec-destination;
                     }
                 }
