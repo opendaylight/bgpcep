@@ -56,30 +56,30 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.OspfPseudonodeCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.ospf.node._case.OspfNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.ospf.pseudonode._case.OspfPseudonodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.OptionalCapabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AsPathBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.LocalPrefBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.OriginBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.UnrecognizedAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.as.path.Segments;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.AsPathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.LocalPrefBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.OriginBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.UnrecognizedAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.as.path.Segments;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
@@ -156,8 +156,8 @@ public class ParserTest {
         final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(0), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
         final Update message = ParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
 
-        final Class<? extends AddressFamily> afi = message.getPathAttributes().getAugmentation(PathAttributes2.class).getMpUnreachNlri().getAfi();
-        final Class<? extends SubsequentAddressFamily> safi = message.getPathAttributes().getAugmentation(PathAttributes2.class).getMpUnreachNlri().getSafi();
+        final Class<? extends AddressFamily> afi = message.getAttributes().getAugmentation(Attributes2.class).getMpUnreachNlri().getAfi();
+        final Class<? extends SubsequentAddressFamily> safi = message.getAttributes().getAugmentation(Attributes2.class).getMpUnreachNlri().getSafi();
 
         assertEquals(LinkstateAddressFamily.class, afi);
         assertEquals(LinkstateSubsequentAddressFamily.class, safi);
@@ -341,7 +341,7 @@ public class ParserTest {
         clBuilder.setIdentifier(new Identifier(BigInteger.ONE));
         clBuilder.setProtocolId(ProtocolId.Ospf);
 
-        final PathAttributes1Builder lsBuilder = new PathAttributes1Builder();
+        final Attributes1Builder lsBuilder = new Attributes1Builder();
         final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
         mpBuilder.setAfi(LinkstateAddressFamily.class);
         mpBuilder.setSafi(LinkstateSubsequentAddressFamily.class);
@@ -372,9 +372,9 @@ public class ParserTest {
         lsBuilder.setMpReachNlri(mpBuilder.build());
 
         // check path attributes
-        final PathAttributes attrs = message.getPathAttributes();
+        final Attributes attrs = message.getAttributes();
 
-        final PathAttributesBuilder paBuilder = new PathAttributesBuilder();
+        final AttributesBuilder paBuilder = new AttributesBuilder();
 
         paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
         assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
@@ -385,7 +385,7 @@ public class ParserTest {
         paBuilder.setLocalPref(new LocalPrefBuilder().setPref(100L).build());
         assertEquals(paBuilder.getLocalPref(), attrs.getLocalPref());
 
-        final MpReachNlri mp = attrs.getAugmentation(PathAttributes1.class).getMpReachNlri();
+        final MpReachNlri mp = attrs.getAugmentation(Attributes1.class).getMpReachNlri();
         assertEquals(mpBuilder.getAfi(), mp.getAfi());
         assertEquals(mpBuilder.getSafi(), mp.getSafi());
         assertEquals(mpBuilder.getCNextHop(), mp.getCNextHop());
@@ -397,21 +397,21 @@ public class ParserTest {
             new DestinationLinkstateCaseBuilder().setDestinationLinkstate(dBuilder.build()).build()).build());
         lsBuilder.setMpReachNlri(mpBuilder.build());
 
-        paBuilder.addAugmentation(PathAttributes1.class, lsBuilder.build());
+        paBuilder.addAugmentation(Attributes1.class, lsBuilder.build());
 
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.PathAttributes1Builder lsAttrBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.PathAttributes1Builder();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Attributes1Builder lsAttrBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Attributes1Builder();
 
         lsAttrBuilder.setLinkStateAttribute(
             new LinkAttributesCaseBuilder().setLinkAttributes(new LinkAttributesBuilder().setMetric(new Metric(1L)).build()).build());
         paBuilder.addAugmentation(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.PathAttributes1.class,
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Attributes1.class,
             lsAttrBuilder.build());
         paBuilder.setUnrecognizedAttributes(Collections.<UnrecognizedAttributes> emptyList());
 
         assertEquals(
             lsAttrBuilder.build(),
             attrs.getAugmentation(
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.PathAttributes1.class));
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Attributes1.class));
 
         final List<CLinkstateDestination> dests = ((DestinationLinkstateCase) mp.getAdvertizedRoutes().getDestinationType()).getDestinationLinkstate().getCLinkstateDestination();
 
@@ -419,7 +419,7 @@ public class ParserTest {
 
         assertEquals(linkstates, dests);
         // check API message
-        builder.setPathAttributes(paBuilder.build());
+        builder.setAttributes(paBuilder.build());
         assertEquals(builder.build(), message);
 
         final ByteBuf buffer = Unpooled.buffer();
@@ -549,7 +549,7 @@ public class ParserTest {
             new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x01010102L).build()).build()).build());
         linkstates.add(clBuilder.setObjectType(nCase.build()).build());
 
-        final PathAttributes1Builder lsBuilder = new PathAttributes1Builder();
+        final Attributes1Builder lsBuilder = new Attributes1Builder();
         final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
         mpBuilder.setAfi(LinkstateAddressFamily.class);
         mpBuilder.setSafi(LinkstateSubsequentAddressFamily.class);
@@ -563,9 +563,9 @@ public class ParserTest {
         lsBuilder.setMpReachNlri(mpBuilder.build());
 
         // check path attributes
-        final PathAttributes attrs = message.getPathAttributes();
+        final Attributes attrs = message.getAttributes();
 
-        final PathAttributesBuilder paBuilder = new PathAttributesBuilder();
+        final AttributesBuilder paBuilder = new AttributesBuilder();
 
         paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
         assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
@@ -576,10 +576,10 @@ public class ParserTest {
         paBuilder.setLocalPref(new LocalPrefBuilder().setPref(100L).build());
         assertEquals(paBuilder.getLocalPref(), attrs.getLocalPref());
 
-        paBuilder.addAugmentation(PathAttributes1.class, lsBuilder.build());
+        paBuilder.addAugmentation(Attributes1.class, lsBuilder.build());
         paBuilder.setUnrecognizedAttributes(Collections.<UnrecognizedAttributes> emptyList());
 
-        final MpReachNlri mp = attrs.getAugmentation(PathAttributes1.class).getMpReachNlri();
+        final MpReachNlri mp = attrs.getAugmentation(Attributes1.class).getMpReachNlri();
         assertEquals(mpBuilder.getAfi(), mp.getAfi());
         assertEquals(mpBuilder.getSafi(), mp.getSafi());
         assertEquals(mpBuilder.getCNextHop(), mp.getCNextHop());
@@ -591,7 +591,7 @@ public class ParserTest {
         assertEquals(linkstates, dests);
 
         // check API message
-        builder.setPathAttributes(paBuilder.build());
+        builder.setAttributes(paBuilder.build());
         assertEquals(builder.build(), message);
 
         final ByteBuf buffer = Unpooled.buffer();

@@ -275,7 +275,7 @@ module bgp-flowspec {
         }
     }
 
-    augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
+    augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
         case destination-flowspec-case {
             container destination-flowspec {
                 uses flowspec-destination;
@@ -283,7 +283,7 @@ module bgp-flowspec {
         }
     }
 
-    augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type" {
+    augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type" {
         case destination-flowspec-case {
             container destination-flowspec {
                 uses flowspec-destination;
@@ -304,7 +304,7 @@ module bgp-flowspec {
                 }
                 key "route-key";
                 uses bgp-rib:route {
-                    augment attributes {
+                    augment bgp-msg:attributes {
                         uses flowspec-destination;
                     }
                 }
@@ -312,7 +312,7 @@ module bgp-flowspec {
         }
     }
 
-    augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-msg:extended-communities/bgp-msg:extended-community" {
+    augment "/bgp-msg:update/bgp-msg:attributes/bgp-msg:extended-communities/bgp-msg:extended-community" {
         reference "https://tools.ietf.org/html/rfc5575#section-7";
         case traffic-rate-extended-community-case {
             container traffic-rate-extended-community {

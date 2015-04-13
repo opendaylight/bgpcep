@@ -88,77 +88,79 @@ module bgp-message {
 
     grouping path-attributes {
         reference "http://tools.ietf.org/html/rfc4271#section-5";
-        container origin {
-            reference "http://tools.ietf.org/html/rfc4271#section-5.1.1";
-            leaf value {
-                type bgp-t:bgp-origin;
-                mandatory true;
-            }
-        }
-        container as-path {
-            reference "http://tools.ietf.org/html/rfc4271#section-5.1.2";
-            list segments {
-                uses bgp-t:as-path-segment;
-            }
-        }
-        uses bgp-t:next-hop;
-        container multi-exit-disc {
-            reference "http://tools.ietf.org/html/rfc4271#section-5.1.4";
-            leaf med {
-                type uint32;
-            }
-        }
-        container local-pref {
-            reference "http://tools.ietf.org/html/rfc4271#section-5.1.5";
-            leaf pref {
-                type uint32;
-            }
-        }
-        container atomic-aggregate {
-            reference "http://tools.ietf.org/html/rfc4271#section-5.1.6";
-            presence "Atomic Aggregate attribute is present.";
-        }
-        container aggregator {
-            uses bgp-t:bgp-aggregator;
-        }
-        list communities {
-            uses bgp-t:community;
-        }
-        list extended-communities {
-            uses bgp-t:extended-community;
-        }
-        container originator-id {
-            uses originator-id;
-        }
-        container cluster-id {
-            uses cluster-id;
-        }
-        container aigp {
-            container aigp-tlv {
-                leaf metric {
-                    type netc:accumulated-igp-metric;
+        container attributes {
+            container origin {
+                reference "http://tools.ietf.org/html/rfc4271#section-5.1.1";
+                leaf value {
+                    type bgp-t:bgp-origin;
+                    mandatory true;
                 }
             }
-        }
-        list unrecognized-attributes {
-            key type;
-            leaf partial {
-                type boolean;
-                mandatory true;
-            }
-            leaf transitive {
-                type boolean;
-                mandatory true;
-            }
-            leaf type {
-                type uint8;
-                mandatory true;
-            }
-            leaf value {
-                type binary {
-                    length 0..65535;
+            container as-path {
+                reference "http://tools.ietf.org/html/rfc4271#section-5.1.2";
+                list segments {
+                    uses bgp-t:as-path-segment;
                 }
-                mandatory true;
+            }
+            uses bgp-t:next-hop;
+            container multi-exit-disc {
+                reference "http://tools.ietf.org/html/rfc4271#section-5.1.4";
+                leaf med {
+                    type uint32;
+                }
+            }
+            container local-pref {
+                reference "http://tools.ietf.org/html/rfc4271#section-5.1.5";
+                leaf pref {
+                    type uint32;
+                }
+            }
+            container atomic-aggregate {
+                reference "http://tools.ietf.org/html/rfc4271#section-5.1.6";
+                presence "Atomic Aggregate attribute is present.";
+            }
+            container aggregator {
+                uses bgp-t:bgp-aggregator;
+            }
+            list communities {
+                uses bgp-t:community;
+            }
+            list extended-communities {
+                uses bgp-t:extended-community;
+            }
+            container originator-id {
+                uses originator-id;
+            }
+            container cluster-id {
+                uses cluster-id;
+            }
+            container aigp {
+                container aigp-tlv {
+                    leaf metric {
+                        type netc:accumulated-igp-metric;
+                    }
+                }
+            }
+            list unrecognized-attributes {
+                key type;
+                leaf partial {
+                    type boolean;
+                    mandatory true;
+                }
+                leaf transitive {
+                    type boolean;
+                    mandatory true;
+                }
+                leaf type {
+                    type uint8;
+                    mandatory true;
+                }
+                leaf value {
+                    type binary {
+                        length 0..65535;
+                    }
+                    mandatory true;
+                }
             }
         }
     }
@@ -166,10 +168,7 @@ module bgp-message {
     notification update {
         description "Update Message";
         reference "http://tools.ietf.org/html/rfc4271#section-4.3";
-        container path-attributes {
-            reference "http://tools.ietf.org/html/rfc4271#section-5";
-            uses path-attributes;
-        }
+        uses path-attributes;
         container withdrawn-routes {
             leaf-list withdrawn-routes {
                 type inet:ipv4-prefix;

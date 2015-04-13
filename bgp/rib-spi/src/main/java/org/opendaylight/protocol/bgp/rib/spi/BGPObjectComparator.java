@@ -15,8 +15,8 @@ import java.util.Comparator;
 import java.util.List;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBs.RIBEntryData;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.as.path.Segments;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.AListCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.ASetCase;
@@ -48,8 +48,8 @@ public final class BGPObjectComparator implements Comparator<RIBEntryData<?, ?, 
             return -1;
         }
 
-        final PathAttributes newPath = newObject.getPathAttributes();
-        final PathAttributes oldPath = oldObject.getPathAttributes();
+        final Attributes newPath = newObject.getAttributes();
+        final Attributes oldPath = oldObject.getAttributes();
         if (newPath.equals(oldPath) && Arrays.equals(newObject.getPeer().getRawIdentifier(), oldObject.getPeer().getRawIdentifier())) {
             return 0;
         }

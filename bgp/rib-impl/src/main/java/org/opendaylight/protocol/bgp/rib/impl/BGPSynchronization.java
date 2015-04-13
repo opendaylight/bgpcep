@@ -16,11 +16,11 @@ import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
@@ -85,14 +85,14 @@ public class BGPSynchronization {
         TablesKey type = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
         boolean isEOR = false;
         if (msg.getNlri() == null && msg.getWithdrawnRoutes() == null) {
-            if (msg.getPathAttributes() != null) {
-                if (msg.getPathAttributes().getAugmentation(PathAttributes1.class) != null) {
-                    final PathAttributes1 pa = msg.getPathAttributes().getAugmentation(PathAttributes1.class);
+            if (msg.getAttributes() != null) {
+                if (msg.getAttributes().getAugmentation(Attributes1.class) != null) {
+                    final Attributes1 pa = msg.getAttributes().getAugmentation(Attributes1.class);
                     if (pa.getMpReachNlri() != null) {
                         type = new TablesKey(pa.getMpReachNlri().getAfi(), pa.getMpReachNlri().getSafi());
                     }
-                } else if (msg.getPathAttributes().getAugmentation(PathAttributes2.class) != null) {
-                    final PathAttributes2 pa = msg.getPathAttributes().getAugmentation(PathAttributes2.class);
+                } else if (msg.getAttributes().getAugmentation(Attributes2.class) != null) {
+                    final Attributes2 pa = msg.getAttributes().getAugmentation(Attributes2.class);
                     if (pa.getMpUnreachNlri() != null) {
                         type = new TablesKey(pa.getMpUnreachNlri().getAfi(), pa.getMpUnreachNlri().getSafi());
                     }
@@ -140,10 +140,10 @@ public class BGPSynchronization {
     }
 
     private Update generateEOR(final TablesKey type) {
-        return new UpdateBuilder().setPathAttributes(
-                new PathAttributesBuilder().addAugmentation(
-                        PathAttributes2.class,
-                        new PathAttributes2Builder().setMpUnreachNlri(
+        return new UpdateBuilder().setAttributes(
+                new AttributesBuilder().addAugmentation(
+                        Attributes2.class,
+                        new Attributes2Builder().setMpUnreachNlri(
                                 new MpUnreachNlriBuilder().setAfi(type.getAfi()).setSafi(type.getSafi()).build()).build()).build()).build();
     }
 }

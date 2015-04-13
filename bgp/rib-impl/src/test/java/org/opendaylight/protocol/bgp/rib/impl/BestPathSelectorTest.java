@@ -12,10 +12,10 @@ import static org.junit.Assert.assertNotEquals;
 
 import com.google.common.primitives.UnsignedInteger;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AsPath;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.LocalPref;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.MultiExitDisc;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Origin;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.AsPath;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.LocalPref;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.MultiExitDisc;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -36,70 +36,70 @@ public class BestPathSelectorTest {
     private final UnsignedInteger ROUTER_ID2 = RouterIds.routerIdForPeerId(new PeerId("bgp://127.0.0.1"));
     private final UnsignedInteger ROUTER_ID3 = RouterIds.routerIdForPeerId(new PeerId("bgp://127.0.0.2"));
     private final BestPathState STATE = new BestPathState(createStateFromPrefMedOriginASPath());
-    private final BestPath originBestPath = new BestPath(ROUTER_ID, STATE);
+    private final BestPath originBestPath = new BestPath(this.ROUTER_ID, this.STATE);
     private final BestPathSelector selector = new BestPathSelector(20L);
     private DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder;
 
     @Test
     public void testBestPathForEquality() {
-        selector.processPath(ROUTER_ID2, createStateFromPrefMedOriginASPath());
-        final BestPath processedPath = selector.result();
+        this.selector.processPath(this.ROUTER_ID2, createStateFromPrefMedOriginASPath());
+        final BestPath processedPath = this.selector.result();
 
-        assertEquals(originBestPath.getRouterId(), processedPath.getRouterId());
-        assertEquals(originBestPath.getState().getAsPathLength(), processedPath.getState().getAsPathLength());
-        assertEquals(originBestPath.getState().getLocalPref(), processedPath.getState().getLocalPref());
-        assertEquals(originBestPath.getState().getMultiExitDisc(), processedPath.getState().getMultiExitDisc());
-        assertEquals(originBestPath.getState().getOrigin(), processedPath.getState().getOrigin());
-        assertEquals(originBestPath.getState().getPeerAs(), processedPath.getState().getPeerAs());
+        assertEquals(this.originBestPath.getRouterId(), processedPath.getRouterId());
+        assertEquals(this.originBestPath.getState().getAsPathLength(), processedPath.getState().getAsPathLength());
+        assertEquals(this.originBestPath.getState().getLocalPref(), processedPath.getState().getLocalPref());
+        assertEquals(this.originBestPath.getState().getMultiExitDisc(), processedPath.getState().getMultiExitDisc());
+        assertEquals(this.originBestPath.getState().getOrigin(), processedPath.getState().getOrigin());
+        assertEquals(this.originBestPath.getState().getPeerAs(), processedPath.getState().getPeerAs());
     }
 
     @Test
     public void testBestPathWithHigherLocalPref() {
-        selector.processPath(ROUTER_ID2, createStateFromPrefMedOrigin());   // local-pref 123
-        BestPath processedPath = selector.result();
+        this.selector.processPath(this.ROUTER_ID2, createStateFromPrefMedOrigin());   // local-pref 123
+        BestPath processedPath = this.selector.result();
         assertEquals(123L, processedPath.getState().getLocalPref().longValue());
 
-        selector.processPath(ROUTER_ID2, createStateFromPrefMedOriginASPath());   // local-pref 321
-        processedPath = selector.result();
+        this.selector.processPath(this.ROUTER_ID2, createStateFromPrefMedOriginASPath());   // local-pref 321
+        processedPath = this.selector.result();
         assertEquals(321L, processedPath.getState().getLocalPref().longValue());
 
-        selector.processPath(ROUTER_ID2, createStateFromPrefMedOrigin());   // local-pref 123
-        processedPath = selector.result();
+        this.selector.processPath(this.ROUTER_ID2, createStateFromPrefMedOrigin());   // local-pref 123
+        processedPath = this.selector.result();
         assertEquals(321L, processedPath.getState().getLocalPref().longValue());
     }
 
     @Test
     public void testBestPathForNonEquality() {
-        selector.processPath(ROUTER_ID3, createStateFromPrefMedOrigin());
-        final BestPath processedPath = selector.result();
+        this.selector.processPath(this.ROUTER_ID3, createStateFromPrefMedOrigin());
+        final BestPath processedPath = this.selector.result();
 
-        assertNotEquals(originBestPath.getRouterId(), processedPath.getRouterId());
-        assertEquals(originBestPath.getState().getAsPathLength(), processedPath.getState().getAsPathLength());
-        assertNotEquals(originBestPath.getState().getLocalPref(), processedPath.getState().getLocalPref());
-        assertNotEquals(originBestPath.getState().getMultiExitDisc(), processedPath.getState().getMultiExitDisc());
-        assertNotEquals(originBestPath.getState().getOrigin(), processedPath.getState().getOrigin());
+        assertNotEquals(this.originBestPath.getRouterId(), processedPath.getRouterId());
+        assertEquals(this.originBestPath.getState().getAsPathLength(), processedPath.getState().getAsPathLength());
+        assertNotEquals(this.originBestPath.getState().getLocalPref(), processedPath.getState().getLocalPref());
+        assertNotEquals(this.originBestPath.getState().getMultiExitDisc(), processedPath.getState().getMultiExitDisc());
+        assertNotEquals(this.originBestPath.getState().getOrigin(), processedPath.getState().getOrigin());
         assertEquals(0L, (long)processedPath.getState().getPeerAs());
     }
 
     private ContainerNode createStateFromPrefMedOrigin() {
-        dataContBuilder = createContBuilder(DATA_QNAME);
+        this.dataContBuilder = createContBuilder(this.DATA_QNAME);
         // local pref
-        dataContBuilder.addChild(createContBuilder(LocalPref.QNAME).addChild(createValueBuilder(123L, LocalPref.QNAME, "pref").build()).build());
+        this.dataContBuilder.addChild(createContBuilder(LocalPref.QNAME).addChild(createValueBuilder(123L, LocalPref.QNAME, "pref").build()).build());
         // multi exit disc
-        dataContBuilder.addChild(createContBuilder(MultiExitDisc.QNAME).addChild(createValueBuilder(1234L, MultiExitDisc.QNAME, "med").build()).build());
+        this.dataContBuilder.addChild(createContBuilder(MultiExitDisc.QNAME).addChild(createValueBuilder(1234L, MultiExitDisc.QNAME, "med").build()).build());
         // origin
-        dataContBuilder.addChild(createContBuilder(Origin.QNAME).addChild(createValueBuilder("igp", Origin.QNAME, "value").build()).build());
-        return dataContBuilder.build();
+        this.dataContBuilder.addChild(createContBuilder(Origin.QNAME).addChild(createValueBuilder("igp", Origin.QNAME, "value").build()).build());
+        return this.dataContBuilder.build();
     }
 
     private ContainerNode createStateFromPrefMedOriginASPath() {
-        dataContBuilder = createContBuilder(DATA_QNAME);
+        this.dataContBuilder = createContBuilder(this.DATA_QNAME);
         // local pref
-        dataContBuilder.addChild(createContBuilder(LocalPref.QNAME).addChild(createValueBuilder(321L, LocalPref.QNAME, "pref").build()).build());
+        this.dataContBuilder.addChild(createContBuilder(LocalPref.QNAME).addChild(createValueBuilder(321L, LocalPref.QNAME, "pref").build()).build());
         // multi exit disc
-        dataContBuilder.addChild(createContBuilder(MultiExitDisc.QNAME).addChild(createValueBuilder(4321L, MultiExitDisc.QNAME, "med").build()).build());
+        this.dataContBuilder.addChild(createContBuilder(MultiExitDisc.QNAME).addChild(createValueBuilder(4321L, MultiExitDisc.QNAME, "med").build()).build());
         // origin
-        dataContBuilder.addChild(createContBuilder(Origin.QNAME).addChild(createValueBuilder("egp", Origin.QNAME, "value").build()).build());
+        this.dataContBuilder.addChild(createContBuilder(Origin.QNAME).addChild(createValueBuilder("egp", Origin.QNAME, "value").build()).build());
         // as path
         final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> asPathContBuilder = ImmutableContainerNodeSchemaAwareBuilder.create();
         asPathContBuilder.withNodeIdentifier(new NodeIdentifier(AsPath.QNAME));
@@ -114,8 +114,8 @@ public class BestPathSelectorTest {
         segments.addChild(segmentBuilder.build());
 
         asPathContBuilder.addChild(segments.build());
-        dataContBuilder.addChild(asPathContBuilder.build());
-        return dataContBuilder.build();
+        this.dataContBuilder.addChild(asPathContBuilder.build());
+        return this.dataContBuilder.build();
     }
 
     private DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> createContBuilder(final QName qname) {

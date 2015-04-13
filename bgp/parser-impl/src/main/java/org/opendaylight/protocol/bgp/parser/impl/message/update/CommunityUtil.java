@@ -11,7 +11,7 @@ import com.google.common.base.Preconditions;
 import org.opendaylight.protocol.util.NoopReferenceCache;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.CommunitiesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.CommunitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
 
 /**
@@ -51,7 +51,7 @@ public final class CommunityUtil {
      * @return new Community
      */
     public Community create(final long asn, final int semantics) {
-        return create(refCache, asn, semantics);
+        return create(this.refCache, asn, semantics);
     }
 
     /**
@@ -61,7 +61,7 @@ public final class CommunityUtil {
      * @return new Community
      */
     public Community valueOf(final String string) {
-        return valueOf(refCache, string);
+        return valueOf(this.refCache, string);
     }
 
     /**

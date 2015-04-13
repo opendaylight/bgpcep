@@ -18,17 +18,17 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
@@ -43,15 +43,15 @@ import org.slf4j.LoggerFactory;
 @ThreadSafe
 public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K extends Identifier<D>> implements AdjRIBsIn<I, D>, RouteEncoder {
     protected abstract static class RIBEntryData<I, D extends Identifiable<K> & Route, K extends Identifier<D>> {
-        private final PathAttributes attributes;
+        private final Attributes attributes;
         private final Peer peer;
 
-        protected RIBEntryData(final Peer peer, final PathAttributes attributes) {
+        protected RIBEntryData(final Peer peer, final Attributes attributes) {
             this.attributes = Preconditions.checkNotNull(attributes);
             this.peer = Preconditions.checkNotNull(peer);
         }
 
-        public PathAttributes getPathAttributes() {
+        public Attributes getAttributes() {
             return this.attributes;
         }
 
@@ -92,8 +92,8 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
     protected AbstractAdjRIBs(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
         this.basePath = Preconditions.checkNotNull(basePath);
         this.tableType = new BgpTableTypeImpl(basePath.getKey().getAfi(), basePath.getKey().getSafi());
-        this.eor = new UpdateBuilder().setPathAttributes(new PathAttributesBuilder().addAugmentation(
-            PathAttributes1.class, new PathAttributes1Builder().setMpReachNlri(new MpReachNlriBuilder(this.tableType)
+        this.eor = new UpdateBuilder().setAttributes(new AttributesBuilder().addAugmentation(
+            Attributes1.class, new Attributes1Builder().setMpReachNlri(new MpReachNlriBuilder(this.tableType)
                 .build()).build()).build()).build();
     }
 
@@ -140,7 +140,7 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
      * @return Base path.
      */
     protected final KeyedInstanceIdentifier<Tables, TablesKey> getBasePath() {
-        return basePath;
+        return this.basePath;
     }
 
     /**
@@ -180,7 +180,7 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
     public abstract I keyForIdentifier(KeyedInstanceIdentifier<D, K> id);
 
     /**
-     * Common backend for {@link AdjRIBsIn#addRoutes(AdjRIBsTransaction, Peer, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes)} implementations.
+     * Common backend for {@link AdjRIBsIn#addRoutes(AdjRIBsTransaction, Peer, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.Attributes)} implementations.
      * If a new route is added, check first for its existence in Map of entries.
      * If the route is already there, change it's state. Then check for peer in
      * Map of peers, if it's not there, add it.
@@ -207,7 +207,7 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
     }
 
     /**
-     * Common backend for {@link AdjRIBsIn#removeRoutes(AdjRIBsTransaction, Peer, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri)} implementations.
+     * Common backend for {@link AdjRIBsIn#removeRoutes(AdjRIBsTransaction, Peer, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri)} implementations.
      *
      * @param trans Transaction context
      * @param peer Originating peer
@@ -235,21 +235,21 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
     @Override
     public Update updateMessageFor(final Object key, final Route route) {
         final UpdateBuilder ub = new UpdateBuilder();
-        final PathAttributesBuilder pab = new PathAttributesBuilder();
+        final AttributesBuilder pab = new AttributesBuilder();
 
         if (route != null) {
             final MpReachNlriBuilder reach = new MpReachNlriBuilder(this.tableType);
 
             addAdvertisement(reach, (D)route);
             pab.fieldsFrom(route.getAttributes());
-            pab.addAugmentation(PathAttributes1.class, new PathAttributes1Builder().setMpReachNlri(reach.build()).build()).build();
+            pab.addAugmentation(Attributes1.class, new Attributes1Builder().setMpReachNlri(reach.build()).build()).build();
         } else {
             final MpUnreachNlriBuilder unreach = new MpUnreachNlriBuilder(this.tableType);
             addWithdrawal(unreach, (I)key);
-            pab.addAugmentation(PathAttributes2.class, new PathAttributes2Builder().setMpUnreachNlri(unreach.build()).build()).build();
+            pab.addAugmentation(Attributes2.class, new Attributes2Builder().setMpUnreachNlri(unreach.build()).build()).build();
         }
 
-        ub.setPathAttributes(pab.build());
+        ub.setAttributes(pab.build());
         return ub.build();
     }
 

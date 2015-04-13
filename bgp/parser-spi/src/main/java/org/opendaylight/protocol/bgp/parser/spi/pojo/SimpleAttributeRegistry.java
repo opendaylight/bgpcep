@@ -27,11 +27,11 @@ import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Values;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.UnrecognizedAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.UnrecognizedAttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.UnrecognizedAttributesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.UnrecognizedAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.UnrecognizedAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.UnrecognizedAttributesKey;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.slf4j.Logger;
@@ -98,7 +98,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
                     .setTransitive(flags.get(TRANSITIVE_BIT))
                     .setType((short)type)
                     .setValue(ByteArray.readBytes(buffer, len)).build();
-                unrecognizedAttributes.add(unrecognizedAttribute);
+                this.unrecognizedAttributes.add(unrecognizedAttribute);
                 LOG.debug("Unrecognized attribute were parsed: {}", unrecognizedAttribute);
             } else {
                 attributes.put(type, new RawAttribute(parser, buffer.readSlice(len)));
@@ -109,7 +109,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
     }
 
     @Override
-    public PathAttributes parseAttributes(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+    public Attributes parseAttributes(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
         final Map<Integer, RawAttribute> attributes = new TreeMap<>();
         while (buffer.isReadable()) {
             addAttribute(buffer, attributes);
@@ -118,14 +118,14 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
          * TreeMap guarantees that we will be invoking the parser in the order
          * of increasing attribute type.
          */
-        final PathAttributesBuilder builder = new PathAttributesBuilder();
+        final AttributesBuilder builder = new AttributesBuilder();
         for (final Entry<Integer, RawAttribute> e : attributes.entrySet()) {
             LOG.debug("Parsing attribute type {}", e.getKey());
 
             final RawAttribute a = e.getValue();
             a.parser.parseAttribute(a.buffer, builder);
         }
-        builder.setUnrecognizedAttributes(unrecognizedAttributes);
+        builder.setUnrecognizedAttributes(this.unrecognizedAttributes);
         return builder.build();
     }
 
