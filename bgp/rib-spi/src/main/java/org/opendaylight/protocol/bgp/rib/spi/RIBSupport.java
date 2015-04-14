@@ -105,4 +105,12 @@ public interface RIBSupport {
      * @return YangInstanceIdentifier with routesPath + specific RIB support routes path + routeId
      */
     @Nonnull YangInstanceIdentifier routePath(@Nonnull YangInstanceIdentifier routesPath, @Nonnull PathArgument routeId);
+
+    /**
+     * Indicate whether this AFI/SAFI combination is a complex route. Simple routes are those which
+     * only have their key and attributes, complex routes are those which include more structured data.
+     *
+     * @return True if this is a complex route, false otherwise.
+     */
+    boolean isComplexRoute();
 }

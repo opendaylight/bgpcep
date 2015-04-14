@@ -74,6 +74,11 @@ public class AbstractRIBSupportTest {
             final ContainerNode destination, final ContainerNode attributes) {
             AbstractRIBSupportTest.dest = destination;
         }
+
+        @Override
+        public boolean isComplexRoute() {
+            return false;
+        }
     };
 
     @Mock

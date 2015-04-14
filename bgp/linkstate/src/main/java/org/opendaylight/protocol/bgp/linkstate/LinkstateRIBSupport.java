@@ -154,4 +154,9 @@ final class LinkstateRIBSupport extends AbstractRIBSupport {
     protected NodeIdentifier destinationContainerIdentifier() {
         return this.destination;
     }
+
+    @Override
+    public boolean isComplexRoute() {
+        return true;
+    }
 }
