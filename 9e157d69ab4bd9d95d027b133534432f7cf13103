@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_6579fcfb",
+        "filename": "bgp/rib-api/src/main/yang/bgp-rib.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-04-14T11:37:40Z",
+      "side": 1,
+      "message": "This is our public public API and this change would break compatibility with Helium. Opt for renaming the container in bgp-msg, so that RESTCONF remains the same.",
+      "revId": "9e157d69ab4bd9d95d027b133534432f7cf13103",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
