@@ -126,7 +126,7 @@ final class AdjRibInWriter {
      * @param tableTypes New tables, must not be null
      * @return New writer
      */
-    AdjRibInWriter transform(final PeerId newPeerId, final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes) {
+    AdjRibInWriter transform(final PeerId newPeerId, final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes, final boolean isAppPeer) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
 
         final YangInstanceIdentifier newTablesRoot;
@@ -137,7 +137,7 @@ final class AdjRibInWriter {
             }
 
             // Install new empty peer structure
-            final NodeIdentifierWithPredicates peerKey = new NodeIdentifierWithPredicates(Peer.QNAME, PEER_ID_QNAME, newPeerId.getValue());
+            final NodeIdentifierWithPredicates peerKey = IdentifierUtils.domPeerId(newPeerId);
             final YangInstanceIdentifier newPeerPath = this.ribPath.node(Peer.QNAME).node(peerKey);
 
             final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> pb = Builders.mapEntryBuilder();
@@ -146,7 +146,9 @@ final class AdjRibInWriter {
             pb.withChild(ImmutableNodes.leafNode(PEER_ROLE, this.role));
             pb.withChild(EMPTY_ADJRIBIN);
             pb.withChild(EMPTY_EFFRIBIN);
-            pb.withChild(EMPTY_ADJRIBOUT);
+            if (!isAppPeer) {
+                pb.withChild(EMPTY_ADJRIBOUT);
+            }
 
             tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath, pb.build());
             LOG.debug("New peer {} structure installed.", newPeerPath);

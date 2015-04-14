@@ -68,4 +68,7 @@ final class IdentifierUtils {
         return firstKeyOf(id, IS_TABLES);
     }
 
+    static NodeIdentifierWithPredicates domPeerId(final PeerId peer) {
+        return new NodeIdentifierWithPredicates(Peer.QNAME, PEER_ID, peer.getValue());
+    }
 }

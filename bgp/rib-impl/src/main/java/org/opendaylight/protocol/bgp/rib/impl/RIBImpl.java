@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -129,6 +130,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final Ipv4Address bgpIdentifier;
     private final ClusterIdentifier clusterId;
     private final Set<BgpTableType> localTables;
+    private final Set<TablesKey> localTablesKeys;
     private final RIBTables tables;
     private final BlockingQueue<Peer> peers;
     private final DataBroker dataBroker;
@@ -181,6 +183,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.sessionStrategyFactory = Preconditions.checkNotNull(sessionStrategyFactory);
         this.tcpStrategyFactory = Preconditions.checkNotNull(tcpStrategyFactory);
         this.localTables = ImmutableSet.copyOf(localTables);
+        this.localTablesKeys = new HashSet<TablesKey>();
         this.tables = new RIBTables(extensions);
         this.peers = new LinkedBlockingQueue<>();
         this.dataBroker = dps;
@@ -200,6 +203,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
         for (final BgpTableType t : localTables) {
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
+            this.localTablesKeys.add(key);
             if (this.tables.create(trans, this, key) == null) {
                 LOG.debug("Did not create local table for unhandled table type {}", t);
             }
@@ -483,6 +487,10 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             //no-op
         }
         return 0;
+    }
+
+    public Set<TablesKey> getLocalTablesKeys() {
+        return this.localTablesKeys;
     }
 
     @Override
