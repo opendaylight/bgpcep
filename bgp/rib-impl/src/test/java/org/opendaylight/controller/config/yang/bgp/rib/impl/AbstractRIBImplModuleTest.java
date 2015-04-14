@@ -262,7 +262,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         return nameCreated;
     }
 
-    private static ObjectName lookupDomAsyncDataBroker(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
+    public static ObjectName lookupDomAsyncDataBroker(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
         try {
             return transaction.lookupConfigBean(DomInmemoryDataBrokerModuleFactory.NAME, DOM_BROKER_INSTANCE_NAME);
         } catch (final InstanceNotFoundException e) {
