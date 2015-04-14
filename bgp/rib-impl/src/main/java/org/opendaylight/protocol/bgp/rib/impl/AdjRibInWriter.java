@@ -137,7 +137,7 @@ final class AdjRibInWriter {
             }
 
             // Install new empty peer structure
-            final NodeIdentifierWithPredicates peerKey = new NodeIdentifierWithPredicates(Peer.QNAME, PEER_ID_QNAME, newPeerId.getValue());
+            final NodeIdentifierWithPredicates peerKey = IdentifierUtils.domPeerId(newPeerId);
             final YangInstanceIdentifier newPeerPath = this.ribPath.node(Peer.QNAME).node(peerKey);
 
             final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> pb = Builders.mapEntryBuilder();
