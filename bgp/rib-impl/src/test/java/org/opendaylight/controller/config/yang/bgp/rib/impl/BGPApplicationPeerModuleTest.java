@@ -35,14 +35,14 @@ public class BGPApplicationPeerModuleTest extends AbstractRIBImplModuleTest {
 
     @Test
     public void testCreateInstance() throws Exception {
-        final CommitStatus status = createApplicationPeerInsatnce();
+        final CommitStatus status = createApplicationPeerInstance();
         assertBeanCount(1, FACTORY_NAME);
         assertStatus(status, 14, 0, 0);
     }
 
     @Test
     public void testReusingOldInstance() throws Exception {
-        createApplicationPeerInsatnce();
+        createApplicationPeerInstance();
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
         final CommitStatus status = transaction.commit();
@@ -52,7 +52,7 @@ public class BGPApplicationPeerModuleTest extends AbstractRIBImplModuleTest {
 
     @Test
     public void testReconfigure() throws Exception {
-        createApplicationPeerInsatnce();
+        createApplicationPeerInstance();
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
         final BGPApplicationPeerModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME),
@@ -64,15 +64,15 @@ public class BGPApplicationPeerModuleTest extends AbstractRIBImplModuleTest {
         assertEquals(NEW_APP_RIB_ID, getApplicationRibId());
     }
 
-    private CommitStatus createApplicationPeerInsatnce() throws Exception {
+    private CommitStatus createApplicationPeerInstance() throws Exception {
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         final ObjectName objName = transaction.createModule(BGPApplicationPeerModuleFactory.NAME, INSTANCE_NAME);
         final BGPApplicationPeerModuleMXBean mxBean = transaction.newMXBeanProxy(objName, BGPApplicationPeerModuleMXBean.class);
-        final ObjectName dataBrokerON = createAsyncDataBrokerInstance(transaction);
+        final ObjectName dataBrokerON = lookupDomAsyncDataBroker(transaction);
         mxBean.setDataBroker(dataBrokerON);
         mxBean.setBgpPeerId(BGP_ID);
         mxBean.setApplicationRibId(APP_RIB_ID);
-        mxBean.setTargetRib(createRIBImplModuleInstance(transaction, dataBrokerON));
+        mxBean.setTargetRib(createRIBImplModuleInstance(transaction, createAsyncDataBrokerInstance(transaction)));
         return transaction.commit();
     }
 

@@ -229,7 +229,7 @@ module odl-bgp-rib-impl-cfg {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity mdsb:binding-async-data-broker;
+                        config:required-identity sal:dom-async-data-broker;
                     }
                 }
             }

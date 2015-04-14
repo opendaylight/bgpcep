@@ -7,13 +7,15 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRib;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibKey;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
+import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 /**
  * Application peer handler which handles translation from custom RIB into local RIB
@@ -22,6 +24,8 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
     public BGPApplicationPeerModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
+
+    private static final QName APP_ID_QNAME = QName.cachedReference(QName.create(Rib.QNAME, "id"));
 
     public BGPApplicationPeerModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final org.opendaylight.controller.config.yang.bgp.rib.impl.BGPApplicationPeerModule oldModule, final java.lang.AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
@@ -34,9 +38,9 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final InstanceIdentifier<?> id = InstanceIdentifier.builder(ApplicationRib.class, new ApplicationRibKey(getApplicationRibId())).build();
+        final YangInstanceIdentifier id = YangInstanceIdentifier.builder().node(ApplicationRib.QNAME).nodeWithKey(ApplicationRib.QNAME, APP_ID_QNAME, getApplicationRibId()).build();
+        final DOMDataTreeChangeService service = (DOMDataTreeChangeService) getDataBrokerDependency().getSupportedExtensions().get(DOMDataTreeChangeService.class);
         final ApplicationPeer peer = new ApplicationPeer(getApplicationRibId(), getBgpPeerId(), (RIBImpl) getTargetRibDependency());
-        return getDataBrokerDependency().registerDataChangeListener(LogicalDatastoreType.CONFIGURATION, id, peer, DataChangeScope.SUBTREE);
+        return service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, id), peer);
     }
-
 }

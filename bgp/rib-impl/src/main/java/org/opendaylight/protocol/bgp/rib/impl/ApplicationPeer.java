@@ -13,9 +13,15 @@ import java.util.Arrays;
 import java.util.Map.Entry;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
+import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBs;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
+import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
@@ -28,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
@@ -36,18 +43,25 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ApplicationPeer implements AutoCloseable, Peer, DataChangeListener {
+public class ApplicationPeer implements AutoCloseable, Peer, DataChangeListener, TransactionChainListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationPeer.class);
 
     private final byte[] rawIdentifier;
     private final RIBImpl targetRib;
     private final String name;
+    private AdjRibInWriter writer;
 
     public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIBImpl targetRib) {
         this.name = applicationRibId.getValue().toString();
         this.targetRib = Preconditions.checkNotNull(targetRib);
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
+        final DOMTransactionChain chain = this.targetRib.createPeerChain(this);
+        // FIXME: make this configurable
+        final PeerRole role = PeerRole.Ibgp;
+
+        this.writer = AdjRibInWriter.create(this.targetRib.getYangRibId(), role, chain);
+        this.writer = this.writer.transform(RouterIds.createPeerId(ipAddress), this.targetRib.getRibSupportContext(), this.targetRib.getLocalTablesKeys());
     }
 
     @Override
@@ -64,6 +78,10 @@ public class ApplicationPeer implements AutoCloseable, Peer, DataChangeListener 
             final TablesKey key = data.firstKeyOf(Tables.class, TablesKey.class);
             unreachBuilder.setAfi(key.getAfi());
             unreachBuilder.setSafi(key.getSafi());
+            final RIBExtensionConsumerContext ex = this.targetRib.getRibExtensions();
+            final RIBSupport support = ex.getRIBSupport(key);
+            //this.writer.updateRoutes(nlri, attributes);
+
             final AbstractAdjRIBs<?,?,?> ribsIn = (AbstractAdjRIBs<?,?,?>)this.targetRib.getTable(key);
             ribsIn.addWith(unreachBuilder, data);
             ub.setAttributes(new AttributesBuilder().addAugmentation(Attributes2.class, new Attributes2Builder().setMpUnreachNlri(unreachBuilder.build()).build()).build());
@@ -122,5 +140,18 @@ public class ApplicationPeer implements AutoCloseable, Peer, DataChangeListener 
     @Override
     public byte[] getRawIdentifier() {
         return Arrays.copyOf(this.rawIdentifier, this.rawIdentifier.length);
+    }
+
+    @Override
+    public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction,
+        final Throwable cause) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
+        // TODO Auto-generated method stub
+
     }
 }
