@@ -20,7 +20,8 @@ public interface Peer {
     String getName();
 
     /**
-     * Return the peer's BGP identifier as raw bytearray.
+     * Return the peer's BGP identifier as raw bytearray
+     * @return byte[] raw identifier
      */
     byte[] getRawIdentifier();
 }
