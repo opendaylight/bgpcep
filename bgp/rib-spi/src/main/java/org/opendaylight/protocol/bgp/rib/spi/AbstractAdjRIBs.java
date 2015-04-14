@@ -159,7 +159,7 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
 
     /**
      * Transform a withdrawn identifier into a the corresponding NLRI in MP_UNREACH attribute.
-     *
+     * @param builder MpUnreachNlriBuilder
      * @param id Route key
      */
     protected abstract void addWithdrawal(MpUnreachNlriBuilder builder, I id);
