@@ -22,7 +22,7 @@ import java.util.Set;
 
 /**
  * A map of Router identifier to an offset. Used to maintain a simple
- * offset-based lookup across multiple {@link RouteEntry} objects,
+ * offset-based lookup across multiple {@link AbstractRouteEntry} objects,
  * which share either contributors or consumers.
  *
  * We also provide utility reformat methods, which provide access to

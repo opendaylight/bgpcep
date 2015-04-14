@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
 import java.util.Arrays;
@@ -41,13 +42,9 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +53,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(LocRibWriter.class);
 
-    private final Map<PathArgument, RouteEntry> routeEntries = new HashMap<>();
+    private final Map<PathArgument, AbstractRouteEntry> routeEntries = new HashMap<>();
     private final YangInstanceIdentifier locRibTarget;
     private final DOMTransactionChain chain;
     private final ExportPolicyPeerTracker peerPolicyTracker;
@@ -99,6 +96,14 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         this.peerPolicyTracker.close();
     }
 
+    private AbstractRouteEntry createEntry(final PathArgument routeId) {
+        final AbstractRouteEntry ret = this.ribSupport.isComplexRoute() ? new ComplexRouteEntry() : new SimpleRouteEntry();
+
+        this.routeEntries.put(routeId, ret);
+        LOG.trace("Created new entry for {}", routeId);
+        return ret;
+    }
+
     @Override
     public void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
@@ -107,7 +112,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
          * We use two-stage processing here in hopes that we avoid duplicate
          * calculations when multiple peers have changed a particular entry.
          */
-        final Map<RouteUpdateKey, RouteEntry> toUpdate = new HashMap<>();
+        final Map<RouteUpdateKey, AbstractRouteEntry> toUpdate = new HashMap<>();
         for (final DataTreeCandidate tc : changes) {
             final YangInstanceIdentifier path = tc.getRootPath();
             final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(path);
@@ -116,17 +121,15 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             for (final DataTreeCandidateNode child : tc.getRootNode().getChildNodes()) {
                 for (final DataTreeCandidateNode route : this.ribSupport.changedRoutes(child)) {
                     final PathArgument routeId = route.getIdentifier();
-                    RouteEntry entry = this.routeEntries.get(routeId);
-                    if (route.getDataAfter().isPresent()) {
+                    AbstractRouteEntry entry = this.routeEntries.get(routeId);
+
+                    final Optional<NormalizedNode<?, ?>> maybeData = route.getDataAfter();
+                    if (maybeData.isPresent()) {
                         if (entry == null) {
-                            entry = new RouteEntry();
-                            this.routeEntries.put(routeId, entry);
-                            LOG.trace("Created new entry for {}", routeId);
+                            entry = createEntry(routeId);
                         }
-                        LOG.trace("Find {} in {}", this.attributesIdentifier, route.getDataAfter());
-                        final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(route.getDataAfter(), this.attributesIdentifier).orNull();
-                        entry.addRoute(routerId, advertisedAttrs);
-                        LOG.trace("Added route from {} attributes {}", routerId, advertisedAttrs);
+
+                        entry.addRoute(routerId, this.attributesIdentifier, maybeData.get());
                     } else if (entry != null && entry.removeRoute(routerId)) {
                         this.routeEntries.remove(routeId);
                         entry = null;
@@ -139,9 +142,9 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         }
 
         // Now walk all updated entries
-        for (final Entry<RouteUpdateKey, RouteEntry> e : toUpdate.entrySet()) {
+        for (final Entry<RouteUpdateKey, AbstractRouteEntry> e : toUpdate.entrySet()) {
             LOG.trace("Walking through {}", e);
-            final RouteEntry entry = e.getValue();
+            final AbstractRouteEntry entry = e.getValue();
             final NormalizedNode<?, ?> value;
 
             if (entry != null) {
@@ -150,10 +153,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
                     LOG.trace("Continuing");
                     continue;
                 }
-                final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = Builders.mapEntryBuilder();
-                b.withNodeIdentifier((NodeIdentifierWithPredicates) e.getKey().getRouteId());
-                b.addChild(entry.attributes());
-                value = b.build();
+                value = entry.createValue(e.getKey().getRouteId());
                 LOG.trace("Selected best value {}", value);
             } else {
                 value = null;
