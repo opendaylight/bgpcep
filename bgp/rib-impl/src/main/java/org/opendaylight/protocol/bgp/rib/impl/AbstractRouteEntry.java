@@ -10,7 +10,12 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.primitives.UnsignedInteger;
 import java.util.Objects;
 import javax.annotation.concurrent.NotThreadSafe;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +27,9 @@ import org.slf4j.LoggerFactory;
  * where individual object overhead becomes the dominating factor.
  */
 @NotThreadSafe
-final class RouteEntry {
+abstract class AbstractRouteEntry {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RouteEntry.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractRouteEntry.class);
 
     private static final ContainerNode[] EMPTY_ATTRIBUTES = new ContainerNode[0];
 
@@ -32,7 +37,7 @@ final class RouteEntry {
     private ContainerNode[] values = EMPTY_ATTRIBUTES;
     private BestPath bestPath;
 
-    void addRoute(final UnsignedInteger routerId, final ContainerNode attributes) {
+    private int addRoute(final UnsignedInteger routerId, final ContainerNode attributes) {
         int offset = this.offsets.offsetOf(routerId);
         if (offset < 0) {
             final OffsetMap newOffsets = this.offsets.with(routerId);
@@ -44,13 +49,20 @@ final class RouteEntry {
         }
 
         this.offsets.setValue(this.values, offset, attributes);
+        LOG.trace("Added route from {} attributes {}", routerId, attributes);
+        return offset;
     }
 
+    protected int addRoute(UnsignedInteger routerId, NodeIdentifier attributesIdentifier, NormalizedNode<?, ?> data) {
+        LOG.trace("Find {} in {}", attributesIdentifier, data);
+        final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(data, attributesIdentifier).orNull();
+        return addRoute(routerId, advertisedAttrs);
+    }
+    
     // Indicates whether this was the last route
-    boolean removeRoute(final UnsignedInteger routerId) {
+    protected final boolean removeRoute(final int offset) {
         if (this.offsets.size() != 1) {
             // FIXME: actually shrink the array
-            final int offset = this.offsets.offsetOf(routerId);
             this.offsets.setValue(this.values, offset, null);
             return false;
         } else {
@@ -59,7 +71,7 @@ final class RouteEntry {
     }
 
     // Indicates whether best has changed
-    boolean selectBest(final long localAs) {
+    final boolean selectBest(final long localAs) {
         /*
          * FIXME: optimize flaps by making sure we consider stability of currently-selected route.
          */
@@ -82,7 +94,18 @@ final class RouteEntry {
         return ret;
     }
 
-    public ContainerNode attributes() {
+    final ContainerNode attributes() {
         return this.bestPath.getState().getAttributes();
     }
+    
+    protected final OffsetMap getOffsets() {
+        return offsets;
+    }
+
+    protected final UnsignedInteger getBestRouterId() {
+        return this.bestPath.getRouterId();
+    }
+    
+    abstract boolean removeRoute(final UnsignedInteger routerId); 
+    abstract MapEntryNode createValue(PathArgument routeId);
 }

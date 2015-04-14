@@ -113,6 +113,11 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
         return ImmutableSet.of();
     }
 
+    @Override
+    public final boolean isComplexRoute() {
+        return false;
+    }
+
     private final void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
             final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
@@ -150,6 +155,4 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
     protected void deleteDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode destination) {
         processDestination(tx, tablePath, destination, null, DELETE_ROUTE);
     }
-
-
 }
