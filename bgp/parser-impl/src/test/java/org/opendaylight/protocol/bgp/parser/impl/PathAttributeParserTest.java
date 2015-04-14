@@ -23,10 +23,10 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.AigpAttributePar
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Aigp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.aigp.AigpTlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Aigp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.aigp.AigpTlv;
 
 /*
  * This class is aimed to test parsing and serializing path attributes.
@@ -49,13 +49,13 @@ public class PathAttributeParserTest {
 
     @Test
     public void testParsingAigpAttributeWithCorrectTLV() throws BGPDocumentedException, BGPParsingException {
-        byte[] value = new byte[] { 1, 0, 11, 0, 0, 0, 0, 0, 0, 0, 8 };
+        final byte[] value = new byte[] { 1, 0, 11, 0, 0, 0, 0, 0, 0, 0, 8 };
         final ByteBuf buffer = Unpooled.buffer();
 
         AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, AigpAttributeParser.TYPE, Unpooled.copiedBuffer(value), buffer);
 
-        BGPExtensionProviderContext providerContext = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
-        final PathAttributes pathAttributes = providerContext.getAttributeRegistry().parseAttributes(buffer);
+        final BGPExtensionProviderContext providerContext = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
+        final Attributes pathAttributes = providerContext.getAttributeRegistry().parseAttributes(buffer);
         final Aigp aigp = pathAttributes.getAigp();
         final AigpTlv tlv = aigp.getAigpTlv();
 
@@ -72,10 +72,10 @@ public class PathAttributeParserTest {
         AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, AigpAttributeParser.TYPE, Unpooled.copiedBuffer(value), inputData);
 
         final BGPExtensionProviderContext providerContext = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
-        final PathAttributes pathAttributes = providerContext.getAttributeRegistry().parseAttributes(inputData);
+        final Attributes pathAttributes = providerContext.getAttributeRegistry().parseAttributes(inputData);
         final Aigp aigp = pathAttributes.getAigp();
 
-        final PathAttributesBuilder pathAttributesBuilder = new PathAttributesBuilder();
+        final AttributesBuilder pathAttributesBuilder = new AttributesBuilder();
         pathAttributesBuilder.setAigp(aigp);
 
         final AigpAttributeParser parser = new AigpAttributeParser();

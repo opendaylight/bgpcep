@@ -79,7 +79,7 @@ module bgp-inet {
         }
     }
 
-    augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
+    augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
         case destination-ipv4-case {
             when "../../afi = ipv4";
             uses ipv4-prefixes;
@@ -90,7 +90,7 @@ module bgp-inet {
         }
     }
 
-    augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type" {
+    augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type" {
         case destination-ipv4-case {
             when "../../afi = ipv4";
             uses ipv4-prefixes;

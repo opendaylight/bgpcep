@@ -26,10 +26,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.routes.ipv6.routes.Ipv6Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.routes.ipv6.routes.Ipv6RouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.routes.ipv6.routes.Ipv6RouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCaseBuilder;
@@ -56,7 +56,7 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
 
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, path, new TablesBuilder().setAfi(Ipv6AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
-                .setAttributes(new AttributesBuilder().setUptodate(Boolean.TRUE).build()).setRoutes(new Ipv6RoutesCaseBuilder().build()).build(), true);
+                .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.AttributesBuilder().setUptodate(Boolean.TRUE).build()).setRoutes(new Ipv6RoutesCaseBuilder().build()).build(), true);
         wTx.submit();
         this.ipv6RouteIID = path.builder().child((Class)Ipv6Routes.class).child(Ipv6Route.class, new Ipv6RouteKey(new Ipv6Prefix(ROUTE_IP6PREFIX))).build();
     }
@@ -99,7 +99,7 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
     }
 
     public Ipv6Route createIpv6Route(final String netxHop) {
-        final Attributes attribute = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.AttributesBuilder()
+        final Attributes attribute = new AttributesBuilder()
             .setCNextHop(new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().setGlobal(new Ipv6Address(netxHop)).build()).build())
             .build();
         return new Ipv6RouteBuilder().setKey(new Ipv6RouteKey(new Ipv6Prefix(ROUTE_IP6PREFIX))).setPrefix(new Ipv6Prefix(ROUTE_IP6PREFIX)).setAttributes(attribute).build();

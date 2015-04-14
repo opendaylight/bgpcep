@@ -97,7 +97,7 @@ module bgp-multiprotocol {
         }
     }
 
-    augment "/bgp-msg:update/bgp-msg:path-attributes" {
+    augment "/bgp-msg:update/bgp-msg:attributes" {
         container mp-reach-nlri {
             reference "http://tools.ietf.org/html/rfc4760#section-3";
 
@@ -110,7 +110,7 @@ module bgp-multiprotocol {
         }
     }
 
-    augment "/bgp-msg:update/bgp-msg:path-attributes" {
+    augment "/bgp-msg:update/bgp-msg:attributes" {
         container mp-unreach-nlri {
             reference "http://tools.ietf.org/html/rfc4760#section-4";
 

@@ -31,9 +31,9 @@ import org.opendaylight.protocol.bgp.parser.spi.ParameterParser;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -70,7 +70,7 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
     protected NlriSerializer nlriSerializer;
 
     @Override
-    protected List<AutoCloseable> startImpl(BGPExtensionProviderContext context) {
+    protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
         initMock();
         final List<AutoCloseable> regs = Lists.newArrayList();
         regs.add(context.registerAttributeParser(TYPE, this.attrParser));
@@ -97,7 +97,7 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
     private void initMock() {
         MockitoAnnotations.initMocks(this);
         try {
-            Mockito.doNothing().when(this.attrParser).parseAttribute(Mockito.any(ByteBuf.class), Mockito.any(PathAttributesBuilder.class));
+            Mockito.doNothing().when(this.attrParser).parseAttribute(Mockito.any(ByteBuf.class), Mockito.any(AttributesBuilder.class));
             Mockito.doReturn(EMPTY).when(this.attrParser).toString();
             Mockito.doNothing().when(this.attrSerializer).serializeAttribute(Mockito.any(DataObject.class), Mockito.any(ByteBuf.class));
             Mockito.doReturn(EMPTY).when(this.attrSerializer).toString();
