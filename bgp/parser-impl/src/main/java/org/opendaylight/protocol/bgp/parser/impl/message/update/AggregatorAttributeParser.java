@@ -38,7 +38,7 @@ public final class AggregatorAttributeParser implements AttributeParser, Attribu
      * Parse {@link Aggregator} from bytes
      *
      * @param buffer byte buffer to be parsed
-     * @param builder PathAttributesBuilder into which parsed {@link Aggregator} will be set
+     * @param builder AttributesBuilder into which parsed {@link Aggregator} will be set
      */
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) {

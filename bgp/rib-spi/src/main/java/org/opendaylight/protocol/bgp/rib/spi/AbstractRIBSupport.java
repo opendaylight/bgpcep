@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutes;
@@ -62,7 +62,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     protected AbstractRIBSupport(final Class<? extends Routes> cazeClass, final Class<? extends DataObject> containerClass, final Class<? extends Route> listClass) {
         final QName qname = BindingReflections.findQName(containerClass);
         this.routesContainerIdentifier = new NodeIdentifier(qname);
-        this.routeAttributesIdentifier = new NodeIdentifier(QName.cachedReference(QName.create(qname, PathAttributes.QNAME.getLocalName())));
+        this.routeAttributesIdentifier = new NodeIdentifier(QName.cachedReference(QName.create(qname, Attributes.QNAME.getLocalName())));
         this.cazeClass = Preconditions.checkNotNull(cazeClass);
         this.containerClass = Preconditions.checkNotNull(containerClass);
         this.listClass = Preconditions.checkNotNull(listClass);
