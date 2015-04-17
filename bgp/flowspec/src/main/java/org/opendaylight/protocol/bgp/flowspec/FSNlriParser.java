@@ -88,6 +88,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -579,5 +580,10 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
         bs.set(IS_A_FRAGMENT, fragment.isIsA());
         bs.set(LAST_FRAGMENT, fragment.isLast());
         return bs.toByte();
+    }
+
+    public static String stringNlri(final UnkeyedListEntryNode linkstate) {
+        // FIXME: BUG-2571 : create human-readable route key, e.g : "all packets to 10.0.1/24 from 192/8 and port {range [137, 139] or 8080}"
+        return "";
     }
 }
