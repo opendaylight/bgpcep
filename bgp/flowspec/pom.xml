@@ -56,6 +56,10 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-rib-api</artifactId>
         </dependency>
+         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-rib-spi</artifactId>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>util</artifactId>
