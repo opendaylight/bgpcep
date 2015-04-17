@@ -303,11 +303,10 @@ module bgp-flowspec {
                     type string;
                 }
                 key "route-key";
-                uses bgp-rib:route {
-                    augment bgp-msg:attributes {
-                        uses flowspec-destination;
-                    }
-                }
+
+                uses flowspec-destination;
+
+                uses bgp-rib:route;
             }
         }
     }
@@ -368,6 +367,24 @@ module bgp-flowspec {
     }
 
     augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:loc-rib/bgp-rib:tables/bgp-rib:routes" {
+        case flowspec-routes-case {
+            uses flowspec-routes;
+        }
+    }
+
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:adj-rib-in/bgp-rib:tables/bgp-rib:routes" {
+        case flowspec-routes-case {
+            uses flowspec-routes;
+        }
+    }
+
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:effective-rib-in/bgp-rib:tables/bgp-rib:routes" {
+        case flowspec-routes-case {
+            uses flowspec-routes;
+        }
+    }
+
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:adj-rib-out/bgp-rib:tables/bgp-rib:routes" {
         case flowspec-routes-case {
             uses flowspec-routes;
         }
