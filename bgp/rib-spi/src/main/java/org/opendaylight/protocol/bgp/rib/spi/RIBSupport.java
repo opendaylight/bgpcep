@@ -11,6 +11,8 @@ import com.google.common.collect.ImmutableCollection;
 import java.util.Collection;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -19,6 +21,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 
 /**
@@ -113,4 +116,16 @@ public interface RIBSupport {
      * @return True if this is a complex route, false otherwise.
      */
     boolean isComplexRoute();
+
+    /**
+     * To send routes out, we'd need to transform the DOM representation of route to
+     * binding-aware format. This needs to be done per each AFI/SAFI.
+     *
+     * @param route MapEntryNode route in DOM format
+     * @param attr Attributes MpReach is part of Attributes so we need to
+     * pass it as argument, create new AttributesBuilder with existing attributes
+     * and add MpReach
+     * @return Update message ready to be sent out
+     */
+    Update buildUpdate(final MapEntryNode route, final Attributes attr);
 }
