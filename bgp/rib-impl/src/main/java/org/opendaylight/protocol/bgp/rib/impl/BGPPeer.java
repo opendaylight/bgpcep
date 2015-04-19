@@ -28,7 +28,6 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
-import org.opendaylight.protocol.bgp.rib.impl.spi.AdjRIBsOutRegistration;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionStatistics;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
@@ -69,32 +68,29 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
 
     @GuardedBy("this")
     private final Set<TablesKey> tables = new HashSet<>();
-    private final RIB rib;
-    private final String name;
-
     @GuardedBy("this")
     private BGPSession session;
     @GuardedBy("this")
     private byte[] rawIdentifier;
     @GuardedBy("this")
-    private AdjRIBsOutRegistration reg;
+    private final DOMTransactionChain chain;
+    @GuardedBy("this")
+    private AdjRibInWriter ribWriter;
 
+    private final RIB rib;
+    private final String name;
     private BGPPeerRuntimeRegistrator registrator;
     private BGPPeerRuntimeRegistration runtimeReg;
     private long sessionEstablishedCounter = 0L;
 
-    @GuardedBy("this")
-    private AdjRibInWriter ribWriter;
-
     public BGPPeer(final String name, final RIB rib) {
         this.rib = Preconditions.checkNotNull(rib);
         this.name = name;
+        this.chain = rib.createPeerChain(this);
 
-        final DOMTransactionChain chain = rib.createPeerChain(this);
         // FIXME: make this configurable
         final PeerRole role = PeerRole.Ibgp;
-
-        this.ribWriter = AdjRibInWriter.create(rib.getYangRibId(), role, chain);
+        this.ribWriter = AdjRibInWriter.create(rib.getYangRibId(), role, this.chain);
     }
 
     @Override
@@ -110,7 +106,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
             return;
         }
         final Update message = (Update) msg;
-        //this.rib.updateTables(this, message);
+
         // update AdjRibs
         final Attributes attrs = message.getAttributes();
         MpReachNlri mpReach = null;
@@ -176,28 +172,19 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
     @Override
     public synchronized void onSessionUp(final BGPSession session) {
         LOG.info("Session with peer {} went up with tables: {}", this.name, session.getAdvertisedTableTypes());
-
         this.session = session;
         this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
 
         for (final BgpTableType t : session.getAdvertisedTableTypes()) {
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
-
             this.tables.add(key);
-            this.rib.initTable(this, key);
 
             // not particularly nice
             if (session instanceof BGPSessionImpl) {
                 AdjRibOutListener.create(key, this.rib.getYangRibId(), ((RIBImpl)this.rib).getService(), this.rib.getRibSupportContext(), ((BGPSessionImpl) session).getLimiter());
             }
         }
-
         this.ribWriter = this.ribWriter.transform(RouterIds.createPeerId(session.getBgpId()), this.rib.getRibSupportContext(), this.tables, false);
-
-        // Not particularly nice, but what can
-        if (session instanceof BGPSessionImpl) {
-            this.reg = this.rib.registerRIBsOut(this, new SessionRIBsOut((BGPSessionImpl) session));
-        }
         this.sessionEstablishedCounter++;
         if (this.registrator != null) {
             this.runtimeReg = this.registrator.register(this);
@@ -207,15 +194,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
     private synchronized void cleanup() {
         // FIXME: BUG-196: support graceful restart
         this.ribWriter.cleanTables(this.tables);
-        for (final TablesKey key : this.tables) {
-            this.rib.clearTable(this, key);
-        }
-
-        if (this.reg != null) {
-            this.reg.close();
-            this.reg = null;
-        }
-
+        this.chain.close();
         this.tables.clear();
     }
 
@@ -245,10 +224,6 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
     @Override
     public String getName() {
         return this.name;
-    }
-
-    protected RIB getRib() {
-        return this.rib;
     }
 
     @Override
@@ -320,12 +295,11 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
 
     @Override
     public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
-        // TODO Auto-generated method stub
-
+        LOG.error("Transaction chain failed.", cause);
     }
 
     @Override
     public void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
-        // TODO Auto-generated method stub
+        LOG.debug("Transaction chain {} successfull.", chain);
     }
 }
