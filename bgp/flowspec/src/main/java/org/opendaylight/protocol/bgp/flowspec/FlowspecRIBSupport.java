@@ -10,18 +10,28 @@ package org.opendaylight.protocol.bgp.flowspec;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.FlowspecRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.bgp.rib.rib.loc.rib.tables.routes.FlowspecRoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.Flowspec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.routes.flowspec.routes.FlowspecRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.flowspec._case.DestinationFlowspec;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.flowspec._case.DestinationFlowspecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -156,14 +166,35 @@ final class FlowspecRIBSupport extends AbstractRIBSupport {
     }
 
     @Override
-    protected MpReachNlri buildReach(final Collection<MapEntryNode> route, final CNextHop hop) {
-        // TODO Auto-generated method stub
-        return null;
+    protected MpReachNlri buildReach(final Collection<MapEntryNode> routes, final CNextHop hop) {
+        final MpReachNlriBuilder mb = new MpReachNlriBuilder();
+        mb.setAfi(Ipv4AddressFamily.class);
+        mb.setSafi(FlowspecSubsequentAddressFamily.class);
+        mb.setCNextHop(hop);
+
+        final List<Flowspec> dests = new ArrayList<>(routes.size());
+        for (final MapEntryNode route : routes) {
+            dests.add(FSNlriParser.extractFlowspec(route));
+        }
+        mb.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
+            new DestinationFlowspecCaseBuilder().setDestinationFlowspec(
+                new DestinationFlowspecBuilder().setFlowspec(dests).build()).build()).build());
+        return mb.build();
     }
 
     @Override
     protected MpUnreachNlri buildUnreach(final Collection<MapEntryNode> routes) {
-        // TODO Auto-generated method stub
-        return null;
+        final MpUnreachNlriBuilder mb = new MpUnreachNlriBuilder();
+        mb.setAfi(Ipv4AddressFamily.class);
+        mb.setSafi(FlowspecSubsequentAddressFamily.class);
+
+        final List<Flowspec> dests = new ArrayList<>(routes.size());
+        for (final MapEntryNode route : routes) {
+            dests.add(FSNlriParser.extractFlowspec(route));
+        }
+        mb.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecCaseBuilder().setDestinationFlowspec(
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.flowspec._case.DestinationFlowspecBuilder().setFlowspec(dests).build()).build()).build());
+        return mb.build();
     }
 }

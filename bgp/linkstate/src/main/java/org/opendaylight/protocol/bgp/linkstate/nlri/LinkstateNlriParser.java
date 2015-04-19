@@ -367,7 +367,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
         TlvUtil.writeTLV(nlriType.getIntValue(), nlriByteBuf, buffer);
     }
 
-    public static CLinkstateDestination setLinkstateDestination(final MapEntryNode route) {
+    public static CLinkstateDestination extractLinkstateDestination(final MapEntryNode route) {
         // FIXME: BUG-3012 - finish this
         return new CLinkstateDestinationBuilder().build();
     }

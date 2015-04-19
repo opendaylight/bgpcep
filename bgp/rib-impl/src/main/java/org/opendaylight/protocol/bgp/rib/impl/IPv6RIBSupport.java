@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
@@ -94,38 +95,35 @@ final class IPv6RIBSupport extends AbstractIPRIBSupport {
         return Ipv6Route.QNAME;
     }
 
-    private List<Ipv6Prefixes> buildPrefixes(final Collection<MapEntryNode> routes) {
-        final List<Ipv6Prefixes> ret = new ArrayList<>(routes.size());
-        for (MapEntryNode route : routes) {
+    private List<Ipv6Prefixes> extractPrefixes(final Collection<MapEntryNode> routes) {
+        final List<Ipv6Prefixes> prefs = new ArrayList<>(routes.size());
+        for (final MapEntryNode route : routes) {
             final String prefix = (String) route.getChild(this.routeKeyLeaf).get().getValue();
-            ret.add(new Ipv6PrefixesBuilder().setPrefix(new Ipv6Prefix(prefix)).build());
+            prefs.add(new Ipv6PrefixesBuilder().setPrefix(new Ipv6Prefix(prefix)).build());
         }
-        return ret;
+        return prefs;
     }
 
     @Override
     protected MpReachNlri buildReach(final Collection<MapEntryNode> routes, final CNextHop hop) {
-        final List<Ipv6Prefixes> prefs = buildPrefixes(routes);
-
         final MpReachNlriBuilder mb = new MpReachNlriBuilder();
         mb.setAfi(Ipv6AddressFamily.class);
         mb.setSafi(UnicastSubsequentAddressFamily.class);
         mb.setCNextHop(hop);
         mb.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
             new DestinationIpv6CaseBuilder().setDestinationIpv6(
-                new DestinationIpv6Builder().setIpv6Prefixes(prefs).build()).build()).build());
+                new DestinationIpv6Builder().setIpv6Prefixes(extractPrefixes(routes)).build()).build()).build());
         return mb.build();
     }
 
     @Override
     protected MpUnreachNlri buildUnreach(final Collection<MapEntryNode> routes) {
-        final List<Ipv6Prefixes> prefs = buildPrefixes(routes);
-
         final MpUnreachNlriBuilder mb = new MpUnreachNlriBuilder();
         mb.setAfi(Ipv6AddressFamily.class);
         mb.setSafi(UnicastSubsequentAddressFamily.class);
-
-        // TODO Auto-generated method stub
+        mb.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv6CaseBuilder().setDestinationIpv6(
+                new DestinationIpv6Builder().setIpv6Prefixes(extractPrefixes(routes)).build()).build()).build());
         return mb.build();
     }
 }

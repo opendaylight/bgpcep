@@ -22,7 +22,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
@@ -93,27 +95,35 @@ final class IPv4RIBSupport extends AbstractIPRIBSupport {
         return Ipv4Route.QNAME;
     }
 
-    @Override
-    protected MpReachNlri buildReach(final Collection<MapEntryNode> routes, final CNextHop hop) {
+    private List<Ipv4Prefixes> extractPrefixes(final Collection<MapEntryNode> routes) {
         final List<Ipv4Prefixes> prefs = new ArrayList<>(routes.size());
-        for (MapEntryNode route : routes) {
+        for (final MapEntryNode route : routes) {
             final String prefix = (String) route.getChild(this.routeKeyLeaf).get().getValue();
             prefs.add(new Ipv4PrefixesBuilder().setPrefix(new Ipv4Prefix(prefix)).build());
         }
+        return prefs;
+    }
 
+    @Override
+    protected MpReachNlri buildReach(final Collection<MapEntryNode> routes, final CNextHop hop) {
         final MpReachNlriBuilder mb = new MpReachNlriBuilder();
         mb.setAfi(Ipv4AddressFamily.class);
         mb.setSafi(UnicastSubsequentAddressFamily.class);
         mb.setCNextHop(hop);
         mb.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
             new DestinationIpv4CaseBuilder().setDestinationIpv4(
-                new DestinationIpv4Builder().setIpv4Prefixes(prefs).build()).build()).build());
+                new DestinationIpv4Builder().setIpv4Prefixes(extractPrefixes(routes)).build()).build()).build());
         return mb.build();
     }
 
     @Override
     protected MpUnreachNlri buildUnreach(final Collection<MapEntryNode> routes) {
-        // TODO Auto-generated method stub
-        return null;
+        final MpUnreachNlriBuilder mb = new MpUnreachNlriBuilder();
+        mb.setAfi(Ipv4AddressFamily.class);
+        mb.setSafi(UnicastSubsequentAddressFamily.class);
+        mb.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
+                new DestinationIpv4Builder().setIpv4Prefixes(extractPrefixes(routes)).build()).build()).build());
+        return mb.build();
     }
 }
