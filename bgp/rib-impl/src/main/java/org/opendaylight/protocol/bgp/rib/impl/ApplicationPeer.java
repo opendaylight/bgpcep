@@ -42,6 +42,7 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     private final String name;
     private final YangInstanceIdentifier adjRibsInId;
     private final DOMTransactionChain chain;
+    private final DOMTransactionChain writerChain;
 
     private AdjRibInWriter writer;
 
@@ -52,7 +53,8 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         final NodeIdentifierWithPredicates peerId = IdentifierUtils.domPeerId(RouterIds.createPeerId(ipAddress));
         this.adjRibsInId = this.targetRib.getYangRibId().node(Peer.QNAME).node(peerId).node(AdjRibIn.QNAME).node(Tables.QNAME);
         this.chain = this.targetRib.createPeerChain(this);
-        this.writer = AdjRibInWriter.create(this.targetRib.getYangRibId(), PeerRole.Ibgp, this.targetRib.createPeerChain(this));
+        this.writerChain = this.targetRib.createPeerChain(this);
+        this.writer = AdjRibInWriter.create(this.targetRib.getYangRibId(), PeerRole.Ibgp, this.writerChain);
         // FIXME: set to true, once it's fixed how to skip advertising routes back to AppPeer
         this.writer = this.writer.transform(RouterIds.createPeerId(ipAddress), this.targetRib.getRibSupportContext(), this.targetRib.getLocalTablesKeys(), false);
     }
@@ -87,6 +89,7 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     public void close() {
         this.writer.cleanTables(this.targetRib.getLocalTablesKeys());
         this.chain.close();
+        this.writerChain.close();
     }
 
     @Override
