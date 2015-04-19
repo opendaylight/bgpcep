@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_3da0d98f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-04-19T17:11:55Z",
+      "side": 1,
+      "message": "tear down the BGP connection, instantiate a new chain, so we recover when the session is reestablished",
+      "revId": "0b211f4f53769d8a7aaa8501415294c43e1f2ee9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
