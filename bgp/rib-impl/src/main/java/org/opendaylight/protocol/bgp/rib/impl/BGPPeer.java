@@ -87,14 +87,16 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
     private AdjRibInWriter ribWriter;
 
     public BGPPeer(final String name, final RIB rib) {
+        this(name, rib, null);
+    }
+
+    public BGPPeer(final String name, final RIB rib, final Short role) {
         this.rib = Preconditions.checkNotNull(rib);
         this.name = name;
 
         final DOMTransactionChain chain = rib.createPeerChain(this);
-        // FIXME: make this configurable
-        final PeerRole role = PeerRole.Ibgp;
-
-        this.ribWriter = AdjRibInWriter.create(rib.getYangRibId(), role, chain);
+        final PeerRole tempRole = role != null ? PeerRole.forValue(role) : PeerRole.Ibgp;
+        this.ribWriter = AdjRibInWriter.create(rib.getYangRibId(), tempRole, chain);
     }
 
     @Override

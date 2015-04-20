@@ -72,6 +72,9 @@
                     <name>example-bgp-peer</name>
                     <host>192.0.2.1</host>
                     <holdtimer>180</holdtimer>
+                    // if peer role is not present, default value "1 - Ibgp" will be used (allowed values are also "0 - Ebgp" and
+                    // "2 - RrClient")
+                    <peerRole>0<peerRole>
                     <rib>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg">prefix:rib</type>
                         <name>example-bgp-rib</name>
