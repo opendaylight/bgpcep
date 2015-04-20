@@ -145,4 +145,29 @@ public final class LinkNlriParser {
             TlvUtil.writeTLV(TlvUtil.MULTI_TOPOLOGY_ID, Unpooled.copyShort((Short)descriptors.getChild(TlvUtil.MULTI_TOPOLOGY_NID).get().getValue()), buffer);
         }
     }
+
+    static LinkDescriptors serializeLinkDescriptors(final ContainerNode descriptors) {
+        final LinkDescriptorsBuilder linkDescBuilder = new LinkDescriptorsBuilder();
+
+        if (descriptors.getChild(LINK_LOCAL_NID).isPresent() && descriptors.getChild(LINK_REMOTE_NID).isPresent()) {
+            linkDescBuilder.setLinkLocalIdentifier((Long)descriptors.getChild(LINK_LOCAL_NID).get().getValue());
+            linkDescBuilder.setLinkRemoteIdentifier((Long)descriptors.getChild(LINK_REMOTE_NID).get().getValue());
+        }
+        if (descriptors.getChild(IPV4_IFACE_NID).isPresent()) {
+            linkDescBuilder.setIpv4InterfaceAddress(new Ipv4InterfaceIdentifier((String)descriptors.getChild(IPV4_IFACE_NID).get().getValue()));
+        }
+        if (descriptors.getChild(IPV6_IFACE_NID).isPresent()) {
+            linkDescBuilder.setIpv6InterfaceAddress(new Ipv6InterfaceIdentifier((String)descriptors.getChild(IPV6_IFACE_NID).get().getValue()));
+        }
+        if (descriptors.getChild(IPV4_NEIGHBOR_NID).isPresent()) {
+            linkDescBuilder.setIpv4NeighborAddress(new Ipv4InterfaceIdentifier((String)descriptors.getChild(IPV4_NEIGHBOR_NID).get().getValue()));
+        }
+        if (descriptors.getChild(IPV6_NEIGHBOR_NID).isPresent()) {
+            linkDescBuilder.setIpv6NeighborAddress(new Ipv6InterfaceIdentifier((String)descriptors.getChild(IPV6_NEIGHBOR_NID).get().getValue()));
+        }
+        if (descriptors.getChild(TlvUtil.MULTI_TOPOLOGY_NID).isPresent()) {
+            linkDescBuilder.setMultiTopologyId(new TopologyIdentifier((Integer) descriptors.getChild(TlvUtil.MULTI_TOPOLOGY_NID).get().getValue()));
+        }
+        return linkDescBuilder.build();
+    }
 }

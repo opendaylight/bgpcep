@@ -164,4 +164,21 @@ public final class PrefixNlriParser {
         }
         return prefixType;
     }
+
+    public static PrefixDescriptors serializePrefixDescriptors(final ContainerNode prefixDesc) {
+        final PrefixDescriptorsBuilder prefixDescBuilder = new PrefixDescriptorsBuilder();
+        if (prefixDesc.getChild(TlvUtil.MULTI_TOPOLOGY_NID).isPresent()) {
+            prefixDescBuilder.setMultiTopologyId(new TopologyIdentifier((Integer) prefixDesc.getChild(TlvUtil.MULTI_TOPOLOGY_NID).get().getValue()));
+        }
+        final Optional<DataContainerChild<? extends PathArgument, ?>> ospfRoute = prefixDesc.getChild(OSPF_ROUTE_NID);
+        if (ospfRoute.isPresent()) {
+            prefixDescBuilder.setOspfRouteType(OspfRouteType.forValue(domOspfRouteTypeValue((String)ospfRoute.get().getValue())));
+        }
+        if (prefixDesc.getChild(IP_REACH_NID).isPresent()) {
+            String prefix = (String) prefixDesc.getChild(IP_REACH_NID).get().getValue();
+            prefixDescBuilder.setIpReachabilityInformation(new IpPrefix(prefix.toCharArray()));
+        }
+
+        return prefixDescBuilder.build();
+    }
 }
