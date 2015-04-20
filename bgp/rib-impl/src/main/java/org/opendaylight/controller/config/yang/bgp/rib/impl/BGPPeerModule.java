@@ -42,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.graceful.restart._case.GracefulRestartCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.multiprotocol._case.MultiprotocolCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,9 +108,14 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         final List<BgpParameters> tlvs = getTlvs(r);
         final AsNumber remoteAs = getAsOrDefault(r);
         final String password = getPasswordOrNull();
-
         final BGPSessionPreferences prefs = new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), tlvs);
-        final BGPPeer bgpClientPeer = new BGPPeer(peerName(getHostWithoutValue()), r);
+        final BGPPeer bgpClientPeer;
+        if (getPeerRole() != null) {
+            bgpClientPeer = new BGPPeer(peerName(getHostWithoutValue()), r, getPeerRole());
+        } else {
+            bgpClientPeer = new BGPPeer(peerName(getHostWithoutValue()), r, PeerRole.Ibgp);
+        }
+
         bgpClientPeer.registerRootRuntimeBean(getRootRuntimeBeanRegistratorWrapper());
 
         getPeerRegistryBackwards().addPeer(getHostWithoutValue(), bgpClientPeer, prefs);
