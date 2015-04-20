@@ -11,12 +11,10 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
-import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -37,22 +35,11 @@ public interface RIB {
      */
     @Nonnull Set<? extends BgpTableType> getLocalTables();
 
-    @Deprecated
-    void initTable(Peer bgpPeer, TablesKey key);
-
-    @Deprecated
-    void clearTable(Peer bgpPeer, TablesKey key);
-
-    @Deprecated
-    void updateTables(Peer bgpPeer, Update message);
-
     BGPDispatcher getDispatcher();
 
     ReconnectStrategyFactory getTcpStrategyFactory();
 
     ReconnectStrategyFactory getSessionStrategyFactory();
-
-    AdjRIBsOutRegistration registerRIBsOut(Peer bgpPeer, AdjRIBsOut aro);
 
     long getRoutesCount(TablesKey key);
 
