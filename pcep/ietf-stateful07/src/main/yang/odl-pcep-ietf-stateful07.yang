@@ -72,6 +72,21 @@ module odl-pcep-ietf-stateful07 {
         }
     }
 
+    grouping path-binding-tlv {
+        reference "TODO:";
+        container path-binding {
+            uses pcep:tlv;
+            leaf binding-type {
+                type uint8;
+            }
+            leaf binding-value {
+                type binary {
+                    length 0..255;
+                }
+            }
+        }
+    }
+
     grouping lsp-identifiers-tlv {
         description "LSP Identifiers TLV";
         reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-7.3.1";
@@ -196,6 +211,8 @@ module odl-pcep-ietf-stateful07 {
                 uses pcep:vs-tlv;
 
                 uses pcep:vendor-information-tlvs;
+
+                uses path-binding-tlv;
             }
 
             leaf plsp-id {
