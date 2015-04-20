@@ -9,10 +9,12 @@ package org.opendaylight.protocol.pcep.ietf;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
+import org.opendaylight.protocol.pcep.ietf.stateful07.PathBindingTlvParser;
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07LSPIdentifierIpv4TlvParser;
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07LSPIdentifierIpv6TlvParser;
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07LspSymbolicNameTlvParser;
@@ -33,6 +35,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv6CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv4._case.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv6._case.Ipv6Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.path.binding.tlv.PathBinding;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.path.binding.tlv.PathBindingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.rsvp.error.spec.tlv.RsvpErrorSpec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.rsvp.error.spec.tlv.RsvpErrorSpecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.rsvp.error.spec.tlv.rsvp.error.spec.error.type.RsvpCaseBuilder;
@@ -182,5 +186,27 @@ public class PCEPTlvParserTest {
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(tlv, buff);
         assertArrayEquals(userErrorBytes, ByteArray.getAllBytes(buff));
+    }
+
+    @Test
+    public void testPathBindingTlv() throws PCEPDeserializerException {
+        final byte[] pathBindingBytes = {0, 0x1f, 0, 4, 0, 1, 2, 3};
+        final PathBindingTlvParser parser = new PathBindingTlvParser();
+        final PathBindingBuilder builder = new PathBindingBuilder();
+        builder.setBindingType((short) 0);
+        builder.setBindingValue(new byte[] {1, 2, 3});
+        final PathBinding tlv = builder.build();
+        assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(pathBindingBytes, 4))));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeTlv(tlv, buff);
+        assertArrayEquals(pathBindingBytes, ByteArray.readAllBytes(buff));
+
+        try {
+            final byte[] wrong = {0, 0x1f, 0, 4, 1, 1, 2, 3};
+            parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(wrong, 4)));
+            fail();
+        } catch(final PCEPDeserializerException e) {
+            assertEquals("Unsupported Path Binding Type.", e.getMessage());
+        }
     }
 }
