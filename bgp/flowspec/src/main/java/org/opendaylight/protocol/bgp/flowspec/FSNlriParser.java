@@ -88,8 +88,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
-import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +99,8 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
     private static final int NLRI_LENGTH = 1;
     private static final int NLRI_LENGTH_EXTENDED = 2;
     /**
-     * Add this constant to length value to achieve all ones in the leftmost nibble.
+     * Add this constant to length value to achieve all ones in the leftmost
+     * nibble.
      */
     private static final int LENGTH_MAGIC = 61440;
 
@@ -132,12 +133,8 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
         final Attributes2 pathAttributes2 = pathAttributes.getAugmentation(Attributes2.class);
         if (pathAttributes1 != null) {
             final AdvertizedRoutes routes = (pathAttributes1.getMpReachNlri()).getAdvertizedRoutes();
-            if (routes != null &&
-                routes.getDestinationType()
-                instanceof
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCase) {
-                final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCase
-                flowspecCase = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCase) routes.getDestinationType();
+            if (routes != null && routes.getDestinationType() instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCase) {
+                final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCase flowspecCase = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCase) routes.getDestinationType();
                 serializeNlri(flowspecCase.getDestinationFlowspec().getFlowspec(), byteAggregator);
             }
         } else if (pathAttributes2 != null) {
@@ -150,7 +147,8 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
     }
 
     /**
-     * Serializes Flowspec component type that has maximum of 2B sized value field and numeric operand.
+     * Serializes Flowspec component type that has maximum of 2B sized value
+     * field and numeric operand.
      *
      * @param list of items to be serialized
      * @param nlriByteBuf where the items will be serialized
@@ -165,7 +163,8 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
     }
 
     /**
-     * Serializes Flowspec component type that has maximum of 1B sized value field and numeric operand.
+     * Serializes Flowspec component type that has maximum of 1B sized value
+     * field and numeric operand.
      *
      * @param list of items to be serialized
      * @param nlriByteBuf where the items will be serialized
@@ -190,31 +189,31 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
             final FlowspecType value = flow.getFlowspecType();
             switch (flow.getComponentType()) {
             case DestinationPrefix:
-                nlriByteBuf.writeBytes(Ipv4Util.bytesForPrefixBegin(((DestinationPrefixCase)value).getDestinationPrefix()));
+                nlriByteBuf.writeBytes(Ipv4Util.bytesForPrefixBegin(((DestinationPrefixCase) value).getDestinationPrefix()));
                 break;
             case SourcePrefix:
-                nlriByteBuf.writeBytes(Ipv4Util.bytesForPrefixBegin(((SourcePrefixCase)value).getSourcePrefix()));
+                nlriByteBuf.writeBytes(Ipv4Util.bytesForPrefixBegin(((SourcePrefixCase) value).getSourcePrefix()));
                 break;
             case ProtocolIp:
-                serializeNumericTwoByteValue(((ProtocolIpCase)value).getProtocolIps(), nlriByteBuf);
+                serializeNumericTwoByteValue(((ProtocolIpCase) value).getProtocolIps(), nlriByteBuf);
                 break;
             case Port:
-                serializeNumericTwoByteValue(((PortCase)value).getPorts(), nlriByteBuf);
+                serializeNumericTwoByteValue(((PortCase) value).getPorts(), nlriByteBuf);
                 break;
             case DestinationPort:
-                serializeNumericTwoByteValue(((DestinationPortCase)value).getDestinationPorts(), nlriByteBuf);
+                serializeNumericTwoByteValue(((DestinationPortCase) value).getDestinationPorts(), nlriByteBuf);
                 break;
             case SourcePort:
-                serializeNumericTwoByteValue(((SourcePortCase)value).getSourcePorts(), nlriByteBuf);
+                serializeNumericTwoByteValue(((SourcePortCase) value).getSourcePorts(), nlriByteBuf);
                 break;
             case IcmpType:
-                serializeNumericOneByteValue(((IcmpTypeCase)value).getTypes(), nlriByteBuf);
+                serializeNumericOneByteValue(((IcmpTypeCase) value).getTypes(), nlriByteBuf);
                 break;
             case IcmpCode:
-                serializeNumericOneByteValue(((IcmpCodeCase)value).getCodes(), nlriByteBuf);
+                serializeNumericOneByteValue(((IcmpCodeCase) value).getCodes(), nlriByteBuf);
                 break;
             case TcpFlags:
-                final List<TcpFlags> flags = ((TcpFlagsCase)value).getTcpFlags();
+                final List<TcpFlags> flags = ((TcpFlagsCase) value).getTcpFlags();
                 for (final TcpFlags flag : flags) {
                     final ByteBuf flagsBuf = Unpooled.buffer();
                     writeShortest(flag.getValue(), flagsBuf);
@@ -223,17 +222,17 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
                 }
                 break;
             case PacketLength:
-                serializeNumericTwoByteValue(((PacketLengthCase)value).getPacketLengths(), nlriByteBuf);
+                serializeNumericTwoByteValue(((PacketLengthCase) value).getPacketLengths(), nlriByteBuf);
                 break;
             case Dscp:
-                final List<Dscps> dscps = ((DscpCase)value).getDscps();
+                final List<Dscps> dscps = ((DscpCase) value).getDscps();
                 for (final Dscps dscp : dscps) {
                     serializeNumericOperand(dscp.getOp(), 1, nlriByteBuf);
                     writeShortest(dscp.getValue().getValue(), nlriByteBuf);
                 }
                 break;
             case Fragment:
-                final List<Fragments> fragments = ((FragmentCase)value).getFragments();
+                final List<Fragments> fragments = ((FragmentCase) value).getFragments();
                 for (final Fragments fragment : fragments) {
                     serializeBitmaskOperand(fragment.getOp(), 1, nlriByteBuf);
                     nlriByteBuf.writeByte(serializeFragment(fragment.getValue()));
@@ -254,9 +253,9 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
     }
 
     /**
-     * Given the integer values, this method instead of writing the value
-     * in 4B field, compresses the value to lowest required byte field
-     * depending on the value.
+     * Given the integer values, this method instead of writing the value in 4B
+     * field, compresses the value to lowest required byte field depending on
+     * the value.
      *
      * @param value integer to be written
      * @param buffer ByteBuf where the value will be written
@@ -300,11 +299,7 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
             return;
         }
         final List<Flowspec> dst = parseNlri(nlri);
-
-        builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
-            new DestinationFlowspecCaseBuilder().setDestinationFlowspec(
-                new DestinationFlowspecBuilder().setFlowspec(
-                    dst).build()).build()).build());
+        builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(new DestinationFlowspecCaseBuilder().setDestinationFlowspec(new DestinationFlowspecBuilder().setFlowspec(dst).build()).build()).build());
     }
 
     @Override
@@ -313,10 +308,10 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
             return;
         }
         final List<Flowspec> dst = parseNlri(nlri);
-
         builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCaseBuilder()
-                .setDestinationFlowspec(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.flowspec._case.DestinationFlowspecBuilder().setFlowspec(dst).build()).build()).build());
+                .setDestinationFlowspec(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.flowspec._case.DestinationFlowspecBuilder()
+                    .setFlowspec(dst).build()).build()).build());
     }
 
     /**
@@ -336,7 +331,7 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
         final int length = nlri.readableBytes();
         nlri.skipBytes(length > MAX_NLRI_LENGTH_ONE_BYTE ? NLRI_LENGTH_EXTENDED : NLRI_LENGTH);
 
-        while(nlri.isReadable()) {
+        while (nlri.isReadable()) {
             final FlowspecBuilder builder = new FlowspecBuilder();
             // read type
             final ComponentType type = ComponentType.forValue(nlri.readUnsignedByte());
@@ -583,13 +578,198 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
         return bs.toByte();
     }
 
-    public static String stringNlri(final UnkeyedListEntryNode linkstate) {
-        // FIXME: BUG-2571 : create human-readable route key, e.g : "all packets to 10.0.1/24 from 192/8 and port {range [137, 139] or 8080}"
-        return "";
+    public static String stringNlri(final DataContainerNode<?> flowspec) {
+        return stringNlri(extractFlowspec((MapEntryNode) flowspec));
     }
 
     public static Flowspec extractFlowspec(final MapEntryNode route) {
         // FIXME: BUG-2571 : finish this
         return new FlowspecBuilder().build();
+    }
+
+    @VisibleForTesting
+    static final String stringNlri(final Flowspec flow) {
+        final StringBuffer buffer = new StringBuffer("all packets ");
+        final FlowspecType value = flow.getFlowspecType();
+        switch (flow.getComponentType()) {
+        case DestinationPrefix:
+            buffer.append("to ");
+            buffer.append(((DestinationPrefixCase) value).getDestinationPrefix().getValue());
+            break;
+        case SourcePrefix:
+            buffer.append("from ");
+            buffer.append(((SourcePrefixCase) value).getSourcePrefix().getValue());
+            break;
+        case ProtocolIp:
+            buffer.append("where protocol ");
+            buffer.append(stringNumericTwo(((ProtocolIpCase) value).getProtocolIps()));
+            break;
+        case Port:
+            buffer.append("where port ");
+            buffer.append(stringNumericTwo(((PortCase) value).getPorts()));
+            break;
+        case DestinationPort:
+            buffer.append("where destination port ");
+            buffer.append(stringNumericTwo(((DestinationPortCase) value).getDestinationPorts()));
+            break;
+        case SourcePort:
+            buffer.append("where source port ");
+            buffer.append(stringNumericTwo(((SourcePortCase) value).getSourcePorts()));
+            break;
+        case IcmpType:
+            buffer.append("where ICMP type ");
+            buffer.append(stringNumericOne(((IcmpTypeCase) value).getTypes()));
+            break;
+        case IcmpCode:
+            buffer.append("where ICMP code ");
+            buffer.append(stringNumericOne(((IcmpCodeCase) value).getCodes()));
+            break;
+        case TcpFlags:
+            buffer.append(stringTcpFlags(((TcpFlagsCase) value).getTcpFlags()));
+            break;
+        case PacketLength:
+            buffer.append("where packet length ");
+            buffer.append(stringNumericTwo(((PacketLengthCase) value).getPacketLengths()));
+            break;
+        case Dscp:
+            buffer.append(stringDscp(((DscpCase) value).getDscps()));
+            break;
+        case Fragment:
+            buffer.append(stringFragment(((FragmentCase) value).getFragments()));
+            break;
+        default:
+            LOG.warn("Unknown Component Type.");
+            break;
+        }
+        return buffer.toString();
+    }
+
+    private static <T extends NumericTwoByteValue> String stringNumericTwo(final List<T> list) {
+        final StringBuffer buffer = new StringBuffer();
+        boolean isFirst = true;
+        for (final T item : list) {
+            buffer.append(stringNumericOperand(item.getOp(), isFirst));
+            buffer.append(item.getValue() + " ");
+            if (isFirst) {
+                isFirst = false;
+            }
+        }
+        return buffer.toString();
+    }
+
+    private static <T extends NumericOneByteValue> String stringNumericOne(final List<T> list) {
+        final StringBuffer buffer = new StringBuffer();
+        boolean isFirst = true;
+        for (final T item : list) {
+            buffer.append(stringNumericOperand(item.getOp(), isFirst));
+            buffer.append(item.getValue() + " ");
+            if (isFirst) {
+                isFirst = false;
+            }
+        }
+        return buffer.toString();
+    }
+
+    private static String stringNumericOperand(final NumericOperand op, final boolean isFirst) {
+        final StringBuffer buffer = new StringBuffer();
+        if (!op.isAndBit() && !isFirst) {
+            buffer.append("or ");
+        }
+        if (op.isAndBit()) {
+            buffer.append("and ");
+        }
+        if (op.isLessThan() && op.isEquals()) {
+            buffer.append("is less than or equal to ");
+            return buffer.toString();
+        } else if (op.isGreaterThan() && op.isEquals()) {
+            buffer.append("is greater than or equal to ");
+            return buffer.toString();
+        }
+        if (op.isEquals()) {
+            buffer.append("equals to ");
+        }
+        if (op.isLessThan()) {
+            buffer.append("is less than ");
+        }
+        if (op.isGreaterThan()) {
+            buffer.append("is greater than ");
+        }
+        return buffer.toString();
+    }
+
+    private static String stringTcpFlags(final List<TcpFlags> flags) {
+        final StringBuffer buffer = new StringBuffer("where TCP flags ");
+        boolean isFirst = true;
+        for (final TcpFlags item : flags) {
+            buffer.append(stringBitmaskOperand(item.getOp(), isFirst));
+            buffer.append(item.getValue() + " ");
+            if (isFirst) {
+                isFirst = false;
+            }
+        }
+        return buffer.toString();
+    }
+
+    private static String stringBitmaskOperand(final BitmaskOperand op, final boolean isFirst) {
+        final StringBuffer buffer = new StringBuffer();
+        if (!op.isAndBit() && !isFirst) {
+            buffer.append("or ");
+        }
+        if (op.isAndBit()) {
+            buffer.append("and ");
+        }
+        if (op.isMatch()) {
+            buffer.append("does ");
+            if (op.isNot()) {
+                buffer.append("not ");
+            }
+            buffer.append("match ");
+        } else if (op.isNot()) {
+            buffer.append("is not ");
+        }
+        return buffer.toString();
+    }
+
+    private static String stringDscp(final List<Dscps> dscps) {
+        final StringBuffer buffer = new StringBuffer("where DSCP ");
+        boolean isFirst = true;
+        for (final Dscps item : dscps) {
+            buffer.append(stringNumericOperand(item.getOp(), isFirst));
+            buffer.append(item.getValue().getValue() + " ");
+            if (isFirst) {
+                isFirst = false;
+            }
+        }
+        return buffer.toString();
+    }
+
+    private static String stringFragment(final List<Fragments> fragments) {
+        final StringBuffer buffer = new StringBuffer("where fragment ");
+        boolean isFirst = true;
+        for (final Fragments item : fragments) {
+            buffer.append(stringBitmaskOperand(item.getOp(), isFirst));
+            buffer.append(stringFragment(item.getValue()));
+            if (isFirst) {
+                isFirst = false;
+            }
+        }
+        return buffer.toString();
+    }
+
+    private static String stringFragment(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.Fragment fragment) {
+        final StringBuffer buffer = new StringBuffer();
+        if (fragment.isDoNot()) {
+            buffer.append("'DO NOT' ");
+        }
+        if (fragment.isFirst()) {
+            buffer.append("'IS FIRST' ");
+        }
+        if (fragment.isLast()) {
+            buffer.append("'IS LAST' ");
+        }
+        if (fragment.isIsA()) {
+            buffer.append("'IS A' ");
+        }
+        return buffer.toString();
     }
 }
