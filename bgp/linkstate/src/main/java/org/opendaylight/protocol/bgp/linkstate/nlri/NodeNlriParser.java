@@ -47,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.ospf.pseudonode._case.OspfPseudonode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.ospf.pseudonode._case.OspfPseudonodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
+import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
@@ -77,18 +78,24 @@ public final class NodeNlriParser {
     private static final int IGP_ROUTER_ID = 515;
 
     /* Node Descriptor QNames */
-    private static final NodeIdentifier AS_NUMBER_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "as-number")));
-    private static final NodeIdentifier AREA_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "area-id")));
-    private static final NodeIdentifier DOMAIN_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "domain-id")));
-    private static final NodeIdentifier ROUTER_NID = new NodeIdentifier(CRouterIdentifier.QNAME);
+    @VisibleForTesting
+    public static final NodeIdentifier AS_NUMBER_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "as-number")));
+    @VisibleForTesting
+    public static final NodeIdentifier AREA_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "area-id")));
+    @VisibleForTesting
+    public static final NodeIdentifier DOMAIN_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "domain-id")));
+    @VisibleForTesting
+    public static final NodeIdentifier ROUTER_NID = new NodeIdentifier(CRouterIdentifier.QNAME);
 
     /* Router Identifier QNames */
-    private static final NodeIdentifier ISIS_NODE_NID = new NodeIdentifier(IsisNode.QNAME);
+    @VisibleForTesting
+    public static final NodeIdentifier ISIS_NODE_NID = new NodeIdentifier(IsisNode.QNAME);
     private static final NodeIdentifier ISIS_PSEUDONODE_NID = new NodeIdentifier(IsisPseudonode.QNAME);
     private static final NodeIdentifier OSPF_NODE_NID = new NodeIdentifier(OspfNode.QNAME);
     private static final NodeIdentifier OSPF_PSEUDONODE_NID = new NodeIdentifier(OspfPseudonode.QNAME);
     private static final NodeIdentifier ISIS_ROUTER_NID = new NodeIdentifier(IsisRouterIdentifier.QNAME);
-    private static final NodeIdentifier ISO_SYSTEM_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "iso-system-id")));
+    @VisibleForTesting
+    public static final NodeIdentifier ISO_SYSTEM_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "iso-system-id")));
     private static final NodeIdentifier PSN_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "psn")));
     private static final NodeIdentifier OSPF_ROUTER_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "ospf-router-id")));
     private static final NodeIdentifier LAN_IFACE_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "lan-interface")));
@@ -203,8 +210,59 @@ public final class NodeNlriParser {
         buffer.writeBytes((byte[])isis.getChild(ISO_SYSTEM_NID).get().getValue());
     }
 
+    private static IsisNodeCase serializeIsisNode(final ContainerNode isis) {
+        final IsisNodeCaseBuilder builder = new IsisNodeCaseBuilder();
+        final IsisNodeBuilder isisBuilder = new IsisNodeBuilder();
+        isisBuilder.setIsoSystemId(new IsoSystemIdentifier((byte[])isis.getChild(ISO_SYSTEM_NID).get().getValue()));
+        builder.setIsisNode(isisBuilder.build());
+        return builder.build();
+    }
+
+    private static IsisPseudonodeCase serializeIsisPseudoNode(final ContainerNode pseudoIsisNode) {
+        final IsisPseudonodeCaseBuilder builder = new IsisPseudonodeCaseBuilder();
+        final IsisPseudonodeBuilder nodeBuilder = new IsisPseudonodeBuilder();
+        final IsIsRouterIdentifierBuilder isisRouterId = new IsIsRouterIdentifierBuilder();
+        if (pseudoIsisNode.getChild(ISO_SYSTEM_NID).isPresent()) {
+            isisRouterId.setIsoSystemId(new IsoSystemIdentifier((byte[])pseudoIsisNode.getChild(ISO_SYSTEM_NID).get().getValue()));
+        }
+        nodeBuilder.setIsIsRouterIdentifier(isisRouterId.build());
+
+        if (pseudoIsisNode.getChild(PSN_NID).isPresent()) {
+            nodeBuilder.setPsn((Short)pseudoIsisNode.getChild(PSN_NID).get().getValue());
+        } else {
+            nodeBuilder.setPsn((short)0);
+        }
+        builder.setIsisPseudonode(nodeBuilder.build());
+        return builder.build();
+    }
+
     private static void serializeOspfNode(final ContainerNode ospf, final ByteBuf buffer) {
         buffer.writeInt(UnsignedInteger.valueOf((Long)ospf.getChild(OSPF_ROUTER_NID).get().getValue()).intValue());
+    }
+
+    private static OspfNodeCase serializeOspfNode(final ContainerNode ospf) {
+        final OspfNodeCaseBuilder builder = new OspfNodeCaseBuilder();
+        if (ospf.getChild(OSPF_ROUTER_NID).isPresent()) {
+            final OspfNodeBuilder nodeBuilder = new OspfNodeBuilder();
+            nodeBuilder.setOspfRouterId((Long)ospf.getChild(OSPF_ROUTER_NID).get().getValue());
+            builder.setOspfNode(nodeBuilder.build());
+        }
+        return builder.build();
+    }
+
+    private static CRouterIdentifier serializeOspfPseudoNode(final ContainerNode ospfPseudonode) {
+        final OspfPseudonodeCaseBuilder builder = new OspfPseudonodeCaseBuilder();
+        if (ospfPseudonode.getChild(OSPF_PSEUDONODE_NID).isPresent()) {
+            final OspfPseudonodeBuilder nodeBuilder = new OspfPseudonodeBuilder();
+            if (ospfPseudonode.getChild(LAN_IFACE_NID).isPresent()) {
+                nodeBuilder.setLanInterface(new OspfInterfaceIdentifier((Long)ospfPseudonode.getChild(LAN_IFACE_NID).get().getValue()));
+            }
+            if (ospfPseudonode.getChild(OSPF_ROUTER_NID).isPresent()) {
+                nodeBuilder.setOspfRouterId((Long)ospfPseudonode.getChild(OSPF_ROUTER_NID).get().getValue());
+            }
+            builder.setOspfPseudonode(nodeBuilder.build());
+        }
+        return builder.build();
     }
 
     private static void serializeRouterId(final ChoiceNode routerId, final ByteBuf buffer) {
@@ -227,6 +285,20 @@ public final class NodeNlriParser {
         }
     }
 
+    private static CRouterIdentifier serializeRouterId(final ChoiceNode routerId) {
+        CRouterIdentifier cRouterId = null;
+        if (routerId.getChild(ISIS_NODE_NID).isPresent()) {
+            cRouterId = serializeIsisNode((ContainerNode)routerId.getChild(ISIS_NODE_NID).get());
+        } else if (routerId.getChild(ISIS_PSEUDONODE_NID).isPresent()) {
+            cRouterId = serializeIsisPseudoNode((ContainerNode)routerId.getChild(ISIS_PSEUDONODE_NID).get());
+        } else if (routerId.getChild(OSPF_NODE_NID).isPresent()) {
+            cRouterId = serializeOspfNode((ContainerNode)routerId.getChild(OSPF_NODE_NID).get());
+        } else if (routerId.getChild(OSPF_PSEUDONODE_NID).isPresent()) {
+            cRouterId = serializeOspfPseudoNode((ContainerNode)routerId.getChild(OSPF_PSEUDONODE_NID).get());
+        }
+        return cRouterId;
+    }
+
     static void serializeNodeDescriptors(final ContainerNode descriptors, final ByteBuf buffer) {
         final Optional<DataContainerChild<? extends PathArgument, ?>> asNumber = descriptors.getChild(AS_NUMBER_NID);
         if (asNumber.isPresent()) {
@@ -246,5 +318,52 @@ public final class NodeNlriParser {
             serializeRouterId((ChoiceNode)routerId.get(), routerIdBuf);
             TlvUtil.writeTLV(IGP_ROUTER_ID, routerIdBuf, buffer);
         }
+    }
+
+    public static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier serializeDescriptors(final ContainerNode descriptorsData) {
+
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier() {
+
+            @Override
+            public Class<? extends DataContainer> getImplementedInterface() {
+                return null;
+            }
+
+            @Override
+            public AsNumber getAsNumber() {
+                final Optional<DataContainerChild<? extends PathArgument, ?>> asNumber = descriptorsData.getChild(AS_NUMBER_NID);
+                if (asNumber.isPresent()) {
+                    return new AsNumber((Long)asNumber.get().getValue());
+                }
+                return null;
+            }
+
+            @Override
+            public AreaIdentifier getAreaId() {
+                final Optional<DataContainerChild<? extends PathArgument, ?>> areaId = descriptorsData.getChild(AREA_NID);
+                if (areaId.isPresent()) {
+                    return new AreaIdentifier((Long)areaId.get().getValue());
+                }
+                return null;
+            }
+
+            @Override
+            public DomainIdentifier getDomainId() {
+                final Optional<DataContainerChild<? extends PathArgument, ?>> domainId = descriptorsData.getChild(DOMAIN_NID);
+                if (domainId.isPresent()) {
+                    return new DomainIdentifier((Long)domainId.get().getValue());
+                }
+                return null;
+            }
+
+            @Override
+            public CRouterIdentifier getCRouterIdentifier() {
+                final Optional<DataContainerChild<? extends PathArgument, ?>> routerId = descriptorsData.getChild(ROUTER_NID);
+                if (routerId.isPresent()) {
+                    return serializeRouterId((ChoiceNode)routerId.get());
+                }
+                return null;
+            }
+        };
     }
 }
