@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_48ade530",
+        "filename": "bgp/controller-config/src/main/resources/initial/41-bgp-example.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-04-20T14:00:58Z",
+      "side": 1,
+      "message": "this is not a valid XML comment",
+      "revId": "d277c58b7fea02435c5d54d57ea479a0be94532c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_e8a95125",
+        "filename": "bgp/controller-config/src/main/resources/initial/41-bgp-example.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-04-20T14:00:58Z",
+      "side": 1,
+      "message": "put default value here",
+      "revId": "d277c58b7fea02435c5d54d57ea479a0be94532c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_a8634919",
+        "filename": "bgp/rib-impl/src/main/yang/odl-bgp-rib-impl-cfg.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-04-20T14:00:58Z",
+      "side": 1,
+      "message": "default \"Ibgp\";",
+      "revId": "d277c58b7fea02435c5d54d57ea479a0be94532c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
