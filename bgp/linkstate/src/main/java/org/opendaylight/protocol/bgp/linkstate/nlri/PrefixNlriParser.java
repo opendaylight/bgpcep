@@ -21,7 +21,6 @@ import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.OspfRouteType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.TopologyIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.PrefixDescriptors;
@@ -83,7 +82,7 @@ public final class PrefixNlriParser {
                     LOG.debug("Expected length {}, actual length {}.", size, value.readableBytes());
                     throw new BGPParsingException("Illegal length of IP reachability TLV: " + (value.readableBytes()));
                 }
-                prefix = (ipv4) ? new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.readBytes(value, size), prefixLength)):
+                prefix = (ipv4) ? new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.readBytes(value, size), prefixLength)) :
                     new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.readBytes(value, size), prefixLength));
                 builder.setIpReachabilityInformation(prefix);
                 LOG.trace("Parsed IP reachability info: {}", prefix);
@@ -102,7 +101,7 @@ public final class PrefixNlriParser {
         }
         if (descriptors.getOspfRouteType() != null) {
             TlvUtil.writeTLV(OSPF_ROUTE_TYPE,
-                Unpooled.wrappedBuffer(new byte[] {UnsignedBytes.checkedCast(descriptors.getOspfRouteType().getIntValue()) }), buffer);
+                Unpooled.wrappedBuffer(new byte[] { UnsignedBytes.checkedCast(descriptors.getOspfRouteType().getIntValue()) }), buffer);
         }
         if (descriptors.getIpReachabilityInformation() != null) {
             final IpPrefix prefix = descriptors.getIpReachabilityInformation();
@@ -118,7 +117,7 @@ public final class PrefixNlriParser {
 
     // FIXME : use codec
     private static int domOspfRouteTypeValue(final String ospfRouteType) {
-        switch(ospfRouteType) {
+        switch (ospfRouteType) {
         case "intra-area":
             return 1;
         case "inter-area":
@@ -136,32 +135,26 @@ public final class PrefixNlriParser {
         }
     }
 
-    static NlriType serializePrefixDescriptors(final ContainerNode descriptors, final ByteBuf buffer) {
-        if (descriptors.getChild(TlvUtil.MULTI_TOPOLOGY_NID).isPresent()) {
-            TlvUtil.writeTLV(TlvUtil.MULTI_TOPOLOGY_ID, Unpooled.copyShort((Short)descriptors.getChild(TlvUtil.MULTI_TOPOLOGY_NID).get().getValue()), buffer);
+    public static PrefixDescriptors serializePrefixDescriptors(final ContainerNode prefixDesc) {
+        final PrefixDescriptorsBuilder prefixDescBuilder = new PrefixDescriptorsBuilder();
+        if (prefixDesc.getChild(TlvUtil.MULTI_TOPOLOGY_NID).isPresent()) {
+            prefixDescBuilder.setMultiTopologyId(new TopologyIdentifier((Integer) prefixDesc.getChild(TlvUtil.MULTI_TOPOLOGY_NID).get().getValue()));
         }
-        final Optional<DataContainerChild<? extends PathArgument, ?>> ospfRoute = descriptors.getChild(OSPF_ROUTE_NID);
+        final Optional<DataContainerChild<? extends PathArgument, ?>> ospfRoute = prefixDesc.getChild(OSPF_ROUTE_NID);
         if (ospfRoute.isPresent()) {
-            // DOM representation contains values as are in the model, not as are in generated enum
-            TlvUtil.writeTLV(OSPF_ROUTE_TYPE,
-                Unpooled.wrappedBuffer(new byte[] {UnsignedBytes.checkedCast(domOspfRouteTypeValue((String)ospfRoute.get().getValue())) }), buffer);
+            prefixDescBuilder.setOspfRouteType(OspfRouteType.forValue(domOspfRouteTypeValue((String) ospfRoute.get().getValue())));
         }
-        byte[] prefixBytes = null;
-        NlriType prefixType = null;
-        if (descriptors.getChild(IP_REACH_NID).isPresent()) {
-            final String prefix = (String)descriptors.getChild(IP_REACH_NID).get().getValue();
-            // DOM data does not have any information what kind of prefix is it holding,
-            // therefore we need to rely on the pattern matcher in Ipv4Prefix constructor
+        if (prefixDesc.getChild(IP_REACH_NID).isPresent()) {
+            final String prefix = (String) prefixDesc.getChild(IP_REACH_NID).get().getValue();
+
             try {
-                prefixBytes = Ipv4Util.bytesForPrefixBegin(new Ipv4Prefix(prefix));
-                prefixType = NlriType.Ipv4Prefix;
-            } catch(final IllegalArgumentException e) {
+                Ipv4Util.bytesForPrefixBegin(new Ipv4Prefix(prefix));
+                prefixDescBuilder.setIpReachabilityInformation(new IpPrefix(new Ipv4Prefix(prefix)));
+            } catch (final IllegalArgumentException e) {
                 LOG.debug("Creating Ipv6 prefix because", e);
-                prefixBytes = Ipv6Util.bytesForPrefixBegin(new Ipv6Prefix(prefix));
-                prefixType = NlriType.Ipv6Prefix;
+                prefixDescBuilder.setIpReachabilityInformation(new IpPrefix(new Ipv6Prefix(prefix)));
             }
-            TlvUtil.writeTLV(IP_REACHABILITY, Unpooled.wrappedBuffer(prefixBytes), buffer);
         }
-        return prefixType;
+        return prefixDescBuilder.build();
     }
 }

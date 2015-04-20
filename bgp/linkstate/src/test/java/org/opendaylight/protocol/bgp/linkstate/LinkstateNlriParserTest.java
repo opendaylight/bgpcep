@@ -12,12 +12,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import com.google.common.collect.Lists;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.util.List;
+
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.linkstate.nlri.LinkNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.nlri.LinkstateNlriParser;
@@ -42,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.node._case.NodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.AdvertisingNodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.PrefixDescriptors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.CRouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.IsisNodeCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.IsisPseudonodeCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.OspfNodeCaseBuilder;
@@ -65,8 +69,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
+import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableLeafNodeBuilder;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableUnkeyedListEntryNodeBuilder;
 
 public class LinkstateNlriParserTest {
+
+    private static final NodeIdentifier C_LINKSTATE_NID = new NodeIdentifier(CLinkstateDestination.QNAME);
+    private static final NodeIdentifier C_ROUTER_ID_NID = new NodeIdentifier(CRouterIdentifier.QNAME);
 
     private final byte[] nodeNlri = new byte[] { (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x30, (byte) 0x02, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01, (byte) 0x01, (byte) 0x00, (byte) 0x00, (byte) 0x23,
@@ -112,23 +129,76 @@ public class LinkstateNlriParserTest {
     public void testNodeNlri() throws BGPParsingException {
         setUp(this.nodeNlri);
 
+        // test BA form
         assertNull(this.dest.getDistinguisher());
         assertEquals(ProtocolId.IsisLevel2, this.dest.getProtocolId());
         assertEquals(BigInteger.ONE, this.dest.getIdentifier().getValue());
-        final NodeCase nCase = ((NodeCase)this.dest.getObjectType());
+        final NodeCase nCase = ((NodeCase) this.dest.getObjectType());
 
         final NodeDescriptors nodeD = nCase.getNodeDescriptors();
         assertEquals(new AsNumber(72L), nodeD.getAsNumber());
         assertEquals(new DomainIdentifier(0x28282828L), nodeD.getDomainId());
         assertEquals(new IsisPseudonodeCaseBuilder().setIsisPseudonode(
             new IsisPseudonodeBuilder().setPsn((short) 5).setIsIsRouterIdentifier(
-                new IsIsRouterIdentifierBuilder().setIsoSystemId(
-                    new IsoSystemIdentifier(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-                        (byte) 0x39 })).build()).build()).build(), nodeD.getCRouterIdentifier());
+               new IsIsRouterIdentifierBuilder().setIsoSystemId(new IsoSystemIdentifier(new byte[] { 0, 0, 0, 0, 0, (byte) 0x39 })).build()).build()).build(), nodeD.getCRouterIdentifier());
 
         final ByteBuf buffer = Unpooled.buffer();
         LinkstateNlriParser.serializeNlri(this.dest, buffer);
         assertArrayEquals(this.nodeNlri, ByteArray.readAllBytes(buffer));
+
+        // test BI form
+        final DataContainerNodeAttrBuilder<YangInstanceIdentifier.NodeIdentifier, UnkeyedListEntryNode> linkstateBI = ImmutableUnkeyedListEntryNodeBuilder
+                .create();
+        linkstateBI.withNodeIdentifier(C_LINKSTATE_NID);
+
+        final ImmutableLeafNodeBuilder<String> protocolId = new ImmutableLeafNodeBuilder<>();
+        protocolId.withNodeIdentifier(LinkstateNlriParser.PROTOCOL_ID_NID);
+        protocolId.withValue("isis-level2");
+        linkstateBI.addChild(protocolId.build());
+
+        final ImmutableLeafNodeBuilder<BigInteger> identifier = new ImmutableLeafNodeBuilder<>();
+        identifier.withNodeIdentifier(LinkstateNlriParser.IDENTIFIER_NID);
+        identifier.withValue(BigInteger.ONE);
+        linkstateBI.addChild(identifier.build());
+
+        final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> objectType = Builders.choiceBuilder();
+        objectType.withNodeIdentifier(LinkstateNlriParser.OBJECT_TYPE_NID);
+
+        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> nodeDescriptors = Builders.containerBuilder();
+        nodeDescriptors.withNodeIdentifier(LinkstateNlriParser.NODE_DESCRIPTORS_NID);
+
+        final ImmutableLeafNodeBuilder<Long> asNumber = new ImmutableLeafNodeBuilder<>();
+        asNumber.withNodeIdentifier(NodeNlriParser.AS_NUMBER_NID);
+        asNumber.withValue(72L);
+        nodeDescriptors.addChild(asNumber.build());
+
+        final ImmutableLeafNodeBuilder<Long> areaID = new ImmutableLeafNodeBuilder<>();
+        areaID.withNodeIdentifier(NodeNlriParser.AREA_NID);
+        areaID.withValue(2697513L); nodeDescriptors.addChild(areaID.build());
+
+        final ImmutableLeafNodeBuilder<Long> domainID = new ImmutableLeafNodeBuilder<>();
+        domainID.withNodeIdentifier(NodeNlriParser.DOMAIN_NID);
+        domainID.withValue(0x28282828L);
+        nodeDescriptors.addChild(domainID.build());
+
+        final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> crouterId = Builders.choiceBuilder();
+        crouterId.withNodeIdentifier(C_ROUTER_ID_NID);
+
+        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> isisNode = Builders.containerBuilder();
+        isisNode.withNodeIdentifier(NodeNlriParser.ISIS_PSEUDONODE_NID);
+
+        final ImmutableLeafNodeBuilder<byte[]> isoSystemID = new ImmutableLeafNodeBuilder<>();
+        isoSystemID.withNodeIdentifier(NodeNlriParser.ISO_SYSTEM_NID);
+        isoSystemID.withValue(new byte[] { 0, 0, 0, 0, 0, (byte) 0x39 });
+        isisNode.addChild(isoSystemID.build());
+        isisNode.addChild(Builders.leafBuilder().withNodeIdentifier(NodeNlriParser.PSN_NID).withValue((short) 5).build());
+        crouterId.addChild(isisNode.build());
+
+        nodeDescriptors.addChild(crouterId.build());
+        objectType.addChild(nodeDescriptors.build());
+        linkstateBI.addChild(objectType.build());
+
+        assertEquals(this.dest, LinkstateNlriParser.extractLinkstateDestination(linkstateBI.build()));
     }
 
     @Test
@@ -139,7 +209,7 @@ public class LinkstateNlriParserTest {
         assertEquals(ProtocolId.IsisLevel2, this.dest.getProtocolId());
         assertEquals(BigInteger.ONE, this.dest.getIdentifier().getValue());
 
-        final LinkCase lCase = ((LinkCase)this.dest.getObjectType());
+        final LinkCase lCase = ((LinkCase) this.dest.getObjectType());
 
         final LocalNodeDescriptors local = lCase.getLocalNodeDescriptors();
         assertEquals(new AsNumber(72L), local.getAsNumber());
@@ -171,7 +241,7 @@ public class LinkstateNlriParserTest {
         assertEquals(ProtocolId.IsisLevel2, this.dest.getProtocolId());
         assertEquals(BigInteger.ONE, this.dest.getIdentifier().getValue());
 
-        final PrefixCase pCase = ((PrefixCase)this.dest.getObjectType());
+        final PrefixCase pCase = ((PrefixCase) this.dest.getObjectType());
 
         final AdvertisingNodeDescriptors local = pCase.getAdvertisingNodeDescriptors();
         assertEquals(new AsNumber(72L), local.getAsNumber());
@@ -196,7 +266,7 @@ public class LinkstateNlriParserTest {
     public void testSerializeAttribute() throws BGPParsingException {
         final LinkstateNlriParser parser = new LinkstateNlriParser(true);
         setUp(this.prefixNlri);
-        final List<CLinkstateDestination> dests = Lists.newArrayList( this.dest );
+        final List<CLinkstateDestination> dests = Lists.newArrayList(this.dest);
         final DestinationLinkstateCase dlc = new DestinationLinkstateCaseBuilder().setDestinationLinkstate(new DestinationLinkstateBuilder().setCLinkstateDestination(dests).build()).build();
         final AdvertizedRoutes aroutes = new AdvertizedRoutesBuilder().setDestinationType(dlc).build();
         final Attributes1 reach = new Attributes1Builder().setMpReachNlri(new MpReachNlriBuilder().setAdvertizedRoutes(aroutes).build()).build();
@@ -208,7 +278,7 @@ public class LinkstateNlriParserTest {
         assertArrayEquals(this.prefixNlri, ByteArray.getAllBytes(result));
 
         setUp(this.nodeNlri);
-        final List<CLinkstateDestination> destsU = Lists.newArrayList( this.dest );
+        final List<CLinkstateDestination> destsU = Lists.newArrayList(this.dest);
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase dlcU =
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder().setDestinationLinkstate(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder().setCLinkstateDestination(destsU).build()).build();
@@ -222,7 +292,7 @@ public class LinkstateNlriParserTest {
         assertArrayEquals(this.nodeNlri, ByteArray.getAllBytes(result));
     }
 
-    @Test(expected=UnsupportedOperationException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testLinkNlriPrivateConstructor() throws Throwable {
         final Constructor<LinkNlriParser> c = LinkNlriParser.class.getDeclaredConstructor();
         c.setAccessible(true);
@@ -233,7 +303,7 @@ public class LinkstateNlriParserTest {
         }
     }
 
-    @Test(expected=UnsupportedOperationException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testNodeNlriPrivateConstructor() throws Throwable {
         final Constructor<NodeNlriParser> c = NodeNlriParser.class.getDeclaredConstructor();
         c.setAccessible(true);
@@ -244,7 +314,7 @@ public class LinkstateNlriParserTest {
         }
     }
 
-    @Test(expected=UnsupportedOperationException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testPrefixNlriPrivateConstructor() throws Throwable {
         final Constructor<PrefixNlriParser> c = PrefixNlriParser.class.getDeclaredConstructor();
         c.setAccessible(true);
