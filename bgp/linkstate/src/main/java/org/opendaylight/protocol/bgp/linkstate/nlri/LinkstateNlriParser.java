@@ -368,7 +368,29 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     }
 
     public static CLinkstateDestination extractLinkstateDestination(final MapEntryNode route) {
-        // FIXME: BUG-3012 - finish this
-        return new CLinkstateDestinationBuilder().build();
+        final CLinkstateDestinationBuilder builder = new CLinkstateDestinationBuilder();
+        final Optional<DataContainerChild<? extends PathArgument, ?>> distinguisher = route.getChild(DISTINGUISHER_NID);
+        if (distinguisher.isPresent()) {
+            builder.setDistinguisher(new RouteDistinguisher(new BigInteger((String)distinguisher.get().getValue())));
+        }
+
+        final Optional<DataContainerChild<? extends PathArgument, ?>> protocolID = route.getChild(PROTOCOL_ID_NID);
+        if (protocolID.isPresent()) {
+            final int protocolId = domProtocolIdValue((String) protocolID.get().getValue());
+            builder.setProtocolId(ProtocolId.forValue(protocolId));
+        }
+
+        final Optional<DataContainerChild<? extends PathArgument, ?>> identifier = route.getChild(IDENTIFIER_NID);
+        if (identifier.isPresent()) {
+            builder.setIdentifier(new Identifier((BigInteger)identifier.get().getValue()));
+        }
+
+        final Optional<DataContainerChild<? extends PathArgument, ?>> objectType = route.getChild(OBJECT_TYPE_NID);
+        if (objectType.isPresent()) {
+            builder.setObjectType((ObjectType)objectType.get().getValue());
+        }
+
+        builder.setObjectType(null);
+        return builder.build();
     }
 }
