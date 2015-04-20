@@ -93,28 +93,27 @@ public class FSNlriParserTest {
 
     private static final byte[] nlri = new byte[] { 0x1D, 01, 0x18, 0x0a, 00, 01, 02, 0x08, (byte) 0xc0,
         03, (byte) 0x81, 06, 04, 03, (byte) 0x89, 0x45, (byte) 0x8b, (byte) 0x91, 0x1f, (byte) 0x90,
-        05, 0x12, 0x0f, (byte)0xf9, (byte)0x81, (byte)0xb3,
-        06, (byte) 0x91, 0x1f, (byte)0x90};
+        05, 0x12, 0x0f, (byte) 0xf9, (byte) 0x81, (byte) 0xb3,
+        06, (byte) 0x91, 0x1f, (byte) 0x90 };
 
-    private static final byte[] unnlri = new byte[] { 0x1B, 07, 4, 2, (byte)0x84, 3,
-        0x08, 06, 04, (byte)0x80, 05,
-        0x09, 0x12, 04, 01, (byte)0x91, 0x56, (byte) 0xb1,
-        0x0a, (byte)0x96, (byte) 0xde, (byte) 0xad,
-        0x0b, (byte)0x86, 0x2a,
-        0x0c, (byte)0x81, (byte)0x0f};
+    private static final byte[] unnlri = new byte[] { 0x1B, 07, 4, 2, (byte) 0x84, 3,
+        0x08, 06, 04, (byte) 0x80, 05,
+        0x09, 0x12, 04, 01, (byte) 0x91, 0x56, (byte) 0xb1,
+        0x0a, (byte) 0x96, (byte) 0xde, (byte) 0xad,
+        0x0b, (byte) 0x86, 0x2a,
+        0x0c, (byte) 0x81, (byte) 0x0f };
 
     @Test
     public void testParseLength() {
         // 00-00-0000 = 1
-        assertEquals(1, FSNlriParser.parseLength((byte)0x00));
+        assertEquals(1, FSNlriParser.parseLength((byte) 0x00));
         // 00-01-0000 = 2
-        assertEquals(2, FSNlriParser.parseLength((byte)16));
+        assertEquals(2, FSNlriParser.parseLength((byte) 16));
         // 00-10-0000 = 4
-        assertEquals(4, FSNlriParser.parseLength((byte)32));
+        assertEquals(4, FSNlriParser.parseLength((byte) 32));
         // 00-11-0000 = 8
-        assertEquals(8, FSNlriParser.parseLength((byte)48));
+        assertEquals(8, FSNlriParser.parseLength((byte) 48));
     }
-
 
     @Test
     public void testParseMpReachNlri() throws BGPParsingException {
@@ -165,7 +164,7 @@ public class FSNlriParserTest {
         final MpReachNlriBuilder result = new MpReachNlriBuilder();
         parser.parseNlri(Unpooled.wrappedBuffer(nlri), result);
 
-        final List<Flowspec> flows = ((DestinationFlowspecCase)(result.getAdvertizedRoutes().getDestinationType())).getDestinationFlowspec().getFlowspec();
+        final List<Flowspec> flows = ((DestinationFlowspecCase) (result.getAdvertizedRoutes().getDestinationType())).getDestinationFlowspec().getFlowspec();
         assertEquals(6, flows.size());
         assertEquals(destinationPrefix, flows.get(0).getFlowspecType());
         assertEquals(sourcePrefix, flows.get(1).getFlowspecType());
@@ -177,6 +176,13 @@ public class FSNlriParserTest {
         final ByteBuf buffer = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes1.class, new Attributes1Builder().setMpReachNlri(mp.build()).build()).build(), buffer);
         assertArrayEquals(nlri, ByteArray.readAllBytes(buffer));
+
+        assertEquals("all packets to 10.0.1.0/24", FSNlriParser.stringNlri(flows.get(0)));
+        assertEquals("all packets from 192.0.0.0/8", FSNlriParser.stringNlri(flows.get(1)));
+        assertEquals("all packets where protocol equals to 6 ", FSNlriParser.stringNlri(flows.get(2)));
+        assertEquals("all packets where port is greater than or equal to 137 and is less than or equal to 139 or equals to 8080 ", FSNlriParser.stringNlri(flows.get(3)));
+        assertEquals("all packets where destination port is greater than 4089 or equals to 179 ", FSNlriParser.stringNlri(flows.get(4)));
+        assertEquals("all packets where source port equals to 8080 ", FSNlriParser.stringNlri(flows.get(5)));
     }
 
     @Test
@@ -234,7 +240,7 @@ public class FSNlriParserTest {
         final MpUnreachNlriBuilder result = new MpUnreachNlriBuilder();
         parser.parseNlri(Unpooled.wrappedBuffer(unnlri), result);
 
-        final List<Flowspec> flows = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecCase)(result.getWithdrawnRoutes().getDestinationType())).getDestinationFlowspec().getFlowspec();
+        final List<Flowspec> flows = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecCase) (result.getWithdrawnRoutes().getDestinationType())).getDestinationFlowspec().getFlowspec();
         assertEquals(6, flows.size());
         assertEquals(icmpType, flows.get(0).getFlowspecType());
         assertEquals(icmpCode, flows.get(1).getFlowspecType());
@@ -246,6 +252,13 @@ public class FSNlriParserTest {
         final ByteBuf buffer = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes2.class, new Attributes2Builder().setMpUnreachNlri(mp.build()).build()).build(), buffer);
         assertArrayEquals(unnlri, ByteArray.readAllBytes(buffer));
+
+        assertEquals("all packets where ICMP type is less than 2 or is less than 3 ", FSNlriParser.stringNlri(flows.get(0)));
+        assertEquals("all packets where ICMP code is less than is greater than 4 or 5 ", FSNlriParser.stringNlri(flows.get(1)));
+        assertEquals("all packets where TCP flags is not 1025 or does match 22193 ", FSNlriParser.stringNlri(flows.get(2)));
+        assertEquals("all packets where packet length is less than is greater than 57005 ", FSNlriParser.stringNlri(flows.get(3)));
+        assertEquals("all packets where DSCP is less than is greater than 42 ", FSNlriParser.stringNlri(flows.get(4)));
+        assertEquals("all packets where fragment does match 'DO NOT' 'IS FIRST' 'IS LAST' 'IS A' ", FSNlriParser.stringNlri(flows.get(5)));
     }
 
     @Test
