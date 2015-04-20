@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.flowspec;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import com.google.common.primitives.UnsignedInts;
@@ -23,6 +24,7 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Values;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.BitmaskOperand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.ComponentType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.NumericOneByteValue;
@@ -88,6 +90,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
+import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.slf4j.Logger;
@@ -95,6 +102,21 @@ import org.slf4j.LoggerFactory;
 
 public class FSNlriParser implements NlriParser, NlriSerializer {
     private static final Logger LOG = LoggerFactory.getLogger(FSNlriParser.class);
+
+    private static final NodeIdentifier FLOWSPEC_TYPE_NID = new NodeIdentifier(FlowspecType.QNAME);
+    private static final NodeIdentifier COMPONENT_TYPE_NID = new NodeIdentifier(QName.cachedReference(QName.create(Flowspec.QNAME, "component-type")));
+    private static final NodeIdentifier DEST_PREFIX_NID = new NodeIdentifier(QName.cachedReference(QName.create(DestinationPrefixCase.QNAME, "destination-prefix")));
+    private static final NodeIdentifier SOURCE_PREFIX_NID = new NodeIdentifier(QName.cachedReference(QName.create(SourcePrefixCase.QNAME, "source-prefix")));
+    private static final NodeIdentifier PROTOCOL_IP_NID = new NodeIdentifier(ProtocolIps.QNAME);
+    private static final NodeIdentifier PORTS_NID = new NodeIdentifier(Ports.QNAME);
+    private static final NodeIdentifier DEST_PORT_NID = new NodeIdentifier(DestinationPorts.QNAME);
+    private static final NodeIdentifier SOURCE_PORT_NID = new NodeIdentifier(SourcePorts.QNAME);
+    private static final NodeIdentifier ICMP_TYPE_NID = new NodeIdentifier(Types.QNAME);
+    private static final NodeIdentifier ICMP_CODE_NID = new NodeIdentifier(Codes.QNAME);
+    private static final NodeIdentifier TCP_FLAGS_NID = new NodeIdentifier(TcpFlags.QNAME);
+    private static final NodeIdentifier PACKET_LENGTHS_NID = new NodeIdentifier(PacketLengths.QNAME);
+    private static final NodeIdentifier DSCP_NID = new NodeIdentifier(Dscps.QNAME);
+    private static final NodeIdentifier FRAGMENT_NID = new NodeIdentifier(Fragments.QNAME);
 
     private static final int NLRI_LENGTH = 1;
     private static final int NLRI_LENGTH_EXTENDED = 2;
@@ -588,8 +610,79 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
         return "";
     }
 
+    private static ComponentType componentTypeValue(final String compType) {
+        switch(compType) {
+        case "destination-prefix":
+            return ComponentType.DestinationPrefix;
+        case "source-prefix":
+            return ComponentType.SourcePrefix;
+        case "protocol-ip":
+            return ComponentType.ProtocolIp;
+        case "port":
+            return ComponentType.Port;
+        case "destination-port":
+            return ComponentType.DestinationPort;
+        case "source-port":
+            return ComponentType.SourcePort;
+        case "icmp-type":
+            return ComponentType.IcmpType;
+        case "icmp-code":
+            return ComponentType.IcmpCode;
+        case "tcp-flags":
+            return ComponentType.TcpFlags;
+        case "packet-length":
+            return ComponentType.PacketLength;
+        case "dscp":
+            return ComponentType.Dscp;
+        case "fragment":
+            return ComponentType.Fragment;
+        default:
+            return null;
+        }
+    }
+
     public static Flowspec extractFlowspec(final MapEntryNode route) {
-        // FIXME: BUG-2571 : finish this
-        return new FlowspecBuilder().build();
+        final FlowspecBuilder fs = new FlowspecBuilder();
+        final Optional<DataContainerChild<? extends PathArgument, ?>> compType = route.getChild(COMPONENT_TYPE_NID);
+        if (compType.isPresent()) {
+            fs.setComponentType(componentTypeValue((String) compType.get().getValue()));
+        }
+        final ChoiceNode fsType = (ChoiceNode) route.getChild(FLOWSPEC_TYPE_NID).get();
+        if (fsType.getChild(DEST_PREFIX_NID).isPresent()) {
+            fs.setFlowspecType(new DestinationPrefixCaseBuilder().setDestinationPrefix(new Ipv4Prefix((String)fsType.getChild(DEST_PREFIX_NID).get().getValue())).build());
+        } else if (fsType.getChild(SOURCE_PREFIX_NID).isPresent()) {
+            fs.setFlowspecType(new SourcePrefixCaseBuilder().setSourcePrefix(new Ipv4Prefix((String)fsType.getChild(SOURCE_PREFIX_NID).get().getValue())).build());
+        } else if (fsType.getChild(PROTOCOL_IP_NID).isPresent()) {
+            //TODO:
+            fs.setFlowspecType(new ProtocolIpCaseBuilder().build());
+        } else if (fsType.getChild(PORTS_NID).isPresent()) {
+            //TODO:
+            fs.setFlowspecType(new PortCaseBuilder().build());
+        } else if (fsType.getChild(DEST_PORT_NID).isPresent()) {
+            //TODO:
+            fs.setFlowspecType(new DestinationPortCaseBuilder().build());
+        } else if (fsType.getChild(SOURCE_PORT_NID).isPresent()) {
+            //TODO:
+            fs.setFlowspecType(new SourcePortCaseBuilder().build());
+        } else if (fsType.getChild(ICMP_TYPE_NID).isPresent()) {
+            //TODO:
+            fs.setFlowspecType(new IcmpTypeCaseBuilder().build());
+        } else if (fsType.getChild(ICMP_CODE_NID).isPresent()) {
+            //TODO:
+            fs.setFlowspecType(new IcmpCodeCaseBuilder().build());
+        } else if (fsType.getChild(TCP_FLAGS_NID).isPresent()) {
+            //TODO:
+            fs.setFlowspecType(new TcpFlagsCaseBuilder().build());
+        } else if (fsType.getChild(PACKET_LENGTHS_NID).isPresent()) {
+            //TODO:
+            fs.setFlowspecType(new PacketLengthCaseBuilder().build());
+        } else if (fsType.getChild(DSCP_NID).isPresent()) {
+            //TODO:
+            fs.setFlowspecType(new DscpCaseBuilder().build());
+        } else if (fsType.getChild(FRAGMENT_NID).isPresent()) {
+            //TODO:
+            fs.setFlowspecType(new FragmentCaseBuilder().build());
+        }
+        return fs.build();
     }
 }
