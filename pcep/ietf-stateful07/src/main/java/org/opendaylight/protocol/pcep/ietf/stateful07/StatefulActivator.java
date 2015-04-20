@@ -19,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.error.code.tlv.LspErrorCode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.Lsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.path.binding.tlv.PathBinding;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.rsvp.error.spec.tlv.RsvpErrorSpec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.Stateful;
@@ -63,7 +64,8 @@ public final class StatefulActivator extends AbstractPCEPExtensionProviderActiva
         regs.add(context.registerTlvSerializer(Stateful.class, new Stateful07StatefulCapabilityTlvParser()));
         regs.add(context.registerTlvParser(Stateful07LspSymbolicNameTlvParser.TYPE, new Stateful07LspSymbolicNameTlvParser()));
         regs.add(context.registerTlvSerializer(SymbolicPathName.class, new Stateful07LspSymbolicNameTlvParser()));
-
+        regs.add(context.registerTlvParser(PathBindingTlvParser.TYPE, new PathBindingTlvParser()));
+        regs.add(context.registerTlvSerializer(PathBinding.class, new PathBindingTlvParser()));
         return regs;
     }
 }
