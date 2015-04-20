@@ -67,11 +67,14 @@
                      "md5-channel-factory" attribute set and then add a "password" attribute here.
                      Note that the peer has to have the same password configured, otherwise the
                      connection will not be established.
+                     If peer role is not present, default value "Ibgp" will be used (allowed values are also "Ebgp" and
+                     "RrClient").
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-peer</type>
                     <name>example-bgp-peer</name>
                     <host>192.0.2.1</host>
                     <holdtimer>180</holdtimer>
+                    <peerRole>Ibgp<peerRole>
                     <rib>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg">prefix:rib</type>
                         <name>example-bgp-rib</name>

@@ -84,13 +84,14 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
     private long sessionEstablishedCounter = 0L;
 
     public BGPPeer(final String name, final RIB rib) {
+        this(name, rib, PeerRole.Ibgp);
+    }
+
+    public BGPPeer(final String name, final RIB rib, final PeerRole role) {
         this.rib = Preconditions.checkNotNull(rib);
         this.name = name;
         this.chain = rib.createPeerChain(this);
-
-        // FIXME: make this configurable
-        final PeerRole role = PeerRole.Ibgp;
-        this.ribWriter = AdjRibInWriter.create(rib.getYangRibId(), role, this.chain);
+        this.ribWriter = AdjRibInWriter.create(rib.getYangRibId(), role, chain);
     }
 
     @Override
