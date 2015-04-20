@@ -79,9 +79,6 @@ final class AdjRibInWriter {
     private final PeerId peerId;
     private final String role;
 
-    /*
-     * FIXME: transaction chain has to be instantiated in caller, so it can terminate us when it fails.
-     */
     private AdjRibInWriter(final YangInstanceIdentifier ribPath, final DOMTransactionChain chain, final PeerId peerId, final String role, final YangInstanceIdentifier tablesRoot, final Map<TablesKey, TableContext> tables) {
         this.ribPath = Preconditions.checkNotNull(ribPath);
         this.chain = Preconditions.checkNotNull(chain);
