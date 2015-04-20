@@ -17,6 +17,7 @@
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Range;
 import com.google.common.net.InetAddresses;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
@@ -65,9 +66,14 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
     @Override
     protected void customValidation() {
+        final short lowRange = 0;
+        final short highRange = 2;
         JmxAttributeValidationException.checkNotNull(getHost(), "value is not set.", hostJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getPort(), "value is not set.", portJmxAttribute);
 
+        if (getPeerRole() != null) {
+            JmxAttributeValidationException.checkCondition(Range.<Short>closed(lowRange, highRange).contains(getPeerRole()), "value is out of range <0, 2>.", peerRoleJmxAttribute);
+        }
         if (getPassword() != null) {
             /*
              *  This is a nasty hack, but we don't have another clean solution. We cannot allow
@@ -107,9 +113,8 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         final List<BgpParameters> tlvs = getTlvs(r);
         final AsNumber remoteAs = getAsOrDefault(r);
         final String password = getPasswordOrNull();
-
         final BGPSessionPreferences prefs = new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), tlvs);
-        final BGPPeer bgpClientPeer = new BGPPeer(peerName(getHostWithoutValue()), r);
+        final BGPPeer bgpClientPeer = new BGPPeer(peerName(getHostWithoutValue()), r, getPeerRole());
         bgpClientPeer.registerRootRuntimeBean(getRootRuntimeBeanRegistratorWrapper());
 
         getPeerRegistryBackwards().addPeer(getHostWithoutValue(), bgpClientPeer, prefs);
