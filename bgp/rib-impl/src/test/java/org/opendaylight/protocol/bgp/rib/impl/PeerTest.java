@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import javassist.ClassPool;
@@ -145,7 +144,6 @@ public class PeerTest {
 
     BindingCodecTreeFactory codecFactory;
 
-    @Mock
     ApplicationPeer peer;
 
     @Mock
@@ -176,7 +174,7 @@ public class PeerTest {
 
     @SuppressWarnings("unchecked")
     @Before
-    public void setUp() throws InterruptedException, ExecutionException, ReadFailedException {
+    public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         final ModuleInfoBackedContext strategy = createClassLoadingStrategy();
         final SchemaContext schemaContext = strategy.tryToCreateSchemaContext().get();
@@ -193,7 +191,7 @@ public class PeerTest {
         map.put(DOMDataTreeChangeService.class, this.service);
         Mockito.doReturn(null).when(this.service).registerDataTreeChangeListener(Mockito.any(DOMDataTreeIdentifier.class), Mockito.any(DOMDataTreeChangeListener.class));
         Mockito.doReturn(map).when(this.dom).getSupportedExtensions();
-        Mockito.doReturn(this.o).when(this.future).get();
+        Mockito.doReturn(this.o).when(this.future).checkedGet();
         Mockito.doNothing().when(this.domChain).close();
         Mockito.doAnswer(new Answer<Object>() {
             @Override
