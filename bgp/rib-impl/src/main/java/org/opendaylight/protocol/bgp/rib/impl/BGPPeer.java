@@ -28,7 +28,6 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
-import org.opendaylight.protocol.bgp.rib.impl.spi.AdjRIBsOutRegistration;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionStatistics;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
@@ -77,7 +76,6 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
     @GuardedBy("this")
     private byte[] rawIdentifier;
     @GuardedBy("this")
-    private AdjRIBsOutRegistration reg;
 
     private BGPPeerRuntimeRegistrator registrator;
     private BGPPeerRuntimeRegistration runtimeReg;
@@ -184,7 +182,6 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
 
             this.tables.add(key);
-            this.rib.initTable(this, key);
 
             // not particularly nice
             if (session instanceof BGPSessionImpl) {
@@ -193,11 +190,6 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
         }
 
         this.ribWriter = this.ribWriter.transform(RouterIds.createPeerId(session.getBgpId()), this.rib.getRibSupportContext(), this.tables, false);
-
-        // Not particularly nice, but what can
-        if (session instanceof BGPSessionImpl) {
-            this.reg = this.rib.registerRIBsOut(this, new SessionRIBsOut((BGPSessionImpl) session));
-        }
         this.sessionEstablishedCounter++;
         if (this.registrator != null) {
             this.runtimeReg = this.registrator.register(this);
@@ -207,15 +199,6 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
     private synchronized void cleanup() {
         // FIXME: BUG-196: support graceful restart
         this.ribWriter.cleanTables(this.tables);
-        for (final TablesKey key : this.tables) {
-            this.rib.clearTable(this, key);
-        }
-
-        if (this.reg != null) {
-            this.reg.close();
-            this.reg = null;
-        }
-
         this.tables.clear();
     }
 
