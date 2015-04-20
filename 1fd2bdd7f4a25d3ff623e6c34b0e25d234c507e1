@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_783e6cba",
+        "filename": "bgp/controller-config/src/main/resources/initial/41-bgp-example.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-04-20T19:36:55Z",
+      "side": 1,
+      "message": "still not a valid XML comment. If a user uncomments the peer he gets syntax errors.",
+      "revId": "1fd2bdd7f4a25d3ff623e6c34b0e25d234c507e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_3848e45a",
+        "filename": "bgp/rib-impl/src/main/yang/odl-bgp-rib-impl-cfg.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-04-20T19:36:55Z",
+      "side": 1,
+      "message": "still no default",
+      "revId": "1fd2bdd7f4a25d3ff623e6c34b0e25d234c507e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
