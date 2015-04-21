@@ -33,8 +33,6 @@
     </prerequisites>
 
     <properties>
-        <exam.version>3.3.0</exam.version>
-        <url.version>1.6.0</url.version>
         <moxy.controller.version>2.5.0</moxy.controller.version>
     </properties>
 
