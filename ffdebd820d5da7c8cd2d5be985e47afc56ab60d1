@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_69f54082",
+        "filename": "bgp/controller-config/src/main/resources/initial/41-bgp-example.xml",
+        "patchSetId": 9
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-04-21T12:54:16Z",
+      "side": 1,
+      "message": "This won\u0027t work with the name in the yang model.",
+      "revId": "ffdebd820d5da7c8cd2d5be985e47afc56ab60d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
