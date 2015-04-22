@@ -116,6 +116,7 @@ public final class PrefixNlriParser {
         }
     }
 
+    // FIXME : use codec
     private static int domOspfRouteTypeValue(final String ospfRouteType) {
         switch(ospfRouteType) {
         case "intra-area":
