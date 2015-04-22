@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_c65a3a83",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSNlriParser.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-04-22T15:53:44Z",
+      "side": 1,
+      "message": "use append(\u0027 \u0027), it is very slightly faster",
+      "revId": "2d685dcf79e1f09b170e6b86121d7651d0ab7499",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
