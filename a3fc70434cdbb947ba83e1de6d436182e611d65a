@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_c020e29d",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSNlriParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-04-22T08:14:34Z",
+      "side": 1,
+      "message": "StringBuilder, not StringBuffer, on multiple places",
+      "revId": "a3fc70434cdbb947ba83e1de6d436182e611d65a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_803adacb",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSNlriParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-04-22T08:14:34Z",
+      "side": 1,
+      "message": "\"Skipping unhandled component type {}\"\n, flow.getComponentType()",
+      "revId": "a3fc70434cdbb947ba83e1de6d436182e611d65a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_a037d6e2",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSNlriParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 654,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-04-22T08:14:34Z",
+      "side": 1,
+      "message": "do not use string concat, perform two appends instead",
+      "revId": "a3fc70434cdbb947ba83e1de6d436182e611d65a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_004eca6f",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSNlriParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 667,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-04-22T08:14:34Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 667,
+        "startChar": 39,
+        "endLine": 667,
+        "endChar": 40
+      },
+      "revId": "a3fc70434cdbb947ba83e1de6d436182e611d65a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_4034d2dd",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSNlriParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 707,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-04-22T08:14:34Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "a3fc70434cdbb947ba83e1de6d436182e611d65a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_2053c618",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSNlriParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 739,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-04-22T08:14:34Z",
+      "side": 1,
+      "message": "and here",
+      "revId": "a3fc70434cdbb947ba83e1de6d436182e611d65a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
