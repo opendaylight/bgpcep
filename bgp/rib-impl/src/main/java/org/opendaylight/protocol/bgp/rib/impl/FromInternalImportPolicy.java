@@ -40,8 +40,8 @@ class FromInternalImportPolicy extends AbstractImportPolicy {
          * we filter the route.
          */
         final Object originatorId = oper.getOriginatorId(attributes);
-        if (bgpIdentifier.getValue().equals(originatorId)) {
-            LOG.debug("Filtering route with our ORIGINATOR_ID {}", bgpIdentifier);
+        if (this.bgpIdentifier.getValue().equals(originatorId)) {
+            LOG.debug("Filtering route with our ORIGINATOR_ID {}", this.bgpIdentifier);
             return null;
         }
 
@@ -51,14 +51,22 @@ class FromInternalImportPolicy extends AbstractImportPolicy {
          */
         final LeafSetNode<?> clusterList = oper.getClusterList(attributes);
         if (clusterList != null) {
-            for (LeafSetEntryNode<?> node : clusterList.getValue()) {
-                if (clusterIdentifier.getValue().equals(node.getValue())) {
-                    LOG.info("Received a route with our CLUSTER_ID {} in CLUSTER_LIST {}, filtering it", clusterIdentifier.getValue(), clusterList);
+            for (final LeafSetEntryNode<?> node : clusterList.getValue()) {
+                if (this.clusterIdentifier.getValue().equals(node.getValue())) {
+                    LOG.info("Received a route with our CLUSTER_ID {} in CLUSTER_LIST {}, filtering it", this.clusterIdentifier.getValue(), clusterList);
                     return null;
                 }
             }
         }
 
         return attributes;
+    }
+
+    /**
+     * For Internal BGP (IBGP) sessions the default value of AIGP_SESSION SHOULD be enabled".
+     */
+    @Override
+    boolean isAigpSession() {
+        return true;
     }
 }
