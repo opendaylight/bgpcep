@@ -282,6 +282,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
         }
     }
 
+    // FIXME : use codec
     private static int domProtocolIdValue(final String protocolId) {
         switch(protocolId) {
         case "unknown":
