@@ -21,4 +21,11 @@ abstract class AbstractImportPolicy {
      * @return Filtered attributes, or null if the advertisement should be ignored.
      */
     @Nullable abstract ContainerNode effectiveAttributes(@Nullable ContainerNode attributes);
+
+    /**
+     * AIGP_SESSION indicates whether the attribute is enabled or disabled for use on that session
+     *
+     * @return true if AIGP attribute is enabled, false if it's disabled
+     */
+    abstract boolean isAigpSession();
 }

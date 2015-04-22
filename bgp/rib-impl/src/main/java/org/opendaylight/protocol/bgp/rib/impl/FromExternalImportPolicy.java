@@ -15,6 +15,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 final class FromExternalImportPolicy extends AbstractImportPolicy {
     @Override
     ContainerNode effectiveAttributes(final ContainerNode attributes) {
+
         /*
          * Filter out non-transitive attributes, so they do not cross inter-AS
          * boundaries.
@@ -23,5 +24,13 @@ final class FromExternalImportPolicy extends AbstractImportPolicy {
          *        the MED attribute. @see https://tools.ietf.org/html/rfc4271#section-5.1.4.
          */
         return AttributeOperations.getInstance(attributes).transitiveAttributes(attributes);
+    }
+
+    /**
+     * For all other External BGP (EBGP) sessions, the default value of AIGP_SESSION MUST be "disabled"
+     */
+    @Override
+    boolean isAigpSession() {
+        return false;
     }
 }

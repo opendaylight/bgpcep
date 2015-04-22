@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.Iterator;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Aigp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.AsPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.ClusterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.OriginatorId;
@@ -73,6 +74,7 @@ final class AttributeOperations {
     private final NodeIdentifier asPathList;
     private final NodeIdentifier asPathSequence;
     private final NodeIdentifier asPathId;
+    private final NodeIdentifier aigpTlv;
 
     private AttributeOperations(final QNameModule namespace) {
         this.asPathContainer = new NodeIdentifier(QName.cachedReference(QName.create(namespace, AsPath.QNAME.getLocalName())));
@@ -88,6 +90,7 @@ final class AttributeOperations {
         this.originatorIdContainer = new NodeIdentifier(QName.cachedReference(QName.create(namespace, OriginatorId.QNAME.getLocalName())));
         this.originatorIdLeaf = new NodeIdentifier(QName.cachedReference(QName.create(namespace, "originator")));
         this.originatorIdPath = ImmutableList.<PathArgument>of(this.originatorIdContainer, this.originatorIdLeaf);
+        this.aigpTlv = new NodeIdentifier(QName.cachedReference(QName.create(namespace, Aigp.QNAME.getLocalName())));
     }
 
     static AttributeOperations getInstance(final ContainerNode attributes) {
