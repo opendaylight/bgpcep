@@ -17,7 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.ExtendedCommunities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 
-public final class FSActivator extends AbstractBGPExtensionProviderActivator {
+public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
     private static final int FLOWSPEC_SAFI = 133;
 
