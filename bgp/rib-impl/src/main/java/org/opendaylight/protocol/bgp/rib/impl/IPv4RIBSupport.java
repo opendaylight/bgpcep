@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -40,7 +41,8 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
  * Class supporting IPv4 unicast RIBs.
  */
 final class IPv4RIBSupport extends AbstractIPRIBSupport {
-    private final static QName PREFIX_QNAME = QName.cachedReference(QName.create(Ipv4Route.QNAME, "prefix"));
+    @VisibleForTesting
+    final static QName PREFIX_QNAME = QName.cachedReference(QName.create(Ipv4Route.QNAME, "prefix"));
     private static final IPv4RIBSupport SINGLETON = new IPv4RIBSupport();
     private final ChoiceNode emptyRoutes = Builders.choiceBuilder()
             .withNodeIdentifier(new NodeIdentifier(Routes.QNAME))
