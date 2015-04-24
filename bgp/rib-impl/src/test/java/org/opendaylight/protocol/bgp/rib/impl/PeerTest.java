@@ -20,15 +20,12 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultChannelPromise;
 import io.netty.channel.EventLoop;
-import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +33,6 @@ import javassist.ClassPool;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -47,7 +43,6 @@ import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
@@ -60,36 +55,14 @@ import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
+import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.Ipv4Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4RouteBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4RouteKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.DomainIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Identifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Ipv4InterfaceIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.TopologyIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.LinkCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LinkDescriptorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LocalNodeDescriptors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LocalNodeDescriptorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.RemoteNodeDescriptors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.RemoteNodeDescriptorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.LinkstateRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.LinkstateRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.LinkstateRouteBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.linkstate.routes.LinkstateRouteKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.IsisNodeCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.OspfNodeCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.isis.node._case.IsisNodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.ospf.node._case.OspfNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
@@ -106,17 +79,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.multiprotocol._case.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.yangtools.binding.data.codec.gen.impl.DataObjectSerializerGenerator;
 import org.opendaylight.yangtools.binding.data.codec.gen.impl.StreamWriterGenerator;
@@ -131,13 +101,21 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNodes;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.spi.DefaultDataTreeCandidate;
+import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
-public class ApplicationPeerTest {
+public class PeerTest {
 
     private final TablesKey tk = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-    private final TablesKey lk = new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
 
     private RIBImpl r;
 
@@ -171,9 +149,6 @@ public class ApplicationPeerTest {
     ApplicationPeer peer;
 
     @Mock
-    AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> change;
-
-    @Mock
     CheckedFuture<?,?> future;
 
     @Mock
@@ -184,7 +159,7 @@ public class ApplicationPeerTest {
 
     BGPSessionImpl session;
 
-    List<InstanceIdentifier<?>> routes;
+    List<YangInstanceIdentifier> routes;
 
     private BGPPeer classic;
 
@@ -197,14 +172,7 @@ public class ApplicationPeerTest {
     @Mock
     private EventLoop eventLoop;
 
-    private final byte[] linkNlri = new byte[] { 0, 2, 0, 0x65, 2, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, (byte) 0x1a,
-        2, 0, 0, 4, 0, 0, 0, 0x48, 2, 1, 0, 4, 0x28, 0x28, 0x28, 0x28, 2, 3, 0, 6, 0, 0, 0, 0, 0, 0x42, 1, 1, 0, 0x18,
-        2, 0, 0, 4, 0, 0, 0, 0x48, 2, 1, 0, 4, 0x28, 0x28, 0x28, 0x28, 2, 3, 0, 4, 0, 0, 0, 0x40, 1, 2, 0, 8, 1, 2, 3,
-        4, 0x0a, 0x0b, 0x0c, 0x0d, 1, 3, 0, 4, (byte) 0xc5, 0x14, (byte) 0xa0, (byte) 0x2a, 1, 4, 0, 4, (byte) 0xc5,
-        0x14, (byte) 0xa0, 0x28, 1, 7, 0, 2, 0, 3};
-
     private RIBActivator a1;
-    private org.opendaylight.protocol.bgp.linkstate.RIBActivator a2;
 
     @SuppressWarnings("unchecked")
     @Before
@@ -216,12 +184,9 @@ public class ApplicationPeerTest {
         final List<BgpTableType> localTables = new ArrayList<>();
         this.routes = new ArrayList<>();
         localTables.add(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
-        localTables.add(new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
         final RIBExtensionProviderContext context = new SimpleRIBExtensionProviderContext();
         this.a1 = new RIBActivator();
         this.a1.startRIBExtensionProvider(context);
-        this.a2 = new org.opendaylight.protocol.bgp.linkstate.RIBActivator();
-        this.a2.startRIBExtensionProvider(context);
         Mockito.doReturn(this.chain).when(this.dps).createTransactionChain(Mockito.any(RIBImpl.class));
         Mockito.doReturn(this.domChain).when(this.dom).createTransactionChain(Mockito.any(BGPPeer.class));
         final Map<Class<? extends DOMDataBrokerExtension>, DOMDataBrokerExtension> map = new HashMap<>();
@@ -230,39 +195,39 @@ public class ApplicationPeerTest {
         Mockito.doReturn(map).when(this.dom).getSupportedExtensions();
         Mockito.doReturn(this.o).when(this.future).get();
         Mockito.doNothing().when(this.domChain).close();
-        Mockito.doNothing().when(this.transWrite).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class), Mockito.any(Rib.class));
-        Mockito.doNothing().when(this.domTransWrite).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
+        Mockito.doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(final InvocationOnMock invocation) throws Throwable {
+                final Object[] args = invocation.getArguments();
+                final NormalizedNode<?,?> node = (NormalizedNode<?,?>)args[2];
+                if (node.getNodeType().equals(Ipv4Route.QNAME) || node.getNodeType().equals(IPv4RIBSupport.PREFIX_QNAME)) {
+                    PeerTest.this.routes.add((YangInstanceIdentifier) args[1]);
+                }
+                return args[1];
+            }
+        }).when(this.domTransWrite).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
         Mockito.doNothing().when(this.domTransWrite).merge(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
-        Mockito.doNothing().when(this.domTransWrite).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class));
         Mockito.doAnswer(new Answer<Object>() {
 
             @Override
             public Object answer(final InvocationOnMock invocation) throws Throwable {
                 final Object[] args = invocation.getArguments();
-                ApplicationPeerTest.this.routes.add((InstanceIdentifier<?>) args[1]);
+                PeerTest.this.routes.remove(args[1]);
                 return args[1];
             }
-        }).when(this.transWrite).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class), Mockito.any(Route.class), Mockito.eq(true));
-        Mockito.doNothing().when(this.transWrite).merge(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class), Mockito.any(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes.class));
+        }).when(this.domTransWrite).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class));
         Mockito.doReturn(false).when(this.o).isPresent();
-        Mockito.doReturn(this.future).when(this.transWrite).submit();
         Mockito.doReturn(this.future).when(this.domTransWrite).submit();
         Mockito.doNothing().when(this.future).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
         Mockito.doReturn(this.transWrite).when(this.chain).newWriteOnlyTransaction();
+        Mockito.doNothing().when(this.transWrite).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class), Mockito.any(DataObject.class), Mockito.eq(true));
+        Mockito.doNothing().when(this.transWrite).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class), Mockito.any(DataObject.class));
+        Mockito.doReturn(this.future).when(this.transWrite).submit();
         Mockito.doReturn(this.domTransWrite).when(this.domChain).newWriteOnlyTransaction();
         Mockito.doReturn(this.eventLoop).when(this.channel).eventLoop();
         Mockito.doReturn("channel").when(this.channel).toString();
         Mockito.doReturn(this.pipeline).when(this.channel).pipeline();
         Mockito.doReturn(this.pipeline).when(this.pipeline).addLast(Mockito.any(ChannelHandler.class));
-        Mockito.doAnswer(new Answer<Object>() {
-
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                ApplicationPeerTest.this.routes.remove(args[1]);
-                return args[1];
-            }
-        }).when(this.transWrite).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class));
         this.r = new RIBImpl(new RibId("test"), new AsNumber(5L), new Ipv4Address("127.0.0.1"),
             new Ipv4Address("128.0.0.1"), context , this.dispatcher, this.tcpStrategyFactory, this.codecFactory, this.tcpStrategyFactory, this.dps, this.dom, localTables,GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         this.peer = new ApplicationPeer(new ApplicationRibId("t"), new Ipv4Address("127.0.0.1"), this.r);
@@ -283,9 +248,7 @@ public class ApplicationPeerTest {
 
     private ModuleInfoBackedContext createClassLoadingStrategy() {
         final ModuleInfoBackedContext ctx = ModuleInfoBackedContext.create();
-
         try {
-            ctx.registerModuleInfo(BindingReflections.getModuleInfo(LinkstateRoute.class));
             ctx.registerModuleInfo(BindingReflections.getModuleInfo(Ipv4Route.class));
         } catch (final Exception e) {
             throw Throwables.propagate(e);
@@ -296,53 +259,27 @@ public class ApplicationPeerTest {
     @After
     public void tearDown() {
         this.a1.close();
-        this.a2.close();
     }
 
     @Test
-    @Ignore
-    public void testOnDataChanged() {
-        final Map<InstanceIdentifier<?>, DataObject> created = new HashMap<>();
+    public void testAppPeer() {
+        final Collection<DataTreeCandidate> changes = new ArrayList<>();
+        final RIBSupport support = this.r.getRibSupportContext().getRIBSupportContext(this.tk).getRibSupport();
 
-        InstanceIdentifier<?> iid = InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(new RibId("foo")))
-            .child(LocRib.class).child(Tables.class, this.tk)
-            .child((Class)Ipv4Routes.class).child(Ipv4Route.class, new Ipv4RouteKey(new Ipv4Prefix("127.0.0.1/32")));
-        created.put(iid, new Ipv4RouteBuilder().setPrefix(new Ipv4Prefix("127.0.0.1/32")).setAttributes(new AttributesBuilder().build()).build());
+        final YangInstanceIdentifier base = this.r.getYangRibId().node(LocRib.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(this.tk));
 
-        final Map<InstanceIdentifier<?>, DataObject> updated = new HashMap<>();
+        final NodeIdentifierWithPredicates routekey = new NodeIdentifierWithPredicates(Ipv4Route.QNAME, IPv4RIBSupport.PREFIX_QNAME, new Ipv4Prefix("127.0.0.1/32"));
+        final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = ImmutableNodes.mapEntryBuilder();
+        b.withNodeIdentifier(routekey);
+        b.addChild(Builders.leafBuilder().withNodeIdentifier(new NodeIdentifier(IPv4RIBSupport.PREFIX_QNAME)).withValue("127.0.0.1/32").build());
 
-        iid = InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(new RibId("foo")))
-            .child(LocRib.class).child(Tables.class, this.lk)
-            .child((Class)LinkstateRoutes.class).child(LinkstateRoute.class, new LinkstateRouteKey(this.linkNlri));
-        final LocalNodeDescriptors lnd = new LocalNodeDescriptorsBuilder().setAsNumber(new AsNumber(72L)).setDomainId(new DomainIdentifier(673720360L))
-            .setCRouterIdentifier(new IsisNodeCaseBuilder().setIsisNode(new IsisNodeBuilder().setIsoSystemId(new IsoSystemIdentifier(new byte[] { 0, 0, 0, 0, 0, 66 })).build()).build()).build();
-        final RemoteNodeDescriptors rnd = new RemoteNodeDescriptorsBuilder().setAsNumber(new AsNumber(72L)).setDomainId(new DomainIdentifier(673720360L))
-            .setCRouterIdentifier(new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(64L).build()).build()).build();
-        updated.put(iid, new LinkstateRouteBuilder().setProtocolId(ProtocolId.IsisLevel2).setIdentifier(new Identifier(BigInteger.ONE)).setObjectType(
-            new LinkCaseBuilder().setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(new Ipv4InterfaceIdentifier(new Ipv4Address("197.20.160.42")))
-                .setIpv4NeighborAddress(new Ipv4InterfaceIdentifier(new Ipv4Address("197.20.160.40"))).setLinkLocalIdentifier(16909060L).setLinkRemoteIdentifier(168496141L).setMultiTopologyId(new TopologyIdentifier(3)).build())
-                .setLocalNodeDescriptors(lnd)
-                .setRemoteNodeDescriptors(rnd).build()).build());
+        changes.add(new DefaultDataTreeCandidate(support.routePath(base.node(Routes.QNAME), routekey), DataTreeCandidateNodes.fromNormalizedNode(b.build())));
 
-        final Set<InstanceIdentifier<?>> removed = new HashSet<>();
-        removed.add(iid);
-
-        Mockito.doReturn(created).when(this.change).getCreatedData();
-        Mockito.doReturn(updated).when(this.change).getUpdatedData();
-        Mockito.doReturn(Collections.EMPTY_SET).when(this.change).getRemovedPaths();
-        //this.peer.onDataChanged(this.change);
-        assertEquals(3, this.routes.size());
-
-        Mockito.doReturn(Collections.EMPTY_MAP).when(this.change).getCreatedData();
-        Mockito.doReturn(Collections.EMPTY_MAP).when(this.change).getUpdatedData();
-        Mockito.doReturn(removed).when(this.change).getRemovedPaths();
-        //this.peer.onDataChanged(this.change);
-        assertEquals(2, this.routes.size());
+        this.peer.onDataTreeChanged(changes);
+        assertEquals(1, this.routes.size());
     }
 
-    /* This test relies on RIBImpl.updateTables to popuplate the loc RIB. Refactor it to use new RIB */
     @Test
-    @Ignore
     public void testClassicPeer() {
         this.classic = new BGPPeer("testPeer", this.r);
         Mockito.doReturn(null).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
@@ -356,15 +293,6 @@ public class ApplicationPeerTest {
             .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()).build()).build())).build());
         this.session = new BGPSessionImpl(this.classic, this.channel, new OpenBuilder().setBgpIdentifier(new Ipv4Address("1.1.1.1")).setHoldTimer(50).setMyAsNumber(72).setBgpParameters(params).build(), 30, null);
         assertEquals("testPeer", this.classic.getName());
-        Mockito.doAnswer(new Answer<Object>() {
-
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                ((SessionRIBsOut)args[0]).run();
-                return null;
-            }
-        }).when(this.eventLoop).submit(Mockito.any(Runnable.class));
         this.classic.onSessionUp(this.session);
         Assert.assertArrayEquals(new byte[] {1, 1, 1, 1}, this.classic.getRawIdentifier());
         assertEquals("BGPPeer{name=testPeer, tables=[TablesKey [_afi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily, _safi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily]]}", this.classic.toString());
@@ -373,12 +301,12 @@ public class ApplicationPeerTest {
         ub.setNlri(new NlriBuilder().setNlri(prefs).build());
         ub.setAttributes(new AttributesBuilder().build());
         this.classic.onMessage(this.session, ub.build());
-        assertEquals(3, this.routes.size());
+        assertEquals(2, this.routes.size());
 
         //create new peer so that it gets advertized routes from RIB
         try (final BGPPeer testingPeer = new BGPPeer("testingPeer", this.r)) {
             testingPeer.onSessionUp(this.session);
-            assertEquals(3, this.routes.size());
+            assertEquals(2, this.routes.size());
             assertEquals(1, testingPeer.getBgpPeerState().getSessionEstablishedCount().intValue());
             assertEquals(1, testingPeer.getBgpPeerState().getRouteTable().size());
             assertNotNull(testingPeer.getBgpSessionState());
@@ -387,7 +315,7 @@ public class ApplicationPeerTest {
         ub.setNlri(null);
         ub.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setWithdrawnRoutes(prefs).build());
         this.classic.onMessage(this.session, ub.build());
-        assertEquals(3, this.routes.size());
+        assertEquals(0, this.routes.size());
         this.classic.onMessage(this.session, new KeepaliveBuilder().build());
         this.classic.onMessage(this.session, new UpdateBuilder().setAttributes(
             new AttributesBuilder().addAugmentation(
@@ -397,8 +325,8 @@ public class ApplicationPeerTest {
         this.classic.releaseConnection();
     }
 
-    @Test
-    public void testClose() {
+    @After
+    public void cleanUp() {
         this.peer.close();
     }
 }
