@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_76b0a98b",
+        "filename": "bgp/controller-config/src/main/resources/initial/41-bgp-example.xml",
+        "patchSetId": 12
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 2877
+      },
+      "writtenOn": "2015-04-24T16:48:03Z",
+      "side": 1,
+      "message": "Excercise: Find a XML syntax error in the highlighted area :)",
+      "range": {
+        "startLine": 77,
+        "startChar": 20,
+        "endLine": 77,
+        "endChar": 44
+      },
+      "revId": "526cfc7d0555411236935433f2288dd739f1154d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_96ad3534",
+        "filename": "bgp/controller-config/src/main/resources/initial/41-bgp-example.xml",
+        "patchSetId": 12
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 2877
+      },
+      "writtenOn": "2015-04-24T16:48:03Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be named \"peer-role\" ?",
+      "range": {
+        "startLine": 77,
+        "startChar": 21,
+        "endLine": 77,
+        "endChar": 29
+      },
+      "revId": "526cfc7d0555411236935433f2288dd739f1154d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_16c285e9",
+        "filename": "bgp/controller-config/src/main/resources/initial/41-bgp-example.xml",
+        "patchSetId": 12
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 2877
+      },
+      "writtenOn": "2015-04-24T16:48:03Z",
+      "side": 1,
+      "message": "\"ibgp\" is correct, according to \"odl-bgp-rib-impl-cfg.yang\".",
+      "range": {
+        "startLine": 77,
+        "startChar": 30,
+        "endLine": 77,
+        "endChar": 34
+      },
+      "revId": "526cfc7d0555411236935433f2288dd739f1154d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
