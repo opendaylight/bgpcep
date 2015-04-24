@@ -178,10 +178,12 @@ public final class LinkAttributesParser {
                 final SrAdjId srAdjId = SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value);
                 builder.setSrAdjId(srAdjId);
                 LOG.debug("Parsed Adjacency Segment Identifier :{}", srAdjId);
+                break;
             case SR_LAN_ADJ_ID:
                 final SrLanAdjId srLanAdjId = SrLinkAttributesParser.parseLanAdjacencySegmentIdentifier(value);
                 builder.setSrLanAdjId(srLanAdjId);
                 LOG.debug("Parsed Adjacency Segment Identifier :{}", srLanAdjId);
+                break;
             default:
                 LOG.warn("TLV {} is not a valid link attribute, ignoring it", key);
             }
