@@ -216,10 +216,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 rBuilder.setVendorInformationObject(vendorInfo);
             }
             // expansion
-            if (rpObj.isPathKey()) {
-                if (objects.get(0) instanceof PathKey) {
-                    rBuilder.setPathKeyExpansion(new PathKeyExpansionBuilder().setPathKey((PathKey) objects.get(0)).build());
-                }
+            if (rpObj.isPathKey() && objects.get(0) instanceof PathKey) {
+                rBuilder.setPathKeyExpansion(new PathKeyExpansionBuilder().setPathKey((PathKey) objects.get(0)).build());
             }
 
             final P2pBuilder p2pBuilder = new P2pBuilder();

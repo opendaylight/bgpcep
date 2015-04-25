@@ -19,7 +19,7 @@ public interface RIBSupportContextRegistry {
      * @return RIBSupport instance, or null if the AFI/SAFI is
      *         not implemented.
     */
-    public abstract @Nullable RIBSupportContext getRIBSupportContext(TablesKey key);
+    @Nullable abstract RIBSupportContext getRIBSupportContext(TablesKey key);
 
     /**
      * Acquire a RIB Support Context for a AFI/SAFI combination.
@@ -27,6 +27,5 @@ public interface RIBSupportContextRegistry {
      * @return RIBSupport instance, or null if the AFI/SAFI is
      *         not implemented.
     */
-    public abstract @Nullable RIBSupportContext getRIBSupportContext(NodeIdentifierWithPredicates key);
-
+    @Nullable abstract RIBSupportContext getRIBSupportContext(NodeIdentifierWithPredicates key);
 }

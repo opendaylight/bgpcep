@@ -44,14 +44,12 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibOutListener.class);
 
     private final ChannelOutputLimiter session;
-    private final RIBSupportContextRegistry registry;
     private final RIBSupportContextImpl context;
     private final RIBSupport support;
 
     private AdjRibOutListener(final TablesKey tablesKey, final YangInstanceIdentifier ribId, final DOMDataTreeChangeService service, final RIBSupportContextRegistry registry, final ChannelOutputLimiter session) {
-        this.registry = Preconditions.checkNotNull(registry);
         this.session = Preconditions.checkNotNull(session);
-        this.context = (RIBSupportContextImpl) this.registry.getRIBSupportContext(tablesKey);
+        this.context = (RIBSupportContextImpl) registry.getRIBSupportContext(tablesKey);
         this.support = this.context.getRibSupport();
         final YangInstanceIdentifier adjRibOutId =  ribId.node(Peer.QNAME).node(Peer.QNAME).node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
         service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, adjRibOutId), this);

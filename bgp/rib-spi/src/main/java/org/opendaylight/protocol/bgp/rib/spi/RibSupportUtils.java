@@ -16,7 +16,7 @@ import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
-public class RibSupportUtils {
+public final class RibSupportUtils {
 
     private static final QName AFI_QNAME = QName.cachedReference(QName.create(Tables.QNAME, "afi"));
     private static final QName SAFI_QNAME = QName.cachedReference(QName.create(Tables.QNAME, "safi"));

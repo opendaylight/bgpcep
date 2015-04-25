@@ -37,13 +37,13 @@ public final class Ipv6NlriParser implements NlriParser {
     }
 
     @Override
-    public final void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder) {
+    public void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder) {
         builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv6CaseBuilder().setDestinationIpv6(
             prefixes(nlri)).build()).build());
     }
 
     @Override
-    public final void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder) throws BGPParsingException {
+    public void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder) throws BGPParsingException {
         builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(new DestinationIpv6CaseBuilder().setDestinationIpv6(prefixes(nlri)).build()).build());
     }
 }

@@ -56,12 +56,9 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class RIBSupportContextImpl extends RIBSupportContext {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RIBSupportContextImpl.class);
     private static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes.QNAME);
     private static final Set<Class<? extends DataObject>> ATTRIBUTE_CACHEABLES;
 

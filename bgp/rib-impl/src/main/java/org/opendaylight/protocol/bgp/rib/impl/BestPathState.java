@@ -38,13 +38,13 @@ final class BestPathState {
     private static final Collection<PathArgument> LOCAL_PREF = ImmutableList.<PathArgument>of(new NodeIdentifier(LocalPref.QNAME), new NodeIdentifier(QName.create(LocalPref.QNAME, "pref")));
     private static final Collection<PathArgument> MED = ImmutableList.<PathArgument>of(new NodeIdentifier(MultiExitDisc.QNAME), new NodeIdentifier(QName.create(MultiExitDisc.QNAME, "med")));
     private static final Collection<PathArgument> ORIGIN = ImmutableList.<PathArgument>of(new NodeIdentifier(Origin.QNAME), new NodeIdentifier(QName.create(Origin.QNAME, "value")));
+    private static final Long PEER_AS = 0L;
+    private static final int AS_PATH_LENGTH = 0;
 
     private final ContainerNode attributes;
     private Long localPref;
     private Long multiExitDisc;
     private BgpOrigin origin;
-    private static final Long peerAs = 0L;
-    private static final int asPathLength = 0;
     private boolean resolved;
 
     BestPathState(final ContainerNode attributes) {
@@ -125,12 +125,12 @@ final class BestPathState {
 
     Long getPeerAs() {
         resolveValues();
-        return this.peerAs;
+        return this.PEER_AS;
     }
 
     int getAsPathLength() {
         resolveValues();
-        return asPathLength;
+        return AS_PATH_LENGTH;
     }
 
     private static int countAsPath(final List<Segments> segments) {

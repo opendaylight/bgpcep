@@ -14,6 +14,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.Iterator;
+import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.AsPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.ClusterId;
@@ -98,7 +99,7 @@ final class AttributeOperations {
         final Optional<NormalizedNode<?, ?>> maybeAsSequence = NormalizedNodes.findNode(segment, this.asPathChoice, this.asPathList, this.asPathSequence);
         if (maybeAsSequence.isPresent()) {
             final UnkeyedListNode asList = (UnkeyedListNode) maybeAsSequence.get();
-            if (asList.getSize() < 255) {
+            if (asList.getSize() < Values.UNSIGNED_BYTE_MAX_VALUE) {
                 return asList.getValue();
             }
         }

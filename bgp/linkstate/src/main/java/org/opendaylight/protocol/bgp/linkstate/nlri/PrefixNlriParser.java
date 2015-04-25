@@ -156,6 +156,7 @@ public final class PrefixNlriParser {
                 prefixBytes = Ipv4Util.bytesForPrefixBegin(new Ipv4Prefix(prefix));
                 prefixType = NlriType.Ipv4Prefix;
             } catch(final IllegalArgumentException e) {
+                LOG.debug("Creating Ipv6 prefix because", e);
                 prefixBytes = Ipv6Util.bytesForPrefixBegin(new Ipv6Prefix(prefix));
                 prefixType = NlriType.Ipv6Prefix;
             }

@@ -58,7 +58,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class LinkstateRIBSupport extends AbstractRIBSupport {
-    private static abstract class ApplyRoute {
+    private abstract static class ApplyRoute {
         abstract void apply(DOMDataWriteTransaction tx, YangInstanceIdentifier base, NodeIdentifierWithPredicates routeKey, DataContainerNode<?> route, final ContainerNode attributes);
     }
 
