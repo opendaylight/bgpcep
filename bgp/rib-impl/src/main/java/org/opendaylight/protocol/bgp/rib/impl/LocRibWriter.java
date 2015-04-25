@@ -62,8 +62,6 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     private final RIBSupport ribSupport;
     private final NodeIdentifierWithPredicates tableKey;
     private final RIBSupportContextRegistry registry;
-    private final YangInstanceIdentifier adjRibOutTarget;
-    private final YangInstanceIdentifier ribId;
 
     LocRibWriter(final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier target, final Long ourAs,
         final DOMDataTreeChangeService service, final PolicyDatabase pd, final TablesKey tablesKey) {
@@ -75,8 +73,6 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         this.ribSupport = this.registry.getRIBSupportContext(tablesKey).getRibSupport();
         this.attributesIdentifier = this.ribSupport.routeAttributesIdentifier();
         this.peerPolicyTracker = new ExportPolicyPeerTracker(service, target, pd);
-        this.adjRibOutTarget = target.node(Peer.QNAME).node(Peer.QNAME).node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey);
-        this.ribId = target;
 
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         tx.merge(LogicalDatastoreType.OPERATIONAL, this.locRibTarget, this.ribSupport.emptyRoutes());

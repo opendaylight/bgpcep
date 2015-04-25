@@ -70,7 +70,7 @@ abstract class AbstractPeerRoleTracker implements AutoCloseable {
     private static final QName PEER_ROLE = QName.cachedReference(QName.create(Peer.QNAME, "peer-role"));
     private final ListenerRegistration<?> registration;
 
-    protected AbstractPeerRoleTracker(final @Nonnull DOMDataTreeChangeService service, @Nonnull final YangInstanceIdentifier ribId) {
+    protected AbstractPeerRoleTracker(@Nonnull final DOMDataTreeChangeService service, @Nonnull final YangInstanceIdentifier ribId) {
         // Slightly evil, but our users should be fine with this
         final YangInstanceIdentifier roleId = ribId.node(Peer.QNAME).node(Peer.QNAME).node(PEER_ROLE);
         this.registration = service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, roleId), new PeerRoleListener());

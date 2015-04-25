@@ -23,7 +23,7 @@ import org.opendaylight.yangtools.sal.binding.generator.util.BindingRuntimeConte
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
-class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
+final class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
 
     private final LoadingCache<RIBSupport, RIBSupportContextImpl> contexts = CacheBuilder.newBuilder()
             .build(new CacheLoader<RIBSupport, RIBSupportContextImpl>(){
@@ -31,7 +31,7 @@ class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
                 @Override
                 public RIBSupportContextImpl load(final RIBSupport key) {
                     return createContext(key);
-                };
+                }
             });
 
     private final RIBExtensionConsumerContext extensionContext;
@@ -53,37 +53,37 @@ class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
 
     @Override
     public RIBSupportContext getRIBSupportContext(final TablesKey key) {
-        final RIBSupport ribSupport = extensionContext.getRIBSupport(key);
+        final RIBSupport ribSupport = this.extensionContext.getRIBSupport(key);
         if(ribSupport != null) {
-            return contexts.getUnchecked(ribSupport);
+            return this.contexts.getUnchecked(ribSupport);
         }
         return null;
     }
 
     @Override
     public RIBSupportContext getRIBSupportContext(final NodeIdentifierWithPredicates key) {
-        final RIBSupport ribSupport = extensionContext.getRIBSupport(key);
+        final RIBSupport ribSupport = this.extensionContext.getRIBSupport(key);
         if(ribSupport != null) {
-            return contexts.getUnchecked(ribSupport);
+            return this.contexts.getUnchecked(ribSupport);
         }
         return null;
     }
 
     private RIBSupportContextImpl createContext(final RIBSupport ribSupport) {
         final RIBSupportContextImpl ribContext = new RIBSupportContextImpl(ribSupport);
-        if(latestCodecTree != null) {
+        if(this.latestCodecTree != null) {
             // FIXME: Do we need to recalculate latestCodecTree? E.g. new rib support was added
             // after bgp was started.
-            ribContext.onCodecTreeUpdated(latestCodecTree);
+            ribContext.onCodecTreeUpdated(this.latestCodecTree);
         }
         return ribContext;
     }
 
     void onSchemaContextUpdated(final SchemaContext context) {
-        final BindingRuntimeContext runtimeContext = BindingRuntimeContext.create(classContext, context);
-        latestCodecTree  = codecFactory.create(runtimeContext);
-        for(final RIBSupportContextImpl rib : contexts.asMap().values()) {
-            rib.onCodecTreeUpdated(latestCodecTree);
+        final BindingRuntimeContext runtimeContext = BindingRuntimeContext.create(this.classContext, context);
+        this.latestCodecTree  = this.codecFactory.create(runtimeContext);
+        for(final RIBSupportContextImpl rib : this.contexts.asMap().values()) {
+            rib.onCodecTreeUpdated(this.latestCodecTree);
         }
     }
 

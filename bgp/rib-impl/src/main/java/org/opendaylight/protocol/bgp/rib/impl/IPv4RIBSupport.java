@@ -42,7 +42,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
  */
 final class IPv4RIBSupport extends AbstractIPRIBSupport {
     @VisibleForTesting
-    final static QName PREFIX_QNAME = QName.cachedReference(QName.create(Ipv4Route.QNAME, "prefix"));
+    static final QName PREFIX_QNAME = QName.cachedReference(QName.create(Ipv4Route.QNAME, "prefix"));
     private static final IPv4RIBSupport SINGLETON = new IPv4RIBSupport();
     private final ChoiceNode emptyRoutes = Builders.choiceBuilder()
             .withNodeIdentifier(new NodeIdentifier(Routes.QNAME))

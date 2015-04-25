@@ -40,7 +40,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
  * Class supporting IPv6 unicast RIBs.
  */
 final class IPv6RIBSupport extends AbstractIPRIBSupport {
-    private final static QName PREFIX_QNAME = QName.cachedReference(QName.create(Ipv6Route.QNAME, "prefix"));
+    private static final QName PREFIX_QNAME = QName.cachedReference(QName.create(Ipv6Route.QNAME, "prefix"));
     private static final IPv6RIBSupport SINGLETON = new IPv6RIBSupport();
     private final ChoiceNode emptyRoutes = Builders.choiceBuilder()
             .withNodeIdentifier(new NodeIdentifier(Routes.QNAME))
