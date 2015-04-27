@@ -35,6 +35,20 @@ module odl-pcep-impl-cfg {
             "Initial revision";
     }
 
+    typedef path-type {
+        type enumeration {
+            enum "PATH";
+            enum "CLASSPATH";
+        }
+    }
+
+    typedef store-type {
+        type enumeration {
+            enum "JKS";
+            enum "PKCS12";
+        }
+    }
+
     identity pcep-parser-base {
         base config:module-type;
         config:provided-service spi:extension;
@@ -113,6 +127,54 @@ module odl-pcep-impl-cfg {
                         mandatory false;
                         config:required-identity tcpmd5:md5-server-channel-factory;
                     }
+                }
+            }
+
+            container tls {
+                leaf keystore {
+                    description "keystore location";
+                    type string;
+                    mandatory true;
+                }
+                leaf keystore-type {
+                    description "keystore type (JKS or PKCS12)";
+                    type store-type;
+                    mandatory true;
+                }
+                leaf keystore-path-type {
+                    description "keystore path type (CLASSPATH or PATH)";
+                    type path-type;
+                    mandatory true;
+                }
+                leaf keystore-password {
+                    description "password protecting keystore";
+                    type string;
+                    mandatory true;
+                }
+                leaf certificate-password {
+                    description "password protecting certificate";
+                    type string;
+                    mandatory true;
+                }
+                leaf truststore {
+                    description "truststore location";
+                    type string;
+                    mandatory true;
+                }
+                leaf truststore-type {
+                    description "truststore type (JKS or PKCS12)";
+                    type store-type;
+                    mandatory true;
+                }
+                leaf truststore-path-type {
+                    description "truststore path type (CLASSPATH or PATH)";
+                    type path-type;
+                    mandatory true;
+                }
+                leaf truststore-password {
+                    description "password protecting truststore";
+                    type string;
+                    mandatory true;
                 }
             }
         }
