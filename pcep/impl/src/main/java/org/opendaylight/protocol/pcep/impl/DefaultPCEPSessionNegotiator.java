@@ -9,10 +9,9 @@ package org.opendaylight.protocol.pcep.impl;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
-
+import org.opendaylight.controller.config.yang.pcep.impl.Tls;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
@@ -22,12 +21,18 @@ public final class DefaultPCEPSessionNegotiator extends AbstractPCEPSessionNegot
     private final int maxUnknownMessages;
 
     public DefaultPCEPSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel,
-            final PCEPSessionListener listener, final short sessionId, final int maxUnknownMessages, final Open localPrefs) {
+            final PCEPSessionListener listener, final short sessionId, final int maxUnknownMessages, final Open localPrefs, final Tls tlsConfiguration) {
         super(promise, channel);
+        super.setTlsConfiguration(tlsConfiguration);
         this.maxUnknownMessages = maxUnknownMessages;
         this.myLocalPrefs = new OpenBuilder().setKeepalive(localPrefs.getKeepalive()).setDeadTimer(localPrefs.getDeadTimer()).setSessionId(
                 sessionId).setTlvs(localPrefs.getTlvs()).build();
         this.listener = Preconditions.checkNotNull(listener);
+    }
+
+    public DefaultPCEPSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel,
+            final PCEPSessionListener listener, final short sessionId, final int maxUnknownMessages, final Open localPrefs) {
+        this(promise, channel, listener, sessionId, maxUnknownMessages, localPrefs, null);
     }
 
     private final Open myLocalPrefs;
