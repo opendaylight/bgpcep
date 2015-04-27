@@ -16,23 +16,30 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.opendaylight.controller.config.yang.pcep.impl.Tls;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcerr;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Starttls;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.Errors;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
 
     private DefaultPCEPSessionNegotiator serverSession;
+    private DefaultPCEPSessionNegotiator tlsSessionNegotiator;
 
     @Before
     public void setup() {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open localPrefs = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder().setKeepalive(
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open localPrefs = new OpenBuilder().setKeepalive(
                 (short) 1).build();
-        this.serverSession = new DefaultPCEPSessionNegotiator(new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE), this.channel, this.listener, (short) 1, 20, localPrefs);
+        this.serverSession = new DefaultPCEPSessionNegotiator(new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE),
+                this.channel, this.listener, (short) 1, 20, localPrefs);
+        this.tlsSessionNegotiator = new DefaultPCEPSessionNegotiator(new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE),
+                this.channel, this.listener, (short) 1, 20, localPrefs, new Tls());
     }
 
     /**
@@ -51,6 +58,66 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
         assertTrue(this.msgsSend.get(1) instanceof Keepalive);
         this.serverSession.handleMessage(this.kaMsg);
         assertEquals(this.serverSession.getState(), DefaultPCEPSessionNegotiator.State.FINISHED);
+    }
+
+    /**
+     * Establish PCEPS TLS connection with peer
+     */
+    @Test
+    public void testEstablishTLS() {
+        final DefaultPCEPSessionNegotiator negotiator = new DefaultPCEPSessionNegotiator(new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE),
+                this.channel, this.listener, (short) 1, 20, new OpenBuilder().setKeepalive((short) 1).build(),
+                SslContextFactoryTest.createTlsConfig());
+        negotiator.channelActive(null);
+        assertEquals(1, this.msgsSend.size());
+        assertTrue(this.msgsSend.get(0) instanceof Starttls);
+        assertEquals(DefaultPCEPSessionNegotiator.State.START_TLS_WAIT, negotiator.getState());
+        negotiator.handleMessage(this.startTlsMsg);
+        assertEquals(DefaultPCEPSessionNegotiator.State.OPEN_WAIT, negotiator.getState());
+        assertEquals(2, this.msgsSend.size());
+        assertTrue(this.msgsSend.get(1) instanceof Open);
+        negotiator.handleMessage(this.openMsg);
+        assertEquals(DefaultPCEPSessionNegotiator.State.KEEP_WAIT, negotiator.getState());
+    }
+
+    /**
+     * As Tls is not configured properly, PCE will send error PCEPErrors.NOT_POSSIBLE_WITHOUT_TLS
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testFailedToEstablishTLS() throws Exception {
+        this.tlsSessionNegotiator.channelActive(null);
+        assertEquals(1, this.msgsSend.size());
+        assertTrue(this.msgsSend.get(0) instanceof Starttls);
+        assertEquals(DefaultPCEPSessionNegotiator.State.START_TLS_WAIT, this.tlsSessionNegotiator.getState());
+        this.tlsSessionNegotiator.handleMessage(this.startTlsMsg);
+        assertEquals(2, this.msgsSend.size());
+        assertTrue(this.msgsSend.get(1) instanceof Pcerr);
+        final Errors obj = ((Pcerr) this.msgsSend.get(1)).getPcerrMessage().getErrors().get(0);
+        assertEquals(PCEPErrors.NOT_POSSIBLE_WITHOUT_TLS.getErrorType(), obj.getErrorObject().getType().shortValue());
+        assertEquals(PCEPErrors.NOT_POSSIBLE_WITHOUT_TLS.getErrorValue(), obj.getErrorObject().getValue().shortValue());
+        assertEquals(DefaultPCEPSessionNegotiator.State.FINISHED, this.tlsSessionNegotiator.getState());
+    }
+
+    /**
+     * As PCE does not receive expected message (StartTLS), error PCEPErrors.NON_STARTTLS_MSG_RCVD is send
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testTLSUnexpectedMessage() {
+        this.tlsSessionNegotiator.channelActive(null);
+        assertEquals(1, this.msgsSend.size());
+        assertTrue(this.msgsSend.get(0) instanceof Starttls);
+        assertEquals(DefaultPCEPSessionNegotiator.State.START_TLS_WAIT, this.tlsSessionNegotiator.getState());
+        this.tlsSessionNegotiator.handleMessage(this.openMsg);
+        assertEquals(2, this.msgsSend.size());
+        assertTrue(this.msgsSend.get(1) instanceof Pcerr);
+        final Errors obj = ((Pcerr) this.msgsSend.get(1)).getPcerrMessage().getErrors().get(0);
+        assertEquals(PCEPErrors.NON_STARTTLS_MSG_RCVD.getErrorType(), obj.getErrorObject().getType().shortValue());
+        assertEquals(PCEPErrors.NON_STARTTLS_MSG_RCVD.getErrorValue(), obj.getErrorObject().getValue().shortValue());
+        assertEquals(this.tlsSessionNegotiator.getState(), DefaultPCEPSessionNegotiator.State.FINISHED);
     }
 
     /**

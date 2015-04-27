@@ -119,6 +119,21 @@
                         <name>md5-server-channel-factory</name>
                     </md5-server-channel-factory>
                     -->
+
+                    <!--
+                        Uncomment this block to enable PCEPS TLS communication. Change example values as needed.
+                    <tls>
+                       <keystore>configuration/ctl.jks</keystore>
+                       <keystore-type>JKS</keystore-type>
+                       <keystore-path-type>PATH</keystore-path-type>
+                       <keystore-password>opendaylight</keystore-password>
+                       <truststore>configuration/truststore.jks</truststore>
+                       <truststore-type>JKS</truststore-type>
+                       <truststore-path-type>PATH</truststore-path-type>
+                       <truststore-password>opendaylight</truststore-password>
+                       <certificate-password>opendaylight</certificate-password>
+                     </tls>
+                     -->
                 </module>
             </modules>
 

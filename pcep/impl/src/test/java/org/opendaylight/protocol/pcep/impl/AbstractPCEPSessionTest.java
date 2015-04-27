@@ -34,8 +34,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.OpenBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Starttls;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.StarttlsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.start.tls.message.StartTlsMessageBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class AbstractPCEPSessionTest {
@@ -63,6 +66,8 @@ public class AbstractPCEPSessionTest {
 
     protected Open openMsg;
 
+    protected Starttls startTlsMsg;
+
     protected Keepalive kaMsg;
 
     protected SimpleSessionListener listener;
@@ -87,6 +92,7 @@ public class AbstractPCEPSessionTest {
         doReturn(true).when(this.future).cancel(false);
         doReturn(this.future).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
         doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class), any(ChannelHandler.class));
+        doReturn(this.pipeline).when(this.pipeline).addFirst(any(ChannelHandler.class));
         doReturn(true).when(this.channel).isActive();
         doReturn(mock(ChannelFuture.class)).when(this.channel).close();
         doReturn(new InetSocketAddress(IP_ADDRESS, 4189)).when(this.channel).remoteAddress();
@@ -96,6 +102,8 @@ public class AbstractPCEPSessionTest {
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder().setDeadTimer(
                                 DEADTIMER).setKeepalive(KEEP_ALIVE).setSessionId((short) 0).build()).build()).build();
         this.kaMsg = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
+        this.startTlsMsg = new StarttlsBuilder().setStartTlsMessage(new StartTlsMessageBuilder().build()).build();
+
 
         this.listener = new SimpleSessionListener();
     }
