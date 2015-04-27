@@ -10,16 +10,23 @@ package org.opendaylight.protocol.pcep.impl;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
+import io.netty.handler.ssl.SslHandler;
 import io.netty.util.concurrent.Promise;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import org.opendaylight.controller.config.yang.pcep.impl.Tls;
 import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
+import org.opendaylight.protocol.pcep.impl.tls.SslContextFactory;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcerr;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Starttls;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.StarttlsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
@@ -27,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.SessionCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.start.tls.message.StartTlsMessageBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +62,10 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
          */
         IDLE,
         /**
+         * Waiting for the peer's StartTLS message
+         */
+        START_TLS_WAIT,
+        /**
          * Waiting for the peer's OPEN message.
          */
         OPEN_WAIT,
@@ -75,6 +87,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     private Future<?> failTimer;
     private Open localPrefs;
     private Open remotePrefs;
+    private Tls tlsConfiguration;
 
     protected AbstractPCEPSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel) {
         super(promise, channel);
@@ -140,6 +153,10 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
                 case FINISHED:
                 case IDLE:
                     break;
+                case START_TLS_WAIT:
+                    sendErrorMessage(PCEPErrors.STARTTLS_TIMER_EXP);
+                    negotiationFailed(new TimeoutException("StartTLSWait timer expired"));
+                    AbstractPCEPSessionNegotiator.this.state = State.FINISHED;
                 case KEEP_WAIT:
                     sendErrorMessage(PCEPErrors.NO_MSG_BEFORE_EXP_KEEPWAIT);
                     negotiationFailed(new TimeoutException("KeepWait timer expired"));
@@ -160,6 +177,17 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     @Override
     protected final void startNegotiation() {
         Preconditions.checkState(this.state == State.IDLE);
+        if (this.tlsConfiguration != null) {
+            this.sendMessage(new StarttlsBuilder().setStartTlsMessage(new StartTlsMessageBuilder().build()).build());
+            this.state = State.START_TLS_WAIT;
+            scheduleFailTimer();
+            LOG.info("Started TLS connection negotiation with peer {}", this.channel);
+        } else {
+            startNegotiationWithOpen();
+        }
+    }
+
+    private void startNegotiationWithOpen() {
         this.localPrefs = getInitialProposal();
         final OpenMessage m = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.OpenBuilder().setOpenMessage(
                 new OpenMessageBuilder().setOpen(this.localPrefs).build()).build();
@@ -250,6 +278,32 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
         return true;
     }
 
+    private boolean handleMessageStartTlsWait(final Message msg) {
+        if (msg instanceof Starttls) {
+            final SslContextFactory sslFactory = new SslContextFactory(this.tlsConfiguration);
+            final SSLContext sslContext = sslFactory.getServerContext();
+            if (sslContext == null) {
+                this.sendErrorMessage(PCEPErrors.NOT_POSSIBLE_WITHOUT_TLS);
+                negotiationFailed(new IllegalStateException("Failed to establish a TLS connection."));
+                this.state = State.FINISHED;
+                return true;
+            }
+            final SSLEngine engine = sslContext.createSSLEngine();
+            engine.setNeedClientAuth(true);
+            engine.setUseClientMode(false);
+            this.channel.pipeline().addFirst(new SslHandler(engine));
+            LOG.info("PCEPS TLS connection with peer: {} established succesfully.", this.channel);
+            startNegotiationWithOpen();
+            return true;
+        } else if (! (msg instanceof Pcerr)) {
+            this.sendErrorMessage(PCEPErrors.NON_STARTTLS_MSG_RCVD);
+            negotiationFailed(new IllegalStateException("Unexpected message recieved."));
+            this.state = State.FINISHED;
+            return true;
+        }
+        return false;
+    }
+
     @Override
     protected final void handleMessage(final Message msg) {
         this.failTimer.cancel(false);
@@ -260,6 +314,11 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
         case FINISHED:
         case IDLE:
             throw new IllegalStateException("Unexpected handleMessage in state " + this.state);
+        case START_TLS_WAIT:
+            if (handleMessageStartTlsWait(msg)) {
+                return;
+            }
+            break;
         case KEEP_WAIT:
             if (handleMessageKeepWait(msg)) {
                 return;
@@ -282,5 +341,9 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     @VisibleForTesting
     State getState() {
         return this.state;
+    }
+
+    public void setTlsConfiguration(final Tls tlsConfiguration) {
+        this.tlsConfiguration = tlsConfiguration;
     }
 }

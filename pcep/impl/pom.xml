@@ -80,6 +80,10 @@
             <artifactId>netty-common</artifactId>
         </dependency>
         <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-handler</artifactId>
+      </dependency>
+        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-transport</artifactId>
         </dependency>

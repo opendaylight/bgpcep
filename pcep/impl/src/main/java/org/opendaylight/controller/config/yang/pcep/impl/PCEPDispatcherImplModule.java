@@ -26,6 +26,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public final class PCEPDispatcherImplModule extends org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPDispatcherImplModule {
 
+    private static final String VALUE_IS_NOT_SET = "value is not set.";
+    private static final String KEYSTORE = "keystore";
+    private static final String TRUSTSTORE = "truststore";
+    private static final String PASSWORD = " password ";
+    private static final String LOCATION = " location ";
+    private static final String TYPE = " type ";
+    private static final String PATH_TYPE = " path" + TYPE;
+
     public PCEPDispatcherImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier name,
             final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(name, dependencyResolver);
@@ -40,15 +48,26 @@ public final class PCEPDispatcherImplModule extends org.opendaylight.controller.
     @Override
     public void validate() {
         super.validate();
-        JmxAttributeValidationException.checkNotNull(getMaxUnknownMessages(), "value is not set.", maxUnknownMessagesJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getMaxUnknownMessages(), VALUE_IS_NOT_SET, maxUnknownMessagesJmxAttribute);
         JmxAttributeValidationException.checkCondition(getMaxUnknownMessages() > 0, "Parameter 'maxUnknownMessages' "
                 + "must be greater than 0", maxUnknownMessagesJmxAttribute);
+        if (getTls() != null) {
+            JmxAttributeValidationException.checkNotNull(getTls().getCertificatePassword(), "certificate" + PASSWORD + VALUE_IS_NOT_SET, tlsJmxAttribute);
+            JmxAttributeValidationException.checkNotNull(getTls().getKeystore(), KEYSTORE + LOCATION + VALUE_IS_NOT_SET, tlsJmxAttribute);
+            JmxAttributeValidationException.checkNotNull(getTls().getKeystorePassword(), KEYSTORE + PASSWORD + VALUE_IS_NOT_SET, tlsJmxAttribute);
+            JmxAttributeValidationException.checkNotNull(getTls().getKeystorePathType(), KEYSTORE + PATH_TYPE + VALUE_IS_NOT_SET, tlsJmxAttribute);
+            JmxAttributeValidationException.checkNotNull(getTls().getKeystoreType(), KEYSTORE + TYPE + VALUE_IS_NOT_SET, tlsJmxAttribute);
+            JmxAttributeValidationException.checkNotNull(getTls().getTruststore(), TRUSTSTORE + LOCATION + VALUE_IS_NOT_SET, tlsJmxAttribute);
+            JmxAttributeValidationException.checkNotNull(getTls().getTruststorePassword(), TRUSTSTORE + PASSWORD + VALUE_IS_NOT_SET, tlsJmxAttribute);
+            JmxAttributeValidationException.checkNotNull(getTls().getTruststorePathType(), TRUSTSTORE + PATH_TYPE + VALUE_IS_NOT_SET, tlsJmxAttribute);
+            JmxAttributeValidationException.checkNotNull(getTls().getTruststoreType(), TRUSTSTORE + TYPE + VALUE_IS_NOT_SET, tlsJmxAttribute);
+        }
     }
 
     @Override
     public java.lang.AutoCloseable createInstance() {
         Open localPrefs = getPcepSessionProposalFactoryDependency().getSessionProposal(null, 0);
-        DefaultPCEPSessionNegotiatorFactory negFactory = new DefaultPCEPSessionNegotiatorFactory(localPrefs, getMaxUnknownMessages());
+        DefaultPCEPSessionNegotiatorFactory negFactory = new DefaultPCEPSessionNegotiatorFactory(localPrefs, getMaxUnknownMessages(), getTls());
 
         return new PCEPDispatcherImpl(getPcepExtensionsDependency().getMessageHandlerRegistry(), negFactory, getBossGroupDependency(), getWorkerGroupDependency(), getMd5ChannelFactoryDependency(), getMd5ServerChannelFactoryDependency());
     }
