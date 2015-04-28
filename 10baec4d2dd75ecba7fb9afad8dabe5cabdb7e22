@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_3919aa88",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/controller/config/yang/bgp/flowspec/FlowspecModuleFactory.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-04-28T19:07:42Z",
+      "side": 1,
+      "message": "replace with normal copyright header",
+      "revId": "10baec4d2dd75ecba7fb9afad8dabe5cabdb7e22",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
