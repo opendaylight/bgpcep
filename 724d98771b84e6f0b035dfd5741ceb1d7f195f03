@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_8873c64c",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/protocol/pcep/ietf/stateful07/PathBindingTlvParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-04-29T19:55:23Z",
+      "side": 1,
+      "message": "not needed",
+      "revId": "724d98771b84e6f0b035dfd5741ceb1d7f195f03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_68767a40",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/protocol/pcep/ietf/stateful07/PathBindingTlvParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-04-29T19:55:23Z",
+      "side": 1,
+      "message": "\"... Binding Type: %s\", bType)",
+      "revId": "724d98771b84e6f0b035dfd5741ceb1d7f195f03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
