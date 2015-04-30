@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_5a101d01",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AttributeOperations.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-04-30T23:42:32Z",
+      "side": 1,
+      "message": "the leaf could potentially by explictly set to false -- get the value, cast it to Boolean and return that instead of explicit \u0027true\u0027.",
+      "revId": "19b84538074a82989d30072247583b843bb7737c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
