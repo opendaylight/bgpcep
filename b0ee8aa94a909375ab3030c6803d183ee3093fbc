@@ -1,0 +1,208 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_5445546e",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/LinkstateNlriParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-04-30T15:23:12Z",
+      "side": 1,
+      "message": "is the cast to Long needed?",
+      "revId": "b0ee8aa94a909375ab3030c6803d183ee3093fbc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_b44e1895",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/LinkstateNlriParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-04-30T15:23:12Z",
+      "side": 1,
+      "message": "UnsignedBytes.checkedCast()",
+      "revId": "b0ee8aa94a909375ab3030c6803d183ee3093fbc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_944bdc86",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/LinkstateNlriParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-04-30T15:23:12Z",
+      "side": 1,
+      "message": "no need for longValue()",
+      "revId": "b0ee8aa94a909375ab3030c6803d183ee3093fbc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_b4c058e1",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/LinkstateNlriParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-04-30T15:23:12Z",
+      "side": 1,
+      "message": "longValue() is not needed",
+      "revId": "b0ee8aa94a909375ab3030c6803d183ee3093fbc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_54b79486",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/LinkstateNlriParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-04-30T15:23:12Z",
+      "side": 1,
+      "message": "BigInteger.valueOf as you did it on line 377",
+      "revId": "b0ee8aa94a909375ab3030c6803d183ee3093fbc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_14b10c8f",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/LinkstateNlriParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-04-30T15:23:12Z",
+      "side": 1,
+      "message": "create a static variable for the NodeIdentifier",
+      "revId": "b0ee8aa94a909375ab3030c6803d183ee3093fbc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_34ac4835",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/NodeNlriParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-04-30T15:23:12Z",
+      "side": 1,
+      "message": "simplify",
+      "revId": "b0ee8aa94a909375ab3030c6803d183ee3093fbc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_f4a58047",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/NodeNlriParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-04-30T15:23:12Z",
+      "side": 1,
+      "message": "the 4 following methods are completely identical",
+      "revId": "b0ee8aa94a909375ab3030c6803d183ee3093fbc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_b467f824",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/PrefixNlriParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-04-30T15:23:12Z",
+      "side": 1,
+      "message": "why is toCharArray() needed?",
+      "revId": "b0ee8aa94a909375ab3030c6803d183ee3093fbc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_546eb402",
+        "filename": "bgp/linkstate/src/test/java/org/opendaylight/protocol/bgp/linkstate/LinkstateNlriParserTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-04-30T15:23:12Z",
+      "side": 1,
+      "message": "do not ignore tests",
+      "revId": "b0ee8aa94a909375ab3030c6803d183ee3093fbc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_747170df",
+        "filename": "bgp/linkstate/src/test/java/org/opendaylight/protocol/bgp/linkstate/LinkstateNlriParserTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-04-30T15:23:12Z",
+      "side": 1,
+      "message": "you know the Qname of the root container, use that",
+      "revId": "b0ee8aa94a909375ab3030c6803d183ee3093fbc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_14782cc3",
+        "filename": "bgp/linkstate/src/test/java/org/opendaylight/protocol/bgp/linkstate/LinkstateNlriParserTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-04-30T15:23:12Z",
+      "side": 1,
+      "message": "You have the node identifiers already created in LinkstateNlriParser, use those (hint: @VisibleForTesting)",
+      "revId": "b0ee8aa94a909375ab3030c6803d183ee3093fbc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
