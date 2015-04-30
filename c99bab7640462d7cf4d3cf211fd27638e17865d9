@@ -34,6 +34,24 @@
       "revId": "c99bab7640462d7cf4d3cf211fd27638e17865d9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_fe032071",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-04-30T09:12:32Z",
+      "side": 1,
+      "message": "errr... instead of doing two LOG.error()s in sequence, how about:\n\nLOG.error(\"Failed to initiate LocRIB for key {}\", key, e1);\n\n??? We have that sort of thing all over the place...",
+      "parentUuid": "3aa0d159_5e1a5418",
+      "revId": "c99bab7640462d7cf4d3cf211fd27638e17865d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
