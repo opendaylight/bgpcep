@@ -42,11 +42,11 @@ public class ActivatorTest {
         final RIBActivator ribAct = new RIBActivator();
         final RIBExtensionProviderContext context = new SimpleRIBExtensionProviderContext();
 
-        assertNull(context.getAdjRIBsInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
+        assertNull(context.getRIBSupport(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
 
         ribAct.startRIBExtensionProvider(context);
 
-        assertNotNull(context.getAdjRIBsInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
+        assertNotNull(context.getRIBSupport(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
 
         ribAct.close();
     }
