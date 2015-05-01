@@ -10,37 +10,17 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.collect.Lists;
 import java.util.List;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
-import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsFactory;
-import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
 
     @Override
     protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
-        final AdjRIBsFactory adj1 = new AdjRIBsFactory() {
-            @Override
-            public AdjRIBsIn<?, ?> createAdjRIBs(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
-                return new Ipv4AdjRIBsIn(basePath);
-            }
-        };
-
-        final AdjRIBsFactory adj2 = new AdjRIBsFactory() {
-            @Override
-            public AdjRIBsIn<?, ?> createAdjRIBs(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
-                return new Ipv6AdjRIBsIn(basePath);
-            }
-        };
         return Lists.newArrayList(
-                context.registerAdjRIBsInFactory(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, adj1),
-                context.registerAdjRIBsInFactory(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, adj2),
-                context.registerRIBSupport(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, IPv4RIBSupport.getInstance()),
-                context.registerRIBSupport(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, IPv6RIBSupport.getInstance()));
+            (AutoCloseable)context.registerRIBSupport(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, IPv4RIBSupport.getInstance()),
+            (AutoCloseable)context.registerRIBSupport(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, IPv6RIBSupport.getInstance()));
     }
 }
