@@ -24,9 +24,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for Open object
  */
+@Deprecated
 public final class PCEPOpenObjectParser extends Stateful02OpenObjectParser {
 
-    public PCEPOpenObjectParser(TlvRegistry tlvReg, VendorInformationTlvRegistry viTlvReg) {
+    public PCEPOpenObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
         super(tlvReg, viTlvReg);
     }
 

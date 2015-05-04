@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Pcinitiate}
  */
+@Deprecated
 public class PcinitiateMessageParser extends AbstractMessageParser {
     public static final int TYPE = 12;
 

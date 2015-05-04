@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Stateful}
  */
+@Deprecated
 public final class PCEStatefulCapabilityTlvParser extends Stateful02StatefulCapabilityTlvParser {
 
     private static final int I_FLAG_OFFSET = 29;

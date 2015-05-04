@@ -40,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Pcrpt}
  */
+@Deprecated
 public final class Stateful02PCReportMessageParser extends AbstractMessageParser {
 
     public static final int TYPE = 10;
