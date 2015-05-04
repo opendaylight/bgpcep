@@ -42,9 +42,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.node._case.NodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.AdvertisingNodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.PrefixDescriptors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.ObjectType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.CRouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.IsisNodeCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.IsisPseudonodeCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.OspfNodeCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.isis.node._case.IsisNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.isis.node._case.IsisNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.isis.pseudonode._case.IsisPseudonodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.ospf.node._case.OspfNodeBuilder;
@@ -65,6 +68,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
+import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableChoiceNodeBuilder;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableContainerNodeBuilder;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableLeafNodeBuilder;
 
 public class LinkstateNlriParserTest {
 
@@ -97,6 +111,25 @@ public class LinkstateNlriParserTest {
 
     private CLinkstateDestination dest;
 
+    private final NodeIdentifier PROTOCOL_ID_NID = new NodeIdentifier(QName.cachedReference(QName.create(CLinkstateDestination.QNAME, "protocol-id")));
+    private final NodeIdentifier OBJECT_TYPE_NID = new NodeIdentifier(ObjectType.QNAME);
+    private final NodeIdentifier IDENTIFIER_NID = new NodeIdentifier(QName.cachedReference(QName.create(CLinkstateDestination.QNAME, "identifier")));
+    private final NodeIdentifier LOCAL_NODE_DESCRIPTORS_NID = new NodeIdentifier(LocalNodeDescriptors.QNAME);
+    private final NodeIdentifier REMOTE_NODE_DESCRIPTORS_NID = new NodeIdentifier(RemoteNodeDescriptors.QNAME);
+    private final NodeIdentifier LINK_DESCRIPTOR = new NodeIdentifier(LinkDescriptors.QNAME);
+    private final NodeIdentifier ISIS_NODE = new NodeIdentifier(IsisNode.QNAME);
+    private final NodeIdentifier PREFIX_DESCRIPTOR = new NodeIdentifier(PrefixDescriptors.QNAME);
+
+    private final NodeIdentifier ISO_SYSTEM_ID = new NodeIdentifier(QName.create(NodeDescriptors.QNAME, "iso-system-id"));
+    private final NodeIdentifier AS_NUMBER_N = new NodeIdentifier(QName.create(NodeDescriptors.QNAME, "as-number"));
+    private final NodeIdentifier DOMAIN_NID = new NodeIdentifier(QName.create(NodeDescriptors.QNAME, "domain-id"));
+
+    private final NodeIdentifier IPV4_IFACE_NID = new NodeIdentifier(QName.cachedReference(QName.create(LinkDescriptors.QNAME, "ipv4-interface-address")));
+    private final NodeIdentifier IP_REACH_NID = new NodeIdentifier(QName.cachedReference(QName.create(PrefixDescriptors.QNAME, "ip-reachability-information")));
+    private final NodeIdentifier ROUTER_NID = new NodeIdentifier(CRouterIdentifier.QNAME);
+    private final long DOMAIN_ID = 673720360L;
+    private final long AS_NUMBER = 72L;
+
     private void setUp(final byte[] data) throws BGPParsingException {
         final LinkstateNlriParser parser = new LinkstateNlriParser(false);
         final MpReachNlriBuilder builder = new MpReachNlriBuilder();
@@ -121,10 +154,10 @@ public class LinkstateNlriParserTest {
         assertEquals(new AsNumber(72L), nodeD.getAsNumber());
         assertEquals(new DomainIdentifier(0x28282828L), nodeD.getDomainId());
         assertEquals(new IsisPseudonodeCaseBuilder().setIsisPseudonode(
-            new IsisPseudonodeBuilder().setPsn((short) 5).setIsIsRouterIdentifier(
-                new IsIsRouterIdentifierBuilder().setIsoSystemId(
-                    new IsoSystemIdentifier(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-                        (byte) 0x39 })).build()).build()).build(), nodeD.getCRouterIdentifier());
+                new IsisPseudonodeBuilder().setPsn((short) 5).setIsIsRouterIdentifier(
+                        new IsIsRouterIdentifierBuilder().setIsoSystemId(
+                                new IsoSystemIdentifier(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                                        (byte) 0x39})).build()).build()).build(), nodeD.getCRouterIdentifier());
 
         final ByteBuf buffer = Unpooled.buffer();
         LinkstateNlriParser.serializeNlri(this.dest, buffer);
@@ -178,9 +211,9 @@ public class LinkstateNlriParserTest {
         assertEquals(new DomainIdentifier(0x28282828L), local.getDomainId());
         assertEquals(
             new IsisNodeCaseBuilder().setIsisNode(
-                new IsisNodeBuilder().setIsoSystemId(
-                    new IsoSystemIdentifier(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-                        (byte) 0x42 })).build()).build(), local.getCRouterIdentifier());
+                    new IsisNodeBuilder().setIsoSystemId(
+                            new IsoSystemIdentifier(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                                    (byte) 0x42})).build()).build(), local.getCRouterIdentifier());
 
         final PrefixDescriptors pd = pCase.getPrefixDescriptors();
         assertEquals(OspfRouteType.External1, pd.getOspfRouteType());
@@ -220,6 +253,72 @@ public class LinkstateNlriParserTest {
         result = Unpooled.buffer();
         parser.serializeAttribute(pa, result);
         assertArrayEquals(this.nodeNlri, ByteArray.getAllBytes(result));
+    }
+
+    @Test
+    public void testSerializeNlri() throws BGPParsingException {
+
+        final ImmutableLeafNodeBuilder<String> ipv4InterfaceAddress = new ImmutableLeafNodeBuilder<>();
+        ipv4InterfaceAddress.withNodeIdentifier(IPV4_IFACE_NID).withValue("197.20.160.42");
+        final ImmutableLeafNodeBuilder<String> ipv4NeighborAddress = new ImmutableLeafNodeBuilder<>();
+        ipv4NeighborAddress.withNodeIdentifier(IPV4_IFACE_NID).withValue("197.20.160.40");
+
+        final DataContainerNodeBuilder<YangInstanceIdentifier.NodeIdentifier, ContainerNode> linkDescriptorCont =
+                ImmutableContainerNodeBuilder.create().withNodeIdentifier(LINK_DESCRIPTOR).
+                        withChild(ipv4InterfaceAddress.build()).withChild(ipv4NeighborAddress.build());
+
+        final ContainerNode isisNodeContRemote = ImmutableContainerNodeBuilder.create().withNodeIdentifier(ISIS_NODE)
+                .addChild(new ImmutableLeafNodeBuilder<>().withNodeIdentifier(ISO_SYSTEM_ID)
+                        .withValue(new byte[]{(byte) 0xAA, (byte) 0xAA, (byte) 0xAA, (byte) 0xBC}).build()).build();
+
+        final ChoiceNode cRouterIdentifierRemote = ImmutableChoiceNodeBuilder.create().withNodeIdentifier(ROUTER_NID)
+                .addChild(isisNodeContRemote).build();
+
+        final ContainerNode remoteNodeDescriptors = ImmutableContainerNodeBuilder.create()
+                .withNodeIdentifier(REMOTE_NODE_DESCRIPTORS_NID)
+                .addChild(cRouterIdentifierRemote)
+                .addChild(new ImmutableLeafNodeBuilder<>().withNodeIdentifier(AS_NUMBER_N).withValue(AS_NUMBER).build())
+                .addChild(new ImmutableLeafNodeBuilder<>().withNodeIdentifier(DOMAIN_NID).withValue(DOMAIN_ID).build())
+                .build();
+
+        final ContainerNode isisNodeContLocal = ImmutableContainerNodeBuilder.create().withNodeIdentifier(ISIS_NODE).
+                addChild(new ImmutableLeafNodeBuilder<>().withNodeIdentifier(ISO_SYSTEM_ID)
+                        .withValue(new byte[]{(byte) 0xAA, (byte) 0xAA, (byte) 0xAA, (byte) 0xBC}).build()).build();
+
+        final ChoiceNode cRouterIdentifierLocal = ImmutableChoiceNodeBuilder.create().withNodeIdentifier(ROUTER_NID)
+                .addChild(isisNodeContLocal).build();
+
+
+        final ContainerNode localNodeDescriptors = ImmutableContainerNodeBuilder.create()
+                .withNodeIdentifier(LOCAL_NODE_DESCRIPTORS_NID)
+                .addChild(cRouterIdentifierLocal)
+                .addChild(new ImmutableLeafNodeBuilder<>().withNodeIdentifier(AS_NUMBER_N).withValue(AS_NUMBER).build())
+                .addChild(new ImmutableLeafNodeBuilder<>().withNodeIdentifier(DOMAIN_NID).withValue(DOMAIN_ID).build())
+                .build();
+
+        final ImmutableLeafNodeBuilder<Ipv4Prefix> ipReachabilityInformation = new ImmutableLeafNodeBuilder<>();
+        ipReachabilityInformation.withNodeIdentifier(IP_REACH_NID).withValue(new Ipv4Prefix("197.20.160.0/24"));
+
+        ContainerNode prefixDescriptors = ImmutableContainerNodeBuilder.create().withNodeIdentifier(PREFIX_DESCRIPTOR)
+                .addChild(ipReachabilityInformation.build()).build();
+
+        final ChoiceNode objectTypeNodeDescriptors = ImmutableChoiceNodeBuilder.create().withNodeIdentifier(OBJECT_TYPE_NID)
+                .addChild(remoteNodeDescriptors)
+                .addChild(localNodeDescriptors)
+                .addChild(linkDescriptorCont.build())
+                .build();
+
+        final UnkeyedListEntryNode unkeyedListEntry = Builders.unkeyedListEntryBuilder()
+                .withNodeIdentifier(OBJECT_TYPE_NID)
+                .withChild(objectTypeNodeDescriptors)
+                .withChild(new ImmutableLeafNodeBuilder<>().withNodeIdentifier(PROTOCOL_ID_NID).withValue("IsisLevel2").build())
+                .withChild(prefixDescriptors)
+                .withChild(new ImmutableLeafNodeBuilder<>().withNodeIdentifier(IDENTIFIER_NID).withValue(BigInteger.ONE).build())
+                .build();
+
+        final ByteBuf buffer = Unpooled.buffer();
+        LinkstateNlriParser.serializeNlri(unkeyedListEntry, buffer);
+        //assertArrayEquals(this.linkNlri, ByteArray.readAllBytes(buffer));
     }
 
     @Test(expected=UnsupportedOperationException.class)
