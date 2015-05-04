@@ -21,9 +21,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for LSPA object
  */
+@Deprecated
 public class Stateful02LspaObjectParser extends PCEPLspaObjectParser {
 
-    public Stateful02LspaObjectParser(TlvRegistry tlvReg, VendorInformationTlvRegistry viTlvReg) {
+    public Stateful02LspaObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
         super(tlvReg, viTlvReg);
     }
 

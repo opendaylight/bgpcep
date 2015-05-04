@@ -10,6 +10,7 @@ package org.opendaylight.controller.config.yang.pcep.stateful02.cfg;
 /**
 *
 */
+@Deprecated
 public class CrabbeInitiated00PCEPParserModuleFactory extends
         org.opendaylight.controller.config.yang.pcep.stateful02.cfg.AbstractCrabbeInitiated00PCEPParserModuleFactory {
 

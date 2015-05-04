@@ -12,6 +12,7 @@ import org.opendaylight.protocol.pcep.crabbe.initiated00.InitiatedActivator;
 /**
 *
 */
+@Deprecated
 public final class CrabbeInitiated00PCEPParserModule extends
         org.opendaylight.controller.config.yang.pcep.stateful02.cfg.AbstractCrabbeInitiated00PCEPParserModule {
 

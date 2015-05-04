@@ -10,6 +10,7 @@ package org.opendaylight.controller.config.yang.pcep.stateful02.cfg;
 /**
  *
  */
+@Deprecated
 public class Stateful02PCEPSessionProposalFactoryModuleFactory extends
         org.opendaylight.controller.config.yang.pcep.stateful02.cfg.AbstractStateful02PCEPSessionProposalFactoryModuleFactory {
 

@@ -42,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Pcrep}
  */
+@Deprecated
 public final class Stateful02PCReplyMessageParser extends PCEPReplyMessageParser {
 
     public Stateful02PCReplyMessageParser(final ObjectRegistry registry, final VendorInformationObjectRegistry viReg) {

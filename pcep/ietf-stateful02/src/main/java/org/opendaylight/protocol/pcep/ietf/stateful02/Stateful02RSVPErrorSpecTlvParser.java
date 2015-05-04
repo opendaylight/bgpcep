@@ -36,6 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 /**
  * Parser for {@link RsvpErrorSpec}
  */
+@Deprecated
 public final class Stateful02RSVPErrorSpecTlvParser implements TlvParser, TlvSerializer {
 
     public static final int TYPE = 21;

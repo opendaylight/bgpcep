@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link LspDbVersion}
  */
+@Deprecated
 public final class Stateful02LspDbVersionTlvParser implements TlvParser, TlvSerializer {
 
     public static final int TYPE = 23;

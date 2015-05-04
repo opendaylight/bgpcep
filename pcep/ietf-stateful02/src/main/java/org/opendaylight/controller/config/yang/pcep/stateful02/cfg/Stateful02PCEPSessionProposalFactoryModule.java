@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
+@Deprecated
 public final class Stateful02PCEPSessionProposalFactoryModule extends org.opendaylight.controller.config.yang.pcep.stateful02.cfg.AbstractStateful02PCEPSessionProposalFactoryModule {
     private static final Logger LOG = LoggerFactory.getLogger(Stateful02PCEPSessionProposalFactoryModule.class);
 

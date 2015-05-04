@@ -12,6 +12,7 @@ import org.opendaylight.protocol.pcep.ietf.stateful02.StatefulActivator;
 /**
 *
 */
+@Deprecated
 public final class IetfStateful02PCEPParserModule extends
         org.opendaylight.controller.config.yang.pcep.stateful02.cfg.AbstractIetfStateful02PCEPParserModule {
 

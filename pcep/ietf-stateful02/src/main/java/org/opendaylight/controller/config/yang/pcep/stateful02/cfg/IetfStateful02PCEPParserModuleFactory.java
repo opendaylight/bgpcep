@@ -10,6 +10,7 @@ package org.opendaylight.controller.config.yang.pcep.stateful02.cfg;
 /**
 *
 */
+@Deprecated
 public class IetfStateful02PCEPParserModuleFactory extends
         org.opendaylight.controller.config.yang.pcep.stateful02.cfg.AbstractIetfStateful02PCEPParserModuleFactory {
 

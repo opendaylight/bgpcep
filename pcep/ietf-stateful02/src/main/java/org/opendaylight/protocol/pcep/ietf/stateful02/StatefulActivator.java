@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 
+@Deprecated
 public class StatefulActivator extends AbstractPCEPExtensionProviderActivator {
     @Override
     protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
