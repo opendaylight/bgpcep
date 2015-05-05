@@ -114,8 +114,7 @@ class RIBSupportContextImpl extends RIBSupportContext {
     void onCodecTreeUpdated(final BindingCodecTree tree) {
 
         @SuppressWarnings("rawtypes")
-        final
-        BindingCodecTreeNode tableCodecContext = tree.getSubtreeCodec(TABLE_BASE_II);
+        final BindingCodecTreeNode tableCodecContext = tree.getSubtreeCodec(TABLE_BASE_II);
         final BindingCodecTreeNode<? extends Route> routeListCodec = tableCodecContext
             .streamChild(Routes.class)
             .streamChild(this.tableSupport.routesCaseClass())
