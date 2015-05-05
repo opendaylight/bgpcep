@@ -97,8 +97,8 @@ final class IPv6RIBSupport extends AbstractIPRIBSupport {
 
     private List<Ipv6Prefixes> extractPrefixes(final Collection<MapEntryNode> routes) {
         final List<Ipv6Prefixes> prefs = new ArrayList<>(routes.size());
-        for (final MapEntryNode route : routes) {
-            final String prefix = (String) route.getChild(this.routeKeyLeaf).get().getValue();
+        for (final MapEntryNode ipv6Route : routes) {
+            final String prefix = (String) ipv6Route.getChild(this.routeKeyLeaf).get().getValue();
             prefs.add(new Ipv6PrefixesBuilder().setPrefix(new Ipv6Prefix(prefix)).build());
         }
         return prefs;

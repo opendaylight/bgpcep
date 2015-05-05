@@ -142,8 +142,8 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
         final PolicyDatabase pd  = new PolicyDatabase(localAs.getValue(), localBgpId, this.clusterId);
 
-        final DOMDataBrokerExtension service = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
-        this.service = service;
+        final DOMDataBrokerExtension domDatatreeChangeService = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
+        this.service = domDatatreeChangeService;
         this.efWriter = EffectiveRibInWriter.create(getService(), this.createPeerChain(this), getYangRibId(), pd, this.ribContextRegistry);
         LOG.debug("Effective RIB created.");
 

@@ -182,8 +182,8 @@ final class LinkstateRIBSupport extends AbstractRIBSupport {
         mb.setCNextHop(hop);
 
         final List<CLinkstateDestination> dests = new ArrayList<>(routes.size());
-        for (final MapEntryNode route : routes) {
-            dests.add(LinkstateNlriParser.extractLinkstateDestination(route));
+        for (final MapEntryNode reachRoute : routes) {
+            dests.add(LinkstateNlriParser.extractLinkstateDestination(reachRoute));
         }
         mb.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
             new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
@@ -198,8 +198,8 @@ final class LinkstateRIBSupport extends AbstractRIBSupport {
         mb.setSafi(LinkstateSubsequentAddressFamily.class);
 
         final List<CLinkstateDestination> dests = new ArrayList<>(routes.size());
-        for (final MapEntryNode route : routes) {
-            dests.add(LinkstateNlriParser.extractLinkstateDestination(route));
+        for (final MapEntryNode unreachRoute : routes) {
+            dests.add(LinkstateNlriParser.extractLinkstateDestination(unreachRoute));
         }
         mb.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder().setDestinationLinkstate(

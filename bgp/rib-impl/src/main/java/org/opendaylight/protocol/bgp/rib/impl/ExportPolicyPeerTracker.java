@@ -65,14 +65,14 @@ final class ExportPolicyPeerTracker extends AbstractPeerRoleTracker {
         }
 
         // Optimized immutable copy, reused for all PeerGroups
-        final Map<PeerId, PeerRole> peerRoles = ImmutableMap.copyOf(idToRole);
+        final Map<PeerId, PeerRole> allPeerRoles = ImmutableMap.copyOf(idToRole);
 
         final Map<PeerRole, PeerExportGroup> ret = new EnumMap<>(PeerRole.class);
         for (Entry<PeerRole, Collection<YangInstanceIdentifier>> e : roleToIds.asMap().entrySet()) {
             final AbstractExportPolicy policy = policyDatabase.exportPolicyForRole(e.getKey());
             final Collection<Entry<PeerId, YangInstanceIdentifier>> peers = ImmutableList.copyOf(Collections2.transform(e.getValue(), GENERATE_PEERID));
 
-            ret.put(e.getKey(), new PeerExportGroup(peers, peerRoles, policy));
+            ret.put(e.getKey(), new PeerExportGroup(peers, allPeerRoles, policy));
         }
 
         return ret;

@@ -173,8 +173,8 @@ final class FlowspecRIBSupport extends AbstractRIBSupport {
         mb.setCNextHop(hop);
 
         final List<Flowspec> dests = new ArrayList<>(routes.size());
-        for (final MapEntryNode route : routes) {
-            dests.add(FSNlriParser.extractFlowspec(route));
+        for (final MapEntryNode reachRoute : routes) {
+            dests.add(FSNlriParser.extractFlowspec(reachRoute));
         }
         mb.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
             new DestinationFlowspecCaseBuilder().setDestinationFlowspec(
@@ -189,8 +189,8 @@ final class FlowspecRIBSupport extends AbstractRIBSupport {
         mb.setSafi(FlowspecSubsequentAddressFamily.class);
 
         final List<Flowspec> dests = new ArrayList<>(routes.size());
-        for (final MapEntryNode route : routes) {
-            dests.add(FSNlriParser.extractFlowspec(route));
+        for (final MapEntryNode unreachRoute : routes) {
+            dests.add(FSNlriParser.extractFlowspec(unreachRoute));
         }
         mb.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecCaseBuilder().setDestinationFlowspec(

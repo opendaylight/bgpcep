@@ -99,8 +99,8 @@ final class IPv4RIBSupport extends AbstractIPRIBSupport {
 
     private List<Ipv4Prefixes> extractPrefixes(final Collection<MapEntryNode> routes) {
         final List<Ipv4Prefixes> prefs = new ArrayList<>(routes.size());
-        for (final MapEntryNode route : routes) {
-            final String prefix = (String) route.getChild(this.routeKeyLeaf).get().getValue();
+        for (final MapEntryNode ipv4Route : routes) {
+            final String prefix = (String) ipv4Route.getChild(this.routeKeyLeaf).get().getValue();
             prefs.add(new Ipv4PrefixesBuilder().setPrefix(new Ipv4Prefix(prefix)).build());
         }
         return prefs;
