@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_71b73787",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/LinkstateNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-05T06:55:48Z",
+      "side": 1,
+      "message": "new Identifier(((BigInteger)identifier.get().getValue()))",
+      "range": {
+        "startLine": 400,
+        "startChar": 11,
+        "endLine": 400,
+        "endChar": 105
+      },
+      "revId": "5880b7be76db6c8be0bb985171883b1fd6b52f7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_91ba036d",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/NodeNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-05T06:55:48Z",
+      "side": 1,
+      "message": "now you have one long method with 4 identical conditions",
+      "revId": "5880b7be76db6c8be0bb985171883b1fd6b52f7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_51ac7b35",
+        "filename": "bgp/linkstate/src/test/java/org/opendaylight/protocol/bgp/linkstate/LinkstateNlriParserTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-05T06:55:48Z",
+      "side": 1,
+      "message": "you have those for example in NodeNlriParser",
+      "revId": "5880b7be76db6c8be0bb985171883b1fd6b52f7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
