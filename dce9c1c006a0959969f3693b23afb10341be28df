@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_4f7db61b",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/util/Util.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-05T13:11:27Z",
+      "side": 1,
+      "message": "spi rather than util",
+      "revId": "dce9c1c006a0959969f3693b23afb10341be28df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
