@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_d4be39d4",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/StrictBGPPeerRegistry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-05T09:11:52Z",
+      "side": 1,
+      "message": "spaces \u0027} else {\u0027",
+      "revId": "eff14e89aee2ec8870d4af057e7d79ee6eb5b4b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
