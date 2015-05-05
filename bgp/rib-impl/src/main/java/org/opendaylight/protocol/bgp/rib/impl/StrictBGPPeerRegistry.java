@@ -59,7 +59,11 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         Preconditions.checkNotNull(ip);
         Preconditions.checkArgument(!this.peers.containsKey(ip), "Peer for %s already present", ip);
         this.peers.put(ip, Preconditions.checkNotNull(peer));
-        this.peerPreferences.put(ip, Preconditions.checkNotNull(preferences));
+        Preconditions.checkNotNull(preferences.getMyAs());
+        Preconditions.checkNotNull(preferences.getHoldTime());
+        Preconditions.checkNotNull(preferences.getParams());
+        Preconditions.checkNotNull(preferences.getBgpId());
+        this.peerPreferences.put(ip, preferences);
     }
 
     @Override
@@ -85,12 +89,12 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     }
 
     @Override
-    public synchronized BGPSessionListener getPeer(final IpAddress ip,
-        final Ipv4Address sourceId, final Ipv4Address remoteId, final AsNumber asNumber)
-            throws BGPDocumentedException {
+    public synchronized BGPSessionListener getPeer(final IpAddress ip, final Ipv4Address sourceId,
+        final Ipv4Address remoteId, final AsNumber asNumber) throws BGPDocumentedException {
         Preconditions.checkNotNull(ip);
         Preconditions.checkNotNull(sourceId);
         Preconditions.checkNotNull(remoteId);
+        Preconditions.checkNotNull(asNumber);
 
         checkPeerConfigured(ip);
 
@@ -115,11 +119,11 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
             } else if (previousConnection.isHigherDirection(currentConnection)) {
                 LOG.warn("BGP session with {} {} has to be dropped. Opposite session already present", ip, currentConnection);
                 throw new BGPDocumentedException(
-                    String.format("BGP session with %s initiated %s has to be dropped. Opposite session already present",
+                        String.format("BGP session with %s initiated %s has to be dropped. Opposite session already present",
                         ip, currentConnection),
                         BGPError.CEASE);
 
-                // Session reestablished with higher source bgp id, dropping previous
+            // Session reestablished with higher source bgp id, dropping previous
             } else if (currentConnection.isHigherDirection(previousConnection)) {
                 LOG.warn("BGP session with {} {} released. Replaced by opposite session", ip, previousConnection);
                 this.peers.get(ip).releaseConnection();
@@ -128,20 +132,25 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
             } else if (previousConnection.hasHigherAsNumber(currentConnection)) {
                 LOG.warn("BGP session with {} {} has to be dropped. Opposite session already present", ip, currentConnection);
                 throw new BGPDocumentedException(
-                    String.format("BGP session with %s initiated %s has to be dropped. Opposite session already present",
+                        String.format("BGP session with %s initiated %s has to be dropped. Opposite session already present",
                         ip, currentConnection),
                         BGPError.CEASE);
             } else if (currentConnection.hasHigherAsNumber(previousConnection)) {
                 LOG.warn("BGP session with {} {} released. Replaced by opposite session", ip, previousConnection);
                 this.peers.get(ip).releaseConnection();
                 return this.peers.get(ip);
-            // Session reestablished with same source bgp id, dropping current as duplicate
+                // Session reestablished with same source bgp id, dropping current as duplicate
             } else {
                 LOG.warn("BGP session with %s initiated from %s to %s has to be dropped. Same session already present", ip, sourceId, remoteId);
                 throw new BGPDocumentedException(
-                    String.format("BGP session with %s initiated %s has to be dropped. Same session already present",
+                        String.format("BGP session with %s initiated %s has to be dropped. Same session already present",
                         ip, currentConnection),
                         BGPError.CEASE);
+            }
+        } else {
+            if (!getPeerPreferences(ip).getMyAs().equals(asNumber)) {
+                LOG.warn("Unexpected remote AS number. Expecting {}, got {}", asNumber, getPeerPreferences(ip).getMyAs());
+                throw new BGPDocumentedException("Peer AS number mismatch", BGPError.BAD_PEER_AS);
             }
         }
 
