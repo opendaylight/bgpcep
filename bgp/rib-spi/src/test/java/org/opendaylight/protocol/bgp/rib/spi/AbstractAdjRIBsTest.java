@@ -109,8 +109,7 @@ public class AbstractAdjRIBsTest {
                 final InstanceIdentifier<Tables> basePath = (InstanceIdentifier<Tables>) args[0];
                 final Boolean uptodate = (Boolean) args[1];
                 @SuppressWarnings("rawtypes")
-                final
-                Map.Entry<DataObject, Boolean> entry = new AbstractMap.SimpleEntry(null, uptodate);
+                final Map.Entry<DataObject, Boolean> entry = new AbstractMap.SimpleEntry(null, uptodate);
                 AbstractAdjRIBsTest.this.store.put(basePath, entry);
                 return null;
             }
