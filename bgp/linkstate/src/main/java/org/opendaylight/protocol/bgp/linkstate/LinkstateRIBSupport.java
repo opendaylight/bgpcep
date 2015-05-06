@@ -160,7 +160,9 @@ final class LinkstateRIBSupport extends AbstractRIBSupport {
 
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode linkstate) {
         final ByteBuf buffer = Unpooled.buffer();
-        LinkstateNlriParser.serializeNlri(linkstate, buffer);
+        final CLinkstateDestination cLinkstateDestination = LinkstateNlriParser.extractLinkstateDestination(linkstate);
+        LinkstateNlriParser.serializeNlri(cLinkstateDestination, buffer);
+
         return new NodeIdentifierWithPredicates(LinkstateRoute.QNAME, ROUTE_KEY, ByteArray.readAllBytes(buffer));
     }
 
