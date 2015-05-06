@@ -76,7 +76,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
@@ -637,9 +638,10 @@ public class ParserTest {
         final Set<BgpTableType> types = Sets.newHashSet();
         for (final BgpParameters param : open.getBgpParameters()) {
             for (final OptionalCapabilities optCapa : param.getOptionalCapabilities()) {
-                final CParameters p = optCapa.getCParameters();
-                if (p instanceof MultiprotocolCase) {
-                    final BgpTableType type = new BgpTableTypeImpl(((MultiprotocolCase) p).getMultiprotocolCapability().getAfi(), ((MultiprotocolCase) p).getMultiprotocolCapability().getSafi());
+                final CParameters cParam = optCapa.getCParameters();
+                if(cParam != null && cParam.getAugmentation(CParameters1.class) !=null && cParam.getAugmentation(CParameters1.class).getMultiprotocolCapability()!=null) {
+                    final MultiprotocolCapability mp = cParam.getAugmentation(CParameters1.class).getMultiprotocolCapability();
+                    final BgpTableType type = new BgpTableTypeImpl(mp.getAfi(), mp.getSafi());
                     types.add(type);
                 }
             }
@@ -651,7 +653,9 @@ public class ParserTest {
         assertEquals(expected, types);
 
         final ByteBuf buffer = Unpooled.buffer();
+
         msgReg.serializeMessage(o, buffer);
+
         assertArrayEquals(inputBytes.get(3), ByteArray.readAllBytes(buffer));
     }
 }

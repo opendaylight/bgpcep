@@ -8,14 +8,13 @@
 
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Optional;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
-import org.opendaylight.protocol.bgp.parser.impl.message.open.As4CapabilityHandler;
+import org.opendaylight.protocol.bgp.parser.impl.message.open.CapabilitySerializerHandler;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
@@ -23,7 +22,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.OptionalCapabilities;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.As4BytesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParametersBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapability;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,9 +68,10 @@ public class BGPClientSessionValidator implements BGPSessionValidator {
 
         final List<BgpParameters> prefs = openObj.getBgpParameters();
         if (prefs != null) {
-            if(getAs4BytesCapability(localPref.getParams()).isPresent() && !getAs4BytesCapability(prefs).isPresent()) {
+            As4BytesCapability localAS4Capa = getAs4BytesCapability(localPref.getParams());
+            if(localAS4Capa != null && getAs4BytesCapability(prefs) == null) {
                 throw new BGPDocumentedException("The peer must advertise AS4Bytes capability.", BGPError.UNSUPPORTED_CAPABILITY,
-                        serializeAs4BytesCapability(getAs4BytesCapability(localPref.getParams()).get()));
+                        serializeAs4BytesCapability(localAS4Capa));
             }
             if (!prefs.containsAll(localPref.getParams())) {
                 LOG.info("BGP Open message session parameters differ, session still accepted.");
@@ -79,21 +81,22 @@ public class BGPClientSessionValidator implements BGPSessionValidator {
         }
     }
 
-    private static Optional<As4BytesCase> getAs4BytesCapability(final List<BgpParameters> prefs) {
+    private static As4BytesCapability getAs4BytesCapability(final List<BgpParameters> prefs) {
         for(final BgpParameters param : prefs) {
             for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
-                if(capa.getCParameters() instanceof As4BytesCase) {
-                    return Optional.of((As4BytesCase) capa.getCParameters());
+                final CParameters cParam = capa.getCParameters();
+                if(cParam.getAs4BytesCapability() !=null) {
+                    return cParam.getAs4BytesCapability();
                 }
             }
         }
-        return Optional.absent();
+        return null;
     }
 
-    private static byte[] serializeAs4BytesCapability(final As4BytesCase as4Capability) {
+    private static byte[] serializeAs4BytesCapability(final As4BytesCapability as4Capability) {
         final ByteBuf buffer = Unpooled.buffer(1 /*CODE*/ + 1 /*LENGTH*/ + Integer.SIZE / Byte.SIZE /*4 byte value*/);
-        final CapabilitySerializer serializer = new As4CapabilityHandler();
-        serializer.serializeCapability(as4Capability, buffer);
+        final CapabilitySerializer serializer = new CapabilitySerializerHandler();
+        serializer.serializeCapability(new CParametersBuilder().setAs4BytesCapability(as4Capability).build(), buffer);
         return buffer.array();
     }
 }

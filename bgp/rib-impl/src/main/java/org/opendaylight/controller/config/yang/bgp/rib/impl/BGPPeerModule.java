@@ -35,13 +35,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.OptionalCapabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.OptionalCapabilitiesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.As4BytesCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.as4.bytes._case.As4BytesCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParametersBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.GracefulRestartCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.graceful.restart._case.GracefulRestartCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.multiprotocol._case.MultiprotocolCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.GracefulRestartCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -173,17 +173,20 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         final List<BgpParameters> tlvs = new ArrayList<>();
         final List<OptionalCapabilities> caps = new ArrayList<>();
         caps.add(new OptionalCapabilitiesBuilder().setCParameters(
-            new As4BytesCaseBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(r.getLocalAs()).build()).build()).build());
+                new CParametersBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(r
+                        .getLocalAs()).build()).build()).build());
         caps.add(new OptionalCapabilitiesBuilder().setCParameters(
-            new GracefulRestartCaseBuilder().setGracefulRestartCapability(
-                new GracefulRestartCapabilityBuilder().build()).build()).build());
+                new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder().setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build()).build()).build());
+
         for (final BgpTableType t : getAdvertizedTableDependency()) {
             if (!r.getLocalTables().contains(t)) {
                 LOG.info("RIB instance does not list {} in its local tables. Incoming data will be dropped.", t);
             }
 
             caps.add(new OptionalCapabilitiesBuilder().setCParameters(
-                new MultiprotocolCaseBuilder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder(t).build()).build()).build());
+                    new CParametersBuilder()
+                            .addAugmentation(CParameters1.class,new CParameters1Builder().setMultiprotocolCapability(
+                                    new MultiprotocolCapabilityBuilder(t).build()).build()).build()).build());
         }
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(caps).build());
         return tlvs;
