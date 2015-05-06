@@ -91,7 +91,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
         this.rib = Preconditions.checkNotNull(rib);
         this.name = name;
         this.chain = rib.createPeerChain(this);
-        this.ribWriter = AdjRibInWriter.create(rib.getYangRibId(), role, chain);
+        this.ribWriter = AdjRibInWriter.create(rib.getYangRibId(), role, this.chain);
     }
 
     @Override
@@ -304,5 +304,10 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
     @Override
     public void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
         LOG.debug("Transaction chain {} successfull.", chain);
+    }
+
+    @Override
+    public void markUptodate(final TablesKey tablesKey) {
+        this.ribWriter.markTableUptodate(tablesKey);
     }
 }
