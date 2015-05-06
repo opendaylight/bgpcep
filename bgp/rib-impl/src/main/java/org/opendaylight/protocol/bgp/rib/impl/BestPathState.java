@@ -39,12 +39,13 @@ final class BestPathState {
     private static final Collection<PathArgument> MED = ImmutableList.<PathArgument>of(new NodeIdentifier(MultiExitDisc.QNAME), new NodeIdentifier(QName.create(MultiExitDisc.QNAME, "med")));
     private static final Collection<PathArgument> ORIGIN = ImmutableList.<PathArgument>of(new NodeIdentifier(Origin.QNAME), new NodeIdentifier(QName.create(Origin.QNAME, "value")));
 
+    private static Long peerAs = 0L;
+    private static int asPathLength = 0;
+
     private final ContainerNode attributes;
     private Long localPref;
     private Long multiExitDisc;
     private BgpOrigin origin;
-    private static final Long peerAs = 0L;
-    private static final int asPathLength = 0;
     private boolean resolved;
 
     BestPathState(final ContainerNode attributes) {
@@ -125,7 +126,7 @@ final class BestPathState {
 
     Long getPeerAs() {
         resolveValues();
-        return this.peerAs;
+        return peerAs;
     }
 
     int getAsPathLength() {

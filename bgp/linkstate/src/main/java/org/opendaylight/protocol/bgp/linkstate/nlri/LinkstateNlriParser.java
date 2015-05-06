@@ -298,17 +298,17 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     private static int domProtocolIdValue(final String protocolId) {
         switch (protocolId) {
         case "unknown":
-            return 0;
+            return ProtocolId.Unknown.getIntValue();
         case "isis-level1":
-            return 1;
+            return ProtocolId.IsisLevel1.getIntValue();
         case "isis-level2":
-            return 2;
+            return ProtocolId.IsisLevel2.getIntValue();
         case "ospf":
-            return 3;
+            return ProtocolId.Ospf.getIntValue();
         case "direct":
-            return 4;
+            return ProtocolId.Direct.getIntValue();
         case "static":
-            return 5;
+            return ProtocolId.Static.getIntValue();
         default:
             return 0;
         }
