@@ -44,7 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.OptionalCapabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
@@ -134,10 +134,12 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
         if (remoteOpen.getBgpParameters() != null) {
             for (final BgpParameters param : remoteOpen.getBgpParameters()) {
                 for (final OptionalCapabilities optCapa : param.getOptionalCapabilities()) {
-                    final CParameters cp = optCapa.getCParameters();
-                    if (cp instanceof MultiprotocolCase) {
-                        final TablesKey tt = new TablesKey(((MultiprotocolCase) cp).getMultiprotocolCapability().getAfi(),
-                                ((MultiprotocolCase) cp).getMultiprotocolCapability().getSafi());
+                    final CParameters cParam = optCapa.getCParameters();
+                    if(cParam.getAugmentation(CParameters1.class) !=null && cParam.getAugmentation(CParameters1.class)
+                            .getMultiprotocolCapability() != null) {
+                        final TablesKey tt = new TablesKey(cParam.getAugmentation(CParameters1.class)
+                            .getMultiprotocolCapability().getAfi(), cParam.getAugmentation(CParameters1.class)
+                            .getMultiprotocolCapability().getSafi());
                         LOG.trace("Added table type to sync {}", tt);
                         tts.add(tt);
                         tats.add(new BgpTableTypeImpl(tt.getAfi(), tt.getSafi()));
