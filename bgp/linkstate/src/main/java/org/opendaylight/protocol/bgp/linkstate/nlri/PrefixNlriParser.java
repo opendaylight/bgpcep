@@ -39,6 +39,14 @@ public final class PrefixNlriParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(PrefixNlriParser.class);
 
+    private static final int INTRA_AREA = 1;
+    private static final int INTER_AREA = 2;
+    private static final int EXTERNAL_1 = 3;
+    private static final int EXTERNAL_2 = 4;
+    private static final int NSSA_1 = 5;
+    private static final int NSSA_2 = 6;
+    private static final int NON_OSPF_ROUTE_TYPE = 0;
+
     private PrefixNlriParser() {
         throw new UnsupportedOperationException();
     }
@@ -120,19 +128,19 @@ public final class PrefixNlriParser {
     private static int domOspfRouteTypeValue(final String ospfRouteType) {
         switch(ospfRouteType) {
         case "intra-area":
-            return 1;
+            return INTRA_AREA;
         case "inter-area":
-            return 2;
+            return INTER_AREA;
         case "external1":
-            return 3;
+            return EXTERNAL_1;
         case "external2":
-            return 4;
+            return EXTERNAL_2;
         case "nssa1":
-            return 5;
+            return NSSA_1;
         case "nssa2":
-            return 6;
+            return NSSA_2;
         default:
-            return 0;
+            return NON_OSPF_ROUTE_TYPE;
         }
     }
 

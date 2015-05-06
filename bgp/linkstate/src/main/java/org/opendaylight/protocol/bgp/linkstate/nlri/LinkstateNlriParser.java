@@ -68,6 +68,14 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateNlriParser.class);
 
+    /* Protocol ID allowed values */
+    private static final int UNKNOWN_NLRI_SOURCE = 0;
+    private static final int ISIS_LEVEL_1 = 1;
+    private static final int ISIS_LEVEL_2 = 2;
+    private static final int OSPF = 3;
+    private static final int DIRECT = 4;
+    private static final int STATIC = 5;
+
     private static final int ROUTE_DISTINGUISHER_LENGTH = 8;
     private static final int PROTOCOL_ID_LENGTH = 1;
     private static final int IDENTIFIER_LENGTH = 8;
@@ -286,17 +294,17 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     private static int domProtocolIdValue(final String protocolId) {
         switch(protocolId) {
         case "unknown":
-            return 0;
+            return UNKNOWN_NLRI_SOURCE;
         case "isis-level1":
-            return 1;
+            return ISIS_LEVEL_1;
         case "isis-level2":
-            return 2;
+            return ISIS_LEVEL_2;
         case "ospf":
-            return 3;
+            return OSPF;
         case "direct":
-            return 4;
+            return DIRECT;
         case "static":
-            return 5;
+            return STATIC;
         default:
             return 0;
         }

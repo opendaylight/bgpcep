@@ -43,8 +43,8 @@ final class BestPathState {
     private Long localPref;
     private Long multiExitDisc;
     private BgpOrigin origin;
-    private static final Long peerAs = 0L;
-    private static final int asPathLength = 0;
+    private static final Long PEER_AS = 0L;
+    private static final int AS_PATH_LENGTH = 0;
     private boolean resolved;
 
     BestPathState(final ContainerNode attributes) {
@@ -125,12 +125,12 @@ final class BestPathState {
 
     Long getPeerAs() {
         resolveValues();
-        return this.peerAs;
+        return this.PEER_AS;
     }
 
     int getAsPathLength() {
         resolveValues();
-        return asPathLength;
+        return AS_PATH_LENGTH;
     }
 
     private static int countAsPath(final List<Segments> segments) {
