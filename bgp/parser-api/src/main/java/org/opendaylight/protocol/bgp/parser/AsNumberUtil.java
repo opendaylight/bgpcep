@@ -12,9 +12,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.OptionalCapabilities;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.As4BytesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.as4.bytes._case.As4BytesCapability;
 
 public final class AsNumberUtil {
 
@@ -34,12 +31,8 @@ public final class AsNumberUtil {
         if (params != null) {
             for (final BgpParameters p : params) {
                 for (final OptionalCapabilities oc : p.getOptionalCapabilities()) {
-                    final CParameters cp = oc.getCParameters();
-                    if (cp instanceof As4BytesCase) {
-                        final As4BytesCapability capa = ((As4BytesCase) cp).getAs4BytesCapability();
-                        if (capa != null) {
-                            return capa.getAsNumber();
-                        }
+                    if (oc.getCParameters().getAs4BytesCapability() != null) {
+                        return oc.getCParameters().getAs4BytesCapability().getAsNumber();
                     }
                 }
             }

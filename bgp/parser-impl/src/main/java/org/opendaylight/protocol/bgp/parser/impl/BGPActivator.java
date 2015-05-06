@@ -14,9 +14,12 @@ import org.opendaylight.protocol.bgp.parser.impl.message.BGPNotificationMessageP
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPOpenMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.As4CapabilityHandler;
+import org.opendaylight.protocol.bgp.parser.impl.message.open.As4CapabilitySerializer;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.CapabilityParameterParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.GracefulCapabilityHandler;
+import org.opendaylight.protocol.bgp.parser.impl.message.open.GracefulCapabilitySerializer;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.MultiProtocolCapabilityHandler;
+import org.opendaylight.protocol.bgp.parser.impl.message.open.MultiProtocolCapabilitySerializer;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AS4AggregatorAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AS4PathAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AdvertizedRoutesSerializer;
@@ -47,7 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.As4BytesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Aggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Aigp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.AsPath;
@@ -60,8 +63,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.OriginatorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.WithdrawnRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.GracefulRestartCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.GracefulRestartCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutes;
@@ -105,17 +108,20 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         final AddressFamilyRegistry afiReg = context.getAddressFamilyRegistry();
         final SubsequentAddressFamilyRegistry safiReg = context.getSubsequentAddressFamilyRegistry();
 
+        final MultiProtocolCapabilitySerializer multiProtocolCapSerializer = new MultiProtocolCapabilitySerializer(afiReg, safiReg);
         final MultiProtocolCapabilityHandler multi = new MultiProtocolCapabilityHandler(afiReg, safiReg);
         regs.add(context.registerCapabilityParser(MultiProtocolCapabilityHandler.CODE, multi));
-        regs.add(context.registerCapabilitySerializer(MultiprotocolCase.class, multi));
+        regs.add(context.registerCapabilitySerializer(MultiprotocolCapability.class, multiProtocolCapSerializer));
 
+        final As4CapabilitySerializer as4capSerializer = new As4CapabilitySerializer();
         final As4CapabilityHandler as4 = new As4CapabilityHandler();
         regs.add(context.registerCapabilityParser(As4CapabilityHandler.CODE, as4));
-        regs.add(context.registerCapabilitySerializer(As4BytesCase.class, as4));
+        regs.add(context.registerCapabilitySerializer(As4BytesCapability.class, as4capSerializer));
 
+        final GracefulCapabilitySerializer gracefulCapabilitySerializer = new GracefulCapabilitySerializer(afiReg, safiReg);
         final GracefulCapabilityHandler grace = new GracefulCapabilityHandler(afiReg, safiReg);
-        regs.add(context.registerCapabilitySerializer(GracefulRestartCase.class, grace));
         regs.add(context.registerCapabilityParser(GracefulCapabilityHandler.CODE, grace));
+        regs.add(context.registerCapabilitySerializer(GracefulRestartCapability.class, gracefulCapabilitySerializer));
 
         final CapabilityParameterParser cpp = new CapabilityParameterParser(context.getCapabilityRegistry());
         regs.add(context.registerParameterParser(CapabilityParameterParser.TYPE, cpp));

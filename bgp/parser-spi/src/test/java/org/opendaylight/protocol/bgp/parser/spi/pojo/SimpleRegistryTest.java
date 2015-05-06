@@ -33,7 +33,6 @@ import org.opendaylight.protocol.bgp.parser.spi.ParameterRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
@@ -97,13 +96,8 @@ public class SimpleRegistryTest {
         final byte[] capabilityBytes = {
             0x0, 0x00
         };
-        final CParameters capa = Mockito.mock(CParameters.class);
-        Mockito.doReturn(CParameters.class).when(capa).getImplementedInterface();
-        final ByteBuf buffer = Unpooled.buffer(capabilityBytes.length);
-        capaRegistry.serializeCapability(capa, buffer);
         capaRegistry.parseCapability(BgpTestActivator.TYPE, Unpooled.wrappedBuffer(capabilityBytes));
         verify(this.activator.capaParser, times(1)).parseCapability(Mockito.any(ByteBuf.class));
-        verify(this.activator.capaSerializer, times(1)).serializeCapability(Mockito.any(CParameters.class), Mockito.any(ByteBuf.class));
     }
 
     @Test
