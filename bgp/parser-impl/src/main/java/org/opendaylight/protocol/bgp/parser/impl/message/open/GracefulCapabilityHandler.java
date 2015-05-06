@@ -8,12 +8,12 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
-
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
@@ -22,14 +22,15 @@ import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityUtil;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.GracefulRestartCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.GracefulRestartCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.graceful.restart._case.GracefulRestartCapability;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.graceful.restart._case.GracefulRestartCapability.RestartFlags;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.graceful.restart._case.GracefulRestartCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.graceful.restart._case.graceful.restart.capability.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.graceful.restart._case.graceful.restart.capability.Tables.AfiFlags;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.graceful.restart._case.graceful.restart.capability.TablesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParametersBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.GracefulRestartCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.GracefulRestartCapability.RestartFlags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.GracefulRestartCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.graceful.restart.capability.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.graceful.restart.capability.Tables.AfiFlags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.graceful.restart.capability.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.slf4j.Logger;
@@ -68,46 +69,49 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
 
     @Override
     public void serializeCapability(final CParameters capability, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(capability instanceof GracefulRestartCase);
-        final GracefulRestartCapability grace = ((GracefulRestartCase) capability).getGracefulRestartCapability();
-        final List<Tables> tables = grace.getTables();
-        final int tablesSize  = (tables != null) ? tables.size() : 0;
-        final ByteBuf bytes = Unpooled.buffer(HEADER_SIZE + (PER_AFI_SAFI_SIZE * tablesSize));
+        if(capability.getAugmentation(CParameters1.class) != null) {
+            final GracefulRestartCapability grace = capability.getAugmentation(CParameters1.class).getGracefulRestartCapability();
+            if ( capability.getAugmentation(CParameters1.class) != null && grace != null ) {
+                final List<Tables> tables = grace.getTables();
+                final int tablesSize = (tables != null) ? tables.size() : 0;
+                final ByteBuf bytes = Unpooled.buffer(HEADER_SIZE + (PER_AFI_SAFI_SIZE * tablesSize));
 
-        int timeval = 0;
-        Integer time = grace.getRestartTime();
-        if (time == null) {
-            time = 0;
-        }
-        Preconditions.checkArgument(time >= 0 && time <= MAX_RESTART_TIME, "Restart time is " + time);
-        timeval = time;
-        final RestartFlags flags = grace.getRestartFlags();
-        if (flags != null && flags.isRestartState()) {
-            writeUnsignedShort(RESTART_FLAG_STATE | timeval, bytes);
-        } else {
-            writeUnsignedShort(timeval, bytes);
-        }
-
-        if (tables != null) {
-            for (final Tables t : tables) {
-                final Class<? extends AddressFamily> afi = t.getAfi();
-                final Integer afival = this.afiReg.numberForClass(afi);
-                Preconditions.checkArgument(afival != null, "Unhandled address family " + afi);
-                bytes.writeShort(afival);
-
-                final Class<? extends SubsequentAddressFamily> safi = t.getSafi();
-                final Integer safival = this.safiReg.numberForClass(safi);
-                Preconditions.checkArgument(safival != null, "Unhandled subsequent address family " + safi);
-                bytes.writeByte(safival);
-
-                if (t.getAfiFlags() != null && t.getAfiFlags().isForwardingState()) {
-                    bytes.writeByte(AFI_FLAG_FORWARDING_STATE);
-                } else {
-                    bytes.writeZero(1);
+                int timeval = 0;
+                Integer time = grace.getRestartTime();
+                if ( time == null ) {
+                    time = 0;
                 }
+                Preconditions.checkArgument(time >= 0 && time <= MAX_RESTART_TIME, "Restart time is " + time);
+                timeval = time;
+                final GracefulRestartCapability.RestartFlags flags = grace.getRestartFlags();
+                if ( flags != null && flags.isRestartState() ) {
+                    writeUnsignedShort(RESTART_FLAG_STATE | timeval, bytes);
+                } else {
+                    writeUnsignedShort(timeval, bytes);
+                }
+
+                if ( tables != null ) {
+                    for (final Tables t : tables) {
+                        final Class<? extends AddressFamily> afi = t.getAfi();
+                        final Integer afival = this.afiReg.numberForClass(afi);
+                        Preconditions.checkArgument(afival != null, "Unhandled address family " + afi);
+                        bytes.writeShort(afival);
+
+                        final Class<? extends SubsequentAddressFamily> safi = t.getSafi();
+                        final Integer safival = this.safiReg.numberForClass(safi);
+                        Preconditions.checkArgument(safival != null, "Unhandled subsequent address family " + safi);
+                        bytes.writeByte(safival);
+
+                        if ( t.getAfiFlags() != null && t.getAfiFlags().isForwardingState() ) {
+                            bytes.writeByte(AFI_FLAG_FORWARDING_STATE);
+                        } else {
+                            bytes.writeZero(1);
+                        }
+                    }
+                }
+                CapabilityUtil.formatCapability(CODE, bytes, byteAggregator);
             }
         }
-        CapabilityUtil.formatCapability(CODE, bytes, byteAggregator);
     }
 
     @Override
@@ -140,6 +144,7 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
             tables.add(new TablesBuilder().setAfi(afi).setSafi(safi).setAfiFlags(new AfiFlags((flags & AFI_FLAG_FORWARDING_STATE) != 0)).build());
         }
         cb.setTables(tables);
-        return new GracefulRestartCaseBuilder().setGracefulRestartCapability(cb.build()).build();
+        return new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder()
+            .setGracefulRestartCapability(cb.build()).build()).build();
     }
 }

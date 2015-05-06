@@ -38,11 +38,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.OptionalCapabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.As4BytesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.GracefulRestartCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.multiprotocol._case.MultiprotocolCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCapability;
 
 final class BGPSessionStats {
     private final Stopwatch sessionStopwatch;
@@ -172,20 +170,18 @@ final class BGPSessionStats {
             if (localPref.getParams() != null) {
                 for (final BgpParameters param : localPref.getParams()) {
                     for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
-                        final CParameters cp = capa.getCParameters();
-                        if (cp instanceof MultiprotocolCase) {
-                            final MultiprotocolCapability mc = ((MultiprotocolCase) cp).getMultiprotocolCapability();
-                            final AdvertizedTableTypes att = new AdvertizedTableTypes();
-                            att.setAfi(mc.getAfi().getSimpleName());
-                            att.setSafi(mc.getSafi().getSimpleName());
-                            tt.add(att);
+                        final CParameters cParam = capa.getCParameters();
+                        if(cParam.getAugmentation(CParameters1.class) != null) {
+                            final MultiprotocolCapability mc = cParam.getAugmentation(CParameters1.class).getMultiprotocolCapability();
+                            if (mc != null) {
+                                final AdvertizedTableTypes att = new AdvertizedTableTypes();
+                                att.setAfi(mc.getAfi().getSimpleName());
+                                att.setSafi(mc.getSafi().getSimpleName());
+                                tt.add(att);
+                            }
+                            pref.setGrCapability(cParam.getAugmentation(CParameters1.class).getGracefulRestartCapability() != null);
                         }
-                        if (cp instanceof As4BytesCase) {
-                            pref.setFourOctetAsCapability(((As4BytesCase) cp).getAs4BytesCapability() != null);
-                        }
-                        if (capa.getCParameters() instanceof GracefulRestartCase) {
-                            pref.setGrCapability(((GracefulRestartCase) capa.getCParameters()).getGracefulRestartCapability() != null);
-                        }
+                        pref.setFourOctetAsCapability(cParam.getAs4BytesCapability() != null);
                     }
                 }
             }
@@ -211,12 +207,10 @@ final class BGPSessionStats {
         if (remoteOpen.getBgpParameters() != null) {
             for (final BgpParameters param : remoteOpen.getBgpParameters()) {
                 for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
-                    if (capa.getCParameters() instanceof As4BytesCase) {
-                        pref.setFourOctetAsCapability(((As4BytesCase) capa.getCParameters()).getAs4BytesCapability() != null);
-                    }
-                    if (capa.getCParameters() instanceof GracefulRestartCase) {
-                        pref.setGrCapability(((GracefulRestartCase) capa.getCParameters()).getGracefulRestartCapability() != null);
-                    }
+                    final CParameters cParam = capa.getCParameters();
+                    pref.setFourOctetAsCapability(cParam.getAs4BytesCapability() != null);
+                    pref.setGrCapability(cParam.getAugmentation(CParameters1.class) != null &&
+                        cParam.getAugmentation(CParameters1.class).getGracefulRestartCapability() != null);
                 }
 
             }
