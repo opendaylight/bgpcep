@@ -187,8 +187,7 @@ public class BGPParserTest {
 
         final List<AsSequence> asnums = Lists.newArrayList(new AsSequenceBuilder().setAs(new AsNumber(65002L)).build());
         final List<Segments> asPath = Lists.newArrayList();
-        asPath.add(new SegmentsBuilder().setCSegment(
-            new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
+        asPath.add(new SegmentsBuilder().setCSegment(new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
 
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
             new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.2")).build()).build();

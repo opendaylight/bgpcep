@@ -191,8 +191,10 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
         }
 
         try {
-            final BGPSessionListener peer = this.registry.getPeer(getRemoteIp(), getSourceId(openObj, getPreferences()),
-                    getDestinationId(openObj, getPreferences()), getAsNumber(openObj, getPreferences()));
+            final Ipv4Address source = getSourceId(openObj, getPreferences());
+            final Ipv4Address destination = getDestinationId(openObj, getPreferences());
+            final BGPSessionListener peer = this.registry.getPeer(getRemoteIp(), source,destination
+                    , getAsNumber(openObj, getPreferences()));
             this.sendMessage(new KeepaliveBuilder().build());
             this.session = new BGPSessionImpl(peer, this.channel, openObj, getPreferences(), this.registry);
             this.state = State.OPEN_CONFIRM;
