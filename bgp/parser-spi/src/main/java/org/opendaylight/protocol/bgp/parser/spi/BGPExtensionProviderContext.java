@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.parser.spi;
 
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -31,7 +30,7 @@ public interface BGPExtensionProviderContext extends BGPExtensionConsumerContext
 
     AutoCloseable registerCapabilityParser(int capabilityType, CapabilityParser parser);
 
-    AutoCloseable registerCapabilitySerializer(Class<? extends CParameters> capabilityClass, CapabilitySerializer serializer);
+    AutoCloseable registerCapabilitySerializer(Class<? extends DataObject> capabilityClass, CapabilitySerializer serializer);
 
     AutoCloseable registerMessageParser(int messageType, MessageParser parser);
 
