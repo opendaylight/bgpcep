@@ -8,16 +8,13 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateSubsequentAddressFamily;
@@ -27,8 +24,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.NlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
@@ -36,6 +31,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
 public class SynchronizationTest {
+
+    private final TablesKey ipv4 = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    private final TablesKey linkstate = new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
 
     private BGPSynchronization bs;
 
@@ -74,34 +72,7 @@ public class SynchronizationTest {
 
         this.eorm = new UpdateBuilder().build();
 
-        final Set<TablesKey> types = Sets.newHashSet();
-        types.add(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
-        types.add(new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
-
-        this.bs = new BGPSynchronization(new BGPSession() {
-
-            @Override
-            public void close() {
-            }
-
-            @Override
-            public Set<BgpTableType> getAdvertisedTableTypes() {
-                final Set<BgpTableType> types = Sets.newHashSet();
-                types.add(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
-                types.add(new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
-                return types;
-            }
-
-            @Override
-            public Ipv4Address getBgpId() {
-                return new Ipv4Address("127.0.0.1");
-            }
-
-            @Override
-            public AsNumber getAsNumber() {
-                return new AsNumber(30L);
-            }
-        }, this.listener, types);
+        this.bs = new BGPSynchronization(this.listener, Sets.newHashSet(this.ipv4, this.linkstate));
     }
 
     @Test
@@ -111,13 +82,13 @@ public class SynchronizationTest {
         this.bs.updReceived(this.ipv4m);
         this.bs.updReceived(this.lsm);
         this.bs.kaReceived(); // nothing yet
+        assertFalse(this.bs.syncStorage.get(this.linkstate).getEor());
+        assertFalse(this.bs.syncStorage.get(this.ipv4).getEor());
         this.bs.updReceived(this.ipv4m);
         this.bs.kaReceived(); // linkstate
-        assertEquals(1, this.listener.getListMsg().size());
-        assertEquals(LinkstateAddressFamily.class, ((Update) this.listener.getListMsg().get(0)).getAttributes().getAugmentation(
-                Attributes2.class).getMpUnreachNlri().getAfi());
+        assertTrue(this.bs.syncStorage.get(this.linkstate).getEor());
         this.bs.kaReceived(); // ipv4 sync
-        assertEquals(2, this.listener.getListMsg().size());
+        assertTrue(this.bs.syncStorage.get(this.ipv4).getEor());
     }
 
     @Test
@@ -125,14 +96,15 @@ public class SynchronizationTest {
         this.bs.updReceived(this.ipv4m);
         this.bs.updReceived(this.lsm);
         // Ipv4 Unicast synchronized by EOR message
+        assertFalse(this.bs.syncStorage.get(this.ipv4).getEor());
         this.bs.updReceived(this.eorm);
+        assertTrue(this.bs.syncStorage.get(this.ipv4).getEor());
         // Linkstate not synchronized yet
+        assertFalse(this.bs.syncStorage.get(this.linkstate).getEor());
         this.bs.kaReceived();
         // no message sent by BGPSychchronization
         assertEquals(0, this.listener.getListMsg().size());
         this.bs.kaReceived();
-        assertEquals(1, this.listener.getListMsg().size());
-        assertEquals(LinkstateAddressFamily.class, ((Update) this.listener.getListMsg().get(0)).getAttributes().getAugmentation(
-                Attributes2.class).getMpUnreachNlri().getAfi());
+        assertTrue(this.bs.syncStorage.get(this.linkstate).getEor());
     }
 }
