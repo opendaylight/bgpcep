@@ -146,7 +146,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
             }
         }
 
-        this.sync = new BGPSynchronization(this, this.listener, tts);
+        this.sync = new BGPSynchronization(this.listener, tts);
         this.tableTypes = tats;
 
         if (this.holdTimerValue != 0) {

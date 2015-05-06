@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import org.opendaylight.protocol.framework.SessionListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
@@ -21,4 +22,11 @@ public interface BGPSessionListener extends SessionListener<Notification, BGPSes
      * @return false if session associated with this listener is null, true if its non-null
      */
     boolean isSessionActive();
+
+    /**
+     * Marks synchronization finished for given Table key
+     *
+     * @param tablesKey of the table where synchronization finished
+     */
+    void markUptodate(final TablesKey tablesKey);
 }
