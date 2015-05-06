@@ -18,9 +18,11 @@ import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityUtil;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.multiprotocol._case.MultiprotocolCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParametersBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 
@@ -38,7 +40,7 @@ public final class MultiProtocolCapabilityHandler implements CapabilityParser, C
     }
 
     @Override
-    public MultiprotocolCase parseCapability(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+    public CParameters parseCapability(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
         final int afiVal = buffer.readUnsignedShort();
         final Class<? extends AddressFamily> afi = this.afiReg.classForFamily(afiVal);
         if (afi == null) {
@@ -51,21 +53,26 @@ public final class MultiProtocolCapabilityHandler implements CapabilityParser, C
         if (safi == null) {
             throw new BGPParsingException("Subsequent Address Family Identifier: '" + safiVal + "' not supported.");
         }
-        return new MultiprotocolCaseBuilder().setMultiprotocolCapability(
-            new MultiprotocolCapabilityBuilder().setAfi(afi).setSafi(safi).build()).build();
+
+        return new CParametersBuilder().addAugmentation(CParameters1.class,new CParameters1Builder().setMultiprotocolCapability(
+            new MultiprotocolCapabilityBuilder().setAfi(afi).setSafi(safi).build()).build()).build();
     }
 
     @Override
     public void serializeCapability(final CParameters capability, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(capability instanceof MultiprotocolCase);
-        final MultiprotocolCase mp = (MultiprotocolCase) capability;
+        if ( capability.getAugmentation(CParameters1.class) == null
+            || capability.getAugmentation(CParameters1.class).getMultiprotocolCapability() != null ) {
+            return;
+        }
+        final MultiprotocolCapability mp = capability.getAugmentation(CParameters1.class).getMultiprotocolCapability();
+
         final ByteBuf capBuffer = Unpooled.buffer();
-        final Class<? extends AddressFamily> afi = mp.getMultiprotocolCapability().getAfi();
+        final Class<? extends AddressFamily> afi = mp.getAfi();
         final Integer afival = this.afiReg.numberForClass(afi);
         Preconditions.checkArgument(afival != null, "Unhandled address family " + afi);
         capBuffer.writeShort(afival);
 
-        final Class<? extends SubsequentAddressFamily> safi = mp.getMultiprotocolCapability().getSafi();
+        final Class<? extends SubsequentAddressFamily> safi = mp.getSafi();
         final Integer safival = this.safiReg.numberForClass(safi);
         Preconditions.checkArgument(safival != null, "Unhandled subsequent address family " + safi);
         capBuffer.writeZero(RESERVED);
