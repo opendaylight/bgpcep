@@ -16,14 +16,15 @@ import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.As4CapabilityHandler;
-import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.OptionalCapabilities;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.As4BytesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParametersBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapability;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,21 +80,22 @@ public class BGPClientSessionValidator implements BGPSessionValidator {
         }
     }
 
-    private static Optional<As4BytesCase> getAs4BytesCapability(final List<BgpParameters> prefs) {
+    private static Optional<As4BytesCapability> getAs4BytesCapability(final List<BgpParameters> prefs) {
         for(final BgpParameters param : prefs) {
             for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
-                if(capa.getCParameters() instanceof As4BytesCase) {
-                    return Optional.of((As4BytesCase) capa.getCParameters());
+                final CParameters cParam = capa.getCParameters();
+                if(cParam.getAs4BytesCapability() !=null) {
+                    return Optional.of(cParam.getAs4BytesCapability());
                 }
             }
         }
         return Optional.absent();
     }
 
-    private static byte[] serializeAs4BytesCapability(final As4BytesCase as4Capability) {
+    private static byte[] serializeAs4BytesCapability(final As4BytesCapability as4Capability) {
         final ByteBuf buffer = Unpooled.buffer(1 /*CODE*/ + 1 /*LENGTH*/ + Integer.SIZE / Byte.SIZE /*4 byte value*/);
-        final CapabilitySerializer serializer = new As4CapabilityHandler();
-        serializer.serializeCapability(as4Capability, buffer);
+        final As4CapabilityHandler serializer = new As4CapabilityHandler();
+        serializer.serializeCapability(new CParametersBuilder().setAs4BytesCapability(as4Capability).build(), buffer);
         return buffer.array();
     }
 }
