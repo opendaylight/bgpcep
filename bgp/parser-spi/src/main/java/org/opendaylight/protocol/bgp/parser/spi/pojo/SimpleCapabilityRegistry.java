@@ -18,6 +18,7 @@ import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 
 final class SimpleCapabilityRegistry implements CapabilityRegistry {
     private final HandlerRegistry<DataContainer, CapabilityParser, CapabilitySerializer> handlers = new HandlerRegistry<>();
@@ -27,7 +28,7 @@ final class SimpleCapabilityRegistry implements CapabilityRegistry {
         return this.handlers.registerParser(messageType, parser);
     }
 
-    AutoCloseable registerCapabilitySerializer(final Class<? extends CParameters> paramClass, final CapabilitySerializer serializer) {
+    AutoCloseable registerCapabilitySerializer(final Class<? extends DataObject> paramClass, final CapabilitySerializer serializer) {
         return this.handlers.registerSerializer(paramClass, serializer);
     }
 
@@ -42,11 +43,8 @@ final class SimpleCapabilityRegistry implements CapabilityRegistry {
 
     @Override
     public void serializeCapability(final CParameters capability, ByteBuf bytes) {
-        final CapabilitySerializer serializer = this.handlers.getSerializer(capability.getImplementedInterface());
-        if (serializer == null) {
-            return;
+        for (CapabilitySerializer s : this.handlers.getAllSerializers()) {
+            s.serializeCapability(capability, bytes);
         }
-
-        serializer.serializeCapability(capability, bytes);
     }
 }
