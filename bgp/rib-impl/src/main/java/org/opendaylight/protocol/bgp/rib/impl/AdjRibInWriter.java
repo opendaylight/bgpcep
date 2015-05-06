@@ -209,13 +209,11 @@ final class AdjRibInWriter {
         tx.submit();
     }
 
-    void markTablesUptodate(final Collection<TablesKey> tableTypes) {
+    void markTableUptodate(final TablesKey tableTypes) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
 
-        for (final TablesKey k : tableTypes) {
-            final TableContext ctx = this.tables.get(k);
-            tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes.QNAME).node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
-        }
+        final TableContext ctx = this.tables.get(tableTypes);
+        tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes.QNAME).node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
 
         tx.submit();
     }

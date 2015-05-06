@@ -7,20 +7,16 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
@@ -36,7 +32,8 @@ public class BGPSynchronization {
 
     private static final Logger LOG = LoggerFactory.getLogger(BGPSynchronization.class);
 
-    private static class SyncVariables {
+    @VisibleForTesting
+    static class SyncVariables {
 
         private boolean upd = false;
         private boolean eor = false;
@@ -58,15 +55,13 @@ public class BGPSynchronization {
         }
     }
 
-    private final Map<TablesKey, SyncVariables> syncStorage = Maps.newHashMap();
+    @VisibleForTesting
+    public final Map<TablesKey, SyncVariables> syncStorage = Maps.newHashMap();
 
     private final BGPSessionListener listener;
 
-    private final BGPSession session;
-
-    public BGPSynchronization(final BGPSession bgpSession, final BGPSessionListener listener, final Set<TablesKey> types) {
+    public BGPSynchronization(final BGPSessionListener listener, final Set<TablesKey> types) {
         this.listener = Preconditions.checkNotNull(listener);
-        this.session = Preconditions.checkNotNull(bgpSession);
 
         for (final TablesKey type : types) {
             this.syncStorage.put(type, new SyncVariables());
@@ -114,6 +109,7 @@ public class BGPSynchronization {
         s.setUpd(true);
         if (isEOR) {
             s.setEorTrue();
+            this.listener.markUptodate(type);
             LOG.info("BGP Synchronization finished for table {} ", type);
         }
     }
@@ -130,20 +126,10 @@ public class BGPSynchronization {
                 if (!s.getUpd()) {
                     s.setEorTrue();
                     LOG.info("BGP Synchronization finished for table {} ", entry.getKey());
-                    final Update up = generateEOR(entry.getKey());
-                    LOG.debug("Sending synchronization message: {}", up);
-                    this.listener.onMessage(this.session, up);
+                    this.listener.markUptodate(entry.getKey());
                 }
                 s.setUpd(false);
             }
         }
-    }
-
-    private Update generateEOR(final TablesKey type) {
-        return new UpdateBuilder().setAttributes(
-                new AttributesBuilder().addAugmentation(
-                        Attributes2.class,
-                        new Attributes2Builder().setMpUnreachNlri(
-                                new MpUnreachNlriBuilder().setAfi(type.getAfi()).setSafi(type.getSafi()).build()).build()).build()).build();
     }
 }
