@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -242,8 +243,8 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
     @Override
     public long getRoutesCount(final TablesKey key) {
-        try {
-            final Optional<Tables> tableMaybe = this.dataBroker.newReadOnlyTransaction().read(LogicalDatastoreType.OPERATIONAL,
+        try (final ReadOnlyTransaction tx = this.dataBroker.newReadOnlyTransaction()) {
+            final Optional<Tables> tableMaybe = tx.read(LogicalDatastoreType.OPERATIONAL,
                     getInstanceIdentifier().child(LocRib.class).child(Tables.class, key)).checkedGet();
             if (tableMaybe.isPresent()) {
                 final Tables table = tableMaybe.get();
@@ -260,7 +261,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
                 }
             }
         } catch (final ReadFailedException e) {
-            //no-op
+            LOG.debug("Failed to read tables", e);
         }
         return 0;
     }

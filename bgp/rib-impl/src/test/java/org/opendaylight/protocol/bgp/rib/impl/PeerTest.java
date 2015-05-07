@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
@@ -231,6 +230,7 @@ public class PeerTest {
         this.peer = new ApplicationPeer(new ApplicationRibId("t"), new Ipv4Address("127.0.0.1"), this.r);
         this.r.onGlobalContextUpdated(schemaContext);
         final ReadOnlyTransaction readTx = Mockito.mock(ReadOnlyTransaction.class);
+        Mockito.doNothing().when(readTx).close();
         Mockito.doReturn(readTx).when(this.dps).newReadOnlyTransaction();
         final CheckedFuture<Optional<DataObject>, ReadFailedException> readFuture = Mockito.mock(CheckedFuture.class);
         Mockito.doReturn(Optional.<DataObject>absent()).when(readFuture).checkedGet();
