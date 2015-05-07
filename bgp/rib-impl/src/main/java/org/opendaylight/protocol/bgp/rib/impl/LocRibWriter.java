@@ -92,7 +92,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         this.peerPolicyTracker.close();
     }
 
-    private AbstractRouteEntry createEntry(final PathArgument routeId) {
+    private @Nonnull AbstractRouteEntry createEntry(final PathArgument routeId) {
         final AbstractRouteEntry ret = this.ribSupport.isComplexRoute() ? new ComplexRouteEntry() : new SimpleRouteEntry();
 
         this.routeEntries.put(routeId, ret);
