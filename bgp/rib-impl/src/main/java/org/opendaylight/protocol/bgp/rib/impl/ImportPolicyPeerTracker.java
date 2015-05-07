@@ -44,6 +44,6 @@ final class ImportPolicyPeerTracker extends AbstractPeerRoleTracker {
     }
 
     AbstractImportPolicy policyFor(final PeerId peerId) {
-        return policies.get(peerId);
+        return new CachingImportPolicy(policies.get(peerId));
     }
 }
