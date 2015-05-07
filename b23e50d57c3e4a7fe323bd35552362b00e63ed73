@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_8c64254a",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/LinkstateNlriParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-07T07:58:14Z",
+      "side": 1,
+      "message": "do not list values again, use ProtocolId.Unknown.getIntValue()",
+      "revId": "b23e50d57c3e4a7fe323bd35552362b00e63ed73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_2c5b9188",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/PrefixNlriParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-07T07:58:14Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "b23e50d57c3e4a7fe323bd35552362b00e63ed73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_ec54c955",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-07T07:58:14Z",
+      "side": 1,
+      "message": "https://git.opendaylight.org/gerrit/#/c/19091/1/bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+      "revId": "b23e50d57c3e4a7fe323bd35552362b00e63ed73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
