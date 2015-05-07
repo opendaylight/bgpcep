@@ -83,9 +83,6 @@ final class EffectiveRibInWriter implements AutoCloseable {
             case DELETE:
                 // Delete has already been affected by the store in caller, so this is a no-op.
                 break;
-            case MERGE:
-                LOG.info("Merge on {} reported, this should never have happened, ignoring", route);
-                break;
             case UNMODIFIED:
                 // No-op
                 break;
@@ -139,9 +136,6 @@ final class EffectiveRibInWriter implements AutoCloseable {
                 switch (child.getModificationType()) {
                 case DELETE:
                     tx.delete(LogicalDatastoreType.OPERATIONAL, tablePath.node(child.getIdentifier()));
-                    break;
-                case MERGE:
-                    LOG.info("Merge on {} reported, this should never have happened, ignoring", child);
                     break;
                 case UNMODIFIED:
                     // No-op
@@ -213,11 +207,6 @@ final class EffectiveRibInWriter implements AutoCloseable {
                 case DELETE:
                     // delete the corresponding effective table
                     tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath(peerKey, tableKey));
-                    break;
-                case MERGE:
-                    // TODO: upstream API should never give us this, as it leaks how the delta was created.
-                    LOG.info("Merge on {} reported, this should never have happened, but attempting to cope", rootPath);
-                    modifyTable(tx, peerKey, tableKey, root);
                     break;
                 case SUBTREE_MODIFIED:
                     modifyTable(tx, peerKey, tableKey, root);
