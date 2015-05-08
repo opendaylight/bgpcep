@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_5bb7add8",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/PrefixNlriParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-08T08:55:16Z",
+      "side": 1,
+      "message": "zero is not a magic number, so you can leave it as return 0;",
+      "revId": "f6480f0d71f09962af9a65b43f59b63c3a481727",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
