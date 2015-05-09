@@ -21,6 +21,7 @@ import org.opendaylight.bgpcep.pcep.topology.provider.Stateful02TopologySessionL
 /**
  *
  */
+@Deprecated
 public final class Stateful02TopologySessionListenerModule extends
         org.opendaylight.controller.config.yang.pcep.topology.provider.AbstractStateful02TopologySessionListenerModule {
 
