@@ -54,8 +54,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.add.lsp.args.Arguments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.add.lsp.args.ArgumentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.operation.result.Error;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.p2p.rev130819.tunnel.p2p.path.cfg.attributes.ExplicitHops;
@@ -272,25 +274,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
                     } catch (final ReadFailedException e) {
                         throw new IllegalStateException("Failed to ensure link existence.", e);
                     }
-
-                    final ArgumentsBuilder args = new ArgumentsBuilder();
-                    if (input.getBandwidth() != null) {
-                        args.setBandwidth(new BandwidthBuilder().setBandwidth(input.getBandwidth()).build());
-                    }
-                    if (input.getClassType() != null) {
-                        args.setClassType(new ClassTypeBuilder().setClassType(input.getClassType()).build());
-                    }
-                    args.setEndpointsObj(new EndpointsObjBuilder().setAddressFamily(buildAddressFamily(sp, dp)).build());
-                    args.setEro(buildEro(input.getExplicitHops()));
-                    args.setLspa(new LspaBuilder(input).build());
-
-                    final AdministrativeStatus adminStatus = input.getAugmentation(PcepCreateP2pTunnelInput1.class).getAdministrativeStatus();
-                    if (adminStatus != null) {
-                        args.addAugmentation(Arguments2.class, new Arguments2Builder().setLsp(new LspBuilder().setAdministrative((adminStatus == AdministrativeStatus.Active) ? true : false).build()).build());
-                    }
-
-                    ab.setArguments(args.build());
-
+                    ab.setArguments(buildArguments(input, sp, dp));
                     return Futures.transform(
                         (ListenableFuture<RpcResult<AddLspOutput>>) TunnelProgramming.this.topologyService.addLsp(ab.build()),
                         new Function<RpcResult<AddLspOutput>, OperationResult>() {
@@ -302,9 +286,27 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
                 }
             }
         }));
-
         final RpcResult<PcepCreateP2pTunnelOutput> res = SuccessfulRpcResult.create(b.build());
         return Futures.immediateFuture(res);
+    }
+
+    private Arguments buildArguments(final PcepCreateP2pTunnelInput input, final TerminationPoint sp, final TerminationPoint dp) {
+        final ArgumentsBuilder args = new ArgumentsBuilder();
+        if (input.getBandwidth() != null) {
+            args.setBandwidth(new BandwidthBuilder().setBandwidth(input.getBandwidth()).build());
+        }
+        if (input.getClassType() != null) {
+            args.setClassType(new ClassTypeBuilder().setClassType(input.getClassType()).build());
+        }
+        args.setEndpointsObj(new EndpointsObjBuilder().setAddressFamily(buildAddressFamily(sp, dp)).build());
+        args.setEro(buildEro(input.getExplicitHops()));
+        args.setLspa(new LspaBuilder(input).build());
+
+        final AdministrativeStatus adminStatus = input.getAugmentation(PcepCreateP2pTunnelInput1.class).getAdministrativeStatus();
+        if (adminStatus != null) {
+            args.addAugmentation(Arguments2.class, new Arguments2Builder().setLsp(new LspBuilder().setAdministrative((adminStatus == AdministrativeStatus.Active) ? true : false).build()).build());
+        }
+        return args.build();
     }
 
     private Optional<Node> sourceNode(final ReadTransaction t, final InstanceIdentifier<Topology> topology, final Link link) throws ReadFailedException {
@@ -320,26 +322,21 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
             protected ListenableFuture<OperationResult> invokeOperation() {
                 final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(input);
                 final InstanceIdentifier<Link> lii = TunnelProgrammingUtil.linkIdentifier(tii, input);
-
                 try (final ReadOnlyTransaction t = TunnelProgramming.this.dataProvider.newReadOnlyTransaction()) {
                     final Node node;
                     final Link link;
-
                     try {
                         // The link has to exist
                         link = t.read(LogicalDatastoreType.OPERATIONAL, lii).checkedGet().get();
-
                         // The source node has to exist
                         node = sourceNode(t, tii, link).get();
                     } catch (IllegalStateException | ReadFailedException e) {
                         LOG.debug("Link or node does not exist.", e);
                         return RESULT;
                     }
-
                     final RemoveLspInputBuilder ab = new RemoveLspInputBuilder();
                     ab.setName(link.getAugmentation(Link1.class).getSymbolicPathName());
                     ab.setNode(node.getSupportingNode().get(0).getKey().getNodeRef());
-
                     return Futures.transform(
                         (ListenableFuture<RpcResult<RemoveLspOutput>>) TunnelProgramming.this.topologyService.removeLsp(ab.build()),
                         new Function<RpcResult<RemoveLspOutput>, OperationResult>() {
@@ -351,7 +348,6 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
                 }
             }
         }));
-
         final RpcResult<PcepDestroyTunnelOutput> res = SuccessfulRpcResult.create(b.build());
         return Futures.immediateFuture(res);
     }
@@ -362,44 +358,22 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
         b.setResult(AbstractInstructionExecutor.schedule(this.scheduler, new AbstractInstructionExecutor(input) {
             @Override
             protected ListenableFuture<OperationResult> invokeOperation() {
-
                 final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(input);
                 final InstanceIdentifier<Link> lii = TunnelProgrammingUtil.linkIdentifier(tii, input);
-
                 try (final ReadOnlyTransaction t = TunnelProgramming.this.dataProvider.newReadOnlyTransaction()) {
                     final Link link;
                     final Node node;
-
                     try {
                         // The link has to exist
                         link = t.read(LogicalDatastoreType.OPERATIONAL, lii).checkedGet().get();
-
                         // The source node has to exist
                         node = sourceNode(t, tii, link).get();
                     } catch (IllegalStateException | ReadFailedException e) {
                         LOG.debug("Link or node does not exist.", e);
                         return RESULT;
                     }
-
-                    final UpdateLspInputBuilder ab = new UpdateLspInputBuilder();
-                    ab.setName(link.getAugmentation(Link1.class).getSymbolicPathName());
-                    ab.setNode(Preconditions.checkNotNull(supportingNode(node)));
-
-                    final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder args = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder();
-                    args.setBandwidth(new BandwidthBuilder().setBandwidth(input.getBandwidth()).build());
-                    args.setClassType(new ClassTypeBuilder().setClassType(input.getClassType()).build());
-                    args.setEro(buildEro(input.getExplicitHops()));
-                    args.setLspa(new LspaBuilder(input).build());
-
-                    final AdministrativeStatus adminStatus = input.getAugmentation(PcepUpdateTunnelInput1.class).getAdministrativeStatus();
-                    if (adminStatus != null) {
-                        args.addAugmentation(Arguments3.class, new Arguments3Builder().setLsp(new LspBuilder().setAdministrative((adminStatus == AdministrativeStatus.Active) ? true : false).build()).build());
-                    }
-
-                    ab.setArguments(args.build());
-
                     return Futures.transform(
-                        (ListenableFuture<RpcResult<UpdateLspOutput>>) TunnelProgramming.this.topologyService.updateLsp(ab.build()),
+                        (ListenableFuture<RpcResult<UpdateLspOutput>>) TunnelProgramming.this.topologyService.updateLsp(buildUpdateInput(link, node, input)),
                         new Function<RpcResult<UpdateLspOutput>, OperationResult>() {
                             @Override
                             public OperationResult apply(final RpcResult<UpdateLspOutput> input) {
@@ -412,6 +386,25 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 
         final RpcResult<PcepUpdateTunnelOutput> res = SuccessfulRpcResult.create(b.build());
         return Futures.immediateFuture(res);
+    }
+
+    private UpdateLspInput buildUpdateInput(final Link link, final Node node, final PcepUpdateTunnelInput input) {
+        final UpdateLspInputBuilder ab = new UpdateLspInputBuilder();
+        ab.setName(link.getAugmentation(Link1.class).getSymbolicPathName());
+        ab.setNode(Preconditions.checkNotNull(supportingNode(node)));
+
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder args = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder();
+        args.setBandwidth(new BandwidthBuilder().setBandwidth(input.getBandwidth()).build());
+        args.setClassType(new ClassTypeBuilder().setClassType(input.getClassType()).build());
+        args.setEro(buildEro(input.getExplicitHops()));
+        args.setLspa(new LspaBuilder(input).build());
+
+        final AdministrativeStatus adminStatus = input.getAugmentation(PcepUpdateTunnelInput1.class).getAdministrativeStatus();
+        if (adminStatus != null) {
+            args.addAugmentation(Arguments3.class, new Arguments3Builder().setLsp(new LspBuilder().setAdministrative((adminStatus == AdministrativeStatus.Active) ? true : false).build()).build());
+        }
+        ab.setArguments(args.build());
+        return ab.build();
     }
 
     @Override

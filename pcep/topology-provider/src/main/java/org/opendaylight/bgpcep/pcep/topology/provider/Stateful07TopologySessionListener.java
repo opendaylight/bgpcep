@@ -305,7 +305,6 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
         if (f == null) {
             return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
         }
-
         return Futures.transform(f, new AsyncFunction<Optional<ReportedLsp>, OperationResult>() {
             @Override
             public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
@@ -313,23 +312,27 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
                 if (reportedLsp == null) {
                     return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
                 }
-                // Build the request and send it
-                final RequestsBuilder rb = new RequestsBuilder();
-                final SrpBuilder srpBuilder = new SrpBuilder().addAugmentation(Srp1.class, new Srp1Builder().setRemove(Boolean.TRUE).build()).setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE);
-                final Optional<PathSetupType> maybePST = getPST(rep);
-                if (maybePST.isPresent()) {
-                    srpBuilder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder()
-                        .setPathSetupType(maybePST.get())
-                        .build());
-                }
-                rb.setSrp(srpBuilder.build());
-                rb.setLsp(new LspBuilder().setRemove(Boolean.FALSE).setPlspId(reportedLsp.getPlspId()).setDelegate(reportedLsp.isDelegate()).build());
-
                 final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
-                ib.setRequests(Collections.singletonList(rb.build()));
+                final Requests rb = buildRequest(rep, reportedLsp);
+                ib.setRequests(Collections.singletonList(rb));
                 return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), rb.getSrp().getOperationId(), null);
             }
         });
+    }
+
+    private Requests buildRequest(final Optional<ReportedLsp> rep, final Lsp reportedLsp) {
+        // Build the request and send it
+        final RequestsBuilder rb = new RequestsBuilder();
+        final SrpBuilder srpBuilder = new SrpBuilder().addAugmentation(Srp1.class, new Srp1Builder().setRemove(Boolean.TRUE).build()).setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE);
+        final Optional<PathSetupType> maybePST = getPST(rep);
+        if (maybePST.isPresent()) {
+            srpBuilder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder()
+                .setPathSetupType(maybePST.get())
+                .build());
+        }
+        rb.setSrp(srpBuilder.build());
+        rb.setLsp(new LspBuilder().setRemove(Boolean.FALSE).setPlspId(reportedLsp.getPlspId()).setDelegate(reportedLsp.isDelegate()).build());
+        return rb.build();
     }
 
     private class UpdateFunction implements AsyncFunction<Optional<ReportedLsp>, OperationResult>  {
@@ -439,19 +442,17 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
                     return OperationResults.UNSENT;
                 }
                 // check if at least one of the paths has the same status as requested
-                boolean operational = false;
                 for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.Path p : rep.get().getPath()) {
                     final Path1 p1 = p.getAugmentation(Path1.class);
                     if (p1 == null) {
                         LOG.warn("Node {} LSP {} does not contain data", input.getNode(), input.getName());
                         return OperationResults.UNSENT;
                     }
-                    final Lsp l = p1.getLsp();
-                    if (l.getOperational().equals(op)) {
-                        operational = true;
+                    if (op.equals(p1.getLsp().getOperational())) {
+                        return OperationResults.SUCCESS;
                     }
                 }
-                return operational ? OperationResults.SUCCESS : OperationResults.UNSENT;
+                return OperationResults.UNSENT;
             }
         });
     }
