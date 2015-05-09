@@ -62,6 +62,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated
 public class Stateful02TopologySessionListener extends AbstractTopologySessionListener<String, PlspId> {
     private static final Logger LOG = LoggerFactory.getLogger(Stateful02TopologySessionListener.class);
 

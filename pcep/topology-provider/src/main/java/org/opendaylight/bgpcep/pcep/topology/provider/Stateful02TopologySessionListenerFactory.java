@@ -7,6 +7,7 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+@Deprecated
 public class Stateful02TopologySessionListenerFactory implements TopologySessionListenerFactory {
     @Override
     public final TopologySessionListener createTopologySessionListener(final ServerSessionManager manager) {
