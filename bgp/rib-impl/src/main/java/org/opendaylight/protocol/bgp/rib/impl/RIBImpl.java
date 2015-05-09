@@ -84,7 +84,6 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final DOMTransactionChain domChain;
     private final AsNumber localAs;
     private final Ipv4Address bgpIdentifier;
-    private final ClusterIdentifier clusterId;
     private final Set<BgpTableType> localTables;
     private final Set<TablesKey> localTablesKeys;
     private final DataBroker dataBroker;
@@ -102,7 +101,6 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.domChain = domDataBroker.createTransactionChain(this);
         this.localAs = Preconditions.checkNotNull(localAs);
         this.bgpIdentifier = Preconditions.checkNotNull(localBgpId);
-        this.clusterId = (clusterId == null) ? new ClusterIdentifier(localBgpId) : new ClusterIdentifier(clusterId);
         this.dispatcher = Preconditions.checkNotNull(dispatcher);
         this.sessionStrategyFactory = Preconditions.checkNotNull(sessionStrategyFactory);
         this.tcpStrategyFactory = Preconditions.checkNotNull(tcpStrategyFactory);
@@ -138,10 +136,10 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         try {
             trans.submit().checkedGet();
         } catch (final TransactionCommitFailedException e) {
-            LOG.error("Failed to initiate RIB {}", this.yangRibId);
+            LOG.error("Failed to initiate RIB {}", this.yangRibId, e);
         }
-
-        final PolicyDatabase pd  = new PolicyDatabase(localAs.getValue(), localBgpId, this.clusterId);
+        final ClusterIdentifier cId = (clusterId == null) ? new ClusterIdentifier(localBgpId) : new ClusterIdentifier(clusterId);
+        final PolicyDatabase pd  = new PolicyDatabase(localAs.getValue(), localBgpId, cId);
 
         final DOMDataBrokerExtension domDatatreeChangeService = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
         this.service = domDatatreeChangeService;

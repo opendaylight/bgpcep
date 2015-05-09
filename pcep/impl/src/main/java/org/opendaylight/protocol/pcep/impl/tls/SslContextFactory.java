@@ -57,14 +57,11 @@ public class SslContextFactory {
             serverContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
             return serverContext;
         } catch (final IOException e) {
-            LOG.warn("IOException - Failed to load keystore / truststore."
-                    + " Failed to initialize the server-side SSLContext", e);
+            LOG.warn("IOException - Failed to load keystore / truststore. Failed to initialize the server-side SSLContext", e);
         } catch (final NoSuchAlgorithmException e) {
-            LOG.warn("NoSuchAlgorithmException - Unsupported algorithm."
-                    + " Failed to initialize the server-side SSLContext", e);
+            LOG.warn("NoSuchAlgorithmException - Unsupported algorithm. Failed to initialize the server-side SSLContext", e);
         } catch (final CertificateException e) {
-            LOG.warn("CertificateException - Unable to access certificate (check password)."
-                    + " Failed to initialize the server-side SSLContext", e);
+            LOG.warn("CertificateException - Unable to access certificate (check password). Failed to initialize the server-side SSLContext", e);
         } catch (final Exception e) {
             LOG.warn("Exception - Failed to initialize the server-side SSLContext", e);
         }
