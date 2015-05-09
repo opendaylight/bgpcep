@@ -20,6 +20,7 @@ package org.opendaylight.controller.config.yang.pcep.topology.provider;
 /**
 *
 */
+@Deprecated
 public class Stateful02TopologySessionListenerModuleFactory extends
         org.opendaylight.controller.config.yang.pcep.topology.provider.AbstractStateful02TopologySessionListenerModuleFactory {
 
