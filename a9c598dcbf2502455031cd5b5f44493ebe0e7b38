@@ -1,0 +1,214 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_7bf37f9e",
+        "filename": "bgp/parser-api/src/main/java/org/opendaylight/protocol/bgp/parser/AsNumberUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-11T14:08:25Z",
+      "side": 1,
+      "message": "comment above suggests one more check for null: oc.getCParameters() !\u003d null",
+      "revId": "a9c598dcbf2502455031cd5b5f44493ebe0e7b38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_fb36af51",
+        "filename": "bgp/parser-api/src/main/yang/bgp-multiprotocol.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-11T14:08:25Z",
+      "side": 1,
+      "message": "indent this 4 spaces to the right",
+      "revId": "a9c598dcbf2502455031cd5b5f44493ebe0e7b38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_db3bb336",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/BGPActivator.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-11T14:08:25Z",
+      "side": 1,
+      "message": "compare lines 108 and 109 :-)",
+      "revId": "a9c598dcbf2502455031cd5b5f44493ebe0e7b38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_5b9a4315",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/As4CapabilityHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-11T14:08:25Z",
+      "side": 1,
+      "message": "do not rename if it\u0027s not necessary and for sure do not remove \u0027final\u0027 modifier",
+      "revId": "a9c598dcbf2502455031cd5b5f44493ebe0e7b38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_fba0ef44",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/As4CapabilityHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-11T14:08:25Z",
+      "side": 1,
+      "message": "you don\u0027t have to use static call for CODE",
+      "revId": "a9c598dcbf2502455031cd5b5f44493ebe0e7b38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_1ba4bb55",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/GracefulCapabilityHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-11T14:08:25Z",
+      "side": 1,
+      "message": "indentation?",
+      "revId": "a9c598dcbf2502455031cd5b5f44493ebe0e7b38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_3bbe5766",
+        "filename": "bgp/parser-impl/src/test/java/org/opendaylight/protocol/bgp/parser/impl/GracefulCapabilityHandlerTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-11T14:08:25Z",
+      "side": 1,
+      "message": "compare lines 47-48 with 50-51",
+      "revId": "a9c598dcbf2502455031cd5b5f44493ebe0e7b38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_db73b3e5",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleCapabilityRegistry.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-11T14:08:25Z",
+      "side": 1,
+      "message": "this method still counts on \u0027knowing\u0027 what are the augmentations. Replace it with:\nfor (CapabilitySerializer s : this.handlers.getAllSerializers()) {\n  serialize(capability, bytes);\n}",
+      "revId": "a9c598dcbf2502455031cd5b5f44493ebe0e7b38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_9b7d2bb4",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractBGPSessionNegotiator.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-11T14:08:25Z",
+      "side": 1,
+      "message": "remove this file from commit (you\u0027re not changing anything)",
+      "revId": "a9c598dcbf2502455031cd5b5f44493ebe0e7b38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_3b33b715",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-11T14:08:25Z",
+      "side": 1,
+      "message": "put Param.getAugmentation(CParameters1.class)     .getMultiprotocolCapability() to a variable to avoid repetition",
+      "revId": "a9c598dcbf2502455031cd5b5f44493ebe0e7b38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_5b36c304",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionStats.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-11T14:08:25Z",
+      "side": 1,
+      "message": "space",
+      "range": {
+        "startLine": 174,
+        "startChar": 70,
+        "endLine": 174,
+        "endChar": 76
+      },
+      "revId": "a9c598dcbf2502455031cd5b5f44493ebe0e7b38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_1b403b55",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImplTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-11T14:08:25Z",
+      "side": 1,
+      "message": "should be true, we are setting 4AS capability on line 108",
+      "revId": "a9c598dcbf2502455031cd5b5f44493ebe0e7b38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
