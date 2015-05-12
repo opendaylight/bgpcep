@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_5f91c897",
+        "filename": "bgp/controller-config/src/main/resources/initial/41-bgp-example.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-12T15:43:09Z",
+      "side": 1,
+      "message": "can you change this too,please?",
+      "revId": "90d5d0cab8b238d77021e6aaa1515f4867b70ae3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
