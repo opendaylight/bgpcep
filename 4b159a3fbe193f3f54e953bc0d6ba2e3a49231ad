@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_4d2e0545",
+        "filename": "bgp/parser-api/src/main/java/org/opendaylight/protocol/bgp/parser/AsNumberUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-12T14:28:30Z",
+      "side": 1,
+      "message": "space",
+      "range": {
+        "startLine": 34,
+        "startChar": 44,
+        "endLine": 34,
+        "endChar": 50
+      },
+      "revId": "4b159a3fbe193f3f54e953bc0d6ba2e3a49231ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_6dd8a153",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/GracefulCapabilityHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-12T14:28:30Z",
+      "side": 1,
+      "message": "code readability lession: reverse this condition to avoid huge condition body",
+      "revId": "4b159a3fbe193f3f54e953bc0d6ba2e3a49231ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_0ddf9d3c",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/FSMTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-12T14:28:30Z",
+      "side": 1,
+      "message": "remove this file from the commit",
+      "revId": "4b159a3fbe193f3f54e953bc0d6ba2e3a49231ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
