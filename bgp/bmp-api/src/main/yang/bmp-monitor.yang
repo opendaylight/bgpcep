@@ -1,0 +1,70 @@
+module bmp-monitor {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:bmp-monitor";
+    prefix "bmp-mon";
+
+    import bmp-message { prefix bmp-msg; revision-date 2015-05-12; }
+    import bgp-rib { prefix rib; revision-date 2013-09-25; }
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import ietf-yang-types { prefix yang; revision-date 2010-09-24; }
+
+    organization "Cisco Systems, Inc.";
+    contact "Milos Fabian <milfabia@cisco.com>";
+
+    description
+        "This module contains the base data model of a BMP monitor.
+        It rolls up the definitions contained in draft-ietf-grow-bmp-07.
+
+        Copyright (c)2015 Cisco Systems, Inc. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2015-05-12" {
+        description
+            "Initial revision.";
+    }
+
+    grouping rib {
+        uses rib:rib;
+        leaf timestamp {
+            type yang:timestamp;
+        }
+    }
+
+    list router {
+        key "ip-address";
+        uses bmp-msg:initiation;
+        leaf ip-address {
+            type inet:ip-address;
+        }
+        //leaf status {
+            //TODO
+        //}
+        list peer {
+            key "bgp-id";
+            uses bmp-msg:peer;
+            container peer-session {
+                uses bmp-msg:peer-up;
+                //leaf status {
+                    //TODO
+                //}
+            }
+            container stats {
+                uses bmp-msg:stat;
+                leaf timestamp {
+                    type yang:timestamp;
+                }
+            }
+            container adj-rib-in {
+                uses rib;
+            }
+            container loc-rib {
+                uses rib;
+            }
+        }
+    }
+
+}

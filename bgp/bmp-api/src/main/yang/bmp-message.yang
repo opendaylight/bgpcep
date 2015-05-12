@@ -1,0 +1,212 @@
+module bmp-message {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:bmp-message";
+    prefix "bmp-msg";
+
+    import bgp-message { prefix bgp-msg; revision-date 2013-09-19; }
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import ietf-yang-types { prefix yang; revision-date 2010-09-24; }
+
+    organization "Cisco Systems, Inc.";
+    contact "Milos Fabian <milfabia@cisco.com>";
+
+    description
+        "This module contains the base data model of a BMP messages.
+        It rolls up the definitions contained in draft-ietf-grow-bmp-07.
+
+        Copyright (c)2015 Cisco Systems, Inc. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2015-05-12" {
+        description
+            "Initial revision.";
+    }
+
+    //TODO add references and descriptions
+
+    grouping peer {
+        leaf type {
+            type enumeration {
+                enum global {
+                    value 0;
+                    description "Global Instance Peer.";
+                }
+                enum l3vpn {
+                    value 1;
+                    description "L3 VPN Instance Peer.";
+                }
+            }
+            mandatory true;
+        }
+        leaf distinguisher {
+            //TODO RFC4365 section 4.2
+            type string;
+        }
+        leaf address {
+            type inet:ip-address;
+            mandatory true;
+        }
+        leaf as {
+            type inet:as-number;
+            mandatory true;
+        }
+        leaf bgp-id {
+            type inet:ipv4-address;
+            mandatory true;
+        }
+    }
+
+    grouping peer-header {
+        container peer-header {
+            uses peer;
+            leaf timestamp {
+                type yang:timestamp;
+                default 0;
+            }
+            leaf inbound-policy {
+                type enumeration {
+                    enum pre-policy {
+                        value 0;
+                    }
+                    enum post-policy {
+                        value 1;
+                    }
+                }
+            }
+        }
+    }
+
+    grouping stat {
+        leaf rejected-prefixes {
+            type yang:counter32;
+        }
+        leaf duplicate-prefix-advertisements {
+            type yang:counter32;
+        }
+        leaf duplicate-withdraws {
+            type yang:counter32;
+        }
+        leaf invalidated-cluster-list-loop {
+            type yang:counter32;
+        }
+        leaf invalidated-as-path-loop {
+            type yang:counter32;
+        }
+        leaf invalidated-originator-id {
+            type yang:counter32;
+        }
+        leaf invalidated-as-confed-loop {
+            type yang:counter32;
+        }
+        leaf adj-ribs-in-routes {
+            type yang:gauge64;
+        }
+        leaf loc-rib-routes {
+            type yang:gauge64;
+        }
+    }
+
+    grouping peer-up {
+        leaf local-address {
+            type inet:ip-address;
+        }
+        leaf local-port {
+            type inet:port-number;
+        }
+        leaf remote-port {
+            type inet:port-number;
+        }
+        //container sent-open {
+            //TODO
+        //}
+        //container received-open {
+            //TODO
+        //}
+    }
+
+    grouping peer-down {
+        leaf reason {
+            //TODO enumeration?
+            type uint8 {
+                range 1..4;
+            }
+        }
+        //container data {
+            //choice data {
+                //TODO
+            //}
+        //}
+    }
+
+    grouping initiation {
+        leaf description {
+            type string;
+            mandatory true;
+            //RFC1213
+        }
+        leaf name {
+            type string;
+            mandatory true;
+            //RFC1213
+        }
+        leaf-list string-info {
+            type string;
+        }
+    }
+
+    grouping termination {
+        leaf-list string-info {
+            type string;
+        }
+        leaf reason {
+            type enumeration {
+                enum administratively-closed {
+                    value 0;
+                }
+                enum unspecified {
+                    value 1;
+                }
+                enum out-of-resources {
+                    value 2;
+                }
+                enum redundant-connection {
+                    value 3;
+                }
+            }
+            mandatory true;
+        }
+    }
+
+    notification initiation-message {
+        uses initiation;
+    }
+
+    notification termination-message {
+        uses termination;
+    }
+
+    notification route-monitoring-message {
+        uses peer-header;
+        //TODO update message
+    }
+
+    notification stats-reports-message {
+        uses peer-header;
+        uses stat;
+    }
+
+    notification peer-down-notification {
+        uses peer-header;
+        uses peer-down;
+    }
+
+    notification peer-up-notification {
+        uses peer-header;
+        uses peer-up;
+    }
+
+}
