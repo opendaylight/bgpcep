@@ -139,12 +139,12 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
         final List<BgpTableType> tables = ImmutableList.of(
                 (BgpTableType) new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
         final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID), new AsNumber(72L), new Ipv4Address("127.0.0.1"), null, this.ext2, this.dispatcher, this.tcpStrategyFactory, this.codecFactory, this.sessionStrategy, getDataBroker(), getDomBroker(), tables, GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
+        assertTablesExists(tables, true);
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
         final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), rib);
 
         final ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);
         reg.close();
-        assertTablesExists(tables);
     }
 
     @Test
@@ -152,11 +152,11 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
         final List<BgpTableType> tables = ImmutableList.of((BgpTableType) new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
         final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID), new AsNumber(72L), new Ipv4Address("127.0.0.1"), null, this.ext1, this.dispatcher, this.tcpStrategyFactory, this.codecFactory, this.sessionStrategy, getDataBroker(), getDomBroker(), tables, GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         rib.onGlobalContextUpdated(this.schemaService.getGlobalContext());
+        assertTablesExists(tables, true);
         final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), rib);
 
         final ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);
         reg.close();
-        assertTablesExists(tables);
     }
 
     private Collection<byte[]> fixMessages(final Collection<byte[]> bgpMessages) {
@@ -176,7 +176,7 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
         });
     }
 
-    private void assertTablesExists(final List<BgpTableType> expectedTables) throws InterruptedException, ExecutionException {
+    private void assertTablesExists(final List<BgpTableType> expectedTables, final boolean uptodate) throws InterruptedException, ExecutionException {
         final Optional<LocRib> lockRib = getLocRibTable();
         assertTrue(lockRib.isPresent());
         final List<Tables> tables = lockRib.get().getTables();
@@ -186,6 +186,7 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
             for (final Tables table : tables) {
                 if(table.getAfi().equals(tableType.getAfi()) && table.getSafi().equals(tableType.getSafi())) {
                     found = true;
+                    assertTrue(Boolean.valueOf(uptodate).equals(table.getAttributes().isUptodate()));
                 }
             }
             assertTrue(found);
