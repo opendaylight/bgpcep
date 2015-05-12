@@ -74,7 +74,7 @@
                     <name>example-bgp-peer</name>
                     <host>192.0.2.1</host>
                     <holdtimer>180</holdtimer>
-                    <peer-role>Ibgp</peer-role>
+                    <peer-role>ibgp</peer-role>
                     <rib>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg">prefix:rib</type>
                         <name>example-bgp-rib</name>
