@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_f3a00b45",
+        "filename": "bgp/linkstate/src/test/java/org/opendaylight/protocol/bgp/linkstate/ParserTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 642,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-13T07:43:53Z",
+      "side": 1,
+      "message": "- first \u0027 !\u003d null \u0027.. correct\n- second \u0027 !\u003dnull \u0027 ... partially correct \n- third \u0027!\u003dnull\u0027 ... all wrong :-)",
+      "revId": "773d859e12c690e8ecfb76950fc5cb167f048f5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_93f8a74a",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleCapabilityRegistry.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-13T07:43:53Z",
+      "side": 1,
+      "message": "Do we really need now this private method?",
+      "revId": "773d859e12c690e8ecfb76950fc5cb167f048f5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_339753ee",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractBGPSessionNegotiator.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-13T07:43:53Z",
+      "side": 1,
+      "message": "remove this file from the commit",
+      "revId": "773d859e12c690e8ecfb76950fc5cb167f048f5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
