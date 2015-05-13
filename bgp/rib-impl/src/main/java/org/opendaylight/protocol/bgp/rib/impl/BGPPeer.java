@@ -97,6 +97,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
     @Override
     public synchronized void close() {
         dropConnection();
+        this.chain.close();
         // TODO should this perform cleanup ?
     }
 
@@ -195,7 +196,6 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
     private synchronized void cleanup() {
         // FIXME: BUG-196: support graceful restart
         this.ribWriter.cleanTables(this.tables);
-        this.chain.close();
         this.tables.clear();
     }
 
@@ -298,6 +298,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
     public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
         LOG.error("Transaction chain failed.", cause);
         this.dropConnection();
+        this.chain.close();
         this.chain = this.rib.createPeerChain(this);
     }
 
