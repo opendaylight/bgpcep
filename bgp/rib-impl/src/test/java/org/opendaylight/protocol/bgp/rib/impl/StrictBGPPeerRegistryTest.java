@@ -14,7 +14,6 @@ import static org.junit.Assert.fail;
 
 import java.net.InetSocketAddress;
 import java.util.Collections;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -26,7 +25,7 @@ import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 
 public class StrictBGPPeerRegistryTest {
 

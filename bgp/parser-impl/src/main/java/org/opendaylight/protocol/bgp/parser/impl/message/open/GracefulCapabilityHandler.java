@@ -8,12 +8,12 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
@@ -21,8 +21,8 @@ import org.opendaylight.protocol.bgp.parser.spi.CapabilityParser;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityUtil;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.optional.capabilities.CParametersBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.GracefulRestartCapability;

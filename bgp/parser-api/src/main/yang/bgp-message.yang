@@ -51,6 +51,10 @@ module bgp-message {
     }
 
     notification open {
+        uses open-message;
+    }
+
+    grouping open-message {
         description "Open Message";
         reference "http://tools.ietf.org/html/rfc4271#section-4.2";
         leaf version {
@@ -164,6 +168,10 @@ module bgp-message {
     }
 
     notification update {
+        uses update-message;
+    }
+
+    grouping update-message {
         description "Update Message";
         reference "http://tools.ietf.org/html/rfc4271#section-4.3";
         uses path-attributes;
@@ -185,6 +193,10 @@ module bgp-message {
     }
 
     notification notify {
+        uses notify-message;
+    }
+
+    grouping notify-message {
         description "Notification Message";
         reference "http://tools.ietf.org/html/rfc4271#section-4.5";
 
