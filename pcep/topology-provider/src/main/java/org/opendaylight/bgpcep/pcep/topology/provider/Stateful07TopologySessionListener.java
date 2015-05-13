@@ -204,8 +204,13 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
             String name = lookupLspName(plspid);
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.Tlvs tlvs = report.getLsp().getTlvs();
             if (tlvs != null) {
-                if (tlvs.getLspIdentifiers() != null) {
-                    pb.setLspId(tlvs.getLspIdentifiers().getLspId());
+                if (isRsvpSignaledLsp(report)) {
+                    if (tlvs.getLspIdentifiers() != null) {
+                        pb.setLspId(tlvs.getLspIdentifiers().getLspId());
+                    }
+                }
+                if (isSegmentRoutedLsp(report)) {
+                    pb.setLspId(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId(plspid.getValue()));
                 }
                 if (tlvs.getSymbolicPathName() != null) {
                     name = Charsets.UTF_8.decode(ByteBuffer.wrap(tlvs.getSymbolicPathName().getPathName().getValue())).toString();
@@ -216,6 +221,18 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
             LOG.debug("LSP {} updated", lsp);
         }
         return false;
+    }
+
+    private boolean isRsvpSignaledLsp(Reports report) {
+        /* FF: 0=RSVP, 1=SR, if missing defaults to RSVP */
+        if (report.getSrp() == null || report.getSrp().getTlvs() == null || report.getSrp().getTlvs().getPathSetupType() == null) {
+            return true;
+        }
+        return report.getSrp().getTlvs().getPathSetupType().getPst() == 0 ? true : false;
+    }
+
+    private boolean isSegmentRoutedLsp(Reports report) {
+        return !isRsvpSignaledLsp(report);
     }
 
     private SrpIdNumber nextRequest() {
