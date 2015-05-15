@@ -1,0 +1,372 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a9dcd25_8f7ea5e3",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bgp/bmp/impl/message/message/InitiationHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-15T11:02:35Z",
+      "side": 1,
+      "message": "Rather create an enum for types.",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 46
+      },
+      "revId": "1c54aa2bc5baecf864f87bf178e6fb92f9a9325d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_cf1cadc4",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bgp/bmp/impl/message/message/InitiationHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-15T11:02:35Z",
+      "side": 1,
+      "message": "This can be moved to abstract class, we do not have to write same lines in each extension.",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 110
+      },
+      "revId": "1c54aa2bc5baecf864f87bf178e6fb92f9a9325d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_2f5af183",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bgp/bmp/impl/message/message/PeerDownHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-15T11:02:35Z",
+      "side": 1,
+      "message": "I believe the message should contain per-peer header. I know, it is not explicitly said in the draft.",
+      "range": {
+        "startLine": 32,
+        "startChar": 37,
+        "endLine": 32,
+        "endChar": 61
+      },
+      "revId": "1c54aa2bc5baecf864f87bf178e6fb92f9a9325d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_8f654547",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bgp/bmp/impl/message/message/PeerDownHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-15T11:02:35Z",
+      "side": 1,
+      "message": "rather use enum",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 42
+      },
+      "revId": "1c54aa2bc5baecf864f87bf178e6fb92f9a9325d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_2f83d1cd",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bgp/bmp/impl/message/message/PeerDownHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-15T11:02:35Z",
+      "side": 1,
+      "message": "Throw IllegalStateException - if message is malformed, connection should be closed. The exception will be catch in upper layer.",
+      "range": {
+        "startLine": 113,
+        "startChar": 65,
+        "endLine": 113,
+        "endChar": 67
+      },
+      "revId": "1c54aa2bc5baecf864f87bf178e6fb92f9a9325d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_6f60f935",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bgp/bmp/impl/message/message/PeerDownHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-15T11:02:35Z",
+      "side": 1,
+      "message": "move this line to the try block above. Check if the \"temp\" is not null before calling this.",
+      "range": {
+        "startLine": 116,
+        "startChar": 8,
+        "endLine": 116,
+        "endChar": 40
+      },
+      "revId": "1c54aa2bc5baecf864f87bf178e6fb92f9a9325d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_8fcc6537",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bgp/bmp/impl/message/message/PeerUpHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-15T11:02:35Z",
+      "side": 1,
+      "message": "Check Ipv4Util and Ipv6Util",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 43
+      },
+      "revId": "1c54aa2bc5baecf864f87bf178e6fb92f9a9325d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_efdac9e8",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bgp/bmp/impl/message/message/PeerUpHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-15T11:02:35Z",
+      "side": 1,
+      "message": "check ByteBufWriterUtil for writing Ipv4 and Ipv6 addresses",
+      "range": {
+        "startLine": 52,
+        "startChar": 20,
+        "endLine": 52,
+        "endChar": 31
+      },
+      "revId": "1c54aa2bc5baecf864f87bf178e6fb92f9a9325d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_4fd65dc7",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bgp/bmp/impl/message/message/PeerUpHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-15T11:02:35Z",
+      "side": 1,
+      "message": "port has 2 bytes length",
+      "range": {
+        "startLine": 56,
+        "startChar": 15,
+        "endLine": 56,
+        "endChar": 24
+      },
+      "revId": "1c54aa2bc5baecf864f87bf178e6fb92f9a9325d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_afe4c1ac",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bgp/bmp/impl/message/message/PeerUpHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-15T11:02:35Z",
+      "side": 1,
+      "message": "check Ipv4Util and Ipv6Util for reading ip addresses",
+      "range": {
+        "startLine": 72,
+        "startChar": 76,
+        "endLine": 72,
+        "endChar": 84
+      },
+      "revId": "1c54aa2bc5baecf864f87bf178e6fb92f9a9325d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_2fe8b17b",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bgp/bmp/impl/message/message/PeerUpHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-15T11:02:35Z",
+      "side": 1,
+      "message": "2 bytes long",
+      "range": {
+        "startLine": 77,
+        "startChar": 42,
+        "endLine": 77,
+        "endChar": 58
+      },
+      "revId": "1c54aa2bc5baecf864f87bf178e6fb92f9a9325d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_cfe10d9c",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bgp/bmp/impl/message/message/PeerUpHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-15T11:02:35Z",
+      "side": 1,
+      "message": "throw illegal state exception",
+      "range": {
+        "startLine": 87,
+        "startChar": 65,
+        "endLine": 87,
+        "endChar": 67
+      },
+      "revId": "1c54aa2bc5baecf864f87bf178e6fb92f9a9325d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_6f9559e3",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bgp/bmp/impl/message/message/RouteMonitoringMessageHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-15T11:02:35Z",
+      "side": 1,
+      "message": "move to try-block above, check updateMessage not null",
+      "range": {
+        "startLine": 59,
+        "startChar": 37,
+        "endLine": 59,
+        "endChar": 39
+      },
+      "revId": "1c54aa2bc5baecf864f87bf178e6fb92f9a9325d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_ef8889c8",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bgp/bmp/impl/message/message/StatisticsReportHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-15T11:02:35Z",
+      "side": 1,
+      "message": "enum",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 55
+      },
+      "revId": "1c54aa2bc5baecf864f87bf178e6fb92f9a9325d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_6fbc796d",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bgp/bmp/impl/message/message/StatisticsReportHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-15T11:02:35Z",
+      "side": 1,
+      "message": "move null check into utility method, the util function may return boolean or 1/0 to know if formatting was successful.",
+      "range": {
+        "startLine": 62,
+        "startChar": 20,
+        "endLine": 62,
+        "endChar": 38
+      },
+      "revId": "1c54aa2bc5baecf864f87bf178e6fb92f9a9325d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_2fb6718b",
+        "filename": "bgp/bmp-spi/src/main/java/org/opendaylight/protocol/bmp/spi/parser/TlvUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-15T11:02:35Z",
+      "side": 1,
+      "message": "Check ByteBufWriterUtil for writing values.",
+      "range": {
+        "startLine": 33,
+        "startChar": 26,
+        "endLine": 33,
+        "endChar": 28
+      },
+      "revId": "1c54aa2bc5baecf864f87bf178e6fb92f9a9325d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
