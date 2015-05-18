@@ -1,0 +1,41 @@
+/*
+ * Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
+package org.opendaylight.protocol.bmp.impl;
+
+import com.google.common.base.Preconditions;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.MessageToByteEncoder;
+
+import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
+import org.opendaylight.yangtools.yang.binding.Notification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class BmpMessageToByteEncoder extends MessageToByteEncoder<Notification> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BmpMessageToByteEncoder.class);
+
+    private final BmpMessageRegistry registry;
+
+    public BmpMessageToByteEncoder(final BmpMessageRegistry registry) {
+        this.registry = Preconditions.checkNotNull(registry);
+    }
+
+    @Override
+    protected void encode(final ChannelHandlerContext ctx, final Notification message, final ByteBuf out) throws Exception {
+        LOG.trace("Encoding message: {}", message);
+        this.registry.serializeMessage(message, out);
+        LOG.trace("Encoded message: {}", ByteBufUtil.hexDump(out));
+        LOG.debug("Message sent to output: {}", message);
+    }
+
+}
