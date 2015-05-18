@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a9dcd25_0e25aec1",
+        "filename": "bgp/bmp-spi/src/main/java/org/opendaylight/protocol/bmp/spi/parser/AbstractBmpMessageParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-18T20:06:21Z",
+      "side": 1,
+      "message": "store parsed message in local variable and log the message before returning",
+      "revId": "9b03c0c0e6bd3167dc782f27e746bd0d1f3f9281",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
