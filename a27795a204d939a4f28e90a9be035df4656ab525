@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a9dcd25_f31cebc3",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AttributeOperations.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-05-18T14:53:18Z",
+      "side": 1,
+      "message": "child.getIdentifier() instanceof AugmentationIdentifier",
+      "revId": "a27795a204d939a4f28e90a9be035df4656ab525",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
