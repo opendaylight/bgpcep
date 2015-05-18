@@ -33,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequence;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.QNameModule;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.AugmentationIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeWithValue;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
@@ -245,6 +246,16 @@ final class AttributeOperations {
     }
 
     private boolean isTransitiveAttribute(final DataContainerChild<? extends PathArgument, ?> child) {
+        if (child.getIdentifier() instanceof AugmentationIdentifier) {
+            final AugmentationIdentifier ai = (AugmentationIdentifier) child.getIdentifier();
+            for (final QName name : ai.getPossibleChildNames()) {
+                LOG.trace("Augmented QNAME {}", name);
+                if (TRANSITIVES.contains(name)) {
+                    return true;
+                }
+            }
+            return false;
+        }
         if (TRANSITIVES.contains(child.getNodeType())) {
             return true;
         }
