@@ -16,6 +16,29 @@
       "revId": "7e705c87b5117fb13de88030f905fe49198cebcb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_c1c1d4e5",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/message/PeerDownHandler.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-19T20:51:38Z",
+      "side": 1,
+      "message": "null check first to avoid NPE, check all switches",
+      "range": {
+        "startLine": 90,
+        "startChar": 8,
+        "endLine": 90,
+        "endChar": 58
+      },
+      "revId": "7e705c87b5117fb13de88030f905fe49198cebcb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
