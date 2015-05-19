@@ -36,11 +36,36 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-parser-spi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-rib-spi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>util</artifactId>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.tcpmd5</groupId>
+            <artifactId>tcpmd5-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.tcpmd5</groupId>
+            <artifactId>tcpmd5-netty</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-binding-config</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>protocol-framework</artifactId>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -64,16 +89,8 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <groupId>org.opendaylight.yangtools</groupId>
+                <artifactId>yang-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
