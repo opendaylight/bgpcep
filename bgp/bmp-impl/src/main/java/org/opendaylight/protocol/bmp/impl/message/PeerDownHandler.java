@@ -15,13 +15,9 @@ import static org.opendaylight.protocol.bmp.impl.message.PeerDownHandler.Reason.
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-import io.netty.buffer.Unpooled;
-
 import java.util.Map;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
@@ -59,7 +55,7 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser {
         if (peerDown.isLocalSystemClosed()) {
             if (peerDown.getData() instanceof FsmEventCode) {
                 ByteBufWriteUtil.writeUnsignedByte(REASON_TWO.getValue(), buffer);
-                buffer.writeBytes(Unpooled.buffer().writeByte(((FsmEventCode) peerDown.getData()).getFsmEventCode()));
+                ByteBufWriteUtil.writeShort(((FsmEventCode) peerDown.getData()).getFsmEventCode().shortValue(), buffer);
             } else if (peerDown.getData() instanceof
                 org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.data.Notification) {
                 ByteBufWriteUtil.writeUnsignedByte(REASON_ONE.getValue(), buffer);
@@ -86,7 +82,7 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser {
 
     @Override
     public Notification parseMessageBody(final ByteBuf bytes) throws BMPDeserializationException {
-        final PeerDownNotificationBuilder peerDown = new PeerDownNotificationBuilder().setPeerHeader(parsePerPeerHeader(bytes));
+        final PeerDownNotificationBuilder peerDown = new PeerDownNotificationBuilder();
         switch (Reason.forValue(bytes.readUnsignedByte())) {
         case REASON_ONE:
             peerDown.setLocalSystemClosed(true);
