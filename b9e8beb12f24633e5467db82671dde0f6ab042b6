@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a9dcd25_b6172751",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-05-20T16:47:20Z",
+      "side": 1,
+      "message": "do not perform root.getModifiedChild() twice -- do it once and then check the result",
+      "revId": "b9e8beb12f24633e5467db82671dde0f6ab042b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_560ca342",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-05-20T16:47:20Z",
+      "side": 1,
+      "message": "can this ever be null?",
+      "revId": "b9e8beb12f24633e5467db82671dde0f6ab042b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
