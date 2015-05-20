@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a9dcd25_563a63ce",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/message/PeerDownHandler.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 830
+      },
+      "writtenOn": "2015-05-20T13:44:56Z",
+      "side": 1,
+      "message": "problably it should be NotifyMessage, please add chceck before cast",
+      "revId": "bd6e045736b5e2100ea0b34a6bcead815a4bdd99",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
