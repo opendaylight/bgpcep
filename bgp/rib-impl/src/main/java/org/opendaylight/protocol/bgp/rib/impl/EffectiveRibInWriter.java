@@ -56,6 +56,8 @@ import org.slf4j.LoggerFactory;
 final class EffectiveRibInWriter implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(EffectiveRibInWriter.class);
     private static final NodeIdentifier TABLE_ROUTES = new NodeIdentifier(Routes.QNAME);
+    private static final NodeIdentifier ADJRIBIN_NID = new NodeIdentifier(AdjRibIn.QNAME);
+    private static final NodeIdentifier TABLES_NID = new NodeIdentifier(Tables.QNAME);
 
     /**
      * Maintains {@link TableRouteListener} instances.
@@ -71,7 +73,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
             this.chain = Preconditions.checkNotNull(chain);
             this.ribId = Preconditions.checkNotNull(ribId);
 
-            final YangInstanceIdentifier tableId = ribId.node(Peer.QNAME).node(Peer.QNAME).node(AdjRibIn.QNAME).node(Tables.QNAME).node(Tables.QNAME);
+            final YangInstanceIdentifier tableId = ribId.node(Peer.QNAME).node(Peer.QNAME);
             final DOMDataTreeIdentifier treeId = new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, tableId);
             LOG.debug("Registered Effective RIB on {}", tableId);
             this.reg = service.registerDataTreeChangeListener(treeId, this);
@@ -195,34 +197,55 @@ final class EffectiveRibInWriter implements AutoCloseable {
 
                 // Obtain the peer's key
                 final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(rootPath);
-
-                // Extract the table key, this should be safe based on the path where we subscribed,
-                // but let's verify explicitly.
-                final PathArgument lastArg = rootPath.getLastPathArgument();
-                Verify.verify(lastArg instanceof NodeIdentifierWithPredicates, "Unexpected type %s in path %s", lastArg.getClass(), rootPath);
-                final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) lastArg;
-
                 final DataTreeCandidateNode root = tc.getRootNode();
-                switch (root.getModificationType()) {
-                case DELETE:
-                    // delete the corresponding effective table
-                    tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath(peerKey, tableKey));
-                    break;
-                case SUBTREE_MODIFIED:
-                    modifyTable(tx, peerKey, tableKey, root);
-                    break;
-                case UNMODIFIED:
-                    LOG.info("Ignoring spurious notification on {} data {}", rootPath, root);
-                    break;
-                case WRITE:
-                    writeTable(tx, peerKey, tableKey, root);
-                    break;
-                default:
-                    LOG.warn("Ignoring unhandled root {}", root);
-                    break;
+
+                // call out peer-role has changed
+                final DataTreeCandidateNode roleChange =  root.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
+                if (roleChange != null) {
+                    EffectiveRibInWriter.this.peerPolicyTracker.onDataTreeChanged(roleChange, IdentifierUtils.peerPath(rootPath));
+                }
+
+                // filter out any change outside AdjRibsIn
+                final DataTreeCandidateNode ribIn =  root.getModifiedChild(ADJRIBIN_NID);
+                if (ribIn == null) {
+                    LOG.debug("Skipping change {}", tc.getRootNode());
+                    continue;
+                }
+                final DataTreeCandidateNode tables = ribIn.getModifiedChild(TABLES_NID);
+                if (tables == null) {
+                    LOG.debug("Skipping change {}", tc.getRootNode());
+                    continue;
+                }
+                for (final DataTreeCandidateNode table : tables.getChildNodes()) {
+                    final PathArgument lastArg = table.getIdentifier();
+                    Verify.verify(lastArg instanceof NodeIdentifierWithPredicates, "Unexpected type %s in path %s", lastArg.getClass(), rootPath);
+                    final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) lastArg;
+
+                    switch (root.getModificationType()) {
+                    case DELETE:
+                        // delete the corresponding effective table
+                        tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath(peerKey, tableKey));
+                        break;
+                    case MERGE:
+                        // TODO: upstream API should never give us this, as it leaks how the delta was created.
+                        LOG.info("Merge on {} reported, this should never have happened, but attempting to cope", rootPath);
+                        modifyTable(tx, peerKey, tableKey, table);
+                        break;
+                    case SUBTREE_MODIFIED:
+                        modifyTable(tx, peerKey, tableKey, table);
+                        break;
+                    case UNMODIFIED:
+                        LOG.info("Ignoring spurious notification on {} data {}", rootPath, table);
+                        break;
+                    case WRITE:
+                        writeTable(tx, peerKey, tableKey, table);
+                        break;
+                    default:
+                        LOG.warn("Ignoring unhandled root {}", root);
+                        break;
+                    }
                 }
             }
-
             tx.submit();
         }
 
@@ -243,13 +266,12 @@ final class EffectiveRibInWriter implements AutoCloseable {
 
     private EffectiveRibInWriter(final DOMDataTreeChangeService service, final DOMTransactionChain chain, final YangInstanceIdentifier ribId,
         final PolicyDatabase pd, final RIBSupportContextRegistry registry) {
-        this.peerPolicyTracker = new ImportPolicyPeerTracker(service, ribId, pd);
+        this.peerPolicyTracker = new ImportPolicyPeerTracker(pd);
         this.adjInTracker = new AdjInTracker(service, registry, chain, ribId);
     }
 
     @Override
     public void close() {
         this.adjInTracker.close();
-        this.peerPolicyTracker.close();
     }
 }
