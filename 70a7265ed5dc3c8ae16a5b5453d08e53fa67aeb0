@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a9dcd25_d65e73e9",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractPeerRoleTracker.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-05-20T14:22:19Z",
+      "side": 1,
+      "message": "new NodeIdentifier(QName)",
+      "revId": "70a7265ed5dc3c8ae16a5b5453d08e53fa67aeb0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_f6636faf",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-05-20T14:22:19Z",
+      "side": 1,
+      "message": "pre-instantiate a NodeIdentifier constant for these, please.\n\nalso you are performing the same lookup twice",
+      "revId": "70a7265ed5dc3c8ae16a5b5453d08e53fa67aeb0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
