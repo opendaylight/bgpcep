@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a9dcd25_b6cf27b0",
+        "filename": "bgp/bmp-api/src/main/java/org/opendaylight/protocol/bmp/api/BmpSession.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-20T14:06:32Z",
+      "side": 1,
+      "message": "add sendMessage and getRemoteAddress",
+      "revId": "ecb12f9a5dd1b98cf47434bf7271fd6180d27036",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_5696e395",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/BmpDispatcherImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-20T14:06:32Z",
+      "side": 1,
+      "message": "create reconnecting client, not server",
+      "range": {
+        "startLine": 86,
+        "startChar": 40,
+        "endLine": 86,
+        "endChar": 52
+      },
+      "revId": "ecb12f9a5dd1b98cf47434bf7271fd6180d27036",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_d6e9931b",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/BmpSessionImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-20T14:06:32Z",
+      "side": 1,
+      "message": "what happens when session is not initiated and other than initiation message is received?",
+      "revId": "ecb12f9a5dd1b98cf47434bf7271fd6180d27036",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_f6ee0f22",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/BmpSessionImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-20T14:06:32Z",
+      "side": 1,
+      "message": "do not send termination message to the listener",
+      "range": {
+        "startLine": 37,
+        "startChar": 42,
+        "endLine": 37,
+        "endChar": 45
+      },
+      "revId": "ecb12f9a5dd1b98cf47434bf7271fd6180d27036",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_16e7fb41",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/BmpSessionImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-20T14:06:32Z",
+      "side": 1,
+      "message": "send termination message to router",
+      "revId": "ecb12f9a5dd1b98cf47434bf7271fd6180d27036",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
