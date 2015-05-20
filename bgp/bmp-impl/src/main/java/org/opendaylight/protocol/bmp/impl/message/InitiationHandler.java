@@ -14,13 +14,10 @@ import static org.opendaylight.protocol.bmp.impl.message.InitiationHandler.TlvTy
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
-
 import io.netty.buffer.ByteBuf;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.opendaylight.protocol.bmp.parser.BMPDeserializationException;
 import org.opendaylight.protocol.bmp.spi.parser.AbstractBmpMessageParser;
 import org.opendaylight.protocol.bmp.spi.parser.TlvUtil;

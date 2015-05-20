@@ -15,20 +15,17 @@ import static org.opendaylight.protocol.bmp.impl.message.PeerDownHandler.Reason.
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-
 import java.util.Map;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bmp.parser.BMPDeserializationException;
 import org.opendaylight.protocol.bmp.spi.parser.AbstractBmpPerPeerMessageParser;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.NotifyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.NotifyMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerDownNotification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerDownNotificationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.Data;
@@ -86,7 +83,8 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser {
 
     @Override
     public Notification parseMessageBody(final ByteBuf bytes) throws BMPDeserializationException {
-        final PeerDownNotificationBuilder peerDown = new PeerDownNotificationBuilder().setPeerHeader(parsePerPeerHeader(bytes));
+        final PeerDownNotificationBuilder peerDown = new PeerDownNotificationBuilder()
+            .setPeerHeader(parsePerPeerHeader(bytes));
         switch (Reason.forValue(bytes.readUnsignedByte())) {
         case REASON_ONE:
             peerDown.setLocalSystemClosed(true);
@@ -120,7 +118,8 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.data.notification.NotificationBuilder notificationBuilder
             = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.data.notification.NotificationBuilder();
         try {
-            final Notify notify = (Notify) this.getBmpMessageRegistry().parseMessage(bytes);
+            // org.opendaylight.yangtools.yang.binding.Notification
+            final NotifyMessage notify = (NotifyMessage) this.getBmpMessageRegistry().parseMessage(bytes);
             Preconditions.checkNotNull(notify, "Notify message may not be null.");
             notificationBuilder.fieldsFrom(notify);
             notificationCBuilder.setNotification(notificationBuilder.build());

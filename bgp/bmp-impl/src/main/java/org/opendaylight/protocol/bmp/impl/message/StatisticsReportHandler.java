@@ -21,14 +21,11 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.LONG_BYTES_LENGTH;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
-
 import java.math.BigInteger;
 import java.util.Map;
-
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bmp.parser.BMPDeserializationException;
 import org.opendaylight.protocol.bmp.spi.parser.AbstractBmpPerPeerMessageParser;
