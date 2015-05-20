@@ -73,7 +73,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         this.registry = registry;
         this.ribSupport = this.registry.getRIBSupportContext(tablesKey).getRibSupport();
         this.attributesIdentifier = this.ribSupport.routeAttributesIdentifier();
-        this.peerPolicyTracker = new ExportPolicyPeerTracker(service, target, pd);
+        this.peerPolicyTracker = new ExportPolicyPeerTracker(pd);
 
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         tx.merge(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(Routes.QNAME), this.ribSupport.emptyRoutes());
@@ -90,7 +90,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
 
     @Override
     public void close() {
-        this.peerPolicyTracker.close();
+        this.chain.close();
     }
 
     private AbstractRouteEntry createEntry(final PathArgument routeId) {
