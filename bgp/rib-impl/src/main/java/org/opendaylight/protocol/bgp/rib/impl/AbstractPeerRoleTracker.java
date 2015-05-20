@@ -8,22 +8,17 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Optional;
-import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.BindingMapping;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,54 +26,29 @@ import org.slf4j.LoggerFactory;
  * Maintains the mapping of PeerId -> Role. Subclasses get notified of changes and can do their
  * own thing.
  */
-abstract class AbstractPeerRoleTracker implements AutoCloseable {
+abstract class AbstractPeerRoleTracker {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPeerRoleTracker.class);
 
-    /**
-     * We are subscribed to our target leaf, but that is a wildcard:
-     *     /bgp-rib/rib/peer/peer-role
-     *
-     * MD-SAL assumption: we are getting one {@link DataTreeCandidate} for each expanded
-     *                    wildcard path, so are searching for a particular key.
-     */
-    private final class PeerRoleListener implements DOMDataTreeChangeListener {
+    public void onDataTreeChanged(final DataTreeCandidateNode change, final YangInstanceIdentifier peerPath) {
+        LOG.debug("Data Changed for Peer role {} path {}", change, peerPath);
 
-        @Override
-        public void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
-            LOG.debug("Data Changed for Peer role {}", changes);
-            for (final DataTreeCandidate tc : changes) {
-                // Obtain the peer's path
-                final YangInstanceIdentifier peerPath = IdentifierUtils.peerPath(tc.getRootPath());
-
-                // Check for removal
-                final Optional<NormalizedNode<?, ?>> maybePeerRole = tc.getRootNode().getDataAfter();
-                final PeerRole role;
-                if (maybePeerRole.isPresent()) {
-                    final LeafNode<?> peerRoleLeaf = (LeafNode<?>) maybePeerRole.get();
-                    // We could go for a coded, but his is simpler and faster
-                    role = PeerRole.valueOf(BindingMapping.getClassName((String) peerRoleLeaf.getValue()));
-                } else {
-                    role = null;
-                }
-
-                peerRoleChanged(peerPath, role);
-            }
+        // Check for removal
+        final Optional<NormalizedNode<?, ?>> maybePeerRole = change.getDataAfter();
+        final PeerRole role;
+        if (maybePeerRole.isPresent()) {
+            final LeafNode<?> peerRoleLeaf = (LeafNode<?>) maybePeerRole.get();
+            // We could go for a codec, but this is simpler and faster
+            role = PeerRole.valueOf(BindingMapping.getClassName((String) peerRoleLeaf.getValue()));
+        } else {
+            role = null;
         }
+        peerRoleChanged(peerPath, role);
     }
 
-    private static final QName PEER_ROLE = QName.cachedReference(QName.create(Peer.QNAME, "peer-role"));
-    private final ListenerRegistration<?> registration;
+    static final PathArgument PEER_ROLE = YangInstanceIdentifier.of(QName.cachedReference(QName.create(Peer.QNAME, "peer-role"))).getLastPathArgument();
 
-    protected AbstractPeerRoleTracker(@Nonnull final DOMDataTreeChangeService service, @Nonnull final YangInstanceIdentifier ribId) {
-        // Slightly evil, but our users should be fine with this
-        final YangInstanceIdentifier roleId = ribId.node(Peer.QNAME).node(Peer.QNAME).node(PEER_ROLE);
-        this.registration = service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, roleId), new PeerRoleListener());
-    }
-
-    @Override
-    public void close() {
-        this.registration.close();
+    protected AbstractPeerRoleTracker() {
     }
 
     /**
