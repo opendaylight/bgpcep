@@ -9,10 +9,10 @@
 package org.opendaylight.protocol.bmp.spi.registry;
 
 import com.google.common.base.Preconditions;
-import com.sun.istack.internal.NotNull;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 
 import org.slf4j.Logger;
@@ -36,7 +36,7 @@ public abstract class AbstractBMPExtensionProviderActivator implements AutoClose
     }
 
     @Override
-    public final synchronized void start(@NotNull final BmpExtensionProviderContext context) {
+    public final synchronized void start(@Nonnull final BmpExtensionProviderContext context) {
         Preconditions.checkState(this.registrations == null);
         this.registrations = Preconditions.checkNotNull(startImpl(context));
     }
