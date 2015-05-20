@@ -5,6 +5,7 @@ module odl-bmp-impl-cfg {
     prefix "bmp-impl";
 
     import config { prefix config; revision-date 2013-04-05; }
+    import bmp-monitor { prefix bmp-mon; revision-date 2015-05-12; }
     import odl-bmp-spi-cfg { prefix spi; revision-date 2015-05-13; }
     import odl-bgp-rib-spi-cfg { prefix ribspi; revision-date 2013-11-15; }
     import odl-bgp-parser-spi-cfg { prefix bgp-spi; revision-date 2013-11-15; }
@@ -120,6 +121,123 @@ module odl-bmp-impl-cfg {
                     }
                 }
             }
+        }
+    }
+
+    identity bmp-monitor {
+        description
+            "Service representing a BMP monitoring service.";
+
+        base "config:service-type";
+        config:java-class "org.opendaylight.protocol.bmp.impl.spi.BmpMonitor";
+    }
+
+    identity bmp-monitor-impl {
+        base config:module-type;
+        config:provided-service bmp-dispatcher;
+        config:java-name-prefix BmpMonitorImpl;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case bmp-monitor-impl {
+            when "/config:modules/config:module/config:type = 'bmp-monitor-impl'";
+
+            container extensions {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity ribspi:consumer-extensions;
+                    }
+                }
+            }
+
+            container bmp-dispatcher {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity bmp-dispatcher;
+                    }
+                }
+            }
+
+            container session-reconnect-strategy {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity pf:reconnect-strategy-factory;
+                    }
+                }
+            }
+
+            container tcp-reconnect-strategy {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity pf:reconnect-strategy-factory;
+                    }
+                }
+            }
+
+            container codec-tree-factory {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity mdsb:binding-codec-tree-factory;
+                    }
+                }
+            }
+
+            container dom-data-provider {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity sal:dom-async-data-broker;
+                    }
+                }
+            }
+
+            leaf monitor-id {
+                type bmp-mon:monitor-id;
+                mandatory true;
+            }
+
+            container server {
+                leaf listen-address {
+                    type inet:ip-address;
+                    default "0.0.0.0";
+                }
+
+                leaf listen-port {
+                    type inet:port-number;
+                    mandatory true;
+                }
+
+                list router {
+
+                    key "router-address";
+
+                    leaf router-address {
+                        type inet:ip-address;
+                        mandatory true;
+                    }
+
+                    leaf router-port {
+                        type inet:port-number;
+                        mandatory true;
+                    }
+
+                    leaf password {
+                        type tcpmd5-cfg:rfc2385-key;
+                        description "RFC2385 shared secret";
+                    }
+
+                    leaf active {
+                        type boolean;
+                        deafault true;
+                    }
+                }
+            }
+
         }
     }
 }
