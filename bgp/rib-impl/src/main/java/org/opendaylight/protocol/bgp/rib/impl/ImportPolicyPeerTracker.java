@@ -10,21 +10,24 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.base.Preconditions;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tracks import policy corresponding to a particular peer.
  */
 final class ImportPolicyPeerTracker extends AbstractPeerRoleTracker {
+    private static final Logger LOG = LoggerFactory.getLogger(ImportPolicyPeerTracker.class);
+
     private final Map<PeerId, AbstractImportPolicy> policies = new ConcurrentHashMap<>();
     private final PolicyDatabase policyDatabase;
 
-    protected ImportPolicyPeerTracker(final DOMDataTreeChangeService service, final YangInstanceIdentifier ribId, final PolicyDatabase policyDatabase) {
-        super(service, ribId);
+    protected ImportPolicyPeerTracker(final PolicyDatabase policyDatabase) {
+        super();
         this.policyDatabase = Preconditions.checkNotNull(policyDatabase);
     }
 
@@ -34,16 +37,18 @@ final class ImportPolicyPeerTracker extends AbstractPeerRoleTracker {
 
         if (role != null) {
             // Lookup policy based on role
-            final AbstractImportPolicy policy = policyDatabase.importPolicyForRole(role);
+            final AbstractImportPolicy policy = this.policyDatabase.importPolicyForRole(role);
 
             // Update lookup map
-            policies.put(peer, policy);
+            this.policies.put(peer, policy);
+            LOG.debug("Updating policy {} for peer {}", policy, peer);
         } else {
-            policies.remove(peer);
+            this.policies.remove(peer);
         }
     }
 
     AbstractImportPolicy policyFor(final PeerId peerId) {
-        return new CachingImportPolicy(policies.get(peerId));
+        LOG.trace("Peer ID : {}", peerId);
+        return new CachingImportPolicy(this.policies.get(peerId));
     }
 }
