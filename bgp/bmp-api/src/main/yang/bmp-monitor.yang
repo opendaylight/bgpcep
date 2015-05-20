@@ -27,38 +27,73 @@ module bmp-monitor {
             "Initial revision.";
     }
 
+    typedef router-id {
+        type inet:uri;
+    }
+
+    typedef monitor-id {
+        type inet:uri;
+    }
+
     grouping rib {
         uses rib:rib;
         uses bmp-msg:timestamp;
     }
 
-    list router {
-        key "ip-address";
-        uses bmp-msg:initiation;
-        leaf ip-address {
-            type inet:ip-address;
-        }
-        //leaf status {
-            //TODO
-        //}
+    grouping peers {
         list peer {
-            key "bgp-id";
+            key "peer-id";
+            leaf peer-id {
+                type rib:peer-id;
+            }
             uses bmp-msg:peer;
             container peer-session {
                 uses bmp-msg:peer-up;
-                //leaf status {
-                    //TODO
-                //}
+                leaf status {
+                    type enumeration {
+                        enum up;
+                        enum down;
+                    }
+                }
             }
             container stats {
                 uses bmp-msg:stat;
                 uses bmp-msg:timestamp;
             }
             container adj-rib-in {
+                leaf synchronized {
+                    type boolean;
+                }
                 uses rib;
             }
             container loc-rib {
+                leaf synchronized {
+                    type boolean;
+                }
                 uses rib;
+            }
+        }
+    }
+
+    grouping routers {
+        list router {
+            key "router-id";
+            uses bmp-msg:initiation;
+            leaf router-id {
+                type router-id;
+            }
+            leaf ip-address {
+                type inet:ip-address;
+            }
+            uses peers;
+        }
+    }
+
+    container bmp-monitor {
+        list monitor {
+            key "monitor-id";
+            leaf monitor-id {
+                type monitor-id;
             }
         }
     }
