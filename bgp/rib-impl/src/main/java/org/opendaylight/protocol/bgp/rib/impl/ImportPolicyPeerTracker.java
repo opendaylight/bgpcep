@@ -15,11 +15,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tracks import policy corresponding to a particular peer.
  */
 final class ImportPolicyPeerTracker extends AbstractPeerRoleTracker {
+    private static final Logger LOG = LoggerFactory.getLogger(ImportPolicyPeerTracker.class);
+
     private final Map<PeerId, AbstractImportPolicy> policies = new ConcurrentHashMap<>();
     private final PolicyDatabase policyDatabase;
 
@@ -34,16 +38,18 @@ final class ImportPolicyPeerTracker extends AbstractPeerRoleTracker {
 
         if (role != null) {
             // Lookup policy based on role
-            final AbstractImportPolicy policy = policyDatabase.importPolicyForRole(role);
+            final AbstractImportPolicy policy = this.policyDatabase.importPolicyForRole(role);
 
             // Update lookup map
-            policies.put(peer, policy);
+            this.policies.put(peer, policy);
+            LOG.debug("Updating policy {} for peer {}", policy, peer);
         } else {
-            policies.remove(peer);
+            this.policies.remove(peer);
         }
     }
 
     AbstractImportPolicy policyFor(final PeerId peerId) {
-        return new CachingImportPolicy(policies.get(peerId));
+        LOG.trace("Peer ID : {}", peerId);
+        return new CachingImportPolicy(this.policies.get(peerId));
     }
 }
