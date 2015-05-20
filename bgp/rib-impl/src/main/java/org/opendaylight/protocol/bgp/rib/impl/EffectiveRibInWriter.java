@@ -71,7 +71,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
             this.chain = Preconditions.checkNotNull(chain);
             this.ribId = Preconditions.checkNotNull(ribId);
 
-            final YangInstanceIdentifier tableId = ribId.node(Peer.QNAME).node(Peer.QNAME).node(AdjRibIn.QNAME).node(Tables.QNAME).node(Tables.QNAME);
+            final YangInstanceIdentifier tableId = ribId.node(Peer.QNAME).node(Peer.QNAME);
             final DOMDataTreeIdentifier treeId = new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, tableId);
             LOG.debug("Registered Effective RIB on {}", tableId);
             this.reg = service.registerDataTreeChangeListener(treeId, this);
@@ -201,39 +201,52 @@ final class EffectiveRibInWriter implements AutoCloseable {
 
                 // Obtain the peer's key
                 final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(rootPath);
-
-                // Extract the table key, this should be safe based on the path where we subscribed,
-                // but let's verify explicitly.
-                final PathArgument lastArg = rootPath.getLastPathArgument();
-                Verify.verify(lastArg instanceof NodeIdentifierWithPredicates, "Unexpected type %s in path %s", lastArg.getClass(), rootPath);
-                final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) lastArg;
-
                 final DataTreeCandidateNode root = tc.getRootNode();
-                switch (root.getModificationType()) {
-                case DELETE:
-                    // delete the corresponding effective table
-                    tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath(peerKey, tableKey));
-                    break;
-                case MERGE:
-                    // TODO: upstream API should never give us this, as it leaks how the delta was created.
-                    LOG.info("Merge on {} reported, this should never have happened, but attempting to cope", rootPath);
-                    modifyTable(tx, peerKey, tableKey, root);
-                    break;
-                case SUBTREE_MODIFIED:
-                    modifyTable(tx, peerKey, tableKey, root);
-                    break;
-                case UNMODIFIED:
-                    LOG.info("Ignoring spurious notification on {} data {}", rootPath, root);
-                    break;
-                case WRITE:
-                    writeTable(tx, peerKey, tableKey, root);
-                    break;
-                default:
-                    LOG.warn("Ignoring unhandled root {}", root);
-                    break;
+
+                // filter out peer-role changes (peer-role is a leaf)
+                if (root.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE) != null) {
+                    EffectiveRibInWriter.this.peerPolicyTracker.onDataTreeChanged(root.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE), IdentifierUtils.peerPath(rootPath));
+                    continue;
+                }
+                // filter out any change outside AdjRibsIn
+                LOG.debug("Id {}", root.getModifiedChild(YangInstanceIdentifier.of(AdjRibIn.QNAME).getLastPathArgument()).getIdentifier());
+                if (root.getModifiedChild(YangInstanceIdentifier.of(AdjRibIn.QNAME).getLastPathArgument()) == null) {
+                    LOG.debug("Skipping change {}", NormalizedNodes.toStringTree(tc.getRootNode().getDataAfter().get()));
+                    continue;
+                }
+                final DataTreeCandidateNode ribIn =  root.getModifiedChild(YangInstanceIdentifier.of(AdjRibIn.QNAME).getLastPathArgument());
+                final DataTreeCandidateNode tables = ribIn.getModifiedChild(YangInstanceIdentifier.of(Tables.QNAME).getLastPathArgument());
+
+                for (final DataTreeCandidateNode table : tables.getChildNodes()) {
+                    final PathArgument lastArg = table.getIdentifier();
+                    Verify.verify(lastArg instanceof NodeIdentifierWithPredicates, "Unexpected type %s in path %s", lastArg.getClass(), rootPath);
+                    final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) lastArg;
+
+                    switch (table.getModificationType()) {
+                    case DELETE:
+                        // delete the corresponding effective table
+                        tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath(peerKey, tableKey));
+                        break;
+                    case MERGE:
+                        // TODO: upstream API should never give us this, as it leaks how the delta was created.
+                        LOG.info("Merge on {} reported, this should never have happened, but attempting to cope", rootPath);
+                        modifyTable(tx, peerKey, tableKey, table);
+                        break;
+                    case SUBTREE_MODIFIED:
+                        modifyTable(tx, peerKey, tableKey, table);
+                        break;
+                    case UNMODIFIED:
+                        LOG.info("Ignoring spurious notification on {} data {}", rootPath, table);
+                        break;
+                    case WRITE:
+                        writeTable(tx, peerKey, tableKey, table);
+                        break;
+                    default:
+                        LOG.warn("Ignoring unhandled root {}", root);
+                        break;
+                    }
                 }
             }
-
             tx.submit();
         }
 
@@ -254,13 +267,12 @@ final class EffectiveRibInWriter implements AutoCloseable {
 
     private EffectiveRibInWriter(final DOMDataTreeChangeService service, final DOMTransactionChain chain, final YangInstanceIdentifier ribId,
         final PolicyDatabase pd, final RIBSupportContextRegistry registry) {
-        this.peerPolicyTracker = new ImportPolicyPeerTracker(service, ribId, pd);
+        this.peerPolicyTracker = new ImportPolicyPeerTracker(pd);
         this.adjInTracker = new AdjInTracker(service, registry, chain, ribId);
     }
 
     @Override
     public void close() {
         this.adjInTracker.close();
-        this.peerPolicyTracker.close();
     }
 }
