@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a9dcd25_6537a3e4",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/GracefulCapabilityHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-21T13:43:53Z",
+      "side": 1,
+      "message": "Whitelines should be also fixed with the formatter.",
+      "revId": "71aa433a0bf6cd2be63a7891b52453ca94da42bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_a55ccb26",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/GracefulCapabilityHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-21T13:43:53Z",
+      "side": 1,
+      "message": "order import should be fixed with the formatter",
+      "revId": "71aa433a0bf6cd2be63a7891b52453ca94da42bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_85574f02",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/GracefulCapabilityHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-21T13:43:53Z",
+      "side": 1,
+      "message": "rename this -serializeTables maybe?",
+      "revId": "71aa433a0bf6cd2be63a7891b52453ca94da42bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_e552d312",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/GracefulCapabilityHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-21T13:43:53Z",
+      "side": 1,
+      "message": "Reverse this condition, the aim is to have the condition body as small as possible.",
+      "revId": "71aa433a0bf6cd2be63a7891b52453ca94da42bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
