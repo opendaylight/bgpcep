@@ -66,15 +66,18 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
         this.afiReg = Preconditions.checkNotNull(afiReg);
         this.safiReg = Preconditions.checkNotNull(safiReg);
     }
-
-    @Override
-    public void serializeCapability(final CParameters capability, final ByteBuf byteAggregator) {
-        if (capability.getAugmentation(CParameters1.class) == null
-            || capability.getAugmentation(CParameters1.class).getGracefulRestartCapability() == null ) {
-            return;
-        }
-        final GracefulRestartCapability grace = capability.getAugmentation(CParameters1.class).getGracefulRestartCapability();
-        final List<Tables> tables = grace.getTables();
+    
+    /**
+     * time check
+     * @param time
+     * @return if time is in valid range 
+     */
+    private boolean isInRange(int time) {
+    	return (time >= 0 && time <= MAX_RESTART_TIME);
+    }
+    
+    private ByteBuf serializeCapabilityIntoBytes(GracefulRestartCapability grace) {
+    	final List<Tables> tables = grace.getTables();
         final int tablesSize = (tables != null) ? tables.size() : 0;
         final ByteBuf bytes = Unpooled.buffer(HEADER_SIZE + (PER_AFI_SAFI_SIZE * tablesSize));
 
@@ -83,7 +86,7 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
         if ( time == null ) {
             time = 0;
         }
-        Preconditions.checkArgument(time >= 0 && time <= MAX_RESTART_TIME, "Restart time is " + time);
+        Preconditions.checkArgument(isInRange(time), "Restart time is " + time);
         timeval = time;
         final GracefulRestartCapability.RestartFlags flags = grace.getRestartFlags();
         if ( flags != null && flags.isRestartState() ) {
@@ -111,6 +114,17 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
                 }
             }
         }
+        return bytes;
+    }
+    
+    @Override
+    public void serializeCapability(final CParameters capability, final ByteBuf byteAggregator) {
+        if (capability.getAugmentation(CParameters1.class) == null
+            || capability.getAugmentation(CParameters1.class).getGracefulRestartCapability() == null ) {
+            return;
+        }
+        final GracefulRestartCapability grace = capability.getAugmentation(CParameters1.class).getGracefulRestartCapability();
+        final ByteBuf bytes = serializeCapabilityIntoBytes(grace);
         CapabilityUtil.formatCapability(CODE, bytes, byteAggregator);
     }
 
