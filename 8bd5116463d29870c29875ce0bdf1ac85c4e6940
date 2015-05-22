@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a9dcd25_6248f45b",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/GracefulCapabilityHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-22T12:14:25Z",
+      "side": 1,
+      "message": "no need for this return, the method will simply finish here",
+      "revId": "8bd5116463d29870c29875ce0bdf1ac85c4e6940",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_227aec88",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/GracefulCapabilityHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-22T12:14:25Z",
+      "side": 1,
+      "message": "try to find an option in eclipse formatter (or save action) that won\u0027t change the indentation of existing code",
+      "revId": "8bd5116463d29870c29875ce0bdf1ac85c4e6940",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
