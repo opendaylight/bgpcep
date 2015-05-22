@@ -66,9 +66,9 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
         this.safiReg = Preconditions.checkNotNull(safiReg);
     }
 
-    private void serializeTables(final List<Tables> tables, final ByteBuf bytes) {
+    private ByteBuf serializeTables(final List<Tables> tables, final ByteBuf bytes) {
         if (tables != null) {
-            return;
+            return bytes;
         }
         for (final Tables t : tables) {
             final Class<? extends AddressFamily> afi = t.getAfi();
@@ -85,6 +85,7 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
                 bytes.writeZero(1);
             }
         }
+        return bytes;
     }
 
     private ByteBuf serializeCapability(final GracefulRestartCapability grace) {
