@@ -16,23 +16,85 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.util.concurrent.SettableFuture;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
+import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
+import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.model.api.Module;
+import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  */
 public final class RIBImplModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
 
+    private static final Logger LOG = LoggerFactory.getLogger(RIBImplModule.class);
+
+    private class SchemaChecker implements SchemaContextListener {
+
+        private final Set<QName> routes = new HashSet<>();
+        private final SettableFuture<java.lang.AutoCloseable> future;
+
+        SchemaChecker(final List<BgpTableType> localTableDependency, final RIBExtensionConsumerContext extensionsDependency) {
+            Preconditions.checkNotNull(extensionsDependency);
+            Preconditions.checkNotNull(localTableDependency);
+            this.routes.add(QName.cachedReference(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-multiprotocol", "2013-09-19", "mp")));
+            this.routes.add(QName.cachedReference(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-message", "2013-09-19", "msg")));
+            for (final BgpTableType type : localTableDependency) {
+                final RIBSupport r = extensionsDependency.getRIBSupport(new TablesKey(type.getAfi(), type.getSafi()));
+                this.routes.add(r.routeAttributesIdentifier().getNodeType());
+            }
+            this.future = SettableFuture.create();
+        }
+
+        @Override
+        public synchronized void onGlobalContextUpdated(final SchemaContext context) {
+            LOG.trace("Global context updated to {}", context);
+            if (this.future.isDone()) {
+                LOG.trace("Future already set, skipping.");
+                return;
+            }
+            for (final QName name : this.routes) {
+                final Module module = context.findModuleByNamespaceAndRevision(name.getNamespace(), name.getRevision());
+                LOG.trace("Trying to find module for QNAME {}. Found {}.", name, module);
+                if (module == null) {
+                    // it takes only one module to let the schema checker wait
+                    return;
+                }
+            }
+            // we have all the modules, go ahead with RIB initialization
+            LOG.trace("Setting future.");
+            this.future.set(createRibInstance());
+        }
+
+        public Future<java.lang.AutoCloseable> getFuture() {
+            return this.future;
+        }
+    }
+
     private static final String IS_NOT_SET = "is not set.";
     private BundleContext bundleContext;
+    private SchemaChecker checker;
 
     public RIBImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier name,
             final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -56,31 +118,43 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
         JmxAttributeValidationException.checkNotNull(getLocalTable(), IS_NOT_SET, localTableJmxAttribute);
     }
 
-    @Override
-    public java.lang.AutoCloseable createInstance() {
-        RIBImpl rib = new RIBImpl(getRibId(), new AsNumber(getLocalAs()), getBgpRibId(), getClusterId(), getExtensionsDependency(),
+    public java.lang.AutoCloseable createRibInstance() {
+        final RIBImpl rib = new RIBImpl(getRibId(), new AsNumber(getLocalAs()), getBgpRibId(), getClusterId(), getExtensionsDependency(),
             getBgpDispatcherDependency(), getTcpReconnectStrategyDependency(), getCodecTreeFactoryDependency(), getSessionReconnectStrategyDependency(),
             getDataProviderDependency(), getDomDataProviderDependency(), getLocalTableDependency(), classLoadingStrategy());
         registerSchemaContextListener(rib);
         return rib;
     }
 
+    @Override
+    public java.lang.AutoCloseable createInstance() {
+        this.checker = new SchemaChecker(getLocalTableDependency(), getExtensionsDependency());
+        LOG.trace("Created schema checker {}", this.checker);
+        registerSchemaContextListener(this.checker);
+        try {
+            return this.checker.getFuture().get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Exception occurred while trying to load RIBImpl schemas.", e);
+            throw Throwables.propagate(e);
+        }
+    }
+
     private GeneratedClassLoadingStrategy classLoadingStrategy() {
         return getExtensionsDependency().getClassLoadingStrategy();
     }
 
-    private void registerSchemaContextListener(RIBImpl rib) {
-        DOMDataBroker domBroker = getDomDataProviderDependency();
+    private void registerSchemaContextListener(final SchemaContextListener listener) {
+        final DOMDataBroker domBroker = getDomDataProviderDependency();
         if(domBroker instanceof SchemaService) {
-            ((SchemaService) domBroker).registerSchemaContextListener(rib);
+            ((SchemaService) domBroker).registerSchemaContextListener(listener);
         } else {
             // FIXME:Get bundle context and register global schema service from bundle
             // context.
-            bundleContext.registerService(SchemaContextListener.class, rib, new Hashtable<String,String>());
+            this.bundleContext.registerService(SchemaContextListener.class, listener, new Hashtable<String,String>());
         }
     }
 
-    public void setBundleContext(BundleContext bundleContext) {
+    public void setBundleContext(final BundleContext bundleContext) {
         this.bundleContext = bundleContext;
     }
 }
