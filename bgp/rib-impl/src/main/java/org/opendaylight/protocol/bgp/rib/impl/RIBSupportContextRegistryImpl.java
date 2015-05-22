@@ -22,9 +22,12 @@ import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadi
 import org.opendaylight.yangtools.sal.binding.generator.util.BindingRuntimeContext;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
 
+    private static final Logger LOG = LoggerFactory.getLogger(RIBSupportContextRegistryImpl.class);
     private final LoadingCache<RIBSupport, RIBSupportContextImpl> contexts = CacheBuilder.newBuilder()
             .build(new CacheLoader<RIBSupport, RIBSupportContextImpl>(){
 
@@ -83,8 +86,11 @@ final class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
         final BindingRuntimeContext runtimeContext = BindingRuntimeContext.create(this.classContext, context);
         this.latestCodecTree  = this.codecFactory.create(runtimeContext);
         for(final RIBSupportContextImpl rib : this.contexts.asMap().values()) {
-            rib.onCodecTreeUpdated(this.latestCodecTree);
+            try {
+                rib.onCodecTreeUpdated(this.latestCodecTree);
+            } catch (final Exception e) {
+                LOG.error("Codec creation threw {}", e.getMessage(), e);
+            }
         }
     }
-
 }
