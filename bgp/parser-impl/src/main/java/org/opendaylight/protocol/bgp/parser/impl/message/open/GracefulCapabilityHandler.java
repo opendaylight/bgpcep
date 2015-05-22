@@ -91,7 +91,7 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
     private ByteBuf serializeCapability(final GracefulRestartCapability grace) {
         final List<Tables> tables = grace.getTables();
         final int tablesSize = (tables != null) ? tables.size() : 0;
-        final ByteBuf bytes = Unpooled.buffer(HEADER_SIZE + (PER_AFI_SAFI_SIZE * tablesSize));
+        ByteBuf bytes = Unpooled.buffer(HEADER_SIZE + (PER_AFI_SAFI_SIZE * tablesSize));
         int timeval = 0;
         Integer time = grace.getRestartTime();
         if (time == null) {
@@ -105,7 +105,7 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
         } else {
             writeUnsignedShort(timeval, bytes);
         }
-        serializeTables(tables, bytes);
+        bytes = serializeTables(tables, bytes);
         return bytes;
     }
 
