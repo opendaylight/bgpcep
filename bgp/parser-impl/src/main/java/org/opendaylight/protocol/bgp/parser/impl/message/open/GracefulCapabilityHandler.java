@@ -8,12 +8,11 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
@@ -35,8 +34,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
 
 public final class GracefulCapabilityHandler implements CapabilityParser, CapabilitySerializer {
     public static final int CODE = 64;
@@ -69,53 +66,52 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
         this.safiReg = Preconditions.checkNotNull(safiReg);
     }
 
-    private void serializeCapability(final List<Tables> tables, final ByteBuf bytes) {
-    	if ( tables != null ) {
-            for (final Tables t : tables) {
-                final Class<? extends AddressFamily> afi = t.getAfi();
-                final Integer afival = this.afiReg.numberForClass(afi);
-                Preconditions.checkArgument(afival != null, "Unhandled address family " + afi);
-                bytes.writeShort(afival);
-
-                final Class<? extends SubsequentAddressFamily> safi = t.getSafi();
-                final Integer safival = this.safiReg.numberForClass(safi);
-                Preconditions.checkArgument(safival != null, "Unhandled subsequent address family " + safi);
-                bytes.writeByte(safival);
-
-                if ( t.getAfiFlags() != null && t.getAfiFlags().isForwardingState() ) {
-                    bytes.writeByte(AFI_FLAG_FORWARDING_STATE);
-                } else {
-                    bytes.writeZero(1);
-                }
+    private void serializeTables(final List<Tables> tables, final ByteBuf bytes) {
+        if (tables != null) {
+            return;
+        }
+        for (final Tables t : tables) {
+            final Class<? extends AddressFamily> afi = t.getAfi();
+            final Integer afival = this.afiReg.numberForClass(afi);
+            Preconditions.checkArgument(afival != null, "Unhandled address family " + afi);
+            bytes.writeShort(afival);
+            final Class<? extends SubsequentAddressFamily> safi = t.getSafi();
+            final Integer safival = this.safiReg.numberForClass(safi);
+            Preconditions.checkArgument(safival != null, "Unhandled subsequent address family " + safi);
+            bytes.writeByte(safival);
+            if (t.getAfiFlags() != null && t.getAfiFlags().isForwardingState()) {
+                bytes.writeByte(AFI_FLAG_FORWARDING_STATE);
+            } else {
+                bytes.writeZero(1);
             }
         }
-	}
+    }
+
     private ByteBuf serializeCapability(final GracefulRestartCapability grace) {
-    	final List<Tables> tables = grace.getTables();
+        final List<Tables> tables = grace.getTables();
         final int tablesSize = (tables != null) ? tables.size() : 0;
         final ByteBuf bytes = Unpooled.buffer(HEADER_SIZE + (PER_AFI_SAFI_SIZE * tablesSize));
-
         int timeval = 0;
         Integer time = grace.getRestartTime();
-        if ( time == null ) {
+        if (time == null) {
             time = 0;
         }
         Preconditions.checkArgument(time >= 0 && time <= MAX_RESTART_TIME, "Restart time is " + time);
         timeval = time;
         final GracefulRestartCapability.RestartFlags flags = grace.getRestartFlags();
-        if ( flags != null && flags.isRestartState() ) {
+        if (flags != null && flags.isRestartState()) {
             writeUnsignedShort(RESTART_FLAG_STATE | timeval, bytes);
         } else {
             writeUnsignedShort(timeval, bytes);
         }
-        serializeCapability(tables, bytes);
+        serializeTables(tables, bytes);
         return bytes;
     }
 
     @Override
     public void serializeCapability(final CParameters capability, final ByteBuf byteAggregator) {
         if (capability.getAugmentation(CParameters1.class) == null
-            || capability.getAugmentation(CParameters1.class).getGracefulRestartCapability() == null ) {
+            || capability.getAugmentation(CParameters1.class).getGracefulRestartCapability() == null) {
             return;
         }
         final GracefulRestartCapability grace = capability.getAugmentation(CParameters1.class).getGracefulRestartCapability();
@@ -130,7 +126,8 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
         final int flagBits = (buffer.getByte(0) >> RESTART_FLAGS_SIZE);
         cb.setRestartFlags(new RestartFlags((flagBits & Byte.SIZE) != 0));
 
-        final int timer = ((buffer.readUnsignedByte() & TIMER_TOPBITS_MASK) << RESTART_FLAGS_SIZE) + buffer.readUnsignedByte();
+        final int timer = ((buffer.readUnsignedByte() & TIMER_TOPBITS_MASK) << RESTART_FLAGS_SIZE)
+            + buffer.readUnsignedByte();
         cb.setRestartTime(timer);
 
         final List<Tables> tables = new ArrayList<>();
@@ -150,10 +147,11 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
                 continue;
             }
             final int flags = buffer.readUnsignedByte();
-            tables.add(new TablesBuilder().setAfi(afi).setSafi(safi).setAfiFlags(new AfiFlags((flags & AFI_FLAG_FORWARDING_STATE) != 0)).build());
+            tables.add(new TablesBuilder().setAfi(afi).setSafi(safi).setAfiFlags(
+                new AfiFlags((flags & AFI_FLAG_FORWARDING_STATE) != 0)).build());
         }
         cb.setTables(tables);
-        return new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder()
-            .setGracefulRestartCapability(cb.build()).build()).build();
+        return new CParametersBuilder().addAugmentation(CParameters1.class,
+            new CParameters1Builder().setGracefulRestartCapability(cb.build()).build()).build();
     }
 }
