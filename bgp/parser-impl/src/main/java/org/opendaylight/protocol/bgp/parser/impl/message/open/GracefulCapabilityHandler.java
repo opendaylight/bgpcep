@@ -66,9 +66,9 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
         this.safiReg = Preconditions.checkNotNull(safiReg);
     }
 
-    private ByteBuf serializeTables(final List<Tables> tables, final ByteBuf bytes) {
-        if (tables != null) {
-            return bytes;
+    private void serializeTables(final List<Tables> tables, final ByteBuf bytes) {
+        if (tables == null) {
+            return;
         }
         for (final Tables t : tables) {
             final Class<? extends AddressFamily> afi = t.getAfi();
@@ -85,13 +85,13 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
                 bytes.writeZero(1);
             }
         }
-        return bytes;
+        return;
     }
 
     private ByteBuf serializeCapability(final GracefulRestartCapability grace) {
         final List<Tables> tables = grace.getTables();
         final int tablesSize = (tables != null) ? tables.size() : 0;
-        ByteBuf bytes = Unpooled.buffer(HEADER_SIZE + (PER_AFI_SAFI_SIZE * tablesSize));
+        final ByteBuf bytes = Unpooled.buffer(HEADER_SIZE + (PER_AFI_SAFI_SIZE * tablesSize));
         int timeval = 0;
         Integer time = grace.getRestartTime();
         if (time == null) {
@@ -105,7 +105,7 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
         } else {
             writeUnsignedShort(timeval, bytes);
         }
-        bytes = serializeTables(tables, bytes);
+        serializeTables(tables, bytes);
         return bytes;
     }
 
@@ -116,7 +116,9 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
             return;
         }
         final GracefulRestartCapability grace = capability.getAugmentation(CParameters1.class).getGracefulRestartCapability();
+
         final ByteBuf bytes = serializeCapability(grace);
+
         CapabilityUtil.formatCapability(CODE, bytes, byteAggregator);
     }
 
