@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a9dcd25_f32b742e",
+        "filename": "bgp/bmp-api/src/main/java/org/opendaylight/protocol/bmp/api/BmpTerminationReason.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-25T09:24:37Z",
+      "side": 1,
+      "message": "TODO implementation",
+      "revId": "756be0e66dddf4bc4f443d89029af0b384ff8987",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_9320f04a",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/BmpRibInWriter.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-05-25T09:24:37Z",
+      "side": 1,
+      "message": "move writer and related classes to a separate commit",
+      "revId": "756be0e66dddf4bc4f443d89029af0b384ff8987",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
