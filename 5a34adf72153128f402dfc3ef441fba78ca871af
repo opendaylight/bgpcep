@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a9dcd25_f325b4ab",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-25T07:49:13Z",
+      "side": 1,
+      "message": "Preferable way is to name methods that return boolean with \u0027is..\u0027 -\u003e isDataTreeChanged.",
+      "revId": "5a34adf72153128f402dfc3ef441fba78ca871af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_933a30cc",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-25T07:49:13Z",
+      "side": 1,
+      "message": "I\u0027d leave this condition in original method. Also the for cycle. This method can handle one item in the for cycle: for (table:table.getChildNodes()) { isDataTreeChanged }",
+      "revId": "5a34adf72153128f402dfc3ef441fba78ca871af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_b3372ce3",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-25T07:49:13Z",
+      "side": 1,
+      "message": "can toUpdate and tx be ever null?",
+      "revId": "5a34adf72153128f402dfc3ef441fba78ca871af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
