@@ -116,6 +116,113 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
          * calculations when multiple peers have changed a particular entry.
          */
         final Map<RouteUpdateKey, AbstractRouteEntry> toUpdate = new HashMap<>();
+        update(tx, changes, toUpdate);
+        /*for (final DataTreeCandidate tc : changes) {
+            final YangInstanceIdentifier path = tc.getRootPath();
+            final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(path);
+            final PeerId peerId = IdentifierUtils.peerId(peerKey);
+            final UnsignedInteger routerId = RouterIds.routerIdForPeerId(peerId);
+            for (final DataTreeCandidateNode child : tc.getRootNode().getChildNodes()) {
+                if ((Attributes.QNAME).equals(child.getIdentifier().getNodeType())) {
+                    // putting uptodate attribute in
+                    LOG.trace("Uptodate found for {}", child.getDataAfter());
+                    tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(child.getIdentifier()), child.getDataAfter().get());
+                    continue;
+                }
+                for (final DataTreeCandidateNode route : this.ribSupport.changedRoutes(child)) {
+                    final PathArgument routeId = route.getIdentifier();
+                    AbstractRouteEntry entry = this.routeEntries.get(routeId);
+
+                    final Optional<NormalizedNode<?, ?>> maybeData = route.getDataAfter();
+                    if (maybeData.isPresent()) {
+                        if (entry == null) {
+                            entry = createEntry(routeId);
+                        }
+
+                        entry.addRoute(routerId, this.attributesIdentifier, maybeData.get());
+                    } else if (entry != null && entry.removeRoute(routerId)) {
+                        this.routeEntries.remove(routeId);
+                        entry = null;
+                        LOG.trace("Removed route from {}", routerId);
+                    }
+                    LOG.debug("Updated route {} entry {}", routeId, entry);
+                    toUpdate.put(new RouteUpdateKey(peerId, routeId), entry);
+                }
+            }
+        }*/
+
+        walkThrough(tx, toUpdate);
+        // Now walk all updated entries
+        /*for (final Entry<RouteUpdateKey, AbstractRouteEntry> e : toUpdate.entrySet()) {
+            LOG.trace("Walking through {}", e);
+            final AbstractRouteEntry entry = e.getValue();
+            final RouteUpdateKey key = e.getKey();
+            final NormalizedNode<?, ?> value;
+
+            if (entry != null) {
+                if (!entry.selectBest(this.ourAs)) {
+                    // Best path has not changed, no need to do anything else. Proceed to next route.
+                    LOG.trace("Continuing");
+                    continue;
+                }
+                value = entry.createValue(key.getRouteId());
+                LOG.trace("Selected best value {}", value);
+            } else {
+                value = null;
+            }
+
+            final YangInstanceIdentifier writePath = this.ribSupport.routePath(this.locRibTarget.node(Routes.QNAME), key.getRouteId());
+            if (value != null) {
+                LOG.debug("Write route to LocRib {}", value);
+                tx.put(LogicalDatastoreType.OPERATIONAL, writePath, value);
+            } else {
+                LOG.debug("Delete route from LocRib {}", entry);
+                tx.delete(LogicalDatastoreType.OPERATIONAL, writePath);
+            }
+            fillAdjRibsOut(tx, entry, value, key);
+        }*/
+        tx.submit();
+    }
+
+    private void walkThrough(final DOMDataWriteTransaction tx, final Map<RouteUpdateKey, AbstractRouteEntry> toUpdate) {
+        if (tx == null || toUpdate == null) {
+            return;
+        }
+        for (final Entry<RouteUpdateKey, AbstractRouteEntry> e : toUpdate.entrySet()) {
+            LOG.trace("Walking through {}", e);
+            final AbstractRouteEntry entry = e.getValue();
+            final RouteUpdateKey key = e.getKey();
+            final NormalizedNode<?, ?> value;
+
+            if (entry != null) {
+                if (!entry.selectBest(this.ourAs)) {
+                    // Best path has not changed, no need to do anything else. Proceed to next route.
+                    LOG.trace("Continuing");
+                    continue;
+                }
+                value = entry.createValue(key.getRouteId());
+                LOG.trace("Selected best value {}", value);
+            } else {
+                value = null;
+            }
+
+            final YangInstanceIdentifier writePath = this.ribSupport.routePath(this.locRibTarget.node(Routes.QNAME), key.getRouteId());
+            if (value != null) {
+                LOG.debug("Write route to LocRib {}", value);
+                tx.put(LogicalDatastoreType.OPERATIONAL, writePath, value);
+            } else {
+                LOG.debug("Delete route from LocRib {}", entry);
+                tx.delete(LogicalDatastoreType.OPERATIONAL, writePath);
+            }
+            fillAdjRibsOut(tx, entry, value, key);
+        }
+    }
+
+    private void update(final DOMDataWriteTransaction tx, final Collection<DataTreeCandidate> changes,
+        final Map<RouteUpdateKey, AbstractRouteEntry> toUpdate) {
+        if (tx == null || changes == null || toUpdate == null) {
+            return;
+        }
         for (final DataTreeCandidate tc : changes) {
             final YangInstanceIdentifier path = tc.getRootPath();
             final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(path);
@@ -149,37 +256,6 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
                 }
             }
         }
-
-        // Now walk all updated entries
-        for (final Entry<RouteUpdateKey, AbstractRouteEntry> e : toUpdate.entrySet()) {
-            LOG.trace("Walking through {}", e);
-            final AbstractRouteEntry entry = e.getValue();
-            final RouteUpdateKey key = e.getKey();
-            final NormalizedNode<?, ?> value;
-
-            if (entry != null) {
-                if (!entry.selectBest(this.ourAs)) {
-                    // Best path has not changed, no need to do anything else. Proceed to next route.
-                    LOG.trace("Continuing");
-                    continue;
-                }
-                value = entry.createValue(key.getRouteId());
-                LOG.trace("Selected best value {}", value);
-            } else {
-                value = null;
-            }
-
-            final YangInstanceIdentifier writePath = this.ribSupport.routePath(this.locRibTarget.node(Routes.QNAME), key.getRouteId());
-            if (value != null) {
-                LOG.debug("Write route to LocRib {}", value);
-                tx.put(LogicalDatastoreType.OPERATIONAL, writePath, value);
-            } else {
-                LOG.debug("Delete route from LocRib {}", entry);
-                tx.delete(LogicalDatastoreType.OPERATIONAL, writePath);
-            }
-            fillAdjRibsOut(tx, entry, value, key);
-        }
-        tx.submit();
     }
 
     private void fillAdjRibsOut(final DOMDataWriteTransaction tx, final AbstractRouteEntry entry, final NormalizedNode<?, ?> value, final RouteUpdateKey key) {
