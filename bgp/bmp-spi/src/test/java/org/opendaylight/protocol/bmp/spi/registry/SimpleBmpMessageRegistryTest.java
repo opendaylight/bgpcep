@@ -65,7 +65,7 @@ public class SimpleBmpMessageRegistryTest {
         }
     }
 
-    private static final class BmpTestMessage implements Notification {
+    public static final class BmpTestMessage implements Notification {
 
         private final long value;
 
