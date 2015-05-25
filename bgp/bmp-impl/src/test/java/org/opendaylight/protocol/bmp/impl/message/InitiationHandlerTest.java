@@ -89,7 +89,7 @@ public class InitiationHandlerTest {
         assertEquals(createInitMsg(), parsedInitMsg);
     }
 
-    private static InitiationMessage createInitMsg() {
+    public static InitiationMessage createInitMsg() {
         final InitiationMessageBuilder initMsgBuilder = new InitiationMessageBuilder();
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         tlvsBuilder.setDescriptionTlv(new DescriptionTlvBuilder().setDescription(SYS_DESCR).build());
