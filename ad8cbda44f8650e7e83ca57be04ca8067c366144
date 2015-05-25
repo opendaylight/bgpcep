@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a9dcd25_1375c097",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-25T08:08:22Z",
+      "side": 1,
+      "message": "Can tx and toUpdate ever be null?",
+      "revId": "ad8cbda44f8650e7e83ca57be04ca8067c366144",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
