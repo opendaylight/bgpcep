@@ -212,7 +212,11 @@ final class EffectiveRibInWriter implements AutoCloseable {
                     continue;
                 }
                 final DataTreeCandidateNode tables = ribIn.getModifiedChild(TABLES_NID);
-                if (tables == null) {
+                if (!changeDataTree(tx, rootPath, root, peerKey, tables)) {
+                    LOG.debug("Skipping change {}", tc.getRootNode());
+                    continue;
+                }
+                /*if (tables == null) {
                     LOG.debug("Skipping change {}", tc.getRootNode());
                     continue;
                 }
@@ -244,9 +248,46 @@ final class EffectiveRibInWriter implements AutoCloseable {
                         LOG.warn("Ignoring unhandled root {}", root);
                         break;
                     }
-                }
+                }*/
             }
             tx.submit();
+        }
+
+        private boolean changeDataTree(final DOMDataWriteTransaction tx, final YangInstanceIdentifier rootPath,
+            final DataTreeCandidateNode root, final NodeIdentifierWithPredicates peerKey, final DataTreeCandidateNode tables) {
+            if (tables == null) {
+                return false;
+            }
+            for (final DataTreeCandidateNode table : tables.getChildNodes()) {
+                final PathArgument lastArg = table.getIdentifier();
+                Verify.verify(lastArg instanceof NodeIdentifierWithPredicates, "Unexpected type %s in path %s", lastArg.getClass(), rootPath);
+                final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) lastArg;
+
+                switch (root.getModificationType()) {
+                case DELETE:
+                    // delete the corresponding effective table
+                    tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath(peerKey, tableKey));
+                    break;
+                case MERGE:
+                    // TODO: upstream API should never give us this, as it leaks how the delta was created.
+                    LOG.info("Merge on {} reported, this should never have happened, but attempting to cope", rootPath);
+                    modifyTable(tx, peerKey, tableKey, table);
+                    break;
+                case SUBTREE_MODIFIED:
+                    modifyTable(tx, peerKey, tableKey, table);
+                    break;
+                case UNMODIFIED:
+                    LOG.info("Ignoring spurious notification on {} data {}", rootPath, table);
+                    break;
+                case WRITE:
+                    writeTable(tx, peerKey, tableKey, table);
+                    break;
+                default:
+                    LOG.warn("Ignoring unhandled root {}", root);
+                    break;
+                }
+            }
+            return true;
         }
 
         @Override
