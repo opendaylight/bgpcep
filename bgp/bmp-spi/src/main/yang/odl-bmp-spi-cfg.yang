@@ -1,0 +1,75 @@
+// vi: set smarttab et sw=4 tabstop=4:
+module odl-bmp-spi-cfg {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:bmp:spi";
+    prefix "bmp-spi";
+
+    import config { prefix config; revision-date 2013-04-05; }
+
+    organization "Cisco Systems, Inc.";
+
+    contact "Milos Fabian <milfabia@cisco.com>";
+
+    description
+        "This module contains the base YANG definitions for
+        BMP SPI module.
+
+        Copyright (c)2015 Cisco Systems, Inc. All rights reserved.;
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2015-05-13" {
+        description
+            "Initial revision";
+    }
+
+    identity consumer-extensions {
+        description
+            "Service representing a BMP parser extension registry. Extension
+            consumers have this service injected.";
+
+        base "config:service-type";
+        config:java-class "org.opendaylight.protocol.bmp.spi.registry.BmpExtensionConsumerContext";
+    }
+
+    identity extensions {
+        description
+            "Service representing a BMP parser extension registry. Extension
+            providers have this service injected for registration.";
+
+        base "consumer-extensions";
+        config:java-class "org.opendaylight.protocol.bmp.spi.registry.BmpExtensionProviderContext";
+    }
+
+    identity extension {
+        description
+            "Service representing a BMP parser extension.";
+
+        base "config:service-type";
+        config:java-class "org.opendaylight.protocol.bmp.spi.registry.BmpExtensionProviderActivator";
+    }
+
+    identity bmp-extensions-impl {
+        base config:module-type;
+        config:provided-service extensions;
+        config:java-name-prefix SimpleBmpExtensionProviderContext;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case bmp-extensions-impl {
+            when "/config:modules/config:module/config:type = 'bmp-extensions-impl'";
+
+            list extension {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity extension;
+                    }
+                }
+            }
+        }
+    }
+}
