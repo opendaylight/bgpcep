@@ -46,8 +46,8 @@
         <module>topology-provider</module>
         <module>util</module>
         <module>bmp-api</module>
+        <module>bmp-spi</module>
 
         <module>controller-config</module>
-
     </modules>
 </project>
