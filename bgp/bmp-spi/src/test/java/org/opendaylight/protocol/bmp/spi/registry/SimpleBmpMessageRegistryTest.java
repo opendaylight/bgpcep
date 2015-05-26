@@ -32,9 +32,24 @@ public class SimpleBmpMessageRegistryTest {
         0x00, 0x00, 0x01, 0x01//payload
     };
 
+    private static final byte[] BMP_TEST_MESSAGE2 = {
+        0x04,//version
+        0x00, 0x00, 0x00, 0x0A,//message length
+        0x0F,//msg type
+        0x00, 0x00, 0x01, 0x01//payload
+    };
+
+    private static final byte[] BMP_TEST_MESSAGE3 = {
+        0x03,//version
+        0x00, 0x00, 0x00, 0x0A,//message length
+        0x0F,//msg type
+    };
+
+    final BmpMessageRegistry registry = new SimpleBmpMessageRegistry();
+
     @Test
     public void testBmpMessageRegistry() throws BmpDeserializationException {
-        final BmpMessageRegistry registry = new SimpleBmpMessageRegistry();
+
         final BmpTestParser bmpTestParser = new BmpTestParser();
         registry.registerBmpMessageParser(MSG_TYPE, bmpTestParser);
         registry.registerBmpMessageSerializer(BmpTestMessage.class, bmpTestParser);
@@ -45,6 +60,16 @@ public class SimpleBmpMessageRegistryTest {
         final ByteBuf aggregator = Unpooled.buffer(BMP_TEST_MESSAGE.length);
         registry.serializeMessage(message, aggregator);
         assertArrayEquals(BMP_TEST_MESSAGE, ByteArray.getAllBytes(aggregator));
+    }
+
+    @Test (expected=BmpDeserializationException.class)
+    public void testParseMessageWithBadBMPVersion() throws BmpDeserializationException {
+        registry.parseMessage(Unpooled.copiedBuffer(BMP_TEST_MESSAGE2));
+    }
+
+    @Test (expected=BmpDeserializationException.class)
+    public void testParseMessageWithoutBody() throws BmpDeserializationException {
+        registry.parseMessage(Unpooled.copiedBuffer(BMP_TEST_MESSAGE3));
     }
 
     private static final class BmpTestParser extends AbstractBmpMessageParser {
@@ -65,7 +90,7 @@ public class SimpleBmpMessageRegistryTest {
         }
     }
 
-    private static final class BmpTestMessage implements Notification {
+    public static final class BmpTestMessage implements Notification {
 
         private final long value;
 

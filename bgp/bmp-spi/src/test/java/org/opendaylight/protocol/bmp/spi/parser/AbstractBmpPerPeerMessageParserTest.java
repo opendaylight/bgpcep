@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bmp.spi.parser;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -24,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.Timestamp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.AdjRibInType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerDownNotificationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.header.PeerHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.header.PeerHeaderBuilder;
@@ -69,7 +71,7 @@ public class AbstractBmpPerPeerMessageParserTest {
         final PeerHeader perHeader = this.parser.parsePerPeerHeader(Unpooled.wrappedBuffer(msgBytes));
 
         final PeerHeaderBuilder phBuilder = new PeerHeaderBuilder();
-        phBuilder.setType(PeerType.forValue(0));
+        phBuilder.setType(PeerType.Global);
         phBuilder.setAdjRibInType(AdjRibInType.forValue(0));
         phBuilder.setIpv4(true);
         phBuilder.setAddress(new IpAddress(new Ipv4Address("192.168.1.1")));
@@ -82,5 +84,39 @@ public class AbstractBmpPerPeerMessageParserTest {
         ByteBuf aggregator = Unpooled.buffer();
         this.parser.serializePerPeerHeader(perHeader, aggregator);
         assertArrayEquals(msgBytes, ByteArray.getAllBytes(aggregator));
+    }
+
+    @Test
+    public void testGetBgpMessageRegistry() {
+        assertNotNull(this.parser.getBgpMessageRegistry());
+    }
+
+    @Test
+    public void testSerializeMessageBody() {
+        final ByteBuf data = Unpooled.buffer();
+        final byte[] expected = {
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0A, (byte) 0x0A,
+            (byte) 0x0A, (byte) 0x0A, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x48, (byte) 0x0A, (byte) 0x0A, (byte) 0x0A, (byte) 0x0A, (byte) 0x00,
+            (byte) 0x00, (byte) 0x00, (byte) 0x05, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0A
+        };
+        final PeerDownNotificationBuilder builder = new PeerDownNotificationBuilder();
+        builder.setPeerHeader(createPeerHeader());
+        this.parser.serializeMessageBody(builder.build(), data);
+
+        assertArrayEquals(expected, ByteArray.getAllBytes(data));
+    }
+
+    private static final PeerHeader createPeerHeader() {
+        final PeerHeaderBuilder peerHeaderBuilder = new PeerHeaderBuilder()
+            .setAddress(new IpAddress(new Ipv4Address("10.10.10.10")))
+            .setAs(new AsNumber(72L))
+            .setBgpId(new Ipv4Address("10.10.10.10"))
+            .setAdjRibInType(AdjRibInType.forValue(0))
+            .setTimestampMicro(new Timestamp(10L))
+            .setTimestampSec(new Timestamp(5L))
+            .setIpv4(true)
+            .setType(PeerType.Global);
+        return peerHeaderBuilder.build();
     }
 }
