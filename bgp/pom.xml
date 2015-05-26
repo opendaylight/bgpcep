@@ -47,7 +47,7 @@
         <module>util</module>
         <module>bmp-api</module>
         <module>bmp-spi</module>
-
+        <module>bmp-impl</module>
         <module>controller-config</module>
     </modules>
 </project>
