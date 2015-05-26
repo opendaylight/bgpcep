@@ -1,0 +1,51 @@
+// vi: set smarttab et sw=4 tabstop=4:
+module odl-bmp-impl-cfg {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:bmp:impl";
+    prefix "bmp-impl";
+
+    import config { prefix config; revision-date 2013-04-05; }
+    import odl-bmp-spi-cfg { prefix spi; revision-date 2015-05-13; }
+    import odl-bgp-parser-spi-cfg { prefix bgp-spi; revision-date 2013-11-15; }
+
+    organization "Cisco Systems, Inc.";
+
+    contact "Milos Fabian <milfabia@cisco.com>";
+
+    description
+        "This module contains the base YANG definitions for
+         BMP implementation.
+
+        Copyright (c)2015 Cisco Systems, Inc. All rights reserved.;
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2015-05-18" {
+        description
+            "Initial revision";
+    }
+
+    identity bmp-parser-base {
+        base config:module-type;
+        config:provided-service spi:extension;
+        config:java-name-prefix BaseBmpParser;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case bmp-parser-base {
+            when "/config:modules/config:module/config:type = 'bmp-parser-base'";
+
+            container bgp-extensions {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity bgp-spi:consumer-extensions;
+                    }
+                }
+            }
+        }
+    }
+}
