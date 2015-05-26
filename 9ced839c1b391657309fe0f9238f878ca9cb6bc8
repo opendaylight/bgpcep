@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a9dcd25_88c19a82",
+        "filename": "bgp/bmp-spi/src/main/java/org/opendaylight/protocol/bmp/spi/parser/AbstractBmpMessageParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-26T12:49:10Z",
+      "side": 1,
+      "message": "Does it go through ByteToMessageDecoder? Because you already have a bytedump there. Same for serialization.",
+      "revId": "9ced839c1b391657309fe0f9238f878ca9cb6bc8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
