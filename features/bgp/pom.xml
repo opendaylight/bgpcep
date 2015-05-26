@@ -223,5 +223,11 @@
           <groupId>com.google.guava</groupId>
           <artifactId>guava</artifactId>
       </dependency>
+
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>bgp-bmp-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
   </dependencies>
 </project>
