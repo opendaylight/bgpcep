@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a9dcd25_97c1b382",
+        "filename": "programming/impl/src/main/java/org/opendaylight/bgpcep/programming/impl/ProgrammingServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-27T13:29:21Z",
+      "side": 1,
+      "message": "rename to something like checkIfUnfailed (to differ from parent method)",
+      "revId": "fc301b521249d00c304ae1a1f5908b65879d9e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_37be9f00",
+        "filename": "programming/impl/src/main/java/org/opendaylight/bgpcep/programming/impl/ProgrammingServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-27T13:29:21Z",
+      "side": 1,
+      "message": "this time we need the break, as this will end up the method, but we only want to end up one for cycle iteration",
+      "revId": "fc301b521249d00c304ae1a1f5908b65879d9e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
