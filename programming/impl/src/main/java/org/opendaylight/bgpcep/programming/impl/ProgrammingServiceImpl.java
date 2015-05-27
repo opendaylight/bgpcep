@@ -208,32 +208,10 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
 
     private List<InstructionImpl> checkDependencies(final SubmitInstructionInput input) throws SchedulerException {
         final List<InstructionImpl> dependencies = new ArrayList<>();
-        for (final InstructionId pid : input.getPreconditions()) {
-            final InstructionImpl i = this.insns.get(pid);
-            if (i == null) {
-                LOG.info("Instruction {} depends on {}, which is not a known instruction", input.getId(), pid);
-                throw new SchedulerException("Unknown dependency ID specified", new FailureBuilder().setType(UnknownPreconditionId.class).build());
-            }
-            dependencies.add(i);
-        }
+        collectDependencies(input, dependencies);
         // Check if all dependencies are non-failed
         final List<InstructionId> unmet = new ArrayList<>();
-        for (final InstructionImpl d : dependencies) {
-            switch (d.getStatus()) {
-            case Cancelled:
-            case Failed:
-            case Unknown:
-                unmet.add(d.getId());
-                break;
-            case Executing:
-            case Queued:
-            case Scheduled:
-            case Successful:
-                break;
-            default:
-                break;
-            }
-        }
+        checkDependencies(dependencies, unmet);
         /*
          *  Some dependencies have failed, declare the request dead-on-arrival
          *  and fail the operation.
@@ -243,6 +221,36 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
                     DeadOnArrival.class).setFailedPreconditions(unmet).build());
         }
         return dependencies;
+    }
+
+    private void collectDependencies(final SubmitInstructionInput input, final List<InstructionImpl> dependencies) throws SchedulerException {
+        for (final InstructionId pid : input.getPreconditions()) {
+            final InstructionImpl i = this.insns.get(pid);
+            if (i == null) {
+                LOG.info("Instruction {} depends on {}, which is not a known instruction", input.getId(), pid);
+                throw new SchedulerException("Unknown dependency ID specified", new FailureBuilder().setType(UnknownPreconditionId.class).build());
+            }
+            dependencies.add(i);
+        }
+    }
+
+    private void checkDependencies(final List<InstructionImpl> dependencies, final List<InstructionId> unmet) {
+        for (final InstructionImpl d : dependencies) {
+            switch (d.getStatus()) {
+            case Cancelled:
+            case Failed:
+            case Unknown:
+                unmet.add(d.getId());
+                return;
+            case Executing:
+            case Queued:
+            case Scheduled:
+            case Successful:
+                return;
+            default:
+                return;
+            }
+        }
     }
 
     @Override
