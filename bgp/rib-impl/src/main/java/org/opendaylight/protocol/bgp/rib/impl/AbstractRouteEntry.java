@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.primitives.UnsignedInteger;
 import java.util.Objects;
 import javax.annotation.concurrent.NotThreadSafe;
+import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -71,7 +72,7 @@ abstract class AbstractRouteEntry {
     }
 
     // Indicates whether best has changed
-    final boolean selectBest(final long localAs) {
+    final boolean selectBest(final long localAs, final QName extension) {
         /*
          * FIXME: optimize flaps by making sure we consider stability of currently-selected route.
          */
@@ -82,7 +83,7 @@ abstract class AbstractRouteEntry {
             final UnsignedInteger routerId = this.offsets.getRouterId(i);
             final ContainerNode attributes = this.offsets.getValue(this.values, i);
             LOG.trace("Processing router id {} attributes {}", routerId, attributes);
-            selector.processPath(routerId, attributes);
+            selector.processPath(routerId, attributes, extension);
         }
 
         // Get the newly-selected best path.

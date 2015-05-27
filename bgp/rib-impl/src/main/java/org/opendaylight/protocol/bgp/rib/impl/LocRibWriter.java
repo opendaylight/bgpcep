@@ -157,7 +157,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             final NormalizedNode<?, ?> value;
 
             if (entry != null) {
-                if (!entry.selectBest(this.ourAs)) {
+                if (!entry.selectBest(this.ourAs, entry.attributes().getNodeType())) {
                     // Best path has not changed, no need to do anything else. Proceed to next route.
                     LOG.trace("Continuing");
                     continue;
