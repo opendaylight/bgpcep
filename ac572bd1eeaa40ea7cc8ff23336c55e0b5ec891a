@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a9dcd25_f7d35736",
+        "filename": "programming/impl/src/main/java/org/opendaylight/bgpcep/programming/impl/ProgrammingServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-27T13:43:59Z",
+      "side": 1,
+      "message": "you can avoid passing the List as parameter by creating it in the method itself (applicable to both lists)",
+      "revId": "ac572bd1eeaa40ea7cc8ff23336c55e0b5ec891a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
