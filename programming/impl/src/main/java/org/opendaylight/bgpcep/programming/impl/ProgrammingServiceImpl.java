@@ -206,8 +206,26 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
         return SuccessfulRpcResult.create(ob.build());
     }
 
-    private List<InstructionImpl> checkDependencies(final SubmitInstructionInput input) throws SchedulerException {
-        final List<InstructionImpl> dependencies = new ArrayList<>();
+    private void checkDependencies(final List<InstructionImpl> dependencies, final List<InstructionId> unmet) {
+        for (final InstructionImpl d : dependencies) {
+            switch (d.getStatus()) {
+            case Cancelled:
+            case Failed:
+            case Unknown:
+                unmet.add(d.getId());
+                return;
+            case Executing:
+            case Queued:
+            case Scheduled:
+            case Successful:
+                return;
+            default:
+                return;
+            }
+        }
+    }
+
+    private void collectDependencies(final SubmitInstructionInput input, final List<InstructionImpl> dependencies) throws SchedulerException {
         for (final InstructionId pid : input.getPreconditions()) {
             final InstructionImpl i = this.insns.get(pid);
             if (i == null) {
@@ -216,24 +234,14 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
             }
             dependencies.add(i);
         }
+    }
+
+    private List<InstructionImpl> checkDependencies(final SubmitInstructionInput input) throws SchedulerException {
+        final List<InstructionImpl> dependencies = new ArrayList<>();
+        collectDependencies(input, dependencies);
         // Check if all dependencies are non-failed
         final List<InstructionId> unmet = new ArrayList<>();
-        for (final InstructionImpl d : dependencies) {
-            switch (d.getStatus()) {
-            case Cancelled:
-            case Failed:
-            case Unknown:
-                unmet.add(d.getId());
-                break;
-            case Executing:
-            case Queued:
-            case Scheduled:
-            case Successful:
-                break;
-            default:
-                break;
-            }
-        }
+        checkDependencies(dependencies, unmet);
         /*
          *  Some dependencies have failed, declare the request dead-on-arrival
          *  and fail the operation.
