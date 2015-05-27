@@ -50,6 +50,31 @@ public final class Util {
         }
     }
 
+    private static State setMetricPceBuilder(final MetricPceBuilder metricPceBuilder, State state, final Object obj) {
+        switch(state) {
+        case START :
+            state = State.PROC_TIME;
+            if (obj instanceof ProcTime) {
+                metricPceBuilder.setProcTime((ProcTime) obj);
+                break;
+            }
+        case PROC_TIME :
+            state = State.OVERLOAD;
+            if (obj instanceof Overload) {
+                metricPceBuilder.setOverload((Overload) obj);
+                break;
+            }
+        case OVERLOAD :
+            state = State.END;
+            break;
+        case END :
+            break;
+        default:
+            break;
+        }
+        return state;
+    }
+
     public static MetricPce validateMonitoringMetrics(final List<Object> objects) throws PCEPDeserializerException {
         final MetricPceBuilder metricPceBuilder = new MetricPceBuilder();
         if (!(objects.get(0) instanceof PceId)) {
@@ -60,27 +85,7 @@ public final class Util {
         State state = State.START;
         while (!objects.isEmpty() && !state.equals(State.END)) {
             final Object obj = objects.get(0);
-            switch(state) {
-            case START :
-                state = State.PROC_TIME;
-                if (obj instanceof ProcTime) {
-                    metricPceBuilder.setProcTime((ProcTime) obj);
-                    break;
-                }
-            case PROC_TIME :
-                state = State.OVERLOAD;
-                if (obj instanceof Overload) {
-                    metricPceBuilder.setOverload((Overload) obj);
-                    break;
-                }
-            case OVERLOAD :
-                state = State.END;
-                break;
-            case END :
-                break;
-            default:
-                break;
-            }
+            state = setMetricPceBuilder(metricPceBuilder, state, obj);
             if (!state.equals(State.END)) {
                 objects.remove(0);
             }
