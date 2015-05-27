@@ -207,6 +207,21 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
     }
 
     private List<InstructionImpl> checkDependencies(final SubmitInstructionInput input) throws SchedulerException {
+        final List<InstructionImpl> dependencies = collectDependencies(input);
+        // Check if all dependencies are non-failed
+        final List<InstructionId> unmet = checkIfUnfailed(dependencies);
+        /*
+         *  Some dependencies have failed, declare the request dead-on-arrival
+         *  and fail the operation.
+         */
+        if (!unmet.isEmpty()) {
+            throw new SchedulerException("Instruction's dependencies are already unsuccessful", new FailureBuilder().setType(
+                    DeadOnArrival.class).setFailedPreconditions(unmet).build());
+        }
+        return dependencies;
+    }
+
+    private List<InstructionImpl> collectDependencies(final SubmitInstructionInput input) throws SchedulerException {
         final List<InstructionImpl> dependencies = new ArrayList<>();
         for (final InstructionId pid : input.getPreconditions()) {
             final InstructionImpl i = this.insns.get(pid);
@@ -216,7 +231,10 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
             }
             dependencies.add(i);
         }
-        // Check if all dependencies are non-failed
+        return dependencies;
+    }
+
+    private List<InstructionId> checkIfUnfailed(final List<InstructionImpl> dependencies) {
         final List<InstructionId> unmet = new ArrayList<>();
         for (final InstructionImpl d : dependencies) {
             switch (d.getStatus()) {
@@ -234,15 +252,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
                 break;
             }
         }
-        /*
-         *  Some dependencies have failed, declare the request dead-on-arrival
-         *  and fail the operation.
-         */
-        if (!unmet.isEmpty()) {
-            throw new SchedulerException("Instruction's dependencies are already unsuccessful", new FailureBuilder().setType(
-                    DeadOnArrival.class).setFailedPreconditions(unmet).build());
-        }
-        return dependencies;
+        return unmet;
     }
 
     @Override
