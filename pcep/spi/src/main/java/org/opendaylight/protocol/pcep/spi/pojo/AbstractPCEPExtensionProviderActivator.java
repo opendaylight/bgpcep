@@ -8,11 +8,8 @@
 package org.opendaylight.protocol.pcep.spi.pojo;
 
 import com.google.common.base.Preconditions;
-
 import java.util.List;
-
 import javax.annotation.concurrent.GuardedBy;
-
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.slf4j.Logger;
@@ -36,7 +33,9 @@ public abstract class AbstractPCEPExtensionProviderActivator implements AutoClos
 
     @Override
     public final synchronized void stop() {
-        Preconditions.checkState(this.registrations != null);
+        if (this.registrations == null) {
+            return;
+        }
 
         for (final AutoCloseable r : this.registrations) {
             try {
