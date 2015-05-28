@@ -8,11 +8,8 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.base.Preconditions;
-
 import java.util.List;
-
 import javax.annotation.concurrent.GuardedBy;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +31,9 @@ public abstract class AbstractRIBExtensionProviderActivator implements AutoClose
 
     @Override
     public final synchronized void stopRIBExtensionProvider() {
-        Preconditions.checkState(this.registrations != null);
+        if (this.registrations == null) {
+            return;
+        }
 
         for (final AutoCloseable r : this.registrations) {
             try {
