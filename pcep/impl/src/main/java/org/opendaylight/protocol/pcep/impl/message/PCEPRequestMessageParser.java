@@ -253,96 +253,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 
         State state = State.INIT;
         while (!objects.isEmpty() && state != State.END) {
-            Object obj = objects.get(0);
-
-            switch (state) {
-            case INIT:
-                state = State.REPORTED_IN;
-                if (obj instanceof Rro) {
-                    final ReportedRouteBuilder rrBuilder = new ReportedRouteBuilder();
-                    rrBuilder.setRro((Rro) obj);
-                    objects.remove(0);
-                    obj = objects.get(0);
-                    if (obj instanceof Bandwidth) {
-                        rrBuilder.setBandwidth((Bandwidth) obj);
-                    }
-                    break;
-                }
-            case REPORTED_IN:
-                state = State.VENDOR_INFO_LIST;
-                if (obj instanceof VendorInformationObject) {
-                    viObjects.add((VendorInformationObject) obj);
-                    state = State.REPORTED_IN;
-                    break;
-                }
-            case VENDOR_INFO_LIST:
-                state = State.LOAD_BIN;
-                if (obj instanceof LoadBalancing) {
-                    builder.setLoadBalancing((LoadBalancing) obj);
-                    break;
-                }
-            case LOAD_BIN:
-                state = State.LSPA_IN;
-                if (obj instanceof Lspa) {
-                    builder.setLspa((Lspa) obj);
-                    break;
-                }
-            case LSPA_IN:
-                state = State.BANDWIDTH_IN;
-                if (obj instanceof Bandwidth) {
-                    builder.setBandwidth((Bandwidth) obj);
-                    break;
-                }
-            case BANDWIDTH_IN:
-                state = State.METRIC_IN;
-                if (obj instanceof Metric) {
-                    metrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-                    state = State.BANDWIDTH_IN;
-                    break;
-                }
-            case METRIC_IN:
-                state = State.IRO_IN;
-                if (obj instanceof Iro) {
-                    builder.setIro((Iro) obj);
-                    break;
-                }
-            case IRO_IN:
-                state = State.RRO_IN;
-                if (obj instanceof Rro) {
-                    builder.setRro((Rro) obj);
-                    break;
-                }
-            case RRO_IN:
-                state = State.XRO_IN;
-                if (obj instanceof Xro) {
-                    builder.setXro((Xro) obj);
-                    break;
-                }
-            case XRO_IN:
-                state = State.OF_IN;
-                if (obj instanceof Of) {
-                    builder.setOf((Of) obj);
-                    break;
-                }
-            case OF_IN:
-                state = State.CT_IN;
-                if (obj instanceof ClassType) {
-                    final ClassType classType = (ClassType) obj;
-                    if (!classType.isProcessingRule()) {
-                        errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.of(rp)));
-                    } else {
-                        builder.setClassType(classType);
-                    }
-                    break;
-                }
-            case CT_IN:
-                state = State.END;
-                break;
-            case END:
-                break;
-            default:
-                break;
-            }
+            final Object obj = objects.get(0);
+            state = insertObject(state, obj, objects, viObjects, builder, metrics, errors, rp);
             if (!state.equals(State.END)) {
                 objects.remove(0);
             }
@@ -363,6 +275,82 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             return null;
         }
         return new SegmentComputationBuilder().setP2p(builder.build()).build();
+    }
+
+    private State insertObject(final State state, Object obj, final List<Object> objects, final List<VendorInformationObject> viObjects, final P2pBuilder builder, final List<Metrics> metrics, final List<Message> errors, final Rp rp) {
+        switch (state) {
+        case INIT:
+            if (obj instanceof Rro) {
+                final ReportedRouteBuilder rrBuilder = new ReportedRouteBuilder();
+                rrBuilder.setRro((Rro) obj);
+                objects.remove(0);
+                obj = objects.get(0);
+                if (obj instanceof Bandwidth) {
+                    rrBuilder.setBandwidth((Bandwidth) obj);
+                }
+                return State.REPORTED_IN;
+            }
+        case REPORTED_IN:
+            if (obj instanceof VendorInformationObject) {
+                viObjects.add((VendorInformationObject) obj);
+                return State.REPORTED_IN;
+            }
+        case VENDOR_INFO_LIST:
+            if (obj instanceof LoadBalancing) {
+                builder.setLoadBalancing((LoadBalancing) obj);
+                return State.LOAD_BIN;
+            }
+        case LOAD_BIN:
+            if (obj instanceof Lspa) {
+                builder.setLspa((Lspa) obj);
+                return State.LSPA_IN;
+            }
+        case LSPA_IN:
+            if (obj instanceof Bandwidth) {
+                builder.setBandwidth((Bandwidth) obj);
+                return State.BANDWIDTH_IN;
+            }
+        case BANDWIDTH_IN:
+            if (obj instanceof Metric) {
+                metrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
+                return State.BANDWIDTH_IN;
+            }
+        case METRIC_IN:
+            if (obj instanceof Iro) {
+                builder.setIro((Iro) obj);
+                return State.IRO_IN;
+            }
+        case IRO_IN:
+            if (obj instanceof Rro) {
+                builder.setRro((Rro) obj);
+                return State.RRO_IN;
+            }
+        case RRO_IN:
+            if (obj instanceof Xro) {
+                builder.setXro((Xro) obj);
+                return State.XRO_IN;
+            }
+        case XRO_IN:
+            if (obj instanceof Of) {
+                builder.setOf((Of) obj);
+                return State.OF_IN;
+            }
+        case OF_IN:
+            if (obj instanceof ClassType) {
+                final ClassType classType = (ClassType) obj;
+                if (!classType.isProcessingRule()) {
+                    errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.of(rp)));
+                } else {
+                    builder.setClassType(classType);
+                }
+                return State.CT_IN;
+            }
+        case CT_IN:
+        case END:
+            return State.END;
+        default:
+            return state;
+        }
     }
 
     private enum State {
