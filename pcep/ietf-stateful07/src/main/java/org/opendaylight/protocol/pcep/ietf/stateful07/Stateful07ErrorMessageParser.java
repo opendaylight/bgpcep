@@ -104,53 +104,7 @@ public final class Stateful07ErrorMessageParser extends PCEPErrorMessageParser {
             if (obj instanceof UnknownObject) {
                 return new PcerrBuilder().setPcerrMessage(b.setErrors(((UnknownObject) obj).getErrors()).build()).build();
             }
-            switch (state) {
-            case ERROR_IN:
-                state = State.OPEN;
-                if (obj instanceof ErrorObject) {
-                    final ErrorObject o = (ErrorObject) obj;
-                    errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
-                    state = State.ERROR_IN;
-                    break;
-                }
-            case RP_IN:
-                state = State.ERROR;
-                if (obj instanceof Rp) {
-                    final Rp o = ((Rp) obj);
-                    requestParameters.add(new RpsBuilder().setRp(o).build());
-                    state = State.RP_IN;
-                    break;
-                }
-            case SRP_IN:
-                state = State.ERROR;
-                if (obj instanceof Srp) {
-                    final Srp o = ((Srp) obj);
-                    srps.add(new SrpsBuilder().setSrp(o).build());
-                    state = State.SRP_IN;
-                    break;
-                }
-            case OPEN:
-                state = State.OPEN_IN;
-                if (obj instanceof Open) {
-                    b.setErrorType(new SessionCaseBuilder().setSession(new SessionBuilder().setOpen((Open) obj).build()).build());
-                    break;
-                }
-            case ERROR:
-                state = State.OPEN_IN;
-                if (obj instanceof ErrorObject) {
-                    final ErrorObject o = (ErrorObject) obj;
-                    errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
-                    state = State.ERROR;
-                    break;
-                }
-            case OPEN_IN:
-                state = State.END;
-                break;
-            case END:
-                break;
-            default:
-                break;
-            }
+            state = insertObject(state, obj, errorObjects, requestParameters, srps, b);
             if (!state.equals(State.END)) {
                 objects.remove(0);
             }
@@ -168,6 +122,45 @@ public final class Stateful07ErrorMessageParser extends PCEPErrorMessageParser {
             b.setErrorType(new StatefulCaseBuilder().setStateful(new StatefulBuilder().setSrps(srps).build()).build());
         }
         return new PcerrBuilder().setPcerrMessage(b.setErrors(errorObjects).build()).build();
+    }
+
+    private State insertObject(final State state, final Object obj, final List<Errors> errorObjects, final List<Rps> requestParameters, final List<Srps> srps, final PcerrMessageBuilder b){
+        switch (state) {
+        case ERROR_IN:
+            if (obj instanceof ErrorObject) {
+                final ErrorObject o = (ErrorObject) obj;
+                errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
+                return State.ERROR_IN;
+            }
+        case RP_IN:
+            if (obj instanceof Rp) {
+                final Rp o = ((Rp) obj);
+                requestParameters.add(new RpsBuilder().setRp(o).build());
+                return State.RP_IN;
+            }
+        case SRP_IN:
+            if (obj instanceof Srp) {
+                final Srp o = ((Srp) obj);
+                srps.add(new SrpsBuilder().setSrp(o).build());
+                return State.SRP_IN;
+            }
+        case OPEN:
+            if (obj instanceof Open) {
+                b.setErrorType(new SessionCaseBuilder().setSession(new SessionBuilder().setOpen((Open) obj).build()).build());
+                return State.OPEN_IN;
+            }
+        case ERROR:
+            if (obj instanceof ErrorObject) {
+                final ErrorObject o = (ErrorObject) obj;
+                errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
+                return State.ERROR;
+            }
+        case OPEN_IN:
+        case END:
+            return State.END;
+        default:
+            return state;
+        }
     }
 
     private enum State {
