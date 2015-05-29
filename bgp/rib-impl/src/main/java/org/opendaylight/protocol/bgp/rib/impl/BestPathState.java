@@ -9,15 +9,14 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.AsPath;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.LocalPref;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.MultiExitDisc;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.AListCase;
@@ -34,21 +33,33 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 
 @NotThreadSafe
 final class BestPathState {
-    private static final Collection<PathArgument> AS_PATH = ImmutableList.<PathArgument>of(new NodeIdentifier(AsPath.QNAME), new NodeIdentifier(Segments.QNAME));
-    private static final Collection<PathArgument> LOCAL_PREF = ImmutableList.<PathArgument>of(new NodeIdentifier(LocalPref.QNAME), new NodeIdentifier(QName.create(LocalPref.QNAME, "pref")));
-    private static final Collection<PathArgument> MED = ImmutableList.<PathArgument>of(new NodeIdentifier(MultiExitDisc.QNAME), new NodeIdentifier(QName.create(MultiExitDisc.QNAME, "med")));
-    private static final Collection<PathArgument> ORIGIN = ImmutableList.<PathArgument>of(new NodeIdentifier(Origin.QNAME), new NodeIdentifier(QName.create(Origin.QNAME, "value")));
+    private final Collection<PathArgument> asPath;
+    private final Collection<PathArgument> locPref;
+    private final Collection<PathArgument> med;
+    private final Collection<PathArgument> orig;
 
-    private final ContainerNode attributes;
+    private static Long peerAs = 0L;
+    private static int asPathLength = 0;
+
+    final ContainerNode attributes;
     private Long localPref;
     private Long multiExitDisc;
     private BgpOrigin origin;
-    private static final Long peerAs = 0L;
-    private static final int asPathLength = 0;
     private boolean resolved;
+
+    private final LoadingCache<String, NodeIdentifier> attrs = CacheBuilder.newBuilder().weakValues().build(new CacheLoader<String, NodeIdentifier>() {
+        @Override
+        public NodeIdentifier load(final String name) throws Exception {
+            return new NodeIdentifier(QName.cachedReference(QName.create(BestPathState.this.attributes.getNodeType(), name)));
+        }
+    });
 
     BestPathState(final ContainerNode attributes) {
         this.attributes = Preconditions.checkNotNull(attributes);
+        this.asPath = ImmutableList.<PathArgument>of(this.attrs.getUnchecked("as-path"), this.attrs.getUnchecked("segments"));
+        this.locPref = ImmutableList.<PathArgument>of(this.attrs.getUnchecked("local-pref"), this.attrs.getUnchecked("pref"));
+        this.med = ImmutableList.<PathArgument>of(this.attrs.getUnchecked("multi-exit-disc"), this.attrs.getUnchecked("med"));
+        this.orig = ImmutableList.<PathArgument>of(this.attrs.getUnchecked("origin"), this.attrs.getUnchecked("value"));
     }
 
     private static BgpOrigin fromString(final String originStr) {
@@ -69,28 +80,28 @@ final class BestPathState {
             return;
         }
 
-        final Optional<NormalizedNode<?, ?>> maybeLocalPref = NormalizedNodes.findNode(this.attributes, LOCAL_PREF);
+        final Optional<NormalizedNode<?, ?>> maybeLocalPref = NormalizedNodes.findNode(this.attributes, this.locPref);
         if (maybeLocalPref.isPresent()) {
             this.localPref = (Long) ((LeafNode<?>)maybeLocalPref.get()).getValue();
         } else {
             this.localPref = null;
         }
 
-        final Optional<NormalizedNode<?, ?>> maybeMultiExitDisc = NormalizedNodes.findNode(this.attributes, MED);
+        final Optional<NormalizedNode<?, ?>> maybeMultiExitDisc = NormalizedNodes.findNode(this.attributes, this.med);
         if (maybeMultiExitDisc.isPresent()) {
             this.multiExitDisc = (Long) ((LeafNode<?>)maybeMultiExitDisc.get()).getValue();
         } else {
             this.multiExitDisc = null;
         }
 
-        final Optional<NormalizedNode<?, ?>> maybeOrigin = NormalizedNodes.findNode(this.attributes, ORIGIN);
+        final Optional<NormalizedNode<?, ?>> maybeOrigin = NormalizedNodes.findNode(this.attributes, this.orig);
         if (maybeOrigin.isPresent()) {
             this.origin = fromString((String) ((LeafNode<?>)maybeOrigin.get()).getValue());
         } else {
             this.origin = null;
         }
 
-        final Optional<NormalizedNode<?, ?>> maybeSegments = NormalizedNodes.findNode(this.attributes, AS_PATH);
+        final Optional<NormalizedNode<?, ?>> maybeSegments = NormalizedNodes.findNode(this.attributes, this.asPath);
         if (maybeSegments.isPresent()) {
             final UnkeyedListNode segments = (UnkeyedListNode) maybeSegments.get();
 
@@ -125,7 +136,7 @@ final class BestPathState {
 
     Long getPeerAs() {
         resolveValues();
-        return this.peerAs;
+        return peerAs;
     }
 
     int getAsPathLength() {
