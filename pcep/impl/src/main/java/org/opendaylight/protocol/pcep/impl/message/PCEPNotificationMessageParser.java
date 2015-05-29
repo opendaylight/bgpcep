@@ -96,34 +96,8 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
         State state = State.INIT;
         while (!objects.isEmpty() && !state.equals(State.END)) {
             obj = objects.get(0);
-            switch (state) {
-            case INIT:
-                state = State.RP_IN;
-                if (obj instanceof Rp) {
-                    final Rp rp = (Rp) obj;
-                    if (rp.isProcessingRule()) {
-                        errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.<Rp>absent()));
-                        return null;
-                    }
-                    requestParameters.add(new RpsBuilder().setRp(rp).build());
-                    state = State.INIT;
-                    break;
-                }
-            case RP_IN:
-                state = State.NOTIFICATION_IN;
-                if (obj instanceof CNotification) {
-                    final CNotification n = (CNotification) obj;
-                    notifications.add(new NotificationsBuilder().setCNotification(n).build());
-                    state = State.RP_IN;
-                    break;
-                }
-            case NOTIFICATION_IN:
-                state = State.END;
-                break;
-            case END:
-                break;
-            default:
-                break;
+            if ((state = insertObject(state, obj, errors, requestParameters, notifications)) == null) {
+                return null;
             }
             if (!state.equals(State.END)) {
                 objects.remove(0);
@@ -136,6 +110,32 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.NotificationsBuilder().setNotifications(
                 notifications).setRps(requestParameters).build();
+    }
+
+    private static State insertObject(final State state, final Object obj, final List<Message> errors, final List<Rps> requestParameters, final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.notifications.Notifications> notifications) {
+        switch (state) {
+        case INIT:
+            if (obj instanceof Rp) {
+                final Rp rp = (Rp) obj;
+                if (rp.isProcessingRule()) {
+                    errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.<Rp>absent()));
+                    return null;
+                }
+                requestParameters.add(new RpsBuilder().setRp(rp).build());
+                return State.INIT;
+            }
+        case RP_IN:
+            if (obj instanceof CNotification) {
+                final CNotification n = (CNotification) obj;
+                notifications.add(new NotificationsBuilder().setCNotification(n).build());
+                return State.RP_IN;
+            }
+        case NOTIFICATION_IN:
+        case END:
+            return State.END;
+        default:
+            return state;
+        }
     }
 
     private enum State {
