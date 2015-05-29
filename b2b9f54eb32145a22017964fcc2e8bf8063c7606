@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a9dcd25_26abcad9",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-05-29T12:52:20Z",
+      "side": 1,
+      "message": "I do not see this field referenced outside of the constructor...",
+      "revId": "b2b9f54eb32145a22017964fcc2e8bf8063c7606",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_a6b6fa3b",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-05-29T12:52:20Z",
+      "side": 1,
+      "message": "instantiating this each time we select a route is too costly. What we really need is extension.getModuleName(), for which we should have a static weak LoadingCache...",
+      "revId": "b2b9f54eb32145a22017964fcc2e8bf8063c7606",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
