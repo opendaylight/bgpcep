@@ -82,7 +82,7 @@ abstract class AbstractRouteEntry {
             final UnsignedInteger routerId = this.offsets.getRouterId(i);
             final ContainerNode attributes = this.offsets.getValue(this.values, i);
             LOG.trace("Processing router id {} attributes {}", routerId, attributes);
-            selector.processPath(routerId, attributes);
+            selector.processPath(routerId, attributes, attributes.getNodeType());
         }
 
         // Get the newly-selected best path.
