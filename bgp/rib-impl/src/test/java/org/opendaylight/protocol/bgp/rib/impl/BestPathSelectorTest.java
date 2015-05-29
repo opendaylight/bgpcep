@@ -12,10 +12,6 @@ import static org.junit.Assert.assertNotEquals;
 
 import com.google.common.primitives.UnsignedInteger;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.AsPath;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.LocalPref;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.MultiExitDisc;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -31,7 +27,11 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableUn
 
 public class BestPathSelectorTest {
 
-    private final QName DATA_QNAME = QName.create("data");
+    private final QName extensionQName = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2015-03-05", "attributes");
+    private final QName localPrefQName = QName.create(this.extensionQName, "local-pref");
+    private final QName multiExitDiscQName = QName.create(this.extensionQName, "multi-exit-disc");
+    private final QName originQName = QName.create(this.extensionQName, "origin");
+    private final QName asPathQName = QName.create(this.extensionQName, "as-path");
     private final UnsignedInteger ROUTER_ID = RouterIds.routerIdForAddress("127.0.0.1");
     private final UnsignedInteger ROUTER_ID2 = RouterIds.routerIdForPeerId(new PeerId("bgp://127.0.0.1"));
     private final UnsignedInteger ROUTER_ID3 = RouterIds.routerIdForPeerId(new PeerId("bgp://127.0.0.2"));
@@ -82,34 +82,34 @@ public class BestPathSelectorTest {
     }
 
     private ContainerNode createStateFromPrefMedOrigin() {
-        this.dataContBuilder = createContBuilder(this.DATA_QNAME);
+        this.dataContBuilder = createContBuilder(this.extensionQName);
         // local pref
-        this.dataContBuilder.addChild(createContBuilder(LocalPref.QNAME).addChild(createValueBuilder(123L, LocalPref.QNAME, "pref").build()).build());
+        this.dataContBuilder.addChild(createContBuilder(this.localPrefQName).addChild(createValueBuilder(123L, this.localPrefQName, "pref").build()).build());
         // multi exit disc
-        this.dataContBuilder.addChild(createContBuilder(MultiExitDisc.QNAME).addChild(createValueBuilder(1234L, MultiExitDisc.QNAME, "med").build()).build());
+        this.dataContBuilder.addChild(createContBuilder(this.multiExitDiscQName).addChild(createValueBuilder(1234L, this.multiExitDiscQName, "med").build()).build());
         // origin
-        this.dataContBuilder.addChild(createContBuilder(Origin.QNAME).addChild(createValueBuilder("igp", Origin.QNAME, "value").build()).build());
+        this.dataContBuilder.addChild(createContBuilder(this.originQName).addChild(createValueBuilder("igp", this.originQName, "value").build()).build());
         return this.dataContBuilder.build();
     }
 
     private ContainerNode createStateFromPrefMedOriginASPath() {
-        this.dataContBuilder = createContBuilder(this.DATA_QNAME);
+        this.dataContBuilder = createContBuilder(this.extensionQName);
         // local pref
-        this.dataContBuilder.addChild(createContBuilder(LocalPref.QNAME).addChild(createValueBuilder(321L, LocalPref.QNAME, "pref").build()).build());
+        this.dataContBuilder.addChild(createContBuilder(this.localPrefQName).addChild(createValueBuilder(321L, this.localPrefQName, "pref").build()).build());
         // multi exit disc
-        this.dataContBuilder.addChild(createContBuilder(MultiExitDisc.QNAME).addChild(createValueBuilder(4321L, MultiExitDisc.QNAME, "med").build()).build());
+        this.dataContBuilder.addChild(createContBuilder(this.multiExitDiscQName).addChild(createValueBuilder(4321L, this.multiExitDiscQName, "med").build()).build());
         // origin
-        this.dataContBuilder.addChild(createContBuilder(Origin.QNAME).addChild(createValueBuilder("egp", Origin.QNAME, "value").build()).build());
+        this.dataContBuilder.addChild(createContBuilder(this.originQName).addChild(createValueBuilder("egp", this.originQName, "value").build()).build());
         // as path
         final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> asPathContBuilder = ImmutableContainerNodeSchemaAwareBuilder.create();
-        asPathContBuilder.withNodeIdentifier(new NodeIdentifier(AsPath.QNAME));
+        asPathContBuilder.withNodeIdentifier(new NodeIdentifier(this.asPathQName));
 
         final CollectionNodeBuilder<UnkeyedListEntryNode, UnkeyedListNode> segments = ImmutableUnkeyedListNodeBuilder.create();
-        segments.withNodeIdentifier(new NodeIdentifier(AsPath.QNAME));
+        segments.withNodeIdentifier(new NodeIdentifier(this.asPathQName));
         final DataContainerNodeAttrBuilder<NodeIdentifier, UnkeyedListEntryNode> segmentBuilder = ImmutableUnkeyedListEntryNodeBuilder.create();
-        segmentBuilder.withNodeIdentifier(new NodeIdentifier(AsPath.QNAME));
+        segmentBuilder.withNodeIdentifier(new NodeIdentifier(this.asPathQName));
         final ImmutableLeafNodeBuilder<Long> segmentLeaf = new ImmutableLeafNodeBuilder<>();
-        segmentLeaf.withNodeIdentifier(new NodeIdentifier(QName.create(AsPath.QNAME, "segments"))).withValue(123454L);
+        segmentLeaf.withNodeIdentifier(new NodeIdentifier(QName.create(this.asPathQName, "segments"))).withValue(123454L);
         segmentBuilder.addChild(segmentLeaf.build());
         segments.addChild(segmentBuilder.build());
 
