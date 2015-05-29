@@ -142,46 +142,43 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
         State state = State.INIT;
         while (!objects.isEmpty() && !state.equals(State.END)) {
             obj = objects.get(0);
-            switch (state) {
-            case INIT:
-                state = State.LSPA_IN;
-                if (obj instanceof Lspa) {
-                    pBuilder.setLspa((Lspa) obj);
-                    break;
-                }
-            case LSPA_IN:
-                state = State.BANDWIDTH_IN;
-                if (obj instanceof Bandwidth) {
-                    pBuilder.setBandwidth((Bandwidth) obj);
-                    break;
-                }
-            case BANDWIDTH_IN:
-                state = State.METRIC_IN;
-                if (obj instanceof Metric) {
-                    pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-                    state = State.BANDWIDTH_IN;
-                    break;
-                }
-            case METRIC_IN:
-                state = State.IRO_IN;
-                if (obj instanceof Iro) {
-                    pBuilder.setIro((Iro) obj);
-                    break;
-                }
-            case IRO_IN:
-                state = State.END;
-                break;
-            case END:
-                break;
-            default:
-                break;
-            }
+            state = insertObject(state,obj, pBuilder, pathMetrics);
             if (!state.equals(State.END)) {
                 objects.remove(0);
             }
         }
         if (!pathMetrics.isEmpty()) {
             pBuilder.setMetrics(pathMetrics);
+        }
+    }
+
+    private State insertObject(final State state, final Object obj, final PathBuilder pBuilder, final List<Metrics> pathMetrics) {
+        switch (state) {
+        case INIT:
+            if (obj instanceof Lspa) {
+                pBuilder.setLspa((Lspa) obj);
+                return State.LSPA_IN;
+            }
+        case LSPA_IN:
+            if (obj instanceof Bandwidth) {
+                pBuilder.setBandwidth((Bandwidth) obj);
+                return State.BANDWIDTH_IN;
+            }
+        case BANDWIDTH_IN:
+            if (obj instanceof Metric) {
+                pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
+                return State.BANDWIDTH_IN;
+            }
+        case METRIC_IN:
+            if (obj instanceof Iro) {
+                pBuilder.setIro((Iro) obj);
+                return State.IRO_IN;
+            }
+        case IRO_IN:
+        case END:
+            return State.END;
+        default:
+            return state;
         }
     }
 
