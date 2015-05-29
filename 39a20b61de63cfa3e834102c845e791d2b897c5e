@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a9dcd25_c6d1c6fc",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/protocol/pcep/ietf/initiated00/CInitiated00PCInitiateMessageParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-05-29T14:30:56Z",
+      "side": 1,
+      "message": "This is probably wrong in the previous commit as well, I didn\u0027t notice it :-( \n\nNote there are two states:\n\n state \u003d State.METRIC_IN;\n if (obj instanceof Metric) {\n   metrics.add(new MetricsBuilder().setMetric((Metric) obj).build());\n   state \u003d State.BANDWIDTH_IN;\n   break;\n\nThis is to allow multiple Metric objects to be inserted. \nThe code as you changed it will cycle in case state \u003d BANDWIDTH_IN. Try to think of a fix and recheck previous commit.",
+      "revId": "39a20b61de63cfa3e834102c845e791d2b897c5e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
