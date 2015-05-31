@@ -140,7 +140,7 @@
                     </data-provider>
                     <dom-data-provider>
                         <type xmlns:sal="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">sal:dom-async-data-broker</type>
-                        <name>inmemory-data-broker</name>
+                        <name>pingpong-broker</name>
                     </dom-data-provider>
                     <codec-tree-factory>
                         <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-codec-tree-factory</type>
