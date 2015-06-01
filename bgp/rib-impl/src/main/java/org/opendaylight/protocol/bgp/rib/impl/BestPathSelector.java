@@ -38,7 +38,7 @@ final class BestPathSelector {
         this.ourAs = Preconditions.checkNotNull(ourAs);
     }
 
-    void processPath(final UnsignedInteger routerId, final ContainerNode attrs) {
+    void processPath(final UnsignedInteger routerId, final ContainerNode attrs, final QName extension) {
         Preconditions.checkNotNull(routerId, "Router ID may not be null");
 
         // Consider only non-null attributes
@@ -59,7 +59,7 @@ final class BestPathSelector {
              * Store the new details if we have nothing stored or when the selection algorithm indicates new details
              * are better.
              */
-            final BestPathState state = new BestPathState(attrs);
+            final BestPathState state = new BestPathState(attrs, extension);
             if (this.bestOriginatorId == null || !selectPath(originatorId, state)) {
                 LOG.trace("Selecting path from router {} state {}", routerId, state);
                 this.bestOriginatorId = originatorId;
