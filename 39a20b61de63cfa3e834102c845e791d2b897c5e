@@ -16,6 +16,24 @@
       "revId": "39a20b61de63cfa3e834102c845e791d2b897c5e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_6e20c4f7",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/protocol/pcep/ietf/initiated00/CInitiated00PCInitiateMessageParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-06-02T07:34:25Z",
+      "side": 1,
+      "message": "I don\u0027t think it cycles just in BW_IN. When obj is not instance of Metric, then it moves to next case. \"break;\" or \"return\" is within if block, so it cannot be stuck in one state case.",
+      "parentUuid": "1a9dcd25_c6d1c6fc",
+      "revId": "39a20b61de63cfa3e834102c845e791d2b897c5e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
