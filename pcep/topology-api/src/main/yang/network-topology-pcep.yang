@@ -40,6 +40,12 @@ module network-topology-pcep {
         reference "";
     }
 
+    typedef plsp-id {
+        type uint32 {
+            range 0..1048576;
+        }
+    }
+
     typedef pcc-sync-state {
         type enumeration {
             enum initial-resync {
@@ -99,11 +105,11 @@ module network-topology-pcep {
                 key name;
 
                 list path {
-                    leaf lsp-id {
-                        type rsvp:lsp-id;
+                    leaf plsp-id {
+                        type plsp-id;
                         mandatory true;
                     }
-                    key lsp-id;
+                    key plsp-id;
 
                     uses pcep:path-definition;
                 }

@@ -34,10 +34,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.BandwidthBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.Ipv4ExtendedTunnelId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.PccSyncState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClientBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLspBuilder;
@@ -184,7 +184,7 @@ public class NodeChangedListenerTest extends AbstractDataBrokerTest {
         nodeBuilder.setKey(new NodeKey(nodeId));
         nodeBuilder.setNodeId(nodeId);
         final PathBuilder pathBuilder = new PathBuilder();
-        pathBuilder.setKey(new PathKey(new LspId(lspId)));
+        pathBuilder.setKey(new PathKey(new PlspId(lspId)));
         pathBuilder.setBandwidth(new BandwidthBuilder().setBandwidth(new Bandwidth(new byte[] {0x00, 0x00, (byte) 0xff, (byte) 0xff})).build());
         pathBuilder.addAugmentation(Path1.class, new Path1Builder().setLsp(new LspBuilder().setTlvs(new TlvsBuilder().setLspIdentifiers(new LspIdentifiersBuilder().setAddressFamily(new Ipv4CaseBuilder().setIpv4(new Ipv4Builder().setIpv4TunnelSenderAddress(new Ipv4Address(ipv4Address)).setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(ipv4Address)).setIpv4TunnelEndpointAddress(new Ipv4Address(dstIpv4Address)).build()).build()).build()).build()).setAdministrative(true).setDelegate(true).build()).build());
         final ReportedLsp reportedLps = new ReportedLspBuilder().setKey(new ReportedLspKey(lspName)).setPath(Lists.newArrayList(pathBuilder.build())).build();

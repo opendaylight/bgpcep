@@ -44,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.PccSyncState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.lsp.metadata.Metadata;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClient;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClientBuilder;
@@ -356,14 +357,14 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     private List<Path> makeBeforeBreak(final ReportedLspBuilder rlb, final ReportedLsp previous, final String name, final boolean remove) {
         // just one path should be reported
         Preconditions.checkState(rlb.getPath().size() == 1);
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId reportedLspId = rlb.getPath().get(0).getLspId();
+        PlspId reportedLspId = rlb.getPath().get(0).getPlspId();
         // check previous report for existing paths
         final List<Path> updatedPaths = new ArrayList<>(previous.getPath());
         LOG.debug("Found previous paths {} to this lsp name {}", updatedPaths, name);
         for (final Path path : previous.getPath()) {
             //we found reported path in previous reports
-            if (path.getLspId().getValue() == 0 || path.getLspId().equals(reportedLspId)) {
-                LOG.debug("Match on lsp-id {}", path.getLspId().getValue() );
+            if (path.getPlspId().getValue() == 0 || path.getPlspId().equals(reportedLspId)) {
+                LOG.debug("Match on lsp-id {}", path.getPlspId().getValue() );
                 // path that was reported previously and does have the same lsp-id, path will be updated
                 final boolean r = updatedPaths.remove(path);
                 LOG.trace("Request removed? {}", r);
