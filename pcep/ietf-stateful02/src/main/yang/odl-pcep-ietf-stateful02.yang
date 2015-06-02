@@ -33,12 +33,6 @@ module odl-pcep-ietf-stateful02 {
         reference "http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-02";
     }
 
-    typedef plsp-id {
-        type uint32 {
-            range 0..1048576;
-        }
-    }
-
     typedef symbolic-path-name {
         type binary {
             length 1..65535;
@@ -135,7 +129,7 @@ module odl-pcep-ietf-stateful02 {
             }
 
             leaf plsp-id {
-                type plsp-id;
+                type topo:plsp-id;
                 mandatory true;
             }
 

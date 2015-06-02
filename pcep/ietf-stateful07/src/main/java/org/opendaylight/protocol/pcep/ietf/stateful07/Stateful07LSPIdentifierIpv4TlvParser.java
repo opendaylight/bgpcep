@@ -32,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.TunnelId;
 
+
 /**
  * Parser for {@link LspIdentifiers}
  */
@@ -51,12 +52,12 @@ public final class Stateful07LSPIdentifierIpv4TlvParser implements TlvParser, Tl
         }
         final Ipv4Builder builder = new Ipv4Builder();
         builder.setIpv4TunnelSenderAddress(Ipv4Util.addressForByteBuf(buffer));
-        final LspId lspId = new LspId((long) buffer.readUnsignedShort());
+        final LspId plspId = new LspId((long) buffer.readUnsignedShort());
         final TunnelId tunnelId = new TunnelId(buffer.readUnsignedShort());
         builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.addressForByteBuf(buffer)));
         builder.setIpv4TunnelEndpointAddress(Ipv4Util.addressForByteBuf(buffer));
         final AddressFamily afi = new Ipv4CaseBuilder().setIpv4(builder.build()).build();
-        return new LspIdentifiersBuilder().setAddressFamily(afi).setLspId(lspId).setTunnelId(tunnelId).build();
+        return new LspIdentifiersBuilder().setAddressFamily(afi).setLspId(plspId).setTunnelId(tunnelId).build();
     }
 
     @Override
