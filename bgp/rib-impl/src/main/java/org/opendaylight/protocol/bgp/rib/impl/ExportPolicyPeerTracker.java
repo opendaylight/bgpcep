@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Tracks peers for adj-rib-out writeout.
  */
-final class ExportPolicyPeerTracker extends AbstractPeerRoleTracker {
+final class ExportPolicyPeerTracker {
     private static final Logger LOG = LoggerFactory.getLogger(ExportPolicyPeerTracker.class);
     private static final Function<YangInstanceIdentifier, Entry<PeerId, YangInstanceIdentifier>> GENERATE_PEERID = new Function<YangInstanceIdentifier, Entry<PeerId, YangInstanceIdentifier>>() {
         @Override
@@ -76,7 +76,6 @@ final class ExportPolicyPeerTracker extends AbstractPeerRoleTracker {
         return ret;
     }
 
-    @Override
     protected void peerRoleChanged(final YangInstanceIdentifier peerPath, final PeerRole role) {
         /*
          * This is a sledgehammer approach to the problem: modify the role map first,

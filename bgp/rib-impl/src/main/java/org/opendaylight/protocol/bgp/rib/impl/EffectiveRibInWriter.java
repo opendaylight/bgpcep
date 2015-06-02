@@ -7,33 +7,27 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Verify;
 import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.AdjRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.EffectiveRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,228 +50,170 @@ import org.slf4j.LoggerFactory;
 final class EffectiveRibInWriter implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(EffectiveRibInWriter.class);
     private static final NodeIdentifier TABLE_ROUTES = new NodeIdentifier(Routes.QNAME);
-    private static final NodeIdentifier ADJRIBIN_NID = new NodeIdentifier(AdjRibIn.QNAME);
-    private static final NodeIdentifier TABLES_NID = new NodeIdentifier(Tables.QNAME);
 
-    /**
-     * Maintains {@link TableRouteListener} instances.
-     */
-    private final class AdjInTracker implements AutoCloseable, DOMDataTreeChangeListener {
-        private final RIBSupportContextRegistry registry;
-        private final YangInstanceIdentifier ribId;
-        private final ListenerRegistration<?> reg;
-        private final DOMTransactionChain chain;
+    private final ImportPolicyPeerTracker peerPolicyTracker;
+    private final RIBSupportContextRegistry registry;
+    private final DOMTransactionChain chain;
+    private final YangInstanceIdentifier ribId;
 
-        AdjInTracker(final DOMDataTreeChangeService service, final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier ribId) {
-            this.registry = Preconditions.checkNotNull(registry);
-            this.chain = Preconditions.checkNotNull(chain);
-            this.ribId = Preconditions.checkNotNull(ribId);
+    static EffectiveRibInWriter create(@Nonnull final DOMTransactionChain chain,
+        @Nonnull final YangInstanceIdentifier ribId, @Nonnull final PolicyDatabase pd, @Nonnull final RIBSupportContextRegistry registry) {
+        return new EffectiveRibInWriter(chain, ribId, pd, registry);
+    }
 
-            final YangInstanceIdentifier tableId = ribId.node(Peer.QNAME).node(Peer.QNAME);
-            final DOMDataTreeIdentifier treeId = new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, tableId);
-            LOG.debug("Registered Effective RIB on {}", tableId);
-            this.reg = service.registerDataTreeChangeListener(treeId, this);
+    private EffectiveRibInWriter(final DOMTransactionChain chain, final YangInstanceIdentifier ribId,
+        final PolicyDatabase pd, final RIBSupportContextRegistry registry) {
+        this.peerPolicyTracker = new ImportPolicyPeerTracker(pd);
+        this.registry = registry;
+        this.chain = chain;
+        this.ribId = ribId;
+    }
+
+    private void processRoute(final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final AbstractImportPolicy policy, final YangInstanceIdentifier routesPath, final DataTreeCandidateNode route) {
+        LOG.debug("Process route {}", route);
+        switch (route.getModificationType()) {
+        case DELETE:
+            // Delete has already been affected by the store in caller, so this is a no-op.
+            break;
+        case UNMODIFIED:
+            // No-op
+            break;
+        case SUBTREE_MODIFIED:
+        case WRITE:
+            // Lookup per-table attributes from RIBSupport
+            final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(route.getDataAfter(), ribSupport.routeAttributesIdentifier()).orNull();
+            final ContainerNode effectiveAttrs;
+
+            if (advertisedAttrs != null) {
+                effectiveAttrs = policy.effectiveAttributes(advertisedAttrs);
+
+                /*
+                 * Speed hack: if we determine that the policy has passed the attributes
+                 * back unmodified, the corresponding change has already been written in
+                 * our caller. There is no need to perform any further processing.
+                 *
+                 * We also use direct object comparison to make the check very fast, as
+                 * it may not be that common, in which case it does not make sense to pay
+                 * the full equals price.
+                 */
+                if (effectiveAttrs == advertisedAttrs) {
+                    LOG.trace("Effective and local attributes are equal. Quit processing route {}", route);
+                    return;
+                }
+            } else {
+                effectiveAttrs = null;
+            }
+
+            final YangInstanceIdentifier routeId = ribSupport.routePath(routesPath, route.getIdentifier());
+            LOG.debug("Route {} effective attributes {} towards {}", route.getIdentifier(), effectiveAttrs, routeId);
+
+            if (effectiveAttrs != null) {
+                tx.put(LogicalDatastoreType.OPERATIONAL, routeId.node(ribSupport.routeAttributesIdentifier()), effectiveAttrs);
+            } else {
+                LOG.warn("Route {} advertised empty attributes", routeId);
+                tx.delete(LogicalDatastoreType.OPERATIONAL,  routeId);
+            }
+            break;
+        default:
+            LOG.warn("Ignoring unhandled route {}", route);
+            break;
         }
+    }
 
-        private void processRoute(final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final AbstractImportPolicy policy, final YangInstanceIdentifier routesPath, final DataTreeCandidateNode route) {
-            LOG.debug("Process route {}", route);
-            switch (route.getModificationType()) {
+    private void processTableChildren(final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final NodeIdentifierWithPredicates peerKey, final YangInstanceIdentifier tablePath, final Collection<DataTreeCandidateNode> children) {
+        final AbstractImportPolicy policy = EffectiveRibInWriter.this.peerPolicyTracker.policyFor(IdentifierUtils.peerId(peerKey));
+
+        for (final DataTreeCandidateNode child : children) {
+            LOG.debug("Process table children {}", child);
+            switch (child.getModificationType()) {
             case DELETE:
-                // Delete has already been affected by the store in caller, so this is a no-op.
-                break;
-            case MERGE:
-                LOG.info("Merge on {} reported, this should never have happened, ignoring", route);
+                tx.delete(LogicalDatastoreType.OPERATIONAL, tablePath.node(child.getIdentifier()));
                 break;
             case UNMODIFIED:
                 // No-op
                 break;
             case SUBTREE_MODIFIED:
             case WRITE:
-                // Lookup per-table attributes from RIBSupport
-                final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(route.getDataAfter(), ribSupport.routeAttributesIdentifier()).orNull();
-                final ContainerNode effectiveAttrs;
+                tx.put(LogicalDatastoreType.OPERATIONAL, tablePath.node(child.getIdentifier()), child.getDataAfter().get());
 
-                if (advertisedAttrs != null) {
-                    effectiveAttrs = policy.effectiveAttributes(advertisedAttrs);
-
-                    /*
-                     * Speed hack: if we determine that the policy has passed the attributes
-                     * back unmodified, the corresponding change has already been written in
-                     * our caller. There is no need to perform any further processing.
-                     *
-                     * We also use direct object comparison to make the check very fast, as
-                     * it may not be that common, in which case it does not make sense to pay
-                     * the full equals price.
-                     */
-                    if (effectiveAttrs == advertisedAttrs) {
-                        LOG.trace("Effective and local attributes are equal. Quit processing route {}", route);
-                        return;
+                // Routes are special, as they may end up being filtered. The previous put conveniently
+                // ensured that we have them in at target, so a subsequent delete will not fail :)
+                if (TABLE_ROUTES.equals(child.getIdentifier())) {
+                    final YangInstanceIdentifier routesPath = tablePath.node(Routes.QNAME);
+                    for (final DataTreeCandidateNode route : ribSupport.changedRoutes(child)) {
+                        processRoute(tx, ribSupport, policy, routesPath, route);
                     }
-                } else {
-                    effectiveAttrs = null;
-                }
-
-                final YangInstanceIdentifier routeId = ribSupport.routePath(routesPath, route.getIdentifier());
-                LOG.debug("Route {} effective attributes {} towards {}", route.getIdentifier(), effectiveAttrs, routeId);
-
-                if (effectiveAttrs != null) {
-                    tx.put(LogicalDatastoreType.OPERATIONAL, routeId.node(ribSupport.routeAttributesIdentifier()), effectiveAttrs);
-                } else {
-                    LOG.warn("Route {} advertised empty attributes", routeId);
-                    tx.delete(LogicalDatastoreType.OPERATIONAL,  routeId);
                 }
                 break;
             default:
-                LOG.warn("Ignoring unhandled route {}", route);
+                LOG.warn("Ignoring unhandled child {}", child);
                 break;
             }
         }
-
-        private void processTableChildren(final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final NodeIdentifierWithPredicates peerKey, final YangInstanceIdentifier tablePath, final Collection<DataTreeCandidateNode> children) {
-            final AbstractImportPolicy policy = EffectiveRibInWriter.this.peerPolicyTracker.policyFor(IdentifierUtils.peerId(peerKey));
-
-            for (final DataTreeCandidateNode child : children) {
-                LOG.debug("Process table children {}", child);
-                switch (child.getModificationType()) {
-                case DELETE:
-                    tx.delete(LogicalDatastoreType.OPERATIONAL, tablePath.node(child.getIdentifier()));
-                    break;
-                case MERGE:
-                    LOG.info("Merge on {} reported, this should never have happened, ignoring", child);
-                    break;
-                case UNMODIFIED:
-                    // No-op
-                    break;
-                case SUBTREE_MODIFIED:
-                case WRITE:
-                    tx.put(LogicalDatastoreType.OPERATIONAL, tablePath.node(child.getIdentifier()), child.getDataAfter().get());
-
-                    // Routes are special, as they may end up being filtered. The previous put conveniently
-                    // ensured that we have them in at target, so a subsequent delete will not fail :)
-                    if (TABLE_ROUTES.equals(child.getIdentifier())) {
-                        final YangInstanceIdentifier routesPath = tablePath.node(Routes.QNAME);
-                        for (final DataTreeCandidateNode route : ribSupport.changedRoutes(child)) {
-                            processRoute(tx, ribSupport, policy, routesPath, route);
-                        }
-                    }
-                    break;
-                default:
-                    LOG.warn("Ignoring unhandled child {}", child);
-                    break;
-                }
-            }
-        }
-
-        private RIBSupportContext getRibSupport(final NodeIdentifierWithPredicates tableKey) {
-            return this.registry.getRIBSupportContext(tableKey);
-        }
-
-        private YangInstanceIdentifier effectiveTablePath(final NodeIdentifierWithPredicates peerKey, final NodeIdentifierWithPredicates tableKey) {
-            return this.ribId.node(Peer.QNAME).node(peerKey).node(EffectiveRibIn.QNAME).node(Tables.QNAME).node(tableKey);
-        }
-
-        private void modifyTable(final DOMDataWriteTransaction tx, final NodeIdentifierWithPredicates peerKey, final NodeIdentifierWithPredicates tableKey, final DataTreeCandidateNode table) {
-            final RIBSupportContext ribSupport = getRibSupport(tableKey);
-            final YangInstanceIdentifier tablePath = effectiveTablePath(peerKey, tableKey);
-
-            processTableChildren(tx, ribSupport.getRibSupport(), peerKey, tablePath, table.getChildNodes());
-        }
-
-        private void writeTable(final DOMDataWriteTransaction tx, final NodeIdentifierWithPredicates peerKey, final NodeIdentifierWithPredicates tableKey, final DataTreeCandidateNode table) {
-            final RIBSupportContext ribSupport = getRibSupport(tableKey);
-            final YangInstanceIdentifier tablePath = effectiveTablePath(peerKey, tableKey);
-
-            // Create an empty table
-            ribSupport.clearTable(tx,tablePath);
-
-            processTableChildren(tx, ribSupport.getRibSupport(), peerKey, tablePath, table.getChildNodes());
-        }
-
-        @Override
-        public void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
-            LOG.trace("Data changed called to effective RIB. Change : {}", changes);
-            final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
-
-            for (final DataTreeCandidate tc : changes) {
-                final YangInstanceIdentifier rootPath = tc.getRootPath();
-
-                // Obtain the peer's key
-                final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(rootPath);
-                final DataTreeCandidateNode root = tc.getRootNode();
-
-                // call out peer-role has changed
-                final DataTreeCandidateNode roleChange =  root.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
-                if (roleChange != null) {
-                    EffectiveRibInWriter.this.peerPolicyTracker.onDataTreeChanged(roleChange, IdentifierUtils.peerPath(rootPath));
-                }
-
-                // filter out any change outside AdjRibsIn
-                final DataTreeCandidateNode ribIn =  root.getModifiedChild(ADJRIBIN_NID);
-                if (ribIn == null) {
-                    LOG.debug("Skipping change {}", tc.getRootNode());
-                    continue;
-                }
-                final DataTreeCandidateNode tables = ribIn.getModifiedChild(TABLES_NID);
-                if (tables == null) {
-                    LOG.debug("Skipping change {}", tc.getRootNode());
-                    continue;
-                }
-                for (final DataTreeCandidateNode table : tables.getChildNodes()) {
-                    final PathArgument lastArg = table.getIdentifier();
-                    Verify.verify(lastArg instanceof NodeIdentifierWithPredicates, "Unexpected type %s in path %s", lastArg.getClass(), rootPath);
-                    final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) lastArg;
-
-                    switch (root.getModificationType()) {
-                    case DELETE:
-                        // delete the corresponding effective table
-                        tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath(peerKey, tableKey));
-                        break;
-                    case MERGE:
-                        // TODO: upstream API should never give us this, as it leaks how the delta was created.
-                        LOG.info("Merge on {} reported, this should never have happened, but attempting to cope", rootPath);
-                        modifyTable(tx, peerKey, tableKey, table);
-                        break;
-                    case SUBTREE_MODIFIED:
-                        modifyTable(tx, peerKey, tableKey, table);
-                        break;
-                    case UNMODIFIED:
-                        LOG.info("Ignoring spurious notification on {} data {}", rootPath, table);
-                        break;
-                    case WRITE:
-                        writeTable(tx, peerKey, tableKey, table);
-                        break;
-                    default:
-                        LOG.warn("Ignoring unhandled root {}", root);
-                        break;
-                    }
-                }
-            }
-            tx.submit();
-        }
-
-        @Override
-        public void close() {
-            // FIXME: wipe all effective routes?
-            this.reg.close();
-        }
     }
 
-    private final ImportPolicyPeerTracker peerPolicyTracker;
-    private final AdjInTracker adjInTracker;
-
-    static EffectiveRibInWriter create(@Nonnull final DOMDataTreeChangeService service, @Nonnull final DOMTransactionChain chain,
-        @Nonnull final YangInstanceIdentifier ribId, @Nonnull final PolicyDatabase pd, @Nonnull final RIBSupportContextRegistry registry) {
-        return new EffectiveRibInWriter(service, chain, ribId, pd, registry);
+    private RIBSupportContext getRibSupport(final NodeIdentifierWithPredicates tableKey) {
+        return this.registry.getRIBSupportContext(tableKey);
     }
 
-    private EffectiveRibInWriter(final DOMDataTreeChangeService service, final DOMTransactionChain chain, final YangInstanceIdentifier ribId,
-        final PolicyDatabase pd, final RIBSupportContextRegistry registry) {
-        this.peerPolicyTracker = new ImportPolicyPeerTracker(pd);
-        this.adjInTracker = new AdjInTracker(service, registry, chain, ribId);
+    private YangInstanceIdentifier effectiveTablePath(final NodeIdentifierWithPredicates peerKey, final NodeIdentifierWithPredicates tableKey) {
+        return this.ribId.node(Peer.QNAME).node(peerKey).node(EffectiveRibIn.QNAME).node(Tables.QNAME).node(tableKey);
+    }
+
+    private void modifyTable(final DOMDataWriteTransaction tx, final NodeIdentifierWithPredicates peerKey, final NodeIdentifierWithPredicates tableKey, final DataTreeCandidateNode table) {
+        final RIBSupportContext ribSupport = getRibSupport(tableKey);
+        final YangInstanceIdentifier tablePath = effectiveTablePath(peerKey, tableKey);
+
+        processTableChildren(tx, ribSupport.getRibSupport(), peerKey, tablePath, table.getChildNodes());
+    }
+
+    private void writeTable(final DOMDataWriteTransaction tx, final NodeIdentifierWithPredicates peerKey, final NodeIdentifierWithPredicates tableKey, final DataTreeCandidateNode table) {
+        final RIBSupportContext ribSupport = getRibSupport(tableKey);
+        final YangInstanceIdentifier tablePath = effectiveTablePath(peerKey, tableKey);
+
+        // Create an empty table
+        ribSupport.clearTable(tx,tablePath);
+
+        processTableChildren(tx, ribSupport.getRibSupport(), peerKey, tablePath, table.getChildNodes());
+    }
+
+    public void onDataTreeChanged(final DataTreeCandidateNode tables, final YangInstanceIdentifier rootPath, final DataTreeCandidateNode root, final NodeIdentifierWithPredicates peerKey) {
+        LOG.trace("Data changed called to effective RIB. Change : {}", tables);
+        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+
+        for (final DataTreeCandidateNode table : tables.getChildNodes()) {
+            final PathArgument lastArg = table.getIdentifier();
+            Verify.verify(lastArg instanceof NodeIdentifierWithPredicates, "Unexpected type %s in path %s", lastArg.getClass(), rootPath);
+            final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) lastArg;
+
+            switch (root.getModificationType()) {
+            case DELETE:
+                // delete the corresponding effective table
+                tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath(peerKey, tableKey));
+                break;
+            case SUBTREE_MODIFIED:
+                modifyTable(tx, peerKey, tableKey, table);
+                break;
+            case UNMODIFIED:
+                LOG.info("Ignoring spurious notification on {} data {}", rootPath, table);
+                break;
+            case WRITE:
+                writeTable(tx, peerKey, tableKey, table);
+                break;
+            default:
+                LOG.warn("Ignoring unhandled change {}", tables);
+                break;
+            }
+        }
+        tx.submit();
     }
 
     @Override
     public void close() {
-        this.adjInTracker.close();
+        // FIXME: wipe all effective routes?
+    }
+
+    void peerRoleChanged(final YangInstanceIdentifier peerPath, final PeerRole role) {
+        this.peerPolicyTracker.peerRoleChanged(peerPath, role);
     }
 }

@@ -145,17 +145,22 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
         final DOMDataBrokerExtension service = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
         this.service = service;
-        this.efWriter = EffectiveRibInWriter.create(getService(), this.createPeerChain(this), getYangRibId(), pd, this.ribContextRegistry);
+        final RibListener ribListener = RibListener.create(getYangRibId(), getService());
+
+        this.efWriter = EffectiveRibInWriter.create(this.createPeerChain(this), getYangRibId(), pd, this.ribContextRegistry);
         LOG.debug("Effective RIB created.");
+        ribListener.setEffectiveRibInWriter(this.efWriter);
 
         for (final BgpTableType t : this.localTables) {
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
             this.localTablesKeys.add(key);
-            startLocRib(key, pd);
+            ribListener.addLocRibWriter(key, startLocRib(key, pd));
         }
+        // wire listener
+        ribListener.registerListener();
     }
 
-    private void startLocRib(final TablesKey key, final PolicyDatabase pd) {
+    private LocRibWriter startLocRib(final TablesKey key, final PolicyDatabase pd) {
         LOG.debug("Creating LocRib table for {}", key);
         // create locRibWriter for each table
         final DOMDataWriteTransaction tx = this.domChain.newWriteOnlyTransaction();
@@ -180,7 +185,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         } catch (final TransactionCommitFailedException e1) {
             LOG.error("Failed to initiate LocRIB for key {}", key, e1);
         }
-        LocRibWriter.create(this.ribContextRegistry, key, this.createPeerChain(this), getYangRibId(), this.localAs, getService(), pd);
+        return LocRibWriter.create(this.ribContextRegistry, key, this.createPeerChain(this), getYangRibId(), this.localAs, pd);
     }
 
     @Override
