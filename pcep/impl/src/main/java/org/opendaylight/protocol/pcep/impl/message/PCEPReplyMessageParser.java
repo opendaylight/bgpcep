@@ -271,7 +271,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         case BANDWIDTH_IN:
             if (obj instanceof Metric) {
                 pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-                return State.METRIC_IN;
+                return State.BANDWIDTH_IN;
             }
         case METRIC_IN:
             if (obj instanceof Iro) {
@@ -293,53 +293,48 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         State state = State.INIT;
         while (!objects.isEmpty() && !state.equals(State.END)) {
             obj = objects.get(0);
-
-            switch (state) {
-            case INIT:
-                state = State.LSPA_IN;
-                if (obj instanceof Lspa) {
-                    builder.setLspa((Lspa) obj);
-                    break;
-                }
-            case LSPA_IN:
-                state = State.OF_IN;
-                if (obj instanceof Of) {
-                    builder.setOf((Of) obj);
-                    break;
-                }
-            case OF_IN:
-                state = State.BANDWIDTH_IN;
-                if (obj instanceof Bandwidth) {
-                    builder.setBandwidth((Bandwidth) obj);
-                    break;
-                }
-            case BANDWIDTH_IN:
-                state = State.METRIC_IN;
-                if (obj instanceof Metric) {
-                    pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-                    state = State.BANDWIDTH_IN;
-                    break;
-                }
-            case METRIC_IN:
-                state = State.IRO_IN;
-                if (obj instanceof Iro) {
-                    builder.setIro((Iro) obj);
-                    break;
-                }
-            case IRO_IN:
-                state = State.END;
-                break;
-            case END:
-                break;
-            default:
-                break;
-            }
+            state = insertObject(state, obj, builder, pathMetrics);
             if (!state.equals(State.END)) {
                 objects.remove(0);
             }
         }
         if (!pathMetrics.isEmpty()) {
             builder.setMetrics(pathMetrics);
+        }
+    }
+
+    private State insertObject(final State state, final Object obj, final PathsBuilder builder, final List<Metrics> pathMetrics) {
+        switch (state) {
+        case INIT:
+            if (obj instanceof Lspa) {
+                builder.setLspa((Lspa) obj);
+                return State.LSPA_IN;
+            }
+        case LSPA_IN:
+            if (obj instanceof Of) {
+                builder.setOf((Of) obj);
+                return State.OF_IN;
+            }
+        case OF_IN:
+            if (obj instanceof Bandwidth) {
+                builder.setBandwidth((Bandwidth) obj);
+                return State.BANDWIDTH_IN;
+            }
+        case BANDWIDTH_IN:
+            if (obj instanceof Metric) {
+                pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
+                return State.BANDWIDTH_IN;
+            }
+        case METRIC_IN:
+            if (obj instanceof Iro) {
+                builder.setIro((Iro) obj);
+                return State.IRO_IN;
+            }
+        case IRO_IN:
+        case END:
+            return State.END;
+        default:
+            return state;
         }
     }
 
