@@ -21,10 +21,53 @@ final class BestPath {
     }
 
     UnsignedInteger getRouterId() {
-        return routerId;
+        return this.routerId;
     }
 
     BestPathState getState() {
-        return state;
+        return this.state;
+    }
+
+    @Override
+    public String toString() {
+        return "BestPath [routerId=" + this.routerId + ", state=" + this.state + "]";
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((this.routerId == null) ? 0 : this.routerId.hashCode());
+        result = prime * result + ((this.state == null) ? 0 : this.state.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final BestPath other = (BestPath) obj;
+        if (this.routerId == null) {
+            if (other.routerId != null) {
+                return false;
+            }
+        } else if (!this.routerId.equals(other.routerId)) {
+            return false;
+        }
+        if (this.state == null) {
+            if (other.state != null) {
+                return false;
+            }
+        } else if (!this.state.equals(other.state)) {
+            return false;
+        }
+        return true;
     }
 }
