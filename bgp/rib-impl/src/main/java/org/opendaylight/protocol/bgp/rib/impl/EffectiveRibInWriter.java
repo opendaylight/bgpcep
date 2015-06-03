@@ -150,14 +150,14 @@ final class EffectiveRibInWriter implements AutoCloseable {
                     break;
                 case SUBTREE_MODIFIED:
                 case WRITE:
-                    tx.put(LogicalDatastoreType.OPERATIONAL, tablePath.node(child.getIdentifier()), child.getDataAfter().get());
+                    final YangInstanceIdentifier childPath = tablePath.node(child.getIdentifier());
+                    tx.put(LogicalDatastoreType.OPERATIONAL, childPath, child.getDataAfter().get());
 
                     // Routes are special, as they may end up being filtered. The previous put conveniently
                     // ensured that we have them in at target, so a subsequent delete will not fail :)
                     if (TABLE_ROUTES.equals(child.getIdentifier())) {
-                        final YangInstanceIdentifier routesPath = tablePath.node(Routes.QNAME);
                         for (final DataTreeCandidateNode route : ribSupport.changedRoutes(child)) {
-                            processRoute(tx, ribSupport, policy, routesPath, route);
+                            processRoute(tx, ribSupport, policy, childPath, route);
                         }
                     }
                     break;
