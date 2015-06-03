@@ -58,6 +58,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     private static final Logger LOG = LoggerFactory.getLogger(LocRibWriter.class);
 
     private static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_TRUE = ImmutableNodes.leafNode(QName.create(Attributes.QNAME, "uptodate"), Boolean.TRUE);
+    private static final NodeIdentifier ROUTES_IDENTIFIER = new NodeIdentifier(Routes.QNAME);
 
     private final Map<PathArgument, AbstractRouteEntry> routeEntries = new HashMap<>();
     private final YangInstanceIdentifier locRibTarget;
@@ -216,7 +217,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
                     final RIBSupportContext ribCtx = this.registry.getRIBSupportContext(this.tableKey);
                     // FIXME: the table should be created for a peer only once
                     ribCtx.clearTable(tx, pid.getValue().node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey));
-                    final YangInstanceIdentifier routeTarget = this.ribSupport.routePath(pid.getValue().node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey).node(Routes.QNAME), key.getRouteId());
+                    final YangInstanceIdentifier routeTarget = this.ribSupport.routePath(pid.getValue().node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey).node(ROUTES_IDENTIFIER), key.getRouteId());
                     if (effectiveAttributes != null && value != null && !peerId.equals(pid.getKey())) {
                         LOG.debug("Write route to AdjRibsOut {}", value);
                         tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
