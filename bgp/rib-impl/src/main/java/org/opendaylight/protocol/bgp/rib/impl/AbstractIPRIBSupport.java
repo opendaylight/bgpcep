@@ -126,6 +126,7 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof UnkeyedListNode) {
                     // Instance identifier to table/(choice routes)/(map of route)
+                    // FIXME: cache on per-table basis (in TableContext, for example)
                     final YangInstanceIdentifier base = tablePath.node(ROUTES).node(routesContainerIdentifier()).node(routeIdentifier());
                     for (final UnkeyedListEntryNode e : ((UnkeyedListNode)routes).getValue()) {
                         final NodeIdentifierWithPredicates routeKey = createRouteKey(e);
@@ -141,6 +142,9 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode e) {
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybeKeyLeaf = e.getChild(routeKeyLeafIdentifier());
         Preconditions.checkState(maybeKeyLeaf.isPresent());
+
+        // FIXME: a cache here would mean we instantiate the same identifier for each route
+        //        making comparison quicker.
         final Object keyValue = ((LeafNode<?>) maybeKeyLeaf.get()).getValue();
         return new NodeIdentifierWithPredicates(routeQName(), keyLeafQName(), keyValue);
     }
