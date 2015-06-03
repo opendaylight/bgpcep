@@ -72,16 +72,42 @@ module odl-pcep-ietf-stateful07 {
         }
     }
 
+    typedef mpls-label {
+        type uint32 {
+            range 0..1048575;
+        }
+    }
+
     grouping path-binding-tlv {
         reference "TODO:";
         container path-binding {
             uses pcep:tlv;
             leaf binding-type {
-                type uint8;
+                type uint16;
             }
-            leaf binding-value {
-                type binary {
-                    length 0..255;
+            choice binding-value {
+                case mpls-label {
+                    when "../binding-type = 0";
+                    leaf mpls-label {
+                        type mpls-label;
+                    }
+                }
+                case mpls-label-entry {
+                    when "../binding-type = 1";
+                    leaf label {
+                        type mpls-label;
+                    }
+                    leaf traffic-class {
+                        type uint8 {
+                            range 0..7;
+                        }
+                    }
+                    leaf bottom-of-stack {
+                        type boolean;
+                    }
+                    leaf time-to-live {
+                        type uint8;
+                    }
                 }
             }
         }
