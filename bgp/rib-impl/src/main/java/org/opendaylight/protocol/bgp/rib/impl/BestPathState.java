@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -61,7 +63,7 @@ final class BestPathState {
         case "incomplete":
             return BgpOrigin.Incomplete;
         default:
-            throw new IllegalArgumentException("Unhandleed origin value " + originStr);
+            throw new IllegalArgumentException("Unhandled origin value " + originStr);
         }
     }
 
@@ -160,5 +162,62 @@ final class BestPathState {
 
     ContainerNode getAttributes() {
         return this.attributes;
+    }
+
+    private ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
+        toStringHelper.add("attributes", this.attributes);
+        toStringHelper.add("localPref", this.localPref);
+        toStringHelper.add("multiExitDisc", this.multiExitDisc);
+        toStringHelper.add("origin", this.origin);
+        toStringHelper.add("resolved", this.resolved);
+        return toStringHelper;
+    }
+
+    @Override
+    public String toString() {
+        return addToStringAttributes(MoreObjects.toStringHelper(this)).toString();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + this.attributes.hashCode();
+        result = prime * result + ((this.localPref == null) ? 0 : this.localPref.hashCode());
+        result = prime * result + ((this.multiExitDisc == null) ? 0 : this.multiExitDisc.hashCode());
+        result = prime * result + ((this.origin == null) ? 0 : this.origin.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof BestPathState)) {
+            return false;
+        }
+        final BestPathState other = (BestPathState) obj;
+        if (!this.attributes.equals(other.attributes)) {
+            return false;
+        }
+        if (this.localPref == null) {
+            if (other.localPref != null) {
+                return false;
+            }
+        } else if (!this.localPref.equals(other.localPref)) {
+            return false;
+        }
+        if (this.multiExitDisc == null) {
+            if (other.multiExitDisc != null) {
+                return false;
+            }
+        } else if (!this.multiExitDisc.equals(other.multiExitDisc)) {
+            return false;
+        }
+        if (this.origin != other.origin) {
+            return false;
+        }
+        return true;
     }
 }
