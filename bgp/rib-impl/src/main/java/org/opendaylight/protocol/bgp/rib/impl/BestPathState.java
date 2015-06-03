@@ -60,7 +60,7 @@ final class BestPathState {
         case "incomplete":
             return BgpOrigin.Incomplete;
         default:
-            throw new IllegalArgumentException("Unhandleed origin value " + originStr);
+            throw new IllegalArgumentException("Unhandled origin value " + originStr);
         }
     }
 
@@ -159,5 +159,66 @@ final class BestPathState {
 
     ContainerNode getAttributes() {
         return this.attributes;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("BestPathState [attributes=");
+        builder.append(this.attributes);
+        builder.append(", localPref=");
+        builder.append(this.localPref);
+        builder.append(", multiExitDisc=");
+        builder.append(this.multiExitDisc);
+        builder.append(", origin=");
+        builder.append(this.origin);
+        builder.append(", resolved=");
+        builder.append(this.resolved);
+        builder.append("]");
+        return builder.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((this.attributes == null) ? 0 : this.attributes.hashCode());
+        result = prime * result + ((this.localPref == null) ? 0 : this.localPref.hashCode());
+        result = prime * result + ((this.multiExitDisc == null) ? 0 : this.multiExitDisc.hashCode());
+        result = prime * result + ((this.origin == null) ? 0 : this.origin.hashCode());
+        result = prime * result + (this.resolved ? 1231 : 1237);
+        return result;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (!getClass().isInstance(obj)) {
+            return false;
+        }
+        final BestPathState other = (BestPathState) obj;
+        if (!this.attributes.equals(other.attributes)) {
+            return false;
+        }
+        if (this.localPref == null) {
+            if (other.localPref != null) {
+                return false;
+            }
+        } else if (!this.localPref.equals(other.localPref)) {
+            return false;
+        }
+        if (this.multiExitDisc == null) {
+            if (other.multiExitDisc != null) {
+                return false;
+            }
+        } else if (!this.multiExitDisc.equals(other.multiExitDisc)) {
+            return false;
+        }
+        if (this.origin != other.origin) {
+            return false;
+        }
+        if (this.resolved != other.resolved) {
+            return false;
+        }
+        return true;
     }
 }
