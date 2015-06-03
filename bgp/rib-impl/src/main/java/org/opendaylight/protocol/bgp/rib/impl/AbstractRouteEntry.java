@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.primitives.UnsignedInteger;
-import java.util.Objects;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
@@ -87,8 +86,7 @@ abstract class AbstractRouteEntry {
 
         // Get the newly-selected best path.
         final BestPath newBestPath = selector.result();
-        // FIXME: run deeper comparison
-        final boolean ret = !Objects.equals(this.bestPath, newBestPath);
+        final boolean ret = !newBestPath.equals(this.bestPath);
         LOG.trace("Previous best {}, current best {}, result {}", this.bestPath, newBestPath, ret);
         this.bestPath = newBestPath;
         return ret;

@@ -61,7 +61,7 @@ final class BestPathSelector {
              */
             final BestPathState state = new BestPathState(attrs);
             if (this.bestOriginatorId == null || !selectPath(originatorId, state)) {
-                LOG.trace("Selecting path from router {} state {}", routerId, state);
+                LOG.trace("Selecting path from router {}", routerId);
                 this.bestOriginatorId = originatorId;
                 this.bestRouterId = routerId;
                 this.bestState = state;
