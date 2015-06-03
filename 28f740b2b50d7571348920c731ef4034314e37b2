@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6a9dd7_c04a34ac",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPath.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-03T16:57:38Z",
+      "side": 1,
+      "message": "use ToStringHelper",
+      "revId": "28f740b2b50d7571348920c731ef4034314e37b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_a04dc0c6",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPath.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-03T16:57:38Z",
+      "side": 1,
+      "message": "missing identity check",
+      "revId": "28f740b2b50d7571348920c731ef4034314e37b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_405f0473",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-03T16:57:38Z",
+      "side": 1,
+      "message": "use ToStringHelper",
+      "revId": "28f740b2b50d7571348920c731ef4034314e37b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_e053b86a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-03T16:57:38Z",
+      "side": 1,
+      "message": "attributes are always non-null as far as I can see",
+      "revId": "28f740b2b50d7571348920c731ef4034314e37b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_205a1084",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-03T16:57:38Z",
+      "side": 1,
+      "message": "missing identity check",
+      "revId": "28f740b2b50d7571348920c731ef4034314e37b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
