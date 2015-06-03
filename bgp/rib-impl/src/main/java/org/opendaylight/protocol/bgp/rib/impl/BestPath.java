@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
 import javax.annotation.Nonnull;
@@ -21,10 +23,48 @@ final class BestPath {
     }
 
     UnsignedInteger getRouterId() {
-        return routerId;
+        return this.routerId;
     }
 
     BestPathState getState() {
-        return state;
+        return this.state;
+    }
+
+    private ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
+        toStringHelper.add("routerId", this.routerId);
+        toStringHelper.add("state", this.state);
+        return toStringHelper;
+    }
+
+    @Override
+    public String toString() {
+        return addToStringAttributes(MoreObjects.toStringHelper(this)).toString();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + this.routerId.hashCode();
+        result = prime * result + this.state.hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof BestPath)) {
+            return false;
+        }
+        final BestPath other = (BestPath) obj;
+        if (!this.routerId.equals(other.routerId)) {
+            return false;
+        }
+        if (!this.state.equals(other.state)) {
+            return false;
+        }
+        return true;
     }
 }
