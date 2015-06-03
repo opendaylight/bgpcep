@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.ietf;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
@@ -27,6 +28,7 @@ import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.error.code.tlv.LspErrorCode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.error.code.tlv.LspErrorCodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiers;
@@ -37,6 +39,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv6._case.Ipv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.path.binding.tlv.PathBinding;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.path.binding.tlv.PathBindingBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.path.binding.tlv.path.binding.binding.value.MplsLabelBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.path.binding.tlv.path.binding.binding.value.MplsLabelEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.rsvp.error.spec.tlv.RsvpErrorSpec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.rsvp.error.spec.tlv.RsvpErrorSpecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.rsvp.error.spec.tlv.rsvp.error.spec.error.type.RsvpCaseBuilder;
@@ -206,12 +210,12 @@ public class PCEPTlvParserTest {
     }
 
     @Test
-    public void testPathBindingTlv() throws PCEPDeserializerException {
-        final byte[] pathBindingBytes = {0, 0x1f, 0, 4, 0, 1, 2, 3};
+    public void testPathBindingTlvMplsLabel() throws PCEPDeserializerException {
+        final byte[] pathBindingBytes = {0x00, 0x1f, 0x00, 0x06, 0x00, 0x00, (byte) 0xA8, 0x0F, (byte) 0x60, 0x00, 0x00, 0x00};
         final PathBindingTlvParser parser = new PathBindingTlvParser();
         final PathBindingBuilder builder = new PathBindingBuilder();
-        builder.setBindingType((short) 0);
-        builder.setBindingValue(new byte[] {1, 2, 3});
+        builder.setBindingType(0);
+        builder.setBindingValue(new MplsLabelBuilder().setMplsLabel(new MplsLabel(688_374L)).build());
         final PathBinding tlv = builder.build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(pathBindingBytes, 4))));
         final ByteBuf buff = Unpooled.buffer();
@@ -225,5 +229,24 @@ public class PCEPTlvParserTest {
         } catch(final PCEPDeserializerException e) {
             assertEquals("Unsupported Path Binding Type.", e.getMessage());
         }
+    }
+
+    @Test
+    public void testPathBindingTlvMplsLabelEntry() throws PCEPDeserializerException {
+        final byte[] pathBindingBytes = {0x00, 0x1f, 0x00, 0x06, 0x00, 0x01, (byte) 0xA8, (byte) 0x0F, (byte) 0x6D, (byte)0xAD, 0x00, 0x00};
+        final PathBindingTlvParser parser = new PathBindingTlvParser();
+        final PathBindingBuilder builder = new PathBindingBuilder();
+        builder.setBindingType(1);
+        builder.setBindingValue(
+            new MplsLabelEntryBuilder()
+            .setTrafficClass((short) 6)
+            .setTimeToLive((short) 173)
+            .setBottomOfStack(true)
+            .setLabel(new MplsLabel(688_374L)).build());
+        final PathBinding tlv = builder.build();
+        assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(pathBindingBytes, 4))));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeTlv(tlv, buff);
+        assertArrayEquals(pathBindingBytes, ByteArray.readAllBytes(buff));
     }
 }
