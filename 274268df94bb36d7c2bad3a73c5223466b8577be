@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6a9dd7_9dbd8305",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPath.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-03T13:47:26Z",
+      "side": 1,
+      "message": "final class: use instanceof check instead, collapsing the null check above, too.",
+      "revId": "274268df94bb36d7c2bad3a73c5223466b8577be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_7d3c2f94",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPath.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-03T13:47:26Z",
+      "side": 1,
+      "message": "never null, skip checks",
+      "revId": "274268df94bb36d7c2bad3a73c5223466b8577be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_3d46b724",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-03T13:47:26Z",
+      "side": 1,
+      "message": "use a ToStringBuilder",
+      "revId": "274268df94bb36d7c2bad3a73c5223466b8577be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_fd47df1b",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-03T13:47:26Z",
+      "side": 1,
+      "message": "final class: use instanceof",
+      "revId": "274268df94bb36d7c2bad3a73c5223466b8577be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_9d54a3cb",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-03T13:47:26Z",
+      "side": 1,
+      "message": "attributes are known to be non-null",
+      "revId": "274268df94bb36d7c2bad3a73c5223466b8577be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
