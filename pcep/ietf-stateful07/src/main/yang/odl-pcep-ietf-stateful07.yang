@@ -13,6 +13,7 @@ module odl-pcep-ietf-stateful07 {
     import topology-tunnel-pcep { prefix tun; revision-date 2013-08-20; }
     import topology-tunnel-pcep-programming { prefix ttpp; revision-date 2013-10-30; }
     import yang-ext { prefix ext; revision-date 2013-07-09; }
+    import network-concepts { prefix netc; revision-date 2013-11-25; }
 
     organization "Cisco Systems, Inc.";
     contact "Robert Varga <rovarga@cisco.com>";
@@ -73,15 +74,40 @@ module odl-pcep-ietf-stateful07 {
     }
 
     grouping path-binding-tlv {
-        reference "https://tools.ietf.org/html/draft-sivabalan-pce-binding-label-sid-00#section-3";
+        reference "https://tools.ietf.org/html/draft-sivabalan-pce-binding-label-sid-01#section-3";
         container path-binding {
             uses pcep:tlv;
             leaf binding-type {
+                status deprecated;
                 type uint8;
             }
             leaf binding-value {
+                status deprecated;
                 type binary {
                     length 0..255;
+                }
+            }
+            choice binding-type-value {
+                case mpls-label {
+                    leaf mpls-label {
+                        type netc:mpls-label;
+                    }
+                }
+                case mpls-label-entry {
+                    leaf label {
+                        type netc:mpls-label;
+                    }
+                    leaf traffic-class {
+                        type uint8 {
+                            range 0..7;
+                        }
+                    }
+                    leaf bottom-of-stack {
+                        type boolean;
+                    }
+                    leaf time-to-live {
+                        type uint8;
+                    }
                 }
             }
         }
