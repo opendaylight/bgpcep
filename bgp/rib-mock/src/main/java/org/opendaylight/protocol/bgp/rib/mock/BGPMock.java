@@ -101,7 +101,7 @@ public final class BGPMock implements Closeable {
             return false;
         }
         final Iterator<byte[]> i1 = this.allPreviousByteMessages.iterator();
-        final Iterator<byte[]> i2 = this.allPreviousByteMessages.iterator();
+        final Iterator<byte[]> i2 = newMessages.iterator();
         for (int i = 0; i < this.allPreviousBGPMessages.size(); i++) {
             if (!Arrays.equals(i1.next(), i2.next())) {
                 return false;
