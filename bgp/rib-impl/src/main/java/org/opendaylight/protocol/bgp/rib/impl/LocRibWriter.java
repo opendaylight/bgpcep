@@ -58,6 +58,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     private static final Logger LOG = LoggerFactory.getLogger(LocRibWriter.class);
 
     private static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_TRUE = ImmutableNodes.leafNode(QName.create(Attributes.QNAME, "uptodate"), Boolean.TRUE);
+    private static final NodeIdentifier ROUTES_IDENTIFIER = new NodeIdentifier(Routes.QNAME);
 
     private final Map<PathArgument, AbstractRouteEntry> routeEntries = new HashMap<>();
     private final YangInstanceIdentifier locRibTarget;
@@ -168,7 +169,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
                 value = null;
             }
 
-            final YangInstanceIdentifier writePath = this.ribSupport.routePath(this.locRibTarget.node(Routes.QNAME), e.getKey().getRouteId());
+            final YangInstanceIdentifier writePath = this.ribSupport.routePath(this.locRibTarget.node(ROUTES_IDENTIFIER), e.getKey().getRouteId());
             if (value != null) {
                 LOG.debug("Write route to LocRib {}", value);
                 tx.put(LogicalDatastoreType.OPERATIONAL, writePath, value);
