@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6a9dd7_8060b736",
+        "filename": "pcep/ietf-stateful07/src/main/yang/odl-pcep-ietf-stateful07.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-06-04T14:32:53Z",
+      "side": 1,
+      "message": "Why did you changed the type?",
+      "range": {
+        "startLine": 90,
+        "startChar": 16,
+        "endLine": 90,
+        "endChar": 34
+      },
+      "revId": "2f22d96e1de02b46f78bbfd755a072bb7deacdd4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
