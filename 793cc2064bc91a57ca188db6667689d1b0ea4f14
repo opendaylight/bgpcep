@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6a9dd7_6c60ff35",
+        "filename": "pcep/ietf-stateful02/src/main/yang/odl-pcep-ietf-stateful02.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-04T10:43:38Z",
+      "side": 1,
+      "message": "why do we need to change the prefix?",
+      "revId": "793cc2064bc91a57ca188db6667689d1b0ea4f14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_6ceebf8d",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful02TopologySessionListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-04T10:43:38Z",
+      "side": 1,
+      "message": "you do not need to specify the namespace here",
+      "revId": "793cc2064bc91a57ca188db6667689d1b0ea4f14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
