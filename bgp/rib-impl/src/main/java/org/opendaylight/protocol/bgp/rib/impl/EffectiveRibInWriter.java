@@ -149,6 +149,13 @@ final class EffectiveRibInWriter implements AutoCloseable {
                     // No-op
                     break;
                 case SUBTREE_MODIFIED:
+                    // FIXME: this is wrong as we are turning a SUBTREE_MODIFIED into a full-blown
+                    //        overwrite via tx.put() below. That will result in all the entries
+                    //        being replaced, leading to unnecessary work.
+                    //        This requires changes to processRoute(), as it can no longer rely on
+                    //        that put(), but rather has to properly handle the DELETE case and in
+                    //        the speed hack. Also, we need to make sure proper structure is already
+                    //        present (e.g. the one while ribSupport.changedRoutes() looks up unconditionally.
                 case WRITE:
                     final YangInstanceIdentifier childPath = tablePath.node(child.getIdentifier());
                     tx.put(LogicalDatastoreType.OPERATIONAL, childPath, child.getDataAfter().get());
