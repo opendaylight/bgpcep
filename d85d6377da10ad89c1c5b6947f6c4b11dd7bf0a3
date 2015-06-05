@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6a9dd7_b44f3992",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/Ipv4Util.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-05T13:14:02Z",
+      "side": 1,
+      "message": "how does InetAddress react on receiving empty string? Will this precondition pass? I think the test is more needed here than in BGP Parser, because this is API and everyone can use this method.",
+      "revId": "d85d6377da10ad89c1c5b6947f6c4b11dd7bf0a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_147705d6",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/Ipv4Util.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-05T13:14:02Z",
+      "side": 1,
+      "message": "the comment is correct, the code not so... \nif (bitLength \u003d\u003d 0)",
+      "revId": "d85d6377da10ad89c1c5b6947f6c4b11dd7bf0a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
