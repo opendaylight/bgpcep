@@ -118,11 +118,14 @@ public final class Ipv4Util {
      */
     public static byte[] bytesForPrefixBegin(final Ipv4Prefix prefix) {
         final String p = prefix.getValue();
+        final int length = getPrefixLength(p);
+        if (length == 0) {
+            return new byte[] { 0 };
+        }
         final int sep = p.indexOf('/');
         final InetAddress a = InetAddresses.forString(p.substring(0, sep));
         Preconditions.checkArgument(a instanceof Inet4Address);
         final byte[] bytes = a.getAddress();
-        final int length = getPrefixLength(p);
         return Bytes.concat(new byte[] { UnsignedBytes.checkedCast(length) }, ByteArray.subByte(bytes, 0 , getPrefixLengthBytes(p)));
     }
 
@@ -170,8 +173,14 @@ public final class Ipv4Util {
             final int bitLength = UnsignedBytes.toInt(ByteArray.subByte(bytes, byteOffset, 1)[0]);
             byteOffset += 1;
             final int byteCount = (bitLength % Byte.SIZE != 0) ? (bitLength / Byte.SIZE) + 1 : bitLength / Byte.SIZE;
+            if (bitLength == 0) {
+                // if length == 0, default route will be added
+                list.add(new Ipv4Prefix("0.0.0.0/0"));
+                continue;
+            }
             list.add(prefixForBytes(ByteArray.subByte(bytes, byteOffset, byteCount), bitLength));
             byteOffset += byteCount;
+
         }
         return list;
     }
