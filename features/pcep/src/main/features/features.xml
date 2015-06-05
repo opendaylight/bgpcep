@@ -30,7 +30,7 @@
         <feature version='${project.version}'>odl-bgpcep-programming-impl</feature>
     </feature>
 
-    <feature name='odl-bgpcep-dependencies' version='${project.version}'>
+    <feature name='odl-bgpcep-pcep-dependencies' version='${project.version}'>
         <!--  concepts -->
         <bundle>mvn:com.google.guava/guava/{{VERSION}}</bundle>
         <feature version='${yangtools.version}'>odl-yangtools-models</feature>
@@ -43,7 +43,7 @@
     </feature>
 
     <feature name='odl-bgpcep-pcep' version='${project.version}'>
-        <feature version='${project.version}'>odl-bgpcep-dependencies</feature>
+        <feature version='${project.version}'>odl-bgpcep-pcep-dependencies</feature>
         <bundle>mvn:org.opendaylight.bgpcep/rsvp-api/{{VERSION}}</bundle>
         <feature version='${tcpmd5.version}'>odl-tcpmd5-netty</feature>
         <feature version='${protocol-framework.version}'>odl-protocol-framework</feature>
@@ -60,7 +60,7 @@
     </feature>
 
     <feature name='odl-bgpcep-programming' version='${project.version}'>
-        <feature version='${project.version}'>odl-bgpcep-dependencies</feature>
+        <feature version='${project.version}'>odl-bgpcep-pcep-dependencies</feature>
         <feature version='${config.version}'>odl-config-api</feature>
         <bundle>mvn:org.opendaylight.bgpcep/topology-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/topology-tunnel-api/{{VERSION}}</bundle>
