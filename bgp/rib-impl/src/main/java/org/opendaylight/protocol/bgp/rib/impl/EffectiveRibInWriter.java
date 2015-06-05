@@ -83,10 +83,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
             LOG.debug("Process route {}", route);
             switch (route.getModificationType()) {
             case DELETE:
-                // Delete has already been affected by the store in caller, so this is a no-op.
-                break;
-            case MERGE:
-                LOG.info("Merge on {} reported, this should never have happened, ignoring", route);
+                tx.delete(LogicalDatastoreType.OPERATIONAL, routesPath.node(route.getIdentifier()));
                 break;
             case UNMODIFIED:
                 // No-op
@@ -99,26 +96,14 @@ final class EffectiveRibInWriter implements AutoCloseable {
 
                 if (advertisedAttrs != null) {
                     effectiveAttrs = policy.effectiveAttributes(advertisedAttrs);
-
-                    /*
-                     * Speed hack: if we determine that the policy has passed the attributes
-                     * back unmodified, the corresponding change has already been written in
-                     * our caller. There is no need to perform any further processing.
-                     *
-                     * We also use direct object comparison to make the check very fast, as
-                     * it may not be that common, in which case it does not make sense to pay
-                     * the full equals price.
-                     */
-                    if (effectiveAttrs == advertisedAttrs) {
-                        LOG.trace("Effective and local attributes are equal. Quit processing route {}", route);
-                        return;
-                    }
                 } else {
                     effectiveAttrs = null;
                 }
 
                 final YangInstanceIdentifier routeId = ribSupport.routePath(routesPath, route.getIdentifier());
-                LOG.debug("Route {} effective attributes {} towards {}", route.getIdentifier(), effectiveAttrs, routeId);
+                if (LOG.isTraceEnabled()) {
+                    LOG.debug("Route {} effective attributes {} towards {}", route.getIdentifier(), effectiveAttrs, routeId);
+                }
 
                 if (effectiveAttrs != null) {
                     tx.put(LogicalDatastoreType.OPERATIONAL, routeId.node(ribSupport.routeAttributesIdentifier()), effectiveAttrs);
@@ -142,21 +127,19 @@ final class EffectiveRibInWriter implements AutoCloseable {
                 case DELETE:
                     tx.delete(LogicalDatastoreType.OPERATIONAL, tablePath.node(child.getIdentifier()));
                     break;
-                case MERGE:
-                    LOG.info("Merge on {} reported, this should never have happened, ignoring", child);
-                    break;
                 case UNMODIFIED:
                     // No-op
                     break;
                 case SUBTREE_MODIFIED:
                 case WRITE:
                     final YangInstanceIdentifier childPath = tablePath.node(child.getIdentifier());
-                    tx.put(LogicalDatastoreType.OPERATIONAL, childPath, child.getDataAfter().get());
-
-                    // Routes are special, as they may end up being filtered. The previous put conveniently
-                    // ensured that we have them in at target, so a subsequent delete will not fail :)
+                    // Routes are special, as they may end up being filtered.
                     if (TABLE_ROUTES.equals(child.getIdentifier())) {
+                        tx.put(LogicalDatastoreType.OPERATIONAL, childPath, child.getDataAfter().get());
                         for (final DataTreeCandidateNode route : ribSupport.changedRoutes(child)) {
+                            if (LOG.isTraceEnabled()) {
+                                LOG.trace("Received change to EffRib {}", NormalizedNodes.toStringTree(route.getDataAfter().get()));
+                            }
                             processRoute(tx, ribSupport, policy, childPath, route);
                         }
                     }
@@ -197,7 +180,6 @@ final class EffectiveRibInWriter implements AutoCloseable {
         public void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
             LOG.trace("Data changed called to effective RIB. Change : {}", changes);
             final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
-
             for (final DataTreeCandidate tc : changes) {
                 final YangInstanceIdentifier rootPath = tc.getRootPath();
 
