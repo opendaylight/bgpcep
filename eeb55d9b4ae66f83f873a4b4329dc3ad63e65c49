@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6a9dd7_19c17e80",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/OffsetMapTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-06-05T09:17:30Z",
+      "side": 1,
+      "message": "this is what i would expect from its behavior",
+      "range": {
+        "startLine": 34,
+        "startChar": 8,
+        "endLine": 38,
+        "endChar": 74
+      },
+      "revId": "eeb55d9b4ae66f83f873a4b4329dc3ad63e65c49",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
