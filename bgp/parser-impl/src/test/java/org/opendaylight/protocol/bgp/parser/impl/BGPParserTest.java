@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunityUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
@@ -247,6 +248,36 @@ public class BGPParserTest {
         final ByteBuf buffer = Unpooled.buffer();
         BGPParserTest.updateParser.serializeMessage(message, buffer);
         assertArrayEquals(inputBytes.get(0), ByteArray.readAllBytes(buffer));
+    }
+
+    @Test
+    public void testUpdateMessageWithAllIpv4AddressPrefix() throws BGPDocumentedException {
+        byte[] body = {
+            00, 00, 00, (byte) 0x1c, (byte) 0x40, 01, 01, 00, 40, 02, (byte) 0x0e, 02, 03, 00, 00, (byte) 0x7f,
+            (byte) 0xfc, 00, 00, (byte) 0x2b, (byte) 0x09, 00, 00, (byte) 0x1b, (byte) 0x1b, 40, 03, 04, 40, 47,
+            (byte) 0xb0, 33, 00, 04, 10, 10, 10, 10, 00 /* 00 <- all ipv4 addreses prefix */
+        };
+        byte[] expectedOutput = {
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 0x3A,
+            (byte) 0x02,
+            00, 00, 00, (byte) 0x1c, (byte) 0x40, 01, 01, 00, (byte) 0x40, 02, (byte) 0x0e, 02, 03, 00, 00, (byte) 0x7f,
+            (byte) 0xfc, 00, 00, (byte) 0x2b, (byte) 0x09, 00, 00, (byte) 0x1b, (byte) 0x1b, (byte) 0x40, 03, 04, 40, 47,
+            (byte) 0xb0, 33, 00, 04, 10, 10, 10, 10, 00
+        };
+        final int messageLength = body.length;
+        final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
+        final Nlri nlri = message.getNlri();
+        assertNotNull(nlri);
+        final List<Ipv4Prefix> ipv4Prefixes = nlri.getNlri();
+        assertEquals(4, ipv4Prefixes.size());
+        assertEquals(new Ipv4Prefix("0.0.0.0/0"), ipv4Prefixes.get(0));
+
+        final ByteBuf serializedData = Unpooled.buffer();
+        BGPParserTest.updateParser.serializeMessage(message, serializedData);
+
+        byte[] result = ByteArray.getAllBytes(serializedData);
+        assertArrayEquals(expectedOutput, result);
     }
 
     /*
