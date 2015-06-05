@@ -104,11 +104,14 @@ public final class Ipv6Util {
      */
     public static byte[] bytesForPrefixBegin(final Ipv6Prefix prefix) {
         final String p = prefix.getValue();
+        final int length = Ipv4Util.getPrefixLength(p);
+        if (length == 0) {
+            return new byte[] { 0 };
+        }
         final int sep = p.indexOf('/');
         final InetAddress a = InetAddresses.forString(p.substring(0, sep));
         Preconditions.checkArgument(a instanceof Inet6Address);
         final byte[] bytes = a.getAddress();
-        final int length = Ipv4Util.getPrefixLength(p);
         return Bytes.concat(new byte[] { UnsignedBytes.checkedCast(length) }, ByteArray.subByte(bytes, 0 , Ipv4Util.getPrefixLengthBytes(p)));
     }
 
@@ -156,9 +159,15 @@ public final class Ipv6Util {
         while (byteOffset < bytes.length) {
             final int bitLength = UnsignedBytes.toInt(ByteArray.subByte(bytes, byteOffset, 1)[0]);
             byteOffset += 1;
+            // if length == 0, default route will be added
+            if (bitLength == 0) {
+                list.add(new Ipv6Prefix("::/0"));
+                continue;
+            }
             final int byteCount = (bitLength % Byte.SIZE != 0) ? (bitLength / Byte.SIZE) + 1 : bitLength / Byte.SIZE;
             list.add(prefixForBytes(ByteArray.subByte(bytes, byteOffset, byteCount), bitLength));
             byteOffset += byteCount;
+
         }
         return list;
     }
