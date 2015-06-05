@@ -48,9 +48,7 @@ abstract class AbstractRouteEntry {
         }
 
         this.offsets.setValue(this.values, offset, attributes);
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Added route from {} attributes {}", routerId, attributes);
-        }
+        LOG.trace("Added route from {} attributes {}", routerId, attributes);
         return offset;
     }
 
@@ -82,18 +80,14 @@ abstract class AbstractRouteEntry {
         for (int i = 0; i < this.offsets.size(); ++i) {
             final UnsignedInteger routerId = this.offsets.getRouterId(i);
             final ContainerNode attributes = this.offsets.getValue(this.values, i);
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Processing router id {} attributes {}", routerId, attributes);
-            }
+            LOG.trace("Processing router id {} attributes {}", routerId, attributes);
             selector.processPath(routerId, attributes);
         }
 
         // Get the newly-selected best path.
         final BestPath newBestPath = selector.result();
         final boolean ret = !newBestPath.equals(this.bestPath);
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Previous best {}, current best {}, result {}", this.bestPath, newBestPath, ret);
-        }
+        LOG.trace("Previous best {}, current best {}, result {}", this.bestPath, newBestPath, ret);
         this.bestPath = newBestPath;
         return ret;
     }
