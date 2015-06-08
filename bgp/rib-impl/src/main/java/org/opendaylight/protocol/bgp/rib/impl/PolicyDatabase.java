@@ -38,6 +38,14 @@ final class PolicyDatabase {
     }
 
     AbstractImportPolicy importPolicyForRole(final PeerRole peerRole) {
-        return importPolicies.get(peerRole);
+        /*
+         * TODO: this solution does not share equivalent attributes across
+         *       multiple peers. If we need to do that, consider carefully:
+         *       - whether the interner should be shared with RIBSupportContextImpl.writeRoutes()
+         *       - lookup/update contention of both the cache and the interner
+         *       - ability to share resulting attributes across import policies
+         *       - ability to share resulting attributes with export policies
+         */
+        return new CachingImportPolicy(importPolicies.get(peerRole));
     }
 }
