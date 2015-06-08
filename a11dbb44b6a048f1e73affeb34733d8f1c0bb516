@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6a9dd7_af183f85",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-08T12:44:14Z",
+      "side": 1,
+      "message": "static and private",
+      "revId": "a11dbb44b6a048f1e73affeb34733d8f1c0bb516",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_8f177b51",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-08T12:44:14Z",
+      "side": 1,
+      "message": "does not really throw Exception",
+      "revId": "a11dbb44b6a048f1e73affeb34733d8f1c0bb516",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_6f122764",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-08T12:44:14Z",
+      "side": 1,
+      "message": "it would probably look nicer in the collection constructor, e.g. pass enough information for the constructor to create the collections.",
+      "revId": "a11dbb44b6a048f1e73affeb34733d8f1c0bb516",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_4f096330",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-08T12:44:14Z",
+      "side": 1,
+      "message": "log the exception, and that should translate to an IllegalStateException bein thrown, not a NPE (from the next line)",
+      "revId": "a11dbb44b6a048f1e73affeb34733d8f1c0bb516",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_b2ff4401",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-08T12:44:14Z",
+      "side": 1,
+      "message": "why not store just the object? also fields must be accessed via getters",
+      "revId": "a11dbb44b6a048f1e73affeb34733d8f1c0bb516",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
