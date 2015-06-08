@@ -237,14 +237,14 @@ public class PeerTest {
         Mockito.doReturn(readFuture).when(readTx).read(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class));
     }
 
-    private BindingCodecTreeFactory createCodecFactory(final ClassLoadingStrategy str, final SchemaContext ctx) {
+    private static BindingCodecTreeFactory createCodecFactory(final ClassLoadingStrategy str, final SchemaContext ctx) {
         final DataObjectSerializerGenerator generator = StreamWriterGenerator.create(JavassistUtils.forClassPool(ClassPool.getDefault()));
         final BindingNormalizedNodeCodecRegistry codec = new BindingNormalizedNodeCodecRegistry(generator);
         codec.onBindingRuntimeContextUpdated(BindingRuntimeContext.create(str, ctx));
         return codec;
     }
 
-    private ModuleInfoBackedContext createClassLoadingStrategy() {
+    private static ModuleInfoBackedContext createClassLoadingStrategy() {
         final ModuleInfoBackedContext ctx = ModuleInfoBackedContext.create();
         try {
             ctx.registerModuleInfo(BindingReflections.getModuleInfo(Ipv4Route.class));

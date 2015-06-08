@@ -10,7 +10,6 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
-
 import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
@@ -174,11 +173,11 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         return nameCreated;
     }
 
-    private ObjectName createPeerRegistry(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
+    private static ObjectName createPeerRegistry(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
         return transaction.createModule(StrictBgpPeerRegistryModuleFactory.NAME, "peer-registry");
     }
 
-    private BGPDispatcherImplModuleMXBean getBgpDispatcherImplModuleMXBean(final ConfigTransactionJMXClient transaction,
+    private static BGPDispatcherImplModuleMXBean getBgpDispatcherImplModuleMXBean(final ConfigTransactionJMXClient transaction,
             final BGPPeerModuleMXBean mxBean) {
         final RIBImplModuleMXBean ribProxy = transaction.newMXBeanProxy(mxBean.getRib(), RIBImplModuleMXBean.class);
         final ObjectName dispatcherON = ribProxy.getBgpDispatcher();

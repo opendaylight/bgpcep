@@ -138,7 +138,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
      * @param message Update message containing prefixes in NLRI
      * @return MpReachNlri with prefixes from the nlri field
      */
-    private MpReachNlri prefixesToMpReach(final Update message) {
+    private static MpReachNlri prefixesToMpReach(final Update message) {
         final List<Ipv4Prefixes> prefixes = new ArrayList<>();
         for (final Ipv4Prefix p : message.getNlri().getNlri()) {
             prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
@@ -160,7 +160,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
      * @param message Update message containing withdrawn routes
      * @return MpUnreachNlri with prefixes from the withdrawn routes field
      */
-    private MpUnreachNlri prefixesToMpUnreach(final Update message) {
+    private static MpUnreachNlri prefixesToMpUnreach(final Update message) {
         final List<Ipv4Prefixes> prefixes = new ArrayList<>();
         for (final Ipv4Prefix p : message.getWithdrawnRoutes().getWithdrawnRoutes()) {
             prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
