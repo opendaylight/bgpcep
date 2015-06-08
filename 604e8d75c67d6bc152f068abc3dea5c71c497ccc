@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6a9dd7_cf36d303",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-08T12:37:44Z",
+      "side": 1,
+      "message": "huh? we iterate over routes and then, for each of them we write the entire table. what exactly is it that we\u0027re trying to do?",
+      "revId": "604e8d75c67d6bc152f068abc3dea5c71c497ccc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
