@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6a9dd7_4c6f3193",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/Ipv4Util.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-08T06:36:49Z",
+      "side": 1,
+      "message": "reorder the lines so that the return is as far up as possible",
+      "revId": "f37e05bd17fda6c38d257ee8d461268eb49a6978",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_ec6ba583",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/Ipv4Util.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-08T06:36:49Z",
+      "side": 1,
+      "message": "we can do this without the else, with help of \u0027continue\u0027",
+      "revId": "f37e05bd17fda6c38d257ee8d461268eb49a6978",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
