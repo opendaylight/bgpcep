@@ -49,6 +49,6 @@ final class ImportPolicyPeerTracker extends AbstractPeerRoleTracker {
 
     AbstractImportPolicy policyFor(final PeerId peerId) {
         LOG.trace("Peer ID : {}", peerId);
-        return new CachingImportPolicy(this.policies.get(peerId));
+        return this.policies.get(peerId);
     }
 }
