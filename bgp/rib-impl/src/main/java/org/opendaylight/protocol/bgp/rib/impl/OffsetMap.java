@@ -76,12 +76,14 @@ final class OffsetMap {
     }
 
     <T> T getValue(final T[] array, final int offset) {
-        Preconditions.checkArgument(offset >= 0, "Invalid negative offset {}", offset);
+        Preconditions.checkArgument(offset >= 0, "Invalid negative offset %s", offset);
+        Preconditions.checkArgument(offset < routerIds.length, "Invalid offset %s for %s router IDs", offset, routerIds.length);
         return array[offset];
     }
 
     <T> void setValue(final T[] array, final int offset, final T value) {
-        Preconditions.checkArgument(offset >= 0, "Invalid negative offset {}", offset);
+        Preconditions.checkArgument(offset >= 0, "Invalid negative offset %s", offset);
+        Preconditions.checkArgument(offset < routerIds.length, "Invalid offset %s for %s router IDs", offset, routerIds.length);
         array[offset] = value;
     }
 
