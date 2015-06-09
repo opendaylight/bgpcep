@@ -358,6 +358,20 @@
                 <artifactId>bgp-bmp-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-controller-config</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>bmp-config</classifier>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-controller-config</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>bmp-config-example</classifier>
+            </dependency>
 
             <!-- Feature artifact -->
             <dependency>
