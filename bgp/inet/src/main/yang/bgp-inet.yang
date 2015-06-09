@@ -150,5 +150,25 @@ module bgp-inet {
             uses ipv6-routes;
         }
     }
+
+    augment "/bgp-rib:bmp-monitor/bgp-rib:monitor/bgp-rib:router/bgp-rib:peer/bgp-rib:pre-policy-rib/bgp-rib:tables/bgp-rib:routes" {
+        case ipv4-routes-case {
+            uses ipv4-routes;
+        }
+
+        case ipv6-routes-case {
+            uses ipv6-routes;
+        }
+    }
+
+    augment "/bgp-rib:bmp-monitor/bgp-rib:monitor/bgp-rib:router/bgp-rib:peer/bgp-rib:post-policy-rib/bgp-rib:tables/bgp-rib:routes" {
+        case ipv4-routes-case {
+            uses ipv4-routes;
+        }
+
+        case ipv6-routes-case {
+            uses ipv6-routes;
+        }
+    }
 }
 

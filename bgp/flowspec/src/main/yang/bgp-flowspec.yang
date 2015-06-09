@@ -389,4 +389,16 @@ module bgp-flowspec {
             uses flowspec-routes;
         }
     }
+
+    augment "/bgp-rib:bmp-monitor/bgp-rib:monitor/bgp-rib:router/bgp-rib:peer/bgp-rib:pre-policy-rib/bgp-rib:tables/bgp-rib:routes" {
+        case flowspec-routes-case {
+            uses flowspec-routes;
+        }
+    }
+
+    augment "/bgp-rib:bmp-monitor/bgp-rib:monitor/bgp-rib:router/bgp-rib:peer/bgp-rib:post-policy-rib/bgp-rib:tables/bgp-rib:routes" {
+        case flowspec-routes-case {
+            uses flowspec-routes;
+        }
+    }
 }

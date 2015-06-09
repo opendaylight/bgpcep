@@ -658,4 +658,16 @@ module bgp-linkstate {
             uses linkstate-routes;
         }
     }
+
+    augment "/bgp-rib:bmp-monitor/bgp-rib:monitor/bgp-rib:router/bgp-rib:peer/bgp-rib:pre-policy-rib/bgp-rib:tables/bgp-rib:routes" {
+        case linkstate-routes-case {
+            uses linkstate-routes;
+        }
+    }
+
+    augment "/bgp-rib:bmp-monitor/bgp-rib:monitor/bgp-rib:router/bgp-rib:peer/bgp-rib:post-policy-rib/bgp-rib:tables/bgp-rib:routes" {
+        case linkstate-routes-case {
+            uses linkstate-routes;
+        }
+    }
 }
