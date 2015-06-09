@@ -15,5 +15,6 @@
     <module>bgp</module>
     <module>pcep</module>
     <module>extras</module>
+    <module>bmp</module>
   </modules>
 </project>
