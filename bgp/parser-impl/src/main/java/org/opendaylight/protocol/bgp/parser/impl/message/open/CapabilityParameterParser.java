@@ -45,7 +45,11 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
     @Override
     public BgpParameters parseParameter(final ByteBuf buffer) throws BGPParsingException, BGPDocumentedException {
         Preconditions.checkArgument(buffer != null && buffer.readableBytes() != 0, "Byte array cannot be null or empty.");
-        LOG.trace("Started parsing of BGP Capabilities: {}", Arrays.toString(ByteArray.getAllBytes(buffer)));
+
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Started parsing of BGP Capabilities: {}", Arrays.toString(ByteArray.getAllBytes(buffer)));
+        }
+
         final List<OptionalCapabilities> optionalCapas = Lists.newArrayList();
         while (buffer.isReadable()) {
             final OptionalCapabilities optionalCapa = parseOptionalCapability(buffer);
@@ -88,7 +92,10 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
             if (bytes == null) {
                 throw new IllegalArgumentException("Unhandled capability class" + cap.getImplementedInterface());
             }
-            LOG.trace("BGP capability serialized to: {}", ByteBufUtil.hexDump(bytes));
+
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("BGP capability serialized to: {}", ByteBufUtil.hexDump(bytes));
+            }
             byteAggregator.writeBytes(bytes);
         }
     }
