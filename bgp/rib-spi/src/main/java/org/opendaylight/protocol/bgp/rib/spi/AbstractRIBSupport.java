@@ -41,6 +41,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -180,13 +181,14 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     @Override
     public final Collection<DataTreeCandidateNode> changedRoutes(final DataTreeCandidateNode routes) {
         final DataTreeCandidateNode myRoutes = routes.getModifiedChild(this.routesContainerIdentifier);
-        if (myRoutes == null) {
+        if (myRoutes == null || myRoutes.getModificationType() == ModificationType.UNMODIFIED) {
             return Collections.emptySet();
         }
         final DataTreeCandidateNode routesMap = myRoutes.getModifiedChild(this.routesListIdentifier);
-        if (routesMap == null) {
+        if (routesMap == null || routesMap.getModificationType() == ModificationType.UNMODIFIED) {
             return Collections.emptySet();
         }
+
         // Well, given the remote possibility of augmentation, we should perform a filter here,
         // to make sure the type matches what routeType() reports.
         return routesMap.getChildNodes();

@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
 import java.util.Arrays;
@@ -48,6 +47,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,45 +139,73 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             if (roleChange != null) {
                 this.peerPolicyTracker.onDataTreeChanged(roleChange, IdentifierUtils.peerPath(rootPath));
             }
+
             // filter out any change outside EffRibsIn
             final DataTreeCandidateNode ribIn = rootNode.getModifiedChild(EFFRIBIN_NID);
-            if (ribIn == null) {
-                LOG.debug("Skipping change {}", tc.getRootNode());
+            if (ribIn == null || ribIn.getModificationType() == ModificationType.UNMODIFIED) {
+                LOG.debug("Skipping change {} rib-in {}", tc.getRootNode(), ribIn);
                 continue;
             }
-            final DataTreeCandidateNode table = ribIn.getModifiedChild(TABLES_NID).getModifiedChild(this.tableKey);
-            if (table == null) {
-                LOG.debug("Skipping change {}", tc.getRootNode());
+            final DataTreeCandidateNode tables = ribIn.getModifiedChild(TABLES_NID);
+            if (tables == null || tables.getModificationType() == ModificationType.UNMODIFIED) {
+                LOG.debug("Skipping change {} tables {}", tc.getRootNode(), tables);
                 continue;
             }
+            final DataTreeCandidateNode table = tables.getModifiedChild(this.tableKey);
+            if (table == null || table.getModificationType() == ModificationType.UNMODIFIED) {
+                LOG.debug("Skipping change {} table {}", tc.getRootNode(), table);
+                continue;
+            }
+
             final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(rootPath);
             final PeerId peerId = IdentifierUtils.peerId(peerKey);
             final UnsignedInteger routerId = RouterIds.routerIdForPeerId(peerId);
             for (final DataTreeCandidateNode child : table.getChildNodes()) {
+                if (child.getModificationType() == ModificationType.UNMODIFIED) {
+                    LOG.debug("Skipping unmodified child {}", child);
+                    continue;
+                }
+
                 if ((Attributes.QNAME).equals(child.getIdentifier().getNodeType())) {
                     // putting uptodate attribute in
                     LOG.trace("Uptodate found for {}", child.getDataAfter());
                     tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(child.getIdentifier()), child.getDataAfter().get());
                     continue;
                 }
-                for (final DataTreeCandidateNode route : this.ribSupport.changedRoutes(child)) {
-                    final PathArgument routeId = route.getIdentifier();
-                    AbstractRouteEntry entry = this.routeEntries.get(routeId);
 
-                    final Optional<NormalizedNode<?, ?>> maybeData = route.getDataAfter();
-                    if (maybeData.isPresent()) {
+                for (final DataTreeCandidateNode route : this.ribSupport.changedRoutes(child)) {
+                    switch (route.getModificationType()) {
+                    case UNMODIFIED:
+                        LOG.trace("Skipping unmodified route {}", route);
+                        break;
+                    case DELETE:
+                    {
+                        final PathArgument routeId = route.getIdentifier();
+                        AbstractRouteEntry entry = this.routeEntries.get(routeId);
+                        if (entry != null) {
+                            if (entry.removeRoute(routerId)) {
+                                this.routeEntries.remove(routeId);
+                                entry = null;
+                            }
+                            toUpdate.put(new RouteUpdateKey(peerId, routeId), entry);
+                        }
+                        break;
+                    }
+                    case SUBTREE_MODIFIED:
+                    case WRITE:
+                    {
+                        final PathArgument routeId = route.getIdentifier();
+                        AbstractRouteEntry entry = this.routeEntries.get(routeId);
                         if (entry == null) {
                             entry = createEntry(routeId);
                         }
-
-                        entry.addRoute(routerId, this.attributesIdentifier, maybeData.get());
-                    } else if (entry != null && entry.removeRoute(routerId)) {
-                        this.routeEntries.remove(routeId);
-                        entry = null;
-                        LOG.trace("Removed route from {}", routerId);
+                        entry.addRoute(routerId, this.attributesIdentifier, route.getDataAfter().get());
+                        toUpdate.put(new RouteUpdateKey(peerId, routeId), entry);
+                        break;
                     }
-                    LOG.debug("Updated route {} entry {}", routeId, entry);
-                    toUpdate.put(new RouteUpdateKey(peerId, routeId), entry);
+                    default:
+                        LOG.warn("Skipping unhandled route {}", route);
+                    }
                 }
             }
         }
