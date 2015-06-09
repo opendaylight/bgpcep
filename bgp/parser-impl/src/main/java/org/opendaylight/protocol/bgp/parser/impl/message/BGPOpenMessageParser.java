@@ -92,7 +92,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
         msgBody.writeBytes(paramsBuffer);
 
         if (LOG.isTraceEnabled()) {
-            LOG.trace("Open message serialized to: {}", ByteBufUtil.hexDump(bytes));
+            LOG.trace("Open message serialized to: {}", ByteBufUtil.hexDump(msgBody));
         }
         MessageUtil.formatMessage(TYPE, msgBody, bytes);
     }

@@ -45,16 +45,20 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
     public void serializeMessage(final Notification msg, final ByteBuf bytes) {
         Preconditions.checkArgument(msg instanceof Notify, "BGP Notification message cannot be null");
         final Notify ntf = (Notify) msg;
-        LOG.trace("Started serializing Notification message: {}", ntf);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Started serializing Notification message: {}", ntf);
+        }
 
-        final byte[] data = ntf.getData();
         final ByteBuf msgBody = Unpooled.buffer();
         msgBody.writeByte(ntf.getErrorCode());
         msgBody.writeByte(ntf.getErrorSubcode());
+        final byte[] data = ntf.getData();
         if (data != null) {
             msgBody.writeBytes(data);
         }
-        LOG.trace("Notification message serialized to: {}", ByteBufUtil.hexDump(bytes));
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Notification message serialized to: {}", ByteBufUtil.hexDump(msgBody));
+        }
         MessageUtil.formatMessage(TYPE, msgBody, bytes);
     }
 
@@ -69,7 +73,9 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
     @Override
     public Notify parseMessageBody(final ByteBuf body, final int messageLength) throws BGPDocumentedException {
         Preconditions.checkArgument(body != null, "Byte buffer cannot be null.");
-        LOG.trace("Started parsing of notification message: {}", ByteBufUtil.hexDump(body));
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Started parsing of notification message: {}", ByteBufUtil.hexDump(body));
+        }
         if (body.readableBytes() < ERROR_SIZE) {
             throw BGPDocumentedException.badMessageLength("Notification message too small.", messageLength);
         }
