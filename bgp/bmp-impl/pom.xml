@@ -44,9 +44,18 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.opendaylight.tcpmd5</groupId>
+            <artifactId>tcpmd5-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.tcpmd5</groupId>
+            <artifactId>tcpmd5-netty</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
         </dependency>
+        <!-- test dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -76,10 +85,10 @@
                     </instructions>
                 </configuration>
             </plugin>
-          <plugin>
-              <groupId>org.opendaylight.yangtools</groupId>
-              <artifactId>yang-maven-plugin</artifactId>
-          </plugin>
+            <plugin>
+                <groupId>org.opendaylight.yangtools</groupId>
+                <artifactId>yang-maven-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
 </project>
