@@ -9,7 +9,6 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
@@ -301,7 +300,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         }
     }
 
-    private ObjectName createRibExtensionsInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
+    private static ObjectName createRibExtensionsInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
         final ObjectName nameCreated = transaction.createModule(RIBExtensionsImplModuleFactory.NAME, RIB_EXTENSIONS_INSTANCE_NAME);
         transaction.newMXBeanProxy(nameCreated, RIBExtensionsImplModuleMXBean.class);
         return nameCreated;

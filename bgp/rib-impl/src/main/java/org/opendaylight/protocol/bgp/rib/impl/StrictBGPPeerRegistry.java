@@ -256,7 +256,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
             return this.asNumber.getValue() > other.asNumber.getValue();
         }
 
-        private long toLong(final Ipv4Address from) {
+        private static long toLong(final Ipv4Address from) {
             final int i = InetAddresses.coerceToInteger(InetAddresses.forString(from.getValue()));
             return UnsignedInts.toLong(i);
         }

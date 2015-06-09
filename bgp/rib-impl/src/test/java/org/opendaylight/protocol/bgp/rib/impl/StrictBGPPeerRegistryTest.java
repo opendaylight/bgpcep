@@ -11,10 +11,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
-
 import java.net.InetSocketAddress;
 import java.util.Collections;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -213,7 +211,7 @@ public class StrictBGPPeerRegistryTest {
         fail("Peer AS number mismatch");
     }
 
-    private ReusableBGPPeer getMockSession() {
+    private static ReusableBGPPeer getMockSession() {
         final ReusableBGPPeer mock = Mockito.mock(ReusableBGPPeer.class);
         Mockito.doNothing().when(mock).releaseConnection();
         return mock;
