@@ -48,6 +48,7 @@
         <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-inet/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-api/{{VERSION}}</bundle>
     </feature>
 
     <feature name='odl-bgpcep-bgp-parser' version='${project.version}'>
@@ -73,12 +74,14 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-rib</feature>
         <bundle>mvn:org.opendaylight.bgpcep/rsvp-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-linkstate/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-api/{{VERSION}}</bundle>
     </feature>
 
     <feature name='odl-bgpcep-bgp-flowspec' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-flowspec/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-api/{{VERSION}}</bundle>
     </feature>
 
     <feature name='odl-bgpcep-bgp-rib-impl' version='${project.version}'>
