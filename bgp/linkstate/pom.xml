@@ -104,6 +104,10 @@
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
          </dependency>
+         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-bmp-api</artifactId>
+         </dependency>
          <!-- test scope dependencies -->
          <dependency>
              <groupId>junit</groupId>
