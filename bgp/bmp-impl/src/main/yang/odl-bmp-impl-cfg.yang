@@ -7,6 +7,7 @@ module odl-bmp-impl-cfg {
     import config { prefix config; revision-date 2013-04-05; }
     import odl-bmp-spi-cfg { prefix spi; revision-date 2015-05-13; }
     import odl-bgp-parser-spi-cfg { prefix bgp-spi; revision-date 2013-11-15; }
+    import netty { prefix netty; revision-date 2013-11-19; }
 
     organization "Cisco Systems, Inc.";
 
@@ -43,6 +44,54 @@ module odl-bmp-impl-cfg {
                     refine type {
                         mandatory true;
                         config:required-identity bgp-spi:consumer-extensions;
+                    }
+                }
+            }
+        }
+    }
+
+    identity bmp-dispatcher {
+        description
+            "Service representing a BMP dispatcher service. The service
+             can create both BMP client sessions and BMP servers.";
+
+        base "config:service-type";
+        config:java-class "org.opendaylight.protocol.bmp.api.BmpDispatcher";
+    }
+
+    identity bmp-dispatcher-impl {
+        base config:module-type;
+        config:provided-service bmp-dispatcher;
+        config:java-name-prefix BmpDispatcherImpl;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case bmp-dispatcher-impl {
+            when "/config:modules/config:module/config:type = 'bmp-dispatcher-impl'";
+
+            container bmp-extensions {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity spi:consumer-extensions;
+                    }
+                }
+            }
+
+            container boss-group {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity netty:netty-threadgroup;
+                    }
+                }
+            }
+
+            container worker-group {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity netty:netty-threadgroup;
                     }
                 }
             }
