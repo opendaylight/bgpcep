@@ -149,7 +149,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
             }
         } else {
             if (!getPeerPreferences(ip).getMyAs().equals(asNumber)) {
-                LOG.warn("Unexpected remote AS number. Expecting {}, got {}", asNumber, getPeerPreferences(ip).getMyAs());
+                LOG.warn("Unexpected remote AS number. Expecting {}, got {}", getPeerPreferences(ip).getMyAs(), asNumber);
                 throw new BGPDocumentedException("Peer AS number mismatch", BGPError.BAD_PEER_AS);
             }
         }
