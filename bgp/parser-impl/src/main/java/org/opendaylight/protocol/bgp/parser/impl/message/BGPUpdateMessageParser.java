@@ -65,7 +65,9 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
     @Override
     public Update parseMessageBody(final ByteBuf buffer, final int messageLength) throws BGPDocumentedException {
         Preconditions.checkArgument(buffer != null && buffer.readableBytes() != 0, "Byte array cannot be null or empty.");
-        LOG.trace("Started parsing of update message: {}", ByteBufUtil.hexDump(buffer));
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Started parsing of update message: {}", ByteBufUtil.hexDump(buffer));
+        }
 
         final int withdrawnRoutesLength = buffer.readUnsignedShort();
         final UpdateBuilder eventBuilder = new UpdateBuilder();

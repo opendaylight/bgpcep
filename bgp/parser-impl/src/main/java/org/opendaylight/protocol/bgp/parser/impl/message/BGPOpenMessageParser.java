@@ -91,7 +91,9 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
         msgBody.writeByte(paramsBuffer.writerIndex());
         msgBody.writeBytes(paramsBuffer);
 
-        LOG.trace("Open message serialized to: {}", ByteBufUtil.hexDump(msgBody));
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Open message serialized to: {}", ByteBufUtil.hexDump(msgBody));
+        }
         MessageUtil.formatMessage(TYPE, msgBody, bytes);
     }
 
@@ -106,7 +108,9 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
     @Override
     public Open parseMessageBody(final ByteBuf body, final int messageLength) throws BGPDocumentedException {
         Preconditions.checkArgument(body != null, "Byte array cannot be null.");
-        LOG.trace("Started parsing of open message: {}", ByteBufUtil.hexDump(body));
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Started parsing of open message: {}", ByteBufUtil.hexDump(body));
+        }
 
         if (body.readableBytes() < MIN_MSG_LENGTH) {
             throw BGPDocumentedException.badMessageLength("Open message too small.", messageLength);
@@ -139,7 +143,9 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 
     private void fillParams(final ByteBuf buffer, final List<BgpParameters> params) throws BGPDocumentedException {
         Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Byte array cannot be null or empty.");
-        LOG.trace("Started parsing of BGP parameter: {}", ByteBufUtil.hexDump(buffer));
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Started parsing of BGP parameter: {}", ByteBufUtil.hexDump(buffer));
+        }
         while (buffer.isReadable()) {
             if (buffer.readableBytes() <= 2) {
                 throw new BGPDocumentedException("Malformed parameter encountered (" + buffer.readableBytes() + " bytes left)", BGPError.OPT_PARAM_NOT_SUPPORTED);
@@ -160,6 +166,8 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
                 LOG.debug("Ignoring BGP Parameter type: {}", paramType);
             }
         }
-        LOG.trace("Parsed BGP parameters: {}", Arrays.toString(params.toArray()));
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Parsed BGP parameters: {}", Arrays.toString(params.toArray()));
+        }
     }
 }
