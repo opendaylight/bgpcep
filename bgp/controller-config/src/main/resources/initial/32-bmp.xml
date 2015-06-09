@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+<!--
+    Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v1.0 which accompanies this distribution,
+    and is available at http://www.eclipse.org/legal/epl-v10.html
+-->
+<snapshot>
+    <required-capabilities>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:bmp:spi?module=odl-bmp-spi-cfg&amp;revision=2015-05-13</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:bmp:impl?module=odl-bmp-impl-cfg&amp;revision=2015-05-18</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi?module=odl-bgp-parser-spi-cfg&amp;revision=2013-11-15</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:netty?module=netty&amp;revision=2013-11-19</capability>
+    </required-capabilities>
+    <configuration>
+        <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+
+            <modules xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bmp:spi">prefix:bmp-extensions-impl</type>
+                    <name>global-bmp-extensions</name>
+                    <extension>
+                        <type xmlns:bmp-spi="urn:opendaylight:params:xml:ns:yang:controller:bmp:spi">bmp-spi:extension</type>
+                        <name>bmp-parser-base</name>
+                    </extension>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bmp:impl">prefix:bmp-parser-base</type>
+                    <name>bmp-parser-base</name>
+                    <bgp-extensions>
+                        <type xmlns:bgpspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi">bgpspi:extensions</type>
+                        <name>global-bgp-extensions</name>
+                    </bgp-extensions>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bmp:impl">prefix:bmp-dispatcher-impl</type>
+                    <name>global-bmp-dispatcher</name>
+                    <bmp-extensions>
+                        <type xmlns:bmp-spi="urn:opendaylight:params:xml:ns:yang:controller:bmp:spi">bmp-spi:extensions</type>
+                        <name>global-bmp-extensions</name>
+                    </bmp-extensions>
+                    <boss-group>
+                        <type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-threadgroup</type>
+                        <name>global-boss-group</name>
+                    </boss-group>
+                    <worker-group>
+                        <type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-threadgroup</type>
+                        <name>global-worker-group</name>
+                    </worker-group>
+                </module>
+            </modules>
+
+            <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+                <service>
+                    <type xmlns:bmp-spi="urn:opendaylight:params:xml:ns:yang:controller:bmp:spi">bmp-spi:extensions</type>
+                    <instance>
+                        <name>global-bmp-extensions</name>
+                        <provider>/modules/module[type='bmp-extensions-impl'][name='global-bmp-extensions']</provider>
+                    </instance>
+                </service>
+                <service>
+                    <type xmlns:bmp-spi="urn:opendaylight:params:xml:ns:yang:controller:bmp:spi">bmp-spi:extension</type>
+                    <instance>
+                        <name>bmp-parser-base</name>
+                        <provider>/modules/module[type='bmp-parser-base'][name='bmp-parser-base']</provider>
+                    </instance>
+                </service>
+                <service>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bmp:impl">prefix:bmp-dispatcher</type>
+                    <instance>
+                        <name>global-bmp-dispatcher</name>
+                        <provider>/modules/module[type='bmp-dispatcher-impl'][name='global-bmp-dispatcher']</provider>
+                    </instance>
+                </service>
+            </services>
+        </data>
+
+    </configuration>
+</snapshot>
