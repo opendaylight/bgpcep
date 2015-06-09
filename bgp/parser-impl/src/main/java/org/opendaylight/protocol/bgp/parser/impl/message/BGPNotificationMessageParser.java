@@ -47,14 +47,14 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
         final Notify ntf = (Notify) msg;
         LOG.trace("Started serializing Notification message: {}", ntf);
 
-        final byte[] data = ntf.getData();
         final ByteBuf msgBody = Unpooled.buffer();
         msgBody.writeByte(ntf.getErrorCode());
         msgBody.writeByte(ntf.getErrorSubcode());
+        final byte[] data = ntf.getData();
         if (data != null) {
             msgBody.writeBytes(data);
         }
-        LOG.trace("Notification message serialized to: {}", ByteBufUtil.hexDump(bytes));
+        LOG.trace("Notification message serialized to: {}", ByteBufUtil.hexDump(msgBody));
         MessageUtil.formatMessage(TYPE, msgBody, bytes);
     }
 
