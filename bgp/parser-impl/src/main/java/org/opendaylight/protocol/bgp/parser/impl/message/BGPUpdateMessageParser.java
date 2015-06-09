@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  *
  * @see <a href="http://tools.ietf.org/html/rfc4271#section-4.3">BGP-4 Update Message Format</a>
  */
-public class BGPUpdateMessageParser implements MessageParser, MessageSerializer {
+public final class BGPUpdateMessageParser implements MessageParser, MessageSerializer {
     public static final int TYPE = 2;
 
     private static final Logger LOG = LoggerFactory.getLogger(BGPUpdateMessageParser.class);
@@ -103,7 +103,9 @@ public class BGPUpdateMessageParser implements MessageParser, MessageSerializer 
     @Override
     public void serializeMessage(final Notification message, final ByteBuf bytes) {
         Preconditions.checkArgument(message instanceof Update, "BGPUpdate message cannot be null");
-        LOG.trace("Started serializing update message: {}", message);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Started serializing update message: {}", message);
+        }
         final Update update = (Update) message;
 
         final ByteBuf messageBody = Unpooled.buffer();
@@ -132,7 +134,9 @@ public class BGPUpdateMessageParser implements MessageParser, MessageSerializer 
                 messageBody.writeBytes(Ipv4Util.bytesForPrefixBegin(prefix));
             }
         }
-        LOG.trace("Update message serialized to {}", ByteBufUtil.hexDump(messageBody));
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Update message serialized to {}", ByteBufUtil.hexDump(messageBody));
+        }
         MessageUtil.formatMessage(TYPE, messageBody, bytes);
     }
 }
