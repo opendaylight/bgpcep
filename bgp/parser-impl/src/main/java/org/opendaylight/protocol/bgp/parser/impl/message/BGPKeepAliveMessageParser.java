@@ -8,10 +8,8 @@
 package org.opendaylight.protocol.bgp.parser.impl.message;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
@@ -20,7 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.KeepaliveBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-public class BGPKeepAliveMessageParser implements MessageParser, MessageSerializer {
+public final class BGPKeepAliveMessageParser implements MessageParser, MessageSerializer {
     public static final int TYPE = 4;
     private static final Keepalive KEEPALIVE_MSG = new KeepaliveBuilder().build();
     private static final ByteBuf KEEPALIVE_BYTES = Unpooled.buffer();
