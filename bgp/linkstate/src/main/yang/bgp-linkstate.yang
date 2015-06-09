@@ -12,6 +12,7 @@ module bgp-linkstate {
     import rsvp { prefix rsvp; revision-date 2013-08-20; }
     import bgp-segment-routing { prefix bgp-sr; revision-date 2015-02-06; }
     import bgp-epe { prefix bgp-epe; revision-date 2015-06-22; }
+    import bmp-monitor { prefix bmp-mon; revision-date 2015-05-12; }
 
     organization "Cisco Systems, Inc.";
     contact "Dana Kutenicsova <dkutenic@cisco.com>";
@@ -675,4 +676,17 @@ module bgp-linkstate {
             uses linkstate-routes;
         }
     }
+
+    augment "/bmp-mon:bmp-monitor/bmp-mon:monitor/bmp-mon:router/bmp-mon:peer/bmp-mon:pre-policy-rib/bmp-mon:tables/bmp-mon:routes" {
+        case linkstate-routes-case {
+            uses linkstate-routes;
+        }
+    }
+
+    augment "/bmp-mon:bmp-monitor/bmp-mon:monitor/bmp-mon:router/bmp-mon:peer/bmp-mon:post-policy-rib/bmp-mon:tables/bmp-mon:routes" {
+        case linkstate-routes-case {
+            uses linkstate-routes;
+        }
+    }
+
 }

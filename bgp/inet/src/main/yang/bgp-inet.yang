@@ -7,6 +7,7 @@ module bgp-inet {
     import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
     import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
     import bgp-message { prefix bgp-msg; revision-date 2013-09-19; }
+    import bmp-monitor { prefix bmp-mon; revision-date 2015-05-12; }
 
     organization "Cisco Systems, Inc.";
     contact "Dana Kutenicsova <dkutenic@cisco.com>";
@@ -142,6 +143,26 @@ module bgp-inet {
     }
 
     augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:adj-rib-out/bgp-rib:tables/bgp-rib:routes" {
+        case ipv4-routes-case {
+            uses ipv4-routes;
+        }
+
+        case ipv6-routes-case {
+            uses ipv6-routes;
+        }
+    }
+
+    augment "/bmp-mon:bmp-monitor/bmp-mon:monitor/bmp-mon:router/bmp-mon:peer/bmp-mon:pre-policy-rib/bmp-mon:tables/bmp-mon:routes" {
+        case ipv4-routes-case {
+            uses ipv4-routes;
+        }
+
+        case ipv6-routes-case {
+            uses ipv6-routes;
+        }
+    }
+
+    augment "/bmp-mon:bmp-monitor/bmp-mon:monitor/bmp-mon:router/bmp-mon:peer/bmp-mon:post-policy-rib/bmp-mon:tables/bmp-mon:routes" {
         case ipv4-routes-case {
             uses ipv4-routes;
         }
