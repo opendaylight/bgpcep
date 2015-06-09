@@ -14,7 +14,6 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
@@ -114,11 +113,11 @@ public class BGPPeerAcceptorModuleTest extends AbstractConfigTest {
         return transaction.commit();
     }
 
-    private ObjectName createPeerRegistry(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
+    private static ObjectName createPeerRegistry(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
         return transaction.createModule(StrictBgpPeerRegistryModuleFactory.NAME, "peer-registry");
     }
 
-    private ObjectName createDispatcher(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
+    private static ObjectName createDispatcher(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
         return transaction.createModule("dispatch", "mock");
     }
 
