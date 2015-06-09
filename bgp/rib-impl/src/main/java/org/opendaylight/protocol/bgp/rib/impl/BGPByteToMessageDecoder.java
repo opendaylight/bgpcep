@@ -8,14 +8,11 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-
 import java.util.List;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
@@ -37,7 +34,9 @@ final class BGPByteToMessageDecoder extends ByteToMessageDecoder {
     protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) throws BGPDocumentedException,
             BGPParsingException {
         if (in.isReadable()) {
-            LOG.trace("Received to decode: {}", ByteBufUtil.hexDump(in));
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Received to decode: {}", ByteBufUtil.hexDump(in));
+            }
             out.add(this.registry.parseMessage(in));
         } else {
             LOG.trace("No more content in incoming buffer.");
