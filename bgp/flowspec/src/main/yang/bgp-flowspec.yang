@@ -9,6 +9,7 @@ module bgp-flowspec {
     import bgp-rib { prefix bgp-rib; revision-date 2013-09-25; }
     import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
     import network-concepts { prefix netc; revision-date 2013-11-25; }
+    import bmp-monitor { prefix bmp-mon; revision-date 2015-05-12; }
 
     organization "Cisco Systems, Inc.";
     contact "Dana Kutenicsova <dkutenic@cisco.com>";
@@ -389,4 +390,17 @@ module bgp-flowspec {
             uses flowspec-routes;
         }
     }
+
+    augment "/bmp-mon:bmp-monitor/bmp-mon:monitor/bmp-mon:router/bmp-mon:peer/bmp-mon:pre-policy-rib/bmp-mon:tables/bmp-mon:routes" {
+        case flowspec-routes-case {
+            uses flowspec-routes;
+        }
+    }
+
+    augment "/bmp-mon:bmp-monitor/bmp-mon:monitor/bmp-mon:router/bmp-mon:peer/bmp-mon:post-policy-rib/bmp-mon:tables/bmp-mon:routes" {
+        case flowspec-routes-case {
+            uses flowspec-routes;
+        }
+    }
+
 }

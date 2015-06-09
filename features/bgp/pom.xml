@@ -208,6 +208,10 @@
           <groupId>${project.groupId}</groupId>
           <artifactId>util</artifactId>
       </dependency>
+      <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>bgp-bmp-api</artifactId>
+      </dependency>
 
       <dependency>
         <groupId>io.netty</groupId>
