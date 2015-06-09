@@ -113,7 +113,10 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     @Override
     public void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
-        LOG.trace("Received data change to LocRib {}", Arrays.toString(changes.toArray()));
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Received data change to LocRib {}", Arrays.toString(changes.toArray()));
+        }
+
         /*
          * We use two-stage processing here in hopes that we avoid duplicate
          * calculations when multiple peers have changed a particular entry.
