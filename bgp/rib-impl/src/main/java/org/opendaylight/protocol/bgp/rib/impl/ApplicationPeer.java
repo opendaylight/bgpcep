@@ -64,9 +64,11 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         LOG.debug("Received data change to ApplicationRib {}", changes);
         for (final DataTreeCandidate tc : changes) {
+            LOG.trace("Received {} type {}", tc.getRootNode(), tc.getRootNode().getModificationType());
             final YangInstanceIdentifier path = tc.getRootPath();
             final PathArgument lastArg = path.getLastPathArgument();
             Verify.verify(lastArg instanceof NodeIdentifierWithPredicates, "Unexpected type %s in path %s", lastArg.getClass(), path);
+            // FIXME: BUG-3662: handle delete properly
             final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) lastArg;
             for (final DataTreeCandidateNode child : tc.getRootNode().getChildNodes()) {
                 final YangInstanceIdentifier tableId = this.adjRibsInId.node(tableKey).node(child.getIdentifier());
