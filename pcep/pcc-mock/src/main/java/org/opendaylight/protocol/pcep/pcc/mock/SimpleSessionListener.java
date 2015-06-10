@@ -68,15 +68,24 @@ public class SimpleSessionListener implements PCEPSessionListener {
     private final boolean pcError;
     private final String address;
     private final AtomicLong plspIDs;
+    private final boolean isDelegated;
+    private static int counter = 0;
+    private final int sessionId = counter++;
+
     @GuardedBy("this")
     private final Map<Long, byte[]> pathNames = new HashMap<>();
 
-    public SimpleSessionListener(final int lspsCount, final boolean pcError, final InetAddress address) {
+    private final Map<Integer, Boolean> tunnelToState = new HashMap<>();
+    private final Map<Integer, PCEPSessionListener> sessionIdToSessionObject;
+
+    public SimpleSessionListener(final int lspsCount, final boolean pcError, final InetAddress address, final boolean isDelegated, final Map<Integer, PCEPSessionListener> sessionIdToSessionObject) {
         Preconditions.checkArgument(lspsCount >= 0);
         this.lspsCount = lspsCount;
         this.pcError = pcError;
         this.address = address.getHostAddress();
         this.plspIDs = new AtomicLong(lspsCount);
+        this.isDelegated = isDelegated;
+        this.sessionIdToSessionObject = sessionIdToSessionObject;
     }
 
     @Override
@@ -105,9 +114,24 @@ public class SimpleSessionListener implements PCEPSessionListener {
                 final Pcrpt pcRpt;
                 if (request.getSrp().getAugmentation(Srp1.class) != null && request.getSrp().getAugmentation(Srp1.class).isRemove()) {
                     pcRpt = createPcRtpMessage(request.getLsp(), Optional.fromNullable(request.getSrp()), reqToRptPath(request));
-                    this.pathNames.remove(request.getLsp().getPlspId().getValue());
+                    final long plspID = request.getLsp().getPlspId().getValue();
+                    if (! this.pathNames.containsKey(plspID)) {
+                        session.sendMessage(MsgBuilderUtil.createErrorMsg(PCEPErrors.UNKNOWN_PLSP_ID, request.getSrp().getOperationId().getValue()));
+                        return;
+                    }
+                    else {
+                        this.pathNames.remove(plspID);
+                    }
                 } else {
                     final LspBuilder lspBuilder = new LspBuilder(request.getLsp());
+
+                    // request to undelegate lsp
+                    if (! request.getLsp().isDelegate()) {
+                        // if (this.pathNames.containsKey(request.getLsp().getPlspId().getValue()) && this.pathNames.get(key))
+
+                        request.getLsp().getPlspId().getValue();
+                    }
+
                     lspBuilder.setPlspId(new PlspId(this.plspIDs.incrementAndGet()));
                     lspBuilder.addAugmentation(Lsp1.class, new Lsp1Builder().setCreate(true).build());
                     final Tlvs tlvs = createLspTlvs(lspBuilder.getPlspId().getValue(), true,
@@ -126,15 +150,18 @@ public class SimpleSessionListener implements PCEPSessionListener {
     public void onSessionUp(final PCEPSession session) {
         LOG.debug("Session up.");
         for (int i = 1; i <= this.lspsCount; i++) {
+            tunnelToState.put(i, isDelegated);
             final Tlvs tlvs = MsgBuilderUtil.createLspTlvs(i, true, ENDPOINT_ADDRESS, this.address,
                     this.address, Optional.<byte[]>absent());
             session.sendMessage(createPcRtpMessage(
-                    createLsp(i, true, Optional.<Tlvs> fromNullable(tlvs)), Optional.<Srp> absent(),
+                    createLsp(i, true, Optional.<Tlvs> fromNullable(tlvs), isDelegated), Optional.<Srp> absent(),
                     createPath(Lists.newArrayList(DEFAULT_ENDPOINT_HOP))));
         }
         // end-of-sync marker
-        session.sendMessage(createPcRtpMessage(createLsp(0, false, Optional.<Tlvs> absent()), Optional.<Srp> absent(),
+        session.sendMessage(createPcRtpMessage(createLsp(0, false, Optional.<Tlvs> absent(), true), Optional.<Srp> absent(),
                 createPath(Collections.<Subobject> emptyList())));
+        // we save actuall state of session
+        sessionIdToSessionObject.put(sessionId, this);
     }
 
     @Override
@@ -171,4 +198,7 @@ public class SimpleSessionListener implements PCEPSessionListener {
         return PCEPErrors.values()[this.rnd.nextInt(PCEPErrors.values().length)];
     }
 
+    public Map<Integer, Boolean> getTunnelToState() {
+        return this.tunnelToState;
+    }
 }
