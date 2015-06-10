@@ -39,8 +39,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.SrpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.symbolic.path.name.tlv.SymbolicPathNameBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcerr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
@@ -68,18 +68,22 @@ public final class MsgBuilderUtil {
         return rptBuilder.build();
     }
 
-    public static Lsp createLsp(final long plspId, final boolean sync, final Optional<Tlvs> tlvs) {
+    public static Lsp createLsp(final long plspId, final boolean sync, final Optional<Tlvs> tlvs, final boolean isDelegatedLsp, final boolean remove) {
         final LspBuilder lspBuilder = new LspBuilder();
         lspBuilder.setAdministrative(true);
-        lspBuilder.setDelegate(true);
+        lspBuilder.setDelegate(isDelegatedLsp);
         lspBuilder.setIgnore(false);
         lspBuilder.setOperational(OperationalStatus.Up);
         lspBuilder.setPlspId(new PlspId(plspId));
         lspBuilder.setProcessingRule(false);
-        lspBuilder.setRemove(false);
+        lspBuilder.setRemove(remove);
         lspBuilder.setSync(sync);
         lspBuilder.setTlvs(tlvs.orNull());
         return lspBuilder.build();
+    }
+
+    public static Lsp createLsp(final long plspId, final boolean sync, final Optional<Tlvs> tlvs, final boolean isDelegatedLspe) {
+        return createLsp(plspId, sync, tlvs, isDelegatedLspe, false);
     }
 
     public static Path createPath(final List<Subobject> subobjects) {
@@ -97,15 +101,19 @@ public final class MsgBuilderUtil {
     }
 
     public static Path updToRptPath(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcupd.message.pcupd.message.updates.Path path) {
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcupd.message.pcupd.message.updates.Path path) {
         final PathBuilder pathBuilder = new PathBuilder();
-        pathBuilder.fieldsFrom(path);
+        if (path != null) {
+            pathBuilder.fieldsFrom(path);
+        }
         return pathBuilder.build();
     }
 
     public static Path reqToRptPath(final Requests request) {
         final PathBuilder pathBuilder = new PathBuilder();
-        pathBuilder.fieldsFrom(request);
+        if (request != null) {
+            pathBuilder.fieldsFrom(request);
+        }
         return pathBuilder.build();
     }
 
@@ -122,19 +130,18 @@ public final class MsgBuilderUtil {
                                                 new Ipv4ExtendedTunnelId(extendedTunnelAddress))
                                         .build()).build()).setTunnelId(new TunnelId((int) lspId)).build());
         if (symbolicPathName) {
-            final byte[] pathName;
             if (symbolicName.isPresent()) {
-                pathName = symbolicName.get();
+                tlvs.setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(
+                        new SymbolicPathName(symbolicName.get())).build());
             } else {
-                pathName = ("pcc_" + tunnelSender + "_tunnel_" + lspId).getBytes(Charsets.UTF_8);
+                tlvs.setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(
+                        new SymbolicPathName(getDefaultPathName(tunnelSender, lspId))).build());
             }
-            tlvs.setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(
-                    new SymbolicPathName(pathName)).build());
         }
         return tlvs.build();
     }
 
-    public static Message createErrorMsg(final PCEPErrors e, final long srpId) {
+    public static Pcerr createErrorMsg(final PCEPErrors e, final long srpId) {
         final PcerrMessageBuilder msgBuilder = new PcerrMessageBuilder();
         return new PcerrBuilder().setPcerrMessage(
                 msgBuilder
@@ -149,6 +156,10 @@ public final class MsgBuilderUtil {
                                 Arrays.asList(new ErrorsBuilder().setErrorObject(
                                         new ErrorObjectBuilder().setType(e.getErrorType()).setValue(e.getErrorValue())
                                                 .build()).build())).build()).build();
+    }
+
+    public static byte[] getDefaultPathName(final String address, final long lspId) {
+        return ("pcc_" + address + "_tunnel_" + lspId).getBytes(Charsets.UTF_8);
     }
 
 }
