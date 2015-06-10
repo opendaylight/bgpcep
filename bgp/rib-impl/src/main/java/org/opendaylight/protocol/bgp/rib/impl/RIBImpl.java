@@ -178,6 +178,8 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         } catch (final TransactionCommitFailedException e1) {
             LOG.error("Failed to initiate LocRIB for key {}", key, e1);
         }
+
+        // FIXME: do not lose the writer so we clean it up on shutdown
         LocRibWriter.create(this.ribContextRegistry, key, this.createPeerChain(this), getYangRibId(), this.localAs, getService(), pd);
     }
 

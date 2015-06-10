@@ -38,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -71,6 +72,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     private final RIBSupport ribSupport;
     private final NodeIdentifierWithPredicates tableKey;
     private final RIBSupportContextRegistry registry;
+    private final ListenerRegistration<LocRibWriter> reg;
 
     LocRibWriter(final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier target, final Long ourAs,
         final DOMDataTreeChangeService service, final PolicyDatabase pd, final TablesKey tablesKey) {
@@ -89,7 +91,8 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         tx.submit();
 
         final YangInstanceIdentifier tableId = target.node(Peer.QNAME).node(Peer.QNAME);
-        service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, tableId), this);
+
+        this.reg = service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, tableId), this);
     }
 
     public static LocRibWriter create(@Nonnull final RIBSupportContextRegistry registry, @Nonnull final TablesKey tablesKey, @Nonnull final DOMTransactionChain chain, @Nonnull final YangInstanceIdentifier target,
@@ -99,6 +102,9 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
 
     @Override
     public void close() {
+        this.reg.close();
+        // FIXME: wipe the local rib
+        // FIXME: wait for the chain to close? unfortunately RIBImpl is the listener, so that may require some work
         this.chain.close();
     }
 
