@@ -126,14 +126,38 @@ public final class Main {
             final List<InetSocketAddress> remoteAddress, final Open openMessage, final PCCDispatcher pccDispatcher,
             final String password, final int reconnectTime) throws InterruptedException, ExecutionException {
         final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf = getSessionNegotiatorFactory(openMessage);
+        boolean isFirstLsp = true;
+        boolean isDelegated = true;
+
+        // only first lsp is delegated
         for (final InetSocketAddress pceAddress : remoteAddress) {
-            pccDispatcher.createClient(localAddress, pceAddress, reconnectTime == -1 ? getNeverReconnectStrategyFactory() : getTimedReconnectStrategyFactory(reconnectTime), new SessionListenerFactory<PCEPSessionListener>() {
-                @Override
-                public PCEPSessionListener getSessionListener() {
-                    return new SimpleSessionListener(lspsPerPcc, pcerr, localAddress.getAddress());
-                }
-            }, snf, getKeyMapping(pceAddress.getAddress(), password));
+            pccDispatcher.createClient(localAddress, pceAddress, reconnectTime == -1 ? getNeverReconnectStrategyFactory() : getTimedReconnectStrategyFactory(reconnectTime), new Main().new SimpleSessionListenerFactory(lspsPerPcc, pcerr, localAddress.getAddress(), isDelegated), snf, getKeyMapping(pceAddress.getAddress(), password));
+            if (isFirstLsp) {
+                isFirstLsp = false;
+                isDelegated = false;
+            }
         }
+    }
+
+    private final class SimpleSessionListenerFactory implements SessionListenerFactory<PCEPSessionListener> {
+
+        private final int lspsPerPcc;
+        private final boolean pcerr;
+        private final InetAddress localAddress;
+        private final boolean isDelegated;
+
+        public SimpleSessionListenerFactory(final int lspsPerPcc, final boolean pcerr, final InetAddress localAddress, final boolean isDelegated) {
+            this.lspsPerPcc = lspsPerPcc;
+            this.pcerr = pcerr;
+            this.localAddress = localAddress;
+            this.isDelegated = isDelegated;
+        }
+
+        @Override
+        public PCEPSessionListener getSessionListener() {
+            return new SimpleSessionListener(lspsPerPcc, pcerr, localAddress, isDelegated);
+        }
+
     }
 
     @SuppressWarnings("deprecation")
