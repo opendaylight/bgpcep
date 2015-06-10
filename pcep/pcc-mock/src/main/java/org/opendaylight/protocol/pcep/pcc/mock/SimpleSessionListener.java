@@ -105,7 +105,14 @@ public class SimpleSessionListener implements PCEPSessionListener {
                 final Pcrpt pcRpt;
                 if (request.getSrp().getAugmentation(Srp1.class) != null && request.getSrp().getAugmentation(Srp1.class).isRemove()) {
                     pcRpt = createPcRtpMessage(request.getLsp(), Optional.fromNullable(request.getSrp()), reqToRptPath(request));
-                    this.pathNames.remove(request.getLsp().getPlspId().getValue());
+                    final long plspID = request.getLsp().getPlspId().getValue();
+                    if (! this.pathNames.containsKey(plspID)) {
+                        session.sendMessage(MsgBuilderUtil.createErrorMsg(PCEPErrors.UNKNOWN_PLSP_ID, request.getSrp().getOperationId().getValue()));
+                        return;
+                    }
+                    else {
+                        this.pathNames.remove(plspID);
+                    }
                 } else {
                     final LspBuilder lspBuilder = new LspBuilder(request.getLsp());
                     lspBuilder.setPlspId(new PlspId(this.plspIDs.incrementAndGet()));
@@ -124,16 +131,24 @@ public class SimpleSessionListener implements PCEPSessionListener {
 
     @Override
     public void onSessionUp(final PCEPSession session) {
+        boolean isDelegatedLsp = true;
         LOG.debug("Session up.");
         for (int i = 1; i <= this.lspsCount; i++) {
             final Tlvs tlvs = MsgBuilderUtil.createLspTlvs(i, true, ENDPOINT_ADDRESS, this.address,
                     this.address, Optional.<byte[]>absent());
+            if (i == 1) {
+                session.sendMessage(createPcRtpMessage(
+                        createLsp(i, true, Optional.<Tlvs> fromNullable(tlvs), isDelegatedLsp), Optional.<Srp> absent(),
+                        createPath(Lists.newArrayList(DEFAULT_ENDPOINT_HOP))));
+                isDelegatedLsp = false;
+                continue;
+            }
             session.sendMessage(createPcRtpMessage(
-                    createLsp(i, true, Optional.<Tlvs> fromNullable(tlvs)), Optional.<Srp> absent(),
+                    createLsp(i, true, Optional.<Tlvs> fromNullable(tlvs), isDelegatedLsp), Optional.<Srp> absent(),
                     createPath(Lists.newArrayList(DEFAULT_ENDPOINT_HOP))));
         }
         // end-of-sync marker
-        session.sendMessage(createPcRtpMessage(createLsp(0, false, Optional.<Tlvs> absent()), Optional.<Srp> absent(),
+        session.sendMessage(createPcRtpMessage(createLsp(0, true, Optional.<Tlvs> absent(), isDelegatedLsp), Optional.<Srp> absent(),
                 createPath(Collections.<Subobject> emptyList())));
     }
 
