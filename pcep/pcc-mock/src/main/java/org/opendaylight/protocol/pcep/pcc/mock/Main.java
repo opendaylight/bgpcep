@@ -22,7 +22,9 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
@@ -60,6 +62,8 @@ public final class Main {
     private static final short DEFAULT_DEAD_TIMER = 120;
     private static final int RECONNECT_STRATEGY_TIMEOUT = 2000;
     private static final InetAddress LOCALHOST = InetAddresses.forString("127.0.0.1");
+
+    private static final Map<Integer, PCEPSessionListener> sessionIdToSessionObject = new HashMap<>();
 
     private Main() { }
 
@@ -126,13 +130,34 @@ public final class Main {
             final List<InetSocketAddress> remoteAddress, final Open openMessage, final PCCDispatcher pccDispatcher,
             final String password, final int reconnectTime) throws InterruptedException, ExecutionException {
         final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf = getSessionNegotiatorFactory(openMessage);
+        int sessionId = 0;
+
+        // only first lsp is delegated
         for (final InetSocketAddress pceAddress : remoteAddress) {
-            pccDispatcher.createClient(localAddress, pceAddress, reconnectTime == -1 ? getNeverReconnectStrategyFactory() : getTimedReconnectStrategyFactory(reconnectTime), new SessionListenerFactory<PCEPSessionListener>() {
-                @Override
-                public PCEPSessionListener getSessionListener() {
-                    return new SimpleSessionListener(lspsPerPcc, pcerr, localAddress.getAddress());
-                }
-            }, snf, getKeyMapping(pceAddress.getAddress(), password));
+            final SimpleSessionListenerFactory sessionObject = new Main().new SimpleSessionListenerFactory(lspsPerPcc, pcerr, localAddress.getAddress(), remoteAddress.indexOf(pceAddress) == 0 ? true : false,  sessionIdToSessionObject);
+            pccDispatcher.createClient(localAddress, pceAddress, reconnectTime == -1 ? getNeverReconnectStrategyFactory() : getTimedReconnectStrategyFactory(reconnectTime), sessionObject, snf, getKeyMapping(pceAddress.getAddress(), password));
+        }
+    }
+
+    private final class SimpleSessionListenerFactory implements SessionListenerFactory<PCEPSessionListener> {
+
+        private final int lspsPerPcc;
+        private final boolean pcerr;
+        private final InetAddress localAddress;
+        private final boolean isDelegated;
+        private final Map<Integer, PCEPSessionListener> sessionIdToSessionObject;
+
+        public SimpleSessionListenerFactory(final int lspsPerPcc, final boolean pcerr, final InetAddress localAddress, final boolean isDelegated, final Map<Integer, PCEPSessionListener> sessionIdToSessionObject) {
+            this.lspsPerPcc = lspsPerPcc;
+            this.pcerr = pcerr;
+            this.localAddress = localAddress;
+            this.isDelegated = isDelegated;
+            this.sessionIdToSessionObject = sessionIdToSessionObject;
+        }
+
+        @Override
+        public PCEPSessionListener getSessionListener() {
+            return new SimpleSessionListener(lspsPerPcc, pcerr, localAddress, isDelegated, sessionIdToSessionObject);
         }
     }
 
