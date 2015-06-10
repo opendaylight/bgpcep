@@ -17,6 +17,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.net.HostAndPort;
 import com.google.common.net.InetAddresses;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timer;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -35,6 +37,7 @@ import org.opendaylight.protocol.pcep.ietf.initiated00.CrabbeInitiatedActivator;
 import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
+import org.opendaylight.protocol.pcep.pcc.mock.api.PccTunnelManager;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 import org.opendaylight.tcpmd5.api.KeyMapping;
@@ -74,6 +77,9 @@ public final class Main {
         short dt = DEFAULT_DEAD_TIMER;
         String password = null;
         int reconnectTime = -1;
+        int redelegationTimeout = 0;
+        int stateTimeout = -1;
+        final Timer timer = new HashedWheelTimer();
 
         getRootLogger(lc).setLevel(ch.qos.logback.classic.Level.INFO);
         int argIdx = 0;
@@ -98,41 +104,49 @@ public final class Main {
                 password = args[++argIdx];
             } else if (args[argIdx].equals("--reconnect")) {
                 reconnectTime = Integer.valueOf(args[++argIdx]).intValue() * 1000;
+            } else if (args[argIdx].equals("--redelegation-timeout")) {
+                redelegationTimeout = Integer.valueOf(args[++argIdx]);
+            } else if (args[argIdx].equals("--state-timeout")) {
+                stateTimeout = Integer.valueOf(args[++argIdx]);
             } else {
                 LOG.warn("WARNING: Unrecognized argument: {}", args[argIdx]);
             }
             argIdx++;
         }
-        createPCCs(lsps, pcError, pccCount, localAddress, remoteAddress, ka, dt, password, reconnectTime);
+        createPCCs(lsps, pcError, pccCount, localAddress, remoteAddress, ka, dt, password, reconnectTime, redelegationTimeout, stateTimeout, timer);
     }
 
     public static void createPCCs(final int lspsPerPcc, final boolean pcerr, final int pccCount,
             final InetSocketAddress localAddress, final List<InetSocketAddress> remoteAddress, final short keepalive, final short deadtimer,
-            final String password, final int reconnectTime) throws InterruptedException, ExecutionException {
+            final String password, final int reconnectTime, final int redelegationTimeout, final int stateTimeout, final Timer timer) throws InterruptedException, ExecutionException {
         startActivators();
         InetAddress currentAddress = localAddress.getAddress();
         final Open openMessage = getOpenMessage(keepalive, deadtimer);
         final PCCDispatcher pccDispatcher = new PCCDispatcher(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(),
                 getSessionNegotiatorFactory(openMessage));
         for (int i = 0; i < pccCount; i++) {
-            createPCC(lspsPerPcc, pcerr, new InetSocketAddress(currentAddress, localAddress.getPort()),
-                    remoteAddress, openMessage, pccDispatcher, password, reconnectTime);
+            final PccTunnelManager tunnelManager = new PccTunnelManagerImpl(lspsPerPcc, currentAddress,
+                    redelegationTimeout, stateTimeout, timer);
+            createPCC(pcerr, new InetSocketAddress(currentAddress, localAddress.getPort()),
+                    remoteAddress, openMessage, pccDispatcher, password, reconnectTime, tunnelManager);
             currentAddress = InetAddresses.increment(currentAddress);
         }
     }
 
     @SuppressWarnings("deprecation")
-    private static void createPCC(final int lspsPerPcc, final boolean pcerr, final InetSocketAddress localAddress,
+    private static void createPCC(final boolean pcerr, final InetSocketAddress localAddress,
             final List<InetSocketAddress> remoteAddress, final Open openMessage, final PCCDispatcher pccDispatcher,
-            final String password, final int reconnectTime) throws InterruptedException, ExecutionException {
+            final String password, final int reconnectTime, final PccTunnelManager tunnelManager) throws InterruptedException, ExecutionException {
         final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf = getSessionNegotiatorFactory(openMessage);
+
         for (final InetSocketAddress pceAddress : remoteAddress) {
-            pccDispatcher.createClient(localAddress, pceAddress, reconnectTime == -1 ? getNeverReconnectStrategyFactory() : getTimedReconnectStrategyFactory(reconnectTime), new SessionListenerFactory<PCEPSessionListener>() {
-                @Override
-                public PCEPSessionListener getSessionListener() {
-                    return new SimpleSessionListener(lspsPerPcc, pcerr, localAddress.getAddress());
-                }
-            }, snf, getKeyMapping(pceAddress.getAddress(), password));
+            pccDispatcher.createClient(localAddress, pceAddress, reconnectTime == -1 ? getNeverReconnectStrategyFactory() : getTimedReconnectStrategyFactory(reconnectTime),
+                    new SessionListenerFactory<PCEPSessionListener>() {
+                        @Override
+                        public PCEPSessionListener getSessionListener() {
+                            return new PccSessionListener(remoteAddress.indexOf(pceAddress), tunnelManager, pcerr);
+                        }
+                    } ,snf, getKeyMapping(pceAddress.getAddress(), password));
         }
     }
 
