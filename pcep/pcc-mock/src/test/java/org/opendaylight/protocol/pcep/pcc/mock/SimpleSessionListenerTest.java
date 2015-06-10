@@ -14,6 +14,7 @@ import static org.junit.Assert.assertTrue;
 import com.google.common.collect.Lists;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.rmi.AccessException;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -26,6 +27,14 @@ import org.mockito.stubbing.Answer;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.PcinitiateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.PcinitiateMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.PcinitiateMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.pcinitiate.message.Requests;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.pcinitiate.message.RequestsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.OperationalStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcrpt;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcupd;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcupdBuilder;
@@ -38,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.SrpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcerr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.IpPrefixCaseBuilder;
@@ -70,7 +80,7 @@ public class SimpleSessionListenerTest {
     }
 
     @Test
-    public void testSessionListenerPcRpt() throws UnknownHostException {
+    public void testSessionListenerPcRpt() throws UnknownHostException, AccessException {
         final SimpleSessionListener sessionListser = new SimpleSessionListener(1, false, InetAddress.getByName(IP_ADDRESS));
 
         sessionListser.onSessionUp(this.mockedSession);
@@ -99,6 +109,47 @@ public class SimpleSessionListenerTest {
         Mockito.verify(this.mockedSession, Mockito.times(1)).sendMessage(Mockito.any(Message.class));
         assertEquals(1, this.sendMessages.size());
         assertTrue(this.sendMessages.get(0) instanceof Pcerr);
+    }
+
+    @Test
+    public void testRemoveLspWithUnknowPlspId() throws UnknownHostException {
+        final SimpleSessionListener sessionListener = new SimpleSessionListener(1, false, InetAddress.getByName(IP_ADDRESS));
+
+        sessionListener.onMessage(this.mockedSession, createInitMsg());
+        // send PcErr as a response to PcInit when we try to remove lsp with unknown plsp-id
+        Mockito.verify(this.mockedSession, Mockito.times(1)).sendMessage(Mockito.any(Message.class));
+        assertEquals(1, this.sendMessages.size());
+        assertTrue(this.sendMessages.get(0) instanceof Pcerr);
+    }
+
+    private final PcinitiateMessage createInitMsg() {
+        // lsp with "unknown" plsp-id
+        final LspBuilder lspBuilder = new LspBuilder()
+            .setAdministrative(true)
+            .setDelegate(true)
+            .setIgnore(false)
+            .setOperational(OperationalStatus.Up)
+            .setPlspId(new PlspId(999L))
+            .setProcessingRule(false)
+            .setRemove(true)
+            .setSync(true);
+
+        final SrpBuilder srpBuilder = new SrpBuilder()
+            .setProcessingRule(false)
+            .setIgnore(false)
+            .setOperationId(new SrpIdNumber(10L))
+            .addAugmentation(Srp1.class, new Srp1Builder().setRemove(true).build());
+
+        final List<Requests> requests = Lists.newArrayList();
+        final RequestsBuilder reqBuilder = new RequestsBuilder()
+            .setLsp(lspBuilder.build())
+            .setSrp(srpBuilder.build());
+        requests.add(reqBuilder.build());
+
+        final PcinitiateMessageBuilder initBuilder = new PcinitiateMessageBuilder()
+            .setRequests(requests)
+            .setVersion(new ProtocolVersion((short) 4));
+        return new PcinitiateBuilder().setPcinitiateMessage(initBuilder.build()).build();
     }
 
     private Pcupd createUpdMsg() {

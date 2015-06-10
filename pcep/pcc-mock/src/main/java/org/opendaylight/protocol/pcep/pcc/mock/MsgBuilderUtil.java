@@ -68,10 +68,10 @@ public final class MsgBuilderUtil {
         return rptBuilder.build();
     }
 
-    public static Lsp createLsp(final long plspId, final boolean sync, final Optional<Tlvs> tlvs) {
+    public static Lsp createLsp(final long plspId, final boolean sync, final Optional<Tlvs> tlvs, final boolean isDelegatedLsp) {
         final LspBuilder lspBuilder = new LspBuilder();
         lspBuilder.setAdministrative(true);
-        lspBuilder.setDelegate(true);
+        lspBuilder.setDelegate(isDelegatedLsp);
         lspBuilder.setIgnore(false);
         lspBuilder.setOperational(OperationalStatus.Up);
         lspBuilder.setPlspId(new PlspId(plspId));
