@@ -81,16 +81,16 @@ final class EffectiveRibInWriter implements AutoCloseable {
 
         private void processRoute(final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final AbstractImportPolicy policy, final YangInstanceIdentifier routesPath, final DataTreeCandidateNode route) {
             LOG.debug("Process route {}", route);
+            final YangInstanceIdentifier routeId = ribSupport.routePath(routesPath, route.getIdentifier());
             switch (route.getModificationType()) {
             case DELETE:
-                tx.delete(LogicalDatastoreType.OPERATIONAL, routesPath.node(route.getIdentifier()));
+                tx.delete(LogicalDatastoreType.OPERATIONAL, routeId);
                 break;
             case UNMODIFIED:
                 // No-op
                 break;
             case SUBTREE_MODIFIED:
             case WRITE:
-                final YangInstanceIdentifier routeId = ribSupport.routePath(routesPath, route.getIdentifier());
                 tx.put(LogicalDatastoreType.OPERATIONAL, routeId, route.getDataAfter().get());
                 // Lookup per-table attributes from RIBSupport
                 final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(route.getDataAfter(), ribSupport.routeAttributesIdentifier()).orNull();
@@ -218,7 +218,6 @@ final class EffectiveRibInWriter implements AutoCloseable {
 
         private void changeDataTree(final DOMDataWriteTransaction tx, final YangInstanceIdentifier rootPath,
             final DataTreeCandidateNode root, final NodeIdentifierWithPredicates peerKey, final DataTreeCandidateNode table) {
-
             final PathArgument lastArg = table.getIdentifier();
             Verify.verify(lastArg instanceof NodeIdentifierWithPredicates, "Unexpected type %s in path %s", lastArg.getClass(), rootPath);
             final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) lastArg;
