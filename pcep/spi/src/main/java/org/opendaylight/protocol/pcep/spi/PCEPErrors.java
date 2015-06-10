@@ -324,7 +324,11 @@ public enum PCEPErrors {
      * No StartTLS message before StartTLSWait timer expired
      * TODO: error code to be assigned by IANA
      */
-    STARTTLS_TIMER_EXP(30, 5);
+    STARTTLS_TIMER_EXP(30, 5),
+    /**
+     * LSP is not PCE-initiated
+     */
+    LSP_NOT_PCE_INITIATED(19, 9);
 
     private PCEPErrorIdentifier errorId;
     private static final Map<PCEPErrorIdentifier, PCEPErrors> VALUE_MAP;
