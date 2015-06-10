@@ -57,6 +57,7 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
         void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final NodeIdentifierWithPredicates routeKey, final DataContainerNode<?> route, final ContainerNode attributes) {
             final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = ImmutableNodes.mapEntryBuilder();
             b.withNodeIdentifier(routeKey);
+            b.withChild(ImmutableNodes.leafNode(routeKeyLeafIdentifier(), routeKey.getKeyValues().get(routeQName())));
 
             // FIXME: All route children, there should be a utility somewhere to do this
             for (final DataContainerChild<? extends PathArgument, ?> child : route.getValue()) {
