@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6a9dd7_39778b04",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/FromExternalImportPolicyTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-11T13:22:26Z",
+      "side": 1,
+      "message": "you already have this import, don\u0027t use full names when not necessary",
+      "range": {
+        "startLine": 26,
+        "startChar": 44,
+        "endLine": 26,
+        "endChar": 88
+      },
+      "revId": "c4af790dc776dfa6fe427bd1fc1ca10b63b6aaa5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_f9603337",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/FromExternalImportPolicyTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-11T13:22:26Z",
+      "side": 1,
+      "message": "expected is always first :-)",
+      "revId": "c4af790dc776dfa6fe427bd1fc1ca10b63b6aaa5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
