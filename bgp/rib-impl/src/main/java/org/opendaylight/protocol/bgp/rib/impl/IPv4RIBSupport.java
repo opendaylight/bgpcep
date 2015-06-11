@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -30,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
@@ -44,6 +47,8 @@ final class IPv4RIBSupport extends AbstractIPRIBSupport {
     @VisibleForTesting
     static final QName PREFIX_QNAME = QName.cachedReference(QName.create(Ipv4Route.QNAME, "prefix"));
     private static final IPv4RIBSupport SINGLETON = new IPv4RIBSupport();
+    private static final ImmutableCollection<Class<? extends DataObject>> CACHEABLE_NLRI_OBJECTS =
+            ImmutableSet.<Class<? extends DataObject>>of(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.Ipv4Prefix.class);
     private final ChoiceNode emptyRoutes = Builders.choiceBuilder()
             .withNodeIdentifier(new NodeIdentifier(Routes.QNAME))
             .addChild(Builders.containerBuilder()
@@ -95,6 +100,11 @@ final class IPv4RIBSupport extends AbstractIPRIBSupport {
     @Override
     protected QName routeQName() {
         return Ipv4Route.QNAME;
+    }
+
+    @Override
+    public ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
+        return CACHEABLE_NLRI_OBJECTS;
     }
 
     private List<Ipv4Prefixes> extractPrefixes(final Collection<MapEntryNode> routes) {
