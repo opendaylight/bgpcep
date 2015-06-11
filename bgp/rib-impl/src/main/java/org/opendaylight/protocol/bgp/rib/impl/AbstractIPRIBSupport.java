@@ -110,11 +110,6 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
     }
 
     @Override
-    public final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
-        return ImmutableSet.of();
-    }
-
-    @Override
     public final boolean isComplexRoute() {
         return false;
     }
