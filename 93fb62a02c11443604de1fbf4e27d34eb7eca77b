@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6a9dd7_bc3b89ea",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AttributeOperations.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-11T18:06:55Z",
+      "side": 1,
+      "message": "please do not add spaces between groups",
+      "revId": "93fb62a02c11443604de1fbf4e27d34eb7eca77b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_3c2f79a3",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AttributeOperations.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-11T18:06:55Z",
+      "side": 1,
+      "message": "The collection is derived solely from the namespace, hence a LoadingCache would be more appropriate and a lot simpler",
+      "revId": "93fb62a02c11443604de1fbf4e27d34eb7eca77b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_9c2245b8",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AttributeOperations.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-11T18:06:55Z",
+      "side": 1,
+      "message": "Any reason why this has be an explicit class? It looks like tracking an ImmutableSet.of(origin, aspath, ...) would be enough",
+      "revId": "93fb62a02c11443604de1fbf4e27d34eb7eca77b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
