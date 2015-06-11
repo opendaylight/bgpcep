@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6a9dd7_f6ffe2ff",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-06-11T06:51:15Z",
+      "side": 1,
+      "message": "The make-before-brake procedure is not going to be working with PLSP-ID as idenntifier. For the case of make-before-brake, two LSP paths (same PLSP-ID, different LSP-Identifiers) should coexists for a short time, which mean the change of \"path\" key to PLSP-ID is not a good idea.",
+      "range": {
+        "startLine": 357,
+        "startChar": 23,
+        "endLine": 357,
+        "endChar": 38
+      },
+      "revId": "920bbcfb6c322fd2edf060aebba75ffd21a21616",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
