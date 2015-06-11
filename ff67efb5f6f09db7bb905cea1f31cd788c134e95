@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6a9dd7_d372f0e4",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/SimpleSessionListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-11T06:18:05Z",
+      "side": 1,
+      "message": "i \u003d\u003d 1 is always true at the beginning of the cycle, why isDelegatedLsp is not initialized with true instead?",
+      "revId": "ff67efb5f6f09db7bb905cea1f31cd788c134e95",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_737764d5",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/SimpleSessionListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-11T06:18:05Z",
+      "side": 1,
+      "message": "end-of-sync should have by default true, no?",
+      "revId": "ff67efb5f6f09db7bb905cea1f31cd788c134e95",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
