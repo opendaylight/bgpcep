@@ -12,10 +12,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.AsPath;
@@ -27,10 +26,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.UnrecognizedAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.NextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.CSegment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.AList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequence;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.QNameModule;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.AugmentationIdentifier;
@@ -69,7 +68,20 @@ final class AttributeOperations {
                 return new AttributeOperations(key);
             }
         });
-
+    private static final LoadingCache<QNameModule, ImmutableSet<QName>> TRANSITIVE_CACHE = CacheBuilder.newBuilder()
+        .weakKeys()
+        .weakValues().build(
+            new CacheLoader<QNameModule, ImmutableSet<QName>>() {
+                @Override
+                public ImmutableSet<QName> load(final QNameModule key) {
+                    return ImmutableSet.of(QName.cachedReference(QName.create(key, Origin.QNAME.getLocalName())),
+                        QName.cachedReference(QName.create(key, AsPath.QNAME.getLocalName())),
+                        QName.cachedReference(QName.create(key, CNextHop.QNAME.getLocalName())),
+                        QName.cachedReference(QName.create(key, Communities.QNAME.getLocalName())),
+                        QName.cachedReference(QName.create(key, ExtendedCommunities.QNAME.getLocalName())));
+                }
+            });
+    private final ImmutableSet<QName> transitiveCollection;
     private final Iterable<PathArgument> originatorIdPath;
     private final Iterable<PathArgument> clusterListPath;
     private final NodeIdentifier originatorIdContainer;
@@ -83,10 +95,6 @@ final class AttributeOperations {
     private final NodeIdentifier asPathSequence;
     private final NodeIdentifier asPathId;
     private final NodeIdentifier transitiveLeaf;
-
-    // FIXME: get this list instead of hardcoding
-    private static final Set<QName> TRANSITIVES = Sets.newHashSet(Origin.QNAME, AsPath.QNAME, NextHop.QNAME, Communities.QNAME,
-        ExtendedCommunities.QNAME);
 
     private AttributeOperations(final QNameModule namespace) {
         this.asPathContainer = new NodeIdentifier(QName.cachedReference(QName.create(namespace, AsPath.QNAME.getLocalName())));
@@ -104,10 +112,11 @@ final class AttributeOperations {
         this.originatorIdPath = ImmutableList.<PathArgument>of(this.originatorIdContainer, this.originatorIdLeaf);
 
         this.transitiveLeaf = new NodeIdentifier(QName.cachedReference(QName.create(UnrecognizedAttributes.QNAME, "transitive")));
+        this.transitiveCollection = TRANSITIVE_CACHE.getUnchecked(namespace);
     }
 
     static AttributeOperations getInstance(final ContainerNode attributes) {
-        return ATTRIBUTES_CACHE.getUnchecked(QNameModule.cachedReference(attributes.getNodeType().getModule()));
+        return ATTRIBUTES_CACHE.getUnchecked(attributes.getNodeType().getModule());
     }
 
     private Collection<UnkeyedListEntryNode> reusableSequence(final UnkeyedListEntryNode segment) {
@@ -197,7 +206,6 @@ final class AttributeOperations {
         return b.build();
     }
 
-
     // Attributes when reflecting a route
     ContainerNode reflectedAttributes(final ContainerNode attributes, final Ipv4Address originatorId, final ClusterIdentifier clusterId) {
         final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> b = Builders.containerBuilder(attributes);
@@ -250,13 +258,13 @@ final class AttributeOperations {
             final AugmentationIdentifier ai = (AugmentationIdentifier) child.getIdentifier();
             for (final QName name : ai.getPossibleChildNames()) {
                 LOG.trace("Augmented QNAME {}", name);
-                if (TRANSITIVES.contains(name)) {
+                if (transitiveCollection.contains(name)) {
                     return true;
                 }
             }
             return false;
         }
-        if (TRANSITIVES.contains(child.getNodeType())) {
+        if (transitiveCollection.contains(child.getNodeType())) {
             return true;
         }
         if (UnrecognizedAttributes.QNAME.equals(child.getNodeType())) {
@@ -321,11 +329,10 @@ final class AttributeOperations {
 
         final NormalizedNode<?, ?> originatorId = maybeOriginatorId.get();
         if (originatorId instanceof LeafNode) {
-            return ((LeafNode<?>)originatorId).getValue();
+            return ((LeafNode<?>) originatorId).getValue();
         }
 
         LOG.warn("Unexpected ORIGINATOR_ID node {}, ignoring it", originatorId);
         return null;
     }
-
 }
