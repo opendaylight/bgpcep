@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6a9dd7_13506831",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBSupportContextImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-11T08:51:02Z",
+      "side": 1,
+      "message": "NextHop is not part of attributes, it\u0027s part of Mp(Un)Reach object",
+      "revId": "8acd879a0d6ee5e9c552ae7ca4be66a305fb03fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
