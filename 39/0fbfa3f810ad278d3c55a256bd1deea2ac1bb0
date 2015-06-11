@@ -1,0 +1,7 @@
+Code-Review+2: Dana Kutenicsova <dkutenic@cisco.com>
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Submitted-by: Robert Varga <nite@hq.sk>
+Submitted-at: Thu, 11 Jun 2015 05:12:44 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/22260
+Project: bgpcep
+Branch: refs/heads/stable/lithium
