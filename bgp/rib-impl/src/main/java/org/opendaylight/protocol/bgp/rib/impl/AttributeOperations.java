@@ -8,14 +8,19 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Optional;
+import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.AsPath;
@@ -27,10 +32,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.UnrecognizedAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.NextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.CSegment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.AList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequence;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.QNameModule;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.AugmentationIdentifier;
@@ -69,7 +74,9 @@ final class AttributeOperations {
                 return new AttributeOperations(key);
             }
         });
-
+    private static final Cache<QNameModule, TransitiveCollection> TRANS_CACHE = CacheBuilder.newBuilder().weakKeys().weakValues().build();
+    // FIXME: get this list instead of hardcoding
+    private final TransitiveCollection transitiveCollection;
     private final Iterable<PathArgument> originatorIdPath;
     private final Iterable<PathArgument> clusterListPath;
     private final NodeIdentifier originatorIdContainer;
@@ -83,10 +90,6 @@ final class AttributeOperations {
     private final NodeIdentifier asPathSequence;
     private final NodeIdentifier asPathId;
     private final NodeIdentifier transitiveLeaf;
-
-    // FIXME: get this list instead of hardcoding
-    private static final Set<QName> TRANSITIVES = Sets.newHashSet(Origin.QNAME, AsPath.QNAME, NextHop.QNAME, Communities.QNAME,
-        ExtendedCommunities.QNAME);
 
     private AttributeOperations(final QNameModule namespace) {
         this.asPathContainer = new NodeIdentifier(QName.cachedReference(QName.create(namespace, AsPath.QNAME.getLocalName())));
@@ -104,10 +107,27 @@ final class AttributeOperations {
         this.originatorIdPath = ImmutableList.<PathArgument>of(this.originatorIdContainer, this.originatorIdLeaf);
 
         this.transitiveLeaf = new NodeIdentifier(QName.cachedReference(QName.create(UnrecognizedAttributes.QNAME, "transitive")));
+
+        final TransitiveCollection col;
+        try {
+            col = TRANS_CACHE.get(namespace, new Callable<TransitiveCollection>() {
+                @Override
+                public TransitiveCollection call() {
+                    return new TransitiveCollection(namespace);
+                }
+            });
+        } catch (final ExecutionException e) {
+            LOG.error("Error creating namespace-specific transitive attributes collection.", e);
+            throw new IllegalStateException("Error creating namespace-specific transitive attributes collection.", e);
+        }
+
+        this.transitiveCollection = col;
     }
 
     static AttributeOperations getInstance(final ContainerNode attributes) {
-        return ATTRIBUTES_CACHE.getUnchecked(QNameModule.cachedReference(attributes.getNodeType().getModule()));
+        final QNameModule namespace = QNameModule.cachedReference(attributes.getNodeType().getModule());
+
+        return ATTRIBUTES_CACHE.getUnchecked(namespace);
     }
 
     private Collection<UnkeyedListEntryNode> reusableSequence(final UnkeyedListEntryNode segment) {
@@ -197,7 +217,6 @@ final class AttributeOperations {
         return b.build();
     }
 
-
     // Attributes when reflecting a route
     ContainerNode reflectedAttributes(final ContainerNode attributes, final Ipv4Address originatorId, final ClusterIdentifier clusterId) {
         final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> b = Builders.containerBuilder(attributes);
@@ -214,10 +233,10 @@ final class AttributeOperations {
         if (maybeClusterList.isPresent()) {
             final NormalizedNode<?, ?> clusterList = maybeClusterList.get();
             if (clusterList instanceof LeafSetNode) {
-                for (final LeafSetEntryNode<?> n : ((LeafSetNode<?>)clusterList).getValue()) {
+                for (final LeafSetEntryNode<?> n : ((LeafSetNode<?>) clusterList).getValue()) {
                     // There's no way we can safely avoid this cast
                     @SuppressWarnings("unchecked")
-                    final LeafSetEntryNode<Object> child = (LeafSetEntryNode<Object>)n;
+                    final LeafSetEntryNode<Object> child = (LeafSetEntryNode<Object>) n;
                     clb.addChild(child);
                 }
             } else {
@@ -250,13 +269,13 @@ final class AttributeOperations {
             final AugmentationIdentifier ai = (AugmentationIdentifier) child.getIdentifier();
             for (final QName name : ai.getPossibleChildNames()) {
                 LOG.trace("Augmented QNAME {}", name);
-                if (TRANSITIVES.contains(name)) {
+                if (transitiveCollection.contains(name)) {
                     return true;
                 }
             }
             return false;
         }
-        if (TRANSITIVES.contains(child.getNodeType())) {
+        if (transitiveCollection.contains(child.getNodeType())) {
             return true;
         }
         if (UnrecognizedAttributes.QNAME.equals(child.getNodeType())) {
@@ -321,11 +340,28 @@ final class AttributeOperations {
 
         final NormalizedNode<?, ?> originatorId = maybeOriginatorId.get();
         if (originatorId instanceof LeafNode) {
-            return ((LeafNode<?>)originatorId).getValue();
+            return ((LeafNode<?>) originatorId).getValue();
         }
 
         LOG.warn("Unexpected ORIGINATOR_ID node {}, ignoring it", originatorId);
         return null;
+    }
+
+    private static final class TransitiveCollection {
+        private final HashSet<QName> colllection;
+
+        TransitiveCollection(final QNameModule namespace) {
+            final QName leafOrigin = QName.cachedReference(QName.create(namespace, Origin.QNAME.getLocalName()));
+            final QName leafAsPath = QName.cachedReference(QName.create(namespace, AsPath.QNAME.getLocalName()));
+            final QName leafCNextHop = QName.cachedReference(QName.create(namespace, CNextHop.QNAME.getLocalName()));
+            final QName leafCommunities = QName.cachedReference(QName.create(namespace, Communities.QNAME.getLocalName()));
+            final QName leafExtCommunities = QName.cachedReference(QName.create(namespace, ExtendedCommunities.QNAME.getLocalName()));
+            this.colllection = Sets.newHashSet(leafOrigin, leafAsPath, leafCNextHop, leafCommunities, leafExtCommunities);
+        }
+
+        public boolean contains(final QName nodeType) {
+            return colllection.contains(nodeType);
+        }
     }
 
 }
