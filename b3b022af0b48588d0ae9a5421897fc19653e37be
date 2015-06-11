@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6a9dd7_569c8e69",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPTableTypeImplModule.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-11T08:50:40Z",
+      "side": 1,
+      "message": "Use a bit nicer format (with StringBuilder), eclipse can generate one.",
+      "revId": "b3b022af0b48588d0ae9a5421897fc19653e37be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
