@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6a9dd7_d6b09ef6",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-11T08:49:46Z",
+      "side": 1,
+      "message": "if an object is already created, you don\u0027t need to wrap it in isTraceEnabled, as the logging doesn\u0027t cost anything.",
+      "revId": "824a91ca83db33553a3649d596350459b5333d8c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
