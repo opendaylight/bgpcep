@@ -80,5 +80,10 @@ public final class BGPTableTypeImplModule extends org.opendaylight.controller.co
         public void close() {
             // Nothing to do
         }
+
+        @Override
+        public String toString() {
+            return this.afi.toString() + "." + this.safi.toString();
+        }
     }
 }
