@@ -16,6 +16,24 @@
       "revId": "b3b022af0b48588d0ae9a5421897fc19653e37be",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_bc12a960",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPTableTypeImplModule.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-11T18:09:56Z",
+      "side": 1,
+      "message": "MoreObjects.toStringHelper(this) is probably something that is most versatile (although not strictly required for a toString() this simple).",
+      "parentUuid": "9a6a9dd7_569c8e69",
+      "revId": "b3b022af0b48588d0ae9a5421897fc19653e37be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
