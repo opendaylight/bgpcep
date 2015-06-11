@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6a9dd7_7c541154",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-11T16:38:45Z",
+      "side": 1,
+      "message": "null entry or null attributes means removal, hence this fix would end up not deleting routes which are no longer advertized from the local rib",
+      "revId": "f8f56d06aaf6184e5f3b456be02863ab7ad9e1cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
