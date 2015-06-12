@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6a9dd7_1c907094",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2015-06-12T16:08:38Z",
+      "side": 1,
+      "message": "How much computation does this expression consume? May be worth putting inside a \"if (LOG.isDebugEnabled())\" block (both here and in the preceding file).",
+      "range": {
+        "startLine": 142,
+        "startChar": 46,
+        "endLine": 142,
+        "endChar": 85
+      },
+      "revId": "b82a21dc74f5ff8c5e007af67435dd76ca93b573",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_7c93aca3",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2015-06-12T16:08:38Z",
+      "side": 1,
+      "message": "This expression is repeated twice more inside the if block. Is it reason enough to put the result in local variable?",
+      "range": {
+        "startLine": 165,
+        "startChar": 24,
+        "endLine": 165,
+        "endChar": 44
+      },
+      "revId": "b82a21dc74f5ff8c5e007af67435dd76ca93b573",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
