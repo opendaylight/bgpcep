@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6a9dd7_a22284b7",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-06-12T05:49:04Z",
+      "side": 1,
+      "message": "Maybe would be good to separed this updated switch into changeDataTree method (as in previous merge https://git.opendaylight.org/gerrit/#/c/22363/)",
+      "range": {
+        "startLine": 234,
+        "startChar": 20,
+        "endLine": 234,
+        "endChar": 21
+      },
+      "revId": "b3246b712a6c4e473f3b4d42e04e6ecc155baffa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
