@@ -22,6 +22,30 @@
       "revId": "b3246b712a6c4e473f3b4d42e04e6ecc155baffa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_6d9c5d6a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-12T08:18:48Z",
+      "side": 1,
+      "message": "That can be addressed in a follow-up, we want to keep cherrypicks the same, otherwise tools will misbehave.",
+      "parentUuid": "9a6a9dd7_a22284b7",
+      "range": {
+        "startLine": 234,
+        "startChar": 20,
+        "endLine": 234,
+        "endChar": 21
+      },
+      "revId": "b3246b712a6c4e473f3b4d42e04e6ecc155baffa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
