@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6a9dd7_2d950533",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AttributeOperations.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-12T08:25:01Z",
+      "side": 1,
+      "message": "remove unthrown Exception",
+      "revId": "af4b2e38c0afd889f1933bb40022eefe599bf2c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_ed9e2d56",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AttributeOperations.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-12T08:25:01Z",
+      "side": 1,
+      "message": "no need to do QNAmeModule.cachedReference(). It is used for lookup only and will be properly cached via QName.cachedReference() if need be.",
+      "revId": "af4b2e38c0afd889f1933bb40022eefe599bf2c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
