@@ -138,9 +138,8 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
 
     private void update(final DOMDataWriteTransaction tx, final Collection<DataTreeCandidate> changes,
         final Map<RouteUpdateKey, AbstractRouteEntry> toUpdate) {
-
         for (final DataTreeCandidate tc : changes) {
-            // call out peer-role has changed
+            LOG.debug("Modification type {}", tc.getRootNode().getModificationType());
             final YangInstanceIdentifier rootPath = tc.getRootPath();
             final DataTreeCandidateNode rootNode = tc.getRootNode();
             final DataTreeCandidateNode roleChange =  rootNode.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
@@ -163,9 +162,11 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             final UnsignedInteger routerId = RouterIds.routerIdForPeerId(peerId);
             for (final DataTreeCandidateNode child : table.getChildNodes()) {
                 if ((Attributes.QNAME).equals(child.getIdentifier().getNodeType())) {
-                    // putting uptodate attribute in
-                    LOG.trace("Uptodate found for {}", child.getDataAfter());
-                    tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(child.getIdentifier()), child.getDataAfter().get());
+                    if (child.getDataAfter().isPresent()) {
+                        // putting uptodate attribute in
+                        LOG.trace("Uptodate found for {}", child.getDataAfter());
+                        tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(child.getIdentifier()), child.getDataAfter().get());
+                    }
                     continue;
                 }
                 for (final DataTreeCandidateNode route : this.ribSupport.changedRoutes(child)) {
