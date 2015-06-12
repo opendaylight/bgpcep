@@ -23,7 +23,6 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
-import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
@@ -108,7 +107,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         this.chain.close();
     }
 
-    @Nonnull private AbstractRouteEntry createEntry(final PathArgument routeId) {
+    private AbstractRouteEntry createEntry(final PathArgument routeId) {
         final AbstractRouteEntry ret = this.ribSupport.isComplexRoute() ? new ComplexRouteEntry() : new SimpleRouteEntry();
 
         this.routeEntries.put(routeId, ret);
@@ -128,6 +127,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
          * calculations when multiple peers have changed a particular entry.
          */
         final Map<RouteUpdateKey, AbstractRouteEntry> toUpdate = new HashMap<>();
+
         update(tx, changes, toUpdate);
 
         // Now walk all updated entries
@@ -163,11 +163,9 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             final UnsignedInteger routerId = RouterIds.routerIdForPeerId(peerId);
             for (final DataTreeCandidateNode child : table.getChildNodes()) {
                 if ((Attributes.QNAME).equals(child.getIdentifier().getNodeType())) {
-                    if (child.getDataAfter().isPresent()) {
-                        // putting uptodate attribute in
-                        LOG.trace("Uptodate found for {}", child.getDataAfter());
-                        tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(child.getIdentifier()), child.getDataAfter().get());
-                    }
+                    // putting uptodate attribute in
+                    LOG.trace("Uptodate found for {}", child.getDataAfter());
+                    tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(child.getIdentifier()), child.getDataAfter().get());
                     continue;
                 }
                 for (final DataTreeCandidateNode route : this.ribSupport.changedRoutes(child)) {
@@ -241,11 +239,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
                 final PeerId peerId = key.getPeerId();
                 final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(peerId, attributes);
                 for (final Entry<PeerId, YangInstanceIdentifier> pid : peerGroup.getPeers()) {
-                    // This points to adj-rib-out for a particular peer/table combination
-                    final RIBSupportContext ribCtx = this.registry.getRIBSupportContext(this.tableKey);
-                    // FIXME: the table should be created for a peer only once
-                    ribCtx.clearTable(tx, pid.getValue().node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey));
-                    final YangInstanceIdentifier routeTarget = this.ribSupport.routePath(pid.getValue().node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey).node(ROUTES_IDENTIFIER), key.getRouteId());
+                    final YangInstanceIdentifier routeTarget = this.ribSupport.routePath(pid.getValue().node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey).node(Routes.QNAME), key.getRouteId());
                     if (effectiveAttributes != null && value != null && !peerId.equals(pid.getKey())) {
                         LOG.debug("Write route to AdjRibsOut {}", value);
                         tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
@@ -259,3 +253,4 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         }
     }
 }
+
