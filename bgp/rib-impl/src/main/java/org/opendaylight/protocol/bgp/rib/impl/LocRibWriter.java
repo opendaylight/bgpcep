@@ -138,34 +138,19 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
 
     private void update(final DOMDataWriteTransaction tx, final Collection<DataTreeCandidate> changes,
         final Map<RouteUpdateKey, AbstractRouteEntry> toUpdate) {
-
         for (final DataTreeCandidate tc : changes) {
-            // call out peer-role has changed
-            final YangInstanceIdentifier rootPath = tc.getRootPath();
-            final DataTreeCandidateNode rootNode = tc.getRootNode();
-            final DataTreeCandidateNode roleChange =  rootNode.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
-            if (roleChange != null) {
-                this.peerPolicyTracker.onDataTreeChanged(roleChange, IdentifierUtils.peerPath(rootPath));
-            }
-            // filter out any change outside EffRibsIn
-            final DataTreeCandidateNode ribIn = rootNode.getModifiedChild(EFFRIBIN_NID);
-            if (ribIn == null) {
-                LOG.debug("Skipping change {}", tc.getRootNode());
-                continue;
-            }
-            final DataTreeCandidateNode table = ribIn.getModifiedChild(TABLES_NID).getModifiedChild(this.tableKey);
-            if (table == null) {
-                LOG.debug("Skipping change {}", tc.getRootNode());
-                continue;
-            }
-            final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(rootPath);
+            LOG.debug("Modification type {}", tc.getRootNode().getModificationType());
+            final YangInstanceIdentifier path = tc.getRootPath();
+            final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(path);
             final PeerId peerId = IdentifierUtils.peerId(peerKey);
             final UnsignedInteger routerId = RouterIds.routerIdForPeerId(peerId);
-            for (final DataTreeCandidateNode child : table.getChildNodes()) {
+            for (final DataTreeCandidateNode child : tc.getRootNode().getChildNodes()) {
                 if ((Attributes.QNAME).equals(child.getIdentifier().getNodeType())) {
-                    // putting uptodate attribute in
-                    LOG.trace("Uptodate found for {}", child.getDataAfter());
-                    tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(child.getIdentifier()), child.getDataAfter().get());
+                    if (child.getDataAfter().isPresent()) {
+                        // putting uptodate attribute in
+                        LOG.trace("Uptodate found for {}", child.getDataAfter());
+                        tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(child.getIdentifier()), child.getDataAfter().get());
+                    }
                     continue;
                 }
                 for (final DataTreeCandidateNode route : this.ribSupport.changedRoutes(child)) {
