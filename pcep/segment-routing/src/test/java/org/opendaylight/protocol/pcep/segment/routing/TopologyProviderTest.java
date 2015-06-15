@@ -65,7 +65,7 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
     public void testOnReportMessage() throws InterruptedException, ExecutionException {
         this.listener.onSessionUp(this.session);
 
-        Pcrpt pcRptMsg = createSrPcRpt("1.1.1.1", "sr-path1", 1L);
+        Pcrpt pcRptMsg = createSrPcRpt("1.1.1.1", "sr-path1", 1L, true);
         this.listener.onMessage(this.session, pcRptMsg);
         //check sr-path
         Topology topology = getTopology().get();
@@ -78,14 +78,14 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
         Assert.assertEquals(1, subobjects.size());
         Assert.assertEquals("1.1.1.1", ((IpNodeId)((SrEroType)subobjects.get(0).getSubobjectType()).getNai()).getIpAddress().getIpv4Address().getValue());
 
-        pcRptMsg = createSrPcRpt("1.1.1.3", "sr-path2", 2L);
+        pcRptMsg = createSrPcRpt("1.1.1.3", "sr-path2", 2L, false);
         this.listener.onMessage(this.session, pcRptMsg);
         //check second lsp sr-path
         topology = getTopology().get();
         reportedLsps = topology.getNode().get(0).getAugmentation(Node1.class).getPathComputationClient().getReportedLsp();
         Assert.assertEquals(2, reportedLsps.size());
 
-        pcRptMsg = createSrPcRpt("1.1.1.2", "sr-path1", 1L);
+        pcRptMsg = createSrPcRpt("1.1.1.2", "sr-path1", 1L, true);
         this.listener.onMessage(this.session, pcRptMsg);
         //check updated sr-path
         topology = getTopology().get();
@@ -100,11 +100,14 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
         }
     }
 
-    private static Pcrpt createSrPcRpt(final String nai, final String pathName, final long plspId) {
+    private static Pcrpt createSrPcRpt(final String nai, final String pathName, final long plspId, final boolean hasLspIdTlv) {
+        final TlvsBuilder lspTlvBuilder = new TlvsBuilder();
+        if (hasLspIdTlv) {
+            lspTlvBuilder.setLspIdentifiers(new LspIdentifiersBuilder().setLspId(new LspId(plspId)).build());
+        }
         return new PcrptBuilder().setPcrptMessage(new PcrptMessageBuilder().setReports(Lists.newArrayList(new ReportsBuilder()
             .setLsp(new LspBuilder().setPlspId(new PlspId(plspId)).setRemove(false).setSync(true).setAdministrative(true).setDelegate(true)
-                    .setTlvs(new TlvsBuilder()
-                        .setLspIdentifiers(new LspIdentifiersBuilder().setLspId(new LspId(plspId)).build())
+                    .setTlvs(lspTlvBuilder
                         .setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(pathName.getBytes(Charsets.UTF_8))).build()).build()).build())
             .setSrp(new SrpBuilder().setOperationId(new SrpIdNumber(0L)).setTlvs(
                     new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder()

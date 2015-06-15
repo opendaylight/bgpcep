@@ -197,8 +197,12 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
             // this is to ensure a path will be created at any rate
             final Path1Builder p1Builder = new Path1Builder();
             p1Builder.setLsp(report.getLsp());
+            final PathSetupType pst;
             if (srp != null && srp.getTlvs() != null && srp.getTlvs().getPathSetupType() != null) {
-                p1Builder.setPathSetupType(srp.getTlvs().getPathSetupType());
+                pst = srp.getTlvs().getPathSetupType();
+                p1Builder.setPathSetupType(pst);
+            } else {
+                pst = null;
             }
             pb.addAugmentation(Path1.class, p1Builder.build());
             String name = lookupLspName(plspid);
@@ -206,6 +210,8 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
             if (tlvs != null) {
                 if (tlvs.getLspIdentifiers() != null) {
                     pb.setLspId(tlvs.getLspIdentifiers().getLspId());
+                } else if (!isDefaultPST(pst)) {
+                    pb.setLspId(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId(lsp.getPlspId().getValue()));
                 }
                 if (tlvs.getSymbolicPathName() != null) {
                     name = Charsets.UTF_8.decode(ByteBuffer.wrap(tlvs.getSymbolicPathName().getPathName().getValue())).toString();
