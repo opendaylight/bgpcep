@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_6a045f7e",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSNlriParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-15T20:24:58Z",
+      "side": 1,
+      "message": "extract to string constants",
+      "revId": "c36b4022c57b645b818c576366d3d5b6776a8ef7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_6a2bffeb",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSNlriParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-15T20:24:58Z",
+      "side": 1,
+      "message": "Protocol IPs can be [op,value]+, this allows only one [op,value] pair. Same for all other methods returng list here.",
+      "revId": "c36b4022c57b645b818c576366d3d5b6776a8ef7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_4a1163ab",
+        "filename": "bgp/flowspec/src/test/java/org/opendaylight/protocol/bgp/flowspec/FSNlriParserTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-15T20:24:58Z",
+      "side": 1,
+      "message": "it needs to work with more ProtocolIps inside of the Arraylist",
+      "revId": "c36b4022c57b645b818c576366d3d5b6776a8ef7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
