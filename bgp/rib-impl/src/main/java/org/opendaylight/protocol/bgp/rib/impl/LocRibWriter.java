@@ -129,7 +129,6 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         final Map<RouteUpdateKey, AbstractRouteEntry> toUpdate = new HashMap<>();
 
         update(tx, changes, toUpdate);
-
         // Now walk all updated entries
         walkThrough(tx, toUpdate);
 
@@ -216,6 +215,10 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
                 LOG.debug("Write route to LocRib {}", value);
                 tx.put(LogicalDatastoreType.OPERATIONAL, writePath, value);
             } else {
+                // TODO this fix bug 3664, but function need to be revised
+                if(entry == null) {
+                    continue;
+                }
                 LOG.debug("Delete route from LocRib {}", entry);
                 tx.delete(LogicalDatastoreType.OPERATIONAL, writePath);
             }
