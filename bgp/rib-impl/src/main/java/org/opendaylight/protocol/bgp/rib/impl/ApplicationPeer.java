@@ -33,6 +33,19 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNod
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Application Peer is a special case of BGP peer. It serves as an interface
+ * for user to advertise user routes to ODL and through ODL to other BGP peers.
+ *
+ * This peer has it's own RIB, where it stores all user routes. This RIB is
+ * located in configurational datastore. Routes are added through RESTCONF.
+ *
+ * They are then processed as routes from any other peer, through AdjRib,
+ * EffectiveRib,LocRib and if they are advertised further, through AdjRibOut.
+ *
+ * For purposed of import policies such as Best Path Selection, application
+ * peer needs to have a BGP-ID that is configurable.
+ */
 public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol.bgp.rib.spi.Peer, DOMDataTreeChangeListener, TransactionChainListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationPeer.class);
@@ -59,6 +72,12 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         this.writer = this.writer.transform(RouterIds.createPeerId(ipAddress), this.targetRib.getRibSupportContext(), this.targetRib.getLocalTablesKeys(), false);
     }
 
+    /**
+     * Routes come from application RIB that is identified by (configurable) name.
+     * Each route is pushed into AdjRibsInWriter with it's whole context. In this
+     * method, it doesn't matter if the routes are removed or added, this will
+     * be determined in LocRib.
+     */
     @Override
     public void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
