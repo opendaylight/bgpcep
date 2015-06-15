@@ -15,7 +15,9 @@ import com.google.common.primitives.UnsignedInts;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
@@ -27,6 +29,8 @@ import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.BitmaskOperand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.ComponentType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.Dscp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.Fragment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.NumericOneByteValue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.NumericOperand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.NumericTwoByteValue;
@@ -97,6 +101,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,20 +114,59 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
     static final NodeIdentifier COMPONENT_TYPE_NID = new NodeIdentifier(QName.cachedReference(QName.create(Flowspec.QNAME, "component-type")));
     @VisibleForTesting
     static final NodeIdentifier DEST_PREFIX_NID = new NodeIdentifier(QName.cachedReference(QName.create(DestinationPrefixCase.QNAME, "destination-prefix")));
-    private static final NodeIdentifier SOURCE_PREFIX_NID = new NodeIdentifier(QName.cachedReference(QName.create(SourcePrefixCase.QNAME, "source-prefix")));
-    private static final NodeIdentifier PROTOCOL_IP_NID = new NodeIdentifier(ProtocolIps.QNAME);
-    private static final NodeIdentifier PORTS_NID = new NodeIdentifier(Ports.QNAME);
-    private static final NodeIdentifier DEST_PORT_NID = new NodeIdentifier(DestinationPorts.QNAME);
-    private static final NodeIdentifier SOURCE_PORT_NID = new NodeIdentifier(SourcePorts.QNAME);
-    private static final NodeIdentifier ICMP_TYPE_NID = new NodeIdentifier(Types.QNAME);
-    private static final NodeIdentifier ICMP_CODE_NID = new NodeIdentifier(Codes.QNAME);
-    private static final NodeIdentifier TCP_FLAGS_NID = new NodeIdentifier(TcpFlags.QNAME);
-    private static final NodeIdentifier PACKET_LENGTHS_NID = new NodeIdentifier(PacketLengths.QNAME);
-    private static final NodeIdentifier DSCP_NID = new NodeIdentifier(Dscps.QNAME);
-    private static final NodeIdentifier FRAGMENT_NID = new NodeIdentifier(Fragments.QNAME);
+    @VisibleForTesting
+    static final NodeIdentifier SOURCE_PREFIX_NID = new NodeIdentifier(QName.cachedReference(QName.create(SourcePrefixCase.QNAME, "source-prefix")));
+    @VisibleForTesting
+    static final NodeIdentifier PROTOCOL_IP_NID = new NodeIdentifier(ProtocolIps.QNAME);
+    @VisibleForTesting
+    static final NodeIdentifier PORTS_NID = new NodeIdentifier(Ports.QNAME);
+    @VisibleForTesting
+    static final NodeIdentifier DEST_PORT_NID = new NodeIdentifier(DestinationPorts.QNAME);
+    @VisibleForTesting
+    static final NodeIdentifier SOURCE_PORT_NID = new NodeIdentifier(SourcePorts.QNAME);
+    @VisibleForTesting
+    static final NodeIdentifier ICMP_TYPE_NID = new NodeIdentifier(Types.QNAME);
+    @VisibleForTesting
+    static final NodeIdentifier ICMP_CODE_NID = new NodeIdentifier(Codes.QNAME);
+    @VisibleForTesting
+    static final NodeIdentifier TCP_FLAGS_NID = new NodeIdentifier(TcpFlags.QNAME);
+    @VisibleForTesting
+    static final NodeIdentifier PACKET_LENGTHS_NID = new NodeIdentifier(PacketLengths.QNAME);
+    @VisibleForTesting
+    static final NodeIdentifier DSCP_NID = new NodeIdentifier(Dscps.QNAME);
+    @VisibleForTesting
+    static final NodeIdentifier FRAGMENT_NID = new NodeIdentifier(Fragments.QNAME);
+    @VisibleForTesting
+    static final NodeIdentifier OP_NID = new NodeIdentifier(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-flowspec","2015-01-14","op"));
+    @VisibleForTesting
+    static final NodeIdentifier VALUE_NID = new NodeIdentifier(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-flowspec","2015-01-14","value"));
 
     private static final int NLRI_LENGTH = 1;
     private static final int NLRI_LENGTH_EXTENDED = 2;
+
+    @VisibleForTesting
+    static final String AND_BIT_VALUE = "and-bit";
+    @VisibleForTesting
+    static final String END_OF_LIST_VALUE = "end-of-list";
+    @VisibleForTesting
+    static final String EQUALS_VALUE = "equals";
+    @VisibleForTesting
+    static final String GREATER_THAN_VALUE = "greater-than";
+    @VisibleForTesting
+    static final String LESS_THAN_VALUE = "less-than";
+    @VisibleForTesting
+    static final String MATCH_VALUE = "match";
+    @VisibleForTesting
+    static final String NOT_VALUE = "not";
+    @VisibleForTesting
+    static final String DO_NOT_VALUE = "do-not";
+    @VisibleForTesting
+    static final String FIRST_VALUE = "first";
+    @VisibleForTesting
+    static final String LAST_VALUE = "last";
+    @VisibleForTesting
+    static final String IS_A_VALUE = "is-a";
+
     /**
      * Add this constant to length value to achieve all ones in the leftmost nibble.
      */
@@ -622,37 +667,300 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
             fs.setFlowspecType(new SourcePrefixCaseBuilder().setSourcePrefix(new Ipv4Prefix((String) fsType.getChild(SOURCE_PREFIX_NID).get().getValue()))
                     .build());
         } else if (fsType.getChild(PROTOCOL_IP_NID).isPresent()) {
-            // FIXME: BUG-3044
-            fs.setFlowspecType(new ProtocolIpCaseBuilder().build());
+            fs.setFlowspecType(new ProtocolIpCaseBuilder().setProtocolIps(createProtocolsIps((UnkeyedListNode) fsType.getChild(PROTOCOL_IP_NID).get())).build());
         } else if (fsType.getChild(PORTS_NID).isPresent()) {
-            // FIXME: BUG-3044
-            fs.setFlowspecType(new PortCaseBuilder().build());
+            fs.setFlowspecType(new PortCaseBuilder().setPorts(createPorts((UnkeyedListNode) fsType.getChild(PORTS_NID).get())).build());
         } else if (fsType.getChild(DEST_PORT_NID).isPresent()) {
-            // FIXME: BUG-3044
-            fs.setFlowspecType(new DestinationPortCaseBuilder().build());
+            fs.setFlowspecType(new DestinationPortCaseBuilder().setDestinationPorts(createDestinationPorts((UnkeyedListNode) fsType.getChild(DEST_PORT_NID).get())).build());
         } else if (fsType.getChild(SOURCE_PORT_NID).isPresent()) {
-            // FIXME: BUG-3044
-            fs.setFlowspecType(new SourcePortCaseBuilder().build());
+            fs.setFlowspecType(new SourcePortCaseBuilder().setSourcePorts(createSourcePorts((UnkeyedListNode) fsType.getChild(SOURCE_PORT_NID).get())).build());
         } else if (fsType.getChild(ICMP_TYPE_NID).isPresent()) {
-            // FIXME: BUG-3044
-            fs.setFlowspecType(new IcmpTypeCaseBuilder().build());
+            fs.setFlowspecType(new IcmpTypeCaseBuilder().setTypes(createTypes((UnkeyedListNode) fsType.getChild(ICMP_TYPE_NID).get())).build());
         } else if (fsType.getChild(ICMP_CODE_NID).isPresent()) {
-            // FIXME: BUG-3044
-            fs.setFlowspecType(new IcmpCodeCaseBuilder().build());
+            fs.setFlowspecType(new IcmpCodeCaseBuilder().setCodes(createCodes((UnkeyedListNode) fsType.getChild(ICMP_CODE_NID).get())).build());
         } else if (fsType.getChild(TCP_FLAGS_NID).isPresent()) {
-            // FIXME: BUG-3044
-            fs.setFlowspecType(new TcpFlagsCaseBuilder().build());
+            fs.setFlowspecType(new TcpFlagsCaseBuilder().setTcpFlags(createTcpFlags((UnkeyedListNode) fsType.getChild(TCP_FLAGS_NID).get())).build());
         } else if (fsType.getChild(PACKET_LENGTHS_NID).isPresent()) {
-            // FIXME: BUG-3044
-            fs.setFlowspecType(new PacketLengthCaseBuilder().build());
+            fs.setFlowspecType(new PacketLengthCaseBuilder().setPacketLengths(createPacketLengths((UnkeyedListNode) fsType.getChild(PACKET_LENGTHS_NID).get())).build());
         } else if (fsType.getChild(DSCP_NID).isPresent()) {
-            // FIXME: BUG-3044
-            fs.setFlowspecType(new DscpCaseBuilder().build());
+            fs.setFlowspecType(new DscpCaseBuilder().setDscps(createDscpsLengths((UnkeyedListNode) fsType.getChild(DSCP_NID).get())).build());
         } else if (fsType.getChild(FRAGMENT_NID).isPresent()) {
-            // FIXME: BUG-3044
-            fs.setFlowspecType(new FragmentCaseBuilder().build());
+            fs.setFlowspecType(new FragmentCaseBuilder().setFragments(createFragments((UnkeyedListNode) fsType.getChild(FRAGMENT_NID).get())).build());
         }
         return fs.build();
+    }
+
+    private static NumericOperand createNumericOperand(final Set<String> opValues) {
+        return new NumericOperand(opValues.contains(AND_BIT_VALUE), opValues.contains(END_OF_LIST_VALUE), opValues.contains(EQUALS_VALUE), opValues.contains(GREATER_THAN_VALUE), opValues.contains(LESS_THAN_VALUE));
+    }
+
+    private static BitmaskOperand createBitmaskOperand(final Set<String> opValues) {
+        return new BitmaskOperand(opValues.contains(AND_BIT_VALUE), opValues.contains(END_OF_LIST_VALUE), opValues.contains(MATCH_VALUE), opValues.contains(NOT_VALUE));
+    }
+
+    private static Fragment createFragment(final Set<String> data) {
+        return new Fragment(data.contains(DO_NOT_VALUE), data.contains(FIRST_VALUE), data.contains(IS_A_VALUE), data.contains(LAST_VALUE));
+    }
+
+    private static List<ProtocolIps> createProtocolsIps(final UnkeyedListNode protocolIpsData) {
+        final List<ProtocolIps> protocolIps = new ArrayList<>();
+        ProtocolIpsBuilder ipsBuilder = new ProtocolIpsBuilder();
+
+        for (final UnkeyedListEntryNode node : protocolIpsData.getValue()) {
+            if (node.getNodeType().getLocalName().equals("op")) {
+                Collection<DataContainerChild<? extends PathArgument, ?>> oppNode = node.getValue();
+                for (DataContainerChild<? extends PathArgument, ?> leafNode : oppNode) {
+                    ipsBuilder.setOp(createNumericOperand((Set<String>) leafNode.getValue()));
+                }
+            }
+            if (node.getNodeType().getLocalName().equals("value")) {
+                Collection<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getValue();
+                for ( DataContainerChild<? extends PathArgument, ?> leafNode : valueNode) {
+                    ipsBuilder.setValue((Integer) leafNode.getValue());
+                }
+            }
+            if (ipsBuilder.getOp() != null && ipsBuilder.getValue() != null) {
+                protocolIps.add(ipsBuilder.build());
+                ipsBuilder = new ProtocolIpsBuilder();
+            }
+        }
+
+        return protocolIps;
+    }
+
+    private static List<Ports> createPorts(final UnkeyedListNode portsData) {
+        final List<Ports> ports = new ArrayList<>();
+        PortsBuilder portsBuilder = new PortsBuilder();
+
+        for (final UnkeyedListEntryNode node : portsData.getValue()) {
+            if (node.getNodeType().getLocalName().equals("op")) {
+                Collection<DataContainerChild<? extends PathArgument, ?>> oppNode = node.getValue();
+                for (DataContainerChild<? extends PathArgument, ?> leafNode : oppNode) {
+                    portsBuilder.setOp(createNumericOperand((Set<String>) leafNode.getValue()));
+                }
+            }
+            if (node.getNodeType().getLocalName().equals("value")) {
+                Collection<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getValue();
+                for ( DataContainerChild<? extends PathArgument, ?> leafNode : valueNode) {
+                    portsBuilder.setValue((Integer) leafNode.getValue());
+                }
+            }
+            if (portsBuilder.getOp() != null && portsBuilder.getValue() != null) {
+                ports.add(portsBuilder.build());
+                portsBuilder = new PortsBuilder();
+            }
+        }
+
+        return ports;
+    }
+
+    private static List<DestinationPorts> createDestinationPorts(final UnkeyedListNode destinationPortsData) {
+        final List<DestinationPorts> destinationPorts = new ArrayList<>();
+        DestinationPortsBuilder destPortsBuilder = new DestinationPortsBuilder();
+
+        for (final UnkeyedListEntryNode node : destinationPortsData.getValue()) {
+            if (node.getNodeType().getLocalName().equals("op")) {
+                Collection<DataContainerChild<? extends PathArgument, ?>> oppNode = node.getValue();
+                for (DataContainerChild<? extends PathArgument, ?> leafNode : oppNode) {
+                    destPortsBuilder.setOp(createNumericOperand((Set<String>) leafNode.getValue()));
+                }
+            }
+            if (node.getNodeType().getLocalName().equals("value")) {
+                Collection<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getValue();
+                for ( DataContainerChild<? extends PathArgument, ?> leafNode : valueNode) {
+                    destPortsBuilder.setValue((Integer) leafNode.getValue());
+                }
+            }
+            if (destPortsBuilder.getOp() != null && destPortsBuilder.getValue() != null) {
+                destinationPorts.add(destPortsBuilder.build());
+                destPortsBuilder = new DestinationPortsBuilder();
+            }
+        }
+
+        return destinationPorts;
+    }
+
+    private static List<SourcePorts> createSourcePorts(final UnkeyedListNode sourcePortsData) {
+        final List<SourcePorts> sourcePorts = new ArrayList<>();
+        SourcePortsBuilder sourcePortsBuilder = new SourcePortsBuilder();
+
+        for (final UnkeyedListEntryNode node : sourcePortsData.getValue()) {
+            if (node.getNodeType().getLocalName().equals("op")) {
+                Collection<DataContainerChild<? extends PathArgument, ?>> oppNode = node.getValue();
+                for (DataContainerChild<? extends PathArgument, ?> leafNode : oppNode) {
+                    sourcePortsBuilder.setOp(createNumericOperand((Set<String>) leafNode.getValue()));
+                }
+            }
+            if (node.getNodeType().getLocalName().equals("value")) {
+                Collection<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getValue();
+                for ( DataContainerChild<? extends PathArgument, ?> leafNode : valueNode) {
+                    sourcePortsBuilder.setValue((Integer) leafNode.getValue());
+                }
+            }
+            if (sourcePortsBuilder.getOp() != null && sourcePortsBuilder.getValue() != null) {
+                sourcePorts.add(sourcePortsBuilder.build());
+                sourcePortsBuilder = new SourcePortsBuilder();
+            }
+        }
+
+        return sourcePorts;
+    }
+
+    private static List<Types> createTypes(final UnkeyedListNode typesData) {
+        final List<Types> types = new ArrayList<>();
+        TypesBuilder typesBuilder = new TypesBuilder();
+
+        for (final UnkeyedListEntryNode node : typesData.getValue()) {
+            if (node.getNodeType().getLocalName().equals("op")) {
+                Collection<DataContainerChild<? extends PathArgument, ?>> oppNode = node.getValue();
+                for (DataContainerChild<? extends PathArgument, ?> leafNode : oppNode) {
+                    typesBuilder.setOp(createNumericOperand((Set<String>) leafNode.getValue()));
+                }
+            }
+            if (node.getNodeType().getLocalName().equals("value")) {
+                Collection<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getValue();
+                for ( DataContainerChild<? extends PathArgument, ?> leafNode : valueNode) {
+                    typesBuilder.setValue((Short) leafNode.getValue());
+                }
+            }
+            if (typesBuilder.getOp() != null && typesBuilder.getValue() != null) {
+                types.add(typesBuilder.build());
+                typesBuilder = new TypesBuilder();
+            }
+        }
+
+        return types;
+    }
+
+    private static List<Codes> createCodes(final UnkeyedListNode codesData) {
+        final List<Codes> codes = new ArrayList<>();
+        CodesBuilder codesBuilder = new CodesBuilder();
+
+        for (final UnkeyedListEntryNode node : codesData.getValue()) {
+            if (node.getNodeType().getLocalName().equals("op")) {
+                Collection<DataContainerChild<? extends PathArgument, ?>> oppNode = node.getValue();
+                for (DataContainerChild<? extends PathArgument, ?> leafNode : oppNode) {
+                    codesBuilder.setOp(createNumericOperand((Set<String>) leafNode.getValue()));
+                }
+            }
+            if (node.getNodeType().getLocalName().equals("value")) {
+                Collection<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getValue();
+                for ( DataContainerChild<? extends PathArgument, ?> leafNode : valueNode) {
+                    codesBuilder.setValue((Short) leafNode.getValue());
+                }
+            }
+            if (codesBuilder.getOp() != null && codesBuilder.getValue() != null) {
+                codes.add(codesBuilder.build());
+                codesBuilder = new CodesBuilder();
+            }
+        }
+
+        return codes;
+    }
+
+    private static List<TcpFlags> createTcpFlags(final UnkeyedListNode tcpFlagsData) {
+        final List<TcpFlags> tcpFlags = new ArrayList<>();
+        TcpFlagsBuilder tcpFlagsBuilder = new TcpFlagsBuilder();
+
+        for (final UnkeyedListEntryNode node : tcpFlagsData.getValue()) {
+            if (node.getNodeType().getLocalName().equals("op")) {
+                Collection<DataContainerChild<? extends PathArgument, ?>> oppNode = node.getValue();
+                for (DataContainerChild<? extends PathArgument, ?> leafNode : oppNode) {
+                    tcpFlagsBuilder.setOp(createBitmaskOperand((Set<String>) leafNode.getValue()));
+                }
+            }
+            if (node.getNodeType().getLocalName().equals("value")) {
+                Collection<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getValue();
+                for ( DataContainerChild<? extends PathArgument, ?> leafNode : valueNode) {
+                    tcpFlagsBuilder.setValue((Integer) leafNode.getValue());
+                }
+            }
+            if (tcpFlagsBuilder.getOp() != null && tcpFlagsBuilder.getValue() != null) {
+                tcpFlags.add(tcpFlagsBuilder.build());
+                tcpFlagsBuilder = new TcpFlagsBuilder();
+            }
+        }
+
+        return tcpFlags;
+    }
+
+    private static List<PacketLengths> createPacketLengths(final UnkeyedListNode packetLengthsData) {
+        final List<PacketLengths> packetLengths = new ArrayList<>();
+        PacketLengthsBuilder packetLengthsBuilder = new PacketLengthsBuilder();
+
+        for (final UnkeyedListEntryNode node : packetLengthsData.getValue()) {
+            if (node.getNodeType().getLocalName().equals("op")) {
+                Collection<DataContainerChild<? extends PathArgument, ?>> oppNode = node.getValue();
+                for (DataContainerChild<? extends PathArgument, ?> leafNode : oppNode) {
+                    packetLengthsBuilder.setOp(createNumericOperand((Set<String>) leafNode.getValue()));
+                }
+            }
+            if (node.getNodeType().getLocalName().equals("value")) {
+                Collection<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getValue();
+                for ( DataContainerChild<? extends PathArgument, ?> leafNode : valueNode) {
+                    packetLengthsBuilder.setValue((Integer) leafNode.getValue());
+                }
+            }
+            if (packetLengthsBuilder.getOp() != null && packetLengthsBuilder.getValue() != null) {
+                packetLengths.add(packetLengthsBuilder.build());
+                packetLengthsBuilder = new PacketLengthsBuilder();
+            }
+        }
+
+        return packetLengths;
+    }
+
+    private static List<Dscps> createDscpsLengths(final UnkeyedListNode dscpLengthsData) {
+        final List<Dscps> dscpsLengths = new ArrayList<>();
+        DscpsBuilder dscpsLengthsBuilder = new DscpsBuilder();
+
+        for (final UnkeyedListEntryNode node : dscpLengthsData.getValue()) {
+            if (node.getNodeType().getLocalName().equals("op")) {
+                Collection<DataContainerChild<? extends PathArgument, ?>> oppNode = node.getValue();
+                for (DataContainerChild<? extends PathArgument, ?> leafNode : oppNode) {
+                    dscpsLengthsBuilder.setOp(createNumericOperand((Set<String>) leafNode.getValue()));
+                }
+            }
+            if (node.getNodeType().getLocalName().equals("value")) {
+                Collection<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getValue();
+                for ( DataContainerChild<? extends PathArgument, ?> leafNode : valueNode) {
+                    dscpsLengthsBuilder.setValue(new Dscp((Short)leafNode.getValue()));
+                }
+            }
+            if (dscpsLengthsBuilder.getOp() != null && dscpsLengthsBuilder.getValue() != null) {
+                dscpsLengths.add(dscpsLengthsBuilder.build());
+                dscpsLengthsBuilder = new DscpsBuilder();
+            }
+        }
+
+        return dscpsLengths;
+    }
+
+    private static List<Fragments> createFragments(final UnkeyedListNode fragmentsData) {
+        final List<Fragments> fragments = new ArrayList<>();
+        FragmentsBuilder fragmentsBuilder = new FragmentsBuilder();
+
+        for (final UnkeyedListEntryNode node : fragmentsData.getValue()) {
+            if (node.getNodeType().getLocalName().equals("op")) {
+                Collection<DataContainerChild<? extends PathArgument, ?>> oppNode = node.getValue();
+                for (DataContainerChild<? extends PathArgument, ?> leafNode : oppNode) {
+                    fragmentsBuilder.setOp(createBitmaskOperand((Set<String>) leafNode.getValue()));
+                }
+            }
+            if (node.getNodeType().getLocalName().equals("value")) {
+                Collection<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getValue();
+                for ( DataContainerChild<? extends PathArgument, ?> leafNode : valueNode) {
+                    final Set<String> fragmentData = (Set<String>) leafNode.getValue();
+                    fragmentsBuilder.setValue(createFragment(fragmentData));
+                }
+            }
+            if (fragmentsBuilder.getOp() != null && fragmentsBuilder.getValue() != null) {
+                fragments.add(fragmentsBuilder.build());
+                fragmentsBuilder = new FragmentsBuilder();
+            }
+        }
+
+        return fragments;
     }
 
     // FIXME: use codec
