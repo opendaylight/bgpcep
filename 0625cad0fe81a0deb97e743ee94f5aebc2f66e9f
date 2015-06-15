@@ -62,6 +62,41 @@
       "revId": "0625cad0fe81a0deb97e743ee94f5aebc2f66e9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_9ce4adad",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-15T14:03:48Z",
+      "side": 1,
+      "message": "Disregard this comment.",
+      "parentUuid": "7a7fa997_1c5add83",
+      "revId": "0625cad0fe81a0deb97e743ee94f5aebc2f66e9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_bce1699c",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-15T14:03:48Z",
+      "side": 1,
+      "message": "put the null check here, the delete needs to be performed",
+      "revId": "0625cad0fe81a0deb97e743ee94f5aebc2f66e9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
