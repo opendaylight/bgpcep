@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_bc73a914",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-15T14:01:15Z",
+      "side": 1,
+      "message": "method, we\u0027re in OOP",
+      "range": {
+        "startLine": 218,
+        "startChar": 47,
+        "endLine": 218,
+        "endChar": 55
+      },
+      "revId": "0625cad0fe81a0deb97e743ee94f5aebc2f66e9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_9c76ed05",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-15T14:01:15Z",
+      "side": 1,
+      "message": "fixes",
+      "range": {
+        "startLine": 218,
+        "startChar": 29,
+        "endLine": 218,
+        "endChar": 33
+      },
+      "revId": "0625cad0fe81a0deb97e743ee94f5aebc2f66e9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_1c5add83",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-15T14:01:15Z",
+      "side": 1,
+      "message": "it just occured to me, that the NPE is only in the log, the delete needs to be performed. Change the log entry to print out writePath instead of entry.",
+      "revId": "0625cad0fe81a0deb97e743ee94f5aebc2f66e9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
