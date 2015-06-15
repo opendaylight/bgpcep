@@ -143,7 +143,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             LOG.debug("Modification type {}", tc.getRootNode().getModificationType());
             final YangInstanceIdentifier rootPath = tc.getRootPath();
             final DataTreeCandidateNode rootNode = tc.getRootNode();
-            final DataTreeCandidateNode roleChange =  rootNode.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
+            final DataTreeCandidateNode roleChange = rootNode.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
             if (roleChange != null) {
                 this.peerPolicyTracker.onDataTreeChanged(roleChange, IdentifierUtils.peerPath(rootPath));
             }
@@ -241,13 +241,13 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             if (peerGroup != null) {
                 final ContainerNode attributes = entry == null ? null : entry.attributes();
                 final PeerId peerId = key.getPeerId();
-                final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(peerId, attributes);
+                final Optional<ContainerNode> effectiveAttributes = peerGroup.effectiveAttributes(peerId, attributes);
                 for (final Entry<PeerId, YangInstanceIdentifier> pid : peerGroup.getPeers()) {
                     final YangInstanceIdentifier routeTarget = this.ribSupport.routePath(pid.getValue().node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey).node(Routes.QNAME), key.getRouteId());
-                    if (effectiveAttributes != null && value != null && !peerId.equals(pid.getKey())) {
+                    if (effectiveAttributes.isPresent() && value != null && !peerId.equals(pid.getKey())) {
                         LOG.debug("Write route to AdjRibsOut {}", value);
                         tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
-                        tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(this.attributesIdentifier), effectiveAttributes);
+                        tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(this.attributesIdentifier), effectiveAttributes.get());
                     } else {
                         LOG.trace("Removing {} from transaction", routeTarget);
                         tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);

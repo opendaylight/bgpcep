@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.Map;
@@ -30,8 +31,8 @@ final class PeerExportGroup {
         this.policy = Preconditions.checkNotNull(policy);
     }
 
-    ContainerNode effectiveAttributes(final PeerId sourcePeerId, final ContainerNode attributes) {
-        return policy.effectiveAttributes(peerRoles.get(sourcePeerId), attributes);
+    Optional<ContainerNode> effectiveAttributes(final PeerId sourcePeerId, final ContainerNode attributes) {
+        return attributes == null ? Optional.<ContainerNode>absent() : Optional.of(policy.effectiveAttributes(peerRoles.get(sourcePeerId), attributes));
     }
 
     Collection<Entry<PeerId, YangInstanceIdentifier>> getPeers() {
