@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -117,27 +116,29 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
 
     @Override
     public void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
+        LOG.trace("Received data change to LocRib {}", changes);
+
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Received data change to LocRib {}", Arrays.toString(changes.toArray()));
+        try {
+            /*
+             * We use two-stage processing here in hopes that we avoid duplicate
+             * calculations when multiple peers have changed a particular entry.
+             */
+            final Map<RouteUpdateKey, AbstractRouteEntry> toUpdate = update(tx, changes);
+
+            // Now walk all updated entries
+            walkThrough(tx, toUpdate);
+        } catch (Exception e) {
+            LOG.error("Failed to completely propagate updates {}, state is undefined", changes, e);
+        } finally {
+            tx.submit();
         }
-
-        /*
-         * We use two-stage processing here in hopes that we avoid duplicate
-         * calculations when multiple peers have changed a particular entry.
-         */
-        final Map<RouteUpdateKey, AbstractRouteEntry> toUpdate = new HashMap<>();
-
-        update(tx, changes, toUpdate);
-
-        // Now walk all updated entries
-        walkThrough(tx, toUpdate);
-
-        tx.submit();
     }
 
-    private void update(final DOMDataWriteTransaction tx, final Collection<DataTreeCandidate> changes,
-        final Map<RouteUpdateKey, AbstractRouteEntry> toUpdate) {
+    private Map<RouteUpdateKey, AbstractRouteEntry> update(final DOMDataWriteTransaction tx,
+        final Collection<DataTreeCandidate> changes) {
+        final Map<RouteUpdateKey, AbstractRouteEntry> ret = new HashMap<>();
+
         for (final DataTreeCandidate tc : changes) {
             LOG.debug("Modification type {}", tc.getRootNode().getModificationType());
             final YangInstanceIdentifier rootPath = tc.getRootPath();
@@ -186,10 +187,12 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
                         LOG.trace("Removed route from {}", routerId);
                     }
                     LOG.debug("Updated route {} entry {}", routeId, entry);
-                    toUpdate.put(new RouteUpdateKey(peerId, routeId), entry);
+                    ret.put(new RouteUpdateKey(peerId, routeId), entry);
                 }
             }
         }
+
+        return ret;
     }
 
     private void walkThrough(final DOMDataWriteTransaction tx, final Map<RouteUpdateKey, AbstractRouteEntry> toUpdate) {
