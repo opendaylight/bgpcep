@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_5f184784",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/SimpleSessionListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-06-15T17:41:19Z",
+      "side": 1,
+      "message": "What is this supposed to do?",
+      "range": {
+        "startLine": 134,
+        "startChar": 0,
+        "endLine": 152,
+        "endChar": 66
+      },
+      "revId": "326b07bf41b0d87b92006184bea35bd1cf777b70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
