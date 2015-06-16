@@ -22,10 +22,10 @@ abstract class AbstractFamilyRegistry<C, N> {
         Preconditions.checkNotNull(clazz);
 
         final Class<?> c = numberToClass.get(number);
-        Preconditions.checkState(c == null, "Number " + number + " already registered to " + c);
+        Preconditions.checkState(c == null, "Number %s already registered to %s", clazz, c);
 
         final N n = classToNumber.get(clazz);
-        Preconditions.checkState(n == null, "Class " + clazz + " already registered to " + n);
+        Preconditions.checkState(n == null, "Class %s already registered to %s", clazz, n);
 
         numberToClass.put(number, clazz);
         classToNumber.put(clazz, number);
