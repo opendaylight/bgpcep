@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_b3766f05",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/AbstractFamilyRegistry.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-16T20:22:58Z",
+      "side": 1,
+      "message": "number",
+      "range": {
+        "startLine": 25,
+        "startChar": 82,
+        "endLine": 25,
+        "endChar": 87
+      },
+      "revId": "16f82d6d4cd6008ee01312f6782468da18ad5587",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
