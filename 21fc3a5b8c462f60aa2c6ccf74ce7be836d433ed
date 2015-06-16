@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_b080a88c",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-16T08:56:24Z",
+      "side": 1,
+      "message": "No, this was my initial idea too. https://git.opendaylight.org/gerrit/22365 .\nRobert commented where the fix should be: \u0027So how about we fix the callsite in PeerExportGroup.effectiveAttributes()?\u0027",
+      "revId": "21fc3a5b8c462f60aa2c6ccf74ce7be836d433ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
