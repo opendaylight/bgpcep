@@ -102,7 +102,7 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
     }
 
     private Update withdraw(final MapEntryNode route) {
-        return this.support.buildUpdate(Collections.singleton(route), Collections.<MapEntryNode>emptyList(), routeAttributes(route));
+        return this.support.buildUpdate(Collections.<MapEntryNode>emptyList(), Collections.singleton(route), routeAttributes(route));
     }
 
     private Update advertise(final MapEntryNode route) {
