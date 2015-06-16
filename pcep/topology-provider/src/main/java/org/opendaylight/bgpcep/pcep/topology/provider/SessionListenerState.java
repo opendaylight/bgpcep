@@ -10,7 +10,9 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
+
 import java.util.concurrent.TimeUnit;
+
 import org.opendaylight.controller.config.yang.pcep.topology.provider.ErrorMessages;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.LastReceivedError;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.LastSentError;
@@ -127,9 +129,9 @@ final class SessionListenerState {
     }
 
     public void updateStatefulSentMsg(final Message msg) {
-        if (msg instanceof Pcinitiate || msg instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Pcinitiate) {
+        if (msg instanceof Pcinitiate) {
             this.sentInitMsgCount++;
-        } else if (msg instanceof Pcupd || msg instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Pcupd) {
+        } else if (msg instanceof Pcupd) {
             this.sentUpdMsgCount++;
         }
     }

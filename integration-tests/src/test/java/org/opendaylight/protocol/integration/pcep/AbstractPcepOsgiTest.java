@@ -13,6 +13,7 @@ import static org.ops4j.pax.exam.CoreOptions.systemPackages;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 
 import javax.inject.Inject;
+
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.controller.test.sal.binding.it.TestHelper;
@@ -79,7 +80,6 @@ public class AbstractPcepOsgiTest {
                 mavenBundle("org.opendaylight.bgpcep", "pcep-api").versionAsInProject(), //
                 mavenBundle("org.opendaylight.bgpcep", "pcep-impl").versionAsInProject(), //
                 mavenBundle("org.opendaylight.bgpcep", "pcep-spi").versionAsInProject(), //
-                mavenBundle("org.opendaylight.bgpcep", "pcep-ietf-stateful02").versionAsInProject(), //
                 mavenBundle("org.opendaylight.bgpcep", "pcep-ietf-stateful07").versionAsInProject(), //
                 mavenBundle("org.opendaylight.tcpmd5", "tcpmd5-api").versionAsInProject(), //
                 mavenBundle("org.opendaylight.tcpmd5", "tcpmd5-netty").versionAsInProject(), //

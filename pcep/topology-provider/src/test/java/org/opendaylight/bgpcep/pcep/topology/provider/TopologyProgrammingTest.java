@@ -9,9 +9,11 @@
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,9 +25,9 @@ import org.mockito.stubbing.Answer;
 import org.opendaylight.bgpcep.pcep.topology.provider.TopologyProgrammingTest.MockedTopologySessionListenerFactory;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Tlvs2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Tlvs2Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.stateful.capability.tlv.StatefulBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.InstructionStatus;
@@ -52,7 +54,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopologySessionListenerFactory> {
 
     private static final String NAME = "test-tunnel";
-    private static Stateful02TopologySessionListener listener;
+    private static Stateful07TopologySessionListener listener;
 
     @Mock
     private InstructionScheduler scheduler;
@@ -77,6 +79,7 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
 
     private TopologyProgramming topologyProgramming;
 
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -208,13 +211,13 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
     protected static final class MockedTopologySessionListenerFactory implements TopologySessionListenerFactory {
         @Override
         public TopologySessionListener createTopologySessionListener(ServerSessionManager manager) {
-            listener = Mockito.spy(new Stateful02TopologySessionListener(manager));
+            listener = Mockito.spy(new Stateful07TopologySessionListener(manager));
             return listener;
         }
     }
 
     @Override
     protected Open getLocalPref() {
-        return new OpenBuilder(super.getLocalPref()).setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder().addAugmentation(Tlvs2.class, new Tlvs2Builder().setStateful(new StatefulBuilder().build()).build()).build()).build();
+        return new OpenBuilder(super.getLocalPref()).setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder().addAugmentation(Tlvs1.class, new Tlvs1Builder().setStateful(new StatefulBuilder().build()).build()).build()).build();
     }
 }
