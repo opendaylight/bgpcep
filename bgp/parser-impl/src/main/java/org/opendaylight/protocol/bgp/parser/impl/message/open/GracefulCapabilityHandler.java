@@ -79,7 +79,7 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
         if (time == null) {
             time = 0;
         }
-        Preconditions.checkArgument(time >= 0 && time <= MAX_RESTART_TIME, "Restart time is " + time);
+        Preconditions.checkArgument(time >= 0 && time <= MAX_RESTART_TIME, "Restart time is %s", time);
         timeval = time;
         final RestartFlags flags = grace.getRestartFlags();
         if (flags != null && flags.isRestartState()) {
@@ -92,12 +92,12 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
             for (final Tables t : tables) {
                 final Class<? extends AddressFamily> afi = t.getAfi();
                 final Integer afival = this.afiReg.numberForClass(afi);
-                Preconditions.checkArgument(afival != null, "Unhandled address family " + afi);
+                Preconditions.checkArgument(afival != null, "Unhandled address family %s", afi);
                 bytes.writeShort(afival);
 
                 final Class<? extends SubsequentAddressFamily> safi = t.getSafi();
                 final Integer safival = this.safiReg.numberForClass(safi);
-                Preconditions.checkArgument(safival != null, "Unhandled subsequent address family " + safi);
+                Preconditions.checkArgument(safival != null, "Unhandled subsequent address family %s", safi);
                 bytes.writeByte(safival);
 
                 if (t.getAfiFlags() != null && t.getAfiFlags().isForwardingState()) {
