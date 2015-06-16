@@ -168,10 +168,6 @@
       </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
-          <artifactId>pcep-ietf-stateful02</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>${project.groupId}</groupId>
           <artifactId>pcep-ietf-stateful07</artifactId>
       </dependency>
       <dependency>
