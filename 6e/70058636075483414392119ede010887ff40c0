@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Milos Fabian <milfabia@cisco.com>
+Submitted-by: Milos Fabian <milfabia@cisco.com>
+Submitted-at: Tue, 16 Jun 2015 14:57:08 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/22699
+Project: bgpcep
+Branch: refs/heads/stable/lithium
