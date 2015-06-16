@@ -29,7 +29,7 @@ final class BestPathSelector {
     private static final Logger LOG = LoggerFactory.getLogger(BestPathSelector.class);
     private static final Collection<PathArgument> ORIGINATOR_ID = ImmutableList.<PathArgument>of(new NodeIdentifier(OriginatorId.QNAME), new NodeIdentifier(QName.create(OriginatorId.QNAME, "originator")));
 
-    private final Long ourAs;
+    private final long ourAs;
     private UnsignedInteger bestOriginatorId = null;
     private UnsignedInteger bestRouterId = null;
     private BestPathState bestState = null;
@@ -149,7 +149,7 @@ final class BestPathSelector {
              *
              * FIXME: we should know this information from the peer directly.
              */
-            if (!this.ourAs.equals(bestAs) && this.ourAs.equals(newAs)) {
+            if (this.ourAs != bestAs && this.ourAs == newAs) {
                 return true;
             }
         }
