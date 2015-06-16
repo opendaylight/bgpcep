@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_6bbc616d",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSNlriParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 709,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-16T13:11:40Z",
+      "side": 1,
+      "message": "I think this check is not necessary now that we use \u0027getChild\u0027",
+      "revId": "c0a581464b67ffef795cea23f6b60792c27cc992",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_ebaf112a",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSNlriParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 723,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-16T13:11:40Z",
+      "side": 1,
+      "message": "do the initialization at the beginning of for-iteration and \u0027add\u0027 at the end.",
+      "revId": "c0a581464b67ffef795cea23f6b60792c27cc992",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
