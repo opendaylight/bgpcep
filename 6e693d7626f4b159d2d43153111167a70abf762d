@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_eba2b199",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/PeerExportGroup.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-16T11:03:26Z",
+      "side": 1,
+      "message": "policy.effectiveAttributes() can legally return null, which will cause IAE in Optional.of(). Can you deliver the minimal fix, without introducing new \u0027features\u0027, please?",
+      "revId": "6e693d7626f4b159d2d43153111167a70abf762d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
