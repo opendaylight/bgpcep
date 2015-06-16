@@ -26,7 +26,7 @@ import org.opendaylight.controller.config.yang.pcep.impl.PCEPDispatcherImplModul
 import org.opendaylight.controller.config.yang.pcep.impl.PCEPDispatcherImplModuleMXBean;
 import org.opendaylight.controller.config.yang.pcep.impl.PCEPSessionProposalFactoryImplModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleFactory;
-import org.opendaylight.controller.config.yang.pcep.stateful02.cfg.Stateful02PCEPSessionProposalFactoryModuleFactory;
+import org.opendaylight.controller.config.yang.pcep.stateful07.cfg.Stateful07PCEPSessionProposalFactoryModuleFactory;
 import org.opendaylight.controller.config.yang.programming.impl.AbstractInstructionSchedulerTest;
 import org.opendaylight.controller.config.yang.tcpmd5.jni.cfg.NativeKeyAccessFactoryModuleFactory;
 import org.opendaylight.controller.config.yang.tcpmd5.netty.cfg.MD5ServerChannelFactoryModuleFactory;
@@ -41,7 +41,7 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
 
     private static final String FACTORY_NAME = PCEPTopologyProviderModuleFactory.NAME;
     private static final String INSTANCE_NAME = "pcep-topology-provider-instance";
-    private static final String STATEFUL02_TOPOLOGY_INSTANCE_NAME = "pcep-topology-stateful02-instance";
+    private static final String STATEFUL07_TOPOLOGY_INSTANCE_NAME = "pcep-topology-stateful07-instance";
 
     private static final String LISTEN_ADDRESS = "0.0.0.0";
     private static final PortNumber LISTEN_PORT = new PortNumber(4189);
@@ -158,8 +158,8 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         mxBean.setListenPort(getRandomPortNumber());
         mxBean.setRpcRegistry(bindingBrokerON);
         mxBean.setScheduler(schedulerON);
-        mxBean.setStatefulPlugin(transaction.createModule(Stateful02TopologySessionListenerModuleFactory.NAME,
-                STATEFUL02_TOPOLOGY_INSTANCE_NAME));
+        mxBean.setStatefulPlugin(transaction.createModule(Stateful07TopologySessionListenerModuleFactory.NAME,
+                STATEFUL07_TOPOLOGY_INSTANCE_NAME));
         mxBean.setTopologyId(TOPOLOGY_ID);
         return objectName;
     }
@@ -201,8 +201,8 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         mxBean.setRpcRegistry(bindingBrokerON);
         mxBean.setScheduler(createInstructionSchedulerModuleInstance(transaction, asyncDataBrokerON, bindingBrokerON,
                 notificationBrokerON));
-        mxBean.setStatefulPlugin(transaction.createModule(Stateful02TopologySessionListenerModuleFactory.NAME,
-                STATEFUL02_TOPOLOGY_INSTANCE_NAME));
+        mxBean.setStatefulPlugin(transaction.createModule(Stateful07TopologySessionListenerModuleFactory.NAME,
+                STATEFUL07_TOPOLOGY_INSTANCE_NAME));
         mxBean.setTopologyId(topologyId);
         return objectName;
     }
@@ -215,8 +215,8 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         moduleFactories.add(new PCEPSessionProposalFactoryImplModuleFactory());
         moduleFactories.add(new NettyThreadgroupModuleFactory());
         moduleFactories.add(new SimplePCEPExtensionProviderContextModuleFactory());
-        moduleFactories.add(new Stateful02TopologySessionListenerModuleFactory());
-        moduleFactories.add(new Stateful02PCEPSessionProposalFactoryModuleFactory());
+        moduleFactories.add(new Stateful07TopologySessionListenerModuleFactory());
+        moduleFactories.add(new Stateful07PCEPSessionProposalFactoryModuleFactory());
         moduleFactories.add(new NativeKeyAccessFactoryModuleFactory());
         moduleFactories.add(new MD5ServerChannelFactoryModuleFactory());
         return moduleFactories;
