@@ -20,10 +20,6 @@
         <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
             <modules xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
                 <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:topology:provider">prefix:pcep-topology-stateful02</type>
-                    <name>global</name>
-                </module>
-                <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:topology:provider">prefix:pcep-topology-stateful07</type>
                     <name>global</name>
                 </module>
@@ -76,10 +72,6 @@
                 </service>
                 <service>
                     <type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep:topology:provider">pcep:pcep-topology-stateful</type>
-                    <instance>
-                        <name>stateful02</name>
-                        <provider>/config/modules/module[name='pcep-topology-stateful02']/instance[name='global']</provider>
-                    </instance>
                     <instance>
                         <name>stateful07</name>
                         <provider>/config/modules/module[name='pcep-topology-stateful07']/instance[name='global']</provider>
