@@ -21,14 +21,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
  * exposes an entry point for locating the AFI/SAFI-specific implementation handler.
  */
 public interface RIBExtensionConsumerContext {
-    /**
-     * Acquire a RIB implementation factory for a AFI/SAFI combination.
-     * @param afi Address Family Identifier
-     * @param safi Subsequent Address Family identifier
-     * @return RIB implementation factory, or null if the AFI/SAFI is
-     *         not implemented.
-     */
-    @Nullable AdjRIBsFactory getAdjRIBsInFactory(@Nonnull Class<? extends AddressFamily> afi, @Nonnull Class<? extends SubsequentAddressFamily> safi);
 
     /**
      * Acquire a RIB implementation factory for a AFI/SAFI combination.
