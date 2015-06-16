@@ -64,8 +64,8 @@ public final class PCEPHexDumpParser {
 
             // Assert that message is longer than minimum 4(header.length == 4)
             // If length in PCEP message would be 0, loop would never end
-            Preconditions.checkArgument(length >= MINIMAL_LENGTH, "Invalid message at index " + idx + ", length atribute is lower than "
-                + MINIMAL_LENGTH);
+            Preconditions.checkArgument(length >= MINIMAL_LENGTH, "Invalid message at index %s, length atribute is lower than %s",
+                idx, MINIMAL_LENGTH);
 
             // dot
             final String hexMessage = content.substring(messageIdx + 1, messageEndIdx);

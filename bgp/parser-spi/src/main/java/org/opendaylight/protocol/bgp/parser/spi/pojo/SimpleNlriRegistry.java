@@ -54,7 +54,7 @@ final class SimpleNlriRegistry implements NlriRegistry {
 
     synchronized AutoCloseable registerNlriSerializer(final Class<? extends DataObject> nlriClass, final NlriSerializer serializer){
         final NlriSerializer prev = this.serializers.get(nlriClass);
-        Preconditions.checkState(prev == null, "Serializer already bound to class " + prev);
+        Preconditions.checkState(prev == null, "Serializer already bound to class %s", prev);
 
         this.serializers.put(nlriClass, serializer);
         final Object lock = this;
@@ -72,7 +72,7 @@ final class SimpleNlriRegistry implements NlriRegistry {
             final Class<? extends SubsequentAddressFamily> safi, final NlriParser parser) {
         final BgpTableType key = createKey(afi, safi);
         final NlriParser prev = this.handlers.get(key);
-        Preconditions.checkState(prev == null, "AFI/SAFI is already bound to parser " + prev);
+        Preconditions.checkState(prev == null, "AFI/SAFI is already bound to parser %s", prev);
 
         this.handlers.put(key, parser);
         final Object lock = this;

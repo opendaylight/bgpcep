@@ -139,7 +139,7 @@ public final class Ipv6Util {
     public static Ipv6Prefix prefixForByteBuf(final ByteBuf bytes) {
         final int prefixLength = bytes.readByte();
         final int size = prefixLength / Byte.SIZE + ((prefixLength % Byte.SIZE == 0) ? 0 : 1);
-        Preconditions.checkArgument(size <= bytes.readableBytes(), "Illegal length of IP prefix: " + (bytes.readableBytes()));
+        Preconditions.checkArgument(size <= bytes.readableBytes(), "Illegal length of IP prefix: %s", bytes.readableBytes());
         return Ipv6Util.prefixForBytes(ByteArray.readBytes(bytes, size), prefixLength);
     }
 
