@@ -21,11 +21,11 @@ import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgrou
 import org.opendaylight.controller.config.yang.pcep.impl.PCEPDispatcherImplModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.impl.PCEPSessionProposalFactoryImplModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleFactory;
-import org.opendaylight.controller.config.yang.pcep.stateful02.cfg.Stateful02PCEPSessionProposalFactoryModuleFactory;
+import org.opendaylight.controller.config.yang.pcep.stateful07.cfg.Stateful07PCEPSessionProposalFactoryModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderModuleMXBean;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderModuleTest;
-import org.opendaylight.controller.config.yang.pcep.topology.provider.Stateful02TopologySessionListenerModuleFactory;
+import org.opendaylight.controller.config.yang.pcep.topology.provider.Stateful07TopologySessionListenerModuleFactory;
 import org.opendaylight.controller.config.yang.programming.impl.AbstractInstructionSchedulerTest;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 
@@ -117,8 +117,8 @@ public class PCEPTunnelTopologyProviderModuleTest extends AbstractInstructionSch
         moduleFactories.add(new PCEPSessionProposalFactoryImplModuleFactory());
         moduleFactories.add(new NettyThreadgroupModuleFactory());
         moduleFactories.add(new SimplePCEPExtensionProviderContextModuleFactory());
-        moduleFactories.add(new Stateful02TopologySessionListenerModuleFactory());
-        moduleFactories.add(new Stateful02PCEPSessionProposalFactoryModuleFactory());
+        moduleFactories.add(new Stateful07TopologySessionListenerModuleFactory());
+        moduleFactories.add(new Stateful07PCEPSessionProposalFactoryModuleFactory());
         return moduleFactories;
     }
 

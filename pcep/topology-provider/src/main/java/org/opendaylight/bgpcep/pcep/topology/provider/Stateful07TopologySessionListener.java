@@ -76,7 +76,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class Stateful07TopologySessionListener extends AbstractTopologySessionListener<SrpIdNumber, PlspId> {
+class Stateful07TopologySessionListener extends AbstractTopologySessionListener<SrpIdNumber, PlspId> {
     private static final Logger LOG = LoggerFactory.getLogger(Stateful07TopologySessionListener.class);
 
     private final AtomicLong requestId = new AtomicLong(1L);

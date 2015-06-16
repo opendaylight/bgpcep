@@ -43,18 +43,6 @@ module odl-pcep-topology-provider-cfg {
         config:java-class "org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory";
     }
 
-    identity pcep-topology-stateful02 {
-        base config:module-type;
-        config:provided-service pcep-topology-stateful;
-        config:java-name-prefix Stateful02TopologySessionListener;
-    }
-
-    augment "/config:modules/config:module/config:configuration" {
-        case pcep-topology-stateful02 {
-            when "/config:modules/config:module/config:type = 'pcep-topology-stateful02'";
-        }
-    }
-
     identity pcep-topology-stateful07 {
         base config:module-type;
         config:provided-service pcep-topology-stateful;
