@@ -128,7 +128,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
 
             // Now walk all updated entries
             walkThrough(tx, toUpdate);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOG.error("Failed to completely propagate updates {}, state is undefined", changes, e);
         } finally {
             tx.submit();
@@ -140,7 +140,6 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         final Map<RouteUpdateKey, AbstractRouteEntry> ret = new HashMap<>();
 
         for (final DataTreeCandidate tc : changes) {
-            LOG.debug("Modification type {}", tc.getRootNode().getModificationType());
             final YangInstanceIdentifier rootPath = tc.getRootPath();
             final DataTreeCandidateNode rootNode = tc.getRootNode();
             final DataTreeCandidateNode roleChange =  rootNode.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
@@ -162,6 +161,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             final PeerId peerId = IdentifierUtils.peerId(peerKey);
             final UnsignedInteger routerId = RouterIds.routerIdForPeerId(peerId);
             for (final DataTreeCandidateNode child : table.getChildNodes()) {
+                LOG.debug("Modification type {}", child.getModificationType());
                 if ((Attributes.QNAME).equals(child.getIdentifier().getNodeType())) {
                     if (child.getDataAfter().isPresent()) {
                         // putting uptodate attribute in
@@ -245,11 +245,11 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
                 for (final Entry<PeerId, YangInstanceIdentifier> pid : peerGroup.getPeers()) {
                     final YangInstanceIdentifier routeTarget = this.ribSupport.routePath(pid.getValue().node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey).node(Routes.QNAME), key.getRouteId());
                     if (effectiveAttributes != null && value != null && !peerId.equals(pid.getKey())) {
-                        LOG.debug("Write route to AdjRibsOut {}", value);
+                        LOG.debug("Write route {} to peers AdjRibsOut {}", value, pid.getKey());
                         tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
                         tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(this.attributesIdentifier), effectiveAttributes);
                     } else {
-                        LOG.trace("Removing {} from transaction", routeTarget);
+                        LOG.trace("Removing {} from transaction for peer {}", routeTarget, pid.getKey());
                         tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);
                     }
                 }
