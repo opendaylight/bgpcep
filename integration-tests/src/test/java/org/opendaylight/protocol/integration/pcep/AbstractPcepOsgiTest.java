@@ -61,7 +61,7 @@ public class AbstractPcepOsgiTest {
                 mavenBundle("org.slf4j", "log4j-over-slf4j").versionAsInProject(), //
                 mavenBundle("ch.qos.logback", "logback-core").versionAsInProject(), //
                 mavenBundle("ch.qos.logback", "logback-classic").versionAsInProject(),
-                mavenBundle("org.openexi", "nagasena").versionAsInProject(),
+                mavenBundle("openexi", "nagasena").versionAsInProject(),
                 mavenBundle("com.github.romix", "java-concurrent-hash-trie-map").versionAsInProject(),
 
                 TestHelper.mdSalCoreBundles(),
