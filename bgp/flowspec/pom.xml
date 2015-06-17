@@ -106,6 +106,21 @@
             <scope>provided</scope>
          </dependency>
          <!-- test scope dependencies -->
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>config-manager</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-rib-spi</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>config-manager</artifactId>
+            <scope>test</scope>
+        </dependency>
          <dependency>
              <groupId>junit</groupId>
              <artifactId>junit</artifactId>
