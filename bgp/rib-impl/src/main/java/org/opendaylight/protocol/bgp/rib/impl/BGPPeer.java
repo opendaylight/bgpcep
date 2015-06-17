@@ -41,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
@@ -119,7 +120,11 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
             mpReach = attrs.getAugmentation(Attributes1.class).getMpReachNlri();
         }
         if (mpReach != null) {
-            this.ribWriter.updateRoutes(mpReach, attrs);
+            final AttributesBuilder attributesBuilder = new AttributesBuilder(attrs);
+            if (attrs.getCNextHop() == null && mpReach.getCNextHop() != null) {
+                attributesBuilder.setCNextHop(mpReach.getCNextHop());
+            }
+            this.ribWriter.updateRoutes(mpReach, attributesBuilder.build());
             return;
         }
         MpUnreachNlri mpUnreach = null;
