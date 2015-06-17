@@ -50,6 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
@@ -176,6 +177,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
         LOG.info("Session with peer {} went up with tables: {}", this.name, session.getAdvertisedTableTypes());
         this.session = session;
         this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
+        final PeerId peerId = RouterIds.createPeerId(session.getBgpId());
 
         for (final BgpTableType t : session.getAdvertisedTableTypes()) {
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
@@ -183,10 +185,10 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
 
             // not particularly nice
             if (session instanceof BGPSessionImpl) {
-                AdjRibOutListener.create(key, this.rib.getYangRibId(), ((RIBImpl)this.rib).getService(), this.rib.getRibSupportContext(), ((BGPSessionImpl) session).getLimiter());
+                AdjRibOutListener.create(peerId, key, this.rib.getYangRibId(), ((RIBImpl)this.rib).getService(), this.rib.getRibSupportContext(), ((BGPSessionImpl) session).getLimiter());
             }
         }
-        this.ribWriter = this.ribWriter.transform(RouterIds.createPeerId(session.getBgpId()), this.rib.getRibSupportContext(), this.tables, false);
+        this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, false);
         this.sessionEstablishedCounter++;
         if (this.registrator != null) {
             this.runtimeReg = this.registrator.register(this);

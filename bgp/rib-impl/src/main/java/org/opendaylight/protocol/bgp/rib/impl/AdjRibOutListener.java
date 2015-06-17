@@ -21,6 +21,7 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.AdjRibOut;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
@@ -47,22 +48,23 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
     private final RIBSupportContextImpl context;
     private final RIBSupport support;
 
-    private AdjRibOutListener(final TablesKey tablesKey, final YangInstanceIdentifier ribId, final DOMDataTreeChangeService service, final RIBSupportContextRegistry registry, final ChannelOutputLimiter session) {
+    private AdjRibOutListener(final PeerId peerId, final TablesKey tablesKey, final YangInstanceIdentifier ribId, final DOMDataTreeChangeService service, final RIBSupportContextRegistry registry, final ChannelOutputLimiter session) {
         this.session = Preconditions.checkNotNull(session);
         this.context = (RIBSupportContextImpl) registry.getRIBSupportContext(tablesKey);
         this.support = this.context.getRibSupport();
-        final YangInstanceIdentifier adjRibOutId =  ribId.node(Peer.QNAME).node(Peer.QNAME).node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
+        final YangInstanceIdentifier adjRibOutId =  ribId.node(Peer.QNAME).node(IdentifierUtils.domPeerId(peerId)).node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
         service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, adjRibOutId), this);
     }
 
-    static AdjRibOutListener create(@Nonnull final TablesKey tablesKey, @Nonnull final YangInstanceIdentifier ribId, @Nonnull final DOMDataTreeChangeService service, @Nonnull final RIBSupportContextRegistry registry, @Nonnull final ChannelOutputLimiter session) {
-        return new AdjRibOutListener(tablesKey, ribId, service, registry, session);
+    static AdjRibOutListener create(@Nonnull final PeerId peerId, @Nonnull final TablesKey tablesKey, @Nonnull final YangInstanceIdentifier ribId, @Nonnull final DOMDataTreeChangeService service, @Nonnull final RIBSupportContextRegistry registry, @Nonnull final ChannelOutputLimiter session) {
+        return new AdjRibOutListener(peerId, tablesKey, ribId, service, registry, session);
     }
 
     @Override
     public void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
         LOG.debug("Data change received for AdjRibOut {}", changes);
         for (final DataTreeCandidate tc : changes) {
+            LOG.trace("Change {} type {}", tc.getRootNode(), tc.getRootNode().getModificationType());
             for (final DataTreeCandidateNode child : tc.getRootNode().getChildNodes()) {
                 for (final DataTreeCandidateNode route : this.context.getRibSupport().changedRoutes(child)) {
                     final Update update;
@@ -102,10 +104,10 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
     }
 
     private Update withdraw(final MapEntryNode route) {
-        return this.support.buildUpdate(Collections.singleton(route), Collections.<MapEntryNode>emptyList(), routeAttributes(route));
+        return this.support.buildUpdate(Collections.<MapEntryNode>emptyList(), Collections.singleton(route), routeAttributes(route));
     }
 
     private Update advertise(final MapEntryNode route) {
-        return this.support.buildUpdate(Collections.<MapEntryNode>emptyList(), Collections.singleton(route), routeAttributes(route));
+        return this.support.buildUpdate(Collections.singleton(route), Collections.<MapEntryNode>emptyList(), routeAttributes(route));
     }
 }
