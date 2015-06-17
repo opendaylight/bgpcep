@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_4c573803",
+        "filename": "bgp/parser-impl/src/test/java/org/opendaylight/protocol/bgp/parser/impl/Ipv4NlriParserTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-17T09:07:24Z",
+      "side": 1,
+      "message": "try Arrays.deepEquals method",
+      "revId": "85c56e376c4dc42c385bd27823eccbb54f6d09c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_6c5c7426",
+        "filename": "bgp/parser-impl/src/test/java/org/opendaylight/protocol/bgp/parser/impl/Ipv4NlriParserTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-17T09:07:24Z",
+      "side": 1,
+      "message": "Withdrawn",
+      "range": {
+        "startLine": 100,
+        "startChar": 23,
+        "endLine": 100,
+        "endChar": 31
+      },
+      "revId": "85c56e376c4dc42c385bd27823eccbb54f6d09c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
