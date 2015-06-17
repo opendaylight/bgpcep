@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Optional;
@@ -14,6 +15,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -25,15 +27,29 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.MultiExitDisc;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.as.path.Segments;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.as.path.SegmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.CSegment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.AListCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.AListCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.ASetCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.ASetCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.AList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.AListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequence;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequenceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.set._case.ASet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.set._case.ASetBuilder;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.QNameModule;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
+import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
+import org.opendaylight.yangtools.yang.data.api.schema.LeafSetEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.LeafSetNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
@@ -87,8 +103,21 @@ final class BestPathState {
     private static final Logger LOG = LoggerFactory.getLogger(BestPathState.class);
     private static final Cache<QNameModule, AttributesCollection> PATH_CACHE = CacheBuilder.newBuilder().weakKeys().weakValues().build();
 
-    private static Long peerAs = 0L;
-    private static int asPathLength = 0;
+    @VisibleForTesting
+    public static final NodeIdentifier C_SEGMENT_NID = new NodeIdentifier(CSegment.QNAME);
+    @VisibleForTesting
+    public static final NodeIdentifier A_SET_NID = new NodeIdentifier(ASet.QNAME);
+    @VisibleForTesting
+    public static final NodeIdentifier AS_SET_NID = new NodeIdentifier(QName.cachedReference(QName.create(ASet.QNAME, "as-set")));
+    @VisibleForTesting
+    public static final NodeIdentifier A_LIST_NID = new NodeIdentifier(AList.QNAME);
+    @VisibleForTesting
+    public static final NodeIdentifier AS_SEQ_NID = new NodeIdentifier(AsSequence.QNAME);
+    @VisibleForTesting
+    public static final NodeIdentifier AS_NID = new NodeIdentifier(QName.create(AsSequence.QNAME, "as"));
+
+    private long peerAs = 0L;
+    private int asPathLength = 0;
 
     private final ContainerNode attributes;
     private final AttributesCollection collection;
@@ -157,18 +186,12 @@ final class BestPathState {
         final Optional<NormalizedNode<?, ?>> maybeSegments = NormalizedNodes.findNode(this.attributes, this.collection.getAsPath());
         if (maybeSegments.isPresent()) {
             final UnkeyedListNode segments = (UnkeyedListNode) maybeSegments.get();
-
-            if (segments.getSize() != 0) {
-                // FIXME: peer AS number
-
-                // FIXME: asPathLength = countAsPath(this.bestState.getAsPath().getSegments());
-                final boolean haveSegment;
-                for (final UnkeyedListEntryNode s : segments.getValue()) {
-
-                }
+            final List<Segments> segs = extractSegments(segments);
+            if (segs.size() != 0) {
+                this.peerAs = getPeerAs(segs).getValue();
+                this.asPathLength = countAsPath(segs);
             }
         }
-
         this.resolved = true;
     }
 
@@ -189,12 +212,12 @@ final class BestPathState {
 
     Long getPeerAs() {
         resolveValues();
-        return peerAs;
+        return this.peerAs;
     }
 
     int getAsPathLength() {
         resolveValues();
-        return asPathLength;
+        return this.asPathLength;
     }
 
     private static int countAsPath(final List<Segments> segments) {
@@ -216,9 +239,60 @@ final class BestPathState {
         if (segments.isEmpty()) {
             return null;
         }
-
         final AListCase first = (AListCase) segments.get(0).getCSegment();
         return first.getAList().getAsSequence().get(0).getAs();
+    }
+
+    @VisibleForTesting
+    public static List<Segments> extractSegments(final UnkeyedListNode segments) {
+        // list segments
+        final List<Segments> extracted = new ArrayList<>();
+        for (final UnkeyedListEntryNode seg : segments.getValue()) {
+            CSegment cs = null;
+            // choice c-segment
+            final ChoiceNode segmentType = (ChoiceNode) seg.getChild(C_SEGMENT_NID).get();
+            if (segmentType.getChild(A_SET_NID).isPresent()) {
+                // container a-set
+                cs = extractAsSet(segmentType.getChild(A_SET_NID).get());
+            } else if (segmentType.getChild(A_LIST_NID).isPresent()) {
+                // container a-list
+                cs = extractAsSequence(segmentType.getChild(A_LIST_NID).get());
+            }
+            extracted.add(new SegmentsBuilder().setCSegment(cs).build());
+        }
+        return extracted;
+    }
+
+    private static CSegment extractAsSet(final DataContainerChild<? extends PathArgument, ?> set) {
+        final List<AsNumber> ases = new ArrayList<>();
+        // leaf-list a-set
+        final Optional<NormalizedNode<?, ?>> maybeSet = NormalizedNodes.findNode(set, AS_SET_NID);
+        if (maybeSet.isPresent()) {
+            final LeafSetNode<?> list = (LeafSetNode<?>)maybeSet.get();
+            for (final LeafSetEntryNode<?> as : list.getValue())  {
+                ases.add(new AsNumber(Long.valueOf((String)as.getValue())));
+            }
+        }
+        return new ASetCaseBuilder().setASet(new ASetBuilder().setAsSet(ases).build()).build();
+    }
+
+    private static CSegment extractAsSequence(final DataContainerChild<? extends PathArgument, ?> set) {
+        final List<AsSequence> ases = new ArrayList<>();
+        // list as-sequence
+        final Optional<NormalizedNode<?, ?>> maybeSet = NormalizedNodes.findNode(set, AS_SEQ_NID);
+        if (maybeSet.isPresent()) {
+            final UnkeyedListNode list = (UnkeyedListNode)maybeSet.get();
+            // as-sequence
+            for (final UnkeyedListEntryNode as : list.getValue())  {
+                // as
+                final Optional<NormalizedNode<?, ?>> maybeAsSeq = NormalizedNodes.findNode(as, AS_NID);
+                if (maybeAsSeq.isPresent()) {
+                    final LeafNode<?> asLeaf = (LeafNode<?>)maybeAsSeq.get();
+                    ases.add(new AsSequenceBuilder().setAs(new AsNumber(Long.valueOf((String)asLeaf.getValue()))).build());
+                }
+            }
+        }
+        return new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(ases).build()).build();
     }
 
     ContainerNode getAttributes() {

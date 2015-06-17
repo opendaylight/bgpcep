@@ -9,14 +9,29 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+
+import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedInteger;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.as.path.Segments;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.as.path.SegmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.AListCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.ASetCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.AListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequence;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequenceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.set._case.ASetBuilder;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeWithValue;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
+import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.CollectionNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableContainerNodeSchemaAwareBuilder;
@@ -125,5 +140,52 @@ public class BestPathSelectorTest {
         final ImmutableLeafNodeBuilder<T> valueBuilder = new ImmutableLeafNodeBuilder<>();
         valueBuilder.withNodeIdentifier(new NodeIdentifier(QName.create(qname, localName))).withValue(value);
         return valueBuilder;
+    }
+
+    @Test
+    public void testExtractSegments() {
+        final QName asNumberQ = QName.create("org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev10092", "as-number");
+        final NodeIdentifier segmentsNid = new NodeIdentifier(Segments.QNAME);
+        // to be extracted from
+        final CollectionNodeBuilder<UnkeyedListEntryNode, UnkeyedListNode> builder = Builders.unkeyedListBuilder();
+        builder.withNodeIdentifier(segmentsNid);
+        builder.addChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(segmentsNid)
+            .addChild(Builders.choiceBuilder().withNodeIdentifier(BestPathState.C_SEGMENT_NID)
+                .addChild(Builders.containerBuilder().withNodeIdentifier(BestPathState.A_SET_NID)
+                    .addChild(Builders.leafSetBuilder().withNodeIdentifier(BestPathState.AS_SET_NID)
+                        .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(asNumberQ, "10")).withValue("10").build())
+                        .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(asNumberQ, "11")).withValue("11").build())
+                    .build())
+                .build())
+            .build())
+        .build());
+        builder.addChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(segmentsNid)
+            .addChild(Builders.choiceBuilder().withNodeIdentifier(BestPathState.C_SEGMENT_NID)
+                .addChild(Builders.containerBuilder().withNodeIdentifier(BestPathState.A_LIST_NID)
+                    .addChild(Builders.unkeyedListBuilder().withNodeIdentifier(BestPathState.AS_SEQ_NID)
+                        .addChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(BestPathState.AS_SEQ_NID)
+                            .addChild(Builders.leafBuilder().withNodeIdentifier(BestPathState.AS_NID).withValue("1").build())
+                        .build())
+                        .addChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(BestPathState.AS_SEQ_NID)
+                            .addChild(Builders.leafBuilder().withNodeIdentifier(BestPathState.AS_NID).withValue("2").build())
+                        .build())
+                        .addChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(BestPathState.AS_SEQ_NID)
+                            .addChild(Builders.leafBuilder().withNodeIdentifier(BestPathState.AS_NID).withValue("3").build())
+                        .build())
+                    .build())
+                .build())
+           .build())
+       .build());
+
+        // expected
+        final List<AsSequence> sequences = new ArrayList<>();
+        sequences.add(new AsSequenceBuilder().setAs(new AsNumber(1L)).build());
+        sequences.add(new AsSequenceBuilder().setAs(new AsNumber(2L)).build());
+        sequences.add(new AsSequenceBuilder().setAs(new AsNumber(3L)).build());
+        final List<Segments> expected = new ArrayList<>();
+        expected.add(new SegmentsBuilder().setCSegment(new ASetCaseBuilder().setASet(new ASetBuilder().setAsSet(Lists.newArrayList(new AsNumber(10L), new AsNumber(11L))).build()).build()).build());
+        expected.add(new SegmentsBuilder().setCSegment(new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(sequences).build()).build()).build());
+        // test
+        assertEquals(expected, BestPathState.extractSegments(builder.build()));
     }
 }
