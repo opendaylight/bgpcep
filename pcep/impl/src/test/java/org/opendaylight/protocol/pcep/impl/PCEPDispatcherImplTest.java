@@ -9,6 +9,7 @@
 package org.opendaylight.protocol.pcep.impl;
 
 import com.google.common.base.Preconditions;
+import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -18,11 +19,15 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
+import java.nio.channels.Channel;
 import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
 import org.opendaylight.protocol.framework.ProtocolSession;
@@ -33,6 +38,11 @@ import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
+import org.opendaylight.tcpmd5.api.KeyAccess;
+import org.opendaylight.tcpmd5.api.KeyAccessFactory;
+import org.opendaylight.tcpmd5.api.KeyMapping;
+import org.opendaylight.tcpmd5.netty.MD5NioServerSocketChannelFactory;
+import org.opendaylight.tcpmd5.netty.MD5NioSocketChannelFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
@@ -46,11 +56,22 @@ public class PCEPDispatcherImplTest {
     private static final short KEEP_ALIVE = 30;
 
     private PCEPDispatcherImpl dispatcher;
+    private PCEPDispatcherImpl dispatcher2;
+    private PCEPDispatcherImpl disp2Spy;
+    private PCEPDispatcherImpl dispatcher3;
+    private MD5NioServerSocketChannelFactory scf;
+    private MD5NioSocketChannelFactory cf;
+
+    @Mock private KeyAccessFactory kaf;
+    @Mock private Channel mockChannel;
+    @Mock private KeyAccess mockKeyAccess;
 
     private PCCMock<Message, PCEPSessionImpl, PCEPSessionListener> pccMock;
+    private PCCMock<Message, PCEPSessionImpl, PCEPSessionListener> pccMockSpy;
 
     @Before
     public void setUp() {
+        MockitoAnnotations.initMocks(this);
         final Open open = new OpenBuilder().setSessionId((short) 0).setDeadTimer(DEAD_TIMER).setKeepalive(KEEP_ALIVE)
                 .build();
         final EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
@@ -58,9 +79,19 @@ public class PCEPDispatcherImplTest {
                 .getMessageHandlerRegistry();
         this.dispatcher = new PCEPDispatcherImpl(msgReg, new DefaultPCEPSessionNegotiatorFactory(open, 0),
                 eventLoopGroup, eventLoopGroup);
+
+        Mockito.doReturn("mockChannel").when(this.mockChannel).toString();
+        Mockito.doReturn(this.mockKeyAccess).when(this.kaf).getKeyAccess(Mockito.any(Channel.class));
+        this.scf = new MD5NioServerSocketChannelFactory(this.kaf);
+        this.cf = new MD5NioSocketChannelFactory(this.kaf);
+        this.dispatcher2 = new PCEPDispatcherImpl(msgReg, new DefaultPCEPSessionNegotiatorFactory(open, 0), eventLoopGroup, eventLoopGroup, this.cf, this.scf);
+        this.disp2Spy = Mockito.spy(this.dispatcher2);
+        this.dispatcher3 = new PCEPDispatcherImpl(msgReg, new DefaultPCEPSessionNegotiatorFactory(open, 0), eventLoopGroup, eventLoopGroup);
+
         this.pccMock = new PCCMock<>(new DefaultPCEPSessionNegotiatorFactory(open, 0),
                 new PCEPHandlerFactory(msgReg), new DefaultPromise<PCEPSessionImpl>(
                         GlobalEventExecutor.INSTANCE));
+        this.pccMockSpy = Mockito.spy(this.pccMock);
     }
 
     @Test
@@ -132,7 +163,7 @@ public class PCEPDispatcherImplTest {
                         }
                     }).get();
             Assert.fail();
-        } catch(ExecutionException e) {
+        } catch(final ExecutionException e) {
             Assert.assertTrue(e.getMessage().contains("A conflicting session for address"));
         } finally {
             session1.close();
@@ -176,6 +207,45 @@ public class PCEPDispatcherImplTest {
         Assert.assertEquals(KEEP_ALIVE, session2.getKeepAliveTimerValue().shortValue());
 
         session2.close();
+    }
+
+    @Test
+    public void testCustomizeBootstrap() {
+        final KeyMapping keys = new KeyMapping();
+        keys.put(this.CLIENT1_ADDRESS.getAddress(), new String("CLIENT1_ADDRESS").getBytes() );
+        keys.put(this.CLIENT2_ADDRESS.getAddress(), new String("CLIENT2_ADDRESS").getBytes() );
+
+        final ChannelFuture futureChannel = this.disp2Spy.createServer(new InetSocketAddress("0.0.0.0", PORT), keys,
+            new SessionListenerFactory<PCEPSessionListener>() {
+                @Override
+                public PCEPSessionListener getSessionListener() {
+                    return new SimpleSessionListener();
+                }
+            });
+        this.pccMockSpy.createClient(CLIENT1_ADDRESS,
+            new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 500),
+            new SessionListenerFactory<PCEPSessionListener>() {
+                @Override
+                public PCEPSessionListener getSessionListener() {
+                    return new SimpleSessionListener();
+                }
+            });
+        Mockito.verify(this.disp2Spy).customizeBootstrap(Mockito.any(ServerBootstrap.class));
+//        Mockito.verify(this.disp2Spy).customizeBootstrap(Mockito.any(Bootstrap.class));
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testUnsupportedOperationException() {
+        final KeyMapping keys = new KeyMapping();
+        keys.put(this.CLIENT1_ADDRESS.getAddress(), new String("CLIENT1_ADDRESS").getBytes() );
+        keys.put(this.CLIENT2_ADDRESS.getAddress(), new String("CLIENT2_ADDRESS").getBytes() );
+        final ChannelFuture futureChannel = this.dispatcher3.createServer(new InetSocketAddress("0.0.0.0", PORT), keys,
+            new SessionListenerFactory<PCEPSessionListener>() {
+                @Override
+                public PCEPSessionListener getSessionListener() {
+                    return new SimpleSessionListener();
+                }
+            });
     }
 
     @After
