@@ -76,21 +76,21 @@ public interface RIBSupport {
      * from the DOM model and delete them from RIBs.
      *
      * @param tx DOMDataWriteTransaction
-     * @param tablePath YangInstanceIdentifier
+     * @param routesPath YangInstanceIdentifier
      * @param nlri ContainerNode DOM representation of NLRI in Update message
      */
-    void deleteRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath, @Nonnull ContainerNode nlri);
+    void deleteRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier routesPath, @Nonnull ContainerNode nlri);
 
     /**
      * Given the NLRI as ContainerNode, this method should extract advertised routes
      * from the DOM model and put them into RIBs.
      *
      * @param tx DOMDataWriteTransaction
-     * @param tablePath YangInstanceIdentifier
+     * @param routesPath YangInstanceIdentifier
      * @param nlri ContainerNode DOM representation of NLRI in Update message
      * @param attributes ContainerNode
      */
-    void putRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath, @Nonnull ContainerNode nlri, @Nonnull ContainerNode attributes);
+    void putRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier routesPath, @Nonnull ContainerNode nlri, @Nonnull ContainerNode attributes);
 
     /**
      * Returns routes that were modified within this RIB support instance.

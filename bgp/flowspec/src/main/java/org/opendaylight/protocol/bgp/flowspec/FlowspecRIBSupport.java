@@ -134,14 +134,14 @@ final class FlowspecRIBSupport extends AbstractRIBSupport {
         return this.destination;
     }
 
-    private void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
+    private void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
         final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination.getChild(this.nlriRoutesList);
             if (maybeRoutes.isPresent()) {
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof UnkeyedListNode) {
-                    final YangInstanceIdentifier base = tablePath.node(ROUTES).node(routesContainerIdentifier()).node(this.route);
+                    final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(this.route);
                     for (final UnkeyedListEntryNode e : ((UnkeyedListNode)routes).getValue()) {
                         final NodeIdentifierWithPredicates routeKey = new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, ROUTE_KEY, FSNlriParser.stringNlri(e));
                         function.apply(tx, base, routeKey,  e, attributes);
@@ -154,15 +154,15 @@ final class FlowspecRIBSupport extends AbstractRIBSupport {
     }
 
     @Override
-    protected void deleteDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
+    protected void deleteDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
         final ContainerNode destination) {
-        processDestination(tx, tablePath, destination, null, DELETE_ROUTE);
+        processDestination(tx, routesPath, destination, null, DELETE_ROUTE);
     }
 
     @Override
-    protected void putDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
+    protected void putDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
         final ContainerNode destination, final ContainerNode attributes) {
-        processDestination(tx, tablePath, destination, attributes, this.putRoute);
+        processDestination(tx, routesPath, destination, attributes, this.putRoute);
     }
 
     @Override

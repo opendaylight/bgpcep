@@ -129,11 +129,11 @@ class RIBSupportContextImpl extends RIBSupportContext {
     }
 
     @Override
-    public void writeRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tableId, final MpReachNlri nlri,
+    public void writeRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesId, final MpReachNlri nlri,
             final Attributes attributes) {
         final ContainerNode domNlri = serialiazeReachNlri(nlri);
         final ContainerNode routeAttributes = serializeAttributes(attributes);
-        this.tableSupport.putRoutes(tx, tableId, domNlri, routeAttributes);
+        this.tableSupport.putRoutes(tx, routesId, domNlri, routeAttributes);
     }
 
     @Override
@@ -156,8 +156,8 @@ class RIBSupportContextImpl extends RIBSupportContext {
     }
 
     @Override
-    public void deleteRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tableId, final MpUnreachNlri nlri) {
-        this.tableSupport.deleteRoutes(tx, tableId, serialiazeUnreachNlri(nlri));
+    public void deleteRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesId, final MpUnreachNlri nlri) {
+        this.tableSupport.deleteRoutes(tx, routesId, serialiazeUnreachNlri(nlri));
     }
 
     private ContainerNode serialiazeUnreachNlri(final MpUnreachNlri nlri) {

@@ -50,7 +50,6 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     private static final NodeIdentifier ADVERTIZED_ROUTES = new NodeIdentifier(AdvertizedRoutes.QNAME);
     private static final NodeIdentifier WITHDRAWN_ROUTES = new NodeIdentifier(WithdrawnRoutes.QNAME);
     private static final NodeIdentifier DESTINATION_TYPE = new NodeIdentifier(DestinationType.QNAME);
-    protected static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
 
     private final NodeIdentifier routesContainerIdentifier;
     private final NodeIdentifier routesListIdentifier;
@@ -136,11 +135,11 @@ public abstract class AbstractRIBSupport implements RIBSupport {
      * and put the routes to its RIBs.
      *
      * @param tx DOMDataWriteTransaction to be passed into implementation
-     * @param tablePath YangInstanceIdentifier to be passed into implementation
+     * @param routesPath YangInstanceIdentifier to be passed into implementation
      * @param destination ContainerNode DOM representation of NLRI in Update message
      * @param attributes ContainerNode to be passed into implementation
      */
-    protected abstract void putDestinationRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tablePath, ContainerNode destination, ContainerNode attributes);
+    protected abstract void putDestinationRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier routesPath, ContainerNode destination, ContainerNode attributes);
 
     private static ContainerNode getDestination(final DataContainerChild<? extends PathArgument, ?> routes, final NodeIdentifier destinationId) {
         if (routes instanceof ContainerNode) {

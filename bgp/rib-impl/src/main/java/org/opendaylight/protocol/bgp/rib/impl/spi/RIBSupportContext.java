@@ -36,10 +36,10 @@ public abstract class RIBSupportContext {
      * Removes supplied routes from RIB table using supplied transaction.
      *
      * @param tx Transaction to be used
-     * @param tableId Instance Identifier of table to be updated
+     * @param routesId Instance Identifier of table's routes to be updated
      * @param nlri UnreachNlri which contains routes to be removed.
      */
-    public abstract void deleteRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tableId, MpUnreachNlri nlri);
+    public abstract void deleteRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier routesId, MpUnreachNlri nlri);
 
     /**
      *
@@ -47,11 +47,11 @@ public abstract class RIBSupportContext {
      *
      *
      * @param tx Transaction to be used
-     * @param tableId Instance Identifier of table to be updated
+     * @param routesId Instance Identifier of table's routes to be updated
      * @param nlri ReachNlri which contains routes to be written.
      * @param attributes Attributes which should be written.
      */
-    public abstract void writeRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tableId, MpReachNlri nlri,
+    public abstract void writeRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier routesId, MpReachNlri nlri,
             Attributes attributes);
 
     /**
