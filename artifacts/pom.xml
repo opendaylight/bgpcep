@@ -343,6 +343,22 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-bmp-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-bmp-spi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-bmp-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!-- Feature artifact -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
