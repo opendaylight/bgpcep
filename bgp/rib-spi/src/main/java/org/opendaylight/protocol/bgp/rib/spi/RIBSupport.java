@@ -81,6 +81,23 @@ public interface RIBSupport {
      */
     void deleteRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath, @Nonnull ContainerNode nlri);
 
+
+    /**
+     * Given the NLRI as ContainerNode, this method should extract withdrawn routes
+     * from the DOM model and delete them from RIBs.
+     * <p>
+     * Use this method when removing routes stored in RIBs out of the "bgp-rib" module.
+     * Provide {@link NodeIdentifier} with customized "routes" QName.
+     * For default "bgp-rib" RIBs use {@link #deleteRoutes}
+     * </p>
+     *
+     * @param tx DOMDataWriteTransaction
+     * @param tablePath YangInstanceIdentifier
+     * @param nlri ContainerNode DOM representation of NLRI in Update message
+     * @param routesNodeId NodeIdentifier of "routes" data node
+     */
+    void deleteRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath, @Nonnull ContainerNode nlri, @Nonnull NodeIdentifier routesNodeId);
+
     /**
      * Given the NLRI as ContainerNode, this method should extract advertised routes
      * from the DOM model and put them into RIBs.
@@ -91,6 +108,24 @@ public interface RIBSupport {
      * @param attributes ContainerNode
      */
     void putRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath, @Nonnull ContainerNode nlri, @Nonnull ContainerNode attributes);
+
+    /**
+     * Given the NLRI as ContainerNode, this method should extract advertised routes
+     * from the DOM model and put them into RIBs.
+     * <p>
+     * Use this method when putting routes stored in RIBs out of the "bgp-rib" module.
+     * Provide {@link NodeIdentifier} with customized "routes" QName.
+     * For default "bgp-rib" RIBs use {@link #putRoutes}
+     * </p>
+     *
+     * @param tx DOMDataWriteTransaction
+     * @param tablePath YangInstanceIdentifier
+     * @param nlri ContainerNode DOM representation of NLRI in Update message
+     * @param attributes ContainerNode
+     * @param routesNodeId NodeIdentifier of "routes" data node
+     */
+    void putRoutes(@Nonnull DOMDataWriteTransaction tx, @Nonnull YangInstanceIdentifier tablePath, @Nonnull ContainerNode nlri,
+            @Nonnull ContainerNode attributes, @Nonnull NodeIdentifier routesNodeId);
 
     /**
      * Returns routes that were modified within this RIB support instance.
