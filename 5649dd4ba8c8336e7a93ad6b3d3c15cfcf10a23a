@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_4d864fbb",
+        "filename": "bgp/linkstate/src/test/java/org/opendaylight/protocol/bgp/linkstate/LinkstateRIBSupportTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-18T14:16:25Z",
+      "side": 1,
+      "message": "2015",
+      "range": {
+        "startLine": 2,
+        "startChar": 16,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "5649dd4ba8c8336e7a93ad6b3d3c15cfcf10a23a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
