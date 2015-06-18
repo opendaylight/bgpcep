@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_ca300559",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPDispatcherImplTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-18T09:00:25Z",
+      "side": 1,
+      "message": "never push commented code",
+      "revId": "24e0dfc7e17687cbb25963c7ace619242ecfecce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
