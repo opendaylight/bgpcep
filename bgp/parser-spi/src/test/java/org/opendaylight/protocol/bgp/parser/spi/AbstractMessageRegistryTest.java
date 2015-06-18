@@ -8,7 +8,9 @@
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -16,6 +18,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.KeepaliveBuilder;
@@ -35,7 +38,7 @@ public class AbstractMessageRegistryTest {
         }
 
         @Override
-        protected Notification parseBody(int type, ByteBuf body, int messageLength) throws BGPDocumentedException {
+        protected Notification parseBody(final int type, final ByteBuf body, final int messageLength) throws BGPDocumentedException {
             return new KeepaliveBuilder().build();
         }
     };
@@ -91,5 +94,28 @@ public class AbstractMessageRegistryTest {
             assertTrue(e instanceof BGPParsingException);
             Assert.assertTrue(e.getMessage().startsWith("Size doesn't match size specified in header."));
         }
+    }
+
+    @Test
+    public void testBGPHeaderParser() throws Exception {
+        final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
+        try {
+            msgReg.parseMessage(Unpooled.copiedBuffer(new byte[] { (byte) 0, (byte) 0 }));
+            fail("Exception should have occured.");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Too few bytes in passed array. Passed: 2. Expected: >= 19.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testMessageParser() throws Exception {
+        final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
+        String ex = "";
+        try {
+            msgReg.serializeMessage(null, Unpooled.EMPTY_BUFFER);
+        } catch (final NullPointerException e) {
+            ex = e.getMessage();
+        }
+        assertEquals("BGPMessage is mandatory.", ex);
     }
 }

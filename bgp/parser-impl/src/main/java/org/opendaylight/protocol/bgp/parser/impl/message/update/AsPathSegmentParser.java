@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType.AS_SEQUENCE;
 import static org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType.AS_SET;
+
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,7 +41,7 @@ public final class AsPathSegmentParser {
     }
 
     private AsPathSegmentParser() {
-
+        throw new UnsupportedOperationException();
     }
 
     static int serializeType(final SegmentType type) {

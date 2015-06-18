@@ -15,13 +15,14 @@ import static org.junit.Assert.fail;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.ExtendedCommunitiesAttributeParser;
-import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.NoopReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -228,26 +229,15 @@ public class ComplementaryTest {
         }
     }
 
-    @Test
-    public void testBGPHeaderParser() throws Exception {
-        final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
-        try {
-            msgReg.parseMessage(Unpooled.copiedBuffer(new byte[] { (byte) 0, (byte) 0 }));
-            fail("Exception should have occured.");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Too few bytes in passed array. Passed: 2. Expected: >= 19.", e.getMessage());
-        }
-    }
 
-    @Test
-    public void testMessageParser() throws Exception {
-        final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
-        String ex = "";
+    @Test(expected=UnsupportedOperationException.class)
+    public void testAsPathSegmentParserPrivateConstructor() throws Throwable {
+        final Constructor<AsPathSegmentParser> c = AsPathSegmentParser.class.getDeclaredConstructor();
+        c.setAccessible(true);
         try {
-            msgReg.serializeMessage(null, Unpooled.EMPTY_BUFFER);
-        } catch (final NullPointerException e) {
-            ex = e.getMessage();
+            c.newInstance();
+        } catch (final InvocationTargetException e) {
+            throw e.getCause();
         }
-        assertEquals("BGPMessage is mandatory.", ex);
     }
 }
