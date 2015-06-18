@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.linkstate;
 
 import static org.junit.Assert.assertEquals;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +59,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableUn
 public class LinkstateRIBSupportTest {
 
     private static final Ipv4Address ipv4 = new Ipv4Address("42.42.42.42");
+    private static final NodeIdentifier ROUTES_NODE_ID = new NodeIdentifier(Routes.QNAME);
     final LinkstateRIBSupport link = LinkstateRIBSupport.getInstance();
     final List<MapEntryNode> linkList = new ArrayList<>();
     private List<YangInstanceIdentifier> routes;
@@ -82,7 +84,7 @@ public class LinkstateRIBSupportTest {
             @Override
             public Object answer(final InvocationOnMock invocation) throws Throwable {
                 final Object[] args = invocation.getArguments();
-                LinkstateRIBSupportTest.this.routes.remove((YangInstanceIdentifier) args[1]);
+                LinkstateRIBSupportTest.this.routes.remove(args[1]);
                 return args[1];
             }
         }).when(this.tx).delete(Mockito.any(LogicalDatastoreType.class), Mockito.any(YangInstanceIdentifier.class));
@@ -91,7 +93,7 @@ public class LinkstateRIBSupportTest {
     @Test
     public void testbuildReach() throws BGPParsingException {
         final CNextHop hop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(ipv4).build()).build();
-        MpReachNlri result = link.buildReach(linkList, hop);
+        final MpReachNlri result = link.buildReach(linkList, hop);
         assertEquals(LinkstateAddressFamily.class, result.getAfi());
         assertEquals(LinkstateSubsequentAddressFamily.class, result.getSafi());
         assertEquals(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("42.42.42.42")).build()).build(), result.getCNextHop());
@@ -173,11 +175,11 @@ public class LinkstateRIBSupportTest {
             .withNodeIdentifier(new NodeIdentifier(Attributes.QNAME))
             .build();
 
-        link.putDestinationRoutes(tx, yangIdentifier, destination, attributes);
+        link.putDestinationRoutes(tx, yangIdentifier, destination, attributes, ROUTES_NODE_ID);
 
         Assert.assertEquals(1, this.routes.size());
 
-        link.deleteDestinationRoutes(tx, yangIdentifier, destination);
+        link.deleteDestinationRoutes(tx, yangIdentifier, destination, ROUTES_NODE_ID);
 
         Assert.assertEquals(0, this.routes.size());
     }

@@ -50,7 +50,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     private static final NodeIdentifier ADVERTIZED_ROUTES = new NodeIdentifier(AdvertizedRoutes.QNAME);
     private static final NodeIdentifier WITHDRAWN_ROUTES = new NodeIdentifier(WithdrawnRoutes.QNAME);
     private static final NodeIdentifier DESTINATION_TYPE = new NodeIdentifier(DestinationType.QNAME);
-    protected static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
+    private static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
 
     private final NodeIdentifier routesContainerIdentifier;
     private final NodeIdentifier routesListIdentifier;
@@ -124,8 +124,9 @@ public abstract class AbstractRIBSupport implements RIBSupport {
      * @param tx DOMDataWriteTransaction to be passed into implementation
      * @param tablePath YangInstanceIdentifier to be passed into implementation
      * @param destination ContainerNode DOM representation of NLRI in Update message
+     * @param routesNodeId NodeIdentifier
      */
-    protected abstract void deleteDestinationRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tablePath, ContainerNode destination);
+    protected abstract void deleteDestinationRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tablePath, ContainerNode destination, NodeIdentifier routesNodeId);
 
     /**
      * Given the destination as ContainerNode, implementation needs to parse the DOM model
@@ -139,8 +140,10 @@ public abstract class AbstractRIBSupport implements RIBSupport {
      * @param tablePath YangInstanceIdentifier to be passed into implementation
      * @param destination ContainerNode DOM representation of NLRI in Update message
      * @param attributes ContainerNode to be passed into implementation
+     * @param routesNodeId NodeIdentifier
      */
-    protected abstract void putDestinationRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tablePath, ContainerNode destination, ContainerNode attributes);
+    protected abstract void putDestinationRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tablePath, ContainerNode destination, ContainerNode attributes,
+            NodeIdentifier routesNodeId);
 
     private static ContainerNode getDestination(final DataContainerChild<? extends PathArgument, ?> routes, final NodeIdentifier destinationId) {
         if (routes instanceof ContainerNode) {
@@ -199,28 +202,12 @@ public abstract class AbstractRIBSupport implements RIBSupport {
 
     @Override
     public final void deleteRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode nlri) {
-        final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = nlri.getChild(WITHDRAWN_ROUTES);
-        if (maybeRoutes.isPresent()) {
-            final ContainerNode destination = getDestination(maybeRoutes.get(), destinationContainerIdentifier());
-            if (destination != null) {
-                deleteDestinationRoutes(tx, tablePath, destination);
-            }
-        } else {
-            LOG.debug("Withdrawn routes are not present in NLRI {}", nlri);
-        }
+        deleteRoutes(tx, tablePath, nlri, ROUTES);
     }
 
     @Override
     public final void putRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode nlri, final ContainerNode attributes) {
-        final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = nlri.getChild(ADVERTIZED_ROUTES);
-        if (maybeRoutes.isPresent()) {
-            final ContainerNode destination = getDestination(maybeRoutes.get(), destinationContainerIdentifier());
-            if (destination != null) {
-                putDestinationRoutes(tx, tablePath, destination, attributes);
-            }
-        } else {
-            LOG.debug("Advertized routes are not present in NLRI {}", nlri);
-        }
+        putRoutes(tx, tablePath, nlri, attributes, ROUTES);
     }
 
     /**
@@ -261,4 +248,33 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         ub.setAttributes(ab.build());
         return ub.build();
     }
+
+    @Override
+    public final void deleteRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode nlri,
+            final NodeIdentifier routesNodeId) {
+        final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = nlri.getChild(WITHDRAWN_ROUTES);
+        if (maybeRoutes.isPresent()) {
+            final ContainerNode destination = getDestination(maybeRoutes.get(), destinationContainerIdentifier());
+            if (destination != null) {
+                deleteDestinationRoutes(tx, tablePath, destination, routesNodeId);
+            }
+        } else {
+            LOG.debug("Withdrawn routes are not present in NLRI {}", nlri);
+        }
+    }
+
+    @Override
+    public final void putRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode nlri,
+            final ContainerNode attributes, final NodeIdentifier routesNodeId) {
+        final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = nlri.getChild(ADVERTIZED_ROUTES);
+        if (maybeRoutes.isPresent()) {
+            final ContainerNode destination = getDestination(maybeRoutes.get(), destinationContainerIdentifier());
+            if (destination != null) {
+                putDestinationRoutes(tx, tablePath, destination, attributes, routesNodeId);
+            }
+        } else {
+            LOG.debug("Advertized routes are not present in NLRI {}", nlri);
+        }
+    }
+
 }
