@@ -70,13 +70,13 @@ public class AbstractRIBSupportTest {
 
         @Override
         protected void deleteDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
-            final ContainerNode destination) {
+            final ContainerNode destination, final NodeIdentifier routesNodeId) {
             AbstractRIBSupportTest.dest = destination;
         }
 
         @Override
         protected void putDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
-            final ContainerNode destination, final ContainerNode attributes) {
+            final ContainerNode destination, final ContainerNode attributes, final NodeIdentifier routesNodeId) {
             AbstractRIBSupportTest.dest = destination;
         }
 
