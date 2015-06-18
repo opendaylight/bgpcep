@@ -92,6 +92,8 @@ public class SrObjectParserTest {
                 parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buffer = Unpooled.buffer();
         parser.serializeObject(builder.build(), buffer);
+        parser.serializeTlvs(null, Unpooled.EMPTY_BUFFER);
+        parser.serializeTlvs(new TlvsBuilder().build(), Unpooled.EMPTY_BUFFER);
         assertArrayEquals(openObjectBytes, ByteArray.getAllBytes(buffer));
     }
 

@@ -33,6 +33,7 @@ public class HandlerRegistryTest {
 
         parserReg.close();
         serializerReg.close();
+        serializerReg.close();
         Assert.assertNull(registry.getParser(TYPE));
         Assert.assertNull(registry.getSerializer(Object.class));
     }
