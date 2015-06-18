@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_ad884323",
+        "filename": "pcep/spi/src/test/java/org/opendaylight/controller/config/yang/pcep/spi/ReusablePCEPExtensionProviderContextTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-18T12:26:20Z",
+      "side": 1,
+      "message": "Copyright header missing",
+      "revId": "d5adbec35b1d469528291b6d5de74b519fbf4a97",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
