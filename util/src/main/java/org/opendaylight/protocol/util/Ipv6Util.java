@@ -112,7 +112,7 @@ public final class Ipv6Util {
         final InetAddress a = InetAddresses.forString(p.substring(0, sep));
         Preconditions.checkArgument(a instanceof Inet6Address);
         final byte[] bytes = a.getAddress();
-        return Bytes.concat(new byte[] { UnsignedBytes.checkedCast(length) }, ByteArray.subByte(bytes, 0 , Ipv4Util.getPrefixLengthBytes(p)));
+        return Bytes.concat(new byte[] { UnsignedBytes.checkedCast(length*Byte.SIZE) }, bytes);
     }
 
     /**
@@ -137,10 +137,10 @@ public final class Ipv6Util {
      * @return Ipv6Prefix object
      */
     public static Ipv6Prefix prefixForByteBuf(final ByteBuf bytes) {
-        final int prefixLength = bytes.readByte();
-        final int size = prefixLength / Byte.SIZE + ((prefixLength % Byte.SIZE == 0) ? 0 : 1);
+        final int prefixBitLength = bytes.readUnsignedByte();
+        final int size = prefixBitLength / Byte.SIZE + ((prefixBitLength % Byte.SIZE == 0) ? 0 : 1);
         Preconditions.checkArgument(size <= bytes.readableBytes(), "Illegal length of IP prefix: " + (bytes.readableBytes()));
-        return Ipv6Util.prefixForBytes(ByteArray.readBytes(bytes, size), prefixLength);
+        return Ipv6Util.prefixForBytes(ByteArray.readBytes(bytes, size), size);
     }
 
 
