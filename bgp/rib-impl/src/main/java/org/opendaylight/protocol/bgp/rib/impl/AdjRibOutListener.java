@@ -18,7 +18,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
-import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
@@ -56,23 +56,23 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
     private final YangInstanceIdentifier.NodeIdentifier routeKeyLeaf = new YangInstanceIdentifier.NodeIdentifier(PREFIX_QNAME);
 
     private final ChannelOutputLimiter session;
-    private final RIBSupportContextImpl context;
+    private final Codecs codecs;
     private final RIBSupport support;
     private final boolean mpSupport;
 
-    private AdjRibOutListener(final PeerId peerId, final TablesKey tablesKey, final YangInstanceIdentifier ribId, final DOMDataTreeChangeService service, final RIBSupportContextRegistry registry, final ChannelOutputLimiter session, final boolean mpSupport) {
+    private AdjRibOutListener(final PeerId peerId, final TablesKey tablesKey, final YangInstanceIdentifier ribId,
+        final CodecsRegistry registry, final RIBSupport support, final DOMDataTreeChangeService service,
+        final ChannelOutputLimiter session, final boolean mpSupport) {
         this.session = Preconditions.checkNotNull(session);
-        this.context = (RIBSupportContextImpl) registry.getRIBSupportContext(tablesKey);
-        this.support = this.context.getRibSupport();
+        this.support = Preconditions.checkNotNull(support);
+        this.codecs = registry.getCodecs(this.support);
         this.mpSupport = mpSupport;
-        final YangInstanceIdentifier adjRibOutId = ribId.node(Peer.QNAME).node(IdentifierUtils.domPeerId(peerId)).node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
+        final YangInstanceIdentifier adjRibOutId =  ribId.node(Peer.QNAME).node(IdentifierUtils.domPeerId(peerId)).node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
         service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, adjRibOutId), this);
     }
 
-    static AdjRibOutListener create(@Nonnull final PeerId peerId, @Nonnull final TablesKey tablesKey, @Nonnull final YangInstanceIdentifier ribId,
-                                    @Nonnull final DOMDataTreeChangeService service, @Nonnull final RIBSupportContextRegistry registry,
-                                    @Nonnull final ChannelOutputLimiter session, @Nonnull final boolean mpSupport) {
-        return new AdjRibOutListener(peerId, tablesKey, ribId, service, registry, session, mpSupport);
+    static AdjRibOutListener create(@Nonnull final PeerId peerId, @Nonnull final TablesKey tablesKey, @Nonnull final YangInstanceIdentifier ribId, @Nonnull final CodecsRegistry registry, @Nonnull final RIBSupport support, @Nonnull final DOMDataTreeChangeService service, @Nonnull final ChannelOutputLimiter session, @Nonnull final boolean mpSupport) {
+        return new AdjRibOutListener(peerId, tablesKey, ribId, registry, support, service, session, mpSupport);
     }
 
     @Override
@@ -81,7 +81,7 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
         for (final DataTreeCandidate tc : changes) {
             LOG.trace("Change {} type {}", tc.getRootNode(), tc.getRootNode().getModificationType());
             for (final DataTreeCandidateNode child : tc.getRootNode().getChildNodes()) {
-                for (final DataTreeCandidateNode route : this.context.getRibSupport().changedRoutes(child)) {
+                for (final DataTreeCandidateNode route : this.support.changedRoutes(child)) {
                     final Update update;
 
                     switch (route.getModificationType()) {
@@ -113,9 +113,8 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
         if (LOG.isDebugEnabled()) {
             LOG.debug("AdjRibOut parsing route {}", NormalizedNodes.toStringTree(route));
         }
-
         final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(route, this.support.routeAttributesIdentifier()).orNull();
-        return this.context.deserializeAttributes(advertisedAttrs);
+        return this.codecs.deserializeAttributes(advertisedAttrs);
     }
 
     private Update withdraw(final MapEntryNode route) {
@@ -123,13 +122,13 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
     }
 
     private Update advertise(final MapEntryNode route) {
-        if (!mpSupport) {
+        if (!this.mpSupport) {
             return buildUpdate(Collections.singleton(route), Collections.<MapEntryNode>emptyList(), routeAttributes(route));
         }
         return this.support.buildUpdate(Collections.singleton(route), Collections.<MapEntryNode>emptyList(), routeAttributes(route));
     }
 
-    private Update buildUpdate(@Nonnull final Collection<MapEntryNode> advertised, @Nonnull final Collection<MapEntryNode> withdrawn, @Nonnull Attributes attr) {
+    private Update buildUpdate(@Nonnull final Collection<MapEntryNode> advertised, @Nonnull final Collection<MapEntryNode> withdrawn, @Nonnull final Attributes attr) {
         final UpdateBuilder ub = new UpdateBuilder()
             .setWithdrawnRoutes(new WithdrawnRoutesBuilder().setWithdrawnRoutes(extractPrefixes(withdrawn)).build())
             .setNlri(new NlriBuilder().setNlri(extractPrefixes(advertised)).build());

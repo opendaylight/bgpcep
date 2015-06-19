@@ -30,6 +30,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListen
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionStatistics;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
@@ -207,10 +208,12 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
     }
 
     private void createAdjRibOutListener(final PeerId peerId, final TablesKey key, final boolean mpSupport) {
+        final RIBSupportContext context = this.rib.getRibSupportContext().getRIBSupportContext(key);
+
         // not particularly nice
-        if (session instanceof BGPSessionImpl) {
-            AdjRibOutListener.create(peerId, key, this.rib.getYangRibId(), ((RIBImpl) this.rib).getService(),
-                this.rib.getRibSupportContext(), ((BGPSessionImpl) session).getLimiter(), mpSupport);
+        if (context != null && this.session instanceof BGPSessionImpl) {
+            AdjRibOutListener.create(peerId, key, this.rib.getYangRibId(), this.rib.getCodecsRegistry(), context.getRibSupport(), ((RIBImpl) this.rib).getService(),
+                ((BGPSessionImpl) this.session).getLimiter(), mpSupport);
         }
     }
 
@@ -322,7 +325,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
     @Override
     public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
         LOG.error("Transaction chain failed.", cause);
-        this.dropConnection();
+        dropConnection();
         this.chain.close();
         this.chain = this.rib.createPeerChain(this);
     }
