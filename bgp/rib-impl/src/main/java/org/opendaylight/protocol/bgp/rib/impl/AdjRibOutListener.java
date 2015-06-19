@@ -16,7 +16,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
-import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
@@ -45,19 +45,19 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibOutListener.class);
 
     private final ChannelOutputLimiter session;
-    private final RIBSupportContextImpl context;
+    private final Codecs codecs;
     private final RIBSupport support;
 
-    private AdjRibOutListener(final PeerId peerId, final TablesKey tablesKey, final YangInstanceIdentifier ribId, final DOMDataTreeChangeService service, final RIBSupportContextRegistry registry, final ChannelOutputLimiter session) {
+    private AdjRibOutListener(final PeerId peerId, final TablesKey tablesKey, final YangInstanceIdentifier ribId, final CodecsRegistry registry, final RIBSupport support, final DOMDataTreeChangeService service, final ChannelOutputLimiter session) {
         this.session = Preconditions.checkNotNull(session);
-        this.context = (RIBSupportContextImpl) registry.getRIBSupportContext(tablesKey);
-        this.support = this.context.getRibSupport();
+        this.support = Preconditions.checkNotNull(support);
+        this.codecs = registry.getCodecs(this.support);
         final YangInstanceIdentifier adjRibOutId =  ribId.node(Peer.QNAME).node(IdentifierUtils.domPeerId(peerId)).node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
         service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, adjRibOutId), this);
     }
 
-    static AdjRibOutListener create(@Nonnull final PeerId peerId, @Nonnull final TablesKey tablesKey, @Nonnull final YangInstanceIdentifier ribId, @Nonnull final DOMDataTreeChangeService service, @Nonnull final RIBSupportContextRegistry registry, @Nonnull final ChannelOutputLimiter session) {
-        return new AdjRibOutListener(peerId, tablesKey, ribId, service, registry, session);
+    static AdjRibOutListener create(@Nonnull final PeerId peerId, @Nonnull final TablesKey tablesKey, @Nonnull final YangInstanceIdentifier ribId, @Nonnull final CodecsRegistry registry, @Nonnull final RIBSupport support, @Nonnull final DOMDataTreeChangeService service, @Nonnull final ChannelOutputLimiter session) {
+        return new AdjRibOutListener(peerId, tablesKey, ribId, registry, support, service, session);
     }
 
     @Override
@@ -66,7 +66,7 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
         for (final DataTreeCandidate tc : changes) {
             LOG.trace("Change {} type {}", tc.getRootNode(), tc.getRootNode().getModificationType());
             for (final DataTreeCandidateNode child : tc.getRootNode().getChildNodes()) {
-                for (final DataTreeCandidateNode route : this.context.getRibSupport().changedRoutes(child)) {
+                for (final DataTreeCandidateNode route : this.support.changedRoutes(child)) {
                     final Update update;
 
                     switch (route.getModificationType()) {
@@ -98,9 +98,8 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
         if (LOG.isDebugEnabled()) {
             LOG.debug("AdjRibOut parsing route {}", NormalizedNodes.toStringTree(route));
         }
-
         final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(route, this.support.routeAttributesIdentifier()).orNull();
-        return this.context.deserializeAttributes(advertisedAttrs);
+        return this.codecs.deserializeAttributes(advertisedAttrs);
     }
 
     private Update withdraw(final MapEntryNode route) {
