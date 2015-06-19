@@ -73,4 +73,6 @@ public interface RIB {
      * @return YangInstanceIdentifier
      */
     YangInstanceIdentifier getYangRibId();
+
+    CodecsRegistry getCodecsRegistry();
 }
