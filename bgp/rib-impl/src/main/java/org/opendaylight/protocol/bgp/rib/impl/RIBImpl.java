@@ -33,6 +33,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
+import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
@@ -91,6 +92,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final RIBExtensionConsumerContext extensions;
     private final YangInstanceIdentifier yangRibId;
     private final RIBSupportContextRegistryImpl ribContextRegistry;
+    private final CodecsRegistryImpl codecsRegistry;
     private final EffectiveRibInWriter efWriter;
     private final DOMDataBrokerExtension service;
 
@@ -109,7 +111,8 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.dataBroker = dps;
         this.domDataBroker = Preconditions.checkNotNull(domDataBroker);
         this.extensions = Preconditions.checkNotNull(extensions);
-        this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, codecFactory, classStrategy);
+        this.codecsRegistry = CodecsRegistryImpl.create(codecFactory, classStrategy);
+        this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, this.codecsRegistry);
         this.yangRibId = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME).nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
 
         LOG.debug("Instantiating RIB table {} at {}", ribId, this.yangRibId);
@@ -296,6 +299,11 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
     @Override
     public void onGlobalContextUpdated(final SchemaContext context) {
-        this.ribContextRegistry.onSchemaContextUpdated(context);
+        this.codecsRegistry.onSchemaContextUpdated(context);
+    }
+
+    @Override
+    public CodecsRegistry getCodecsRegistry() {
+        return this.codecsRegistry;
     }
 }
