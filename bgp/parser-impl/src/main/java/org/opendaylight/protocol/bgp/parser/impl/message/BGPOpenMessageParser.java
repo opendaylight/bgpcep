@@ -12,7 +12,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -36,9 +35,10 @@ import org.slf4j.LoggerFactory;
  * Parser for BGP Open message.
  */
 public final class BGPOpenMessageParser implements MessageParser, MessageSerializer {
-    public static final int TYPE = 1;
 
     private static final Logger LOG = LoggerFactory.getLogger(BGPOpenMessageParser.class);
+
+    public static final int TYPE = 1;
 
     private static final int VERSION_SIZE = 1;
     private static final int AS_SIZE = 2;
@@ -66,8 +66,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
      */
     @Override
     public void serializeMessage(final Notification msg, final ByteBuf bytes) {
-        Preconditions.checkArgument(msg instanceof Open, "BGP Open message cannot be null");
-        LOG.trace("Started serializing open message: {}", msg);
+        Preconditions.checkArgument(msg instanceof Open, "Message needs to be of type Open");
         final Open open = (Open) msg;
         final ByteBuf msgBody = Unpooled.buffer();
 
@@ -91,9 +90,6 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
         msgBody.writeByte(paramsBuffer.writerIndex());
         msgBody.writeBytes(paramsBuffer);
 
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Open message serialized to: {}", ByteBufUtil.hexDump(msgBody));
-        }
         MessageUtil.formatMessage(TYPE, msgBody, bytes);
     }
 
@@ -107,10 +103,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
      */
     @Override
     public Open parseMessageBody(final ByteBuf body, final int messageLength) throws BGPDocumentedException {
-        Preconditions.checkArgument(body != null, "Byte array cannot be null.");
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Started parsing of open message: {}", ByteBufUtil.hexDump(body));
-        }
+        Preconditions.checkArgument(body != null, "Buffer cannot be null.");
 
         if (body.readableBytes() < MIN_MSG_LENGTH) {
             throw BGPDocumentedException.badMessageLength("Open message too small.", messageLength);
@@ -142,7 +135,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
     }
 
     private void fillParams(final ByteBuf buffer, final List<BgpParameters> params) throws BGPDocumentedException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Byte array cannot be null or empty.");
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "BUffer cannot be null or empty.");
         if (LOG.isTraceEnabled()) {
             LOG.trace("Started parsing of BGP parameter: {}", ByteBufUtil.hexDump(buffer));
         }
@@ -166,8 +159,6 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
                 LOG.debug("Ignoring BGP Parameter type: {}", paramType);
             }
         }
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Parsed BGP parameters: {}", Arrays.toString(params.toArray()));
-        }
+        LOG.trace("Parsed BGP parameters: {}", params);
     }
 }
