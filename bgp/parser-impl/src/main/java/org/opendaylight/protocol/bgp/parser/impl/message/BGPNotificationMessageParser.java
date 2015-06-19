@@ -29,9 +29,9 @@ import org.slf4j.LoggerFactory;
  */
 public final class BGPNotificationMessageParser implements MessageParser, MessageSerializer {
 
-    public static final int TYPE = 3;
-
     private static final Logger LOG = LoggerFactory.getLogger(BGPNotificationMessageParser.class);
+
+    public static final int TYPE = 3;
 
     private static final int ERROR_SIZE = 2;
 
@@ -43,9 +43,8 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
      */
     @Override
     public void serializeMessage(final Notification msg, final ByteBuf bytes) {
-        Preconditions.checkArgument(msg instanceof Notify, "BGP Notification message cannot be null");
+        Preconditions.checkArgument(msg instanceof Notify, "Message needs to be of type Notify");
         final Notify ntf = (Notify) msg;
-        LOG.trace("Started serializing Notification message: {}", ntf);
 
         final ByteBuf msgBody = Unpooled.buffer();
         msgBody.writeByte(ntf.getErrorCode());
@@ -68,8 +67,7 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
      */
     @Override
     public Notify parseMessageBody(final ByteBuf body, final int messageLength) throws BGPDocumentedException {
-        Preconditions.checkArgument(body != null, "Byte buffer cannot be null.");
-        LOG.trace("Started parsing of notification message: {}", ByteBufUtil.hexDump(body));
+        Preconditions.checkArgument(body != null, "Buffer cannot be null.");
         if (body.readableBytes() < ERROR_SIZE) {
             throw BGPDocumentedException.badMessageLength("Notification message too small.", messageLength);
         }

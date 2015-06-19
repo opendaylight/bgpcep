@@ -40,51 +40,41 @@ import org.slf4j.LoggerFactory;
  * @see <a href="http://tools.ietf.org/html/rfc4271#section-4.3">BGP-4 Update Message Format</a>
  */
 public final class BGPUpdateMessageParser implements MessageParser, MessageSerializer {
-    public static final int TYPE = 2;
 
     private static final Logger LOG = LoggerFactory.getLogger(BGPUpdateMessageParser.class);
 
-    /**
-     * Size of the withdrawn_routes_length field, in bytes.
-     */
-    public static final int WITHDRAWN_ROUTES_LENGTH_SIZE = 2;
-    /**
-     * Size of the total_path_attr_length field, in bytes.
-     */
-    public static final int TOTAL_PATH_ATTR_LENGTH_SIZE = 2;
+    public static final int TYPE = 2;
+
+    private static final int WITHDRAWN_ROUTES_LENGTH_SIZE = 2;
+
+    private static final int TOTAL_PATH_ATTR_LENGTH_SIZE = 2;
 
     private final AttributeRegistry reg;
 
-    // Constructors -------------------------------------------------------
     public BGPUpdateMessageParser(final AttributeRegistry reg) {
         this.reg = Preconditions.checkNotNull(reg);
     }
 
-    // Getters & setters --------------------------------------------------
-
     @Override
     public Update parseMessageBody(final ByteBuf buffer, final int messageLength) throws BGPDocumentedException {
-        Preconditions.checkArgument(buffer != null && buffer.readableBytes() != 0, "Byte array cannot be null or empty.");
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Started parsing of update message: {}", ByteBufUtil.hexDump(buffer));
-        }
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Buffer cannot be null or empty.");
+
+        final UpdateBuilder builder = new UpdateBuilder();
 
         final int withdrawnRoutesLength = buffer.readUnsignedShort();
-        final UpdateBuilder eventBuilder = new UpdateBuilder();
-
         if (withdrawnRoutesLength > 0) {
             final List<Ipv4Prefix> withdrawnRoutes = Ipv4Util.prefixListForBytes(ByteArray.readBytes(buffer, withdrawnRoutesLength));
-            eventBuilder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setWithdrawnRoutes(withdrawnRoutes).build());
+            builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setWithdrawnRoutes(withdrawnRoutes).build());
         }
         final int totalPathAttrLength = buffer.readUnsignedShort();
 
         if (withdrawnRoutesLength == 0 && totalPathAttrLength == 0) {
-            return eventBuilder.build();
+            return builder.build();
         }
         if (totalPathAttrLength > 0) {
             try {
                 final Attributes pathAttributes = this.reg.parseAttributes(buffer.readSlice(totalPathAttrLength));
-                eventBuilder.setAttributes(pathAttributes);
+                builder.setAttributes(pathAttributes);
             } catch (final BGPParsingException | RuntimeException e) {
                 // Catch everything else and turn it into a BGPDocumentedException
                 LOG.warn("Could not parse BGP attributes", e);
@@ -93,17 +83,16 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         }
         final List<Ipv4Prefix> nlri = Ipv4Util.prefixListForBytes(ByteArray.readAllBytes(buffer));
         if (nlri != null && !nlri.isEmpty()) {
-            eventBuilder.setNlri(new NlriBuilder().setNlri(nlri).build());
+            builder.setNlri(new NlriBuilder().setNlri(nlri).build());
         }
-        final Update msg = eventBuilder.build();
+        final Update msg = builder.build();
         LOG.debug("BGP Update message was parsed {}.", msg);
         return msg;
     }
 
     @Override
     public void serializeMessage(final Notification message, final ByteBuf bytes) {
-        Preconditions.checkArgument(message instanceof Update, "BGPUpdate message cannot be null");
-        LOG.trace("Started serializing update message: {}", message);
+        Preconditions.checkArgument(message instanceof Update, "Message needs to be of type Update");
         final Update update = (Update) message;
 
         final ByteBuf messageBody = Unpooled.buffer();
@@ -132,7 +121,6 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
                 messageBody.writeBytes(Ipv4Util.bytesForPrefixBegin(prefix));
             }
         }
-        LOG.trace("Update message serialized to {}", ByteBufUtil.hexDump(messageBody));
         MessageUtil.formatMessage(TYPE, messageBody, bytes);
     }
 }
