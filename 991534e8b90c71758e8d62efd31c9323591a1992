@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_61922f59",
+        "filename": "bgp/linkstate/src/test/java/org/opendaylight/protocol/bgp/linkstate/SrAttributeParserTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-06-20T04:14:17Z",
+      "side": 1,
+      "message": "Is this correct length (in relation to this specific Ipv6Prefix)?",
+      "range": {
+        "startLine": 70,
+        "startChar": 70,
+        "endLine": 70,
+        "endChar": 71
+      },
+      "revId": "991534e8b90c71758e8d62efd31c9323591a1992",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_a1b047f5",
+        "filename": "bgp/linkstate/src/test/java/org/opendaylight/protocol/bgp/linkstate/SrAttributeParserTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-06-20T04:14:17Z",
+      "side": 1,
+      "message": "Ipv6 address has 16 bytes, it\u0027s 128 bits... use its length * Byte.SIZE",
+      "range": {
+        "startLine": 121,
+        "startChar": 12,
+        "endLine": 121,
+        "endChar": 14
+      },
+      "revId": "991534e8b90c71758e8d62efd31c9323591a1992",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
