@@ -111,7 +111,7 @@ public final class SrNodeAttributesParser {
                 break;
             case UNNUMBERED_ERO:
                 final UnnumberedEroCaseBuilder un = new UnnumberedEroCaseBuilder().setLoose(value.readUnsignedByte() != 0);
-                un.setRouterId(readRouterId(value));
+                un.setRouterId(readRouterId(length-1, value));
                 un.setInterfaceId(value.readUnsignedInt());
                 sub = un.build();
                 break;
@@ -127,7 +127,7 @@ public final class SrNodeAttributesParser {
                 break;
             case UNNUMBERED_BACKUP_ERO:
                 final UnnumberedEroBackupCaseBuilder unb = new UnnumberedEroBackupCaseBuilder().setLoose(value.readUnsignedByte() != 0);
-                unb.setRouterId(readRouterId(value));
+                unb.setRouterId(readRouterId(length-1, value));
                 unb.setInterfaceId(value.readUnsignedInt());
                 sub = unb.build();
                 break;
@@ -141,8 +141,13 @@ public final class SrNodeAttributesParser {
         return subs;
     }
 
-    private static byte[] readRouterId(final ByteBuf value) {
-        if (value.readableBytes() == UNNUMBERED_4_SIZE) {
+    private static byte[] readRouterId(final int length, final ByteBuf value) {
+        /*
+         *  when length of subTlv is
+         *      8: read 4 bytes
+         *      20: read 16 bytes
+         */
+        if (length == UNNUMBERED_4_SIZE) {
             return ByteArray.readBytes(value, Ipv4Util.IP4_LENGTH);
         }
         return ByteArray.readBytes(value, Ipv6Util.IPV6_LENGTH);
@@ -154,9 +159,9 @@ public final class SrNodeAttributesParser {
         builder.setSidLabelFlags(new SidLabelFlags(flags.get(AFI), flags.get(MIRROR)));
         builder.setWeight(new Weight(buffer.readUnsignedByte()));
         builder.setValueRange(buffer.readUnsignedShort());
-        final int length = buffer.readUnsignedByte();
+        final int bitLength = buffer.getUnsignedByte(buffer.readerIndex());
         IpPrefix prefix = null;
-        if (length == Ipv4Util.IP4_LENGTH) {
+        if (bitLength / Byte.SIZE == Ipv4Util.IP4_LENGTH) {
             prefix = new IpPrefix(Ipv4Util.prefixForByteBuf(buffer));
         } else {
             prefix = new IpPrefix(Ipv6Util.prefixForByteBuf(buffer));
