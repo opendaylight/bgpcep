@@ -37,13 +37,13 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>bgp-rib-spi</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>rsvp-api</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.opendaylight.controller</groupId>
-      <artifactId>protocol-framework</artifactId>
-    </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>pcep-ietf-stateful07</artifactId>

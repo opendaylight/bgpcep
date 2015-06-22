@@ -62,7 +62,6 @@
     <feature name='odl-bgpcep-bgp-rib' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-bgp-dependencies</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-api/{{VERSION}}</bundle>
-        <feature version='${protocol-framework.version}'>odl-protocol-framework</feature>
         <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-spi/{{VERSION}}</bundle>
@@ -95,7 +94,6 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
         <bundle>mvn:org.opendaylight.bgpcep/topology-api/{{VERSION}}</bundle>
         <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
-        <feature version='${protocol-framework.version}'>odl-protocol-framework</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-topology-provider/{{VERSION}}</bundle>
     </feature>
 </features>

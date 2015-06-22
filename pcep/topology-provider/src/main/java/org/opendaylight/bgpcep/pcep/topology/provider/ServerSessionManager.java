@@ -23,9 +23,9 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
+import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.EnsureLspOperationalInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
@@ -47,7 +47,8 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-final class ServerSessionManager implements SessionListenerFactory<PCEPSessionListener>, AutoCloseable, TopologySessionRPCs, PCEPTopologyProviderRuntimeMXBean {
+final class ServerSessionManager implements AutoCloseable, TopologySessionRPCs,
+    PCEPTopologyProviderRuntimeMXBean, PCEPSessionListenerFactory {
     private static final Logger LOG = LoggerFactory.getLogger(ServerSessionManager.class);
     private static final long DEFAULT_HOLD_STATE_NANOS = TimeUnit.MINUTES.toNanos(5);
 
@@ -59,7 +60,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
     private Optional<PCEPTopologyProviderRuntimeRegistration> runtimeRootRegistration = Optional.absent();
 
     public ServerSessionManager(final DataBroker broker, final InstanceIdentifier<Topology> topology,
-            final TopologySessionListenerFactory listenerFactory) throws ReadFailedException, TransactionCommitFailedException {
+                                final TopologySessionListenerFactory listenerFactory) throws ReadFailedException, TransactionCommitFailedException {
         this.broker = Preconditions.checkNotNull(broker);
         this.topology = Preconditions.checkNotNull(topology);
         this.listenerFactory = Preconditions.checkNotNull(listenerFactory);
@@ -68,9 +69,9 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
         final TopologyKey k = InstanceIdentifier.keyOf(topology);
         final WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.put(LogicalDatastoreType.OPERATIONAL, topology, new TopologyBuilder().setKey(k).setTopologyId(k.getTopologyId()).setTopologyTypes(
-                new TopologyTypesBuilder().addAugmentation(TopologyTypes1.class,
-                        new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build()).build()).build()).setNode(
-                                new ArrayList<Node>()).build(), true);
+            new TopologyTypesBuilder().addAugmentation(TopologyTypes1.class,
+                new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build()).build()).build()).setNode(
+            new ArrayList<Node>()).build(), true);
         tx.submit().checkedGet();
     }
 

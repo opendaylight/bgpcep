@@ -17,13 +17,11 @@ import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
-import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
-import org.opendaylight.protocol.framework.AbstractDispatcher;
-import org.opendaylight.protocol.framework.ReconnectStrategy;
-import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
+import org.opendaylight.protocol.bgp.rib.protocol.ReconnectStrategy;
+import org.opendaylight.protocol.bgp.rib.protocol.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
-public class TestClientDispatcher extends AbstractDispatcher<BGPSessionImpl, BGPSessionListener> {
+public class TestClientDispatcher extends BGPAbstractDispatcher {
 
     private static final String NEGOTIATOR = "negotiator";
 
@@ -43,7 +41,7 @@ public class TestClientDispatcher extends AbstractDispatcher<BGPSessionImpl, BGP
             final AsNumber remoteAs, final BGPPeerRegistry listener, final ReconnectStrategy strategy, final Optional<InetSocketAddress> localAddress) {
         setLocalAddress(localAddress);
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(remoteAs, listener);
-        return super.createClient(remoteAddress, strategy, new PipelineInitializer<BGPSessionImpl>() {
+        return super.createClient(remoteAddress, strategy, new PipelineInitializer() {
 
             @Override
             public void initializeChannel(SocketChannel ch, Promise<BGPSessionImpl> promise) {
@@ -59,7 +57,7 @@ public class TestClientDispatcher extends AbstractDispatcher<BGPSessionImpl, BGP
         final Optional<InetSocketAddress> localAddress) {
         setLocalAddress(localAddress);
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(remoteAs, peerRegistry);
-        final Future<Void> ret = super.createReconnectingClient(address, reconnectStrategyFactory, new PipelineInitializer<BGPSessionImpl>() {
+        final Future<Void> ret = super.createReconnectingClient(address, reconnectStrategyFactory, new PipelineInitializer() {
             @Override
             public void initializeChannel(final SocketChannel ch, final Promise<BGPSessionImpl> promise) {
                 ch.pipeline().addLast(TestClientDispatcher.this.hf.getDecoders());

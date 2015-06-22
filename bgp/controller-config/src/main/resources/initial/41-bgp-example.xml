@@ -18,7 +18,6 @@
         <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom?module=opendaylight-md-sal-dom&amp;revision=2013-10-28</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:netty?module=netty&amp;revision=2013-11-19</capability>
-        <capability>urn:opendaylight:params:xml:ns:yang:controller:protocol:framework?module=protocol-framework&amp;revision=2014-03-13</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:topology?module=odl-topology-api-cfg&amp;revision=2013-11-15</capability>
     </required-capabilities>
     <configuration>
@@ -26,7 +25,7 @@
         <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
             <modules xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
                 <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:protocol:framework">prefix:timed-reconnect-strategy-factory</type>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">prefix:timed-reconnect-strategy-factory</type>
                     <name>example-reconnect-strategy-factory</name>
                     <min-sleep>1000</min-sleep>
                     <max-sleep>180000</max-sleep>
@@ -147,11 +146,11 @@
                         <name>runtime-mapping-singleton</name>
                     </codec-tree-factory>
                     <session-reconnect-strategy>
-                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:protocol:framework">prefix:reconnect-strategy-factory</type>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">prefix:reconnect-strategy-factory</type>
                         <name>example-reconnect-strategy-factory</name>
                     </session-reconnect-strategy>
                     <tcp-reconnect-strategy>
-                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:protocol:framework">prefix:reconnect-strategy-factory</type>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">prefix:reconnect-strategy-factory</type>
                         <name>example-reconnect-strategy-factory</name>
                     </tcp-reconnect-strategy>
                 </module>
@@ -198,7 +197,7 @@
 
             <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
                 <service>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:protocol:framework">prefix:reconnect-strategy-factory</type>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">prefix:reconnect-strategy-factory</type>
                     <instance>
                         <name>example-reconnect-strategy-factory</name>
                         <provider>/config/modules/module[name='timed-reconnect-strategy-factory']/instance[name='example-reconnect-strategy-factory']</provider>

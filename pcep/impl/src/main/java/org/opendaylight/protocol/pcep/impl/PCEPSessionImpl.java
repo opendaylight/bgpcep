@@ -14,7 +14,10 @@ import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.concurrent.Future;
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -22,7 +25,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
-import org.opendaylight.protocol.framework.AbstractProtocolSession;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
@@ -53,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * Implementation of PCEPSession. (Not final for testing.)
  */
 @VisibleForTesting
-public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements PCEPSession {
+public class PCEPSessionImpl extends SimpleChannelInboundHandler<Object> implements PCEPSession, Closeable {
     /**
      * System.nanoTime value about when was sent the last message Protected to be updated also in tests.
      */
@@ -261,7 +263,9 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
         this.close();
     }
 
-    @Override
+    /**
+     * Called when reached the end of input stream while reading.
+     */
     public synchronized void endOfInput() {
         if (!this.closed) {
             this.listener.onSessionDown(this, new IOException("End of input detected. Close the session."));
@@ -312,7 +316,6 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
      *
      * @param msg incoming message
      */
-    @Override
     public synchronized void handleMessage(final Message msg) {
         // Update last reception time
         this.lastMessageReceivedAt = System.nanoTime();
@@ -353,7 +356,9 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
         return toStringHelper;
     }
 
-    @Override
+    /**
+     * Called when the session is added to the pipeline.
+     */
     @VisibleForTesting
     public void sessionUp() {
         this.listener.onSessionUp(this);
@@ -386,5 +391,29 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
     @Override
     public void resetStats() {
         this.sessionState.reset();
+    }
+
+    @Override
+    public final void channelInactive(final ChannelHandlerContext ctx) {
+        LOG.debug("Channel {} inactive.", ctx.channel());
+        endOfInput();
+        try {
+            // Forward channel inactive event, all handlers in pipeline might be interested in the event e.g. close channel handler of reconnect promise
+            super.channelInactive(ctx);
+        } catch (final Exception e) {
+            throw new RuntimeException("Failed to delegate channel inactive event on channel " + ctx.channel(), e);
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    protected final void channelRead0(final ChannelHandlerContext ctx, final Object msg) {
+        LOG.debug("Message was received: {}", msg);
+        handleMessage((Message) msg);
+    }
+
+    @Override
+    public final void handlerAdded(final ChannelHandlerContext ctx) {
+        sessionUp();
     }
 }

@@ -16,26 +16,22 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
-import org.opendaylight.protocol.framework.AbstractDispatcher;
-import org.opendaylight.protocol.framework.SessionListenerFactory;
-import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
-import org.opendaylight.protocol.pcep.PCEPSessionListener;
+import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.tcpmd5.api.KeyMapping;
 import org.opendaylight.tcpmd5.netty.MD5ChannelFactory;
 import org.opendaylight.tcpmd5.netty.MD5ChannelOption;
 import org.opendaylight.tcpmd5.netty.MD5ServerChannelFactory;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of PCEPDispatcher.
  */
-public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEPSessionListener> implements PCEPDispatcher {
+public class PCEPDispatcherImpl extends PCEPAbstractDispatcher implements PCEPDispatcher {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPDispatcherImpl.class);
-    private final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf;
+    private final PCEPSessionNegotiatorFactory snf;
     private final MD5ServerChannelFactory<?> scf;
     private final MD5ChannelFactory<?> cf;
     private final PCEPHandlerFactory hf;
@@ -50,7 +46,7 @@ public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEP
      * @param workerGroup handles the traffic of accepted connection
      */
     public PCEPDispatcherImpl(final MessageRegistry registry,
-        final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> negotiatorFactory,
+        final PCEPSessionNegotiatorFactory negotiatorFactory,
         final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
         this(registry, negotiatorFactory, bossGroup, workerGroup, null, null);
     }
@@ -66,7 +62,7 @@ public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEP
      * @param scf MD5ServerChannelFactory
      */
     public PCEPDispatcherImpl(final MessageRegistry registry,
-        final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> negotiatorFactory,
+        final PCEPSessionNegotiatorFactory negotiatorFactory,
         final EventLoopGroup bossGroup, final EventLoopGroup workerGroup, final MD5ChannelFactory<?> cf,
         final MD5ServerChannelFactory<?> scf) {
         super(bossGroup, workerGroup);
@@ -78,7 +74,7 @@ public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEP
 
     @Override
     public synchronized ChannelFuture createServer(final InetSocketAddress address,
-        final SessionListenerFactory<PCEPSessionListener> listenerFactory) {
+        final PCEPSessionListenerFactory listenerFactory) {
         return createServer(address, null, listenerFactory);
     }
 
@@ -117,9 +113,9 @@ public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEP
 
     @Override
     public synchronized ChannelFuture createServer(final InetSocketAddress address, final KeyMapping keys,
-        final SessionListenerFactory<PCEPSessionListener> listenerFactory) {
+        final PCEPSessionListenerFactory listenerFactory) {
         this.keys = keys;
-        final ChannelFuture ret = super.createServer(address, new PipelineInitializer<PCEPSessionImpl>() {
+        final ChannelFuture ret = super.createServer(address, new PipelineInitializer() {
             @Override
             public void initializeChannel(final SocketChannel ch, final Promise<PCEPSessionImpl> promise) {
                 ch.pipeline().addLast(PCEPDispatcherImpl.this.hf.getDecoders());

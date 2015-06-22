@@ -12,6 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
@@ -70,7 +71,7 @@ public class SimpleSessionListenerTest {
     }
 
     @Test
-    public void testSessionListenerPcRpt() throws UnknownHostException {
+    public void testSessionListenerPcRpt() throws UnknownHostException, IOException {
         final SimpleSessionListener sessionListser = new SimpleSessionListener(1, false, InetAddress.getByName(IP_ADDRESS));
 
         sessionListser.onSessionUp(this.mockedSession);
@@ -87,7 +88,11 @@ public class SimpleSessionListenerTest {
         assertTrue(this.sendMessages.get(2) instanceof Pcrpt);
 
         sessionListser.onSessionDown(mockedSession, new Exception());
-        Mockito.verify(this.mockedSession, Mockito.times(1)).close();
+        try {
+            Mockito.verify(this.mockedSession, Mockito.times(1)).close();
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     @Test

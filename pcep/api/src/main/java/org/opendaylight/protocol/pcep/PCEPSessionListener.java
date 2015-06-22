@@ -7,12 +7,17 @@
  */
 package org.opendaylight.protocol.pcep;
 
-import org.opendaylight.protocol.framework.SessionListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 /**
  * Listener that receives session informations from the session.
  */
-public interface PCEPSessionListener extends SessionListener<Message, PCEPSession, PCEPTerminationReason> {
+public interface PCEPSessionListener {
+    void onSessionUp(PCEPSession var1);
 
+    void onSessionDown(PCEPSession var1, Exception var2);
+
+    void onSessionTerminated(PCEPSession var1, PCEPTerminationReason var2);
+
+    void onMessage(PCEPSession var1, Message var2);
 }

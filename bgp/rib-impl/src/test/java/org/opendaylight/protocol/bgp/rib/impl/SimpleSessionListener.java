@@ -22,12 +22,9 @@ import org.slf4j.LoggerFactory;
  */
 public class SimpleSessionListener implements ReusableBGPPeer {
 
-    private final List<Notification> listMsg = Lists.newArrayList();
-
-    public boolean up = false;
-
     private static final Logger LOG = LoggerFactory.getLogger(SimpleSessionListener.class);
-
+    private final List<Notification> listMsg = Lists.newArrayList();
+    public boolean up = false;
     public boolean down = false;
 
     private BGPSession session;
@@ -64,7 +61,11 @@ public class SimpleSessionListener implements ReusableBGPPeer {
     public void releaseConnection() {
         LOG.debug("Releasing connection");
         if (this.session != null) {
-            this.session.close();
+            try {
+                this.session.close();
+            } catch (final Exception ei) {
+                LOG.warn("Error closing session", ei);
+            }
         }
     }
 

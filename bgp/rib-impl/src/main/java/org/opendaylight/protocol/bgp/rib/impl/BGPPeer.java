@@ -252,7 +252,12 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
             this.runtimeReg = null;
         }
         if (this.session != null) {
-            this.session.close();
+            try {
+                this.session.close();
+            }
+            catch (final Exception e) {
+                LOG.warn("Error closing session", e);
+            }
             this.session = null;
         }
     }

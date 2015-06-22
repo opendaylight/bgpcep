@@ -46,7 +46,6 @@
         <feature version='${project.version}'>odl-bgpcep-pcep-dependencies</feature>
         <bundle>mvn:org.opendaylight.bgpcep/rsvp-api/{{VERSION}}</bundle>
         <feature version='${tcpmd5.version}'>odl-tcpmd5-netty</feature>
-        <feature version='${protocol-framework.version}'>odl-protocol-framework</feature>
         <feature version='${config.version}'>odl-config-netty</feature>
         <bundle>mvn:org.opendaylight.bgpcep/pcep-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/pcep-spi/{{VERSION}}</bundle>
