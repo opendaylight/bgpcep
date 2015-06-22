@@ -15,10 +15,10 @@ module odl-bgp-rib-impl-cfg {
     import opendaylight-md-sal-dom {prefix sal; revision-date 2013-10-28; }
     import netty { prefix netty; revision-date 2013-11-19; }
     import config { prefix config; revision-date 2013-04-05; }
-    import protocol-framework { prefix pf; revision-date 2014-03-13; }
     import odl-tcpmd5-cfg { prefix tcpmd5; revision-date 2014-04-27; }
     import odl-tcpmd5-netty-cfg { prefix tcpmd5n; revision-date 2014-04-27; }
     import rpc-context { prefix rpcx; revision-date 2013-06-17; }
+
 
     organization "Cisco Systems, Inc.";
 
@@ -154,8 +154,7 @@ module odl-bgp-rib-impl-cfg {
         config:java-name-prefix StrictBgpPeerRegistry;
     }
 
-
-     augment "/config:modules/config:module/config:configuration" {
+    augment "/config:modules/config:module/config:configuration" {
         case strict-bgp-peer-registry {
             when "/config:modules/config:module/config:type = 'strict-bgp-peer-registry'";
         }
@@ -620,7 +619,7 @@ module odl-bgp-rib-impl-cfg {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity pf:reconnect-strategy-factory;
+                        config:required-identity ribspi:reconnect-strategy-factory;
                     }
                 }
             }
@@ -629,7 +628,7 @@ module odl-bgp-rib-impl-cfg {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity pf:reconnect-strategy-factory;
+                        config:required-identity ribspi:reconnect-strategy-factory;
                     }
                 }
             }

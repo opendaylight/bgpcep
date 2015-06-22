@@ -24,17 +24,16 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.protocol.framework.NeverReconnectStrategy;
-import org.opendaylight.protocol.framework.ReconnectStrategy;
-import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
-import org.opendaylight.protocol.framework.SessionListenerFactory;
-import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
-import org.opendaylight.protocol.framework.TimedReconnectStrategy;
+import org.opendaylight.protocol.bgp.rib.protocol.NeverReconnectStrategy;
+import org.opendaylight.protocol.bgp.rib.protocol.ReconnectStrategy;
+import org.opendaylight.protocol.bgp.rib.protocol.ReconnectStrategyFactory;
+import org.opendaylight.protocol.bgp.rib.protocol.TimedReconnectStrategy;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
+import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.ietf.initiated00.CrabbeInitiatedActivator;
 import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
-import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
+import org.opendaylight.protocol.pcep.impl.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 import org.opendaylight.tcpmd5.api.KeyMapping;
@@ -43,7 +42,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.cra
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.StatefulBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
@@ -61,7 +59,8 @@ public final class Main {
     private static final int RECONNECT_STRATEGY_TIMEOUT = 2000;
     private static final InetAddress LOCALHOST = InetAddresses.forString("127.0.0.1");
 
-    private Main() { }
+    private Main() {
+    }
 
     public static void main(final String[] args) throws InterruptedException, ExecutionException, UnknownHostException {
         InetSocketAddress localAddress = new InetSocketAddress(LOCALHOST, DEFAULT_LOCAL_PORT);
@@ -107,37 +106,38 @@ public final class Main {
     }
 
     public static void createPCCs(final int lspsPerPcc, final boolean pcerr, final int pccCount,
-            final InetSocketAddress localAddress, final List<InetSocketAddress> remoteAddress, final short keepalive, final short deadtimer,
-            final String password, final int reconnectTime) throws InterruptedException, ExecutionException {
+                                  final InetSocketAddress localAddress, final List<InetSocketAddress> remoteAddress, final short keepalive, final short deadtimer,
+                                  final String password, final int reconnectTime) throws InterruptedException, ExecutionException {
         startActivators();
         InetAddress currentAddress = localAddress.getAddress();
         final Open openMessage = getOpenMessage(keepalive, deadtimer);
         final PCCDispatcher pccDispatcher = new PCCDispatcher(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(),
-                getSessionNegotiatorFactory(openMessage));
+            getSessionNegotiatorFactory(openMessage));
         for (int i = 0; i < pccCount; i++) {
             createPCC(lspsPerPcc, pcerr, new InetSocketAddress(currentAddress, localAddress.getPort()),
-                    remoteAddress, openMessage, pccDispatcher, password, reconnectTime);
+                remoteAddress, openMessage, pccDispatcher, password, reconnectTime);
             currentAddress = InetAddresses.increment(currentAddress);
         }
     }
 
     @SuppressWarnings("deprecation")
     private static void createPCC(final int lspsPerPcc, final boolean pcerr, final InetSocketAddress localAddress,
-            final List<InetSocketAddress> remoteAddress, final Open openMessage, final PCCDispatcher pccDispatcher,
-            final String password, final int reconnectTime) throws InterruptedException, ExecutionException {
-        final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf = getSessionNegotiatorFactory(openMessage);
+                                  final List<InetSocketAddress> remoteAddress, final Open openMessage, final PCCDispatcher pccDispatcher,
+                                  final String password, final int reconnectTime) throws InterruptedException, ExecutionException {
+        final PCEPSessionNegotiatorFactory snf = getSessionNegotiatorFactory(openMessage);
         for (final InetSocketAddress pceAddress : remoteAddress) {
-            pccDispatcher.createClient(localAddress, pceAddress, reconnectTime == -1 ? getNeverReconnectStrategyFactory() : getTimedReconnectStrategyFactory(reconnectTime), new SessionListenerFactory<PCEPSessionListener>() {
-                @Override
-                public PCEPSessionListener getSessionListener() {
-                    return new SimpleSessionListener(lspsPerPcc, pcerr, localAddress.getAddress());
-                }
-            }, snf, getKeyMapping(pceAddress.getAddress(), password));
+            pccDispatcher.createClient(localAddress, pceAddress, reconnectTime == -1 ?
+                getNeverReconnectStrategyFactory() : getTimedReconnectStrategyFactory(reconnectTime), new PCEPSessionListenerFactory() {
+                    @Override
+                    public PCEPSessionListener getSessionListener() {
+                        return new SimpleSessionListener(lspsPerPcc, pcerr, localAddress.getAddress());
+                    }
+                }, snf, getKeyMapping(pceAddress.getAddress(), password));
         }
     }
 
     @SuppressWarnings("deprecation")
-    private static SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> getSessionNegotiatorFactory(final Open openMessage) {
+    private static PCEPSessionNegotiatorFactory getSessionNegotiatorFactory(final Open openMessage) {
         return new DefaultPCEPSessionNegotiatorFactory(openMessage, 0);
     }
 
@@ -175,9 +175,9 @@ public final class Main {
 
     private static Open getOpenMessage(final short keepalive, final short deadtimer) {
         final Tlvs1 tlvs1 = new Tlvs1Builder().setStateful(new StatefulBuilder().addAugmentation(Stateful1.class,
-                new Stateful1Builder().setInitiation(true).build()).setLspUpdateCapability(true).build()).build();
+            new Stateful1Builder().setInitiation(true).build()).setLspUpdateCapability(true).build()).build();
         return new OpenBuilder().setTlvs(new TlvsBuilder().addAugmentation(Tlvs1.class, tlvs1).build())
-                .setKeepalive(keepalive).setDeadTimer(deadtimer).setSessionId((short) 0).build();
+            .setKeepalive(keepalive).setDeadTimer(deadtimer).setSessionId((short) 0).build();
     }
 
     private static void startActivators() {

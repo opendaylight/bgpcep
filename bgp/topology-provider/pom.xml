@@ -134,10 +134,6 @@
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-binding-config</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>protocol-framework</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>io.netty</groupId>
@@ -215,11 +211,7 @@
             <artifactId>netty-event-executor-config</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>protocol-framework</artifactId>
-            <type>test-jar</type>
-        </dependency>
+
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-binding-broker-impl</artifactId>
@@ -229,6 +221,12 @@
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>netty-threadgroup-config</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-rib-spi</artifactId>
+            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
     </dependencies>

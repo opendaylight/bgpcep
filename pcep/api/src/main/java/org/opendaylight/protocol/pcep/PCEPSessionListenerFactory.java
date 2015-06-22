@@ -7,11 +7,9 @@
  */
 package org.opendaylight.protocol.pcep;
 
-import org.opendaylight.protocol.framework.SessionListenerFactory;
-
 /**
  * Factory for generating PCEP Session Listeners. Used by a server.
  */
-public interface PCEPSessionListenerFactory extends SessionListenerFactory<PCEPSessionListener> {
-
+public interface PCEPSessionListenerFactory {
+    PCEPSessionListener getSessionListener();
 }

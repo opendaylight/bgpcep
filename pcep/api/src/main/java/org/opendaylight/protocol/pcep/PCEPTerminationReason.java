@@ -9,9 +9,14 @@ package org.opendaylight.protocol.pcep;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
-import org.opendaylight.protocol.framework.TerminationReason;
 
-public abstract class PCEPTerminationReason implements TerminationReason {
+public abstract class PCEPTerminationReason{
+
+    protected final TerminationReason reason;
+
+    protected PCEPTerminationReason(final TerminationReason reason) {
+        this.reason = reason;
+    }
 
     @Override
     public final String toString() {
@@ -19,4 +24,8 @@ public abstract class PCEPTerminationReason implements TerminationReason {
     }
 
     protected abstract ToStringHelper addToStringAttributes(ToStringHelper toStringHelper);
+
+    public String getErrorMessage() {
+        return this.reason.toString();
+    }
 }

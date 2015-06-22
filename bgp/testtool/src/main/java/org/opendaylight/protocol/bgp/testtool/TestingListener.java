@@ -34,7 +34,11 @@ public class TestingListener implements ReusableBGPPeer {
     @Override
     public void onSessionDown(final BGPSession session, final Exception e) {
         LOG.info("Client Listener: Connection lost.");
-        session.close();
+        try {
+            session.close();
+        } catch (Exception e1) {
+            LOG.warn("Error on closing session",e1);
+        }
     }
 
     @Override
