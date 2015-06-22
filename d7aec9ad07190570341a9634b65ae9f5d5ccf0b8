@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_04582955",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/RIBSupport.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-22T10:58:11Z",
+      "side": 1,
+      "message": "this change is not backwards compatible with Lithium API, as the semantic meaning of this argument changes, but there is no compile-time feedback.\n\nIntroduce either a new interface or non-overlapping new methods to cover the extended functionality.",
+      "revId": "d7aec9ad07190570341a9634b65ae9f5d5ccf0b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
