@@ -61,6 +61,7 @@ public final class SrNodeAttributesParser {
         throw new UnsupportedOperationException();
     }
 
+    private static final int TYPE = 149; // suggested value
     private static final int FLAGS_SIZE = 8;
 
     /* SR Capabilities flags */
@@ -97,7 +98,7 @@ public final class SrNodeAttributesParser {
                 sub = new SidLabelCaseBuilder().setSid(new SidLabel(ByteArray.readAllBytes(value))).build();
                 break;
             case ERO_METRIC:
-                sub = new EroMetricCaseBuilder().setEroMetric(new TeMetric(value.readUnsignedInt())).build();
+                sub = new EroMetricCaseBuilder().setEroMetric(new TeMetric(byteBufToNumber(length, value))).build();
                 break;
             case ERO_IPV4:
                 final Ipv4EroCaseBuilder ero4 = new Ipv4EroCaseBuilder().setLoose(value.readUnsignedByte() != 0);
@@ -111,7 +112,7 @@ public final class SrNodeAttributesParser {
                 break;
             case UNNUMBERED_ERO:
                 final UnnumberedEroCaseBuilder un = new UnnumberedEroCaseBuilder().setLoose(value.readUnsignedByte() != 0);
-                un.setRouterId(readRouterId(value));
+                un.setRouterId(readRouterId(length, value));
                 un.setInterfaceId(value.readUnsignedInt());
                 sub = un.build();
                 break;
@@ -127,7 +128,7 @@ public final class SrNodeAttributesParser {
                 break;
             case UNNUMBERED_BACKUP_ERO:
                 final UnnumberedEroBackupCaseBuilder unb = new UnnumberedEroBackupCaseBuilder().setLoose(value.readUnsignedByte() != 0);
-                unb.setRouterId(readRouterId(value));
+                unb.setRouterId(readRouterId(length, value));
                 unb.setInterfaceId(value.readUnsignedInt());
                 sub = unb.build();
                 break;
@@ -141,8 +142,13 @@ public final class SrNodeAttributesParser {
         return subs;
     }
 
-    private static byte[] readRouterId(final ByteBuf value) {
-        if (value.readableBytes() == UNNUMBERED_4_SIZE) {
+    private static byte[] readRouterId(final int length, final ByteBuf value) {
+        /*
+         *  when length of subTlv is
+         *      8(+1 byte flags+reserved): read 4 bytes
+         *      20(+1 byte flags+reserved): read 16 bytes
+         */
+        if (length == UNNUMBERED_4_SIZE+1) {
             return ByteArray.readBytes(value, Ipv4Util.IP4_LENGTH);
         }
         return ByteArray.readBytes(value, Ipv6Util.IPV6_LENGTH);
@@ -150,13 +156,15 @@ public final class SrNodeAttributesParser {
 
     public static SrSidLabel parseSidLabelBinding(final ByteBuf buffer) {
         final SrSidLabelBuilder builder = new SrSidLabelBuilder();
+        // read TYPE and LENGTH (2B)
+        buffer.readUnsignedShort();
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         builder.setSidLabelFlags(new SidLabelFlags(flags.get(AFI), flags.get(MIRROR)));
         builder.setWeight(new Weight(buffer.readUnsignedByte()));
         builder.setValueRange(buffer.readUnsignedShort());
-        final int length = buffer.readUnsignedByte();
+        final int bitLength = buffer.getUnsignedByte(buffer.readerIndex());
         IpPrefix prefix = null;
-        if (length == Ipv4Util.IP4_LENGTH) {
+        if (bitLength / Byte.SIZE == Ipv4Util.IP4_LENGTH) {
             prefix = new IpPrefix(Ipv4Util.prefixForByteBuf(buffer));
         } else {
             prefix = new IpPrefix(Ipv6Util.prefixForByteBuf(buffer));
@@ -177,7 +185,7 @@ public final class SrNodeAttributesParser {
                 TlvUtil.writeSrTLV(SID_TLV_TYPE, Unpooled.wrappedBuffer(((SidLabelCase)type).getSid().getValue()), buffer);
             } else if (type instanceof EroMetricCase) {
                 final ByteBuf b = Unpooled.buffer();
-                ByteBufWriteUtil.writeUnsignedInt(((EroMetricCase)type).getEroMetric().getValue(), b);
+                writeMinimumBytes(((EroMetricCase)type).getEroMetric().getValue(), b);
                 TlvUtil.writeSrTLV(ERO_METRIC, b, buffer);
             } else if (type instanceof Ipv4EroCase) {
                 final ByteBuf b = Unpooled.buffer(Ipv4Util.IP4_LENGTH + FLAGS_SIZE);
@@ -226,18 +234,22 @@ public final class SrNodeAttributesParser {
         final BitArray bs = new BitArray(FLAGS_SIZE);
         bs.set(AFI, flags.isAddressFamily());
         bs.set(MIRROR, flags.isMirrorContext());
-        bs.toByteBuf(buffer);
-        buffer.writeByte(binding.getWeight().getValue());
-        buffer.writeShort(binding.getValueRange());
+        final ByteBuf tempBuf = Unpooled.buffer();
+        bs.toByteBuf(tempBuf);
+        tempBuf.writeByte(binding.getWeight().getValue());
+        tempBuf.writeShort(binding.getValueRange());
         final IpPrefix prefix = binding.getFecPrefix();
         if (prefix.getIpv4Prefix() != null) {
-            buffer.writeBytes(Ipv4Util.bytesForPrefixBegin(prefix.getIpv4Prefix()));
+            tempBuf.writeBytes(Ipv4Util.bytesForPrefixBegin(prefix.getIpv4Prefix()));
         } else {
-            buffer.writeBytes(Ipv6Util.bytesForPrefixBegin(prefix.getIpv6Prefix()));
+            tempBuf.writeBytes(Ipv6Util.bytesForPrefixBegin(prefix.getIpv6Prefix()));
         }
         if (binding.getSubTlvs() != null) {
-            serializeSidSubtlvs(binding.getSubTlvs(), buffer);
+            serializeSidSubtlvs(binding.getSubTlvs(), tempBuf);
         }
+        buffer.writeByte(TYPE);
+        buffer.writeByte(tempBuf.readableBytes());
+        buffer.writeBytes(ByteArray.getAllBytes(tempBuf));
     }
 
     public static SrCapabilities parseSrCapabilities(final ByteBuf buffer) {
@@ -278,6 +290,44 @@ public final class SrNodeAttributesParser {
             for (final Algorithm a : alg.getAlgorithm()) {
                 buffer.writeByte(a.getIntValue());
             }
+        }
+    }
+
+    // TODO move to ByteBufWriteUtil ?
+    private static final int BYTE_MAX_VALUE = 255;
+    private static void writeMinimumBytes(final Long value, final ByteBuf output) {
+        switch (value.intValue() / (BYTE_MAX_VALUE+1)) {
+        case 0:
+            output.writeByte(value.intValue());
+            break;
+        case 1:
+            ByteBufWriteUtil.writeShort(value.shortValue(), output);
+            break;
+        case 2:
+            ByteBufWriteUtil.writeMedium(value.intValue(), output);
+            break;
+        case 3:
+            ByteBufWriteUtil.writeInt(value.intValue(), output);
+            break;
+        default:
+            ByteBufWriteUtil.writeUnsignedInt(value, output);
+            break;
+        }
+    }
+
+    // TODO move to ByteArray ?
+    private static long byteBufToNumber(final int byteLength, final ByteBuf inputBuf) {
+        switch (byteLength) {
+        case 1:
+            return inputBuf.readByte();
+        case 2:
+            return inputBuf.readShort();
+        case 3:
+            return inputBuf.readMedium();
+        case 4:
+            return inputBuf.readInt();
+        default:
+            return inputBuf.readUnsignedInt();
         }
     }
 }
