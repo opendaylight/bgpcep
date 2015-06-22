@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_843bd9ea",
+        "filename": "bgp/bmp-api/src/main/yang/bmp-monitor.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-22T11:00:16Z",
+      "side": 1,
+      "message": "does this have any relationship with BGP router id? Are there any guidelines as to how the URI should be constructed?",
+      "revId": "5d630f41c4d91a9eb512436e9667bcbfef17400f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
