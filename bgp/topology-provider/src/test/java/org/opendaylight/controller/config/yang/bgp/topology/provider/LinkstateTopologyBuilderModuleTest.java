@@ -41,6 +41,7 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
         paths.add("/META-INF/yang/bgp-segment-routing.yang");
         paths.add("/META-INF/yang/rsvp.yang");
         paths.add("/META-INF/yang/iana.yang");
+        paths.add("/META-INF/yang/bgp-epe.yang");
         return paths;
     }
 
