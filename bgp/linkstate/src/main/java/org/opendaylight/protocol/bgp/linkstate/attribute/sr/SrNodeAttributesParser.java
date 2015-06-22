@@ -154,9 +154,9 @@ public final class SrNodeAttributesParser {
         builder.setSidLabelFlags(new SidLabelFlags(flags.get(AFI), flags.get(MIRROR)));
         builder.setWeight(new Weight(buffer.readUnsignedByte()));
         builder.setValueRange(buffer.readUnsignedShort());
-        final int length = buffer.readUnsignedByte();
+        final int bitLength = buffer.getUnsignedByte(buffer.readerIndex());
         IpPrefix prefix = null;
-        if (length == Ipv4Util.IP4_LENGTH) {
+        if (bitLength / Byte.SIZE == Ipv4Util.IP4_LENGTH) {
             prefix = new IpPrefix(Ipv4Util.prefixForByteBuf(buffer));
         } else {
             prefix = new IpPrefix(Ipv6Util.prefixForByteBuf(buffer));
