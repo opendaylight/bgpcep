@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_baddd016",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/sr/SrNodeAttributesParser.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-06-22T16:32:56Z",
+      "side": 1,
+      "message": "Delete this",
+      "range": {
+        "startLine": 94,
+        "startChar": 6,
+        "endLine": 94,
+        "endChar": 16
+      },
+      "revId": "0db565df276c1c31131bfd3d35da55d9c4021d5e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_dae20cd5",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/sr/SrNodeAttributesParser.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-06-22T16:32:56Z",
+      "side": 1,
+      "message": "recheck",
+      "range": {
+        "startLine": 123,
+        "startChar": 35,
+        "endLine": 123,
+        "endChar": 54
+      },
+      "revId": "0db565df276c1c31131bfd3d35da55d9c4021d5e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_3ad1c0fb",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/sr/SrNodeAttributesParser.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-06-22T16:32:56Z",
+      "side": 1,
+      "message": "check difference again",
+      "range": {
+        "startLine": 211,
+        "startChar": 18,
+        "endLine": 211,
+        "endChar": 27
+      },
+      "revId": "0db565df276c1c31131bfd3d35da55d9c4021d5e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
