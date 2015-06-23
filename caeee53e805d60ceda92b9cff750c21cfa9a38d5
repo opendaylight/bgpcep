@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_da88c9e9",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/sr/SrNodeAttributesParser.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-06-23T06:56:26Z",
+      "side": 1,
+      "message": "Method is used for writing number value into minimum bytes possible (if suitable)",
+      "range": {
+        "startLine": 298,
+        "startChar": 24,
+        "endLine": 298,
+        "endChar": 41
+      },
+      "revId": "caeee53e805d60ceda92b9cff750c21cfa9a38d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_7a6df531",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/sr/SrNodeAttributesParser.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-06-23T06:56:26Z",
+      "side": 1,
+      "message": "Subsequent method for reading number that can occupy various counts of bytes.",
+      "range": {
+        "startLine": 319,
+        "startChar": 24,
+        "endLine": 319,
+        "endChar": 39
+      },
+      "revId": "caeee53e805d60ceda92b9cff750c21cfa9a38d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
