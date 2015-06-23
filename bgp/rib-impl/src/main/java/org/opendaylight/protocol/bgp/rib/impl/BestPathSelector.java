@@ -104,8 +104,8 @@ final class BestPathSelector {
         // - we assume that all paths are learned
 
         // 4. prefer the path with the shortest AS_PATH.
-        if (this.bestState.getAsPathLength() > state.getAsPathLength()) {
-            return true;
+        if (this.bestState.getAsPathLength() != state.getAsPathLength()) {
+            return this.bestState.getAsPathLength() < state.getAsPathLength();
         }
 
         // 5. prefer the path with the lowest origin type
