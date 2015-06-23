@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_ba44ed74",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/sr/SrNodeAttributesParser.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-23T08:54:19Z",
+      "side": 1,
+      "message": "this line will read the flags field",
+      "revId": "f1460aa28502515e86feb1f6cc8dbb09832d4da1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_7a5e5547",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/sr/SrNodeAttributesParser.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-23T08:54:19Z",
+      "side": 1,
+      "message": "then why do we need to do -1?",
+      "revId": "f1460aa28502515e86feb1f6cc8dbb09832d4da1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
