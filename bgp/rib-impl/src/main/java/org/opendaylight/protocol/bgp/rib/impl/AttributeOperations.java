@@ -151,7 +151,7 @@ final class AttributeOperations {
         if (maybeOldAsSegments.isPresent() && !((UnkeyedListNode) maybeOldAsSegments.get()).getValue().isEmpty()) {
             // Builder of inner list
             final CollectionNodeBuilder<UnkeyedListEntryNode, UnkeyedListNode> ilb = Builders.unkeyedListBuilder();
-            ilb.withNodeIdentifier(this.asPathSegments);
+            ilb.withNodeIdentifier(this.asPathSequence);
             ilb.withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(this.asPathSequence).withChild(ImmutableNodes.leafNode(this.asPathId, localAs)).build());
 
             /*
@@ -258,13 +258,13 @@ final class AttributeOperations {
             final AugmentationIdentifier ai = (AugmentationIdentifier) child.getIdentifier();
             for (final QName name : ai.getPossibleChildNames()) {
                 LOG.trace("Augmented QNAME {}", name);
-                if (transitiveCollection.contains(name)) {
+                if (this.transitiveCollection.contains(name)) {
                     return true;
                 }
             }
             return false;
         }
-        if (transitiveCollection.contains(child.getNodeType())) {
+        if (this.transitiveCollection.contains(child.getNodeType())) {
             return true;
         }
         if (UnrecognizedAttributes.QNAME.equals(child.getNodeType())) {
