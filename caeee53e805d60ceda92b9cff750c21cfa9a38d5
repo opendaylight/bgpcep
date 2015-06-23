@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "7a7fa997_3ae53da8",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/sr/SrNodeAttributesParser.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-23T07:23:44Z",
+      "side": 1,
+      "message": "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-02#section-2.4.6",
+      "revId": "caeee53e805d60ceda92b9cff750c21cfa9a38d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_5ae279a0",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/sr/SrNodeAttributesParser.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-23T07:23:44Z",
+      "side": 1,
+      "message": "read RESERVED here",
+      "revId": "caeee53e805d60ceda92b9cff750c21cfa9a38d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_daed298d",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/sr/SrNodeAttributesParser.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-23T07:23:44Z",
+      "side": 1,
+      "message": "note where this method is called, type and length are already parsed",
+      "revId": "caeee53e805d60ceda92b9cff750c21cfa9a38d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a7fa997_da88c9e9",
         "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/sr/SrNodeAttributesParser.java",
         "patchSetId": 8
@@ -13,6 +64,30 @@
       "writtenOn": "2015-06-23T06:56:26Z",
       "side": 1,
       "message": "Method is used for writing number value into minimum bytes possible (if suitable)",
+      "range": {
+        "startLine": 298,
+        "startChar": 24,
+        "endLine": 298,
+        "endChar": 41
+      },
+      "revId": "caeee53e805d60ceda92b9cff750c21cfa9a38d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_9affb134",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/sr/SrNodeAttributesParser.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-23T07:23:44Z",
+      "side": 1,
+      "message": "if you feel the need to comment what the method does, put it in source code, no one is going to look at gerrit commits",
+      "parentUuid": "7a7fa997_da88c9e9",
       "range": {
         "startLine": 298,
         "startChar": 24,
