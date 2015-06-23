@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_c0d1b6ce",
+        "filename": "pcep/impl/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-06-23T21:04:19Z",
+      "side": 1,
+      "message": "This is not correct - if you need to share some code among bgp and pcep move it to some common (neutral) module.",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 21
+      },
+      "revId": "00e7e3bf69f34d5d0aac600c3b81da94a0d5c27c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
