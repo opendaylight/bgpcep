@@ -13,10 +13,8 @@ import static org.junit.Assert.assertNotEquals;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.UnsignedInteger;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.as.path.Segments;
@@ -166,8 +164,8 @@ public class BestPathSelectorTest {
             .addChild(Builders.choiceBuilder().withNodeIdentifier(cSegmentsNid)
                 .addChild(Builders.containerBuilder().withNodeIdentifier(aSetNid)
                     .addChild(Builders.leafSetBuilder().withNodeIdentifier(asSetNid)
-                        .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(asNumberQ, "10")).withValue("10").build())
-                        .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(asNumberQ, "11")).withValue("11").build())
+                        .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(asNumberQ, 10L)).withValue(10L).build())
+                        .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(asNumberQ, 11L)).withValue(11L).build())
                     .build())
                 .build())
             .build())
@@ -177,13 +175,13 @@ public class BestPathSelectorTest {
                 .addChild(Builders.containerBuilder().withNodeIdentifier(aListNid)
                     .addChild(Builders.unkeyedListBuilder().withNodeIdentifier(asSeqNid)
                         .addChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(asSeqNid)
-                            .addChild(Builders.leafBuilder().withNodeIdentifier(asNid).withValue("1").build())
+                            .addChild(Builders.leafBuilder().withNodeIdentifier(asNid).withValue(1L).build())
                         .build())
                         .addChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(asSeqNid)
-                            .addChild(Builders.leafBuilder().withNodeIdentifier(asNid).withValue("2").build())
+                            .addChild(Builders.leafBuilder().withNodeIdentifier(asNid).withValue(2L).build())
                         .build())
                         .addChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(asSeqNid)
-                            .addChild(Builders.leafBuilder().withNodeIdentifier(asNid).withValue("3").build())
+                            .addChild(Builders.leafBuilder().withNodeIdentifier(asNid).withValue(3L).build())
                         .build())
                     .build())
                 .build())
