@@ -16,6 +16,24 @@
       "revId": "5d630f41c4d91a9eb512436e9667bcbfef17400f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_1a9ba119",
+        "filename": "bgp/bmp-api/src/main/yang/bmp-monitor.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-06-23T07:40:08Z",
+      "side": 1,
+      "message": "In this case, the remote Ip address (gained from TCP connection) of router will be used as a identifier.",
+      "parentUuid": "7a7fa997_843bd9ea",
+      "revId": "5d630f41c4d91a9eb512436e9667bcbfef17400f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
