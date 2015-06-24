@@ -101,10 +101,6 @@
             <artifactId>sal-binding-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>protocol-framework</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-binding</artifactId>
         </dependency>
@@ -170,6 +166,12 @@
 
         <!-- Testing dependencies -->
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-rib-spi</artifactId>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
         </dependency>
@@ -231,12 +233,6 @@
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>netty-threadgroup-config</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>protocol-framework</artifactId>
-            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>

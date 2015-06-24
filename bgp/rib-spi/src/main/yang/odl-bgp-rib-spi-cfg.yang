@@ -72,6 +72,5 @@ module odl-bgp-rib-spi-cfg {
             }
         }
     }
-
 }
 

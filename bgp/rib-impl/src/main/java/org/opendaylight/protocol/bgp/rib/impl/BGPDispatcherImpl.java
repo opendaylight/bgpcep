@@ -20,10 +20,8 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
-import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
-import org.opendaylight.protocol.framework.AbstractDispatcher;
-import org.opendaylight.protocol.framework.ReconnectStrategy;
-import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
+import org.opendaylight.protocol.bgp.rib.protocol.ReconnectStrategy;
+import org.opendaylight.protocol.bgp.rib.protocol.ReconnectStrategyFactory;
 import org.opendaylight.tcpmd5.api.KeyMapping;
 import org.opendaylight.tcpmd5.netty.MD5ChannelFactory;
 import org.opendaylight.tcpmd5.netty.MD5ChannelOption;
@@ -33,12 +31,12 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 /**
  * Implementation of BGPDispatcher.
  */
-public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, BGPSessionListener> implements BGPDispatcher, AutoCloseable {
+public final class BGPDispatcherImpl extends BGPAbstractDispatcher implements BGPDispatcher, AutoCloseable {
+    private static final String NEGOTIATOR = "negotiator";
     private final MD5ServerChannelFactory<?> scf;
     private final MD5ChannelFactory<?> cf;
     private final BGPHandlerFactory hf;
     private KeyMapping keys;
-    private static final String NEGOTIATOR = "negotiator";
 
     public BGPDispatcherImpl(final MessageRegistry messageRegistry, final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
         this(messageRegistry, bossGroup, workerGroup, null, null);
@@ -53,9 +51,9 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 
     @Override
     public synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress address,
-        final AsNumber remoteAs, final BGPPeerRegistry listener, final ReconnectStrategy strategy) {
+                                                            final AsNumber remoteAs, final BGPPeerRegistry listener, final ReconnectStrategy strategy) {
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(remoteAs, listener);
-        return super.createClient(address, strategy, new PipelineInitializer<BGPSessionImpl>() {
+        return super.createClient(address, strategy, new PipelineInitializer() {
             @Override
             public void initializeChannel(final SocketChannel ch, final Promise<BGPSessionImpl> promise) {
                 ch.pipeline().addLast(BGPDispatcherImpl.this.hf.getDecoders());
@@ -67,8 +65,8 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 
     @Override
     public Future<Void> createReconnectingClient(final InetSocketAddress address,
-        final AsNumber remoteAs, final BGPPeerRegistry listener, final ReconnectStrategyFactory connectStrategyFactory,
-        final ReconnectStrategyFactory reestablishStrategyFactory) {
+                                                 final AsNumber remoteAs, final BGPPeerRegistry listener, final ReconnectStrategyFactory connectStrategyFactory,
+                                                 final ReconnectStrategyFactory reestablishStrategyFactory) {
         return this.createReconnectingClient(address, remoteAs, listener, connectStrategyFactory, reestablishStrategyFactory,
             null);
     }
@@ -79,12 +77,12 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 
     @Override
     public synchronized Future<Void> createReconnectingClient(final InetSocketAddress address,
-        final AsNumber remoteAs, final BGPPeerRegistry peerRegistry, final ReconnectStrategyFactory connectStrategyFactory,
-        final ReconnectStrategyFactory reestablishStrategyFactory, final KeyMapping keys) {
+                                                              final AsNumber remoteAs, final BGPPeerRegistry peerRegistry, final ReconnectStrategyFactory connectStrategyFactory,
+                                                              final ReconnectStrategyFactory reestablishStrategyFactory, final KeyMapping keys) {
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(remoteAs, peerRegistry);
 
         this.keys = keys;
-        final Future<Void> ret = super.createReconnectingClient(address, connectStrategyFactory, reestablishStrategyFactory.createReconnectStrategy(), new PipelineInitializer<BGPSessionImpl>() {
+        final Future<Void> ret = super.createReconnectingClient(address, connectStrategyFactory, reestablishStrategyFactory.createReconnectStrategy(), new PipelineInitializer() {
             @Override
             public void initializeChannel(final SocketChannel ch, final Promise<BGPSessionImpl> promise) {
                 ch.pipeline().addLast(BGPDispatcherImpl.this.hf.getDecoders());
@@ -107,7 +105,7 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
         final BGPServerSessionNegotiatorFactory snf = new BGPServerSessionNegotiatorFactory(sessionValidator, registry);
 
         this.keys = keys;
-        final ChannelFuture ret = super.createServer(address, new PipelineInitializer<BGPSessionImpl>() {
+        final ChannelFuture ret = super.createServer(address, new PipelineInitializer() {
             @Override
             public void initializeChannel(final SocketChannel ch, final Promise<BGPSessionImpl> promise) {
                 ch.pipeline().addLast(BGPDispatcherImpl.this.hf.getDecoders());
@@ -147,5 +145,4 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
         // Make sure we are doing round-robin processing
         b.childOption(ChannelOption.MAX_MESSAGES_PER_READ, 1);
     }
-
 }
