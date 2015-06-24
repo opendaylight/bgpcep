@@ -294,7 +294,7 @@ final class BestPathState {
         if (maybeSet.isPresent()) {
             final LeafSetNode<?> list = (LeafSetNode<?>)maybeSet.get();
             for (final LeafSetEntryNode<?> as : list.getValue())  {
-                ases.add(new AsNumber(Long.valueOf((String)as.getValue())));
+                ases.add(new AsNumber((Long)as.getValue()));
             }
         }
         return new ASetCaseBuilder().setASet(new ASetBuilder().setAsSet(ases).build()).build();
@@ -312,7 +312,7 @@ final class BestPathState {
                 final Optional<NormalizedNode<?, ?>> maybeAsSeq = NormalizedNodes.findNode(as, this.ids.getAs());
                 if (maybeAsSeq.isPresent()) {
                     final LeafNode<?> asLeaf = (LeafNode<?>)maybeAsSeq.get();
-                    ases.add(new AsSequenceBuilder().setAs(new AsNumber(Long.valueOf((String)asLeaf.getValue()))).build());
+                    ases.add(new AsSequenceBuilder().setAs(new AsNumber((Long)asLeaf.getValue())).build());
                 }
             }
         }

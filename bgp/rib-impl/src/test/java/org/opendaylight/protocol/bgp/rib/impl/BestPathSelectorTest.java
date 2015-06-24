@@ -46,18 +46,56 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableUn
 
 public class BestPathSelectorTest {
 
-    private final QName extensionQName = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2015-03-05", "attributes");
-    private final QName localPrefQName = QName.create(this.extensionQName, "local-pref");
-    private final QName multiExitDiscQName = QName.create(this.extensionQName, "multi-exit-disc");
-    private final QName originQName = QName.create(this.extensionQName, "origin");
-    private final QName asPathQName = QName.create(this.extensionQName, "as-path");
+    static final QName ATTRS_EXTENSION_Q = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2015-03-05", "attributes");
+    private final QName localPrefQName = QName.create(ATTRS_EXTENSION_Q, "local-pref");
+    private final QName multiExitDiscQName = QName.create(ATTRS_EXTENSION_Q, "multi-exit-disc");
+    private final QName originQName = QName.create(ATTRS_EXTENSION_Q, "origin");
+    private final QName asPathQName = QName.create(ATTRS_EXTENSION_Q, "as-path");
     private final UnsignedInteger ROUTER_ID = RouterIds.routerIdForAddress("127.0.0.1");
     private final UnsignedInteger ROUTER_ID2 = RouterIds.routerIdForPeerId(new PeerId("bgp://127.0.0.1"));
     private final UnsignedInteger ROUTER_ID3 = RouterIds.routerIdForPeerId(new PeerId("bgp://127.0.0.2"));
-    private final BestPathState STATE = new BestPathState(createStateFromPrefMedOriginASPath());
-    private final BestPath originBestPath = new BestPath(this.ROUTER_ID, this.STATE);
+    private final BestPathState state = new BestPathState(createStateFromPrefMedOriginASPath());
+    private final BestPath originBestPath = new BestPath(this.ROUTER_ID, this.state);
     private final BestPathSelector selector = new BestPathSelector(20L);
     private DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder;
+
+    static final QName AS_NUMBER_Q = QName.create(ATTRS_EXTENSION_Q, "as-number");
+    static final NodeIdentifier SEGMENTS_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, Segments.QNAME.getLocalName()));
+    static final NodeIdentifier C_SEGMENTS_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, CSegment.QNAME.getLocalName()));
+    static final NodeIdentifier AS_SET_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "as-set"));
+    static final NodeIdentifier A_SET_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, ASet.QNAME.getLocalName()));
+    static final NodeIdentifier A_LIST_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, AList.QNAME.getLocalName()));
+    static final NodeIdentifier AS_SEQ_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, AsSequence.QNAME.getLocalName()));
+    static final NodeIdentifier AS_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "as"));
+
+    static final UnkeyedListEntryNode SET_SEGMENT = Builders.unkeyedListEntryBuilder().withNodeIdentifier(SEGMENTS_NID)
+        .addChild(Builders.choiceBuilder().withNodeIdentifier(C_SEGMENTS_NID)
+            .addChild(Builders.containerBuilder().withNodeIdentifier(A_SET_NID)
+                .addChild(Builders.leafSetBuilder().withNodeIdentifier(AS_SET_NID)
+                    .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, 10L)).withValue(10L).build())
+                    .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, 11L)).withValue(11L).build())
+                .build())
+            .build())
+        .build())
+        .build();
+
+    static final UnkeyedListEntryNode LIST_SEGMENT = Builders.unkeyedListEntryBuilder().withNodeIdentifier(SEGMENTS_NID)
+        .addChild(Builders.choiceBuilder().withNodeIdentifier(C_SEGMENTS_NID)
+            .addChild(Builders.containerBuilder().withNodeIdentifier(A_LIST_NID)
+                .addChild(Builders.unkeyedListBuilder().withNodeIdentifier(AS_SEQ_NID)
+                    .addChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(AS_SEQ_NID)
+                        .addChild(Builders.leafBuilder().withNodeIdentifier(AS_NID).withValue(1L).build())
+                    .build())
+                    .addChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(AS_SEQ_NID)
+                        .addChild(Builders.leafBuilder().withNodeIdentifier(AS_NID).withValue(2L).build())
+                    .build())
+                    .addChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(AS_SEQ_NID)
+                        .addChild(Builders.leafBuilder().withNodeIdentifier(AS_NID).withValue(3L).build())
+                    .build())
+                .build())
+            .build())
+        .build())
+        .build();
 
     @Test
     public void testBestPathForEquality() {
@@ -101,7 +139,7 @@ public class BestPathSelectorTest {
     }
 
     private ContainerNode createStateFromPrefMedOrigin() {
-        this.dataContBuilder = createContBuilder(this.extensionQName);
+        this.dataContBuilder = createContBuilder(ATTRS_EXTENSION_Q);
         // local pref
         this.dataContBuilder.addChild(createContBuilder(this.localPrefQName).addChild(createValueBuilder(123L, this.localPrefQName, "pref").build()).build());
         // multi exit disc
@@ -112,7 +150,7 @@ public class BestPathSelectorTest {
     }
 
     private ContainerNode createStateFromPrefMedOriginASPath() {
-        this.dataContBuilder = createContBuilder(this.extensionQName);
+        this.dataContBuilder = createContBuilder(ATTRS_EXTENSION_Q);
         // local pref
         this.dataContBuilder.addChild(createContBuilder(this.localPrefQName).addChild(createValueBuilder(321L, this.localPrefQName, "pref").build()).build());
         // multi exit disc
@@ -149,44 +187,11 @@ public class BestPathSelectorTest {
 
     @Test
     public void testExtractSegments() {
-        final QName asNumberQ = QName.create(this.extensionQName, "as-number");
-        final NodeIdentifier segmentsNid = new NodeIdentifier(QName.create(this.extensionQName, Segments.QNAME.getLocalName()));
-        final NodeIdentifier cSegmentsNid = new NodeIdentifier(QName.create(this.extensionQName, CSegment.QNAME.getLocalName()));
-        final NodeIdentifier asSetNid = new NodeIdentifier(QName.create(this.extensionQName, "as-set"));
-        final NodeIdentifier aSetNid = new NodeIdentifier(QName.create(this.extensionQName, ASet.QNAME.getLocalName()));
-        final NodeIdentifier aListNid = new NodeIdentifier(QName.create(this.extensionQName, AList.QNAME.getLocalName()));
-        final NodeIdentifier asSeqNid = new NodeIdentifier(QName.create(this.extensionQName, AsSequence.QNAME.getLocalName()));
-        final NodeIdentifier asNid = new NodeIdentifier(QName.create(this.extensionQName, "as"));
         // to be extracted from
         final CollectionNodeBuilder<UnkeyedListEntryNode, UnkeyedListNode> builder = Builders.unkeyedListBuilder();
-        builder.withNodeIdentifier(segmentsNid);
-        builder.addChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(segmentsNid)
-            .addChild(Builders.choiceBuilder().withNodeIdentifier(cSegmentsNid)
-                .addChild(Builders.containerBuilder().withNodeIdentifier(aSetNid)
-                    .addChild(Builders.leafSetBuilder().withNodeIdentifier(asSetNid)
-                        .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(asNumberQ, "10")).withValue("10").build())
-                        .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(asNumberQ, "11")).withValue("11").build())
-                    .build())
-                .build())
-            .build())
-            .build());
-        builder.addChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(segmentsNid)
-            .addChild(Builders.choiceBuilder().withNodeIdentifier(cSegmentsNid)
-                .addChild(Builders.containerBuilder().withNodeIdentifier(aListNid)
-                    .addChild(Builders.unkeyedListBuilder().withNodeIdentifier(asSeqNid)
-                        .addChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(asSeqNid)
-                            .addChild(Builders.leafBuilder().withNodeIdentifier(asNid).withValue("1").build())
-                        .build())
-                        .addChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(asSeqNid)
-                            .addChild(Builders.leafBuilder().withNodeIdentifier(asNid).withValue("2").build())
-                        .build())
-                        .addChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(asSeqNid)
-                            .addChild(Builders.leafBuilder().withNodeIdentifier(asNid).withValue("3").build())
-                        .build())
-                    .build())
-                .build())
-            .build())
-            .build());
+        builder.withNodeIdentifier(SEGMENTS_NID);
+        builder.addChild(SET_SEGMENT);
+        builder.addChild(LIST_SEGMENT).build();
 
         // expected
         final List<AsSequence> sequences = new ArrayList<>();
@@ -197,7 +202,7 @@ public class BestPathSelectorTest {
         expected.add(new SegmentsBuilder().setCSegment(new ASetCaseBuilder().setASet(new ASetBuilder().setAsSet(Lists.newArrayList(new AsNumber(11L), new AsNumber(10L))).build()).build()).build());
         expected.add(new SegmentsBuilder().setCSegment(new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(sequences).build()).build()).build());
         // test
-        final List<Segments> actual = this.STATE.extractSegments(builder.build());
+        final List<Segments> actual = this.state.extractSegments(builder.build());
         assertEquals(expected.size(), actual.size());
         assertEquals(Sets.newHashSet(1,2,3), Sets.newHashSet(1,3,2));
         assertEquals(Sets.newHashSet(((ASetCase)expected.get(0).getCSegment()).getASet().getAsSet()), Sets.newHashSet(((ASetCase)actual.get(0).getCSegment()).getASet().getAsSet()));
