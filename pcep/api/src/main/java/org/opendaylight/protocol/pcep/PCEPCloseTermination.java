@@ -14,29 +14,17 @@ import com.google.common.base.MoreObjects.ToStringHelper;
  */
 public final class PCEPCloseTermination extends PCEPTerminationReason {
 
-    private final TerminationReason reason;
-
     /**
      * Creates new Termination.
      *
      * @param reason reason for termination
      */
     public PCEPCloseTermination(final TerminationReason reason) {
-        super();
-        this.reason = reason;
-    }
-
-    /* (non-Javadoc)
-     * @see org.opendaylight.protocol.pcep.PCEPTerminationReason#getErrorMessage()
-     */
-    @Override
-    public String getErrorMessage() {
-        return this.reason.toString();
+        super(reason);
     }
 
     @Override
     protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-        return toStringHelper.add("reason", this.reason);
-
+        return toStringHelper.add("reason", super.reason);
     }
 }

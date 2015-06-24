@@ -13,13 +13,12 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
-import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
-import org.opendaylight.protocol.framework.SessionListenerFactory;
-import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
-import org.opendaylight.protocol.pcep.PCEPSessionListener;
+import org.opendaylight.protocol.bgp.rib.protocol.ReconnectStrategyFactory;
+import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.impl.PCEPHandlerFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
+import org.opendaylight.protocol.pcep.impl.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.tcpmd5.api.DummyKeyAccessFactory;
 import org.opendaylight.tcpmd5.api.KeyAccessFactory;
@@ -29,19 +28,18 @@ import org.opendaylight.tcpmd5.jni.NativeSupportUnavailableException;
 import org.opendaylight.tcpmd5.netty.MD5ChannelFactory;
 import org.opendaylight.tcpmd5.netty.MD5ChannelOption;
 import org.opendaylight.tcpmd5.netty.MD5NioSocketChannelFactory;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class PCCDispatcher extends PCEPDispatcherImpl {
 
-    private InetSocketAddress localAddress;
     private final PCEPHandlerFactory factory;
     private final MD5ChannelFactory<?> cf;
+    private InetSocketAddress localAddress;
     private KeyMapping keys;
 
     public PCCDispatcher(final MessageRegistry registry,
-            final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> negotiatorFactory) {
+                         final PCEPSessionNegotiatorFactory negotiatorFactory) {
         super(registry, negotiatorFactory, new NioEventLoopGroup(), new NioEventLoopGroup(), null, null);
         this.factory = new PCEPHandlerFactory(registry);
         this.cf = new MD5NioSocketChannelFactory(DeafultKeyAccessFactory.getKeyAccessFactory());
@@ -63,16 +61,16 @@ public final class PCCDispatcher extends PCEPDispatcherImpl {
     }
 
     public synchronized void createClient(final InetSocketAddress localAddress, final InetSocketAddress remoteAddress,
-            final ReconnectStrategyFactory strategyFactory, final SessionListenerFactory<PCEPSessionListener> listenerFactory,
-            final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> negotiatorFactory, final KeyMapping keys) {
+                                          final ReconnectStrategyFactory strategyFactory, final PCEPSessionListenerFactory listenerFactory,
+                                          final PCEPSessionNegotiatorFactory negotiatorFactory, final KeyMapping keys) {
         this.localAddress = localAddress;
         this.keys = keys;
-        super.createReconnectingClient(remoteAddress, strategyFactory, new PipelineInitializer<PCEPSessionImpl>() {
+        super.createReconnectingClient(remoteAddress, strategyFactory, new PipelineInitializer() {
             @Override
             public void initializeChannel(final SocketChannel ch, final Promise<PCEPSessionImpl> promise) {
                 ch.pipeline().addLast(PCCDispatcher.this.factory.getDecoders());
                 ch.pipeline().addLast("negotiator",
-                        negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise));
+                    negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise));
                 ch.pipeline().addLast(PCCDispatcher.this.factory.getEncoders());
             }
         });

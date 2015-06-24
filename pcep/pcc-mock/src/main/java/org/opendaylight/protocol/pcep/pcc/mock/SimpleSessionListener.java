@@ -15,7 +15,6 @@ import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createPcRtp
 import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createSrp;
 import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.reqToRptPath;
 import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.updToRptPath;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -133,14 +132,18 @@ public class SimpleSessionListener implements PCEPSessionListener {
                     createPath(Lists.newArrayList(DEFAULT_ENDPOINT_HOP))));
         }
         // end-of-sync marker
-        session.sendMessage(createPcRtpMessage(createLsp(0, false, Optional.<Tlvs> absent()), Optional.<Srp> absent(),
-                createPath(Collections.<Subobject> emptyList())));
+        session.sendMessage(createPcRtpMessage(createLsp(0, false, Optional.<Tlvs>absent()), Optional.<Srp>absent(),
+            createPath(Collections.<Subobject>emptyList())));
     }
 
     @Override
     public void onSessionDown(final PCEPSession session, final Exception e) {
         LOG.info("Session down with cause : {} or exception: {}", e.getCause(), e, e);
-        session.close();
+        try {
+            session.close();
+        } catch (final Exception ei) {
+            LOG.warn("Error closing session", ei);
+        }
     }
 
     @Override
