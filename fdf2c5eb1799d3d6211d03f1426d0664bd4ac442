@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_0964b920",
+        "filename": "bgp/bmp-impl/src/test/java/org/opendaylight/protocol/bmp/impl/session/SimpleSessionListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-25T08:12:51Z",
+      "side": 1,
+      "message": "I\u0027d change the name, this one does not tell it\u0027s a BMP listener (in fact we already have SimpleSessionListener somewhere in BGP tests)",
+      "range": {
+        "startLine": 22,
+        "startChar": 13,
+        "endLine": 22,
+        "endChar": 34
+      },
+      "revId": "fdf2c5eb1799d3d6211d03f1426d0664bd4ac442",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
