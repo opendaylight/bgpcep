@@ -11,16 +11,20 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.concurrent.Promise;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
+import org.opendaylight.protocol.bgp.rib.impl.protocol.SessionNegotiator;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
-import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -39,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * Bgp Session negotiator. Common for local-to-remote and remote-to-local connections.
  * One difference is session validation performed by injected BGPSessionValidator when OPEN message is received.
  */
-public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegotiator<Notification, BGPSessionImpl> {
+public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter implements SessionNegotiator {
     // 4 minutes recommended in http://tools.ietf.org/html/rfc4271#section-8.2.2
     protected static final int INITIAL_HOLDTIMER = 4;
 
@@ -47,53 +51,44 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
      * @see <a href="http://tools.ietf.org/html/rfc6793">BGP Support for 4-Octet AS Number Space</a>
      */
     private static final int AS_TRANS = 23456;
-
-    @VisibleForTesting
-    public enum State {
-        /**
-         * Negotiation has not started yet.
-         */
-        IDLE,
-        /**
-         * We have sent our Open message, and are waiting for the peer's Open message.
-         */
-        OPEN_SENT,
-        /**
-         * We have received the peer's Open message, which is acceptable, and we're waiting the acknowledgement of our
-         * Open message.
-         */
-        OPEN_CONFIRM,
-        /**
-         * The negotiation finished.
-         */
-        FINISHED,
-    }
-
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBGPSessionNegotiator.class);
     private final BGPPeerRegistry registry;
     private final BGPSessionValidator sessionValidator;
-
     @GuardedBy("this")
     private State state = State.IDLE;
-
     @GuardedBy("this")
     private BGPSessionImpl session;
 
+    private final Promise<BGPSessionImpl> promise;
+    protected final Channel channel;
+
     public AbstractBGPSessionNegotiator(final Promise<BGPSessionImpl> promise, final Channel channel,
-            final BGPPeerRegistry registry, final BGPSessionValidator sessionValidator) {
-        super(promise, channel);
+                                        final BGPPeerRegistry registry, final BGPSessionValidator sessionValidator) {
+        this.promise = (Promise)Preconditions.checkNotNull(promise);
+        this.channel = (Channel)Preconditions.checkNotNull(channel);
         this.registry = registry;
         this.sessionValidator = sessionValidator;
     }
 
-    @Override
+    private static Notify buildErrorNotify(final BGPError err) {
+        return buildErrorNotify(err, null);
+    }
+
+    private static Notify buildErrorNotify(final BGPError err, final byte[] data) {
+        final NotifyBuilder builder = new NotifyBuilder().setErrorCode(err.getCode()).setErrorSubcode(err.getSubcode());
+        if (data != null && data.length != 0) {
+            builder.setData(data);
+        }
+        return builder.build();
+    }
+
     protected synchronized void startNegotiation() {
         Preconditions.checkState(this.state == State.IDLE);
 
         // Check if peer is configured in registry before retrieving preferences
         if (!this.registry.isPeerConfigured(getRemoteIp())) {
             final BGPDocumentedException cause = new BGPDocumentedException(
-                    "BGP peer with ip: " + getRemoteIp()
+                "BGP peer with ip: " + getRemoteIp()
                     + " not configured, check configured peers in : "
                     + this.registry, BGPError.CONNECTION_REJECTED);
             negotiationFailed(cause);
@@ -108,7 +103,7 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
             as = AS_TRANS;
         }
         this.sendMessage(new OpenBuilder().setMyAsNumber(as).setHoldTimer(preferences.getHoldTime()).setBgpIdentifier(
-                preferences.getBgpId()).setBgpParameters(preferences.getParams()).build());
+            preferences.getBgpId()).setBgpParameters(preferences.getParams()).build());
         if (this.state != State.FINISHED) {
             this.state = State.OPEN_SENT;
 
@@ -133,7 +128,6 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
         return StrictBGPPeerRegistry.getIpAddress(this.channel.remoteAddress());
     }
 
-    @Override
     protected synchronized void handleMessage(final Notification msg) {
         LOG.debug("Channel {} handling message in state {}", this.channel, this.state);
 
@@ -170,18 +164,6 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
         this.state = State.FINISHED;
     }
 
-    private static Notify buildErrorNotify(final BGPError err) {
-        return buildErrorNotify(err, null);
-    }
-
-    private static Notify buildErrorNotify(final BGPError err, final byte[] data) {
-        final NotifyBuilder builder = new NotifyBuilder().setErrorCode(err.getCode()).setErrorSubcode(err.getSubcode());
-        if (data != null && data.length != 0) {
-            builder.setData(data);
-        }
-        return builder.build();
-    }
-
     private void handleOpen(final Open openObj) {
         try {
             this.sessionValidator.validate(openObj, getPreferences());
@@ -192,7 +174,7 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
 
         try {
             final BGPSessionListener peer = this.registry.getPeer(getRemoteIp(), getSourceId(openObj, getPreferences()),
-                    getDestinationId(openObj, getPreferences()), getAsNumber(openObj, getPreferences()));
+                getDestinationId(openObj, getPreferences()), getAsNumber(openObj, getPreferences()));
             this.sendMessage(new KeepaliveBuilder().build());
             this.session = new BGPSessionImpl(peer, this.channel, openObj, getPreferences(), this.registry);
             this.state = State.OPEN_CONFIRM;
@@ -203,35 +185,34 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
         }
     }
 
-    @Override
     protected void negotiationFailed(final Throwable e) {
         LOG.warn("Channel {} negotiation failed: {}", this.channel, e.getMessage());
         if (e instanceof BGPDocumentedException) {
             // although sendMessage() can also result in calling this method, it won't create a cycle. In case sendMessage() fails to
             // deliver the message, this method gets called with different exception (definitely not with BGPDocumentedException).
-            this.sendMessage(buildErrorNotify(((BGPDocumentedException)e).getError(), ((BGPDocumentedException) e).getData()));
+            this.sendMessage(buildErrorNotify(((BGPDocumentedException) e).getError(), ((BGPDocumentedException) e).getData()));
         }
         this.registry.removePeerSession(getRemoteIp());
-        super.negotiationFailed(e);
+        ABSNnegotiationFailed(e);
         this.state = State.FINISHED;
     }
 
     /**
-     * @param openMsg Open message received from remote BGP speaker
+     * @param openMsg     Open message received from remote BGP speaker
      * @param preferences Local BGP speaker preferences
      * @return BGP Id of device that accepted the connection
      */
     protected abstract Ipv4Address getDestinationId(final Open openMsg, final BGPSessionPreferences preferences);
 
     /**
-     * @param openMsg Open message received from remote BGP speaker
+     * @param openMsg     Open message received from remote BGP speaker
      * @param preferences Local BGP speaker preferences
      * @return BGP Id of device that accepted the connection
      */
     protected abstract Ipv4Address getSourceId(final Open openMsg, final BGPSessionPreferences preferences);
 
     /**
-     * @param openMsg Open message received from remote BGP speaker
+     * @param openMsg     Open message received from remote BGP speaker
      * @param preferences Local BGP speaker preferences
      * @return AS Number of device that initiate connection
      */
@@ -239,5 +220,81 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
 
     public synchronized State getState() {
         return this.state;
+    }
+
+    protected final void negotiationSuccessful(BGPSessionImpl session) {
+        LOG.debug("Negotiation on channel {} successful with session {}", this.channel, session);
+        channel.pipeline().replace(this, "session", session);
+        promise.setSuccess(session);
+    }
+
+    protected void ABSNnegotiationFailed(Throwable cause) {
+        LOG.debug("Negotiation on channel {} failed", this.channel, cause);
+        channel.close();
+        promise.setFailure(cause);
+    }
+
+    protected final void sendMessage(final Notification msg) {
+        channel.writeAndFlush(msg).addListener(new ChannelFutureListener() {
+            public void operationComplete(ChannelFuture f) {
+                if (!f.isSuccess()) {
+                    LOG.info("Failed to send message {}", msg, f.cause());
+                    ABSNnegotiationFailed(f.cause());
+                } else {
+                    LOG.trace("Message {} sent to socket", msg);
+                }
+
+            }
+        });
+    }
+
+    public final void channelActive(ChannelHandlerContext ctx) {
+        LOG.debug("Starting session negotiation on channel {}", this.channel);
+
+        try {
+            this.startNegotiation();
+        } catch (final Exception e) {
+            LOG.warn("Unexpected negotiation failure", e);
+            ABSNnegotiationFailed(e);
+        }
+
+    }
+
+    public final void channelRead(ChannelHandlerContext ctx, Object msg) {
+        LOG.debug("Negotiation read invoked on channel {}", this.channel);
+
+        try {
+            handleMessage((Notification) msg);
+        } catch (Exception var4) {
+            this.LOG.debug("Unexpected error while handling negotiation message {}", msg, var4);
+            ABSNnegotiationFailed(var4);
+        }
+
+    }
+
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        LOG.info("Unexpected error during negotiation", cause);
+        ABSNnegotiationFailed(cause);
+    }
+
+    @VisibleForTesting
+    public enum State {
+        /**
+         * Negotiation has not started yet.
+         */
+        IDLE,
+        /**
+         * We have sent our Open message, and are waiting for the peer's Open message.
+         */
+        OPEN_SENT,
+        /**
+         * We have received the peer's Open message, which is acceptable, and we're waiting the acknowledgement of our
+         * Open message.
+         */
+        OPEN_CONFIRM,
+        /**
+         * The negotiation finished.
+         */
+        FINISHED,
     }
 }

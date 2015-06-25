@@ -14,7 +14,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-
 import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -69,23 +68,16 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 public class FSMTest {
 
 
+    private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    private final BgpTableType linkstatett = new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
+    private final List<Notification> receivedMsgs = Lists.newArrayList();
     @Mock
     private EventLoop eventLoop;
-
     private BGPClientSessionNegotiator clientSession;
-
     @Mock
     private Channel speakerListener;
-
     @Mock
     private ChannelPipeline pipeline;
-
-    private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-
-    private final BgpTableType linkstatett = new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
-
-    private final List<Notification> receivedMsgs = Lists.newArrayList();
-
     private Open classicOpen;
 
     @Before

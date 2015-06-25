@@ -17,23 +17,29 @@ import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
-import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
-import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class TestClientDispatcher extends AbstractDispatcher<BGPSessionImpl, BGPSessionListener> {
-
+public class TestClientDispatcher {
+    private static final Logger LOG = LoggerFactory.getLogger(TestClientDispatcher.class);
     private static final String NEGOTIATOR = "negotiator";
 
     private final BGPHandlerFactory hf;
     private InetSocketAddress localAddress;
     private final InetSocketAddress defaulAddress;
+    private BGPDispatcherImpl disp;
 
     protected TestClientDispatcher(final EventLoopGroup bossGroup, final EventLoopGroup workerGroup, final MessageRegistry messageRegistry,
             final InetSocketAddress locaAddress) {
-        super(bossGroup, workerGroup);
+        disp = new BGPDispatcherImpl(messageRegistry,bossGroup,workerGroup) {
+            @Override
+            protected void customizeBootstrap(Bootstrap b) {
+                b.localAddress(locaAddress);
+            }
+        };
         this.hf = new BGPHandlerFactory(messageRegistry);
         this.localAddress = locaAddress;
         this.defaulAddress = locaAddress;
@@ -43,7 +49,7 @@ public class TestClientDispatcher extends AbstractDispatcher<BGPSessionImpl, BGP
             final AsNumber remoteAs, final BGPPeerRegistry listener, final ReconnectStrategy strategy, final Optional<InetSocketAddress> localAddress) {
         setLocalAddress(localAddress);
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(remoteAs, listener);
-        return super.createClient(remoteAddress, strategy, new PipelineInitializer<BGPSessionImpl>() {
+        return disp.createClient(remoteAddress, strategy, new BGPDispatcherImpl.ChannelPipelineInitializer() {
 
             @Override
             public void initializeChannel(SocketChannel ch, Promise<BGPSessionImpl> promise) {
@@ -59,7 +65,8 @@ public class TestClientDispatcher extends AbstractDispatcher<BGPSessionImpl, BGP
         final Optional<InetSocketAddress> localAddress) {
         setLocalAddress(localAddress);
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(remoteAs, peerRegistry);
-        final Future<Void> ret = super.createReconnectingClient(address, reconnectStrategyFactory, new PipelineInitializer<BGPSessionImpl>() {
+        final Future<Void> ret = disp.createReconnectingClient(address, reconnectStrategyFactory, new
+            BGPDispatcherImpl.ChannelPipelineInitializer() {
             @Override
             public void initializeChannel(final SocketChannel ch, final Promise<BGPSessionImpl> promise) {
                 ch.pipeline().addLast(TestClientDispatcher.this.hf.getDecoders());
@@ -69,12 +76,6 @@ public class TestClientDispatcher extends AbstractDispatcher<BGPSessionImpl, BGP
         });
 
         return ret;
-    }
-
-    @Override
-    protected void customizeBootstrap(Bootstrap b) {
-        b.localAddress(this.localAddress);
-        super.customizeBootstrap(b);
     }
 
     private synchronized void setLocalAddress(final Optional<InetSocketAddress> localAddress) {

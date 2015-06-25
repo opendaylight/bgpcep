@@ -34,9 +34,5 @@ public interface BGPDispatcher extends BGPServerDispatcher {
 
     Future<Void> createReconnectingClient(InetSocketAddress address, AsNumber remoteAs,
                                           BGPPeerRegistry peerRegistry, ReconnectStrategyFactory connectStrategyFactory,
-            ReconnectStrategyFactory reestablishStrategyFactory);
-
-    Future<Void> createReconnectingClient(InetSocketAddress address, AsNumber remoteAs,
-                                          BGPPeerRegistry peerRegistry, ReconnectStrategyFactory connectStrategyFactory,
             ReconnectStrategyFactory reestablishStrategyFactory, KeyMapping keys);
 }
