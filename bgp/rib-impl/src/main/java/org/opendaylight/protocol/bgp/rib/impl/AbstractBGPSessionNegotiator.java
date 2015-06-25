@@ -11,6 +11,10 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.concurrent.Promise;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
@@ -20,7 +24,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
-import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
+import org.opendaylight.protocol.bgp.rib.spi.SessionNegotiator;
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -39,9 +43,9 @@ import org.slf4j.LoggerFactory;
  * Bgp Session negotiator. Common for local-to-remote and remote-to-local connections.
  * One difference is session validation performed by injected BGPSessionValidator when OPEN message is received.
  */
-public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegotiator<Notification, BGPSessionImpl> {
+public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter implements SessionNegotiator {
     // 4 minutes recommended in http://tools.ietf.org/html/rfc4271#section-8.2.2
-    protected static final int INITIAL_HOLDTIMER = 4;
+    private static final int INITIAL_HOLDTIMER = 4;
 
     /**
      * @see <a href="http://tools.ietf.org/html/rfc6793">BGP Support for 4-Octet AS Number Space</a>
@@ -72,7 +76,8 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBGPSessionNegotiator.class);
     private final BGPPeerRegistry registry;
     private final BGPSessionValidator sessionValidator;
-
+    private final Promise<BGPSessionImpl> promise;
+    private final Channel channel;
     @GuardedBy("this")
     private State state = State.IDLE;
 
@@ -81,13 +86,13 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
 
     public AbstractBGPSessionNegotiator(final Promise<BGPSessionImpl> promise, final Channel channel,
             final BGPPeerRegistry registry, final BGPSessionValidator sessionValidator) {
-        super(promise, channel);
+        this.promise = Preconditions.checkNotNull(promise);
+        this.channel = Preconditions.checkNotNull(channel);
         this.registry = registry;
         this.sessionValidator = sessionValidator;
     }
 
-    @Override
-    protected synchronized void startNegotiation() {
+    private synchronized void startNegotiation() {
         Preconditions.checkState(this.state == State.IDLE);
 
         // Check if peer is configured in registry before retrieving preferences
@@ -133,7 +138,6 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
         return StrictBGPPeerRegistry.getIpAddress(this.channel.remoteAddress());
     }
 
-    @Override
     protected synchronized void handleMessage(final Notification msg) {
         LOG.debug("Channel {} handling message in state {}", this.channel, this.state);
 
@@ -203,8 +207,7 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
         }
     }
 
-    @Override
-    protected void negotiationFailed(final Throwable e) {
+    private void negotiationFailed(final Throwable e) {
         LOG.warn("Channel {} negotiation failed: {}", this.channel, e.getMessage());
         if (e instanceof BGPDocumentedException) {
             // although sendMessage() can also result in calling this method, it won't create a cycle. In case sendMessage() fails to
@@ -212,7 +215,7 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
             this.sendMessage(buildErrorNotify(((BGPDocumentedException)e).getError(), ((BGPDocumentedException) e).getData()));
         }
         this.registry.removePeerSession(getRemoteIp());
-        super.negotiationFailed(e);
+        negotiationFailedCloseChannel(e);
         this.state = State.FINISHED;
     }
 
@@ -239,5 +242,64 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
 
     public synchronized State getState() {
         return this.state;
+    }
+
+    private final void negotiationSuccessful(BGPSessionImpl session) {
+        LOG.debug("Negotiation on channel {} successful with session {}", this.channel, session);
+        channel.pipeline().replace(this, "session", session);
+        promise.setSuccess(session);
+    }
+
+    private void negotiationFailedCloseChannel(Throwable cause) {
+        LOG.debug("Negotiation on channel {} failed", this.channel, cause);
+        channel.close();
+        promise.setFailure(cause);
+    }
+
+    private final void sendMessage(final Notification msg) {
+        channel.writeAndFlush(msg).addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture f) {
+                if (!f.isSuccess()) {
+                    LOG.info("Failed to send message {}", msg, f.cause());
+                    negotiationFailedCloseChannel(f.cause());
+                } else {
+                    LOG.trace("Message {} sent to socket", msg);
+                }
+
+            }
+        });
+    }
+
+    @Override
+    public final void channelActive(ChannelHandlerContext ctx) {
+        LOG.debug("Starting session negotiation on channel {}", this.channel);
+
+        try {
+            this.startNegotiation();
+        } catch (final Exception e) {
+            LOG.warn("Unexpected negotiation failure", e);
+            negotiationFailedCloseChannel(e);
+        }
+
+    }
+
+    @Override
+    public final void channelRead(ChannelHandlerContext ctx, Object msg) {
+        LOG.debug("Negotiation read invoked on channel {}", this.channel);
+
+        try {
+            handleMessage((Notification) msg);
+        } catch (Exception e) {
+            LOG.debug("Unexpected error while handling negotiation message {}", msg, e);
+            negotiationFailedCloseChannel(e);
+        }
+
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        LOG.info("Unexpected error during negotiation", cause);
+        negotiationFailedCloseChannel(cause);
     }
 }
