@@ -82,7 +82,7 @@ public class BGPDispatcherImplTest {
         future.addListener(new GenericFutureListener<Future<Void>>() {
             @Override
             public void operationComplete(Future<Void> future) {
-                if(!future.isSuccess()) {
+                if (!future.isSuccess()) {
                     Assert.fail("Failed to create server.");
                 }
             }

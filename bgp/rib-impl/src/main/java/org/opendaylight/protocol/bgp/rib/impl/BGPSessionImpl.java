@@ -16,6 +16,8 @@ import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Set;
@@ -31,7 +33,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionStatistics;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
-import org.opendaylight.protocol.framework.AbstractProtocolSession;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
@@ -52,7 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @VisibleForTesting
-public class BGPSessionImpl extends AbstractProtocolSession<Notification> implements BGPSession, BGPSessionStatistics {
+public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> implements BGPSession, BGPSessionStatistics, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(BGPSessionImpl.class);
 
@@ -85,7 +86,6 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
      */
     @VisibleForTesting
     private long lastMessageSentAt;
-
     /**
      * System.nanoTime value about when was received the last message
      */
@@ -110,16 +110,17 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
     private final BGPPeerRegistry peerRegistry;
     private final ChannelOutputLimiter limiter;
 
+
     private BGPSessionStats sessionStats;
 
     public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen, final BGPSessionPreferences localPreferences,
-            final BGPPeerRegistry peerRegistry) {
+                          final BGPPeerRegistry peerRegistry) {
         this(listener, channel, remoteOpen, localPreferences.getHoldTime(), peerRegistry);
         this.sessionStats = new BGPSessionStats(remoteOpen, this.holdTimerValue, this.keepAlive, channel, Optional.of(localPreferences), this.tableTypes);
     }
 
     public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen, final int localHoldTimer,
-            final BGPPeerRegistry peerRegistry) {
+                          final BGPPeerRegistry peerRegistry) {
         this.listener = Preconditions.checkNotNull(listener);
         this.channel = Preconditions.checkNotNull(channel);
         this.limiter = new ChannelOutputLimiter(this);
@@ -137,7 +138,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
                 for (final OptionalCapabilities optCapa : param.getOptionalCapabilities()) {
                     final CParameters cParam = optCapa.getCParameters();
                     if ( cParam.getAugmentation(CParameters1.class) == null ||
-                            cParam.getAugmentation(CParameters1.class).getMultiprotocolCapability() == null ) {
+                            cParam.getAugmentation(CParameters1.class).getMultiprotocolCapability() == null) {
                         continue;
                     }
                     final MultiprotocolCapability multi = cParam.getAugmentation(CParameters1.class).getMultiprotocolCapability();
@@ -190,7 +191,6 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
      *
      * @param msg incoming message
      */
-    @Override
     public synchronized void handleMessage(final Notification msg) {
         // Update last reception time
         this.lastMessageReceivedAt = System.nanoTime();
@@ -223,7 +223,6 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
         }
     }
 
-    @Override
     public synchronized void endOfInput() {
         if (this.state == State.UP) {
             this.listener.onSessionDown(this, new IOException("End of input detected. Close the session."));
@@ -279,7 +278,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
      * Closes PCEP session from the parent with given reason. A message needs to be sent, but parent doesn't have to be
      * modified, because he initiated the closing. (To prevent concurrent modification exception).
      *
-     * @param closeObject
+     * @param error
      */
     private void terminate(final BGPError error) {
         this.writeAndFlush(new NotifyBuilder().setErrorCode(error.getCode()).setErrorSubcode(error.getSubcode()).build());
@@ -364,7 +363,6 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
         return this.tableTypes;
     }
 
-    @Override
     protected synchronized void sessionUp() {
         this.sessionStats.startSessionStopwatch();
         this.state = State.UP;
@@ -411,5 +409,28 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 
     ChannelOutputLimiter getLimiter() {
         return this.limiter;
+    }
+
+    @Override
+    public final void channelInactive(ChannelHandlerContext ctx) {
+        LOG.debug("Channel {} inactive.", ctx.channel());
+        this.endOfInput();
+
+        try {
+            super.channelInactive(ctx);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delegate channel inactive event on channel " + ctx.channel(), e);
+        }
+    }
+
+    @Override
+    protected final void channelRead0(ChannelHandlerContext ctx, Notification msg) {
+        LOG.debug("Message was received: {}", msg);
+        this.handleMessage(msg);
+    }
+
+    @Override
+    public final void handlerAdded(ChannelHandlerContext ctx) {
+        this.sessionUp();
     }
 }

@@ -8,19 +8,15 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
-
+import org.opendaylight.protocol.bgp.rib.impl.protocol.BGPSessionListenerFactory;
+import org.opendaylight.protocol.bgp.rib.impl.protocol.BGPSessionNegotiatorFactory;
+import org.opendaylight.protocol.bgp.rib.impl.protocol.SessionNegotiator;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
-import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
-import org.opendaylight.protocol.framework.SessionListenerFactory;
-import org.opendaylight.protocol.framework.SessionNegotiator;
-import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
-import org.opendaylight.yangtools.yang.binding.Notification;
 
-public final class BGPServerSessionNegotiatorFactory implements SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> {
+public final class BGPServerSessionNegotiatorFactory implements BGPSessionNegotiatorFactory<BGPSessionImpl> {
     private final BGPSessionValidator validator;
     private final BGPPeerRegistry registry;
 
@@ -30,8 +26,7 @@ public final class BGPServerSessionNegotiatorFactory implements SessionNegotiato
     }
 
     @Override
-    public SessionNegotiator<BGPSessionImpl> getSessionNegotiator(final SessionListenerFactory<BGPSessionListener> factory,
-            final Channel channel, final Promise<BGPSessionImpl> promise) {
+    public SessionNegotiator getSessionNegotiator(final BGPSessionListenerFactory factory, final Channel channel, final Promise<BGPSessionImpl> promise) {
         return new BGPServerSessionNegotiator(promise, channel, registry, validator);
     }
 }
