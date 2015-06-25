@@ -9,16 +9,14 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.base.MoreObjects;
 import org.opendaylight.protocol.bgp.parser.BGPError;
-import org.opendaylight.protocol.framework.TerminationReason;
 
-public final class BGPTerminationReason implements TerminationReason {
+public final class BGPTerminationReason {
     private final BGPError error;
 
     public BGPTerminationReason(final BGPError error) {
         this.error = error;
     }
 
-    @Override
     public String getErrorMessage() {
         return error.toString();
     }

@@ -64,7 +64,12 @@ public class SimpleSessionListener implements ReusableBGPPeer {
     public void releaseConnection() {
         LOG.debug("Releasing connection");
         if (this.session != null) {
-            this.session.close();
+            try {
+                this.session.close();
+            } catch (Exception e) {
+                LOG.warn("Error closing session", e);
+            }
+            this.session = null;
         }
     }
 
