@@ -183,7 +183,7 @@ public class SrAttributeParserTest {
         final byte[] sidLabel = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24 };
         final SrAdjId srAdjId = new SrAdjIdBuilder().setFlags(new AdjacencyFlags(Boolean.TRUE, Boolean.FALSE, Boolean.TRUE, Boolean.FALSE, Boolean.TRUE)).setWeight(new Weight((short) 10)).setSid(new SidLabel(sidLabel)).build();
         final ByteBuf serializedData = SrLinkAttributesParser.serializeAdjacencySegmentIdentifier(srAdjId);
-        assertEquals(srAdjId, SrLinkAttributesParser.parseAdjacencySegmentIdentifier(Unpooled.wrappedBuffer(tested)));
+        assertEquals(srAdjId, new SrAdjIdBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(Unpooled.wrappedBuffer(tested))).build());
         assertArrayEquals(tested, ByteArray.readAllBytes(serializedData));
     }
 
