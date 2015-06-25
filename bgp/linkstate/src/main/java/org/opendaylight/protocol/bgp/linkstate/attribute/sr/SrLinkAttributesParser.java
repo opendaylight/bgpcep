@@ -11,14 +11,14 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrAdjId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrAdjIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrLanAdjId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrLanAdjIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.AdjacencyFlags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.AdjacencySegmentIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.SidLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.Weight;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
+import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public final class SrLinkAttributesParser {
 
@@ -32,23 +32,50 @@ public final class SrLinkAttributesParser {
     private static final int SET_FLAG = 4;
     private static final int FLAGS_SIZE = 8;
 
+
     private SrLinkAttributesParser() {
         throw new UnsupportedOperationException();
     }
 
-    public static SrAdjId parseAdjacencySegmentIdentifier(final ByteBuf buffer) {
-        if (!buffer.isReadable()) {
-            return new SrAdjIdBuilder().build();
+    public static AdjacencySegmentIdentifier parseAdjacencySegmentIdentifier(final ByteBuf buffer) {
+        final AdjacencyFlags adjFlags;
+        final Weight weight;
+        final SidLabel sidValue;
+        if (buffer.isReadable()) {
+            final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
+            adjFlags = new AdjacencyFlags(flags.get(ADDRESS_FAMILY_FLAG), flags.get(BACKUP_FLAG), flags.get(LOCAL_FLAG), flags.get(SET_FLAG), flags.get(VALUE_FLAG));
+            weight = new Weight(buffer.readUnsignedByte());
+            sidValue = new SidLabel(ByteArray.readAllBytes(buffer));
+        } else {
+            adjFlags = null;
+            weight = null;
+            sidValue = null;
         }
-        final SrAdjIdBuilder srAdjIdBuilder = new SrAdjIdBuilder();
-        final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
-        srAdjIdBuilder.setFlags(new AdjacencyFlags(flags.get(ADDRESS_FAMILY_FLAG), flags.get(BACKUP_FLAG), flags.get(LOCAL_FLAG), flags.get(SET_FLAG), flags.get(VALUE_FLAG)));
-        srAdjIdBuilder.setWeight(new Weight(buffer.readUnsignedByte()));
-        srAdjIdBuilder.setSid(new SidLabel(ByteArray.readAllBytes(buffer)));
-        return srAdjIdBuilder.build();
+        return new AdjacencySegmentIdentifier() {
+
+            @Override
+            public Class<? extends DataContainer> getImplementedInterface() {
+                return AdjacencySegmentIdentifier.class;
+            }
+
+            @Override
+            public Weight getWeight() {
+                return weight;
+            }
+
+            @Override
+            public SidLabel getSid() {
+                return sidValue;
+            }
+
+            @Override
+            public AdjacencyFlags getFlags() {
+                return adjFlags;
+            }
+        };
     }
 
-    public static ByteBuf serializeAdjacencySegmentIdentifier(final SrAdjId srAdjId) {
+    public static ByteBuf serializeAdjacencySegmentIdentifier(final AdjacencySegmentIdentifier srAdjId) {
         final ByteBuf value = Unpooled.buffer();
         final AdjacencyFlags srAdjIdFlags = srAdjId.getFlags();
         final BitArray flags = new BitArray(FLAGS_SIZE);
