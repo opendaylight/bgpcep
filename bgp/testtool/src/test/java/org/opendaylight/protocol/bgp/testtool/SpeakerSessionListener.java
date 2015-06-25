@@ -31,7 +31,11 @@ public class SpeakerSessionListener implements BGPSessionListener {
     @Override
     public void onSessionDown(final BGPSession session, final Exception e) {
         LOG.info("Server: Session down.");
-        session.close();
+        try {
+            session.close();
+        } catch (Exception ie) {
+            LOG.warn("Error closing session", ie);
+        }
         // this.d.stop();
     }
 
