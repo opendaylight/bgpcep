@@ -249,16 +249,14 @@ public final class NodeNlriParser {
 
     private static CRouterIdentifier serializeOspfPseudoNode(final ContainerNode ospfPseudonode) {
         final OspfPseudonodeCaseBuilder builder = new OspfPseudonodeCaseBuilder();
-        if (ospfPseudonode.getChild(OSPF_PSEUDONODE_NID).isPresent()) {
-            final OspfPseudonodeBuilder nodeBuilder = new OspfPseudonodeBuilder();
-            if (ospfPseudonode.getChild(LAN_IFACE_NID).isPresent()) {
-                nodeBuilder.setLanInterface(new OspfInterfaceIdentifier((Long) ospfPseudonode.getChild(LAN_IFACE_NID).get().getValue()));
-            }
-            if (ospfPseudonode.getChild(OSPF_ROUTER_NID).isPresent()) {
-                nodeBuilder.setOspfRouterId((Long) ospfPseudonode.getChild(OSPF_ROUTER_NID).get().getValue());
-            }
-            builder.setOspfPseudonode(nodeBuilder.build());
+        final OspfPseudonodeBuilder nodeBuilder = new OspfPseudonodeBuilder();
+        if (ospfPseudonode.getChild(LAN_IFACE_NID).isPresent()) {
+            nodeBuilder.setLanInterface(new OspfInterfaceIdentifier(Long.valueOf((String) ospfPseudonode.getChild(LAN_IFACE_NID).get().getValue())));
         }
+        if (ospfPseudonode.getChild(OSPF_ROUTER_NID).isPresent()) {
+            nodeBuilder.setOspfRouterId(Long.valueOf((String) ospfPseudonode.getChild(OSPF_ROUTER_NID).get().getValue()));
+        }
+        builder.setOspfPseudonode(nodeBuilder.build());
         return builder.build();
     }
 
