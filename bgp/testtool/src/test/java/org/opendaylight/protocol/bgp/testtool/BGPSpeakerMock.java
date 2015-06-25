@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPHandlerFactory;
 import org.opendaylight.protocol.bgp.rib.impl.BGPServerSessionNegotiatorFactory;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
@@ -26,11 +27,8 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
+import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
-import org.opendaylight.protocol.framework.AbstractDispatcher;
-import org.opendaylight.protocol.framework.ProtocolSession;
-import org.opendaylight.protocol.framework.SessionListener;
-import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -41,25 +39,24 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
-import org.opendaylight.yangtools.yang.binding.Notification;
 
-public class BGPSpeakerMock<M, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> extends AbstractDispatcher<S, L> {
+public class BGPSpeakerMock {
 
-    private final SessionNegotiatorFactory<M, S, L> negotiatorFactory;
+    private final BGPServerSessionNegotiatorFactory negotiatorFactory;
     private final BGPHandlerFactory factory;
+    private BGPDispatcherImpl disp;
 
-    public BGPSpeakerMock(final SessionNegotiatorFactory<M, S, L> negotiatorFactory, final BGPHandlerFactory factory,
+    public BGPSpeakerMock(final BGPServerSessionNegotiatorFactory negotiatorFactory, final BGPHandlerFactory factory,
         final DefaultPromise<BGPSessionImpl> defaultPromise) {
-        super(GlobalEventExecutor.INSTANCE, new NioEventLoopGroup(), new NioEventLoopGroup());
+        disp = new BGPDispatcherImpl(null, new NioEventLoopGroup(), new NioEventLoopGroup());
         this.negotiatorFactory = Preconditions.checkNotNull(negotiatorFactory);
         this.factory = Preconditions.checkNotNull(factory);
     }
 
     public void createServer(final InetSocketAddress address) {
-        super.createServer(address, new PipelineInitializer<S>() {
-
+        disp.createServer(address, new BGPDispatcherImpl.ChannelPipelineInitializer() {
             @Override
-            public void initializeChannel(final SocketChannel ch, final Promise<S> promise) {
+            public void initializeChannel(final SocketChannel ch, final Promise<BGPSession> promise) {
                 ch.pipeline().addLast(BGPSpeakerMock.this.factory.getDecoders());
                 ch.pipeline().addLast("negotiator",
                     BGPSpeakerMock.this.negotiatorFactory.getSessionNegotiator(null, ch, promise));
@@ -104,14 +101,14 @@ public class BGPSpeakerMock<M, S extends ProtocolSession<M>, L extends SessionLi
             public void removePeerSession(final IpAddress ip) {}
         };
 
-        final SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> snf = new BGPServerSessionNegotiatorFactory(new BGPSessionValidator() {
+        final BGPServerSessionNegotiatorFactory snf = new BGPServerSessionNegotiatorFactory(new BGPSessionValidator() {
             @Override
             public void validate(final Open openObj, final BGPSessionPreferences prefs) throws BGPDocumentedException {
                 // NOOP
             }
         }, peerRegistry);
 
-        final BGPSpeakerMock<Notification, BGPSessionImpl, BGPSessionListener> mock = new BGPSpeakerMock<>(snf, new BGPHandlerFactory(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry()), new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE));
+        final BGPSpeakerMock mock = new BGPSpeakerMock(snf, new BGPHandlerFactory(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry()), new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE));
 
         mock.createServer(new InetSocketAddress("127.0.0.2", 12345));
     }

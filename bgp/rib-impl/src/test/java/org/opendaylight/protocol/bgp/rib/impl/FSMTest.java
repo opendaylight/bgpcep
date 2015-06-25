@@ -14,7 +14,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-
 import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -40,6 +39,7 @@ import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
+import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -116,7 +116,7 @@ public class FSMTest {
         final BGPPeerRegistry peerRegistry = new StrictBGPPeerRegistry();
         peerRegistry.addPeer(new IpAddress(new Ipv4Address(peerAddress.getHostAddress())), new SimpleSessionListener(), prefs);
 
-        this.clientSession = new BGPClientSessionNegotiator(new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE), this.speakerListener, peerRegistry, new BGPClientSessionValidator(new AsNumber(30L)));
+        this.clientSession = new BGPClientSessionNegotiator(new DefaultPromise<BGPSession>(GlobalEventExecutor.INSTANCE), this.speakerListener, peerRegistry, new BGPClientSessionValidator(new AsNumber(30L)));
         doAnswer(new Answer<Object>() {
             @Override
             public Object answer(final InvocationOnMock invocation) {
@@ -140,7 +140,7 @@ public class FSMTest {
 
     @Test
     public void testDenyPeer() {
-        this.clientSession = new BGPClientSessionNegotiator(new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE), this.speakerListener, new StrictBGPPeerRegistry(), new BGPClientSessionValidator(new AsNumber(30L)));
+        this.clientSession = new BGPClientSessionNegotiator(new DefaultPromise<BGPSession>(GlobalEventExecutor.INSTANCE), this.speakerListener, new StrictBGPPeerRegistry(), new BGPClientSessionValidator(new AsNumber(30L)));
         this.clientSession.channelActive(null);
         assertEquals(1, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(0) instanceof Notify);

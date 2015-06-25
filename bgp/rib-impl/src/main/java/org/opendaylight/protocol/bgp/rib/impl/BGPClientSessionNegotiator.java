@@ -12,6 +12,7 @@ import io.netty.util.concurrent.Promise;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
+import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
@@ -21,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
  */
 public final class BGPClientSessionNegotiator extends AbstractBGPSessionNegotiator {
 
-    public BGPClientSessionNegotiator(final Promise<BGPSessionImpl> promise, final Channel channel,
+    public BGPClientSessionNegotiator(final Promise<BGPSession> promise, final Channel channel,
             final BGPPeerRegistry registry, final BGPSessionValidator sessionValidator) {
         super(promise, channel, registry, sessionValidator);
     }
