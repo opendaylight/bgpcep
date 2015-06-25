@@ -7,13 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import io.netty.channel.ChannelInboundHandler;
 import java.util.Set;
-
-import org.opendaylight.protocol.framework.ProtocolSession;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
-import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
  * BGP Session represents the finite state machine in BGP, including timers and its purpose is to create a BGP
@@ -22,7 +20,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
  *
  * If the session is up, it has to redirect messages to/from user. Handles also malformed messages and unknown requests.
  */
-public interface BGPSession extends ProtocolSession<Notification> {
+public interface BGPSession extends AutoCloseable, ChannelInboundHandler {
     /**
      * Return the list of tables which the peer has advertised to support.
      *

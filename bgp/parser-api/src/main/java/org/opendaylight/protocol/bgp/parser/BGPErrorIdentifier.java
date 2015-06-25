@@ -7,10 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.parser;
 
+import java.io.Serializable;
+
 /**
  * Caret for combination of Error-type and Error-value
  */
-final class BGPErrorIdentifier {
+final class BGPErrorIdentifier implements Serializable {
+    private static final long serialVersionUID = 5722575354944165734L;
     private final short code;
     private final short subcode;
 
