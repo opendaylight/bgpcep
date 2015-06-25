@@ -134,10 +134,6 @@
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-binding-config</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>protocol-framework</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>io.netty</groupId>
