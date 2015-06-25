@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
+import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
@@ -18,7 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 /**
  * Dispatcher class for creating BGP clients.
  */
-public interface BGPDispatcher extends BGPServerDispatcher {
+public interface BGPDispatcher{
 
     /**
      * Creates BGP client.
@@ -34,9 +35,10 @@ public interface BGPDispatcher extends BGPServerDispatcher {
 
     Future<Void> createReconnectingClient(InetSocketAddress address, AsNumber remoteAs,
                                           BGPPeerRegistry peerRegistry, ReconnectStrategyFactory connectStrategyFactory,
-            ReconnectStrategyFactory reestablishStrategyFactory);
-
-    Future<Void> createReconnectingClient(InetSocketAddress address, AsNumber remoteAs,
-                                          BGPPeerRegistry peerRegistry, ReconnectStrategyFactory connectStrategyFactory,
             ReconnectStrategyFactory reestablishStrategyFactory, KeyMapping keys);
+
+    /**
+     * Create new BGP server to accept incoming bgp connections (bound to provided socket address).
+     */
+    ChannelFuture createServer(BGPPeerRegistry peerRegistry, InetSocketAddress address, BGPSessionValidator sessionValidator);
 }

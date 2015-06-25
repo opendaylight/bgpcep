@@ -71,18 +71,18 @@ public class BGPDispatcherImplTest {
         final EventLoopGroup group = new NioEventLoopGroup();
         this.registry = new StrictBGPPeerRegistry();
         this.registry.addPeer(new IpAddress(new Ipv4Address(CLIENT_ADDRESS.getAddress().getHostAddress())),
-                new SimpleSessionListener(), createPreferences(CLIENT_ADDRESS));
+            new SimpleSessionListener(), createPreferences(CLIENT_ADDRESS));
         this.registry.addPeer(new IpAddress(new Ipv4Address(ADDRESS.getAddress().getHostAddress())),
-                new SimpleSessionListener(), createPreferences(ADDRESS));
+            new SimpleSessionListener(), createPreferences(ADDRESS));
         this.dispatcher = new BGPDispatcherImpl(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(), group, group);
         this.clientDispatcher = new TestClientDispatcher(group, group, ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(),
-                CLIENT_ADDRESS);
+            CLIENT_ADDRESS);
 
         final ChannelFuture future = this.dispatcher.createServer(this.registry, ADDRESS, new BGPServerSessionValidator());
         future.addListener(new GenericFutureListener<Future<Void>>() {
             @Override
             public void operationComplete(Future<Void> future) {
-                if(!future.isSuccess()) {
+                if (!future.isSuccess()) {
                     Assert.fail("Failed to create server.");
                 }
             }
@@ -93,7 +93,7 @@ public class BGPDispatcherImplTest {
     @Test
     public void testCreateClient() throws InterruptedException, ExecutionException {
         final BGPSessionImpl session = this.clientDispatcher.createClient(ADDRESS, AS_NUMBER, this.registry,
-                new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, TIMEOUT), Optional.<InetSocketAddress>absent()).get();
+            new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, TIMEOUT), Optional.<InetSocketAddress>absent()).get();
         Assert.assertEquals(BGPSessionImpl.State.UP, session.getState());
         Assert.assertEquals(AS_NUMBER, session.getAsNumber());
         Assert.assertEquals(Sets.newHashSet(this.ipv4tt), session.getAdvertisedTableTypes());
@@ -112,21 +112,13 @@ public class BGPDispatcherImplTest {
         final SimpleSessionListener listener = new SimpleSessionListener();
         this.registry.addPeer(new IpAddress(new Ipv4Address(CLIENT_ADDRESS2.getAddress().getHostAddress())), listener, createPreferences(CLIENT_ADDRESS2));
         final Future<Void> cf = this.clientDispatcher.createReconnectingClient(CLIENT_ADDRESS2, AS_NUMBER, this.registry,
-                new ReconnectStrategyFctImpl(), Optional.<InetSocketAddress>absent());
+            new ReconnectStrategyFctImpl(), Optional.<InetSocketAddress>absent());
         final Channel channel2 = this.dispatcher.createServer(this.registry, CLIENT_ADDRESS2, new BGPServerSessionValidator()).channel();
         Thread.sleep(1000);
         Assert.assertTrue(listener.up);
         Assert.assertTrue(channel2.isActive());
         cf.cancel(true);
         listener.releaseConnection();
-    }
-
-    private static final class ReconnectStrategyFctImpl implements ReconnectStrategyFactory {
-        @Override
-        public ReconnectStrategy createReconnectStrategy() {
-            return new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, TIMEOUT);
-        }
-
     }
 
     private BGPSessionPreferences createPreferences(final InetSocketAddress socketAddress) {
@@ -138,6 +130,14 @@ public class BGPDispatcherImplTest {
             .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(30L)).build()).build()).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
         return new BGPSessionPreferences(AS_NUMBER, (short) 4, new Ipv4Address(socketAddress.getAddress().getHostAddress()), tlvs);
+    }
+
+    private static final class ReconnectStrategyFctImpl implements ReconnectStrategyFactory {
+        @Override
+        public ReconnectStrategy createReconnectStrategy() {
+            return new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, TIMEOUT);
+        }
+
     }
 
 }

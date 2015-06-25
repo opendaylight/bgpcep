@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.mock;
 import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import io.netty.channel.ChannelHandlerContext;
 import java.util.List;
 import java.util.Set;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -40,13 +41,6 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
 
     private final EventBus eventBus;
 
-    public static EventBusRegistration createAndRegister(final EventBus eventBus, final BGPSessionListener listener,
-            final List<Notification> allPreviousMessages) {
-        final EventBusRegistration instance = new EventBusRegistration(eventBus, listener, allPreviousMessages);
-        eventBus.register(instance);
-        return instance;
-    }
-
     private EventBusRegistration(final EventBus eventBus, final BGPSessionListener listener, final List<Notification> allPreviousMessages) {
         super(listener);
         this.eventBus = eventBus;
@@ -55,14 +49,11 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
         }
     }
 
-    @Subscribe
-    public void onMessage(final Notification message) {
-        sendMessage(this.getInstance(), message);
-    }
-
-    @Override
-    public synchronized void removeRegistration() {
-        this.eventBus.unregister(this);
+    public static EventBusRegistration createAndRegister(final EventBus eventBus, final BGPSessionListener listener,
+                                                         final List<Notification> allPreviousMessages) {
+        final EventBusRegistration instance = new EventBusRegistration(eventBus, listener, allPreviousMessages);
+        eventBus.register(instance);
+        return instance;
     }
 
     private static void sendMessage(final BGPSessionListener listener, final Notification message) {
@@ -88,6 +79,61 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
                 private static final long AS = 30L;
 
                 @Override
+                public void channelRegistered(final ChannelHandlerContext channelHandlerContext) throws Exception {
+
+                }
+
+                @Override
+                public void channelUnregistered(final ChannelHandlerContext channelHandlerContext) throws Exception {
+
+                }
+
+                @Override
+                public void channelActive(final ChannelHandlerContext channelHandlerContext) throws Exception {
+
+                }
+
+                @Override
+                public void channelInactive(final ChannelHandlerContext channelHandlerContext) throws Exception {
+
+                }
+
+                @Override
+                public void channelRead(final ChannelHandlerContext channelHandlerContext, final Object o) throws Exception {
+
+                }
+
+                @Override
+                public void channelReadComplete(final ChannelHandlerContext channelHandlerContext) throws Exception {
+
+                }
+
+                @Override
+                public void userEventTriggered(final ChannelHandlerContext channelHandlerContext, final Object o) throws Exception {
+
+                }
+
+                @Override
+                public void channelWritabilityChanged(final ChannelHandlerContext channelHandlerContext) throws Exception {
+
+                }
+
+                @Override
+                public void handlerAdded(final ChannelHandlerContext channelHandlerContext) throws Exception {
+
+                }
+
+                @Override
+                public void handlerRemoved(final ChannelHandlerContext channelHandlerContext) throws Exception {
+
+                }
+
+                @Override
+                public void exceptionCaught(final ChannelHandlerContext channelHandlerContext, final Throwable throwable) throws Exception {
+
+                }
+
+                @Override
                 public void close() {
                     LOG.debug("Session {} closed", this);
                 }
@@ -110,5 +156,15 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
         } else if (!(message instanceof Keepalive)) {
             listener.onMessage(null, message);
         }
+    }
+
+    @Subscribe
+    public void onMessage(final Notification message) {
+        sendMessage(this.getInstance(), message);
+    }
+
+    @Override
+    public synchronized void removeRegistration() {
+        this.eventBus.unregister(this);
     }
 }
