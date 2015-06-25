@@ -13,6 +13,7 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
@@ -96,6 +97,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final RIBSupportContextRegistryImpl ribContextRegistry;
     private final EffectiveRibInWriter efWriter;
     private final DOMDataBrokerExtension service;
+    private final List<LocRibWriter> locRibs = new ArrayList<>();
 
     public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final Ipv4Address clusterId, final RIBExtensionConsumerContext extensions,
         final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory, final BindingCodecTreeFactory codecFactory,
@@ -181,9 +183,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         } catch (final TransactionCommitFailedException e1) {
             LOG.error("Failed to initiate LocRIB for key {}", key, e1);
         }
-
-        // FIXME: do not lose the writer so we clean it up on shutdown
-        LocRibWriter.create(this.ribContextRegistry, key, this.createPeerChain(this), getYangRibId(), this.localAs, getService(), pd);
+        this.locRibs.add(LocRibWriter.create(this.ribContextRegistry, key, this.createPeerChain(this), getYangRibId(), this.localAs, getService(), pd));
     }
 
     @Override
@@ -202,6 +202,13 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         t.submit().get();
         this.domChain.close();
         this.efWriter.close();
+        for (final LocRibWriter locRib : this.locRibs) {
+            try {
+                locRib.close();
+            } catch (final Exception e) {
+                LOG.warn("Could not close LocalRib reference: {}", locRib);
+            }
+        }
     }
 
     @Override
