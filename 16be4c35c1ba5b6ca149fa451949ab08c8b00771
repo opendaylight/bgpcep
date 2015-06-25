@@ -1,0 +1,205 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_299bb519",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPSessionNegotiator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-06-25T08:15:59Z",
+      "side": 1,
+      "message": "Why extend BGPSessionImpl?",
+      "range": {
+        "startLine": 24,
+        "startChar": 51,
+        "endLine": 24,
+        "endChar": 65
+      },
+      "revId": "16be4c35c1ba5b6ca149fa451949ab08c8b00771",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_e9a4dd58",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPAbstractDispatcher.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-06-25T08:15:59Z",
+      "side": 1,
+      "message": "remove, move necessary implementation into BGPDispatcherImpl",
+      "range": {
+        "startLine": 43,
+        "startChar": 22,
+        "endLine": 43,
+        "endChar": 43
+      },
+      "revId": "16be4c35c1ba5b6ca149fa451949ab08c8b00771",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_8989a9cc",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPClientSessionNegotiatorFactory.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-06-25T08:15:59Z",
+      "side": 1,
+      "message": "There should some common interface for BGP client/server negotiatior",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 5
+      },
+      "revId": "16be4c35c1ba5b6ca149fa451949ab08c8b00771",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_0996f9f0",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-06-25T08:15:59Z",
+      "side": 1,
+      "message": "here implement only BGPDispatcher",
+      "range": {
+        "startLine": 34,
+        "startChar": 45,
+        "endLine": 34,
+        "endChar": 66
+      },
+      "revId": "16be4c35c1ba5b6ca149fa451949ab08c8b00771",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_e9bb7d70",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-06-25T08:15:59Z",
+      "side": 1,
+      "message": "Notification or some common interface for all BGP messages",
+      "range": {
+        "startLine": 57,
+        "startChar": 64,
+        "endLine": 57,
+        "endChar": 70
+      },
+      "revId": "16be4c35c1ba5b6ca149fa451949ab08c8b00771",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_499391fa",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-06-25T08:15:59Z",
+      "side": 1,
+      "message": "AutoCloseable",
+      "range": {
+        "startLine": 57,
+        "startChar": 117,
+        "endLine": 57,
+        "endChar": 126
+      },
+      "revId": "16be4c35c1ba5b6ca149fa451949ab08c8b00771",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_c9b6c18a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-06-25T08:15:59Z",
+      "side": 1,
+      "message": "Do we need to forward this event?",
+      "range": {
+        "startLine": 383,
+        "startChar": 0,
+        "endLine": 388,
+        "endChar": 9
+      },
+      "revId": "16be4c35c1ba5b6ca149fa451949ab08c8b00771",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_89b0c98c",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/controller/config/yang/bgp/rib/impl/AbstractRIBImplModuleTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-06-25T08:15:59Z",
+      "side": 1,
+      "message": "just moving code inside class? It is difficult to track changes.",
+      "revId": "16be4c35c1ba5b6ca149fa451949ab08c8b00771",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_296975f9",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/BGPSession.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-06-25T08:15:59Z",
+      "side": 1,
+      "message": "AutoCloseable",
+      "range": {
+        "startLine": 23,
+        "startChar": 36,
+        "endLine": 23,
+        "endChar": 45
+      },
+      "revId": "16be4c35c1ba5b6ca149fa451949ab08c8b00771",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
