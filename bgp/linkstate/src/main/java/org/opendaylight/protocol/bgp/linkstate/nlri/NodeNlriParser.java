@@ -249,16 +249,14 @@ public final class NodeNlriParser {
 
     private static CRouterIdentifier serializeOspfPseudoNode(final ContainerNode ospfPseudonode) {
         final OspfPseudonodeCaseBuilder builder = new OspfPseudonodeCaseBuilder();
-        if (ospfPseudonode.getChild(OSPF_PSEUDONODE_NID).isPresent()) {
-            final OspfPseudonodeBuilder nodeBuilder = new OspfPseudonodeBuilder();
-            if (ospfPseudonode.getChild(LAN_IFACE_NID).isPresent()) {
-                nodeBuilder.setLanInterface(new OspfInterfaceIdentifier((Long) ospfPseudonode.getChild(LAN_IFACE_NID).get().getValue()));
-            }
-            if (ospfPseudonode.getChild(OSPF_ROUTER_NID).isPresent()) {
-                nodeBuilder.setOspfRouterId((Long) ospfPseudonode.getChild(OSPF_ROUTER_NID).get().getValue());
-            }
-            builder.setOspfPseudonode(nodeBuilder.build());
+        final OspfPseudonodeBuilder nodeBuilder = new OspfPseudonodeBuilder();
+        if (ospfPseudonode.getChild(LAN_IFACE_NID).isPresent()) {
+            nodeBuilder.setLanInterface(new OspfInterfaceIdentifier((Long)ospfPseudonode.getChild(LAN_IFACE_NID).get().getValue()));
         }
+        if (ospfPseudonode.getChild(OSPF_ROUTER_NID).isPresent()) {
+            nodeBuilder.setOspfRouterId((Long)ospfPseudonode.getChild(OSPF_ROUTER_NID).get().getValue());
+        }
+        builder.setOspfPseudonode(nodeBuilder.build());
         return builder.build();
     }
 
@@ -305,7 +303,7 @@ public final class NodeNlriParser {
     }
 
     static LocalNodeDescriptors serializeLocalNodeDescriptors(final ContainerNode descriptorsData) {
-        LocalNodeDescriptorsBuilder builder = new LocalNodeDescriptorsBuilder();
+        final LocalNodeDescriptorsBuilder builder = new LocalNodeDescriptorsBuilder();
         builder.setAsNumber(serializeAsNumber(descriptorsData));
         builder.setDomainId(serializeDomainId(descriptorsData));
         builder.setAreaId(serializeAreaId(descriptorsData));
@@ -314,7 +312,7 @@ public final class NodeNlriParser {
     }
 
     static RemoteNodeDescriptors serializeRemoteNodeDescriptors(final ContainerNode descriptorsData) {
-        RemoteNodeDescriptorsBuilder builder = new RemoteNodeDescriptorsBuilder();
+        final RemoteNodeDescriptorsBuilder builder = new RemoteNodeDescriptorsBuilder();
         builder.setAsNumber(serializeAsNumber(descriptorsData));
         builder.setDomainId(serializeDomainId(descriptorsData));
         builder.setAreaId(serializeAreaId(descriptorsData));
@@ -323,7 +321,7 @@ public final class NodeNlriParser {
     }
 
     static AdvertisingNodeDescriptors serializeAdvNodeDescriptors(final ContainerNode descriptorsData) {
-        AdvertisingNodeDescriptorsBuilder builder = new AdvertisingNodeDescriptorsBuilder();
+        final AdvertisingNodeDescriptorsBuilder builder = new AdvertisingNodeDescriptorsBuilder();
         builder.setAsNumber(serializeAsNumber(descriptorsData));
         builder.setDomainId(serializeDomainId(descriptorsData));
         builder.setAreaId(serializeAreaId(descriptorsData));
@@ -332,7 +330,7 @@ public final class NodeNlriParser {
     }
 
     static NodeDescriptors serializeNodeDescriptors(final ContainerNode descriptorsData) {
-        NodeDescriptorsBuilder builder = new NodeDescriptorsBuilder();
+        final NodeDescriptorsBuilder builder = new NodeDescriptorsBuilder();
         builder.setAsNumber(serializeAsNumber(descriptorsData));
         builder.setDomainId(serializeDomainId(descriptorsData));
         builder.setAreaId(serializeAreaId(descriptorsData));
