@@ -92,7 +92,7 @@ public class BGPDispatcherImplTest {
 
     @Test
     public void testCreateClient() throws InterruptedException, ExecutionException {
-        final BGPSessionImpl session = this.clientDispatcher.createClient(ADDRESS, AS_NUMBER, this.registry,
+        final BGPSessionImpl session = (BGPSessionImpl) this.clientDispatcher.createClient(ADDRESS, AS_NUMBER, this.registry,
                 new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, TIMEOUT), Optional.<InetSocketAddress>absent()).get();
         Assert.assertEquals(BGPSessionImpl.State.UP, session.getState());
         Assert.assertEquals(AS_NUMBER, session.getAsNumber());
