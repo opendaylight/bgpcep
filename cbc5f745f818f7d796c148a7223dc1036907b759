@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_74f9844c",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-06-25T17:15:10Z",
+      "side": 1,
+      "message": "arraylist is sufficient, as the hashcode/equals will make it the same.\n\nAlso track not an AutoCloseable, but the actual LocRibWriter, as that will simplify the code close() as that has non-throwing close() mehtod.",
+      "revId": "cbc5f745f818f7d796c148a7223dc1036907b759",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
