@@ -16,7 +16,9 @@ import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.AreaIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.DomainIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
@@ -110,6 +112,8 @@ public final class NodeNlriParser {
         DomainIdentifier bgpId = null;
         AreaIdentifier ai = null;
         CRouterIdentifier routerId = null;
+        AsNumber memberAsn = null;
+        Ipv4Address bgpRouterId = null;
         while (buffer.isReadable()) {
             final int type = buffer.readUnsignedShort();
             final int length = buffer.readUnsignedShort();
@@ -134,6 +138,14 @@ public final class NodeNlriParser {
                 routerId = parseRouterId(value);
                 LOG.debug("Parsed Router Identifier {}", routerId);
                 break;
+            case TlvUtil.BGP_ROUTER_ID:
+                bgpRouterId = Ipv4Util.addressForByteBuf(value);
+                LOG.debug("Parsed BGP Router Identifier {}", bgpRouterId);
+                break;
+            case TlvUtil.MEMBER_AS_NUMBER:
+                memberAsn = new AsNumber(value.readUnsignedInt());
+                LOG.debug("Parsed Member AsNumber {}", memberAsn);
+                break;
             default:
                 throw new BGPParsingException("Node Descriptor not recognized, type: " + type);
             }
@@ -144,7 +156,7 @@ public final class NodeNlriParser {
             if (local) {
                 return new LocalNodeDescriptorsBuilder().setAsNumber(asnumber).setAreaId(ai).setCRouterIdentifier(routerId).setDomainId(bgpId).build();
             } else {
-                return new RemoteNodeDescriptorsBuilder().setAsNumber(asnumber).setAreaId(ai).setCRouterIdentifier(routerId).setDomainId(bgpId).build();
+                return new RemoteNodeDescriptorsBuilder().setAsNumber(asnumber).setAreaId(ai).setCRouterIdentifier(routerId).setDomainId(bgpId).setBgpRouterId(bgpRouterId).setMemberAsn(memberAsn).build();
             }
         case Node:
             return new NodeDescriptorsBuilder().setAsNumber(asnumber).setAreaId(ai).setCRouterIdentifier(routerId).setDomainId(bgpId).build();
@@ -191,6 +203,16 @@ public final class NodeNlriParser {
             final ByteBuf routerIdBuf = Unpooled.buffer();
             serializeRouterId(descriptors.getCRouterIdentifier(), routerIdBuf);
             TlvUtil.writeTLV(IGP_ROUTER_ID, routerIdBuf, buffer);
+        }
+    }
+
+    static void serializeRemoteNodeDescriptors(final RemoteNodeDescriptors rnds, final ByteBuf buffer) {
+        serializeNodeDescriptors(rnds, buffer);
+        if (rnds.getBgpRouterId() != null) {
+            TlvUtil.writeTLV(TlvUtil.BGP_ROUTER_ID, Ipv4Util.byteBufForAddress(rnds.getBgpRouterId()), buffer);
+        }
+        if (rnds.getMemberAsn() != null) {
+            TlvUtil.writeTLV(TlvUtil.MEMBER_AS_NUMBER, Unpooled.copyInt(UnsignedInteger.valueOf(rnds.getMemberAsn().getValue()).intValue()), buffer);
         }
     }
 
@@ -305,7 +327,7 @@ public final class NodeNlriParser {
     }
 
     static LocalNodeDescriptors serializeLocalNodeDescriptors(final ContainerNode descriptorsData) {
-        LocalNodeDescriptorsBuilder builder = new LocalNodeDescriptorsBuilder();
+        final LocalNodeDescriptorsBuilder builder = new LocalNodeDescriptorsBuilder();
         builder.setAsNumber(serializeAsNumber(descriptorsData));
         builder.setDomainId(serializeDomainId(descriptorsData));
         builder.setAreaId(serializeAreaId(descriptorsData));
@@ -314,16 +336,34 @@ public final class NodeNlriParser {
     }
 
     static RemoteNodeDescriptors serializeRemoteNodeDescriptors(final ContainerNode descriptorsData) {
-        RemoteNodeDescriptorsBuilder builder = new RemoteNodeDescriptorsBuilder();
+        final RemoteNodeDescriptorsBuilder builder = new RemoteNodeDescriptorsBuilder();
         builder.setAsNumber(serializeAsNumber(descriptorsData));
         builder.setDomainId(serializeDomainId(descriptorsData));
         builder.setAreaId(serializeAreaId(descriptorsData));
         builder.setCRouterIdentifier(serializeRouterId(descriptorsData));
+        builder.setBgpRouterId(serializeBgpRouterId(descriptorsData));
+        builder.setMemberAsn(serializeMemberAsn(descriptorsData));
         return builder.build();
     }
 
+    private static Ipv4Address serializeBgpRouterId(final ContainerNode descriptorsData) {
+        final Optional<DataContainerChild<? extends PathArgument, ?>> bgpRouterId = descriptorsData.getChild(TlvUtil.BGP_ROUTER_NID);
+        if (bgpRouterId.isPresent()) {
+            return new Ipv4Address((String) bgpRouterId.get().getValue());
+        }
+        return null;
+    }
+
+    private static AsNumber serializeMemberAsn(final ContainerNode descriptorsData) {
+        final Optional<DataContainerChild<? extends PathArgument, ?>> memberAsn = descriptorsData.getChild(TlvUtil.MEMBER_ASN_NID);
+        if (memberAsn.isPresent()) {
+            return new AsNumber((Long) memberAsn.get().getValue());
+        }
+        return null;
+    }
+
     static AdvertisingNodeDescriptors serializeAdvNodeDescriptors(final ContainerNode descriptorsData) {
-        AdvertisingNodeDescriptorsBuilder builder = new AdvertisingNodeDescriptorsBuilder();
+        final AdvertisingNodeDescriptorsBuilder builder = new AdvertisingNodeDescriptorsBuilder();
         builder.setAsNumber(serializeAsNumber(descriptorsData));
         builder.setDomainId(serializeDomainId(descriptorsData));
         builder.setAreaId(serializeAreaId(descriptorsData));
@@ -332,7 +372,7 @@ public final class NodeNlriParser {
     }
 
     static NodeDescriptors serializeNodeDescriptors(final ContainerNode descriptorsData) {
-        NodeDescriptorsBuilder builder = new NodeDescriptorsBuilder();
+        final NodeDescriptorsBuilder builder = new NodeDescriptorsBuilder();
         builder.setAsNumber(serializeAsNumber(descriptorsData));
         builder.setDomainId(serializeDomainId(descriptorsData));
         builder.setAreaId(serializeAreaId(descriptorsData));

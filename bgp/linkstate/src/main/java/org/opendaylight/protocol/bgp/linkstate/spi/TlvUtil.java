@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.linkstate.spi;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.node._case.NodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.PrefixDescriptors;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -29,6 +30,10 @@ public final class TlvUtil {
     public static final NodeIdentifier MULTI_TOPOLOGY_NID = new NodeIdentifier(QName.cachedReference(QName.create(PrefixDescriptors.QNAME, "topology-identifier")));
     public static final int LOCAL_IPV4_ROUTER_ID = 1028;
     public static final int LOCAL_IPV6_ROUTER_ID = 1029;
+    public static final int BGP_ROUTER_ID = 516;
+    public static final int MEMBER_AS_NUMBER = 517;
+    public static final NodeIdentifier BGP_ROUTER_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "bgp-router-id")));
+    public static final NodeIdentifier MEMBER_ASN_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "member-asn")));
 
     /**
      * Util method for writing TLV header.
