@@ -12,6 +12,7 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -252,7 +253,11 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
             this.runtimeReg = null;
         }
         if (this.session != null) {
-            this.session.close();
+            try {
+                this.session.close();
+            } catch (IOException e) {
+                LOG.info("Error closing session with peer", e);
+            }
             this.session = null;
         }
     }

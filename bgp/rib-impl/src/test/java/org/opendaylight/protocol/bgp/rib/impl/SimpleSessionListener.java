@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.collect.Lists;
+import java.io.IOException;
 import java.util.List;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
@@ -64,7 +65,11 @@ public class SimpleSessionListener implements ReusableBGPPeer {
     public void releaseConnection() {
         LOG.debug("Releasing connection");
         if (this.session != null) {
-            this.session.close();
+            try {
+                this.session.close();
+            } catch (IOException e) {
+                LOG.info("Error closing session", e);
+            }
         }
     }
 

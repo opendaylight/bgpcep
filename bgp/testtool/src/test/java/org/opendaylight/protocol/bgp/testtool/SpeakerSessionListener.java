@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.testtool;
 
+import java.io.IOException;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
@@ -31,7 +32,12 @@ public class SpeakerSessionListener implements BGPSessionListener {
     @Override
     public void onSessionDown(final BGPSession session, final Exception e) {
         LOG.info("Server: Session down.");
-        session.close();
+        LOG.info("Client Listener: Connection lost.");
+        try {
+            session.close();
+        } catch (IOException ie) {
+            LOG.info("Error closing session", ie);
+        }
         // this.d.stop();
     }
 
