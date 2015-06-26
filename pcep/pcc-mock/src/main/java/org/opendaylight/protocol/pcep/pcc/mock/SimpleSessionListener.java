@@ -140,7 +140,11 @@ public class SimpleSessionListener implements PCEPSessionListener {
     @Override
     public void onSessionDown(final PCEPSession session, final Exception e) {
         LOG.info("Session down with cause : {} or exception: {}", e.getCause(), e, e);
-        session.close();
+        try {
+            session.close();
+        } catch (Exception ex) {
+            LOG.warn("Unexpected negotiation failure", ex);
+        }
     }
 
     @Override
