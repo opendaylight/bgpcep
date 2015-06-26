@@ -16,7 +16,10 @@ import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.epe.rev150622.EpeNodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.AreaIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.DomainIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
@@ -77,6 +80,8 @@ public final class NodeNlriParser {
     private static final int BGP_LS_ID = 513;
     private static final int AREA_ID = 514;
     private static final int IGP_ROUTER_ID = 515;
+    private static final int BGP_ROUTER_ID = 516;
+    private static final int MEMBER_AS_NUMBER = 517;
 
     /* Node Descriptor QNames */
     @VisibleForTesting
@@ -87,6 +92,10 @@ public final class NodeNlriParser {
     public static final NodeIdentifier DOMAIN_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "domain-id")));
     @VisibleForTesting
     public static final NodeIdentifier ROUTER_NID = new NodeIdentifier(CRouterIdentifier.QNAME);
+    @VisibleForTesting
+    public static final NodeIdentifier BGP_ROUTER_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "bgp-router-id")));
+    @VisibleForTesting
+    public static final NodeIdentifier MEMBER_ASN_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "member-asn")));
 
     /* Router Identifier QNames */
     @VisibleForTesting
@@ -110,6 +119,8 @@ public final class NodeNlriParser {
         DomainIdentifier bgpId = null;
         AreaIdentifier ai = null;
         CRouterIdentifier routerId = null;
+        AsNumber memberAsn = null;
+        Ipv4Address bgpRouterId = null;
         while (buffer.isReadable()) {
             final int type = buffer.readUnsignedShort();
             final int length = buffer.readUnsignedShort();
@@ -134,6 +145,14 @@ public final class NodeNlriParser {
                 routerId = parseRouterId(value);
                 LOG.debug("Parsed Router Identifier {}", routerId);
                 break;
+            case BGP_ROUTER_ID:
+                bgpRouterId = Ipv4Util.addressForByteBuf(value);
+                LOG.debug("Parsed BGP Router Identifier {}", bgpRouterId);
+                break;
+            case MEMBER_AS_NUMBER:
+                memberAsn = new AsNumber(value.readUnsignedInt());
+                LOG.debug("Parsed Member AsNumber {}", memberAsn);
+                break;
             default:
                 throw new BGPParsingException("Node Descriptor not recognized, type: " + type);
             }
@@ -142,9 +161,9 @@ public final class NodeNlriParser {
         switch (nlriType) {
         case Link:
             if (local) {
-                return new LocalNodeDescriptorsBuilder().setAsNumber(asnumber).setAreaId(ai).setCRouterIdentifier(routerId).setDomainId(bgpId).build();
+                return new LocalNodeDescriptorsBuilder().setAsNumber(asnumber).setAreaId(ai).setCRouterIdentifier(routerId).setDomainId(bgpId).setBgpRouterId(bgpRouterId).setMemberAsn(memberAsn).build();
             } else {
-                return new RemoteNodeDescriptorsBuilder().setAsNumber(asnumber).setAreaId(ai).setCRouterIdentifier(routerId).setDomainId(bgpId).build();
+                return new RemoteNodeDescriptorsBuilder().setAsNumber(asnumber).setAreaId(ai).setCRouterIdentifier(routerId).setDomainId(bgpId).setBgpRouterId(bgpRouterId).setMemberAsn(memberAsn).build();
             }
         case Node:
             return new NodeDescriptorsBuilder().setAsNumber(asnumber).setAreaId(ai).setCRouterIdentifier(routerId).setDomainId(bgpId).build();
@@ -177,7 +196,7 @@ public final class NodeNlriParser {
         throw new BGPParsingException("Router Id of invalid length " + value.readableBytes());
     }
 
-    static void serializeNodeDescriptors(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier descriptors, final ByteBuf buffer) {
+    static void serializeNodeIdentifier(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier descriptors, final ByteBuf buffer) {
         if (descriptors.getAsNumber() != null) {
             TlvUtil.writeTLV(AS_NUMBER, Unpooled.copyInt(UnsignedInteger.valueOf(descriptors.getAsNumber().getValue()).intValue()), buffer);
         }
@@ -191,6 +210,15 @@ public final class NodeNlriParser {
             final ByteBuf routerIdBuf = Unpooled.buffer();
             serializeRouterId(descriptors.getCRouterIdentifier(), routerIdBuf);
             TlvUtil.writeTLV(IGP_ROUTER_ID, routerIdBuf, buffer);
+        }
+    }
+
+    static void serializeEpeNodeDescriptors(final EpeNodeDescriptors epends, final ByteBuf buffer) {
+        if (epends.getBgpRouterId() != null) {
+            TlvUtil.writeTLV(BGP_ROUTER_ID, Ipv4Util.byteBufForAddress(epends.getBgpRouterId()), buffer);
+        }
+        if (epends.getMemberAsn() != null) {
+            TlvUtil.writeTLV(MEMBER_AS_NUMBER, Unpooled.copyInt(UnsignedInteger.valueOf(epends.getMemberAsn().getValue()).intValue()), buffer);
         }
     }
 
@@ -304,26 +332,46 @@ public final class NodeNlriParser {
         return null;
     }
 
+    private static Ipv4Address serializeBgpRouterId(final ContainerNode descriptorsData) {
+        final Optional<DataContainerChild<? extends PathArgument, ?>> bgpRouterId = descriptorsData.getChild(BGP_ROUTER_NID);
+        if (bgpRouterId.isPresent()) {
+            return new Ipv4Address((String) bgpRouterId.get().getValue());
+        }
+        return null;
+    }
+
+    private static AsNumber serializeMemberAsn(final ContainerNode descriptorsData) {
+        final Optional<DataContainerChild<? extends PathArgument, ?>> memberAsn = descriptorsData.getChild(MEMBER_ASN_NID);
+        if (memberAsn.isPresent()) {
+            return new AsNumber((Long) memberAsn.get().getValue());
+        }
+        return null;
+    }
+
     static LocalNodeDescriptors serializeLocalNodeDescriptors(final ContainerNode descriptorsData) {
-        LocalNodeDescriptorsBuilder builder = new LocalNodeDescriptorsBuilder();
+        final LocalNodeDescriptorsBuilder builder = new LocalNodeDescriptorsBuilder();
         builder.setAsNumber(serializeAsNumber(descriptorsData));
         builder.setDomainId(serializeDomainId(descriptorsData));
         builder.setAreaId(serializeAreaId(descriptorsData));
         builder.setCRouterIdentifier(serializeRouterId(descriptorsData));
+        builder.setBgpRouterId(serializeBgpRouterId(descriptorsData));
+        builder.setMemberAsn(serializeMemberAsn(descriptorsData));
         return builder.build();
     }
 
     static RemoteNodeDescriptors serializeRemoteNodeDescriptors(final ContainerNode descriptorsData) {
-        RemoteNodeDescriptorsBuilder builder = new RemoteNodeDescriptorsBuilder();
+        final RemoteNodeDescriptorsBuilder builder = new RemoteNodeDescriptorsBuilder();
         builder.setAsNumber(serializeAsNumber(descriptorsData));
         builder.setDomainId(serializeDomainId(descriptorsData));
         builder.setAreaId(serializeAreaId(descriptorsData));
         builder.setCRouterIdentifier(serializeRouterId(descriptorsData));
+        builder.setBgpRouterId(serializeBgpRouterId(descriptorsData));
+        builder.setMemberAsn(serializeMemberAsn(descriptorsData));
         return builder.build();
     }
 
     static AdvertisingNodeDescriptors serializeAdvNodeDescriptors(final ContainerNode descriptorsData) {
-        AdvertisingNodeDescriptorsBuilder builder = new AdvertisingNodeDescriptorsBuilder();
+        final AdvertisingNodeDescriptorsBuilder builder = new AdvertisingNodeDescriptorsBuilder();
         builder.setAsNumber(serializeAsNumber(descriptorsData));
         builder.setDomainId(serializeDomainId(descriptorsData));
         builder.setAreaId(serializeAreaId(descriptorsData));
@@ -332,7 +380,7 @@ public final class NodeNlriParser {
     }
 
     static NodeDescriptors serializeNodeDescriptors(final ContainerNode descriptorsData) {
-        NodeDescriptorsBuilder builder = new NodeDescriptorsBuilder();
+        final NodeDescriptorsBuilder builder = new NodeDescriptorsBuilder();
         builder.setAsNumber(serializeAsNumber(descriptorsData));
         builder.setDomainId(serializeDomainId(descriptorsData));
         builder.setAreaId(serializeAreaId(descriptorsData));
