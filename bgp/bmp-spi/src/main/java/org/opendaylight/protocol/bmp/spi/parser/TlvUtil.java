@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bmp.spi.parser;
 
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.INT_BYTES_LENGTH;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.LONG_BYTES_LENGTH;
-
 import com.google.common.base.Charsets;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -21,7 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 /**
  * Created by cgasparini on 13.5.2015.
  */
-public class TlvUtil {
+public final class TlvUtil {
 
     private TlvUtil() {
         throw new UnsupportedOperationException();
