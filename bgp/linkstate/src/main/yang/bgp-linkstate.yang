@@ -311,6 +311,7 @@ module bgp-linkstate {
             case link-case {
                 container local-node-descriptors {
                     uses node-identifier;
+                    uses bgp-epe:epe-node-descriptors;
                 }
                 container remote-node-descriptors {
                     uses node-identifier;
@@ -318,7 +319,6 @@ module bgp-linkstate {
                 }
                 container link-descriptors {
                     uses link-identifier;
-                    uses bgp-epe:epe-node-descriptors;
                 }
             }
             case prefix-case {
