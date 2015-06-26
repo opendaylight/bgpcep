@@ -11,7 +11,6 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.systemPackages;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
-
 import javax.inject.Inject;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
@@ -61,7 +60,7 @@ public class AbstractPcepOsgiTest {
                 mavenBundle("org.slf4j", "log4j-over-slf4j").versionAsInProject(), //
                 mavenBundle("ch.qos.logback", "logback-core").versionAsInProject(), //
                 mavenBundle("ch.qos.logback", "logback-classic").versionAsInProject(),
-                mavenBundle("org.openexi", "nagasena").versionAsInProject(),
+                mavenBundle("openexi", "nagasena").versionAsInProject(),
                 mavenBundle("com.github.romix", "java-concurrent-hash-trie-map").versionAsInProject(),
 
                 TestHelper.mdSalCoreBundles(),
