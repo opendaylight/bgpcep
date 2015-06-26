@@ -13,7 +13,7 @@ import com.google.common.collect.ImmutableList;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bmp.spi.parser.AbstractBmpMessageWithTlvParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
-import org.opendaylight.protocol.bmp.spi.registry.BmpTlvRegistry;
+import org.opendaylight.protocol.bmp.spi.parser.BmpTlvRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.TerminationMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.TerminationMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.Tlv;

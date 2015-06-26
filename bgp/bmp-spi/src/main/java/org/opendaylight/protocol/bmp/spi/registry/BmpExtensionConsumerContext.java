@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bmp.spi.registry;
 
+import org.opendaylight.protocol.bmp.spi.parser.BmpTlvRegistry;
+
 public interface BmpExtensionConsumerContext {
 
     BmpMessageRegistry getBmpMessageRegistry();
