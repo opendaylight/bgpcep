@@ -232,7 +232,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
         NlriType nlriType = null;
         if (ot instanceof PrefixCase) {
             final PrefixCase pCase = (PrefixCase) destination.getObjectType();
-            NodeNlriParser.serializeNodeDescriptors(pCase.getAdvertisingNodeDescriptors(), ldescs);
+            NodeNlriParser.serializeNodeIdentifier(pCase.getAdvertisingNodeDescriptors(), ldescs);
             TlvUtil.writeTLV(LOCAL_NODE_DESCRIPTORS_TYPE, ldescs, nlriByteBuf);
             if (pCase.getPrefixDescriptors() != null) {
                 PrefixNlriParser.serializePrefixDescriptors(pCase.getPrefixDescriptors(), nlriByteBuf);
@@ -244,10 +244,12 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
             }
         } else if (ot instanceof LinkCase) {
             final LinkCase lCase = (LinkCase) destination.getObjectType();
-            NodeNlriParser.serializeNodeDescriptors(lCase.getLocalNodeDescriptors(), ldescs);
+            NodeNlriParser.serializeNodeIdentifier(lCase.getLocalNodeDescriptors(), ldescs);
+            NodeNlriParser.serializeEpeNodeDescriptors(lCase.getLocalNodeDescriptors(), ldescs);
             TlvUtil.writeTLV(LOCAL_NODE_DESCRIPTORS_TYPE, ldescs, nlriByteBuf);
             final ByteBuf rdescs = Unpooled.buffer();
-            NodeNlriParser.serializeNodeDescriptors(lCase.getRemoteNodeDescriptors(), rdescs);
+            NodeNlriParser.serializeNodeIdentifier(lCase.getRemoteNodeDescriptors(), rdescs);
+            NodeNlriParser.serializeEpeNodeDescriptors(lCase.getRemoteNodeDescriptors(), rdescs);
             TlvUtil.writeTLV(REMOTE_NODE_DESCRIPTORS_TYPE, rdescs, nlriByteBuf);
             if (lCase.getLinkDescriptors() != null) {
                 LinkNlriParser.serializeLinkDescriptors(lCase.getLinkDescriptors(), nlriByteBuf);
@@ -255,7 +257,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
             nlriType = NlriType.Link;
         } else if (ot instanceof NodeCase) {
             final NodeCase nCase = (NodeCase) destination.getObjectType();
-            NodeNlriParser.serializeNodeDescriptors(nCase.getNodeDescriptors(), ldescs);
+            NodeNlriParser.serializeNodeIdentifier(nCase.getNodeDescriptors(), ldescs);
             TlvUtil.writeTLV(LOCAL_NODE_DESCRIPTORS_TYPE, ldescs, nlriByteBuf);
             nlriType = NlriType.Node;
         } else {
@@ -336,7 +338,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
 
         if (objectType.getChild(ADVERTISING_NODE_DESCRIPTORS_NID).isPresent()) {
             // prefix node descriptors
-            PrefixCaseBuilder prefixBuilder = new PrefixCaseBuilder();
+            final PrefixCaseBuilder prefixBuilder = new PrefixCaseBuilder();
             prefixBuilder.setAdvertisingNodeDescriptors(NodeNlriParser.serializeAdvNodeDescriptors((ContainerNode) objectType.getChild(
                     ADVERTISING_NODE_DESCRIPTORS_NID).get()));
 

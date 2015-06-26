@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.linkstate;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -90,17 +89,27 @@ public class LinkstateNlriParserTest {
         (byte) 0x00, (byte) 0x29, (byte) 0x29, (byte) 0x29, (byte) 0x02, (byte) 0x03, (byte) 0x00, (byte) 0x07, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x39, (byte) 0x05 };
 
-    private final byte[] linkNlri = new byte[] { (byte) 0x00, (byte) 0x02, (byte) 0x00, (byte) 0x65, (byte) 0x02, (byte) 0x00, (byte) 0x00,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01, (byte) 0x01, (byte) 0x00, (byte) 0x00, (byte) 0x1a,
+    private final byte[] linkNlri = new byte[] { (byte) 0x00, (byte) 0x02, (byte) 0x00, (byte) 0x85, (byte) 0x02, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01,
+        // local node descriptors
+        (byte) 0x01, (byte) 0x00, (byte) 0x00, (byte) 0x2a,
         (byte) 0x02, (byte) 0x00, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x48, (byte) 0x02, (byte) 0x01,
         (byte) 0x00, (byte) 0x04, (byte) 0x28, (byte) 0x28, (byte) 0x28, (byte) 0x28, (byte) 0x02, (byte) 0x03, (byte) 0x00, (byte) 0x06,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x42, (byte) 0x01, (byte) 0x01, (byte) 0x00, (byte) 0x18,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x42,
+        2, 4, 0, 4, 1, 1, 1, 1,
+        2, 5, 0, 4, 0, 0, 1, 2,
+        // remote node descriptors
+        (byte) 0x01, (byte) 0x01, (byte) 0x00, (byte) 0x28,
         (byte) 0x02, (byte) 0x00, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x48, (byte) 0x02, (byte) 0x01,
         (byte) 0x00, (byte) 0x04, (byte) 0x28, (byte) 0x28, (byte) 0x28, (byte) 0x28, (byte) 0x02, (byte) 0x03, (byte) 0x00, (byte) 0x04,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x40, 1, 2, 0, 8, 1, 2, 3, 4, 0x0a, 0x0b, 0x0c, 0x0d,
-        (byte) 0x01, (byte) 0x03, (byte) 0x00, (byte) 0x04, (byte) 0xc5, (byte) 0x14,
-        (byte) 0xa0, (byte) 0x2a, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x04, (byte) 0xc5, (byte) 0x14, (byte) 0xa0, (byte) 0x28,
-        1, 7, 0, 2, 0, 3};
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x40,
+        2, 4, 0, 4, 1, 1, 1, 2,
+        2, 5, 0, 4, 0, 0, 1, 3,
+        // link descriptors
+        1, 2, 0, 8, 1, 2, 3, 4, 0x0a,
+        0x0b, 0x0c, 0x0d, (byte) 0x01, (byte) 0x03, (byte) 0x00, (byte) 0x04, (byte) 0xc5, (byte) 0x14, (byte) 0xa0, (byte) 0x2a,
+        (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x04, (byte) 0xc5, (byte) 0x14, (byte) 0xa0, (byte) 0x28,
+        1, 7, 0, 2, 0, 3 };
 
     private final byte[] prefixNlri = new byte[] { (byte) 0x00, (byte) 0x03, (byte) 0x00, (byte) 0x39, (byte) 0x02, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01, (byte) 0x01, (byte) 0x00, (byte) 0x00,
@@ -218,11 +227,17 @@ public class LinkstateNlriParserTest {
                 new IsisNodeBuilder().setIsoSystemId(
                     new IsoSystemIdentifier(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                         (byte) 0x42 })).build()).build(), local.getCRouterIdentifier());
+        assertEquals("1.1.1.1", local.getBgpRouterId().getValue());
+        assertEquals(new AsNumber(258L), local.getMemberAsn());
+
         final RemoteNodeDescriptors remote = lCase.getRemoteNodeDescriptors();
         assertEquals(new AsNumber(72L), remote.getAsNumber());
         assertEquals(new DomainIdentifier(0x28282828L), remote.getDomainId());
         assertEquals(new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x00000040L).build()).build(),
             remote.getCRouterIdentifier());
+        assertEquals(new AsNumber(259L), remote.getMemberAsn());
+        assertEquals("1.1.1.2", remote.getBgpRouterId().getValue());
+
         final LinkDescriptors ld = lCase.getLinkDescriptors();
         assertEquals("197.20.160.42", ld.getIpv4InterfaceAddress().getValue());
         assertEquals("197.20.160.40", ld.getIpv4NeighborAddress().getValue());
@@ -276,6 +291,17 @@ public class LinkstateNlriParserTest {
         crouterId.addChild(isisNode.build());
         localNodeDescriptors.addChild(crouterId.build());
 
+        final ImmutableLeafNodeBuilder<String> bgpRouterId = new ImmutableLeafNodeBuilder<>();
+        bgpRouterId.withNodeIdentifier(NodeNlriParser.BGP_ROUTER_NID);
+        bgpRouterId.withValue("1.1.1.1");
+
+        final ImmutableLeafNodeBuilder<Long> memberAsn = new ImmutableLeafNodeBuilder<>();
+        memberAsn.withNodeIdentifier(NodeNlriParser.MEMBER_ASN_NID);
+        memberAsn.withValue(258L);
+
+        localNodeDescriptors.addChild(bgpRouterId.build());
+        localNodeDescriptors.addChild(memberAsn.build());
+
         // remote descriptors
         final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> remoteNodeDescriptors = Builders.containerBuilder();
         remoteNodeDescriptors.withNodeIdentifier(LinkstateNlriParser.REMOTE_NODE_DESCRIPTORS_NID);
@@ -294,6 +320,15 @@ public class LinkstateNlriParserTest {
         ospfNode.addChild(ospfRouterId.build());
         crouterId2.addChild(ospfNode.build());
         remoteNodeDescriptors.addChild(crouterId2.build());
+        final ImmutableLeafNodeBuilder<String> bgpRouterIdRemote = new ImmutableLeafNodeBuilder<>();
+        bgpRouterIdRemote.withNodeIdentifier(NodeNlriParser.BGP_ROUTER_NID);
+        bgpRouterIdRemote.withValue("1.1.1.2");
+        remoteNodeDescriptors.addChild(bgpRouterIdRemote.build());
+
+        final ImmutableLeafNodeBuilder<Long> memberAsnRemote = new ImmutableLeafNodeBuilder<>();
+        memberAsnRemote.withNodeIdentifier(NodeNlriParser.MEMBER_ASN_NID);
+        memberAsnRemote.withValue(259L);
+        remoteNodeDescriptors.addChild(memberAsnRemote.build());
 
         // link descritpors
         final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> linkDescriptors = Builders.containerBuilder();
