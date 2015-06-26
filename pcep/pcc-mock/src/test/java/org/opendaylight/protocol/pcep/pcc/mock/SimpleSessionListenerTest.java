@@ -70,7 +70,7 @@ public class SimpleSessionListenerTest {
     }
 
     @Test
-    public void testSessionListenerPcRpt() throws UnknownHostException {
+    public void testSessionListenerPcRpt() throws Exception {
         final SimpleSessionListener sessionListser = new SimpleSessionListener(1, false, InetAddress.getByName(IP_ADDRESS));
 
         sessionListser.onSessionUp(this.mockedSession);
