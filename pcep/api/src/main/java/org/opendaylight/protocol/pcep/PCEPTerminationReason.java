@@ -9,9 +9,8 @@ package org.opendaylight.protocol.pcep;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
-import org.opendaylight.protocol.framework.TerminationReason;
 
-public abstract class PCEPTerminationReason implements TerminationReason {
+public abstract class PCEPTerminationReason {
 
     @Override
     public final String toString() {
@@ -19,4 +18,6 @@ public abstract class PCEPTerminationReason implements TerminationReason {
     }
 
     protected abstract ToStringHelper addToStringAttributes(ToStringHelper toStringHelper);
+
+    public abstract String getErrorMessage();
 }

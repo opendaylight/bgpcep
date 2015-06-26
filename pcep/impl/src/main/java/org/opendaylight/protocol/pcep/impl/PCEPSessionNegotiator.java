@@ -16,38 +16,29 @@ import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
 import java.util.Comparator;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
-import org.opendaylight.protocol.framework.SessionListenerFactory;
-import org.opendaylight.protocol.pcep.PCEPSessionListener;
+import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPPeerRegistry.SessionReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PCEPSessionNegotiator extends AbstractSessionNegotiator<Message, PCEPSessionImpl> {
+public class PCEPSessionNegotiator extends SessionNegotiatorImpl {
 
     private static final Logger LOG = LoggerFactory.getLogger(PCEPSessionNegotiator.class);
 
     private static final Comparator<byte[]> COMPARATOR = UnsignedBytes.lexicographicalComparator();
 
-    private final Channel channel;
-
-    private final Promise<PCEPSessionImpl> promise;
-
-    private final SessionListenerFactory<PCEPSessionListener> factory;
+    private final PCEPSessionListenerFactory factory;
 
     private final AbstractPCEPSessionNegotiatorFactory negFactory;
 
-    public PCEPSessionNegotiator(final Channel channel, final Promise<PCEPSessionImpl> promise, final SessionListenerFactory<PCEPSessionListener> factory,
-        final AbstractPCEPSessionNegotiatorFactory negFactory) {
-        super(promise, channel);
-        this.channel = channel;
-        this.promise = promise;
+    public PCEPSessionNegotiator(final Channel channel, final Promise<PCEPSessionImpl> promise, final PCEPSessionListenerFactory factory,
+                                 final AbstractPCEPSessionNegotiatorFactory negFactory) {
+        super(channel,promise);
         this.factory = factory;
         this.negFactory = negFactory;
     }
 
-    @Override
     protected void startNegotiation() throws ExecutionException {
         final Object lock = this;
 
@@ -74,7 +65,7 @@ public class PCEPSessionNegotiator extends AbstractSessionNegotiator<Message, PC
                     }
                 } else {
                     negotiationFailed(new IllegalStateException("A conflicting session for address "
-                            + ((InetSocketAddress) this.channel.remoteAddress()).getAddress() + " found."));
+                        + ((InetSocketAddress) this.channel.remoteAddress()).getAddress() + " found."));
                     return;
                 }
             }
@@ -113,8 +104,8 @@ public class PCEPSessionNegotiator extends AbstractSessionNegotiator<Message, PC
         }
     }
 
-    @Override
     protected void handleMessage(final Message msg) {
         throw new IllegalStateException("Bootstrap negotiator should have been replaced");
     }
+
 }

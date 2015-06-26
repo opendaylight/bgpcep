@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import com.google.common.collect.Lists;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -46,11 +45,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 public class SimpleSessionListenerTest {
 
     private static final String IP_ADDRESS = "127.0.0.1";
-
+    private final List<Message> sendMessages = Lists.newArrayList();
     @Mock
     private PCEPSession mockedSession;
-
-    private final List<Message> sendMessages = Lists.newArrayList();
 
     @Before
     public void setup() {
@@ -70,7 +67,7 @@ public class SimpleSessionListenerTest {
     }
 
     @Test
-    public void testSessionListenerPcRpt() throws UnknownHostException {
+    public void testSessionListenerPcRpt() throws Exception {
         final SimpleSessionListener sessionListser = new SimpleSessionListener(1, false, InetAddress.getByName(IP_ADDRESS));
 
         sessionListser.onSessionUp(this.mockedSession);
@@ -107,9 +104,9 @@ public class SimpleSessionListenerTest {
         updsBuilder.setLsp(new LspBuilder().setPlspId(new PlspId(1L)).build());
         final PathBuilder pathBuilder = new PathBuilder();
         pathBuilder.setEro(
-                new EroBuilder()
-                    .setSubobject(Lists.newArrayList(new SubobjectBuilder().setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
-                        new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("127.0.0.2/32"))).build()).build()).build())).build());
+            new EroBuilder()
+                .setSubobject(Lists.newArrayList(new SubobjectBuilder().setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
+                    new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("127.0.0.2/32"))).build()).build()).build())).build());
         updsBuilder.setPath(pathBuilder.build());
         updsBuilder.setSrp(new SrpBuilder().setOperationId(new SrpIdNumber(0L)).build());
         msgBuilder.setUpdates(Lists.newArrayList(updsBuilder.build()));
