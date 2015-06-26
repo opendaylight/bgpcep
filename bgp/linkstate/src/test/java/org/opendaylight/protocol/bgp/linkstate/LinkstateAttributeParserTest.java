@@ -12,7 +12,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -63,7 +62,10 @@ public class LinkstateAttributeParserTest {
         0x46, 0x43, 0x50, 0, 0x04, 0x43, 0, 0x20, 0x46, 0x43, 0x50, 0, 0x46, 0x43, 0x50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x04, 0x44, 0, 0x08, 0, 0, 0, 0, 0, 0, 0, 0, 0x04, 0x45, 0, 0x02, 0, 0x08, 0x04, 0x46, 0, 0x01,
         (byte) 0xc0, 0x04, 0x47, 0, 0x03, 0, 0, 0x0a, 0x04, 0x48, 0, 0x08, 0x12, 0x34, 0x56, 0x78, 0x10, 0x30, 0x50, 0x70, 0x04, 0x4a,
-        0, 0x05, 0x31, 0x32, 0x4b, 0x2d, 0x32, 0x04, (byte) 0x88, 0, 0x01, 0x0a };
+        0, 0x05, 0x31, 0x32, 0x4b, 0x2d, 0x32,
+        0x04, 0x0c, 0, 0x0a, 0x1f, 0x08, (byte)0x80, 0x05, 0x01,0x04, 0x0a, 0x0b, 0x0c, 0x0d,
+        0x04, 0x0d, 0, 0x0a, 0x1f, 0x08, (byte)0x80, 0x05, 0x01, 0x04, 0x0a, 0x0b, 0x0c, 0x0e,
+        0x04, (byte) 0x88, 0, 0x01, 0x0a };
 
     private static final byte[] NODE_ATTR = { 0x01, 0x07, 0, 0x04, 0, 0x2a, 0, 0x2b, 0x04, 0, 0, 0x01, (byte) 0xb0, 0x04, 0x02, 0,
         0x05, 0x31, 0x32, 0x4b, 0x2d, 0x32, 0x04, 0x03, 0, 0x01, 0x72, 0x04, 0x03, 0, 0x01, 0x73, 0x04, 0x04, 0, 0x04,
@@ -155,6 +157,14 @@ public class LinkstateAttributeParserTest {
         assertEquals(2, ls.getSharedRiskLinkGroups().size());
         assertEquals(305419896, ls.getSharedRiskLinkGroups().get(0).getValue().intValue());
         assertEquals("12K-2", ls.getLinkName());
+        assertTrue(ls.getPeerSid().getFlags().isAddressFamily());
+        assertFalse(ls.getPeerSid().getFlags().isBackup());
+        assertTrue(ls.getPeerSetSid().getFlags().isAddressFamily());
+        assertFalse(ls.getPeerSetSid().getFlags().isBackup());
+        assertArrayEquals(new byte[] {1, 4, 10, 11, 12, 13}, ls.getPeerSid().getSid().getValue());
+        assertEquals(new Short("5"), ls.getPeerSid().getWeight().getValue());
+        assertArrayEquals(new byte[] {1, 4, 10, 11, 12, 14}, ls.getPeerSetSid().getSid().getValue());
+        assertEquals(new Short("5"), ls.getPeerSetSid().getWeight().getValue());
 
         //serialization
         final ByteBuf buff = Unpooled.buffer();
