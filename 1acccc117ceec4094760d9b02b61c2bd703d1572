@@ -16,6 +16,24 @@
       "revId": "1acccc117ceec4094760d9b02b61c2bd703d1572",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_d712d7b3",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/RIBSupport.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-06-26T06:24:43Z",
+      "side": 1,
+      "message": "In fact, both are valid to use. Added javadoc in following patch set.",
+      "parentUuid": "7a7fa997_74aae471",
+      "revId": "1acccc117ceec4094760d9b02b61c2bd703d1572",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
