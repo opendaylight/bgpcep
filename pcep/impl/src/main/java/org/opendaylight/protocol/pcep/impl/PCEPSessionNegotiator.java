@@ -8,23 +8,25 @@
 package org.opendaylight.protocol.pcep.impl;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
 import java.util.Comparator;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
-import org.opendaylight.protocol.framework.SessionListenerFactory;
-import org.opendaylight.protocol.pcep.PCEPSessionListener;
+import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
+import org.opendaylight.protocol.pcep.SessionNegotiator;
 import org.opendaylight.protocol.pcep.impl.PCEPPeerRegistry.SessionReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PCEPSessionNegotiator extends AbstractSessionNegotiator<Message, PCEPSessionImpl> {
+public class PCEPSessionNegotiator extends ChannelInboundHandlerAdapter implements SessionNegotiator {
 
     private static final Logger LOG = LoggerFactory.getLogger(PCEPSessionNegotiator.class);
 
@@ -34,20 +36,18 @@ public class PCEPSessionNegotiator extends AbstractSessionNegotiator<Message, PC
 
     private final Promise<PCEPSessionImpl> promise;
 
-    private final SessionListenerFactory<PCEPSessionListener> factory;
+    private final PCEPSessionListenerFactory factory;
 
     private final AbstractPCEPSessionNegotiatorFactory negFactory;
 
-    public PCEPSessionNegotiator(final Channel channel, final Promise<PCEPSessionImpl> promise, final SessionListenerFactory<PCEPSessionListener> factory,
-        final AbstractPCEPSessionNegotiatorFactory negFactory) {
-        super(promise, channel);
-        this.channel = channel;
-        this.promise = promise;
+    public PCEPSessionNegotiator(final Channel channel, final Promise<PCEPSessionImpl> promise, final PCEPSessionListenerFactory factory,
+                                 final AbstractPCEPSessionNegotiatorFactory negFactory) {
+        this.promise = (Promise) Preconditions.checkNotNull(promise);
+        this.channel = (Channel) Preconditions.checkNotNull(channel);
         this.factory = factory;
         this.negFactory = negFactory;
     }
 
-    @Override
     protected void startNegotiation() throws ExecutionException {
         final Object lock = this;
 
@@ -74,7 +74,7 @@ public class PCEPSessionNegotiator extends AbstractSessionNegotiator<Message, PC
                     }
                 } else {
                     negotiationFailed(new IllegalStateException("A conflicting session for address "
-                            + ((InetSocketAddress) this.channel.remoteAddress()).getAddress() + " found."));
+                        + ((InetSocketAddress) this.channel.remoteAddress()).getAddress() + " found."));
                     return;
                 }
             }
@@ -113,8 +113,62 @@ public class PCEPSessionNegotiator extends AbstractSessionNegotiator<Message, PC
         }
     }
 
-    @Override
     protected void handleMessage(final Message msg) {
         throw new IllegalStateException("Bootstrap negotiator should have been replaced");
+    }
+
+    protected final void negotiationSuccessful(PCEPSessionImpl session) {
+        this.LOG.debug("Negotiation on channel {} successful with session {}", this.channel, session);
+        this.channel.pipeline().replace(this, "session", session);
+        this.promise.setSuccess(session);
+    }
+
+    protected void negotiationFailed(Throwable cause) {
+        this.LOG.debug("Negotiation on channel {} failed", this.channel, cause);
+        this.channel.close();
+        this.promise.setFailure(cause);
+    }
+
+    protected final void sendMessage(final Message msg) {
+        this.channel.writeAndFlush(msg).addListener(new ChannelFutureListener() {
+            public void operationComplete(ChannelFuture f) {
+                if (!f.isSuccess()) {
+                    LOG.info("Failed to send message {}", msg, f.cause());
+                    negotiationFailed(f.cause());
+                } else {
+                    LOG.trace("Message {} sent to socket", msg);
+                }
+
+            }
+        });
+    }
+
+    public final void channelActive(ChannelHandlerContext ctx) {
+        this.LOG.debug("Starting session negotiation on channel {}", this.channel);
+
+        try {
+            this.startNegotiation();
+        } catch (final Exception e) {
+            this.LOG.warn("Unexpected negotiation failure", e);
+            this.negotiationFailed(e);
+        }
+
+    }
+
+    public final void channelRead(ChannelHandlerContext ctx, Object msg) {
+        this.LOG.debug("Negotiation read invoked on channel {}", this.channel);
+
+        try {
+            this.handleMessage((Message) msg);
+        } catch (Exception var4) {
+            this.LOG.debug("Unexpected error while handling negotiation message {}", msg, var4);
+            this.negotiationFailed(var4);
+        }
+
+    }
+
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        this.LOG.info("Unexpected error during negotiation", cause);
+        this.negotiationFailed(cause);
     }
 }

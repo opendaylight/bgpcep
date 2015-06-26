@@ -10,6 +10,10 @@ package org.opendaylight.protocol.pcep.impl;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.concurrent.Promise;
 import java.util.concurrent.Future;
@@ -18,7 +22,7 @@ import java.util.concurrent.TimeoutException;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import org.opendaylight.controller.config.yang.pcep.impl.Tls;
-import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
+import org.opendaylight.protocol.pcep.SessionNegotiator;
 import org.opendaylight.protocol.pcep.impl.spi.Util;
 import org.opendaylight.protocol.pcep.impl.tls.SslContextFactory;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -43,46 +47,16 @@ import org.slf4j.LoggerFactory;
  * Abstract PCEP session negotiator. Takes care of basic handshake without implementing a specific policy. Policies need
  * to be provided by a specific subclass.
  */
-public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegotiator<Message, PCEPSessionImpl> {
+public abstract class AbstractPCEPSessionNegotiator extends ChannelInboundHandlerAdapter implements SessionNegotiator {
+
     /**
      * Unified KeepWait and OpenWait timer expiration, in seconds.
      */
     public static final int FAIL_TIMER_VALUE = 60;
-
-    /**
-     * PCEP session negotiation state transitions are described in RFC5440. Simplification the two timers (KeepWait and
-     * OpenWait) are merged into a FailTimer, as they are mutually exclusive, have the same timeout value and their
-     * action is to terminate negotiation. This timer is restarted between state transitions and runs in all states
-     * except Idle and Finished.
-     */
-    @VisibleForTesting
-    public enum State {
-        /**
-         * Negotiation has not begun. It will be activated once we are asked to provide our initial proposal, at which
-         * point we move into OpenWait state.
-         */
-        IDLE,
-        /**
-         * Waiting for the peer's StartTLS message
-         */
-        START_TLS_WAIT,
-        /**
-         * Waiting for the peer's OPEN message.
-         */
-        OPEN_WAIT,
-        /**
-         * Waiting for the peer's KEEPALIVE message.
-         */
-        KEEP_WAIT,
-        /**
-         * Negotiation has completed.
-         */
-        FINISHED,
-    }
-
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPCEPSessionNegotiator.class);
     private static final Keepalive KEEPALIVE = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
-
+    protected final Channel channel;
+    private final Promise<PCEPSessionImpl> promise;
     private volatile boolean localOK, openRetry, remoteOK;
     private volatile State state = State.IDLE;
     private Future<?> failTimer;
@@ -91,7 +65,8 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     private Tls tlsConfiguration;
 
     protected AbstractPCEPSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel) {
-        super(promise, channel);
+        this.promise = (Promise) Preconditions.checkNotNull(promise);
+        this.channel = (Channel) Preconditions.checkNotNull(channel);
     }
 
     /**
@@ -129,8 +104,8 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     /**
      * Create the protocol session.
      *
-     * @param channel Underlying channel.
-     * @param localPrefs Session preferences proposed by us and accepted by the peer.
+     * @param channel     Underlying channel.
+     * @param localPrefs  Session preferences proposed by us and accepted by the peer.
      * @param remotePrefs Session preferences proposed by the peer and accepted by us.
      * @return New protocol session.
      */
@@ -175,7 +150,6 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
         }, FAIL_TIMER_VALUE, TimeUnit.SECONDS);
     }
 
-    @Override
     protected final void startNegotiation() {
         Preconditions.checkState(this.state == State.IDLE);
         if (this.tlsConfiguration != null) {
@@ -191,7 +165,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     private void startNegotiationWithOpen() {
         this.localPrefs = getInitialProposal();
         final OpenMessage m = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.OpenBuilder().setOpenMessage(
-                new OpenMessageBuilder().setOpen(this.localPrefs).build()).build();
+            new OpenMessageBuilder().setOpen(this.localPrefs).build()).build();
         this.sendMessage(m);
         this.state = State.OPEN_WAIT;
         scheduleFailTimer();
@@ -296,7 +270,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
             LOG.info("PCEPS TLS connection with peer: {} established succesfully.", this.channel);
             startNegotiationWithOpen();
             return true;
-        } else if (! (msg instanceof Pcerr)) {
+        } else if (!(msg instanceof Pcerr)) {
             this.sendErrorMessage(PCEPErrors.NON_STARTTLS_MSG_RCVD);
             negotiationFailed(new IllegalStateException("Unexpected message recieved."));
             this.state = State.FINISHED;
@@ -305,7 +279,6 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
         return false;
     }
 
-    @Override
     protected final void handleMessage(final Message msg) {
         this.failTimer.cancel(false);
 
@@ -346,5 +319,91 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 
     public void setTlsConfiguration(final Tls tlsConfiguration) {
         this.tlsConfiguration = tlsConfiguration;
+    }
+
+    protected final void negotiationSuccessful(PCEPSessionImpl session) {
+        this.LOG.debug("Negotiation on channel {} successful with session {}", this.channel, session);
+        this.channel.pipeline().replace(this, "session", session);
+        this.promise.setSuccess(session);
+    }
+
+    protected void negotiationFailed(Throwable cause) {
+        this.LOG.debug("Negotiation on channel {} failed", this.channel, cause);
+        this.channel.close();
+        this.promise.setFailure(cause);
+    }
+
+    protected final void sendMessage(final Message msg) {
+        this.channel.writeAndFlush(msg).addListener(new ChannelFutureListener() {
+            public void operationComplete(ChannelFuture f) {
+                if (!f.isSuccess()) {
+                    LOG.info("Failed to send message {}", msg, f.cause());
+                    negotiationFailed(f.cause());
+                } else {
+                    LOG.trace("Message {} sent to socket", msg);
+                }
+
+            }
+        });
+    }
+
+    public final void channelActive(ChannelHandlerContext ctx) {
+        this.LOG.debug("Starting session negotiation on channel {}", this.channel);
+
+        try {
+            this.startNegotiation();
+        } catch (final Exception e) {
+            this.LOG.warn("Unexpected negotiation failure", e);
+            this.negotiationFailed(e);
+        }
+
+    }
+
+    public final void channelRead(ChannelHandlerContext ctx, Object msg) {
+        this.LOG.debug("Negotiation read invoked on channel {}", this.channel);
+
+        try {
+            this.handleMessage((Message) msg);
+        } catch (Exception var4) {
+            this.LOG.debug("Unexpected error while handling negotiation message {}", msg, var4);
+            this.negotiationFailed(var4);
+        }
+
+    }
+
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        this.LOG.info("Unexpected error during negotiation", cause);
+        this.negotiationFailed(cause);
+    }
+
+    /**
+     * PCEP session negotiation state transitions are described in RFC5440. Simplification the two timers (KeepWait and
+     * OpenWait) are merged into a FailTimer, as they are mutually exclusive, have the same timeout value and their
+     * action is to terminate negotiation. This timer is restarted between state transitions and runs in all states
+     * except Idle and Finished.
+     */
+    @VisibleForTesting
+    public enum State {
+        /**
+         * Negotiation has not begun. It will be activated once we are asked to provide our initial proposal, at which
+         * point we move into OpenWait state.
+         */
+        IDLE,
+        /**
+         * Waiting for the peer's StartTLS message
+         */
+        START_TLS_WAIT,
+        /**
+         * Waiting for the peer's OPEN message.
+         */
+        OPEN_WAIT,
+        /**
+         * Waiting for the peer's KEEPALIVE message.
+         */
+        KEEP_WAIT,
+        /**
+         * Negotiation has completed.
+         */
+        FINISHED,
     }
 }
