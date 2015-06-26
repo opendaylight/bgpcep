@@ -10,6 +10,9 @@ package org.opendaylight.protocol.bmp.spi.parser;
 
 public class BmpMessageConstants {
 
+    private BmpMessageConstants() {
+    }
+
     public static final short BMP_VERSION = 3;
 
     public static final int COMMON_HEADER_LENGTH = 6;
