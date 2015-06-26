@@ -6,11 +6,10 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.bmp.spi.registry;
+package org.opendaylight.protocol.bmp.spi.parser;
 
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
-import org.opendaylight.protocol.bmp.spi.parser.BmpTlvSerializer;
+import org.opendaylight.protocol.bmp.spi.registry.BmpTlvRegistrator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.Tlv;
 
 public interface BmpTlvRegistry extends BmpTlvSerializer, BmpTlvRegistrator {
