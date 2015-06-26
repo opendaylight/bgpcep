@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bmp.spi.parser;
 
 import static org.opendaylight.protocol.bmp.spi.parser.BmpMessageConstants.BMP_VERSION;
 import static org.opendaylight.protocol.bmp.spi.parser.BmpMessageConstants.COMMON_HEADER_LENGTH;
-
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -48,10 +47,10 @@ public abstract class AbstractBmpMessageParser implements BmpMessageParser, BmpM
         output.writeBytes(body);
     }
 
-    abstract public void serializeMessageBody(Notification message, ByteBuf buffer);
+    public abstract void serializeMessageBody(Notification message, ByteBuf buffer);
 
-    abstract public Notification parseMessageBody(ByteBuf bytes) throws BmpDeserializationException;
+    public abstract Notification parseMessageBody(ByteBuf bytes) throws BmpDeserializationException;
 
-    abstract public int getBmpMessageType();
+    public abstract int getBmpMessageType();
 
 }

@@ -10,6 +10,8 @@ package org.opendaylight.protocol.bmp.spi.parser;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import org.junit.Assert;
 import org.junit.Test;
@@ -68,5 +70,16 @@ public class TlvUtilTest {
         final ByteBuf out = Unpooled.buffer(TLV_ASCII_OUT.length);
         TlvUtil.formatTlvUtf8(1, "Name", out);
         Assert.assertArrayEquals(TLV_ASCII_OUT, ByteArray.getAllBytes(out));
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testBmpMessageConstantsPrivateConstructor() throws Throwable {
+        final Constructor<BmpMessageConstants> c = BmpMessageConstants.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (final InvocationTargetException e) {
+            throw e.getCause();
+        }
     }
 }
