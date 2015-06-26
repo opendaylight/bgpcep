@@ -26,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
  */
 public final class PeerDistinguisherUtil {
 
-    private static class PeerDistinguisher {
+    private static final class PeerDistinguisher {
 
         private static final String COLON = ":";
 
