@@ -42,7 +42,11 @@ public class SimpleSessionListener implements PCEPSessionListener {
     @Override
     public void onSessionDown(final PCEPSession session, final Exception e) {
         LOG.debug("Session down with cause : {} or exception: {}", e.getCause(), e, e);
-        session.close();
+        try {
+            session.close();
+        } catch (Exception ie) {
+            LOG.warn("Error closing session", ie);
+        }
     }
 
     @Override
