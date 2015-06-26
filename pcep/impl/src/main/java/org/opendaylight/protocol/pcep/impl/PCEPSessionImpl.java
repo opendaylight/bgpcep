@@ -14,6 +14,8 @@ import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.concurrent.Future;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -22,7 +24,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
-import org.opendaylight.protocol.framework.AbstractProtocolSession;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
@@ -53,47 +54,36 @@ import org.slf4j.LoggerFactory;
  * Implementation of PCEPSession. (Not final for testing.)
  */
 @VisibleForTesting
-public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements PCEPSession {
+public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implements PCEPSession {
+    private static final Logger LOG = LoggerFactory.getLogger(PCEPSessionImpl.class);
+    private final Queue<Long> unknownMessagesTimes = new LinkedList<Long>();
+    private final PCEPSessionListener listener;
+    /**
+     * Open Object with session characteristics that were accepted by another PCE (sent from this session).
+     */
+    private final Open localOpen;
+    /**
+     * Open Object with session characteristics for this session (sent from another PCE).
+     */
+    private final Open remoteOpen;
+    private final Channel channel;
+    private final Keepalive kaMessage = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
+    private final PCEPSessionState sessionState;
     /**
      * System.nanoTime value about when was sent the last message Protected to be updated also in tests.
      */
     @VisibleForTesting
     protected volatile long lastMessageSentAt;
-
     /**
      * System.nanoTime value about when was received the last message
      */
     private long lastMessageReceivedAt;
-
-    private final Queue<Long> unknownMessagesTimes = new LinkedList<Long>();
-
-    private final PCEPSessionListener listener;
-
-    /**
-     * Open Object with session characteristics that were accepted by another PCE (sent from this session).
-     */
-    private final Open localOpen;
-
-    /**
-     * Open Object with session characteristics for this session (sent from another PCE).
-     */
-    private final Open remoteOpen;
-
-    private static final Logger LOG = LoggerFactory.getLogger(PCEPSessionImpl.class);
-
     private int maxUnknownMessages;
-
     // True if the listener should not be notified about events
     private boolean closed = false;
 
-    private final Channel channel;
-
-    private final Keepalive kaMessage = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
-
-    private final PCEPSessionState sessionState;
-
     PCEPSessionImpl(final PCEPSessionListener listener, final int maxUnknownMessages, final Channel channel,
-        final Open localOpen, final Open remoteOpen) {
+                    final Open localOpen, final Open remoteOpen) {
         this.listener = Preconditions.checkNotNull(listener);
         this.channel = Preconditions.checkNotNull(channel);
         this.localOpen = Preconditions.checkNotNull(localOpen);
@@ -168,7 +158,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
      * KeepAlive timer to the time at which the message was sent. If the session was closed by the time this method
      * starts to execute (the session state will become IDLE), that rescheduling won't occur.
      */
-    private  void handleKeepaliveTimer() {
+    private void handleKeepaliveTimer() {
         final long ct = System.nanoTime();
 
         long nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(getKeepAliveTimerValue());
@@ -261,7 +251,6 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
         this.close();
     }
 
-    @Override
     public synchronized void endOfInput() {
         if (!this.closed) {
             this.listener.onSessionDown(this, new IOException("End of input detected. Close the session."));
@@ -312,7 +301,6 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
      *
      * @param msg incoming message
      */
-    @Override
     public synchronized void handleMessage(final Message msg) {
         // Update last reception time
         this.lastMessageReceivedAt = System.nanoTime();
@@ -353,7 +341,6 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
         return toStringHelper;
     }
 
-    @Override
     @VisibleForTesting
     public void sessionUp() {
         this.listener.onSessionUp(this);
@@ -383,8 +370,32 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
     public Class<? extends DataContainer> getImplementedInterface() {
         throw new UnsupportedOperationException();
     }
+
     @Override
     public void resetStats() {
         this.sessionState.reset();
+    }
+
+    @Override
+    public final void channelInactive(ChannelHandlerContext ctx) {
+        LOG.debug("Channel {} inactive.", ctx.channel());
+        this.endOfInput();
+
+        try {
+            super.channelInactive(ctx);
+        } catch (Exception var3) {
+            throw new RuntimeException("Failed to delegate channel inactive event on channel " + ctx.channel(), var3);
+        }
+    }
+
+    @Override
+    protected final void channelRead0(ChannelHandlerContext ctx, Message msg) {
+        LOG.debug("Message was received: {}", msg);
+        this.handleMessage(msg);
+    }
+
+    @Override
+    public final void handlerAdded(ChannelHandlerContext ctx) {
+        this.sessionUp();
     }
 }

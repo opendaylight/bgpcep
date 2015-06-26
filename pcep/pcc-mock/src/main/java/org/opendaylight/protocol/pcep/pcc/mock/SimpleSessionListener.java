@@ -15,7 +15,6 @@ import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createPcRtp
 import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createSrp;
 import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.reqToRptPath;
 import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.updToRptPath;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -70,6 +69,7 @@ public class SimpleSessionListener implements PCEPSessionListener {
     private final AtomicLong plspIDs;
     @GuardedBy("this")
     private final Map<Long, byte[]> pathNames = new HashMap<>();
+    private Random rnd = new Random();
 
     public SimpleSessionListener(final int lspsCount, final boolean pcError, final InetAddress address) {
         Preconditions.checkArgument(lspsCount >= 0);
@@ -77,6 +77,14 @@ public class SimpleSessionListener implements PCEPSessionListener {
         this.pcError = pcError;
         this.address = address.getHostAddress();
         this.plspIDs = new AtomicLong(lspsCount);
+    }
+
+    private static Subobject getDefaultEROEndpointHop() {
+        final SubobjectBuilder builder = new SubobjectBuilder();
+        builder.setLoose(false);
+        builder.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(new IpPrefixBuilder().setIpPrefix(
+            new IpPrefix(new Ipv4Prefix(ENDPOINT_PREFIX))).build()).build());
+        return builder.build();
     }
 
     @Override
@@ -90,10 +98,10 @@ public class SimpleSessionListener implements PCEPSessionListener {
                 session.sendMessage(MsgBuilderUtil.createErrorMsg(getRandomError(), srpId));
             } else {
                 final Tlvs tlvs = createLspTlvs(updates.getLsp().getPlspId().getValue(), true,
-                        getDestinationAddress(updates.getPath().getEro().getSubobject()), this.address, this.address,
-                        Optional.fromNullable(pathNames.get(updates.getLsp().getPlspId().getValue())));
+                    getDestinationAddress(updates.getPath().getEro().getSubobject()), this.address, this.address,
+                    Optional.fromNullable(pathNames.get(updates.getLsp().getPlspId().getValue())));
                 final Pcrpt pcRpt = createPcRtpMessage(new LspBuilder(updates.getLsp()).setTlvs(tlvs).build(),
-                        Optional.fromNullable(createSrp(srpId)), updToRptPath(updates.getPath()));
+                    Optional.fromNullable(createSrp(srpId)), updToRptPath(updates.getPath()));
                 session.sendMessage(pcRpt);
             }
         } else if (message instanceof Pcinitiate) {
@@ -111,8 +119,8 @@ public class SimpleSessionListener implements PCEPSessionListener {
                     lspBuilder.setPlspId(new PlspId(this.plspIDs.incrementAndGet()));
                     lspBuilder.addAugmentation(Lsp1.class, new Lsp1Builder().setCreate(true).build());
                     final Tlvs tlvs = createLspTlvs(lspBuilder.getPlspId().getValue(), true,
-                            ((Ipv4Case) request.getEndpointsObj().getAddressFamily()).getIpv4().getDestinationIpv4Address().getValue(), this.address, this.address,
-                            Optional.of(request.getLsp().getTlvs().getSymbolicPathName().getPathName().getValue()));
+                        ((Ipv4Case) request.getEndpointsObj().getAddressFamily()).getIpv4().getDestinationIpv4Address().getValue(), this.address, this.address,
+                        Optional.of(request.getLsp().getTlvs().getSymbolicPathName().getPathName().getValue()));
                     lspBuilder.setTlvs(tlvs);
                     pcRpt = createPcRtpMessage(lspBuilder.build(), Optional.fromNullable(request.getSrp()), reqToRptPath(request));
                     this.pathNames.put(lspBuilder.getPlspId().getValue(), tlvs.getSymbolicPathName().getPathName().getValue());
@@ -127,20 +135,24 @@ public class SimpleSessionListener implements PCEPSessionListener {
         LOG.debug("Session up.");
         for (int i = 1; i <= this.lspsCount; i++) {
             final Tlvs tlvs = MsgBuilderUtil.createLspTlvs(i, true, ENDPOINT_ADDRESS, this.address,
-                    this.address, Optional.<byte[]>absent());
+                this.address, Optional.<byte[]>absent());
             session.sendMessage(createPcRtpMessage(
-                    createLsp(i, true, Optional.<Tlvs> fromNullable(tlvs)), Optional.<Srp> absent(),
-                    createPath(Lists.newArrayList(DEFAULT_ENDPOINT_HOP))));
+                createLsp(i, true, Optional.<Tlvs>fromNullable(tlvs)), Optional.<Srp>absent(),
+                createPath(Lists.newArrayList(DEFAULT_ENDPOINT_HOP))));
         }
         // end-of-sync marker
-        session.sendMessage(createPcRtpMessage(createLsp(0, false, Optional.<Tlvs> absent()), Optional.<Srp> absent(),
-                createPath(Collections.<Subobject> emptyList())));
+        session.sendMessage(createPcRtpMessage(createLsp(0, false, Optional.<Tlvs>absent()), Optional.<Srp>absent(),
+            createPath(Collections.<Subobject>emptyList())));
     }
 
     @Override
     public void onSessionDown(final PCEPSession session, final Exception e) {
         LOG.info("Session down with cause : {} or exception: {}", e.getCause(), e, e);
-        session.close();
+        try {
+            session.close();
+        } catch (Exception ex) {
+            LOG.warn("Unexpected negotiation failure", ex);
+        }
     }
 
     @Override
@@ -151,21 +163,11 @@ public class SimpleSessionListener implements PCEPSessionListener {
     private String getDestinationAddress(final List<Subobject> subobjects) {
         if (subobjects != null && !subobjects.isEmpty()) {
             final String prefix = ((IpPrefixCase) subobjects.get(subobjects.size() - 1).getSubobjectType())
-                    .getIpPrefix().getIpPrefix().getIpv4Prefix().getValue();
+                .getIpPrefix().getIpPrefix().getIpv4Prefix().getValue();
             return prefix.substring(0, prefix.indexOf('/'));
         }
         return this.address;
     }
-
-    private static Subobject getDefaultEROEndpointHop() {
-        final SubobjectBuilder builder = new SubobjectBuilder();
-        builder.setLoose(false);
-        builder.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(new IpPrefixBuilder().setIpPrefix(
-                new IpPrefix(new Ipv4Prefix(ENDPOINT_PREFIX))).build()).build());
-        return builder.build();
-    }
-
-    private Random rnd = new Random();
 
     private PCEPErrors getRandomError() {
         return PCEPErrors.values()[this.rnd.nextInt(PCEPErrors.values().length)];

@@ -8,16 +8,21 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock;
 
+import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.bootstrap.ChannelFactory;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.ServerChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
-import org.opendaylight.protocol.framework.SessionListenerFactory;
-import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
-import org.opendaylight.protocol.pcep.PCEPSessionListener;
-import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
+import org.opendaylight.protocol.pcep.PCEPDispatcher;
+import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
+import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPHandlerFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
@@ -29,23 +34,28 @@ import org.opendaylight.tcpmd5.jni.NativeSupportUnavailableException;
 import org.opendaylight.tcpmd5.netty.MD5ChannelFactory;
 import org.opendaylight.tcpmd5.netty.MD5ChannelOption;
 import org.opendaylight.tcpmd5.netty.MD5NioSocketChannelFactory;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class PCCDispatcher extends PCEPDispatcherImpl {
-
-    private InetSocketAddress localAddress;
+public final class PCCDispatcher extends AbstractPCCDispatcher implements PCEPDispatcher {
+    private static final Logger LOG = LoggerFactory.getLogger(PCCDispatcher.class);
     private final PCEPHandlerFactory factory;
     private final MD5ChannelFactory<?> cf;
+    private final PCEPSessionNegotiatorFactory snf;
+    private final PCEPHandlerFactory hf;
+    private final ChannelFactory<? extends ServerChannel> scf;
+    private InetSocketAddress localAddress;
     private KeyMapping keys;
 
-    public PCCDispatcher(final MessageRegistry registry,
-            final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> negotiatorFactory) {
-        super(registry, negotiatorFactory, new NioEventLoopGroup(), new NioEventLoopGroup(), null, null);
+    public PCCDispatcher(final MessageRegistry registry, final PCEPSessionNegotiatorFactory negotiatorFactory) {
+        super(new NioEventLoopGroup(), new NioEventLoopGroup());
+        this.snf = Preconditions.checkNotNull(negotiatorFactory);
         this.factory = new PCEPHandlerFactory(registry);
         this.cf = new MD5NioSocketChannelFactory(DeafultKeyAccessFactory.getKeyAccessFactory());
+        this.hf = new PCEPHandlerFactory(registry);
+        this.scf = null;
     }
+
 
     @Override
     protected void customizeBootstrap(final Bootstrap b) {
@@ -63,21 +73,63 @@ public final class PCCDispatcher extends PCEPDispatcherImpl {
     }
 
     public synchronized void createClient(final InetSocketAddress localAddress, final InetSocketAddress remoteAddress,
-            final ReconnectStrategyFactory strategyFactory, final SessionListenerFactory<PCEPSessionListener> listenerFactory,
-            final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> negotiatorFactory, final KeyMapping keys) {
+                                          final ReconnectStrategyFactory strategyFactory, final PCEPSessionListenerFactory listenerFactory,
+                                          final PCEPSessionNegotiatorFactory negotiatorFactory, final KeyMapping keys) {
         this.localAddress = localAddress;
         this.keys = keys;
-        super.createReconnectingClient(remoteAddress, strategyFactory, new PipelineInitializer<PCEPSessionImpl>() {
+        super.createReconnectingClient(remoteAddress, strategyFactory, new AbstractPCCDispatcher.ChannelPipelineInitializer() {
             @Override
             public void initializeChannel(final SocketChannel ch, final Promise<PCEPSessionImpl> promise) {
                 ch.pipeline().addLast(PCCDispatcher.this.factory.getDecoders());
-                ch.pipeline().addLast("negotiator",
-                        negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise));
+                ch.pipeline().addLast("negotiator", negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise));
                 ch.pipeline().addLast(PCCDispatcher.this.factory.getEncoders());
             }
         });
         this.localAddress = null;
         this.keys = null;
+    }
+
+    @Override
+    public synchronized ChannelFuture createServer(final InetSocketAddress address,
+                                                   final PCEPSessionListenerFactory listenerFactory) {
+        return createServer(address, null, listenerFactory);
+    }
+
+    @Override
+    public void close() {
+    }
+
+    @Override
+    public void customizeBootstrap(final ServerBootstrap b) {
+        if (this.keys != null && !this.keys.isEmpty()) {
+            if (this.scf == null) {
+                throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
+            }
+
+            LOG.debug("Adding MD5 keys {} to boostrap {}", this.keys, b);
+            b.channelFactory(this.scf);
+            b.option(MD5ChannelOption.TCP_MD5SIG, this.keys);
+        }
+
+        // Make sure we are doing round-robin processing
+        b.childOption(ChannelOption.MAX_MESSAGES_PER_READ, 1);
+    }
+
+    @Override
+    public synchronized ChannelFuture createServer(final InetSocketAddress address, final KeyMapping keys,
+                                                   final PCEPSessionListenerFactory listenerFactory) {
+        this.keys = keys;
+        final ChannelFuture ret = super.createServer(address, new ChannelPipelineInitializer() {
+            @Override
+            public void initializeChannel(final SocketChannel ch, final Promise<PCEPSessionImpl> promise) {
+                ch.pipeline().addLast(PCCDispatcher.this.hf.getDecoders());
+                ch.pipeline().addLast("negotiator", PCCDispatcher.this.snf.getSessionNegotiator(listenerFactory, ch, promise));
+                ch.pipeline().addLast(PCCDispatcher.this.hf.getEncoders());
+            }
+        });
+
+        this.keys = null;
+        return ret;
     }
 
     private static final class DeafultKeyAccessFactory {
