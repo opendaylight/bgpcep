@@ -9,11 +9,11 @@ package org.opendaylight.protocol.pcep.impl;
 
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
-import org.opendaylight.protocol.framework.SessionListenerFactory;
-import org.opendaylight.protocol.framework.SessionNegotiator;
-import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
+import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
+import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
+import org.opendaylight.protocol.pcep.SessionNegotiator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,8 +21,7 @@ import org.slf4j.LoggerFactory;
  * SessionNegotiator which takes care of making sure sessions between PCEP peers are kept unique. This needs to be
  * further subclassed to provide either a client or server factory.
  */
-public abstract class AbstractPCEPSessionNegotiatorFactory implements
-        SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> {
+public abstract class AbstractPCEPSessionNegotiatorFactory implements PCEPSessionNegotiatorFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPCEPSessionNegotiatorFactory.class);
 
@@ -41,8 +40,8 @@ public abstract class AbstractPCEPSessionNegotiatorFactory implements
             Channel channel, short sessionId);
 
     @Override
-    public final SessionNegotiator<PCEPSessionImpl> getSessionNegotiator(final SessionListenerFactory<PCEPSessionListener> factory,
-            final Channel channel, final Promise<PCEPSessionImpl> promise) {
+    public final SessionNegotiator getSessionNegotiator(final PCEPSessionListenerFactory factory,
+            final Channel channel, final Promise<PCEPSession> promise) {
 
         LOG.debug("Instantiating bootstrap negotiator for channel {}", channel);
         return new PCEPSessionNegotiator(channel, promise, factory, this);
