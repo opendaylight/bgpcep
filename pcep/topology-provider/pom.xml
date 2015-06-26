@@ -107,10 +107,6 @@
             <artifactId>sal-binding-config</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>protocol-framework</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.opendaylight.yangtools.model</groupId>
             <artifactId>ietf-inet-types</artifactId>
         </dependency>
