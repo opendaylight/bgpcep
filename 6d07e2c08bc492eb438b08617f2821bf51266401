@@ -51,6 +51,24 @@
       "revId": "6d07e2c08bc492eb438b08617f2821bf51266401",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_d1209c4b",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/LinkAttributesParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-06-29T12:13:43Z",
+      "side": 1,
+      "message": "before are read 2B type and 2B length:\nADJ-SID TLV has following format:\nTYPE: (2 bytes)\nLENGTH: (2 bytes)\nVALUE:\nAdj value contains flags, weight and SID\nSID itself has 1B type and 1B length and that\u0027s read here\nSID/LABEL sub-TLV:\n          TYPE: 1 (1 byte)\n          LENGTH: (1 byte)\nor do we want SID value to contain also it\u0027s type and length?\nTests check just value of sid without type and length.",
+      "parentUuid": "7a7fa997_315eb0e7",
+      "revId": "6d07e2c08bc492eb438b08617f2821bf51266401",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
