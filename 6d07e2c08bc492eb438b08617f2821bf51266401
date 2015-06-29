@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_ce5eb945",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/LinkAttributesParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-29T08:48:14Z",
+      "side": 1,
+      "message": "why?",
+      "revId": "6d07e2c08bc492eb438b08617f2821bf51266401",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
