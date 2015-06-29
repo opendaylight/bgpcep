@@ -47,6 +47,7 @@ module bgp-message {
     grouping cluster-id {
         leaf-list cluster {
             type bgp-t:cluster-identifier;
+            ordered-by user;
         }
     }
 
