@@ -69,6 +69,24 @@
       "revId": "6d07e2c08bc492eb438b08617f2821bf51266401",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_3cea0710",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/LinkAttributesParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-06-29T15:16:31Z",
+      "side": 1,
+      "message": "Sorry, I was confused by other specification where there where 1B for type and 1B for length, so I wanted to parse 2+2B and then 1+1B for type and length because of it, but the 1+1 was redundant and was related to other protocol. .... but then parsing of Adj-segment-id in next step is then wrong too - where length and type is not parsed and that was confusing for me too.\ngoing to fix all according to your comments.",
+      "parentUuid": "7a7fa997_d1209c4b",
+      "revId": "6d07e2c08bc492eb438b08617f2821bf51266401",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
