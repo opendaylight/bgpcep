@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "7a7fa997_ce2559c3",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/LinkAttributesParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-06-29T08:57:11Z",
+      "side": 1,
+      "message": "ADJ-SID TLV has following format:\nTYPE: (2 bytes)\nLENGTH: (2 bytes)\nVALUE:\n     FLAGS (1 byte)\n     WEIGHT (1 byte)\n     SID/LABEL sub-TLV:\n          TYPE: 1 (1 byte)\n          LENGTH: (1 byte)\n          VALUE: sid/label (bytes)\n\nThe same format for PEER-SID and PEER-SET-SID TLVs, just different TYPE value.",
+      "revId": "6d07e2c08bc492eb438b08617f2821bf51266401",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a7fa997_ce5eb945",
         "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/LinkAttributesParser.java",
         "patchSetId": 3
