@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_6e1e8572",
+        "filename": "bgp/bmp-spi/src/test/java/org/opendaylight/protocol/bmp/spi/parser/BmpMessageConstantsTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-29T08:58:01Z",
+      "side": 1,
+      "message": "I don\u0027t think we need a separate file, this is just for sonar to shut up, put this where TlvUtil has it\u0027s tests.",
+      "revId": "17c7c4da026abb4bb9a62fe578530890c4647a2a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
