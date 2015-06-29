@@ -16,6 +16,24 @@
       "revId": "9d35d0d5de24ac39d1cf85d0a6a97b240f586b0a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_51000c01",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/LinkstateNlriParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-06-29T09:20:41Z",
+      "side": 1,
+      "message": "bgp/linkstate/src/main/yang/bgp-linkstate.yang\ncontainer local-node-descriptors {\n   uses node-identifier;\n   uses bgp-epe:epe-node-descriptors;\n}\ncontainer remote-node-descriptors {\n   uses node-identifier;\n   uses bgp-epe:epe-node-descriptors;\n}\n\nMethod serializeNodeDescriptors receives NodeIdenditier\nMethod serializedEpeNodeDescriptors receives EpeNodeDescriptors\nNodeIdenditier and EpeNodeDescriptors are distinct interfaces.\n\nOther solution could have been to expect LocalNodeDescriptors or RemoteNodeDescriptors, but they are also distinct (which would\u0027ve needed 2 methods) and both implement NodeIdenditier, EpeNodeDescriptors\n\nWhich solution would be better? Or is there some other solution that i am not aware of?",
+      "parentUuid": "7a7fa997_ae7eddac",
+      "revId": "9d35d0d5de24ac39d1cf85d0a6a97b240f586b0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
