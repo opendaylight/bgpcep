@@ -33,6 +33,24 @@
       "revId": "6d07e2c08bc492eb438b08617f2821bf51266401",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_315eb0e7",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/LinkAttributesParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-06-29T11:52:45Z",
+      "side": 1,
+      "message": "Type is already parsed before calling this method. Since these TLVs are on the same level as others, you cannot read type/length fields again, since they are not there anymore.",
+      "parentUuid": "7a7fa997_ce5eb945",
+      "revId": "6d07e2c08bc492eb438b08617f2821bf51266401",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
