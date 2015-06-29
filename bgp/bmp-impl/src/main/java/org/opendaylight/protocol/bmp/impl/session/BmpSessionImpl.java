@@ -57,7 +57,7 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
         try {
             super.channelInactive(ctx);
         } catch (final Exception e) {
-            throw new RuntimeException("Failed to delegate channel inactive event on channel " + ctx.channel(), e);
+            throw new IllegalStateException("Failed to delegate channel inactive event on channel " + ctx.channel(), e);
         }
     }
 
@@ -84,7 +84,7 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
     }
 
     @Override
-    public final String toString() {
+    public String toString() {
         return addToStringAttributes(MoreObjects.toStringHelper(this)).toString();
     }
 
@@ -116,7 +116,7 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
         }
     }
 
-    private static Reason getTerminationReason(TerminationMessage terminationMessage) {
+    private static Reason getTerminationReason(final TerminationMessage terminationMessage) {
         final Tlvs tlvs = terminationMessage.getTlvs();
         if (tlvs != null && tlvs.getReasonTlv() != null) {
             return tlvs.getReasonTlv().getReason();

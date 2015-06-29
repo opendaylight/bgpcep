@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 public class BmpDispatcherImpl implements BmpDispatcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(BmpDispatcherImpl.class);
+    private static final int MAX_CONNECTIONS_COUNT = 128;
 
     private final BmpHandlerFactory hf;
     private final EventLoopGroup bossGroup;
@@ -62,7 +63,7 @@ public class BmpDispatcherImpl implements BmpDispatcher {
             }
         });
 
-        b.option(ChannelOption.SO_BACKLOG, 128);
+        b.option(ChannelOption.SO_BACKLOG, MAX_CONNECTIONS_COUNT);
         b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
 
         if (keys.isPresent()) {
