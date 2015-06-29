@@ -74,6 +74,24 @@
       "revId": "9d35d0d5de24ac39d1cf85d0a6a97b240f586b0a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_916224d7",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/NodeNlriParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-06-29T10:31:02Z",
+      "side": 1,
+      "message": "it\u0027s used twice (serialization of local and remote node descrip.)\nand it\u0027s similar as other methods: serializeAsNumber, serializeDomainId, etc... so intension was to create same pattern.\nDo you want me to put method body into 2 methods that call it? Or do you mean something else?",
+      "parentUuid": "7a7fa997_7153c817",
+      "revId": "9d35d0d5de24ac39d1cf85d0a6a97b240f586b0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
