@@ -12,15 +12,16 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPHandlerFactory;
-import org.opendaylight.protocol.bgp.rib.impl.BGPServerSessionNegotiatorFactory;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
+import org.opendaylight.protocol.bgp.rib.impl.SimpleBGPSessionNegotiatorFactory;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
@@ -39,13 +40,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public class BGPSpeakerMock {
 
-    private final BGPServerSessionNegotiatorFactory negotiatorFactory;
+    private final SimpleBGPSessionNegotiatorFactory negotiatorFactory;
     private final BGPHandlerFactory factory;
     private final BGPDispatcherImpl disp;
     private final BGPPeerRegistry peerRegistry;
     private final Map<Class<? extends AddressFamily>, Class<? extends SubsequentAddressFamily>> tables;
 
-    private BGPSpeakerMock(final BGPServerSessionNegotiatorFactory negotiatorFactory, final BGPHandlerFactory factory,
+    private BGPSpeakerMock(final SimpleBGPSessionNegotiatorFactory negotiatorFactory, final BGPHandlerFactory factory,
                            final DefaultPromise<BGPSessionImpl> defaultPromise) {
         this.disp = new BGPDispatcherImpl(null, new NioEventLoopGroup(), new NioEventLoopGroup());
         this.negotiatorFactory = Preconditions.checkNotNull(negotiatorFactory);
@@ -67,7 +68,7 @@ public class BGPSpeakerMock {
             }
 
             @Override
-            public BGPSessionListener getPeer(final IpAddress ip, final Ipv4Address sourceId, final Ipv4Address remoteId, final AsNumber asNumber, final Open open) throws BGPDocumentedException {
+            public BGPSessionListener getPeer(final SocketAddress ip, final Open open) throws BGPDocumentedException {
                 return new SpeakerSessionListener();
             }
 
@@ -93,12 +94,7 @@ public class BGPSpeakerMock {
 
     public void main(final String[] args) {
 
-        final BGPServerSessionNegotiatorFactory snf = new BGPServerSessionNegotiatorFactory(new BGPSessionValidator() {
-            @Override
-            public void validate(final Open openObj, final BGPSessionPreferences prefs) throws BGPDocumentedException {
-                // NOOP
-            }
-        }, this.peerRegistry);
+        final SimpleBGPSessionNegotiatorFactory snf = new SimpleBGPSessionNegotiatorFactory(this.peerRegistry);
 
         final BGPSpeakerMock mock = new BGPSpeakerMock(snf, new BGPHandlerFactory(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry()), new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE));
 

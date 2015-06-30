@@ -72,12 +72,12 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         this.keys = null;
     }
 
+    // FIXME: remove unused remoteAs
     @Override
     public synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress address,
                                                             final AsNumber remoteAs, final BGPPeerRegistry listener, final ReconnectStrategy strategy) {
-        final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(remoteAs, listener);
-        final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer
-            (BGPDispatcherImpl.this.hf.getDecoders(), snf, BGPDispatcherImpl.this.hf.getEncoders());
+        final SimpleBGPSessionNegotiatorFactory snf = new SimpleBGPSessionNegotiatorFactory(listener);
+        final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.hf.getDecoders(), snf, BGPDispatcherImpl.this.hf.getEncoders());
 
         final Bootstrap b = new Bootstrap();
         final BGPProtocolSessionPromise p = new BGPProtocolSessionPromise(this.executor, address, strategy, b);
@@ -99,11 +99,12 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         }
     }
 
+    // FIXME: remove unused remoteAs
     @Override
     public synchronized Future<Void> createReconnectingClient(final InetSocketAddress address,
                                                               final AsNumber remoteAs, final BGPPeerRegistry peerRegistry, final ReconnectStrategyFactory connectStrategyFactory,
                                                               final KeyMapping keys) {
-        final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(remoteAs, peerRegistry);
+        final SimpleBGPSessionNegotiatorFactory snf = new SimpleBGPSessionNegotiatorFactory(peerRegistry);
         this.keys = keys;
 
         final Bootstrap b = new Bootstrap();
@@ -119,9 +120,10 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         return p;
     }
 
+    // FIXME: remove unused validator
     @Override
     public ChannelFuture createServer(final BGPPeerRegistry registry, final InetSocketAddress address, final BGPSessionValidator sessionValidator) {
-        final BGPServerSessionNegotiatorFactory snf = new BGPServerSessionNegotiatorFactory(sessionValidator, registry);
+        final SimpleBGPSessionNegotiatorFactory snf = new SimpleBGPSessionNegotiatorFactory(registry);
         final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer
             (BGPDispatcherImpl.this.hf.getDecoders(), snf, BGPDispatcherImpl.this.hf.getEncoders());
         final ServerBootstrap b = new ServerBootstrap();
