@@ -211,7 +211,7 @@ final class AttributeOperations {
         final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> b = Builders.containerBuilder(attributes);
 
         // Create a new CLUSTER_LIST builder
-        final ListNodeBuilder<Object, LeafSetEntryNode<Object>> clb = Builders.leafSetBuilder();
+        final ListNodeBuilder<Object, LeafSetEntryNode<Object>> clb = Builders.orderedLeafSetBuilder();
         clb.withNodeIdentifier(this.clusterListLeaf);
 
         // prepend local CLUSTER_ID
