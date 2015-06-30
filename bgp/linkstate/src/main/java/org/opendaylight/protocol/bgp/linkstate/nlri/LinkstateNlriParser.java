@@ -311,6 +311,8 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
             return ProtocolId.Direct.getIntValue();
         case "static":
             return ProtocolId.Static.getIntValue();
+        case "bgp-epe":
+            return ProtocolId.BgpEpe.getIntValue();
         default:
             return 0;
         }
