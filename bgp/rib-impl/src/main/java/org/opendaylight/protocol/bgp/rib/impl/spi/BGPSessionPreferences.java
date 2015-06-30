@@ -35,6 +35,8 @@ public final class BGPSessionPreferences {
      * @param bgpId local BGP Identifier
      * @param remoteAs expected remote As Number
      * @param params list of advertised parameters
+     *
+     * @return BGPSessionPreferences
      */
     public BGPSessionPreferences(final AsNumber as, final int hold, final Ipv4Address bgpId, final AsNumber remoteAs,
         final List<BgpParameters> params) {

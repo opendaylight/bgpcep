@@ -22,13 +22,10 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.SessionNegotiator;
 import org.opendaylight.protocol.util.Values;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Notify;
@@ -43,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * Bgp Session negotiator. Common for local-to-remote and remote-to-local connections.
  * One difference is session validation performed by injected BGPSessionValidator when OPEN message is received.
  */
-public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter implements SessionNegotiator {
+public class BGPSessionNegotiator extends ChannelInboundHandlerAdapter implements SessionNegotiator {
     // 4 minutes recommended in http://tools.ietf.org/html/rfc4271#section-8.2.2
     private static final int INITIAL_HOLDTIMER = 4;
 
@@ -73,9 +70,8 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
         FINISHED,
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractBGPSessionNegotiator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BGPSessionNegotiator.class);
     private final BGPPeerRegistry registry;
-    private final BGPSessionValidator sessionValidator;
     private final Promise<BGPSessionImpl> promise;
     private final Channel channel;
     @GuardedBy("this")
@@ -84,12 +80,11 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
     @GuardedBy("this")
     private BGPSessionImpl session;
 
-    public AbstractBGPSessionNegotiator(final Promise<BGPSessionImpl> promise, final Channel channel,
-            final BGPPeerRegistry registry, final BGPSessionValidator sessionValidator) {
+    public BGPSessionNegotiator(final Promise<BGPSessionImpl> promise, final Channel channel,
+        final BGPPeerRegistry registry) {
         this.promise = Preconditions.checkNotNull(promise);
         this.channel = Preconditions.checkNotNull(channel);
         this.registry = registry;
-        this.sessionValidator = sessionValidator;
     }
 
     private synchronized void startNegotiation() {
@@ -112,7 +107,7 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
         if (as > Values.UNSIGNED_SHORT_MAX_VALUE) {
             as = AS_TRANS;
         }
-        this.sendMessage(new OpenBuilder().setMyAsNumber(as).setHoldTimer(preferences.getHoldTime()).setBgpIdentifier(
+        sendMessage(new OpenBuilder().setMyAsNumber(as).setHoldTimer(preferences.getHoldTime()).setBgpIdentifier(
                 preferences.getBgpId()).setBgpParameters(preferences.getParams()).build());
         if (this.state != State.FINISHED) {
             this.state = State.OPEN_SENT;
@@ -120,10 +115,10 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
             this.channel.eventLoop().schedule(new Runnable() {
                 @Override
                 public void run() {
-                    if (AbstractBGPSessionNegotiator.this.state != State.FINISHED) {
-                        AbstractBGPSessionNegotiator.this.sendMessage(buildErrorNotify(BGPError.HOLD_TIMER_EXPIRED));
+                    if (BGPSessionNegotiator.this.state != State.FINISHED) {
+                        BGPSessionNegotiator.this.sendMessage(buildErrorNotify(BGPError.HOLD_TIMER_EXPIRED));
                         negotiationFailed(new BGPDocumentedException("HoldTimer expired", BGPError.FSM_ERROR));
-                        AbstractBGPSessionNegotiator.this.state = State.FINISHED;
+                        BGPSessionNegotiator.this.state = State.FINISHED;
                     }
                 }
             }, INITIAL_HOLDTIMER, TimeUnit.MINUTES);
@@ -144,7 +139,7 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
         switch (this.state) {
         case FINISHED:
         case IDLE:
-            this.sendMessage(buildErrorNotify(BGPError.FSM_ERROR));
+            sendMessage(buildErrorNotify(BGPError.FSM_ERROR));
             return;
         case OPEN_CONFIRM:
             if (msg instanceof Keepalive) {
@@ -169,7 +164,7 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
 
         // Catch-all for unexpected message
         LOG.warn("Channel {} state {} unexpected message {}", this.channel, this.state, msg);
-        this.sendMessage(buildErrorNotify(BGPError.FSM_ERROR));
+        sendMessage(buildErrorNotify(BGPError.FSM_ERROR));
         negotiationFailed(new BGPDocumentedException("Unexpected message", BGPError.FSM_ERROR));
         this.state = State.FINISHED;
     }
@@ -188,14 +183,7 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
 
     private void handleOpen(final Open openObj) {
         try {
-            this.sessionValidator.validate(openObj, getPreferences());
-        } catch (final BGPDocumentedException e) {
-            negotiationFailed(e);
-            return;
-        }
-
-        try {
-            final BGPSessionListener peer = this.registry.getPeer(getRemoteIp(), getSourceId(openObj, getPreferences()), getDestinationId(openObj, getPreferences()), getAsNumber(openObj, getPreferences()), openObj);
+            final BGPSessionListener peer = this.registry.getPeer(this.channel.remoteAddress(), openObj);
             sendMessage(new KeepaliveBuilder().build());
             this.session = new BGPSessionImpl(peer, this.channel, openObj, getPreferences(), this.registry);
             this.state = State.OPEN_CONFIRM;
@@ -211,54 +199,33 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
         if (e instanceof BGPDocumentedException) {
             // although sendMessage() can also result in calling this method, it won't create a cycle. In case sendMessage() fails to
             // deliver the message, this method gets called with different exception (definitely not with BGPDocumentedException).
-            this.sendMessage(buildErrorNotify(((BGPDocumentedException)e).getError(), ((BGPDocumentedException) e).getData()));
+            sendMessage(buildErrorNotify(((BGPDocumentedException)e).getError(), ((BGPDocumentedException) e).getData()));
         }
         this.registry.removePeerSession(getRemoteIp());
         negotiationFailedCloseChannel(e);
         this.state = State.FINISHED;
     }
 
-    /**
-     * @param openMsg Open message received from remote BGP speaker
-     * @param preferences Local BGP speaker preferences
-     * @return BGP Id of device that accepted the connection
-     */
-    protected abstract Ipv4Address getDestinationId(final Open openMsg, final BGPSessionPreferences preferences);
-
-    /**
-     * @param openMsg Open message received from remote BGP speaker
-     * @param preferences Local BGP speaker preferences
-     * @return BGP Id of device that accepted the connection
-     */
-    protected abstract Ipv4Address getSourceId(final Open openMsg, final BGPSessionPreferences preferences);
-
-    /**
-     * @param openMsg Open message received from remote BGP speaker
-     * @param preferences Local BGP speaker preferences
-     * @return AS Number of device that initiate connection
-     */
-    protected abstract AsNumber getAsNumber(final Open openMsg, final BGPSessionPreferences preferences);
-
     public synchronized State getState() {
         return this.state;
     }
 
-    private void negotiationSuccessful(BGPSessionImpl session) {
+    private void negotiationSuccessful(final BGPSessionImpl session) {
         LOG.debug("Negotiation on channel {} successful with session {}", this.channel, session);
-        channel.pipeline().replace(this, "session", session);
-        promise.setSuccess(session);
+        this.channel.pipeline().replace(this, "session", session);
+        this.promise.setSuccess(session);
     }
 
-    private void negotiationFailedCloseChannel(Throwable cause) {
+    private void negotiationFailedCloseChannel(final Throwable cause) {
         LOG.debug("Negotiation on channel {} failed", this.channel, cause);
-        channel.close();
-        promise.setFailure(cause);
+        this.channel.close();
+        this.promise.setFailure(cause);
     }
 
     private void sendMessage(final Notification msg) {
-        channel.writeAndFlush(msg).addListener(new ChannelFutureListener() {
+        this.channel.writeAndFlush(msg).addListener(new ChannelFutureListener() {
             @Override
-            public void operationComplete(ChannelFuture f) {
+            public void operationComplete(final ChannelFuture f) {
                 if (!f.isSuccess()) {
                     LOG.info("Failed to send message {}", msg, f.cause());
                     negotiationFailedCloseChannel(f.cause());
@@ -271,11 +238,11 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
     }
 
     @Override
-    public final void channelActive(ChannelHandlerContext ctx) {
+    public final void channelActive(final ChannelHandlerContext ctx) {
         LOG.debug("Starting session negotiation on channel {}", this.channel);
 
         try {
-            this.startNegotiation();
+            startNegotiation();
         } catch (final Exception e) {
             LOG.warn("Unexpected negotiation failure", e);
             negotiationFailedCloseChannel(e);
@@ -284,12 +251,12 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
     }
 
     @Override
-    public final void channelRead(ChannelHandlerContext ctx, Object msg) {
+    public final void channelRead(final ChannelHandlerContext ctx, final Object msg) {
         LOG.debug("Negotiation read invoked on channel {}", this.channel);
 
         try {
             handleMessage((Notification) msg);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOG.debug("Unexpected error while handling negotiation message {}", msg, e);
             negotiationFailedCloseChannel(e);
         }
@@ -297,7 +264,7 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
         LOG.info("Unexpected error during negotiation", cause);
         negotiationFailedCloseChannel(cause);
     }
