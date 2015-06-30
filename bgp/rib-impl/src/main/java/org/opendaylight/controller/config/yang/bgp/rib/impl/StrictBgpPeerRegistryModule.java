@@ -1,15 +1,15 @@
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import com.google.common.base.MoreObjects;
+import java.net.SocketAddress;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 
 /**
 * Registry of BGP peers that allows only one connection per 2 peers
@@ -50,12 +50,6 @@ public class StrictBgpPeerRegistryModule extends org.opendaylight.controller.con
         }
 
         @Override
-        public BGPSessionListener getPeer(final IpAddress ip, final Ipv4Address sourceId, final Ipv4Address remoteId, final AsNumber asNumber)
-                throws BGPDocumentedException {
-            return this.global.getPeer(ip, sourceId, remoteId, asNumber);
-        }
-
-        @Override
         public boolean isPeerConfigured(final IpAddress ip) {
             return this.global.isPeerConfigured(ip);
         }
@@ -85,6 +79,11 @@ public class StrictBgpPeerRegistryModule extends org.opendaylight.controller.con
             return MoreObjects.toStringHelper(this)
                     .add("peers", this.global)
                     .toString();
+        }
+
+        @Override
+        public BGPSessionListener getPeer(final SocketAddress channelIp, final Open openObj) throws BGPDocumentedException {
+            return this.global.getPeer(channelIp, openObj);
         }
     }
 }

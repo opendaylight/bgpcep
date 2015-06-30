@@ -78,10 +78,10 @@ public class BGPDispatcherImplTest {
         this.clientDispatcher = new TestClientDispatcher(group, group, ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(),
                 CLIENT_ADDRESS);
 
-        final ChannelFuture future = this.dispatcher.createServer(this.registry, ADDRESS, new BGPServerSessionValidator());
+        final ChannelFuture future = this.dispatcher.createServer(this.registry, ADDRESS, null);
         future.addListener(new GenericFutureListener<Future<Void>>() {
             @Override
-            public void operationComplete(Future<Void> future) {
+            public void operationComplete(final Future<Void> future) {
                 if(!future.isSuccess()) {
                     Assert.fail("Failed to create server.");
                 }
@@ -113,7 +113,7 @@ public class BGPDispatcherImplTest {
         this.registry.addPeer(new IpAddress(new Ipv4Address(CLIENT_ADDRESS2.getAddress().getHostAddress())), listener, createPreferences(CLIENT_ADDRESS2));
         final Future<Void> cf = this.clientDispatcher.createReconnectingClient(CLIENT_ADDRESS2, AS_NUMBER, this.registry,
                 new ReconnectStrategyFctImpl(), Optional.<InetSocketAddress>absent());
-        final Channel channel2 = this.dispatcher.createServer(this.registry, CLIENT_ADDRESS2, new BGPServerSessionValidator()).channel();
+        final Channel channel2 = this.dispatcher.createServer(this.registry, CLIENT_ADDRESS2, null).channel();
         Thread.sleep(1000);
         Assert.assertTrue(listener.up);
         Assert.assertTrue(channel2.isActive());
@@ -137,7 +137,7 @@ public class BGPDispatcherImplTest {
                 .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build()).build())
             .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(30L)).build()).build()).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
-        return new BGPSessionPreferences(AS_NUMBER, (short) 4, new Ipv4Address(socketAddress.getAddress().getHostAddress()), tlvs);
+        return new BGPSessionPreferences(AS_NUMBER, (short) 4, new Ipv4Address(socketAddress.getAddress().getHostAddress()), tlvs, null);
     }
 
 }

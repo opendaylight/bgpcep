@@ -14,7 +14,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-
 import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -72,7 +71,7 @@ public class FSMTest {
     @Mock
     private EventLoop eventLoop;
 
-    private BGPClientSessionNegotiator clientSession;
+    private BGPSessionNegotiator clientSession;
 
     @Mock
     private Channel speakerListener;
@@ -107,7 +106,7 @@ public class FSMTest {
 
 
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
-        final BGPSessionPreferences prefs = new BGPSessionPreferences(new AsNumber(30L), (short) 3, new Ipv4Address("1.1.1.1"), tlvs);
+        final BGPSessionPreferences prefs = new BGPSessionPreferences(new AsNumber(30L), (short) 3, new Ipv4Address("1.1.1.1"), tlvs, null);
 
         final ChannelFuture f = mock(ChannelFuture.class);
         doReturn(null).when(f).addListener(any(GenericFutureListener.class));
@@ -116,7 +115,7 @@ public class FSMTest {
         final BGPPeerRegistry peerRegistry = new StrictBGPPeerRegistry();
         peerRegistry.addPeer(new IpAddress(new Ipv4Address(peerAddress.getHostAddress())), new SimpleSessionListener(), prefs);
 
-        this.clientSession = new BGPClientSessionNegotiator(new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE), this.speakerListener, peerRegistry, new BGPClientSessionValidator(new AsNumber(30L)));
+        this.clientSession = new BGPSessionNegotiator(new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE), this.speakerListener, peerRegistry);
         doAnswer(new Answer<Object>() {
             @Override
             public Object answer(final InvocationOnMock invocation) {
@@ -140,7 +139,7 @@ public class FSMTest {
 
     @Test
     public void testDenyPeer() {
-        this.clientSession = new BGPClientSessionNegotiator(new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE), this.speakerListener, new StrictBGPPeerRegistry(), new BGPClientSessionValidator(new AsNumber(30L)));
+        this.clientSession = new BGPSessionNegotiator(new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE), this.speakerListener, new StrictBGPPeerRegistry());
         this.clientSession.channelActive(null);
         assertEquals(1, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(0) instanceof Notify);
@@ -155,7 +154,7 @@ public class FSMTest {
         assertEquals(2, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(1) instanceof Keepalive);
         this.clientSession.handleMessage(new KeepaliveBuilder().build());
-        assertEquals(this.clientSession.getState(), BGPClientSessionNegotiator.State.FINISHED);
+        assertEquals(this.clientSession.getState(), BGPSessionNegotiator.State.FINISHED);
         Thread.sleep(1000);
         Thread.sleep(100);
     }
@@ -199,7 +198,7 @@ public class FSMTest {
         this.clientSession.channelActive(null);
         this.clientSession.handleMessage(this.classicOpen);
         this.clientSession.handleMessage(new KeepaliveBuilder().build());
-        assertEquals(this.clientSession.getState(), BGPClientSessionNegotiator.State.FINISHED);
+        assertEquals(this.clientSession.getState(), BGPSessionNegotiator.State.FINISHED);
         this.clientSession.handleMessage(new OpenBuilder().setMyAsNumber(30).setHoldTimer(3).setVersion(new ProtocolVersion((short) 4)).build());
         assertEquals(3, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(2) instanceof Notify);

@@ -8,11 +8,11 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
+import java.net.SocketAddress;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 
 /**
  * Registry that contains configured bgp peers ready for when a bgp session is established with remote peer.
@@ -54,16 +54,14 @@ public interface BGPPeerRegistry extends AutoCloseable {
     /**
      * Get configured peer after BGP session was successfully established. Called by negotiators.
      *
-     * @param ip address of remote peer
-     * @param sourceId BGP ID of peer that initiated the session (current device or remote peer)
-     * @param remoteId BGP ID of peer that accepted the session (current device or remote peer)
-     * @param asNumber id of the AS
+     * @param channelIp remote channel IP
+     * @param openObj remote Open object
      * @return configured Peer as BGP listener
      *
      * @throws BGPDocumentedException if session establishment cannot be finished successfully
      * @throws java.lang.IllegalStateException if there is no peer configured for provided ip address
      */
-    BGPSessionListener getPeer(IpAddress ip, Ipv4Address sourceId, Ipv4Address remoteId, AsNumber asNumber) throws BGPDocumentedException;
+    BGPSessionListener getPeer(SocketAddress channelIp, Open openObj) throws BGPDocumentedException;
 
     /**
      * @param ip address of remote peer
@@ -72,5 +70,4 @@ public interface BGPPeerRegistry extends AutoCloseable {
      * @throws java.lang.IllegalStateException if there is no peer configured for provided ip address
      */
     BGPSessionPreferences getPeerPreferences(IpAddress ip);
-
 }
