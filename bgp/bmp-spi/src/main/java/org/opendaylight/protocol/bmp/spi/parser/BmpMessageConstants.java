@@ -8,7 +8,7 @@
 
 package org.opendaylight.protocol.bmp.spi.parser;
 
-public class BmpMessageConstants {
+public final class BmpMessageConstants {
 
     private BmpMessageConstants() {
         throw new UnsupportedOperationException();
