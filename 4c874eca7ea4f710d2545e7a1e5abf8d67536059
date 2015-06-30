@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_dd10ad50",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-06-30T07:28:19Z",
+      "side": 1,
+      "message": "Please fix variable/arguments names.",
+      "revId": "4c874eca7ea4f710d2545e7a1e5abf8d67536059",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_9d1a356d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-06-30T07:28:19Z",
+      "side": 1,
+      "message": "Should not be deprecated.",
+      "range": {
+        "startLine": 117,
+        "startChar": 5,
+        "endLine": 117,
+        "endChar": 15
+      },
+      "revId": "4c874eca7ea4f710d2545e7a1e5abf8d67536059",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_1d0f0532",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-06-30T07:28:19Z",
+      "side": 1,
+      "message": "Do we need to expose this method? Do we need this customizer.",
+      "revId": "4c874eca7ea4f710d2545e7a1e5abf8d67536059",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_9d31d5ee",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-06-30T07:28:19Z",
+      "side": 1,
+      "message": "We are not using local server channel.",
+      "range": {
+        "startLine": 197,
+        "startChar": 0,
+        "endLine": 200,
+        "endChar": 9
+      },
+      "revId": "4c874eca7ea4f710d2545e7a1e5abf8d67536059",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_1d5dc521",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-06-30T07:28:19Z",
+      "side": 1,
+      "message": "Are there any changes in code below?",
+      "revId": "4c874eca7ea4f710d2545e7a1e5abf8d67536059",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
