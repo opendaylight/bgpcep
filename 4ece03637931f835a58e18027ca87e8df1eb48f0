@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_2f9644f1",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/spi/BGPSessionPreferences.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1118
+      },
+      "writtenOn": "2015-06-30T18:53:58Z",
+      "side": 1,
+      "message": "should be \"return this.remoteAs;\"?",
+      "range": {
+        "startLine": 89,
+        "startChar": 4,
+        "endLine": 89,
+        "endChar": 23
+      },
+      "revId": "4ece03637931f835a58e18027ca87e8df1eb48f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
