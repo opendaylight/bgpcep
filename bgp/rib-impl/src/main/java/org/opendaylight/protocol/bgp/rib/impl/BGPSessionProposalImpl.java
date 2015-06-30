@@ -59,7 +59,7 @@ public final class BGPSessionProposalImpl implements BGPSessionProposal {
             CParameters1.class, new CParameters1Builder().setGracefulRestartCapability(
                 new GracefulRestartCapabilityBuilder().build()).build()).build()).build());
         this.prefs = new BGPSessionPreferences(as, holdTimer, bgpId, Lists.newArrayList(
-            new BgpParametersBuilder().setOptionalCapabilities(caps).build()));
+            new BgpParametersBuilder().setOptionalCapabilities(caps).build()), null);
     }
 
     @Override
