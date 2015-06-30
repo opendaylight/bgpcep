@@ -31,6 +31,7 @@ public class StrictBGPPeerRegistryTest {
     private StrictBGPPeerRegistry droppingBGPSessionRegistry;
     private BGPSessionPreferences mockPreferences;
     private final AsNumber AS1 = new AsNumber(1234L);
+    private final AsNumber AS2 = new AsNumber(1235L);
     @Before
     public void setUp() throws Exception {
         this.droppingBGPSessionRegistry = new StrictBGPPeerRegistry();
@@ -218,6 +219,6 @@ public class StrictBGPPeerRegistryTest {
     }
 
     public BGPSessionPreferences getMockPreferences() {
-        return new BGPSessionPreferences(AS1, 1,  new Ipv4Address("0.0.0.1"), Collections.<BgpParameters>emptyList());
+        return new BGPSessionPreferences(AS1, 1,  new Ipv4Address("0.0.0.1"), Collections.<BgpParameters>emptyList(), AS2);
     }
 }
