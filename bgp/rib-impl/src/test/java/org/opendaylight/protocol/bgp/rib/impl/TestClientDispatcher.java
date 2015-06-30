@@ -42,7 +42,7 @@ public class TestClientDispatcher extends AbstractDispatcher<BGPSessionImpl, BGP
     public synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress remoteAddress,
             final AsNumber remoteAs, final BGPPeerRegistry listener, final ReconnectStrategy strategy, final Optional<InetSocketAddress> localAddress) {
         setLocalAddress(localAddress);
-        final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(remoteAs, listener);
+        final BGPSessionNegotiatorFactory snf = new BGPSessionNegotiatorFactory(listener, false);
         return super.createClient(remoteAddress, strategy, new PipelineInitializer<BGPSessionImpl>() {
 
             @Override
@@ -58,7 +58,7 @@ public class TestClientDispatcher extends AbstractDispatcher<BGPSessionImpl, BGP
         final AsNumber remoteAs, final BGPPeerRegistry peerRegistry, final ReconnectStrategyFactory reconnectStrategyFactory,
         final Optional<InetSocketAddress> localAddress) {
         setLocalAddress(localAddress);
-        final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(remoteAs, peerRegistry);
+        final BGPSessionNegotiatorFactory snf = new BGPSessionNegotiatorFactory(peerRegistry, false);
         final Future<Void> ret = super.createReconnectingClient(address, reconnectStrategyFactory, new PipelineInitializer<BGPSessionImpl>() {
             @Override
             public void initializeChannel(final SocketChannel ch, final Promise<BGPSessionImpl> promise) {
