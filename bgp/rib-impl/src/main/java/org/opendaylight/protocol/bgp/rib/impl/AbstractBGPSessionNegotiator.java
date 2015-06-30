@@ -18,11 +18,9 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
 import org.opendaylight.protocol.util.Values;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
@@ -37,7 +35,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Bgp Session negotiator. Common for local-to-remote and remote-to-local connections.
- * One difference is session validation performed by injected BGPSessionValidator when OPEN message is received.
  */
 public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegotiator<Notification, BGPSessionImpl> {
     // 4 minutes recommended in http://tools.ietf.org/html/rfc4271#section-8.2.2
@@ -71,7 +68,6 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBGPSessionNegotiator.class);
     private final BGPPeerRegistry registry;
-    private final BGPSessionValidator sessionValidator;
 
     @GuardedBy("this")
     private State state = State.IDLE;
@@ -80,10 +76,9 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
     private BGPSessionImpl session;
 
     public AbstractBGPSessionNegotiator(final Promise<BGPSessionImpl> promise, final Channel channel,
-            final BGPPeerRegistry registry, final BGPSessionValidator sessionValidator) {
+            final BGPPeerRegistry registry) {
         super(promise, channel);
         this.registry = registry;
-        this.sessionValidator = sessionValidator;
     }
 
     @Override
@@ -184,15 +179,8 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
 
     private void handleOpen(final Open openObj) {
         try {
-            this.sessionValidator.validate(openObj, getPreferences());
-        } catch (final BGPDocumentedException e) {
-            negotiationFailed(e);
-            return;
-        }
-
-        try {
             final BGPSessionListener peer = this.registry.getPeer(getRemoteIp(), getSourceId(openObj, getPreferences()),
-                    getDestinationId(openObj, getPreferences()), getAsNumber(openObj, getPreferences()));
+                    getDestinationId(openObj, getPreferences()), openObj);
             this.sendMessage(new KeepaliveBuilder().build());
             this.session = new BGPSessionImpl(peer, this.channel, openObj, getPreferences(), this.registry);
             this.state = State.OPEN_CONFIRM;
@@ -229,13 +217,6 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
      * @return BGP Id of device that accepted the connection
      */
     protected abstract Ipv4Address getSourceId(final Open openMsg, final BGPSessionPreferences preferences);
-
-    /**
-     * @param openMsg Open message received from remote BGP speaker
-     * @param preferences Local BGP speaker preferences
-     * @return AS Number of device that initiate connection
-     */
-    protected abstract AsNumber getAsNumber(final Open openMsg, final BGPSessionPreferences preferences);
 
     public synchronized State getState() {
         return this.state;

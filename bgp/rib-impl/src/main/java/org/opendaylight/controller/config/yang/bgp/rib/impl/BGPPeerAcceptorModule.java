@@ -10,7 +10,6 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.security.AccessControlException;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.protocol.bgp.rib.impl.BGPServerSessionValidator;
 
 /**
 * BGP peer acceptor that handles incoming bgp connections.
@@ -43,7 +42,7 @@ public class BGPPeerAcceptorModule extends org.opendaylight.controller.config.ya
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final ChannelFuture future = getAcceptingBgpDispatcherDependency().createServer(getAcceptingPeerRegistryDependency(), getAddress(), new BGPServerSessionValidator());
+        final ChannelFuture future = getAcceptingBgpDispatcherDependency().createServer(getAcceptingPeerRegistryDependency(), getAddress());
 
         // Validate future success
         future.addListener(new GenericFutureListener<Future<Void>>() {

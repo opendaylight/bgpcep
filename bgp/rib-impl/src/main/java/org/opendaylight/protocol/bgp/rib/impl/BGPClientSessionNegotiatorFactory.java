@@ -19,17 +19,15 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public final class BGPClientSessionNegotiatorFactory implements SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> {
-    private final BGPClientSessionValidator validator;
     private final BGPPeerRegistry peerRegistry;
 
     public BGPClientSessionNegotiatorFactory(final AsNumber remoteAs, final BGPPeerRegistry peerRegistry) {
         this.peerRegistry = peerRegistry;
-        this.validator = new BGPClientSessionValidator(remoteAs);
     }
 
     @Override
     public SessionNegotiator<BGPSessionImpl> getSessionNegotiator(final SessionListenerFactory<BGPSessionListener> factory,
             final Channel channel, final Promise<BGPSessionImpl> promise) {
-        return new BGPClientSessionNegotiator(promise, channel, peerRegistry, validator);
+        return new BGPClientSessionNegotiator(promise, channel, peerRegistry);
     }
 }

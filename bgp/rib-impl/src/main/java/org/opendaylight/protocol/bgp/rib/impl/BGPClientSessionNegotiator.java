@@ -11,19 +11,17 @@ import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 
 /**
- * Client negotiator. Validates established connections using BGPClientSessionValidator
+ * Client negotiator. Validates established connections
  */
 public final class BGPClientSessionNegotiator extends AbstractBGPSessionNegotiator {
 
     public BGPClientSessionNegotiator(final Promise<BGPSessionImpl> promise, final Channel channel,
-            final BGPPeerRegistry registry, final BGPSessionValidator sessionValidator) {
-        super(promise, channel, registry, sessionValidator);
+            final BGPPeerRegistry registry) {
+        super(promise, channel, registry);
     }
 
     @Override
@@ -34,10 +32,5 @@ public final class BGPClientSessionNegotiator extends AbstractBGPSessionNegotiat
     @Override
     protected Ipv4Address getSourceId(final Open openMsg, final BGPSessionPreferences preferences) {
         return openMsg.getBgpIdentifier();
-    }
-
-    @Override
-    protected AsNumber getAsNumber(Open openMsg, BGPSessionPreferences preferences) {
-        return preferences.getMyAs();
     }
 }

@@ -19,7 +19,6 @@ import java.net.InetSocketAddress;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
@@ -98,13 +97,13 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
     }
 
     @Override
-    public ChannelFuture createServer(final BGPPeerRegistry registry, final InetSocketAddress address, final BGPSessionValidator sessionValidator) {
-        return this.createServer(registry, address, sessionValidator, null);
+    public ChannelFuture createServer(final BGPPeerRegistry registry, final InetSocketAddress address) {
+        return this.createServer(registry, address, null);
     }
 
     @Override
-    public ChannelFuture createServer(final BGPPeerRegistry registry, final InetSocketAddress address, final BGPSessionValidator sessionValidator, final KeyMapping keys) {
-        final BGPServerSessionNegotiatorFactory snf = new BGPServerSessionNegotiatorFactory(sessionValidator, registry);
+    public ChannelFuture createServer(final BGPPeerRegistry registry, final InetSocketAddress address, final KeyMapping keys) {
+        final BGPServerSessionNegotiatorFactory snf = new BGPServerSessionNegotiatorFactory(registry);
 
         this.keys = keys;
         final ChannelFuture ret = super.createServer(address, new PipelineInitializer<BGPSessionImpl>() {
