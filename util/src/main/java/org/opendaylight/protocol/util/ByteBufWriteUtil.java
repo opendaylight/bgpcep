@@ -306,10 +306,29 @@ public final class ByteBufWriteUtil {
     public static void writeBitSet(final BitSet bitSet, final int outputLength, final ByteBuf output) {
         Preconditions.checkArgument(outputLength > 0);
         if (bitSet != null) {
-            output.writeBytes(ByteArray.bitSetToBytes(bitSet, outputLength));
+            output.writeBytes(bitSetToBytes(bitSet, outputLength));
         } else {
             output.writeZero(outputLength);
         }
     }
 
+    /**
+     * Parses BitSet to bytes, from most left bit.
+     *
+     * @param bitSet BitSet to be parsed
+     * @param returnedLength Length of returned array. Overlapping flags are truncated.
+     * @return parsed array of bytes with length of bitSet.length / Byte.SIZE
+     */
+    private static byte[] bitSetToBytes(final BitSet bitSet, final int returnedLength) {
+        final byte[] bytes = new byte[returnedLength];
+
+        for (int bytesIter = 0; bytesIter < bytes.length; bytesIter++) {
+            final int offset = bytesIter * Byte.SIZE;
+
+            for (int byteIter = Byte.SIZE - 1; byteIter >= 0; byteIter--) {
+                bytes[bytesIter] |= (bitSet.get(offset + (Byte.SIZE - byteIter - 1)) ? 1 << byteIter : 0);
+            }
+        }
+        return bytes;
+    }
 }

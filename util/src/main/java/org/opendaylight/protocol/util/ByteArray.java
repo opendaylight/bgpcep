@@ -16,7 +16,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.BitSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -165,62 +164,6 @@ public final class ByteArray {
             throw new IllegalArgumentException("Cannot cut bytes, invalid arguments: Count: " + count + " bytes.length: " + bytes.length);
         }
         return Arrays.copyOfRange(bytes, count, bytes.length);
-    }
-
-    /**
-     * Parse byte to bits, from the leftmost bit.
-     *
-     * @param b byte to be parsed
-     * @return array of booleans with size of 8
-     */
-    @Deprecated
-    public static boolean[] parseBits(final byte b) {
-        final boolean[] bits = new boolean[Byte.SIZE];
-        int j = 0;
-        for (int i = Byte.SIZE - 1; i >= 0; i--) {
-            bits[j] = ((b & (1 << i)) != 0);
-            j++;
-        }
-        return bits;
-    }
-
-    /**
-     * Parses array of bytes to BitSet, from left most bit.
-     *
-     * @param bytes array of bytes to be parsed
-     * @return BitSet with length = bytes.length * Byte.SIZE
-     */
-    @Deprecated
-    public static BitSet bytesToBitSet(final byte[] bytes) {
-        final BitSet bitSet = new BitSet(bytes.length * Byte.SIZE);
-        for (int bytesIter = 0; bytesIter < bytes.length; bytesIter++) {
-            final int offset = bytesIter * Byte.SIZE;
-            for (int byteIter = Byte.SIZE - 1; byteIter >= 0; byteIter--) {
-                bitSet.set(offset + (Byte.SIZE - byteIter - 1), (bytes[bytesIter] & 1 << (byteIter)) != 0);
-            }
-        }
-        return bitSet;
-    }
-
-    /**
-     * Parses BitSet to bytes, from most left bit.
-     *
-     * @param bitSet BitSet to be parsed
-     * @param returnedLength Length of returned array. Overlapping flags are truncated.
-     * @return parsed array of bytes with length of bitSet.length / Byte.SIZE
-     */
-    @Deprecated
-    public static byte[] bitSetToBytes(final BitSet bitSet, final int returnedLength) {
-        final byte[] bytes = new byte[returnedLength];
-
-        for (int bytesIter = 0; bytesIter < bytes.length; bytesIter++) {
-            final int offset = bytesIter * Byte.SIZE;
-
-            for (int byteIter = Byte.SIZE - 1; byteIter >= 0; byteIter--) {
-                bytes[bytesIter] |= (bitSet.get(offset + (Byte.SIZE - byteIter - 1)) ? 1 << byteIter : 0);
-            }
-        }
-        return bytes;
     }
 
     /**
