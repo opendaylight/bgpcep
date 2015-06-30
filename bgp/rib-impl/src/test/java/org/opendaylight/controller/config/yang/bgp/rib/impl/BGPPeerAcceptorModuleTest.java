@@ -43,7 +43,6 @@ import org.opendaylight.controller.config.yang.bgp.parser.spi.SimpleBGPExtension
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.PortNumber;
 
@@ -74,7 +73,7 @@ public class BGPPeerAcceptorModuleTest extends AbstractConfigTest {
             final CommitStatus status = createRegistryInstance(Optional.<String>absent(), Optional.<Integer>absent(), true, true);
             assertBeanCount(1, FACTORY_NAME);
             assertStatus(status, 3, 0, 0);
-            verify(dispatcher).createServer(any(BGPPeerRegistry.class), any(InetSocketAddress.class), any(BGPSessionValidator.class));
+            verify(dispatcher).createServer(any(BGPPeerRegistry.class), any(InetSocketAddress.class));
         } catch (ValidationException e) {
             if(!PlatformDependent.isWindows() && !PlatformDependent.isRoot()) {
                 Assert.assertTrue(e.getMessage().contains("Unable to bind port"));
@@ -89,7 +88,7 @@ public class BGPPeerAcceptorModuleTest extends AbstractConfigTest {
         final CommitStatus status = createRegistryInstance(Optional.of("127.0.0.1"), Optional.of(1790), true, true);
         assertBeanCount(1, FACTORY_NAME);
         assertStatus(status, 3, 0, 0);
-        verify(dispatcher).createServer(any(BGPPeerRegistry.class), any(InetSocketAddress.class), any(BGPSessionValidator.class));
+        verify(dispatcher).createServer(any(BGPPeerRegistry.class), any(InetSocketAddress.class));
     }
 
     private CommitStatus createRegistryInstance(final Optional<String> address, final Optional<Integer> port, final boolean addRegistry, final boolean addDispatcher ) throws InstanceAlreadyExistsException, ValidationException, ConflictingVersionException {
@@ -135,7 +134,7 @@ public class BGPPeerAcceptorModuleTest extends AbstractConfigTest {
         doReturn(mock(ChannelFuture.class)).when(channel).close();
         doReturn(channel).when(future).channel();
         doReturn(mock(ChannelFuture.class)).when(future).addListener(any(GenericFutureListener.class));
-        doReturn(future).when(dispatcher).createServer(any(BGPPeerRegistry.class), any(InetSocketAddress.class), any(BGPSessionValidator.class));
+        doReturn(future).when(dispatcher).createServer(any(BGPPeerRegistry.class), any(InetSocketAddress.class));
         doNothing().when(dispatcher).close();
     }
 

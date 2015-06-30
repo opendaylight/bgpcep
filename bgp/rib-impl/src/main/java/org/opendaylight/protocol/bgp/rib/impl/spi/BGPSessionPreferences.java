@@ -25,6 +25,8 @@ public final class BGPSessionPreferences {
 
     private final List<BgpParameters> params;
 
+    private final AsNumber remoteAs;
+
     /**
      * Creates a new DTO for Open message.
      *
@@ -32,12 +34,14 @@ public final class BGPSessionPreferences {
      * @param hold preferred hold timer value, in seconds
      * @param bgpId local BGP Identifier
      * @param params list of advertised parameters
+     * @param remoteAs expected RemoteAs
      */
-    public BGPSessionPreferences(final AsNumber as, final int hold, final Ipv4Address bgpId, final List<BgpParameters> params) {
+    public BGPSessionPreferences(final AsNumber as, final int hold, final Ipv4Address bgpId, final List<BgpParameters> params, final AsNumber remoteAs) {
         this.as = as;
         this.hold = hold;
         this.bgpId = bgpId;
         this.params = params;
+        this.remoteAs = remoteAs;
     }
 
     /**
@@ -74,5 +78,14 @@ public final class BGPSessionPreferences {
      */
     public List<BgpParameters> getParams() {
         return this.params;
+    }
+
+    /**
+     * Returns expected remote AS number.
+     *
+     * @return remote AS number
+     */
+    public AsNumber getExpectedRemoteAs() {
+        return this.remoteAs;
     }
 }

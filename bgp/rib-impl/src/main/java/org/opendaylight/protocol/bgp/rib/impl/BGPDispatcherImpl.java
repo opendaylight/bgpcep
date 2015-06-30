@@ -19,7 +19,6 @@ import java.net.InetSocketAddress;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
@@ -54,7 +53,7 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
     @Override
     public synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress address,
         final AsNumber remoteAs, final BGPPeerRegistry listener, final ReconnectStrategy strategy) {
-        final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(remoteAs, listener);
+        final BGPSessionNegotiatorFactory snf = new BGPSessionNegotiatorFactory(listener, false);
         return super.createClient(address, strategy, new PipelineInitializer<BGPSessionImpl>() {
             @Override
             public void initializeChannel(final SocketChannel ch, final Promise<BGPSessionImpl> promise) {
@@ -81,7 +80,7 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
     public synchronized Future<Void> createReconnectingClient(final InetSocketAddress address,
         final AsNumber remoteAs, final BGPPeerRegistry peerRegistry, final ReconnectStrategyFactory connectStrategyFactory,
         final ReconnectStrategyFactory reestablishStrategyFactory, final KeyMapping keys) {
-        final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(remoteAs, peerRegistry);
+        final BGPSessionNegotiatorFactory snf = new BGPSessionNegotiatorFactory(peerRegistry, false);
 
         this.keys = keys;
         final Future<Void> ret = super.createReconnectingClient(address, connectStrategyFactory, reestablishStrategyFactory.createReconnectStrategy(), new PipelineInitializer<BGPSessionImpl>() {
@@ -98,13 +97,13 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
     }
 
     @Override
-    public ChannelFuture createServer(final BGPPeerRegistry registry, final InetSocketAddress address, final BGPSessionValidator sessionValidator) {
-        return this.createServer(registry, address, sessionValidator, null);
+    public ChannelFuture createServer(final BGPPeerRegistry registry, final InetSocketAddress address) {
+        return this.createServer(registry, address, null);
     }
 
     @Override
-    public ChannelFuture createServer(final BGPPeerRegistry registry, final InetSocketAddress address, final BGPSessionValidator sessionValidator, final KeyMapping keys) {
-        final BGPServerSessionNegotiatorFactory snf = new BGPServerSessionNegotiatorFactory(sessionValidator, registry);
+    public ChannelFuture createServer(final BGPPeerRegistry registry, final InetSocketAddress address, final KeyMapping keys) {
+        final BGPSessionNegotiatorFactory snf = new BGPSessionNegotiatorFactory(registry, true);
 
         this.keys = keys;
         final ChannelFuture ret = super.createServer(address, new PipelineInitializer<BGPSessionImpl>() {

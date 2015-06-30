@@ -107,7 +107,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         final List<BgpParameters> tlvs = getTlvs(r);
         final AsNumber remoteAs = getAsOrDefault(r);
         final String password = getPasswordOrNull();
-        final BGPSessionPreferences prefs = new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), tlvs);
+        final BGPSessionPreferences prefs = new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), tlvs, remoteAs);
         final BGPPeer bgpClientPeer;
         if (getPeerRole() != null) {
             bgpClientPeer = new BGPPeer(peerName(getHostWithoutValue()), r, getPeerRole());

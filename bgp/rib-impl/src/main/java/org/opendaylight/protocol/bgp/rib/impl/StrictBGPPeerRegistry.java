@@ -9,20 +9,30 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.net.InetAddresses;
 import com.google.common.primitives.UnsignedInts;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.List;
 import java.util.Map;
+
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
+
+import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
+import org.opendaylight.protocol.bgp.parser.impl.message.open.As4CapabilityHandler;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
@@ -31,6 +41,13 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.OptionalCapabilities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapability;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +58,6 @@ import org.slf4j.LoggerFactory;
  */
 @ThreadSafe
 public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
-
     private static final Logger LOG = LoggerFactory.getLogger(StrictBGPPeerRegistry.class);
 
     // TODO remove backwards compatibility
@@ -89,16 +105,19 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     }
 
     @Override
-    public synchronized BGPSessionListener getPeer(final IpAddress ip, final Ipv4Address sourceId,
-        final Ipv4Address remoteId, final AsNumber asNumber) throws BGPDocumentedException {
+    public synchronized BGPSessionListener getPeer(final IpAddress ip, final Ipv4Address peerId,
+        final Ipv4Address ourId, final Open openObj, final boolean inbound) throws BGPDocumentedException {
         Preconditions.checkNotNull(ip);
-        Preconditions.checkNotNull(sourceId);
-        Preconditions.checkNotNull(remoteId);
-        Preconditions.checkNotNull(asNumber);
+        Preconditions.checkNotNull(peerId);
+        Preconditions.checkNotNull(ourId);
+        Preconditions.checkNotNull(openObj);
 
         checkPeerConfigured(ip);
 
-        final BGPSessionId currentConnection = new BGPSessionId(sourceId, remoteId, asNumber);
+        final AsNumber asNumber = AsNumberUtil.advertizedAsNumber(openObj);
+        final BGPSessionPreferences localPref = getPeerPreferences(ip);
+
+        final BGPSessionId currentConnection = new BGPSessionId(ourId, peerId, asNumber);
         final BGPSessionListener p = this.peers.get(ip);
 
         final BGPSessionId previousConnection = this.sessionIds.get(ip);
@@ -141,15 +160,34 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
                 return this.peers.get(ip);
             // Session reestablished with same source bgp id, dropping current as duplicate
             } else {
-                LOG.warn("BGP session with %s initiated from %s to %s has to be dropped. Same session already present", ip, sourceId, remoteId);
+                LOG.warn("BGP session from %s to %s has to be dropped. Same session already present", peerId, ourId);
                 throw new BGPDocumentedException(
                     String.format("BGP session with %s initiated %s has to be dropped. Same session already present",
                         ip, currentConnection),
                         BGPError.CEASE);
             }
         } else {
-            if (!getPeerPreferences(ip).getMyAs().equals(asNumber)) {
-                LOG.warn("Unexpected remote AS number. Expecting {}, got {}", getPeerPreferences(ip).getMyAs(), asNumber);
+            //https://tools.ietf.org/html/rfc6286#section-2.2
+            if (openObj.getBgpIdentifier() != null && openObj.getBgpIdentifier().equals(localPref.getBgpId())) {
+                LOG.warn("Remote and local BGP Identifiers are the same: {}", openObj.getBgpIdentifier());
+                throw new BGPDocumentedException("Remote and local BGP Identifiers are the same.", BGPError.BAD_BGP_ID);
+            }
+
+            final List<BgpParameters> prefs = openObj.getBgpParameters();
+            if (prefs != null) {
+                if(getAs4BytesCapability(localPref.getParams()).isPresent() && !getAs4BytesCapability(prefs).isPresent()) {
+                    throw new BGPDocumentedException("The peer must advertise AS4Bytes capability.", BGPError.UNSUPPORTED_CAPABILITY,
+                            serializeAs4BytesCapability(getAs4BytesCapability(localPref.getParams()).get()));
+                }
+                if (!prefs.containsAll(localPref.getParams())) {
+                    LOG.info("BGP Open message session parameters differ, session still accepted.");
+                }
+            } else {
+                throw new BGPDocumentedException("Open message unacceptable. Check the configuration of BGP speaker.", BGPError.UNSPECIFIC_OPEN_ERROR);
+            }
+            final AsNumber expectedRemoteAs = localPref.getExpectedRemoteAs();
+            if (expectedRemoteAs != null && !expectedRemoteAs.equals(asNumber)) {
+                LOG.warn("Unexpected remote AS number. Expecting {}, got {}", expectedRemoteAs, asNumber);
                 throw new BGPDocumentedException("Peer AS number mismatch", BGPError.BAD_PEER_AS);
             }
         }
@@ -182,6 +220,25 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
             return new IpAddress(new Ipv4Address(inetAddress.getHostAddress()));
         }
         return new IpAddress(new Ipv6Address(inetAddress.getHostAddress()));
+    }
+
+    private static Optional<As4BytesCapability> getAs4BytesCapability(final List<BgpParameters> prefs) {
+        for(final BgpParameters param : prefs) {
+            for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
+                final CParameters cParam = capa.getCParameters();
+                if(cParam.getAs4BytesCapability() !=null) {
+                    return Optional.of(cParam.getAs4BytesCapability());
+                }
+            }
+        }
+        return Optional.absent();
+    }
+
+    private static byte[] serializeAs4BytesCapability(final As4BytesCapability as4Capability) {
+        final ByteBuf buffer = Unpooled.buffer(1 /*CODE*/ + 1 /*LENGTH*/ + Integer.SIZE / Byte.SIZE /*4 byte value*/);
+        final As4CapabilityHandler serializer = new As4CapabilityHandler();
+        serializer.serializeCapability(new CParametersBuilder().setAs4BytesCapability(as4Capability).build(), buffer);
+        return buffer.array();
     }
 
     @Override
