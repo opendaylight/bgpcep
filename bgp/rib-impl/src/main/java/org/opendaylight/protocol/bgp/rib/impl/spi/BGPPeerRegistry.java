@@ -57,7 +57,7 @@ public interface BGPPeerRegistry extends AutoCloseable {
      * @param ip address of remote peer
      * @param sourceId BGP ID of peer that initiated the session (current device or remote peer)
      * @param remoteId BGP ID of peer that accepted the session (current device or remote peer)
-     * @param asNumber id of the AS
+     * @param asNumber AS as it was present in BGP Open message
      * @return configured Peer as BGP listener
      *
      * @throws BGPDocumentedException if session establishment cannot be finished successfully
