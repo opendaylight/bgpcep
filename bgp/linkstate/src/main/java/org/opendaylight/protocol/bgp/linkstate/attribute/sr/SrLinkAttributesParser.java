@@ -56,22 +56,18 @@ public final class SrLinkAttributesParser {
             sidValue = null;
         }
         return new AdjacencySegmentIdentifier() {
-
             @Override
             public Class<? extends DataContainer> getImplementedInterface() {
                 return AdjacencySegmentIdentifier.class;
             }
-
             @Override
             public Weight getWeight() {
                 return weight;
             }
-
             @Override
             public SidLabel getSid() {
                 return sidValue;
             }
-
             @Override
             public AdjacencyFlags getFlags() {
                 return adjFlags;
