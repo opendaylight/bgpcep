@@ -33,6 +33,24 @@
       "revId": "7deb54cce97b0d15fb501385d2a0b4882e354ff2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_65aa1b1b",
+        "filename": "pcep/tunnel-provider/src/main/java/org/opendaylight/bgpcep/pcep/tunnel/provider/NodeChangedListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-07-01T13:00:55Z",
+      "side": 1,
+      "message": "I understand. I\u0027ve put it there because all other private are also above. I was thinking to reorder it all as: \na() {\n  b();\n}\n\nb() {\n  c();\n}\n\nc() {}\n\nIt\u0027s all in reverse order. Or should I still move just this one method?",
+      "parentUuid": "7a7fa997_05eec788",
+      "revId": "7deb54cce97b0d15fb501385d2a0b4882e354ff2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
