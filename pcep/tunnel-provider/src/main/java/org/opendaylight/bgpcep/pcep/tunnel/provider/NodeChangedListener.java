@@ -121,7 +121,7 @@ public final class NodeChangedListener implements DataChangeListener {
     }
 
     private SupportingNode createSupportingNode(final NodeId sni, final Boolean inControl) {
-        final SupportingNodeKey sk = new SupportingNodeKey(sni, source);
+        final SupportingNodeKey sk = new SupportingNodeKey(sni, this.source);
         final SupportingNodeBuilder snb = new SupportingNodeBuilder();
         snb.setNodeRef(sni);
         snb.setKey(sk);
@@ -371,6 +371,35 @@ public final class NodeChangedListener implements DataChangeListener {
         }
     }
 
+    private void updateTransaction(final ReadWriteTransaction trans, final Set<InstanceIdentifier<ReportedLsp>> lsps,
+        final Map<InstanceIdentifier<?>, ? extends DataObject> old, final Map<InstanceIdentifier<?>, DataObject> updated,
+        final Map<InstanceIdentifier<?>, DataObject> created) {
+
+        for (final InstanceIdentifier<ReportedLsp> i : lsps) {
+            final ReportedLsp oldValue = (ReportedLsp) old.get(i);
+            ReportedLsp newValue = (ReportedLsp) updated.get(i);
+            if (newValue == null) {
+                newValue = (ReportedLsp) created.get(i);
+            }
+
+            LOG.debug("Updating lsp {} value {} -> {}", i, oldValue, newValue);
+            if (oldValue != null) {
+                try {
+                    remove(trans, i, oldValue);
+                } catch (final ReadFailedException e) {
+                    LOG.warn("Failed to remove LSP {}", i, e);
+                }
+            }
+            if (newValue != null) {
+                try {
+                    create(trans, i, newValue);
+                } catch (final ReadFailedException e) {
+                    LOG.warn("Failed to add LSP {}", i, e);
+                }
+            }
+        }
+    }
+
     @Override
     public void onDataChanged(final AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
         final ReadWriteTransaction trans = this.dataProvider.newReadWriteTransaction();
@@ -402,29 +431,7 @@ public final class NodeChangedListener implements DataChangeListener {
         }
 
         // We now have list of all affected LSPs. Walk them create/remove them
-        for (final InstanceIdentifier<ReportedLsp> i : lsps) {
-            final ReportedLsp oldValue = (ReportedLsp) o.get(i);
-            ReportedLsp newValue = (ReportedLsp) u.get(i);
-            if (newValue == null) {
-                newValue = (ReportedLsp) c.get(i);
-            }
-
-            LOG.debug("Updating lsp {} value {} -> {}", i, oldValue, newValue);
-            if (oldValue != null) {
-                try {
-                    remove(trans, i, oldValue);
-                } catch (final ReadFailedException e) {
-                    LOG.warn("Failed to remove LSP {}", i, e);
-                }
-            }
-            if (newValue != null) {
-                try {
-                    create(trans, i, newValue);
-                } catch (final ReadFailedException e) {
-                    LOG.warn("Failed to add LSP {}", i, e);
-                }
-            }
-        }
+        updateTransaction(trans, lsps, o, u, c);
 
         Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.submit()), new FutureCallback<Void>() {
             @Override
