@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_65e53ba7",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-01T12:47:57Z",
+      "side": 1,
+      "message": "This is a case where return is not a good trade-off. (It\u0027s better when it\u0027s \u0027return something;\u0027. Put breaks here.",
+      "revId": "7deb54cce97b0d15fb501385d2a0b4882e354ff2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_05eec788",
+        "filename": "pcep/tunnel-provider/src/main/java/org/opendaylight/bgpcep/pcep/tunnel/provider/NodeChangedListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-01T12:47:57Z",
+      "side": 1,
+      "message": "Put this method as first after the one where it\u0027s called.",
+      "revId": "7deb54cce97b0d15fb501385d2a0b4882e354ff2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
