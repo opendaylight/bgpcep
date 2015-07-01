@@ -121,7 +121,7 @@ public final class NodeChangedListener implements DataChangeListener {
     }
 
     private SupportingNode createSupportingNode(final NodeId sni, final Boolean inControl) {
-        final SupportingNodeKey sk = new SupportingNodeKey(sni, source);
+        final SupportingNodeKey sk = new SupportingNodeKey(sni, this.source);
         final SupportingNodeBuilder snb = new SupportingNodeBuilder();
         snb.setNodeRef(sni);
         snb.setKey(sk);
@@ -402,11 +402,30 @@ public final class NodeChangedListener implements DataChangeListener {
         }
 
         // We now have list of all affected LSPs. Walk them create/remove them
+        updateTransaction(trans, lsps, o, u, c);
+
+        Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.submit()), new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(final Void result) {
+                LOG.trace("Topology change committed successfully");
+            }
+
+            @Override
+            public void onFailure(final Throwable t) {
+                LOG.error("Failed to propagate a topology change, target topology became inconsistent", t);
+            }
+        });
+    }
+
+    private void updateTransaction(final ReadWriteTransaction trans, final Set<InstanceIdentifier<ReportedLsp>> lsps,
+        final Map<InstanceIdentifier<?>, ? extends DataObject> old, final Map<InstanceIdentifier<?>, DataObject> updated,
+        final Map<InstanceIdentifier<?>, DataObject> created) {
+
         for (final InstanceIdentifier<ReportedLsp> i : lsps) {
-            final ReportedLsp oldValue = (ReportedLsp) o.get(i);
-            ReportedLsp newValue = (ReportedLsp) u.get(i);
+            final ReportedLsp oldValue = (ReportedLsp) old.get(i);
+            ReportedLsp newValue = (ReportedLsp) updated.get(i);
             if (newValue == null) {
-                newValue = (ReportedLsp) c.get(i);
+                newValue = (ReportedLsp) created.get(i);
             }
 
             LOG.debug("Updating lsp {} value {} -> {}", i, oldValue, newValue);
@@ -425,18 +444,6 @@ public final class NodeChangedListener implements DataChangeListener {
                 }
             }
         }
-
-        Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.submit()), new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(final Void result) {
-                LOG.trace("Topology change committed successfully");
-            }
-
-            @Override
-            public void onFailure(final Throwable t) {
-                LOG.error("Failed to propagate a topology change, target topology became inconsistent", t);
-            }
-        });
     }
 
     public static InstanceIdentifier<Link> linkIdentifier(final InstanceIdentifier<Topology> topology, final NodeId node, final String name) {

@@ -403,52 +403,55 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
 
         while (nlri.isReadable()) {
             final FlowspecBuilder builder = new FlowspecBuilder();
-            // read type
             final ComponentType type = ComponentType.forValue(nlri.readUnsignedByte());
             builder.setComponentType(type);
-            switch (type) {
-            case DestinationPrefix:
-                builder.setFlowspecType(new DestinationPrefixCaseBuilder().setDestinationPrefix(Ipv4Util.prefixForByteBuf(nlri)).build());
-                break;
-            case SourcePrefix:
-                builder.setFlowspecType(new SourcePrefixCaseBuilder().setSourcePrefix(Ipv4Util.prefixForByteBuf(nlri)).build());
-                break;
-            case ProtocolIp:
-                builder.setFlowspecType(new ProtocolIpCaseBuilder().setProtocolIps(parseProtocolIp(nlri)).build());
-                break;
-            case Port:
-                builder.setFlowspecType(new PortCaseBuilder().setPorts(parsePort(nlri)).build());
-                break;
-            case DestinationPort:
-                builder.setFlowspecType(new DestinationPortCaseBuilder().setDestinationPorts(parseDestinationPort(nlri)).build());
-                break;
-            case SourcePort:
-                builder.setFlowspecType(new SourcePortCaseBuilder().setSourcePorts(parseSourcePort(nlri)).build());
-                break;
-            case IcmpType:
-                builder.setFlowspecType(new IcmpTypeCaseBuilder().setTypes(parseIcmpType(nlri)).build());
-                break;
-            case IcmpCode:
-                builder.setFlowspecType(new IcmpCodeCaseBuilder().setCodes(parseIcmpCode(nlri)).build());
-                break;
-            case TcpFlags:
-                builder.setFlowspecType(new TcpFlagsCaseBuilder().setTcpFlags(parseTcpFlags(nlri)).build());
-                break;
-            case PacketLength:
-                builder.setFlowspecType(new PacketLengthCaseBuilder().setPacketLengths(parsePacketLength(nlri)).build());
-                break;
-            case Dscp:
-                builder.setFlowspecType(new DscpCaseBuilder().setDscps(parseDscp(nlri)).build());
-                break;
-            case Fragment:
-                builder.setFlowspecType(new FragmentCaseBuilder().setFragments(parseFragment(nlri)).build());
-                break;
-            default:
-                break;
-            }
+            setFlowspecType(builder, type, nlri);
             fss.add(builder.build());
         }
         return fss;
+    }
+
+    private static void setFlowspecType(final FlowspecBuilder builder, final ComponentType type, final ByteBuf nlri) {
+        switch (type) {
+        case DestinationPrefix:
+            builder.setFlowspecType(new DestinationPrefixCaseBuilder().setDestinationPrefix(Ipv4Util.prefixForByteBuf(nlri)).build());
+            break;
+        case SourcePrefix:
+            builder.setFlowspecType(new SourcePrefixCaseBuilder().setSourcePrefix(Ipv4Util.prefixForByteBuf(nlri)).build());
+            break;
+        case ProtocolIp:
+            builder.setFlowspecType(new ProtocolIpCaseBuilder().setProtocolIps(parseProtocolIp(nlri)).build());
+            break;
+        case Port:
+            builder.setFlowspecType(new PortCaseBuilder().setPorts(parsePort(nlri)).build());
+            break;
+        case DestinationPort:
+            builder.setFlowspecType(new DestinationPortCaseBuilder().setDestinationPorts(parseDestinationPort(nlri)).build());
+            break;
+        case SourcePort:
+            builder.setFlowspecType(new SourcePortCaseBuilder().setSourcePorts(parseSourcePort(nlri)).build());
+            break;
+        case IcmpType:
+            builder.setFlowspecType(new IcmpTypeCaseBuilder().setTypes(parseIcmpType(nlri)).build());
+            break;
+        case IcmpCode:
+            builder.setFlowspecType(new IcmpCodeCaseBuilder().setCodes(parseIcmpCode(nlri)).build());
+            break;
+        case TcpFlags:
+            builder.setFlowspecType(new TcpFlagsCaseBuilder().setTcpFlags(parseTcpFlags(nlri)).build());
+            break;
+        case PacketLength:
+            builder.setFlowspecType(new PacketLengthCaseBuilder().setPacketLengths(parsePacketLength(nlri)).build());
+            break;
+        case Dscp:
+            builder.setFlowspecType(new DscpCaseBuilder().setDscps(parseDscp(nlri)).build());
+            break;
+        case Fragment:
+            builder.setFlowspecType(new FragmentCaseBuilder().setFragments(parseFragment(nlri)).build());
+            break;
+        default:
+            break;
+        }
     }
 
     private static List<ProtocolIps> parseProtocolIp(final ByteBuf nlri) {
