@@ -72,6 +72,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.StatefulTlvBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.Path;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -170,7 +171,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
         final PlspId plspid = lsp.getPlspId();
         if (!lsp.isSync() && (lsp.getPlspId() == null || plspid.getValue() == 0)) {
             stateSynchronizationAchieved(ctx);
-            return true; //continue;
+            return true;
         }
         final ReportedLspBuilder rlb = new ReportedLspBuilder();
         boolean solicited = false;
@@ -185,6 +186,18 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
                 return false;
             }
         }
+        rlb.setPath(Collections.singletonList(buildPath(report, srp, plspid, lsp)));
+
+        String name = lookupLspName(plspid);
+        if (report.getLsp().getTlvs() != null && report.getLsp().getTlvs().getSymbolicPathName() != null) {
+            name = Charsets.UTF_8.decode(ByteBuffer.wrap(report.getLsp().getTlvs().getSymbolicPathName().getPathName().getValue())).toString();
+        }
+        updateLsp(ctx, plspid, name, rlb, solicited, lsp.isRemove());
+        LOG.debug("LSP {} updated", lsp);
+        return true;
+    }
+
+    private Path buildPath(final Reports report, final Srp srp, final PlspId plspid, final Lsp lsp) {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder pb = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder();
         if (report.getPath() != null) {
             pb.fieldsFrom(report.getPath());
@@ -201,7 +214,6 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
             pst = null;
         }
         pb.addAugmentation(Path1.class, p1Builder.build());
-        String name = lookupLspName(plspid);
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.Tlvs tlvs = report.getLsp().getTlvs();
         if (tlvs != null) {
             if (tlvs.getLspIdentifiers() != null) {
@@ -209,14 +221,8 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
             } else if (!isDefaultPST(pst)) {
                 pb.setLspId(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId(lsp.getPlspId().getValue()));
             }
-            if (tlvs.getSymbolicPathName() != null) {
-                name = Charsets.UTF_8.decode(ByteBuffer.wrap(tlvs.getSymbolicPathName().getPathName().getValue())).toString();
-            }
         }
-        rlb.setPath(Collections.singletonList(pb.build()));
-        updateLsp(ctx, plspid, name, rlb, solicited, lsp.isRemove());
-        LOG.debug("LSP {} updated", lsp);
-        return true;
+        return pb.build();
     }
 
     @Override
