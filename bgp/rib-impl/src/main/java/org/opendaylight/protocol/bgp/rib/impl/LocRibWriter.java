@@ -159,40 +159,47 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             }
             final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(rootPath);
             final PeerId peerId = IdentifierUtils.peerId(peerKey);
-            final UnsignedInteger routerId = RouterIds.routerIdForPeerId(peerId);
-            for (final DataTreeCandidateNode child : table.getChildNodes()) {
-                LOG.debug("Modification type {}", child.getModificationType());
-                if ((Attributes.QNAME).equals(child.getIdentifier().getNodeType())) {
-                    if (child.getDataAfter().isPresent()) {
-                        // putting uptodate attribute in
-                        LOG.trace("Uptodate found for {}", child.getDataAfter());
-                        tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(child.getIdentifier()), child.getDataAfter().get());
-                    }
-                    continue;
-                }
-                for (final DataTreeCandidateNode route : this.ribSupport.changedRoutes(child)) {
-                    final PathArgument routeId = route.getIdentifier();
-                    AbstractRouteEntry entry = this.routeEntries.get(routeId);
-
-                    final Optional<NormalizedNode<?, ?>> maybeData = route.getDataAfter();
-                    if (maybeData.isPresent()) {
-                        if (entry == null) {
-                            entry = createEntry(routeId);
-                        }
-
-                        entry.addRoute(routerId, this.attributesIdentifier, maybeData.get());
-                    } else if (entry != null && entry.removeRoute(routerId)) {
-                        this.routeEntries.remove(routeId);
-                        entry = null;
-                        LOG.trace("Removed route from {}", routerId);
-                    }
-                    LOG.debug("Updated route {} entry {}", routeId, entry);
-                    ret.put(new RouteUpdateKey(peerId, routeId), entry);
-                }
-            }
+            updateNodes(table, peerId, tx, ret);
         }
 
         return ret;
+    }
+
+    private void updateNodes(final DataTreeCandidateNode table, final PeerId peerId, final DOMDataWriteTransaction tx, final Map<RouteUpdateKey, AbstractRouteEntry> routes) {
+        for (final DataTreeCandidateNode child : table.getChildNodes()) {
+            LOG.debug("Modification type {}", child.getModificationType());
+            if ((Attributes.QNAME).equals(child.getIdentifier().getNodeType())) {
+                if (child.getDataAfter().isPresent()) {
+                    // putting uptodate attribute in
+                    LOG.trace("Uptodate found for {}", child.getDataAfter());
+                    tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(child.getIdentifier()), child.getDataAfter().get());
+                }
+                continue;
+            }
+            updateRoutesEntries(child, peerId, routes);
+        }
+    }
+
+    private void updateRoutesEntries(final DataTreeCandidateNode child, final PeerId peerId, final Map<RouteUpdateKey, AbstractRouteEntry> routes) {
+        final UnsignedInteger routerId = RouterIds.routerIdForPeerId(peerId);
+        for (final DataTreeCandidateNode route : this.ribSupport.changedRoutes(child)) {
+            final PathArgument routeId = route.getIdentifier();
+            AbstractRouteEntry entry = this.routeEntries.get(routeId);
+
+            final Optional<NormalizedNode<?, ?>> maybeData = route.getDataAfter();
+            if (maybeData.isPresent()) {
+                if (entry == null) {
+                    entry = createEntry(routeId);
+                }
+                entry.addRoute(routerId, this.attributesIdentifier, maybeData.get());
+            } else if (entry != null && entry.removeRoute(routerId)) {
+                this.routeEntries.remove(routeId);
+                entry = null;
+                LOG.trace("Removed route from {}", routerId);
+            }
+            LOG.debug("Updated route {} entry {}", routeId, entry);
+            routes.put(new RouteUpdateKey(peerId, routeId), entry);
+        }
     }
 
     private void walkThrough(final DOMDataWriteTransaction tx, final Map<RouteUpdateKey, AbstractRouteEntry> toUpdate) {
