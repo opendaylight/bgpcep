@@ -253,8 +253,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 
         State state = State.INIT;
         while (!objects.isEmpty() && state != State.END) {
-            final Object obj = objects.get(0);
-            state = insertObject(state, obj, objects, viObjects, builder, metrics, errors, rp);
+            state = insertObject(state, objects, viObjects, builder, metrics, errors, rp);
             if (!state.equals(State.END)) {
                 objects.remove(0);
             }
@@ -277,16 +276,17 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         return new SegmentComputationBuilder().setP2p(builder.build()).build();
     }
 
-    private State insertObject(final State state, Object obj, final List<Object> objects, final List<VendorInformationObject> viObjects, final P2pBuilder builder, final List<Metrics> metrics, final List<Message> errors, final Rp rp) {
+    private State insertObject(final State state, final List<Object> objects, final List<VendorInformationObject> viObjects, final P2pBuilder builder, final List<Metrics> metrics, final List<Message> errors, final Rp rp) {
+        final Object obj = objects.get(0);
         switch (state) {
         case INIT:
             if (obj instanceof Rro) {
                 final ReportedRouteBuilder rrBuilder = new ReportedRouteBuilder();
                 rrBuilder.setRro((Rro) obj);
                 objects.remove(0);
-                obj = objects.get(0);
-                if (obj instanceof Bandwidth) {
-                    rrBuilder.setBandwidth((Bandwidth) obj);
+                final Object nextObj = objects.get(0);
+                if (nextObj instanceof Bandwidth) {
+                    rrBuilder.setBandwidth((Bandwidth) nextObj);
                 }
                 return State.REPORTED_IN;
             }
