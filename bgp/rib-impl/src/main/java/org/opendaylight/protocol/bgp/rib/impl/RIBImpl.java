@@ -206,7 +206,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             try {
                 locRib.close();
             } catch (final Exception e) {
-                LOG.warn("Could not close LocalRib reference: {}", locRib);
+                LOG.warn("Could not close LocalRib reference: {}", locRib, e);
             }
         }
     }
