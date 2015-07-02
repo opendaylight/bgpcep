@@ -28,6 +28,7 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionStatistics;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
@@ -70,6 +71,8 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
 
     @GuardedBy("this")
     private final Set<TablesKey> tables = new HashSet<>();
+    private final RIB rib;
+    private final String name;
     @GuardedBy("this")
     private BGPSession session;
     @GuardedBy("this")
@@ -78,9 +81,6 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
     private DOMTransactionChain chain;
     @GuardedBy("this")
     private AdjRibInWriter ribWriter;
-
-    private final RIB rib;
-    private final String name;
     private BGPPeerRuntimeRegistrator registrator;
     private BGPPeerRuntimeRegistration runtimeReg;
     private long sessionEstablishedCounter = 0L;
@@ -94,6 +94,54 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
         this.name = name;
         this.chain = rib.createPeerChain(this);
         this.ribWriter = AdjRibInWriter.create(rib.getYangRibId(), role, this.chain);
+    }
+
+    private static Attributes nextHopToAttribute(final Attributes attrs, final MpReachNlri mpReach) {
+        if (attrs.getCNextHop() == null && mpReach.getCNextHop() != null) {
+            final AttributesBuilder attributesBuilder = new AttributesBuilder(attrs);
+            attributesBuilder.setCNextHop(mpReach.getCNextHop());
+            return attributesBuilder.build();
+        }
+        return attrs;
+    }
+
+    /**
+     * Creates MPReach for the prefixes to be handled in the same way as linkstate routes
+     *
+     * @param message Update message containing prefixes in NLRI
+     * @return MpReachNlri with prefixes from the nlri field
+     */
+    private static MpReachNlri prefixesToMpReach(final Update message) {
+        final List<Ipv4Prefixes> prefixes = new ArrayList<>();
+        for (final Ipv4Prefix p : message.getNlri().getNlri()) {
+            prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
+        }
+        final MpReachNlriBuilder b = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
+            UnicastSubsequentAddressFamily.class).setAdvertizedRoutes(
+            new AdvertizedRoutesBuilder().setDestinationType(
+                new DestinationIpv4CaseBuilder().setDestinationIpv4(
+                    new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build());
+        if (message.getAttributes() != null) {
+            b.setCNextHop(message.getAttributes().getCNextHop());
+        }
+        return b.build();
+    }
+
+    /**
+     * Create MPUnreach for the prefixes to be handled in the same way as linkstate routes
+     *
+     * @param message Update message containing withdrawn routes
+     * @return MpUnreachNlri with prefixes from the withdrawn routes field
+     */
+    private static MpUnreachNlri prefixesToMpUnreach(final Update message) {
+        final List<Ipv4Prefixes> prefixes = new ArrayList<>();
+        for (final Ipv4Prefix p : message.getWithdrawnRoutes().getWithdrawnRoutes()) {
+            prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
+        }
+        return new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setWithdrawnRoutes(
+            new WithdrawnRoutesBuilder().setDestinationType(
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
+                    new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build()).build();
     }
 
     @Override
@@ -134,54 +182,6 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
         }
     }
 
-    private static Attributes nextHopToAttribute(final Attributes attrs, final MpReachNlri mpReach) {
-        if (attrs.getCNextHop() == null && mpReach.getCNextHop() != null) {
-            final AttributesBuilder attributesBuilder = new AttributesBuilder(attrs);
-            attributesBuilder.setCNextHop(mpReach.getCNextHop());
-            return attributesBuilder.build();
-        }
-        return attrs;
-    }
-
-    /**
-     * Creates MPReach for the prefixes to be handled in the same way as linkstate routes
-     *
-     * @param message Update message containing prefixes in NLRI
-     * @return MpReachNlri with prefixes from the nlri field
-     */
-    private static MpReachNlri prefixesToMpReach(final Update message) {
-        final List<Ipv4Prefixes> prefixes = new ArrayList<>();
-        for (final Ipv4Prefix p : message.getNlri().getNlri()) {
-            prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
-        }
-        final MpReachNlriBuilder b = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
-            UnicastSubsequentAddressFamily.class).setAdvertizedRoutes(
-                new AdvertizedRoutesBuilder().setDestinationType(
-                    new DestinationIpv4CaseBuilder().setDestinationIpv4(
-                        new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build());
-        if (message.getAttributes() != null) {
-            b.setCNextHop(message.getAttributes().getCNextHop());
-        }
-        return b.build();
-    }
-
-    /**
-     * Create MPUnreach for the prefixes to be handled in the same way as linkstate routes
-     *
-     * @param message Update message containing withdrawn routes
-     * @return MpUnreachNlri with prefixes from the withdrawn routes field
-     */
-    private static MpUnreachNlri prefixesToMpUnreach(final Update message) {
-        final List<Ipv4Prefixes> prefixes = new ArrayList<>();
-        for (final Ipv4Prefix p : message.getWithdrawnRoutes().getWithdrawnRoutes()) {
-            prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
-        }
-        return new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setWithdrawnRoutes(
-                new WithdrawnRoutesBuilder().setDestinationType(
-                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
-                        new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build()).build();
-    }
-
     @Override
     public synchronized void onSessionUp(final BGPSession session) {
         LOG.info("Session with peer {} went up with tables: {}", this.name, session.getAdvertisedTableTypes());
@@ -189,19 +189,31 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
         this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
         final PeerId peerId = RouterIds.createPeerId(session.getBgpId());
 
-        for (final BgpTableType t : session.getAdvertisedTableTypes()) {
-            final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
-            this.tables.add(key);
+        final Set<BgpTableType> sessionAdv = session.getAdvertisedTableTypes();
+        TablesKey key = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+        this.tables.add(key);
+        createAdjRibOutListener(peerId, key, false);
 
-            // not particularly nice
-            if (session instanceof BGPSessionImpl) {
-                AdjRibOutListener.create(peerId, key, this.rib.getYangRibId(), ((RIBImpl)this.rib).getService(), this.rib.getRibSupportContext(), ((BGPSessionImpl) session).getLimiter());
-            }
+        sessionAdv.remove(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
+
+        for (final BgpTableType t : sessionAdv) {
+            key = new TablesKey(t.getAfi(), t.getSafi());
+            this.tables.add(key);
+            createAdjRibOutListener(peerId, key, true);
         }
+
         this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, false);
         this.sessionEstablishedCounter++;
         if (this.registrator != null) {
             this.runtimeReg = this.registrator.register(this);
+        }
+    }
+
+    private void createAdjRibOutListener(final PeerId peerId, final TablesKey key, final boolean mpSupport) {
+        // not particularly nice
+        if (session instanceof BGPSessionImpl) {
+            AdjRibOutListener.create(peerId, key, this.rib.getYangRibId(), ((RIBImpl) this.rib).getService(),
+                this.rib.getRibSupportContext(), ((BGPSessionImpl) session).getLimiter(), mpSupport);
         }
     }
 
