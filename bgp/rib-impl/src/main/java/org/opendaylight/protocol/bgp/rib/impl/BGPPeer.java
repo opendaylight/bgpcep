@@ -28,6 +28,7 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionStatistics;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
@@ -189,19 +190,30 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
         this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
         final PeerId peerId = RouterIds.createPeerId(session.getBgpId());
 
-        for (final BgpTableType t : session.getAdvertisedTableTypes()) {
-            final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
-            this.tables.add(key);
+        final Set<BgpTableType> sessionAdv = session.getAdvertisedTableTypes();
+        TablesKey key = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+        this.tables.add(key);
+        createAdjRibOutListener(peerId, key, false);
+        sessionAdv.remove(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
 
-            // not particularly nice
-            if (session instanceof BGPSessionImpl) {
-                AdjRibOutListener.create(peerId, key, this.rib.getYangRibId(), ((RIBImpl)this.rib).getService(), this.rib.getRibSupportContext(), ((BGPSessionImpl) session).getLimiter());
-            }
+        for (final BgpTableType t : sessionAdv) {
+            key = new TablesKey(t.getAfi(), t.getSafi());
+            this.tables.add(key);
+            createAdjRibOutListener(peerId, key, true);
         }
+
         this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, false);
         this.sessionEstablishedCounter++;
         if (this.registrator != null) {
             this.runtimeReg = this.registrator.register(this);
+        }
+    }
+
+    private void createAdjRibOutListener(final PeerId peerId, final TablesKey key, final boolean mpSupport) {
+        // not particularly nice
+        if (session instanceof BGPSessionImpl) {
+            AdjRibOutListener.create(peerId, key, this.rib.getYangRibId(), ((RIBImpl) this.rib).getService(),
+                this.rib.getRibSupportContext(), ((BGPSessionImpl) session).getLimiter(), mpSupport);
         }
     }
 

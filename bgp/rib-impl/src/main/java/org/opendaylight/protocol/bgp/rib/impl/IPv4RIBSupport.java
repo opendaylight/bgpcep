@@ -10,27 +10,17 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.DestinationIpv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.DestinationIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.destination.ipv4.Ipv4Prefixes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.destination.ipv4.Ipv4PrefixesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.Ipv4Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -107,35 +97,13 @@ final class IPv4RIBSupport extends AbstractIPRIBSupport {
         return CACHEABLE_NLRI_OBJECTS;
     }
 
-    private List<Ipv4Prefixes> extractPrefixes(final Collection<MapEntryNode> routes) {
-        final List<Ipv4Prefixes> prefs = new ArrayList<>(routes.size());
-        for (final MapEntryNode ipv4Route : routes) {
-            final String prefix = (String) ipv4Route.getChild(this.routeKeyLeaf).get().getValue();
-            prefs.add(new Ipv4PrefixesBuilder().setPrefix(new Ipv4Prefix(prefix)).build());
-        }
-        return prefs;
-    }
-
     @Override
     protected MpReachNlri buildReach(final Collection<MapEntryNode> routes, final CNextHop hop) {
-        final MpReachNlriBuilder mb = new MpReachNlriBuilder();
-        mb.setAfi(Ipv4AddressFamily.class);
-        mb.setSafi(UnicastSubsequentAddressFamily.class);
-        mb.setCNextHop(hop);
-        mb.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-            new DestinationIpv4CaseBuilder().setDestinationIpv4(
-                new DestinationIpv4Builder().setIpv4Prefixes(extractPrefixes(routes)).build()).build()).build());
-        return mb.build();
+        return new MpReachNlriBuilder().build();
     }
 
     @Override
     protected MpUnreachNlri buildUnreach(final Collection<MapEntryNode> routes) {
-        final MpUnreachNlriBuilder mb = new MpUnreachNlriBuilder();
-        mb.setAfi(Ipv4AddressFamily.class);
-        mb.setSafi(UnicastSubsequentAddressFamily.class);
-        mb.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
-                new DestinationIpv4Builder().setIpv4Prefixes(extractPrefixes(routes)).build()).build()).build());
-        return mb.build();
+        return  new MpUnreachNlriBuilder().build();
     }
 }
