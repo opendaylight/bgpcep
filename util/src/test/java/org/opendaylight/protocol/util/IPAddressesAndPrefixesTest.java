@@ -15,13 +15,16 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import com.google.common.collect.Lists;
+import com.google.common.net.InetAddresses;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.UnknownHostException;
 import java.util.List;
+import org.junit.Assert;
 import org.junit.Test;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
@@ -189,5 +192,16 @@ public class IPAddressesAndPrefixesTest {
         } catch (final InvocationTargetException e) {
             throw e.getCause();
         }
+    }
+
+    @Test
+    public void testInetAddressToIpAddress() {
+        final IpAddress ipAddress = Ipv4Util.getIpAddress(InetAddresses.forString("123.42.13.8"));
+        Assert.assertNotNull(ipAddress.getIpv4Address());
+        Assert.assertEquals(new Ipv4Address("123.42.13.8"), ipAddress.getIpv4Address());
+
+        final IpAddress ipAddress2 = Ipv4Util.getIpAddress(InetAddresses.forString("2001:db8:1:2::"));
+        Assert.assertNotNull(ipAddress2.getIpv6Address());
+        Assert.assertEquals(new Ipv6Address("2001:db8:1:2::"), ipAddress2.getIpv6Address());
     }
 }

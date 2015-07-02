@@ -20,8 +20,10 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 
 /**
  * Util class for creating generated Ipv4Address.
@@ -194,5 +196,19 @@ public final class Ipv4Util {
     protected static int getPrefixLength(final String prefixValue) {
         final int sep = prefixValue.indexOf('/');
         return Integer.parseInt(prefixValue.substring(sep + 1, prefixValue.length()));
+    }
+
+    /**
+     * Converts InetAddress to IpAddress.
+     *
+     * @param inetAddress
+     * @return IpAddress
+     */
+    public static IpAddress getIpAddress(final InetAddress inetAddress) {
+        final String address = InetAddresses.toAddrString(inetAddress);
+        if (inetAddress instanceof Inet4Address) {
+            return new IpAddress(new Ipv4Address(address));
+        }
+        return new IpAddress(new Ipv6Address(address));
     }
 }
