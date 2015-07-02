@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a7fa997_b9937ea2",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpRouterImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-02T16:09:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a7fa997_65769b40",
+      "range": {
+        "startLine": 168,
+        "startChar": 0,
+        "endLine": 168,
+        "endChar": 80
+      },
+      "revId": "ccf43573d6258cc6887ad489731ef845d30da3c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a7fa997_8573b74c",
         "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpRouterImpl.java",
         "patchSetId": 6
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "7a7fa997_19eab20f",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpRouterImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-02T16:09:56Z",
+      "side": 1,
+      "message": "moved to Ipv4Util",
+      "parentUuid": "7a7fa997_8573b74c",
+      "revId": "ccf43573d6258cc6887ad489731ef845d30da3c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a7fa997_45959f31",
         "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/TableContext.java",
         "patchSetId": 6
@@ -53,6 +95,30 @@
       "writtenOn": "2015-07-01T11:07:30Z",
       "side": 1,
       "message": "copypaste with typo ;-)",
+      "range": {
+        "startLine": 121,
+        "startChar": 26,
+        "endLine": 121,
+        "endChar": 47
+      },
+      "revId": "ccf43573d6258cc6887ad489731ef845d30da3c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_1938729f",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/TableContext.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-02T16:09:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a7fa997_45959f31",
       "range": {
         "startLine": 121,
         "startChar": 26,
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "7a7fa997_393d2e90",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/TableContext.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-02T16:09:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a7fa997_2590a342",
+      "range": {
+        "startLine": 122,
+        "startChar": 65,
+        "endLine": 122,
+        "endChar": 76
+      },
+      "revId": "ccf43573d6258cc6887ad489731ef845d30da3c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a7fa997_e5994b6f",
         "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/spi/BmpRouter.java",
         "patchSetId": 6
@@ -99,6 +189,24 @@
       "writtenOn": "2015-07-01T11:07:30Z",
       "side": 1,
       "message": "missing javadocs",
+      "revId": "ccf43573d6258cc6887ad489731ef845d30da3c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_59034ab8",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/spi/BmpRouter.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-02T16:09:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a7fa997_e5994b6f",
       "revId": "ccf43573d6258cc6887ad489731ef845d30da3c0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
