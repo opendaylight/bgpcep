@@ -164,4 +164,14 @@ public interface RIBSupport {
      * @return Update message ready to be sent out
      */
     @Nonnull Update buildUpdate(@Nonnull Collection<MapEntryNode> advertised, @Nonnull Collection<MapEntryNode> withdrawn, @Nonnull Attributes attr);
+
+    /**
+     * To send routes out, we'd need to transform the DOM representation of route to
+     * binding-aware format. This needs to be done per each AFI/SAFI.
+     *
+     * @param advertised Collection of advertised routes in DOM format
+     * @param withdrawn Collection of withdrawn routes in DOM format
+     * @return Update message ready to be sent out
+     */
+    @Nonnull Update buildUpdate(@Nonnull Collection<MapEntryNode> advertised, @Nonnull Collection<MapEntryNode> withdrawn);
 }
