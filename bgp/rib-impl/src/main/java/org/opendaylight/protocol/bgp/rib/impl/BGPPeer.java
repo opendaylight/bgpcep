@@ -196,20 +196,29 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
         this.session = session;
         this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
         final PeerId peerId = RouterIds.createPeerId(session.getBgpId());
+        TablesKey key = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+        this.tables.add(key);
+        createAdjRibOutListener(peerId, key, false);
 
         for (final BgpTableType t : session.getAdvertisedTableTypes()) {
-            final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
-            this.tables.add(key);
-
-            // not particularly nice
-            if (session instanceof BGPSessionImpl) {
-                AdjRibOutListener.create(peerId, key, this.rib.getYangRibId(), ((RIBImpl) this.rib).getService(), this.rib.getRibSupportContext(), ((BGPSessionImpl) session).getLimiter());
+            key = new TablesKey(t.getAfi(), t.getSafi());
+            if (this.tables.add(key)) {
+                createAdjRibOutListener(peerId, key, true);
             }
         }
+
         this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, false);
         this.sessionEstablishedCounter++;
         if (this.registrator != null) {
             this.runtimeReg = this.registrator.register(this);
+        }
+    }
+
+    private void createAdjRibOutListener(final PeerId peerId, final TablesKey key, final boolean mpSupport) {
+        // not particularly nice
+        if (session instanceof BGPSessionImpl) {
+            AdjRibOutListener.create(peerId, key, this.rib.getYangRibId(), ((RIBImpl) this.rib).getService(),
+                this.rib.getRibSupportContext(), ((BGPSessionImpl) session).getLimiter(), mpSupport);
         }
     }
 

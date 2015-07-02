@@ -8,8 +8,10 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Preconditions;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -19,14 +21,20 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.NlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.AdjRibOut;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
@@ -45,21 +53,28 @@ final class AdjRibOutListener implements AutoCloseable, DOMDataTreeChangeListene
 
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibOutListener.class);
 
+    static final QName PREFIX_QNAME = QName.cachedReference(QName.create(Ipv4Route.QNAME, "prefix"));
+    private final YangInstanceIdentifier.NodeIdentifier routeKeyLeaf = new YangInstanceIdentifier.NodeIdentifier(PREFIX_QNAME);
+
     private final ChannelOutputLimiter session;
     private final RIBSupportContextImpl context;
     private final RIBSupport support;
     private final ListenerRegistration<AdjRibOutListener> reg;
+    private final boolean mpSupport;
 
-    private AdjRibOutListener(final PeerId peerId, final TablesKey tablesKey, final YangInstanceIdentifier ribId, final DOMDataTreeChangeService service, final RIBSupportContextRegistry registry, final ChannelOutputLimiter session) {
+    private AdjRibOutListener(final PeerId peerId, final TablesKey tablesKey, final YangInstanceIdentifier ribId, final DOMDataTreeChangeService service, final RIBSupportContextRegistry registry, final ChannelOutputLimiter session, final boolean mpSupport) {
         this.session = Preconditions.checkNotNull(session);
         this.context = (RIBSupportContextImpl) registry.getRIBSupportContext(tablesKey);
         this.support = this.context.getRibSupport();
+        this.mpSupport = mpSupport;
         final YangInstanceIdentifier adjRibOutId =  ribId.node(Peer.QNAME).node(IdentifierUtils.domPeerId(peerId)).node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
         this.reg = service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, adjRibOutId), this);
     }
 
-    static AdjRibOutListener create(@Nonnull final PeerId peerId, @Nonnull final TablesKey tablesKey, @Nonnull final YangInstanceIdentifier ribId, @Nonnull final DOMDataTreeChangeService service, @Nonnull final RIBSupportContextRegistry registry, @Nonnull final ChannelOutputLimiter session) {
-        return new AdjRibOutListener(peerId, tablesKey, ribId, service, registry, session);
+    static AdjRibOutListener create(@Nonnull final PeerId peerId, @Nonnull final TablesKey tablesKey, @Nonnull final YangInstanceIdentifier ribId,
+                                    @Nonnull final DOMDataTreeChangeService service, @Nonnull final RIBSupportContextRegistry registry,
+                                    @Nonnull final ChannelOutputLimiter session, @Nonnull final boolean mpSupport) {
+        return new AdjRibOutListener(peerId, tablesKey, ribId, service, registry, session, mpSupport);
     }
 
     @Override
@@ -110,7 +125,27 @@ final class AdjRibOutListener implements AutoCloseable, DOMDataTreeChangeListene
     }
 
     private Update advertise(final MapEntryNode route) {
+        if (!mpSupport) {
+            return buildUpdate(Collections.singleton(route), Collections.<MapEntryNode>emptyList(), routeAttributes(route));
+        }
         return this.support.buildUpdate(Collections.singleton(route), Collections.<MapEntryNode>emptyList(), routeAttributes(route));
+    }
+
+    private Update buildUpdate(@Nonnull final Collection<MapEntryNode> advertised, @Nonnull final Collection<MapEntryNode> withdrawn, @Nonnull final Attributes attr) {
+        final UpdateBuilder ub = new UpdateBuilder()
+            .setWithdrawnRoutes(new WithdrawnRoutesBuilder().setWithdrawnRoutes(extractPrefixes(withdrawn)).build())
+            .setNlri(new NlriBuilder().setNlri(extractPrefixes(advertised)).build());
+        ub.setAttributes(attr);
+        return ub.build();
+    }
+
+    private List<Ipv4Prefix> extractPrefixes(final Collection<MapEntryNode> routes) {
+        final List<Ipv4Prefix> prefs = new ArrayList<>(routes.size());
+        for (final MapEntryNode ipv4Route : routes) {
+            final String prefix = (String) ipv4Route.getChild(this.routeKeyLeaf).get().getValue();
+            prefs.add(new Ipv4Prefix(prefix));
+        }
+        return prefs;
     }
 
     @Override
