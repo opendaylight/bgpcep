@@ -9,9 +9,10 @@
 package org.opendaylight.protocol.bmp.spi.parser;
 
 import static org.junit.Assert.assertEquals;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.DistinguisherType;
@@ -66,5 +67,16 @@ public class PeerDistinguisherUtilTest {
         final ByteBuf buffer = Unpooled.buffer(DISTINGUISHER_TYPE2.length);
         PeerDistinguisherUtil.serializePeerDistinguisher(dBuilder.build(), buffer);
         Assert.assertArrayEquals(DISTINGUISHER_TYPE2, buffer.array());
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testPeerDistinguisherUtilPrivateConstructor() throws Throwable {
+        final Constructor<PeerDistinguisherUtil> c = PeerDistinguisherUtil.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (final InvocationTargetException e) {
+            throw e.getCause();
+        }
     }
 }
