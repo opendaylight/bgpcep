@@ -49,6 +49,10 @@
             <artifactId>bgp-rib-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-inet</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.opendaylight.yangtools.model</groupId>
             <artifactId>ietf-inet-types</artifactId>
         </dependency>
@@ -103,11 +107,6 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-inet</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
