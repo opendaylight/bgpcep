@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -47,17 +48,24 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
     private final ChannelOutputLimiter session;
     private final RIBSupportContextImpl context;
     private final RIBSupport support;
+    private final Set<TablesKey> tables;
 
-    private AdjRibOutListener(final PeerId peerId, final TablesKey tablesKey, final YangInstanceIdentifier ribId, final DOMDataTreeChangeService service, final RIBSupportContextRegistry registry, final ChannelOutputLimiter session) {
+    private AdjRibOutListener(final PeerId peerId, final TablesKey tablesKey, final YangInstanceIdentifier ribId,
+                              final DOMDataTreeChangeService service, final RIBSupportContextRegistry registry,
+                              final ChannelOutputLimiter session, final Set<TablesKey> tables) {
         this.session = Preconditions.checkNotNull(session);
+
         this.context = (RIBSupportContextImpl) registry.getRIBSupportContext(tablesKey);
         this.support = this.context.getRibSupport();
+        this.tables = tables;
         final YangInstanceIdentifier adjRibOutId =  ribId.node(Peer.QNAME).node(IdentifierUtils.domPeerId(peerId)).node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
         service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, adjRibOutId), this);
     }
 
-    static AdjRibOutListener create(@Nonnull final PeerId peerId, @Nonnull final TablesKey tablesKey, @Nonnull final YangInstanceIdentifier ribId, @Nonnull final DOMDataTreeChangeService service, @Nonnull final RIBSupportContextRegistry registry, @Nonnull final ChannelOutputLimiter session) {
-        return new AdjRibOutListener(peerId, tablesKey, ribId, service, registry, session);
+
+
+    static AdjRibOutListener create(@Nonnull final PeerId peerId, @Nonnull final TablesKey tablesKey, @Nonnull final YangInstanceIdentifier ribId, @Nonnull final DOMDataTreeChangeService service, @Nonnull final RIBSupportContextRegistry registry, @Nonnull final ChannelOutputLimiter session, @Nonnull final Set<TablesKey> tables) {
+        return new AdjRibOutListener(peerId, tablesKey, ribId, service, registry, session, tables);
     }
 
     @Override
@@ -108,6 +116,10 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
     }
 
     private Update advertise(final MapEntryNode route) {
+        if(tables.isEmpty())
+        {
+            return this.support.buildUpdate(Collections.singleton(route), Collections.<MapEntryNode>emptyList());
+        }
         return this.support.buildUpdate(Collections.singleton(route), Collections.<MapEntryNode>emptyList(), routeAttributes(route));
     }
 }

@@ -10,14 +10,20 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.NlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
@@ -51,6 +57,8 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     private static final NodeIdentifier WITHDRAWN_ROUTES = new NodeIdentifier(WithdrawnRoutes.QNAME);
     private static final NodeIdentifier DESTINATION_TYPE = new NodeIdentifier(DestinationType.QNAME);
     private static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
+    static final QName PREFIX_QNAME = QName.cachedReference(QName.create(Ipv4Route.QNAME, "prefix"));
+    private final NodeIdentifier routeKeyLeaf = new NodeIdentifier(PREFIX_QNAME);
 
     private final NodeIdentifier routesContainerIdentifier;
     private final NodeIdentifier routesListIdentifier;
@@ -58,7 +66,6 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     private final Class<? extends Routes> cazeClass;
     private final Class<? extends DataObject> containerClass;
     private final Class<? extends Route> listClass;
-
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -247,6 +254,23 @@ public abstract class AbstractRIBSupport implements RIBSupport {
 
         ub.setAttributes(ab.build());
         return ub.build();
+    }
+
+    @Override
+    public Update buildUpdate(final Collection<MapEntryNode> advertised, final Collection<MapEntryNode> withdrawn) {
+        final UpdateBuilder ub = new UpdateBuilder()
+            .setWithdrawnRoutes(new WithdrawnRoutesBuilder().setWithdrawnRoutes(extractPrefixes(withdrawn)).build())
+            .setNlri(new NlriBuilder().setNlri(extractPrefixes(advertised)).build());
+        return ub.build();
+    }
+
+    private List<Ipv4Prefix> extractPrefixes(final Collection<MapEntryNode> routes) {
+        final List<Ipv4Prefix> prefs = new ArrayList<>(routes.size());
+        for (final MapEntryNode ipv4Route : routes) {
+            final String prefix = (String) ipv4Route.getChild(this.routeKeyLeaf).get().getValue();
+            prefs.add(new Ipv4Prefix(prefix));
+        }
+        return prefs;
     }
 
     @Override

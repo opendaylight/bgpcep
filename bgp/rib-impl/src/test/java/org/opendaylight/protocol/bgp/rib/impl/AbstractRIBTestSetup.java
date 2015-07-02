@@ -195,7 +195,7 @@ public class AbstractRIBTestSetup {
         Mockito.doReturn(this.future).when(this.transWrite).submit();
     }
 
-    public Collection<DataTreeCandidate> ipv4Input(final YangInstanceIdentifier target, final ModificationType type, final Ipv4Prefix... prefix) {
+    public static Collection<DataTreeCandidate> ipv4Input(final YangInstanceIdentifier target, final ModificationType type, final Ipv4Prefix... prefix) {
         final Collection<DataTreeCandidate> col = new HashSet<>();
         final DataTreeCandidate candidate = Mockito.mock(DataTreeCandidate.class);
         final DataTreeCandidateNode rootNode = Mockito.mock(DataTreeCandidateNode.class);
@@ -221,7 +221,7 @@ public class AbstractRIBTestSetup {
         return col;
     }
 
-    public PathArgument createIdentifier(final YangInstanceIdentifier base, final Ipv4Prefix prefix) {
+    public static PathArgument createIdentifier(final YangInstanceIdentifier base, final Ipv4Prefix prefix) {
         final NodeIdentifierWithPredicates routekey = new NodeIdentifierWithPredicates(Ipv4Route.QNAME, IPv4RIBSupport.PREFIX_QNAME, prefix);
         return YangInstanceIdentifier.of(IPv4RIBSupport.PREFIX_QNAME).node(routekey).getLastPathArgument();
     }
