@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_1eeff888",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibOutListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-02T14:48:01Z",
+      "side": 1,
+      "message": "..or you could make this check in peer and use boolean as parameter.",
+      "range": {
+        "startLine": 114,
+        "startChar": 12,
+        "endLine": 114,
+        "endChar": 28
+      },
+      "revId": "b0cc5989583de2ecf8d1f7f6cae2d2da68bb5df4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_3ef4345a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibOutListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-02T14:48:01Z",
+      "side": 1,
+      "message": "we also need attributes. \n\nImplement the method here as private, there is no point having it in AbstractRIBSupport.",
+      "revId": "b0cc5989583de2ecf8d1f7f6cae2d2da68bb5df4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_be8604b8",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-02T14:48:01Z",
+      "side": 1,
+      "message": "this.tables will never be empty at this point...\n\nThis part will need a bit more refactoring, because if session.getAdvertisedTableTypes() is empty, no AdjRibOut will be created. In case of empty we need to create exactly one AdjRibOut (for ipv4).",
+      "revId": "b0cc5989583de2ecf8d1f7f6cae2d2da68bb5df4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_7ea70c50",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/RIBSupport.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-02T14:48:01Z",
+      "side": 1,
+      "message": "no need for this and the javadoc is wrong",
+      "revId": "b0cc5989583de2ecf8d1f7f6cae2d2da68bb5df4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
