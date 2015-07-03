@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_f4b01bf6",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibOutListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-03T07:28:00Z",
+      "side": 1,
+      "message": "attributes are still missing",
+      "revId": "96ade18aa92cbc8dc00c1b69b80b464df21d3955",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_348e932f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-03T07:28:00Z",
+      "side": 1,
+      "message": "Support for basic non-mp ipv4 is implicit. What happens in this code if client sends capability for linkstate table type only?",
+      "revId": "96ade18aa92cbc8dc00c1b69b80b464df21d3955",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_94952742",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-03T07:28:00Z",
+      "side": 1,
+      "message": "spacing",
+      "revId": "96ade18aa92cbc8dc00c1b69b80b464df21d3955",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
