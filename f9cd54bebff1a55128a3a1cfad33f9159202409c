@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_5e3c8de2",
+        "filename": "features/bmp/src/main/features/features.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-03T12:53:21Z",
+      "side": 1,
+      "message": "People had objections about calling user-faced features with project-name-all, so just call it odl-bgpcep-bmp.",
+      "range": {
+        "startLine": 21,
+        "startChar": 22,
+        "endLine": 21,
+        "endChar": 37
+      },
+      "revId": "f9cd54bebff1a55128a3a1cfad33f9159202409c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
