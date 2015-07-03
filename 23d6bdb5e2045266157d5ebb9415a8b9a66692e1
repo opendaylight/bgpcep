@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_feed59b8",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-03T12:18:35Z",
+      "side": 1,
+      "message": "warn",
+      "range": {
+        "startLine": 258,
+        "startChar": 20,
+        "endLine": 258,
+        "endChar": 24
+      },
+      "revId": "23d6bdb5e2045266157d5ebb9415a8b9a66692e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_7e394940",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/protocol/BGPSessionNegotiatorFactory.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-03T12:18:35Z",
+      "side": 1,
+      "message": "all interfaces should be in bgp.rib.impl.spi",
+      "revId": "23d6bdb5e2045266157d5ebb9415a8b9a66692e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_1e4055a4",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/SimpleSessionListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-03T12:18:35Z",
+      "side": 1,
+      "message": "warn",
+      "revId": "23d6bdb5e2045266157d5ebb9415a8b9a66692e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_de497dd1",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/SimpleSessionListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-03T12:18:35Z",
+      "side": 1,
+      "message": "session \u003d null;",
+      "revId": "23d6bdb5e2045266157d5ebb9415a8b9a66692e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_1e6e1530",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/BGPSessionListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-03T12:18:35Z",
+      "side": 1,
+      "message": "please copy also javadocs",
+      "revId": "23d6bdb5e2045266157d5ebb9415a8b9a66692e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_3e699125",
+        "filename": "bgp/testtool/src/main/java/org/opendaylight/protocol/bgp/testtool/TestingListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-03T12:18:35Z",
+      "side": 1,
+      "message": "warn",
+      "revId": "23d6bdb5e2045266157d5ebb9415a8b9a66692e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
