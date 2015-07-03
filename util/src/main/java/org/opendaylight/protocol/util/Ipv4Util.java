@@ -16,6 +16,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.PortNumber;
 
 /**
  * Util class for creating generated Ipv4Address.
@@ -210,5 +212,22 @@ public final class Ipv4Util {
             return new IpAddress(new Ipv4Address(address));
         }
         return new IpAddress(new Ipv6Address(address));
+    }
+
+    /**
+     * Converts IpAddress and PortNumber to InetSocketAddress
+     *
+     * @param ipAddress
+     * @param port
+     * @return InetSocketAddress
+     */
+    public static InetSocketAddress toInetSocketAddress(final IpAddress ipAddress, final PortNumber port) {
+        final String ipString;
+        if (ipAddress.getIpv4Address() != null) {
+            ipString = ipAddress.getIpv4Address().getValue();
+        } else {
+            ipString = ipAddress.getIpv6Address().getValue();
+        }
+        return new InetSocketAddress(InetAddresses.forString(ipString), port.getValue());
     }
 }
