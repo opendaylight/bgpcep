@@ -8,7 +8,7 @@ module network-topology-pcep {
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import odl-network-topology { prefix ont; revision-date 2014-01-13; }
     import pcep-types { prefix pcep; revision-date 2013-10-05; }
-    import rsvp { prefix rsvp; revision-date 2013-08-20; }
+    import rsvp { prefix rsvp; revision-date 2015-08-20; }
 
     organization "Cisco Systems, Inc.";
     contact "Robert Varga <rovarga@cisco.com>";

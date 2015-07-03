@@ -9,7 +9,7 @@ package org.opendaylight.protocol.pcep.spi;
 
 import io.netty.buffer.ByteBuf;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.LabelType;
 
 public interface LabelRegistry {
     /**
