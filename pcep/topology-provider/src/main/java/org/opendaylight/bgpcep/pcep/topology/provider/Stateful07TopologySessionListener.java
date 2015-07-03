@@ -219,7 +219,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             if (tlvs.getLspIdentifiers() != null) {
                 pb.setLspId(tlvs.getLspIdentifiers().getLspId());
             } else if (!isDefaultPST(pst)) {
-                pb.setLspId(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId(lsp.getPlspId().getValue()));
+                pb.setLspId(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId(lsp.getPlspId().getValue()));
             }
         }
         return pb.build();
