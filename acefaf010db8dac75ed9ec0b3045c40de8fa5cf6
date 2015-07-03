@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_947c4722",
+        "filename": "bgp/bmp-spi/src/test/java/org/opendaylight/protocol/bmp/spi/registry/AbstractBmpExtensionProviderActivatorTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-03T07:29:19Z",
+      "side": 1,
+      "message": "missing copyright header",
+      "revId": "acefaf010db8dac75ed9ec0b3045c40de8fa5cf6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_5476af3f",
+        "filename": "bgp/bmp-spi/src/test/java/org/opendaylight/protocol/bmp/spi/registry/SimpleBmpExtensionProviderContextTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-03T07:29:19Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "acefaf010db8dac75ed9ec0b3045c40de8fa5cf6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_7473ab4d",
+        "filename": "bgp/bmp-spi/src/test/java/org/opendaylight/protocol/bmp/spi/registry/SimpleBmpTlvRegistryTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-03T07:29:19Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "acefaf010db8dac75ed9ec0b3045c40de8fa5cf6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
