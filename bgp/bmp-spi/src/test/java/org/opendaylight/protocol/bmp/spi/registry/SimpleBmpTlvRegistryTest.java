@@ -15,6 +15,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -43,6 +44,9 @@ public class SimpleBmpTlvRegistryTest {
         this.bmpTlvRegistry.registerBmpTlvParser(descriptionTlvType, this.descriptionTlvParser);
         this.bmpTlvRegistry.registerBmpTlvSerializer(MockDescriptionTlv.class, this.descriptionTlvSerializer);
         Mockito.doReturn(new MockDescriptionTlv()).when(this.descriptionTlvParser).parseTlv(this.input);
+        final ArgumentCaptor<Tlv> tlvArg = ArgumentCaptor.forClass(Tlv.class);
+        final ArgumentCaptor<ByteBuf> bufArg = ArgumentCaptor.forClass(ByteBuf.class);
+        Mockito.doNothing().when(this.descriptionTlvSerializer).serializeTlv(tlvArg.capture(), bufArg.capture());
     }
 
     @Test
