@@ -5,26 +5,34 @@ module rsvp {
 
     import iana { prefix iana; revision-date 2013-08-16; }
     import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import ieee754 { prefix ieee754; revision-date 2013-08-19; }
+    import network-concepts { prefix netc; revision-date 2013-11-25; }
 
-        organization "Cisco Systems, Inc.";
-        contact "Robert Varga <rovarga@cisco.com>";
+    organization "Cisco Systems, Inc.";
+    contact "Robert Varga <rovarga@cisco.com>";
 
-        description
-                "This module contains the definition of types related to
-                Resource Reservation Protocol (RSVP).
+    description
+            "This module contains the definition of types related to
+            Resource Reservation Protocol (RSVP).
 
-                Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
+            Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
 
-                This program and the accompanying materials are made available
-                under the terms of the Eclipse Public License v1.0 which
-                accompanies this distribution, and is available at
-                http://www.eclipse.org/legal/epl-v10.html";
+            This program and the accompanying materials are made available
+            under the terms of the Eclipse Public License v1.0 which
+            accompanies this distribution, and is available at
+            http://www.eclipse.org/legal/epl-v10.html";
 
-        revision "2013-08-20" {
-                description
-                        "Initial revision.";
-                reference "https://tools.ietf.org/html/rfc2205";
+    revision "2013-08-20" {
+            description
+                    "Initial revision.";
+            reference "https://tools.ietf.org/html/rfc2205";
+    }
+
+    grouping c-type {
+        leaf c-type {
+            type uint8;
         }
+    }
 
     typedef attribute-filter {
         type uint32;
@@ -44,7 +52,12 @@ module rsvp {
         }
     }
 
-    grouping tunnel-attributes {
+    grouping rsvp-te-object {
+        description
+            "Common marker for all RSVP-TE Objects.";
+    }
+
+    grouping priority {
         leaf hold-priority {
             type uint8;
             default 0;
@@ -54,10 +67,32 @@ module rsvp {
             type uint8;
             default 0;
         }
+    }
+
+    grouping tunnel-attributes {
+        uses priority;
 
         leaf local-protection-desired {
             type boolean;
             default false;
+        }
+
+        leaf label-recording-desired {
+            type boolean;
+            default false;
+        }
+
+        leaf se-style-desired {
+            type boolean;
+            default false;
+        }
+
+        leaf name-length {
+           type uint8;
+        }
+
+        leaf session-name {
+           type string;
         }
 
         uses attribute-filters;
@@ -86,6 +121,55 @@ module rsvp {
     typedef srlg-id {
         type uint32;
         reference "http://tools.ietf.org/html/rfc4202#section-2.3";
+    }
+
+    typedef lsp-flag {
+        type enumeration {
+            enum unprotected {
+                value 0;
+            }
+            enum full-rerouting {
+                value 1;
+            }
+            enum rerouting-without-extra-traffic {
+                value 2;
+            }
+            enum protection-with-extra-traffic {
+                value 4;
+            }
+            enum unidirectional-protection {
+                value 8;
+            }
+            enum bidirectional-protection {
+                value 10;
+            }
+        }
+    }
+
+    typedef link-flags {
+        type enumeration {
+            enum totally-unprotected {
+                value 0;
+            }
+            enum enhanced {
+                value 20;
+            }
+            enum dedicated-1plus1 {
+                value 10;
+            }
+            enum dedicated-one-to-one{
+                value 8;
+            }
+            enum shared {
+                value 4;
+            }
+            enum unprotected {
+                value 2;
+            }
+            enum extra-traffic {
+                value 1;
+            }
+        }
     }
 
     grouping error-spec {
@@ -290,6 +374,50 @@ module rsvp {
         }
     }
 
+    grouping protection-subobject {
+        container protection-subobject {
+            leaf c-type {
+                type uint8;
+            }
+            leaf secondary {
+                type boolean;
+                default false;
+            }
+            leaf protecting {
+                type boolean;
+                default false;
+            }
+            leaf notification {
+                type boolean;
+                default false;
+            }
+            leaf operational {
+                type boolean;
+                default false;
+            }
+            leaf lsp-flag {
+                type lsp-flag;
+                mandatory true;
+            }
+            leaf link-flags {
+                type link-flags;
+                mandatory true;
+            }
+            leaf in-place {
+                type boolean;
+                default false;
+            }
+            leaf required {
+                type boolean;
+                default false;
+            }
+            leaf seg-flag {
+                type lsp-flag;
+                mandatory true;
+            }
+        }
+    }
+
     grouping record-route-subobjects {
         leaf protection-available {
             type boolean;
@@ -324,6 +452,10 @@ module rsvp {
                     uses unnumbered-subobject;
                 }
             }
+
+            case protection-case {
+                uses protection-subobject;
+            }
         }
     }
 
@@ -357,6 +489,77 @@ module rsvp {
                     uses unnumbered-subobject;
                 }
             }
+        }
+    }
+
+    grouping exclude-route-object {
+        container exclude-route-object {
+            uses rsvp-te-object;
+            uses c-type;
+
+            list subobject-container {
+                uses rsvp:exclude-route-subobjects;
+                ordered-by user;
+            }
+        }
+    }
+
+    grouping record-route-subobjects-list {
+        list subobject-container {
+            uses record-route-subobjects;
+            ordered-by user;
+        }
+    }
+
+    grouping explicit-route-subobjects-list {
+
+        list subobject-container {
+            leaf loose {
+                type boolean;
+                mandatory true;
+            }
+
+            uses explicit-route-subobjects;
+            ordered-by user;
+        }
+    }
+
+    grouping record-route-object {
+        container record-route-object {
+            uses rsvp-te-object;
+            uses c-type;
+            uses record-route-subobjects-list;
+        }
+    }
+
+    grouping explicit-route-object {
+        container explicit-route-object {
+            description "Explicit Route Object";
+            reference "http://tools.ietf.org/html/rfc3209#section-4.3";
+
+            uses rsvp-te-object;
+            uses c-type;
+            uses explicit-route-subobjects-list;
+        }
+    }
+
+    grouping secondary-explicit-route-object {
+        container secondary-explicit-route-object {
+            description "Explicit Route Object";
+            reference "http://tools.ietf.org/html/rfc4873#section-4.1";
+
+            uses rsvp-te-object;
+            uses c-type;
+            uses explicit-route-subobjects-list;
+        }
+    }
+
+    grouping secondary-record-route-object {
+        container secondary-record-route-object {
+            uses rsvp-te-object;
+            uses c-type;
+
+            uses record-route-subobjects-list;
         }
     }
 
@@ -399,6 +602,320 @@ module rsvp {
                         }
                     }
                 }
+                case protection-case {
+                    uses protection-subobject;
+                }
+            }
+        }
+    }
+
+    grouping tspec-object {
+        container tspec-object {
+            description "SENDER TSPEC Object";
+            reference "https://tools.ietf.org/html/rfc2210";
+
+            uses rsvp-te-object;
+            uses c-type;
+
+            leaf token-bucket-rate {
+                type ieee754:float32;
+            }
+            leaf token-bucket-size {
+                type ieee754:float32;
+            }
+            leaf peak-data-rate {
+                type ieee754:float32;
+            }
+            leaf minimum-policed-unit {
+                type uint32;
+            }
+            leaf maximum-packet-size {
+                type uint32;
+            }
+        }
+    }
+
+    typedef service-number {
+        type enumeration {
+            enum controlled-load {
+                value 5;
+            }
+            enum guaranteed {
+                value 2;
+            }
+        }
+    }
+
+    grouping flow-spec-object {
+        container flow-spec-object {
+            description "FLOW_SPEC";
+            reference "https://tools.ietf.org/html/rfc2210";
+
+            uses rsvp-te-object;
+            uses c-type;
+            leaf service-header {
+                type service-number;
+            }
+
+            uses tspec-object;
+
+            leaf rate {
+                type ieee754:float32;
+            }
+            leaf slack-term {
+                type uint32;
+            }
+        }
+    }
+
+    typedef association-type {
+        type enumeration {
+            enum reserved {
+                value 0;
+            }
+            enum recovery {
+                value 1;
+            }
+        }
+    }
+
+    grouping association-object {
+        container association-object {
+            description "Association Object";
+            reference "http://tools.ietf.org/html/rfc4872#section-16";
+
+            uses rsvp-te-object;
+            uses c-type;
+            leaf association-type {
+                type association-type;
+            }
+            leaf association-id {
+                type uint16;
+            }
+            leaf ip-address {
+                type inet:ip-address;
+                mandatory true;
+            }
+        }
+    }
+
+    grouping admin-status-object {
+        container admin-status-object {
+            description "Admin Status Object";
+            reference "http://tools.ietf.org/html/rfc3473#section-7.1";
+
+            uses rsvp-te-object;
+            uses c-type;
+            leaf length {
+                type uint16;
+            }
+            leaf reflect {
+                type boolean;
+                default false;
+            }
+            leaf testing {
+                type boolean;
+                default false;
+            }
+            leaf administratively-down {
+                type boolean;
+                default false;
+            }
+            leaf deletion-in-progress {
+                type boolean;
+                default false;
+            }
+        }
+    }
+
+    grouping primary-path-route-object {
+        container primary-path-route-object {
+            description "Protection Subobject";
+            reference "http://tools.ietf.org/html/rfc4872#section-15";
+
+            uses rsvp-te-object;
+            uses c-type;
+            uses rsvp-te-object;
+            uses explicit-route-subobjects-list;
+        }
+    }
+
+    grouping detour-object {
+        container detour-object {
+            description "DETOUR Object";
+            reference "http://tools.ietf.org/html/rfc4090#section-4.2";
+
+            uses rsvp-te-object;
+            uses c-type;
+            choice address-family {
+                case ipv4-case {
+                    list plr {
+                        leaf plr-id {
+                            type inet:ipv4-address;
+                            mandatory true;
+                        }
+                        leaf avoid-node {
+                            type inet:ipv4-address;
+                            mandatory true;
+                        }
+                    }
+                }
+                case ipv6-case {
+                    list plr-id {
+                        leaf plr-id {
+                            type inet:ipv6-address;
+                            mandatory true;
+                        }
+                    }
+                    list avoid-node {
+                        leaf avoid-node {
+                            type inet:ipv6-address;
+                            mandatory true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    typedef fast-reroute-flags {
+        type enumeration {
+            enum one-to-one-backup-desired {
+                value 1;
+            }
+            enum facility-backup-desired {
+                value 2;
+            }
+        }
+    }
+    grouping fast-reroute-object {
+        container fast-reroute-object {
+            description "FAST REROUTE Object";
+            reference "http://tools.ietf.org/html/rfc4090#section-4.1";
+
+            uses rsvp-te-object;
+            uses c-type;
+            uses priority;
+            uses attribute-filters;
+            leaf hop-limit {
+                type uint8;
+                default 0;
+            }
+            leaf flags {
+                type fast-reroute-flags;
+                mandatory true;
+            }
+            leaf bandwidth {
+                type netc:bandwidth;
+            }
+        }
+    }
+
+    grouping session-attribute-object {
+        container session-attribute-object {
+            description "SESSION_ATTRIBUTE";
+            reference "http://tools.ietf.org/html/rfc3209#section-4.7";
+
+            uses rsvp-te-object;
+            uses c-type;
+            uses tunnel-attributes;
+        }
+    }
+
+    grouping bandwidth-object {
+        container bandwidth-object {
+            description "BANDWIDTH Object";
+            reference "https://tools.ietf.org/html/rfc5440#section-7.7";
+
+            uses rsvp-te-object;
+            uses c-type;
+            // No possibility to carry TLVs
+            leaf bandwidth {
+                type netc:bandwidth;
+            }
+        }
+    }
+
+    grouping metric-object {
+        description "METRIC Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.8";
+        container metric-object {
+            uses rsvp-te-object;
+            uses c-type;
+
+            leaf metric-type {
+                type uint8;
+                mandatory true;
+            }
+
+            leaf bound {
+                type boolean;
+                default false;
+            }
+
+            leaf computed {
+                type boolean;
+                default false;
+            }
+
+            leaf value {
+                type ieee754:float32;
+            }
+        }
+    }
+
+    grouping protection-object {
+        container protection-object {
+            description "Protection Subobject";
+            reference "http://tools.ietf.org/html/rfc4873#section-6.1";
+            reference "http://tools.ietf.org/html/rfc4872#section-14";
+
+            uses rsvp-te-object;
+            uses c-type;
+            uses protection-subobject;
+        }
+    }
+
+    grouping lsp-attributes-object {
+        container lsp-attributes-object {
+            description "Lsp Attributes Object";
+            reference "http://tools.ietf.org/html/rfc5420#section-4";
+
+            uses rsvp-te-object;
+            uses c-type;
+            list subobject-container {
+                uses lsp-att-subobject;
+            }
+        }
+    }
+
+    grouping lsp-required-attributes-object {
+        container lsp-required-attributes-object {
+            description "Lsp Required Attributes Object";
+            reference "http://tools.ietf.org/html/rfc5420#section-5";
+
+            uses rsvp-te-object;
+            uses c-type;
+            uses lsp-attributes-object;
+        }
+    }
+
+    grouping attribute-flags {
+        description "Attributes Flags";
+        reference "http://tools.ietf.org/html/rfc5420#section-3.1";
+        list flag-container {
+            leaf flags {
+                type binary {
+                   length 4;
+                }
+            }
+        }
+    }
+
+    grouping lsp-att-subobject {
+        choice lsp-subobject {
+            case flags-tlv {
+                uses attribute-flags;
             }
         }
     }
