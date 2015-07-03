@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_5481cf8d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-03T09:00:26Z",
+      "side": 1,
+      "message": "public boolean add(E e)\n\nAdds the specified element to this set if it is not already present. More formally, adds the specified element e to this set if this set contains no element e2 such that (e\u003d\u003dnull ? e2\u003d\u003dnull : e.equals(e2)). If this set already contains the element, the call leaves the set unchanged and returns false.\n\nUse this behaviour of HashSet instead of manually removing the Ipv4 AFI/SAFI.",
+      "revId": "6602be8aa9c7439fd2b93b32e3f025da455c73ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_144b5788",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/IPv4RIBSupport.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-03T09:00:26Z",
+      "side": 1,
+      "message": "Put a log warn here, this method shouldn\u0027t be called.",
+      "revId": "6602be8aa9c7439fd2b93b32e3f025da455c73ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
