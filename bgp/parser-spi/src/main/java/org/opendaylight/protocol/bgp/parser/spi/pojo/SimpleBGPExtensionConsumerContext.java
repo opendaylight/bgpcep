@@ -17,6 +17,11 @@ class SimpleBGPExtensionConsumerContext implements BGPExtensionConsumerContext {
     private final SimpleSubsequentAddressFamilyRegistry safiReg = new SimpleSubsequentAddressFamilyRegistry();
     private final SimpleParameterRegistry paramReg = new SimpleParameterRegistry();
     private final SimpleNlriRegistry nlriReg = new SimpleNlriRegistry(this.afiReg, this.safiReg);
+    private final SimpleRsvpObjectRegistry rsvpRegistry = new SimpleRsvpObjectRegistry();
+    private final SimpleXROSubobjectRegistry xroSubReg = new SimpleXROSubobjectRegistry();
+    private final SimpleRROSubobjectRegistry rroSubReg = new SimpleRROSubobjectRegistry();
+    private final SimpleEROSubobjectRegistry eroSubReg = new SimpleEROSubobjectRegistry();
+    private final SimpleLabelRegistry labelRegistry = new SimpleLabelRegistry();
 
     @Override
     public final SimpleAddressFamilyRegistry getAddressFamilyRegistry() {
@@ -46,6 +51,31 @@ class SimpleBGPExtensionConsumerContext implements BGPExtensionConsumerContext {
     @Override
     public final SimpleParameterRegistry getParameterRegistry() {
         return this.paramReg;
+    }
+
+    @Override
+    public final SimpleRsvpObjectRegistry getRsvpRegistry() {
+        return this.rsvpRegistry;
+    }
+
+    @Override
+    public final SimpleXROSubobjectRegistry getXROSubobjectHandlerRegistry() {
+        return this.xroSubReg;
+    }
+
+    @Override
+    public SimpleEROSubobjectRegistry getEROSubobjectHandlerRegistry() {
+        return this.eroSubReg;
+    }
+
+    @Override
+    public final SimpleRROSubobjectRegistry getRROSubobjectHandlerRegistry() {
+        return this.rroSubReg;
+    }
+
+    @Override
+    public final SimpleLabelRegistry getLabelHandlerRegistry() {
+        return this.labelRegistry;
     }
 
     @Override
