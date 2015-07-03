@@ -11,6 +11,9 @@ import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.RsvpTeObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.SubobjectType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
@@ -43,6 +46,27 @@ public interface BGPExtensionProviderContext extends BGPExtensionConsumerContext
     AutoCloseable registerParameterParser(int parameterType, ParameterParser parser);
 
     AutoCloseable registerParameterSerializer(Class<? extends BgpParameters> paramClass, ParameterSerializer serializer);
+
+    void registerRsvpObjectParser(int classNum, int cType, RsvpTeObjectParser parser);
+
+    void registerRsvpObjectSerializer(Class<? extends RsvpTeObject> objectClass, int cType, RsvpTeObjectSerializer
+        serializer);
+
+    AutoCloseable registerXROSubobjectSerializer(Class<? extends SubobjectType> subobjectClass, XROSubobjectSerializer serializer);
+
+    AutoCloseable registerXROSubobjectParser(int subobjectType, XROSubobjectParser parser);
+
+    AutoCloseable registerRROSubobjectSerializer(Class<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.SubobjectType> subobjectClass, RROSubobjectSerializer serializer);
+
+    AutoCloseable registerRROSubobjectParser(int subobjectType, RROSubobjectParser parser);
+
+    AutoCloseable registerEROSubobjectSerializer(Class<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.SubobjectType> subobjectClass, EROSubobjectSerializer serializer);
+
+    AutoCloseable registerEROSubobjectParser(int subobjectType, EROSubobjectParser parser);
+
+    AutoCloseable registerLabelSerializer(Class<? extends LabelType> labelClass, LabelSerializer serializer);
+
+    AutoCloseable registerLabelParser(int cType, LabelParser parser);
 
     /**
      * Get the context-wide cache for a particular object type.

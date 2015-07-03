@@ -25,4 +25,14 @@ public interface BGPExtensionConsumerContext {
     ParameterRegistry getParameterRegistry();
 
     SubsequentAddressFamilyRegistry getSubsequentAddressFamilyRegistry();
+
+    RsvpTeObjectRegistry getRsvpRegistry();
+
+    XROSubobjectRegistry getXROSubobjectHandlerRegistry();
+
+    EROSubobjectRegistry getEROSubobjectHandlerRegistry();
+
+    RROSubobjectRegistry getRROSubobjectHandlerRegistry();
+
+    LabelRegistry getLabelHandlerRegistry();
 }

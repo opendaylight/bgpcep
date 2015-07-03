@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.bgp.linkstate.attribute.LinkstateAttributeParser;
 import org.opendaylight.protocol.bgp.linkstate.nlri.LinkstateNlriParser;
+import org.opendaylight.protocol.bgp.parser.impl.BGPRsvpActivator;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Attributes1;
@@ -48,15 +49,19 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerSubsequentAddressFamily(LinkstateSubsequentAddressFamily.class, LINKSTATE_SAFI));
 
         regs.add(context.registerNlriParser(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,
-                new LinkstateNlriParser(false)));
+            new LinkstateNlriParser(false)));
         regs.add(context.registerNlriParser(LinkstateAddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class,
-                new LinkstateNlriParser(true)));
+            new LinkstateNlriParser(true)));
         regs.add(context.registerNlriSerializer(LinkstateRoutes.class, new LinkstateNlriParser(false)));
 
-        regs.add(context.registerAttributeSerializer(Attributes1.class, new LinkstateAttributeParser(this.ianaLinkstateAttributeType)));
-        final LinkstateAttributeParser linkstateAttributeParser = new LinkstateAttributeParser(this.ianaLinkstateAttributeType);
+        regs.add(context.registerAttributeSerializer(Attributes1.class, new LinkstateAttributeParser(this
+            .ianaLinkstateAttributeType, context.getRsvpRegistry())));
+        final LinkstateAttributeParser linkstateAttributeParser = new LinkstateAttributeParser(this
+            .ianaLinkstateAttributeType, context.getRsvpRegistry());
         regs.add(context.registerAttributeParser(linkstateAttributeParser.getType(), linkstateAttributeParser));
 
+        BGPRsvpActivator rsvp = new BGPRsvpActivator();
+        rsvp.start(context);
         return regs;
     }
 }

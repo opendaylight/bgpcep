@@ -58,6 +58,10 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>pcep-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>rsvp-api</artifactId>
         </dependency>
         <dependency>
@@ -154,7 +158,6 @@
          <dependency>
              <groupId>${project.groupId}</groupId>
              <artifactId>bgp-parser-impl</artifactId>
-             <scope>test</scope>
          </dependency>
          <dependency>
             <groupId>org.opendaylight.controller</groupId>
