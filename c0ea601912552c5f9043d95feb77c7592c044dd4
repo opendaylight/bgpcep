@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_147a77f1",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/controller/config/yang/bmp/impl/BmpMonitorImplModule.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-03T08:31:38Z",
+      "side": 1,
+      "message": "looks like a method for Ipv4Util :-)",
+      "revId": "c0ea601912552c5f9043d95feb77c7592c044dd4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
