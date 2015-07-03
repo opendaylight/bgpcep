@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_141357b9",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibOutListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-03T08:29:07Z",
+      "side": 1,
+      "message": "why do we need to create new AttributesBuilder?",
+      "revId": "89e807e4e8ac70c15fc74f4b9765deb7af12bfc1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_3431b35a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-03T08:29:07Z",
+      "side": 1,
+      "message": "why were these methods moved?",
+      "revId": "89e807e4e8ac70c15fc74f4b9765deb7af12bfc1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
