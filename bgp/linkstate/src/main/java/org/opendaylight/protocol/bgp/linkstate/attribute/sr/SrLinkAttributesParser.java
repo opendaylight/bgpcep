@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.linkstate.attribute.sr;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrAdjId;
@@ -19,8 +20,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.SidLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.Weight;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class SrLinkAttributesParser {
+    private static final Logger LOG = LoggerFactory.getLogger(SrLinkAttributesParser.class);
 
     private static final int ISO_SYSTEM_ID_SIZE = 6;
 
@@ -31,6 +35,7 @@ public final class SrLinkAttributesParser {
     private static final int LOCAL_FLAG = 3;
     private static final int SET_FLAG = 4;
     private static final int FLAGS_SIZE = 8;
+    private static final int SID_TYPE = 1;
 
     private SrLinkAttributesParser() {
         throw new UnsupportedOperationException();
@@ -44,7 +49,7 @@ public final class SrLinkAttributesParser {
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         srAdjIdBuilder.setFlags(new AdjacencyFlags(flags.get(ADDRESS_FAMILY_FLAG), flags.get(BACKUP_FLAG), flags.get(LOCAL_FLAG), flags.get(SET_FLAG), flags.get(VALUE_FLAG)));
         srAdjIdBuilder.setWeight(new Weight(buffer.readUnsignedByte()));
-        srAdjIdBuilder.setSid(new SidLabel(ByteArray.readAllBytes(buffer)));
+        srAdjIdBuilder.setSid(new SidLabel(parseSidSubTlv(buffer)));
         return srAdjIdBuilder.build();
     }
 
@@ -59,7 +64,7 @@ public final class SrLinkAttributesParser {
         flags.set(SET_FLAG, srAdjIdFlags.isSetFlag());
         flags.toByteBuf(value);
         value.writeByte(srAdjId.getWeight().getValue());
-        value.writeBytes(srAdjId.getSid().getValue());
+        TlvUtil.writeSrTLV(SID_TYPE, Unpooled.wrappedBuffer(srAdjId.getSid().getValue()), value);
         return value;
     }
 
@@ -72,8 +77,20 @@ public final class SrLinkAttributesParser {
         srLanAdjIdBuilder.setFlags(new AdjacencyFlags(flags.get(ADDRESS_FAMILY_FLAG), flags.get(BACKUP_FLAG), flags.get(LOCAL_FLAG), flags.get(SET_FLAG), flags.get(VALUE_FLAG)));
         srLanAdjIdBuilder.setWeight(new Weight(buffer.readUnsignedByte()));
         srLanAdjIdBuilder.setIsoSystemId(new IsoSystemIdentifier(ByteArray.readBytes(buffer, ISO_SYSTEM_ID_SIZE)));
-        srLanAdjIdBuilder.setSid(new SidLabel(ByteArray.readAllBytes(buffer)));
+        srLanAdjIdBuilder.setSid(new SidLabel(parseSidSubTlv(buffer)));
         return srLanAdjIdBuilder.build();
+    }
+
+    private static SidLabel parseSidSubTlv(final ByteBuf buffer) {
+        final SidLabel sidValue;
+        final int type = buffer.readUnsignedByte();
+        final int length = buffer.readUnsignedByte();
+        sidValue = new SidLabel(ByteArray.readAllBytes(buffer.readSlice(length)));
+        if (type != SID_TYPE) {
+            LOG.warn("Unexpected type in SID/label Sub-TLV, expected {}, actual {}, ignoring it", SID_TYPE, type);
+            return null;
+        }
+        return sidValue;
     }
 
     public static ByteBuf serializeLanAdjacencySegmentIdentifier(final SrLanAdjId srLanAdjId) {
@@ -88,7 +105,7 @@ public final class SrLinkAttributesParser {
         flags.toByteBuf(value);
         value.writeByte(srLanAdjId.getWeight().getValue());
         value.writeBytes(srLanAdjId.getIsoSystemId().getValue());
-        value.writeBytes(srLanAdjId.getSid().getValue());
+        TlvUtil.writeSrTLV(SID_TYPE, Unpooled.wrappedBuffer(srLanAdjId.getSid().getValue()), value);
         return value;
     }
 }
