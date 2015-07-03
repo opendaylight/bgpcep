@@ -1,0 +1,820 @@
+module bgp-te-lsp {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:bgp-te-lsp";
+    prefix "bgp-te-lsp";
+
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import ieee754 { prefix ieee754; revision-date 2013-08-19; }
+    import rsvp { prefix rsvp; revision-date 2013-08-20; }
+    import pcep-types { prefix pcep; revision-date 2013-10-05; }
+
+    organization "Cisco Systems, Inc.";
+    contact "Claudio D. Gasparini <cgaspari@cisco.com>";
+
+    description
+        "This module contains the base data concepts contained
+        in draft-ietf-idr-te-lsp-distribution-01.
+
+        Copyright (c)2015 Cisco Systems, Inc. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2015-07-06" {
+        description
+        "Initial revision.";
+    }
+
+    grouping te-lsp-state {
+        description "LSP Object";
+        reference "http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-01#section-2.2";
+
+        uses sender-tspec-object;
+        uses flow-spec-object;
+        uses session-attribute-object;
+        uses explicit-route-object;
+        uses record-route-object;
+        uses fast-reroute-object;
+        uses detour-object;
+        uses exclude-route-object;
+        uses secondary-explicit-route-object;
+        uses secondary-record-route-object;
+        uses lsp-attributes-object;
+        uses lsp-required-attributes-object;
+        uses protection-object;
+        uses association-object;
+        uses primary-path-route-object;
+        uses admin-status-object;
+        uses bandwidth-object;
+        uses metric-object;
+    }
+
+    grouping explicit-route-object {
+        container explicit-route-object {
+            description "Explicit Route Object";
+                reference " ";
+
+                uses te-lsp-object;
+                uses common-header;
+                uses subobject-explicit-route;
+            }
+    }
+
+    grouping bandwidth-object {
+        container bandwidth-object {
+            description "Bandwidth Object";
+                reference " ";
+
+                uses te-lsp-object;
+                uses common-header;
+                leaf bandwidth {
+                    type ieee754:float32;
+                }
+            }
+    }
+
+    grouping metric-object {
+        container metric-object {
+            description "Metric Object";
+                reference " ";
+
+                uses te-lsp-object;
+                uses common-header;
+                uses pcep:metric-object;
+            }
+    }
+
+    grouping record-route-object {
+        container record-route-object {
+            description "Record Route Object";
+                reference " ";
+
+                uses te-lsp-object;
+                uses common-header;
+                uses common-record-route-subobject;
+            }
+    }
+
+    grouping common-record-route-subobject{
+        container common-record-route-subobject {
+            list suboject-container {
+                choice subobject {
+                    case ipv4-case {
+                        uses ipv4;
+                        leaf flags {
+                            type bits {
+                                bit local-protection-available {
+                                    position 8;
+                                }
+                                bit local-protection-in-use {
+                                    position 7;
+                                }
+                            }
+                        }
+                    }
+                    case ipv6-case {
+                        uses ipv6;
+                        leaf flags {
+                            type bits {
+                                bit local-protection-available {
+                                    position 8;
+                                }
+                                bit local-protection-in-use {
+                                    position 7;
+                                }
+                            }
+                        }
+                    }
+                    case label-case {
+                        leaf label {
+                            type uint32 {
+                                range 0..1048575;
+                            }
+                        }
+                        leaf flags {
+                            type bits {
+                                bit global-label {
+                                    position 8;
+                                }
+                            }
+                        }
+                        leaf label-c-type {
+                            type uint8;
+                        }
+                    }
+                    case protection-case {
+                        uses common-protection-object;
+                    }
+                }
+            }
+        }
+    }
+    grouping te-lsp-object {
+        description
+            "Common marker for all TE LSP Objects.";
+    }
+
+    grouping bgp-te-lsp {
+        choice address-family {
+            case ipv4-case {
+                leaf ipv4-tunnel-sender-address {
+                    type inet:ipv4-address;
+                    mandatory true;
+                }
+                leaf ipv4-tunnel-endpoint-address {
+                    type inet:ipv4-address;
+                    mandatory true;
+                }
+            }
+            case ipv6-case {
+                leaf ipv6-tunnel-sender-address {
+                    type inet:ipv6-address;
+                    mandatory true;
+                }
+                leaf ipv6-tunnel-endpoint-address {
+                    type inet:ipv6-address;
+                    mandatory true;
+                }
+            }
+        }
+        leaf tunnel-id {
+            type rsvp:tunnel-id;
+        }
+        leaf lsp-id {
+            type rsvp:lsp-id;
+        }
+    }
+
+    grouping sender-tspec-object {
+        container sender-tspec-object {
+            description "SENDER TSPEC Object";
+            reference "https://tools.ietf.org/html/rfc2210";
+
+            uses te-lsp-object;
+            uses common-header;
+            uses tspec-parameters;
+        }
+    }
+
+    grouping flow-spec-object {
+        container flow-spec-object {
+            description "SENDER_TSPEC";
+            reference "https://tools.ietf.org/html/rfc2210";
+
+            uses te-lsp-object;
+            uses common-header;
+
+            leaf service-header {
+                type uint8;
+            }
+            uses tspec-parameters;
+
+            leaf rate {
+                type ieee754:float32;
+            }
+            leaf slack-term {
+                type uint32;
+            }
+        }
+    }
+
+
+    grouping tspec-parameters {
+        leaf token-bucket-rate {
+            type ieee754:float32;
+        }
+        leaf token-bucket-size {
+            type ieee754:float32;
+        }
+        leaf peak-data-rate {
+            type ieee754:float32;
+        }
+        leaf minimum-policed-unit {
+            type uint32;
+        }
+        leaf maximum-packet-size {
+            type uint32;
+        }
+    }
+
+    grouping session-attribute-object {
+        container session-attribute-object {
+            description "SENDER_TSPEC";
+            reference "http://tools.ietf.org/html/rfc3209#section-4.7";
+
+            uses te-lsp-object;
+            uses common-header;
+            uses lsp-tunnel-attribute;
+            uses rsvp:attribute-filters;
+        }
+    }
+
+    grouping prio {
+        leaf setup-prio {
+            type uint8 {
+                range 0..7;
+            }
+            default 0;
+        }
+        leaf holding-prio {
+            type uint8 {
+                range 0..7;
+            }
+            default 0;
+        }
+    }
+
+    grouping lsp-tunnel-attribute {
+        uses prio;
+        leaf flags {
+            type bits {
+                bit local-protection-desired {
+                    position 8;
+                }
+                bit label-recording-desired {
+                    position 7;
+                }
+                bit se-style-desired {
+                    position 6;
+                }
+            }
+        }
+        leaf name-length {
+            type uint8;
+        }
+        leaf session-name {
+            type string;
+        }
+    }
+
+    grouping fast-reroute-object {
+        container fast-reroute-object {
+            description "FAST REROUTE Object";
+            reference "http://tools.ietf.org/html/rfc4090#section-4.1";
+
+            uses te-lsp-object;
+            uses common-header;
+            uses prio;
+            leaf hop-limit {
+                type uint8;
+                default 0;
+            }
+            leaf flags {
+                type bits {
+                    bit one-to-one-backup-desired {
+                        position 8;
+                    }
+                    bit facility-backup-desired {
+                        position 7;
+                    }
+                }
+            }
+            leaf bandwidth {
+                type ieee754:float32;
+            }
+            uses rsvp:attribute-filters;
+        }
+    }
+
+    grouping detour-object {
+        container detour-object {
+            description "DETOUR Object";
+            reference "http://tools.ietf.org/html/rfc4090#section-4.2";
+
+            uses te-lsp-object;
+            uses common-header;
+            choice address-family {
+                case ipv4-case {
+                    list plr {
+                        leaf plr-id {
+                            type inet:ipv4-address;
+                            mandatory true;
+                        }
+                        leaf avoid-node {
+                            type inet:ipv4-address;
+                            mandatory true;
+                        }
+                    }
+                }
+                case ipv6-case {
+                    list plr-id {
+                        leaf plr-id {
+                            type inet:ipv6-address;
+                            mandatory true;
+                        }
+                    }
+                    list avoid-node {
+                        leaf avoid-node {
+                            type inet:ipv6-address;
+                            mandatory true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    grouping exclude-route-object {
+        container exclude-route-object {
+            description "Exclude Route Object";
+            reference "http://tools.ietf.org/html/rfc4874#section-3.1";
+
+            uses te-lsp-object;
+            uses common-header;
+            list subobject-container {
+                choice subobject {
+                    case ipv4-prefix {
+                        uses exclude-subobjects-common-header;
+                        uses ipv4;
+                   }
+                   case ipv6-prefix {
+                        uses exclude-subobjects-common-header;
+                        uses ipv6;
+                   }
+                   case unnumered-interface {
+                        uses exclude-subobjects-common-header;
+                        leaf te-router-id {
+                            type inet:ipv4-address;
+                            mandatory true;
+                        }
+                        leaf router-id {
+                            type uint32;
+                        }
+                   }
+                   case as-number {
+                        uses exclude-subobjects-common-header;
+                        uses as-number;
+                   }
+                   case srlg {
+                        uses exclude-subobjects-common-header;
+                        leaf srlg-id {
+                            type uint32;
+                        }
+                   }
+                }
+            }
+        }
+    }
+
+    grouping exclude-subobjects-common-header{
+        uses l;
+        leaf attribute {
+            type uint8;
+        }
+    }
+
+    grouping l {
+        leaf l {
+            type boolean;
+            default false;
+        }
+    }
+
+    grouping ipv4 {
+        leaf ipv4-address {
+            type inet:ipv4-address;
+            mandatory true;
+        }
+    }
+
+    grouping ipv6 {
+        leaf ipv6-address {
+            type inet:ipv6-address;
+            mandatory true;
+        }
+    }
+
+    grouping as-number {
+        leaf as-number {
+            type inet:as-number;
+        }
+    }
+
+    grouping subobject-explicit-route {
+        list subobject-container {
+            choice subobject {
+                case ipv4-prefix-case {
+                    uses l;
+                    uses ipv4;
+                }
+                case ipv6-prefix-case {
+                    uses l;
+                    uses ipv6;
+                }
+                case as-number-case {
+                    uses l;
+                    uses as-number;
+                }
+                case unnumered-interface-case {
+                     uses l;
+                     leaf te-router-id {
+                         type inet:ipv4-address;
+                         mandatory true;
+                     }
+                     leaf router-id {
+                         type uint32;
+                     }
+                }
+                case protection-case {
+                    uses l;
+                    uses common-protection-object;
+                }
+            }
+        }
+    }
+
+    grouping secondary-explicit-route-object {
+        container secondary-explicit-route-object {
+            description "Secondary Explicit Route";
+            reference "http://tools.ietf.org/html/rfc4873#section-9.3";
+
+            uses te-lsp-object;
+            uses common-header;
+            uses subobject-explicit-route;
+        }
+    }
+
+    grouping secondary-record-route-object {
+        container secondary-record-route-object {
+            description "Secondary Record Route";
+            reference "http://tools.ietf.org/html/rfc4873#section-9.4";
+
+            uses te-lsp-object;
+            uses common-header;
+            uses common-record-route-subobject;
+        }
+    }
+
+    grouping protection-subobject {
+        description "Protection Subobject";
+        reference "http://tools.ietf.org/html/rfc4873#section-4.1.1";
+
+        uses rsvp:c-subobject;
+        uses protection-object;
+    }
+
+    grouping protection-object {
+        container protection-object {
+            description "Protection Subobject";
+            reference "http://tools.ietf.org/html/rfc4873#section-6.1";
+            reference "http://tools.ietf.org/html/rfc4872#section-14";
+
+            uses te-lsp-object;
+            uses common-header;
+            uses common-protection-object;
+        }
+    }
+
+    grouping common-protection-object {
+        container common-protection-object {
+            leaf c-type {
+                type uint8;
+            }
+            leaf secondary {
+                type boolean;
+                default false;
+            }
+            leaf protecting {
+                type boolean;
+                default false;
+            }
+            leaf notification {
+                type boolean;
+                default false;
+            }
+            leaf operational {
+                type boolean;
+                default false;
+            }
+            container lsp-flag {
+                uses lsp-flag;
+            }
+            leaf link-flags {
+                type enumeration {
+                    enum totally-unprotected {
+                        value 0;
+                    }
+                    enum enhanced {
+                        value 20;
+                    }
+                    enum dedicated-1plus1 {
+                        value 10;
+                    }
+                    enum dedicated-one-to-one{
+                        value 8;
+                    }
+                    enum shared {
+                        value 4;
+                    }
+                    enum unprotected {
+                        value 2;
+                    }
+                    enum extra-traffic {
+                        value 1;
+                    }
+                }
+                mandatory true;
+            }
+            leaf in-place {
+                type boolean;
+                default false;
+            }
+            leaf required {
+                type boolean;
+                default false;
+            }
+            container seg-flag {
+                uses lsp-flag;
+            }
+        }
+    }
+
+    grouping lsp-flag {
+        leaf flag{
+            type enumeration {
+                enum unprotected {
+                    value 0;
+                }
+                enum full-rerouting {
+                    value 1;
+                }
+                enum rerouting-without-extra-traffic {
+                    value 2;
+                }
+                enum protection-with-extra-traffic {
+                    value 4;
+                }
+                enum unidirectional-protection {
+                    value 8;
+                }
+                enum bidirectional-protection {
+                    value 10;
+                }
+            }
+            mandatory true;
+        }
+    }
+
+    grouping lsp-attributes-object {
+        container lsp-attributes-object {
+            description "Lsp Attributes Object";
+            reference "http://tools.ietf.org/html/rfc5420#section-4";
+
+            uses te-lsp-object;
+            uses common-header;
+            list subobject-container {
+                uses lsp-att-subobject;
+            }
+        }
+    }
+
+    grouping lsp-required-attributes-object {
+        container lsp-required-attributes-object {
+            description "Lsp Required Attributes Object";
+            reference "http://tools.ietf.org/html/rfc5420#section-5";
+
+            uses te-lsp-object;
+            uses common-header;
+            list subobject-container {
+                uses lsp-att-subobject;
+            }
+        }
+    }
+
+    grouping association-object {
+        container association-object {
+            description "Association Object";
+            reference "http://tools.ietf.org/html/rfc4872#section-16";
+
+            uses te-lsp-object;
+            uses common-header;
+
+            leaf association-type {
+                type uint16;
+            }
+            leaf association-id {
+                type uint16;
+            }
+            choice address-family {
+                case ipv4-case {
+                    leaf ipv4-association-source{
+                        type inet:ipv4-address;
+                        mandatory true;
+                    }
+                }
+                case ipv6-case {
+                    leaf ipv6-association-source {
+                        type inet:ipv6-address;
+                        mandatory true;
+                    }
+                }
+            }
+        }
+    }
+
+    grouping primary-path-route-object {
+        container primary-path-route-object {
+            description "Protection Subobject";
+            reference "http://tools.ietf.org/html/rfc4872#section-15";
+
+            uses te-lsp-object;
+            uses common-header;
+            uses subobject-explicit-route;
+        }
+    }
+
+    grouping admin-status-object {
+        container admin-status-object {
+            description "Admin Status Object";
+            reference "http://tools.ietf.org/html/rfc3473#section-7.1";
+
+            uses te-lsp-object;
+            uses common-header;
+            leaf length {
+                type uint16;
+            }
+            leaf reflect {
+                type boolean;
+                default false;
+            }
+            leaf testing {
+                type boolean;
+                default false;
+            }
+            leaf administratively-down {
+                type boolean;
+                default false;
+            }
+            leaf deletion-in-progress {
+                type boolean;
+                default false;
+            }
+        }
+    }
+
+    grouping attribute-flags {
+        description "Attributes Flags";
+        reference "http://tools.ietf.org/html/rfc5420#section-3.1";
+        list flag-container {
+            leaf flags {
+                type bits {
+                    bit position1 {
+                        position 1;
+                    }
+                    bit position2 {
+                        position 2;
+                    }
+                    bit position3 {
+                        position 3;
+                    }
+                    bit position4 {
+                        position 4;
+                    }
+                    bit position5 {
+                        position 5;
+                    }
+                    bit position6 {
+                        position 6;
+                    }
+                    bit position7 {
+                        position 7;
+                    }
+                    bit position8 {
+                        position 8;
+                    }
+                    bit position9 {
+                        position 9;
+                    }
+                    bit position10 {
+                        position 10;
+                    }
+                    bit position11 {
+                        position 11;
+                    }
+                    bit position12 {
+                        position 12;
+                    }
+                    bit position13 {
+                        position 13;
+                    }
+                    bit position14 {
+                        position 14;
+                    }
+                    bit position15 {
+                        position 15;
+                    }
+                    bit position16 {
+                        position 16;
+                    }
+                    bit position17 {
+                        position 17;
+                    }
+                    bit position18 {
+                        position 18;
+                    }
+                    bit position19 {
+                        position 19;
+                    }
+                    bit position20 {
+                        position 20;
+                    }
+                    bit position21 {
+                        position 21;
+                    }
+                    bit position22 {
+                        position 22;
+                    }
+                    bit position23 {
+                        position 23;
+                    }
+                    bit position24 {
+                        position 24;
+                    }
+                    bit position25 {
+                        position 25;
+                    }
+                    bit position26 {
+                        position 26;
+                    }
+                    bit position27 {
+                        position 27;
+                    }
+                    bit position28 {
+                        position 28;
+                    }
+                    bit position29 {
+                        position 29;
+                    }
+                    bit position30 {
+                        position 30;
+                    }
+                    bit position31 {
+                        position 31;
+                    }
+                    bit position32 {
+                        position 32;
+                    }
+                }
+            }
+        }
+    }
+
+    grouping lsp-att-subobject {
+        choice lsp-subobject {
+            case flags-tlv {
+                uses attribute-flags;
+            }
+        }
+    }
+
+    grouping common-header {
+        leaf class-num {
+            type uint8;
+        }
+        leaf c-type {
+            type uint8;
+        }
+    }
+}

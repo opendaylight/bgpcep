@@ -13,6 +13,7 @@ module bgp-linkstate {
     import bgp-segment-routing { prefix bgp-sr; revision-date 2015-02-06; }
     import bgp-epe { prefix bgp-epe; revision-date 2015-06-22; }
     import bmp-monitor { prefix bmp-mon; revision-date 2015-05-12; }
+    import bgp-te-lsp { prefix te-lsp; revision-date 2015-07-06; }
 
     organization "Cisco Systems, Inc.";
     contact "Dana Kutenicsova <dkutenic@cisco.com>";
@@ -72,6 +73,14 @@ module bgp-linkstate {
             enum ipv6-prefix {
                 value 4;
             }
+            enum ipv4-te-lsp {
+                reference "http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-01#page-4";
+                value 5;
+            }
+            enum ipv6-te-lsp {
+                reference "http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-01#page-4";
+                value 6;
+            }
         }
     }
 
@@ -95,6 +104,10 @@ module bgp-linkstate {
             }
             enum static {
                 value 5;
+            }
+            enum rsvp-te {
+                reference "http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-01#section-2.1";
+                value 6;
             }
             enum bgp-epe {
                 reference "https://tools.ietf.org/html/draft-ietf-idr-bgpls-segment-routing-epe-00#section-4";
@@ -329,6 +342,9 @@ module bgp-linkstate {
                 container prefix-descriptors {
                     uses prefix-identifiers;
                 }
+            }
+            case te-lsp-case {
+                uses te-lsp:bgp-te-lsp;
             }
         }
     }
@@ -597,6 +613,11 @@ module bgp-linkstate {
             case prefix-attributes-case {
                 container prefix-attributes {
                     uses prefix-state;
+                }
+            }
+            case te-lsp-attributes-case {
+                container te-lsp-attributes {
+                    uses te-lsp:te-lsp-state;
                 }
             }
         }

@@ -22,8 +22,11 @@ import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterParser;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.TeLspObjectParser;
+import org.opendaylight.protocol.bgp.parser.spi.TeLspObjectSerializer;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.te.lsp.rev150706.TeLspObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -105,7 +108,7 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
 
     @Override
     public AutoCloseable registerNlriSerializer(final Class<? extends DataObject> nlriClass, final NlriSerializer serializer) {
-        return this.getNlriRegistry().registerNlriSerializer(nlriClass,serializer);
+        return this.getNlriRegistry().registerNlriSerializer(nlriClass, serializer);
     }
 
     @Override
@@ -116,6 +119,16 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
     @Override
     public AutoCloseable registerParameterSerializer(final Class<? extends BgpParameters> paramClass, final ParameterSerializer serializer) {
         return this.getParameterRegistry().registerParameterSerializer(paramClass, serializer);
+    }
+
+    @Override
+    public void registerTeLspObjectParser(final int classNum, final int cType, final TeLspObjectParser parser) {
+        this.getTeLspRegistry().registerTeLspObjectParser(classNum, cType, parser);
+    }
+
+    @Override
+    public void registerTeLspObjectSerializer(final Class<? extends TeLspObject> objectClass, final int cType, final TeLspObjectSerializer serializer) {
+        this.getTeLspRegistry().registerTeLspObjectSerialize(objectClass, cType, serializer);
     }
 
     @Override
