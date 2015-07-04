@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_a496eeee",
+        "filename": "features/bgp/src/main/features/features.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-04T19:01:44Z",
+      "side": 1,
+      "message": "are these bundles already specified in features pom.xml file?",
+      "revId": "44356832807dd3b2310fb61954032e784bb7200d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
