@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_8d13d50c",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractBGPSessionNegotiator.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-06T18:09:18Z",
+      "side": 1,
+      "message": "please do not move code, it creates unnecessary changes",
+      "revId": "6a6a009500330cc3634c3d7dbd6c725d25b778f6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_2dfac1bd",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractBGPSessionNegotiator.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-06T18:09:18Z",
+      "side": 1,
+      "message": "same here, move this back to top",
+      "revId": "6a6a009500330cc3634c3d7dbd6c725d25b778f6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_2d7de11c",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/BGPSessionListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-06T18:09:18Z",
+      "side": 1,
+      "message": "still no javadocs",
+      "revId": "6a6a009500330cc3634c3d7dbd6c725d25b778f6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
