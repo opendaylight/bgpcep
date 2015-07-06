@@ -8,12 +8,9 @@
 package org.opendaylight.protocol.pcep.impl.message;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.List;
-
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -40,11 +37,8 @@ public class PCEPOpenMessageParser extends AbstractMessageParser {
     public void serializeMessage(final Message message, final ByteBuf out) {
         Preconditions.checkArgument(message instanceof OpenMessage, "Wrong instance of Message. Passed instance of %s. Need OpenMessage.", message.getClass());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessage open = ((OpenMessage) message).getOpenMessage();
-
-        if (open.getOpen() == null) {
-            throw new IllegalArgumentException("Open Object must be present in Open Message.");
-        }
-        ByteBuf buffer = Unpooled.buffer();
+        Preconditions.checkArgument(open.getOpen() != null, "Open Object must be present in Open Message.");
+        final ByteBuf buffer = Unpooled.buffer();
         serializeObject(open.getOpen(), buffer);
         MessageUtil.formatMessage(TYPE, buffer, out);
     }
@@ -52,9 +46,7 @@ public class PCEPOpenMessageParser extends AbstractMessageParser {
     @Override
     protected org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open validate(
             final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
-        if (objects == null) {
-            throw new IllegalArgumentException("Passed list can't be null.");
-        }
+        Preconditions.checkArgument(objects != null, "Passed list can't be null.");
 
         if (objects.isEmpty() || !(objects.get(0) instanceof Open)) {
             throw new PCEPDeserializerException("Open message doesn't contain OPEN object.");
