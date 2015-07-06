@@ -1,5 +1,6 @@
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.Future;
@@ -19,11 +20,11 @@ public class BGPPeerAcceptorModule extends org.opendaylight.controller.config.ya
 
     private static final int PRIVILEGED_PORTS = 1024;
 
-    public BGPPeerAcceptorModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+    public BGPPeerAcceptorModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public BGPPeerAcceptorModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerAcceptorModule oldModule, java.lang.AutoCloseable oldInstance) {
+    public BGPPeerAcceptorModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerAcceptorModule oldModule, final java.lang.AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
@@ -48,10 +49,8 @@ public class BGPPeerAcceptorModule extends org.opendaylight.controller.config.ya
         // Validate future success
         future.addListener(new GenericFutureListener<Future<Void>>() {
             @Override
-            public void operationComplete(Future<Void> future) {
-                if(!future.isSuccess()) {
-                    throw new IllegalStateException(String.format("Unable to start bgp server on %s", getAddress()), future.cause());
-                }
+            public void operationComplete(final Future<Void> future) {
+                Preconditions.checkArgument(future.isSuccess(), String.format("Unable to start bgp server on %s", getAddress()), future.cause());
             }
         });
 
