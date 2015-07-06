@@ -53,10 +53,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
     public void serializeMessage(final Message message, final ByteBuf out) {
         Preconditions.checkArgument(message instanceof PcerrMessage, "Wrong instance of Message. Passed instance of %s. Need PcerrMessage.", message.getClass());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessage err = ((PcerrMessage) message).getPcerrMessage();
-
-        if (err.getErrors() == null || err.getErrors().isEmpty()) {
-            throw new IllegalArgumentException("Errors should not be empty.");
-        }
+        Preconditions.checkArgument(err.getErrors() != null && !err.getErrors().isEmpty(), "Errors should not be empty.");
         final ByteBuf buffer = Unpooled.buffer();
         serializeCases(err, buffer);
         for (final Errors e : err.getErrors()) {
@@ -83,9 +80,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 
     @Override
     protected PcerrMessage validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
-        if (objects == null) {
-            throw new IllegalArgumentException("Passed list can't be null.");
-        }
+        Preconditions.checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty()) {
             throw new PCEPDeserializerException("Error message is empty.");
         }

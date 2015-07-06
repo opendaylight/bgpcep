@@ -8,12 +8,9 @@
 package org.opendaylight.protocol.pcep.impl.message;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.List;
-
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -42,20 +39,15 @@ public class PCEPCloseMessageParser extends AbstractMessageParser {
     public void serializeMessage(final Message message, final ByteBuf out) {
         Preconditions.checkArgument(message instanceof CloseMessage, "Wrong instance of Message. Passed instance of %s. Need CloseMessage.", message.getClass());
         final CCloseMessage close = ((CloseMessage) message).getCCloseMessage();
-
-        if (close.getCClose() == null) {
-            throw new IllegalArgumentException("Close Object must be present in Close Message.");
-        }
-        ByteBuf buffer = Unpooled.buffer();
+        Preconditions.checkArgument(close.getCClose() != null, "Close Object must be present in Close Message.");
+        final ByteBuf buffer = Unpooled.buffer();
         serializeObject(close.getCClose(), buffer);
         MessageUtil.formatMessage(TYPE, buffer, out);
     }
 
     @Override
     protected Close validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
-        if (objects == null) {
-            throw new IllegalArgumentException("Passed list can't be null.");
-        }
+        Preconditions.checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty() || !(objects.get(0) instanceof CClose)) {
             throw new PCEPDeserializerException("Close message doesn't contain CLOSE object.");
         }

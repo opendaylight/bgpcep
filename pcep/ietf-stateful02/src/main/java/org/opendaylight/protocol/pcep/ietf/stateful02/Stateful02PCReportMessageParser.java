@@ -75,9 +75,7 @@ public final class Stateful02PCReportMessageParser extends AbstractMessageParser
 
     @Override
     public Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
-        if (objects == null) {
-            throw new IllegalArgumentException("Passed list can't be null.");
-        }
+        Preconditions.checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty()) {
             throw new PCEPDeserializerException("Pcrpt message cannot be empty.");
         }

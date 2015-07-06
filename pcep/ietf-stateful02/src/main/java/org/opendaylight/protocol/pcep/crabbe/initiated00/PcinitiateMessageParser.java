@@ -63,9 +63,7 @@ public class PcinitiateMessageParser extends AbstractMessageParser {
 
     @Override
     protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
-        if (objects == null) {
-            throw new IllegalArgumentException("Passed list can't be null.");
-        }
+        Preconditions.checkArgument(objects != null, "Passed list can't be null.");
         final PcinitiateMessageBuilder builder = new PcinitiateMessageBuilder();
         final List<Requests> reqs = Lists.newArrayList();
         while (!objects.isEmpty()) {

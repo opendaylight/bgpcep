@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.ietf.stateful07;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeShort;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
-
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -46,9 +45,7 @@ public final class Stateful07LSPIdentifierIpv4TlvParser implements TlvParser, Tl
         if (buffer == null) {
             return null;
         }
-        if (buffer.readableBytes() != V4_LENGTH) {
-            throw new IllegalArgumentException("Length " + buffer.readableBytes() + " does not match LSP Identifiers Ipv4 tlv length.");
-        }
+        Preconditions.checkArgument(buffer.readableBytes() == V4_LENGTH, "Length " + buffer.readableBytes() + " does not match LSP Identifiers Ipv4 tlv length.");
         final Ipv4Builder builder = new Ipv4Builder();
         builder.setIpv4TunnelSenderAddress(Ipv4Util.addressForByteBuf(buffer));
         final LspId lspId = new LspId((long) buffer.readUnsignedShort());

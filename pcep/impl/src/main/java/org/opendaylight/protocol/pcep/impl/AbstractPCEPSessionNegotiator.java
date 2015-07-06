@@ -310,11 +310,9 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
         this.failTimer.cancel(false);
 
         LOG.debug("Channel {} handling message {} in state {}", this.channel, msg, this.state);
+        Preconditions.checkArgument(this.state != State.FINISHED && this.state != State.IDLE, "Unexpected handleMessage in state " + this.state);
 
         switch (this.state) {
-        case FINISHED:
-        case IDLE:
-            throw new IllegalStateException("Unexpected handleMessage in state " + this.state);
         case START_TLS_WAIT:
             if (handleMessageStartTlsWait(msg)) {
                 return;
