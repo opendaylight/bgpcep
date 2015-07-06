@@ -177,13 +177,11 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         Preconditions.checkArgument(socketAddress instanceof InetSocketAddress, "Expecting InetSocketAddress but was %s", socketAddress.getClass());
         final InetAddress inetAddress = ((InetSocketAddress) socketAddress).getAddress();
 
+        Preconditions.checkArgument(inetAddress instanceof Inet4Address || inetAddress instanceof Inet6Address, "Expecting " + Inet4Address.class + " or " + Inet6Address.class + " but was " + inetAddress.getClass());
         if(inetAddress instanceof Inet4Address) {
             return new IpAddress(new Ipv4Address(inetAddress.getHostAddress()));
-        } else if(inetAddress instanceof Inet6Address) {
-            return new IpAddress(new Ipv6Address(inetAddress.getHostAddress()));
         }
-
-        throw new IllegalArgumentException("Expecting " + Inet4Address.class + " or " + Inet6Address.class + " but was " + inetAddress.getClass());
+        return new IpAddress(new Ipv6Address(inetAddress.getHostAddress()));
     }
 
     @Override

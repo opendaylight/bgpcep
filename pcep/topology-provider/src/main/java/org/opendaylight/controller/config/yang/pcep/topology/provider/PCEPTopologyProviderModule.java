@@ -18,6 +18,7 @@ package org.opendaylight.controller.config.yang.pcep.topology.provider;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -59,7 +60,7 @@ public final class PCEPTopologyProviderModule extends
     private KeyMapping contructKeys() {
         final KeyMapping ret = new KeyMapping();
         if (getClient() != null) {
-            for (Client c : getClient()) {
+            for (final Client c : getClient()) {
                 if (c.getAddress() == null) {
                     LOG.warn("Client {} does not have an address skipping it", c);
                     continue;
@@ -75,14 +76,11 @@ public final class PCEPTopologyProviderModule extends
 
 
     private String getAddressString(final IpAddress address) {
+        Preconditions.checkArgument(address.getIpv4Address() != null || address.getIpv6Address() != null, String.format("Address %s is invalid", address));
         if (address.getIpv4Address() != null) {
             return address.getIpv4Address().getValue();
         }
-        if (address.getIpv6Address() != null) {
-            return address.getIpv6Address().getValue();
-        }
-
-        throw new IllegalArgumentException(String.format("Address %s is invalid", address));
+        return address.getIpv6Address().getValue();
     }
 
 
@@ -104,9 +102,9 @@ public final class PCEPTopologyProviderModule extends
              *         should something like isMd5ServerSupported()
              */
 
-            PCEPDispatcherImplModuleMXBean dispatcherProxy = dependencyResolver.newMXBeanProxy(getDispatcher(),
+            final PCEPDispatcherImplModuleMXBean dispatcherProxy = this.dependencyResolver.newMXBeanProxy(getDispatcher(),
                     PCEPDispatcherImplModuleMXBean.class);
-            boolean md5ServerSupported = dispatcherProxy.getMd5ServerChannelFactory() != null;
+            final boolean md5ServerSupported = dispatcherProxy.getMd5ServerChannelFactory() != null;
             JmxAttributeValidationException.checkCondition(md5ServerSupported,
                     "password is not compatible with selected dispatcher", clientJmxAttribute);
 
@@ -115,13 +113,11 @@ public final class PCEPTopologyProviderModule extends
 
     private InetAddress listenAddress() {
         final IpAddress a = getListenAddress();
+        Preconditions.checkArgument(a.getIpv4Address() != null || a.getIpv6Address() != null, "Address " + a + " not supported");
         if (a.getIpv4Address() != null) {
             return InetAddresses.forString(a.getIpv4Address().getValue());
-        } else if (a.getIpv6Address() != null) {
-            return InetAddresses.forString(a.getIpv6Address().getValue());
-        } else {
-            throw new IllegalArgumentException("Address " + a + " not supported");
         }
+        return InetAddresses.forString(a.getIpv6Address().getValue());
     }
 
     @Override
