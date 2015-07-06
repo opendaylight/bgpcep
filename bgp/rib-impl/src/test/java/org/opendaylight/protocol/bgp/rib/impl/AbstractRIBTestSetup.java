@@ -209,7 +209,7 @@ public class AbstractRIBTestSetup {
             final NodeIdentifierWithPredicates routekey = new NodeIdentifierWithPredicates(Ipv4Route.QNAME, IPv4RIBSupport.PREFIX_QNAME, p);
             final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = ImmutableNodes.mapEntryBuilder();
             b.withNodeIdentifier(routekey);
-            b.addChild(Builders.leafBuilder().withNodeIdentifier(new NodeIdentifier(IPv4RIBSupport.PREFIX_QNAME)).withValue(p.getValue()).build());
+            b.addChild(Builders.leafBuilder().withNodeIdentifier(new NodeIdentifier(IPv4RIBSupport.PREFIX_QNAME)).withValue(p).build());
 
             final DataTreeCandidateNode child = Mockito.mock(DataTreeCandidateNode.class);
             Mockito.doReturn(createIdentifier(target, p)).when(child).getIdentifier();
