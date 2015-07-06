@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_121604f2",
+        "filename": "bgp/parser-api/src/main/java/org/opendaylight/protocol/bgp/parser/BGPError.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-06T12:42:40Z",
+      "side": 1,
+      "message": "I believe you can use string formatting ( %s )",
+      "range": {
+        "startLine": 176,
+        "startChar": 67,
+        "endLine": 176,
+        "endChar": 71
+      },
+      "revId": "9bb0f2bd2e4dd315493805bd75caaee72e50aaa5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_72de5841",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/CapabilityParameterParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-06T12:42:40Z",
+      "side": 1,
+      "message": "don\u0027t use string concatenations",
+      "revId": "9bb0f2bd2e4dd315493805bd75caaee72e50aaa5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_d2d72c22",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPPeerAcceptorModule.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-06T12:42:40Z",
+      "side": 1,
+      "message": "you don\u0027t have to use String.format",
+      "revId": "9bb0f2bd2e4dd315493805bd75caaee72e50aaa5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_32e8e0e1",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/AbstractPCEPSessionNegotiator.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-06T12:42:40Z",
+      "side": 1,
+      "message": "keep the IllegalStateEx",
+      "revId": "9bb0f2bd2e4dd315493805bd75caaee72e50aaa5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
