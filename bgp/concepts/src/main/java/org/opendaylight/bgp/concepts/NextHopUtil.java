@@ -7,6 +7,7 @@
  */
 package org.opendaylight.bgp.concepts;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -39,9 +40,7 @@ public final class NextHopUtil {
             byteAggregator.writeBytes(Ipv4Util.bytesForAddress(((Ipv4NextHopCase) cnextHop).getIpv4NextHop().getGlobal()));
         } else if (cnextHop instanceof Ipv6NextHopCase) {
             final Ipv6NextHop nextHop = ((Ipv6NextHopCase) cnextHop).getIpv6NextHop();
-            if (nextHop.getGlobal() == null) {
-                throw new IllegalArgumentException("Ipv6 Next Hop is missing Global address.");
-            }
+            Preconditions.checkArgument(nextHop.getGlobal() != null, "Ipv6 Next Hop is missing Global address.");
             byteAggregator.writeBytes(Ipv6Util.bytesForAddress(nextHop.getGlobal()));
             if (nextHop.getLinkLocal() != null) {
                 byteAggregator.writeBytes(Ipv6Util.bytesForAddress(nextHop.getLinkLocal()));
