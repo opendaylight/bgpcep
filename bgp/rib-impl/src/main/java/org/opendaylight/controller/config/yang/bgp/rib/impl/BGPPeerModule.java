@@ -17,6 +17,7 @@
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
@@ -92,13 +93,11 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
     private InetSocketAddress createAddress() {
         final IpAddress ip = getHost();
+        Preconditions.checkArgument(ip.getIpv4Address() != null || ip.getIpv6Address() != null, "Failed to handle host %s", ip);
         if (ip.getIpv4Address() != null) {
             return new InetSocketAddress(InetAddresses.forString(ip.getIpv4Address().getValue()), getPort().getValue());
-        } else if (ip.getIpv6Address() != null) {
-            return new InetSocketAddress(InetAddresses.forString(ip.getIpv6Address().getValue()), getPort().getValue());
-        } else {
-            throw new IllegalStateException("Failed to handle host " + getHost());
         }
+        return new InetSocketAddress(InetAddresses.forString(ip.getIpv6Address().getValue()), getPort().getValue());
     }
 
     @Override
@@ -193,13 +192,11 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         // FIXME we need to remove field "value" from IpAddress since equals does not work as expected when value being present
         // Remove after this bug is fixed https://bugs.opendaylight.org/show_bug.cgi?id=1276
         final IpAddress host = super.getHost();
+        Preconditions.checkArgument(host.getIpv4Address() != null || host.getIpv6Address() != null, "Unexpected host %s", host);
         if(host.getIpv4Address() != null) {
             return new IpAddress(host.getIpv4Address());
-        } else if(host.getIpv6Address() != null){
-            return new IpAddress(host.getIpv6Address());
         }
-
-        throw new IllegalArgumentException("Unexpected host " + host);
+        return new IpAddress(host.getIpv6Address());
     }
 
     private io.netty.util.concurrent.Future<Void> initiateConnection(final InetSocketAddress address, final String password, final AsNumber remoteAs, final BGPPeerRegistry registry) {

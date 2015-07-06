@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.parser;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.util.Map;
 
@@ -172,9 +173,7 @@ public enum BGPError {
 
     public static BGPError forValue(final int code, final int subcode) {
         final BGPError e = VALUE_MAP.get(new BGPErrorIdentifier((short) code, (short) subcode));
-        if (e != null) {
-            return e;
-        }
-        throw new IllegalArgumentException("BGP Error code " + code + " and subcode " + subcode + " not recognized.");
+        Preconditions.checkArgument(e != null, "BGP Error code %s and subcode %s not recognized.", code, subcode);
+        return e;
     }
 }

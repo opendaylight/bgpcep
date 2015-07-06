@@ -53,14 +53,10 @@ public final class Stateful02PCReplyMessageParser extends PCEPReplyMessageParser
     public void serializeMessage(final Message message, final ByteBuf out) {
         Preconditions.checkArgument(message instanceof Pcrep, "Wrong instance of Message. Passed instance of %s. Need Pcrep.", message.getClass());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.PcrepMessage repMsg = ((Pcrep) message).getPcrepMessage();
-        if (repMsg.getReplies() == null || repMsg.getReplies().isEmpty()) {
-            throw new IllegalArgumentException("Replies cannot be null or empty.");
-        }
+        Preconditions.checkArgument(repMsg.getReplies() != null && !repMsg.getReplies().isEmpty(), "Replies cannot be null or empty.");
         final ByteBuf buffer = Unpooled.buffer();
         for (final Replies reply : repMsg.getReplies()) {
-            if (reply.getRp() == null) {
-                throw new IllegalArgumentException("Reply must contain RP object.");
-            }
+            Preconditions.checkArgument(reply.getRp() != null, "Reply must contain RP object.");
             serializeObject(reply.getRp(), buffer);
             if (reply.getAugmentation(Replies1.class) != null && reply.getAugmentation(Replies1.class).getLsp() != null) {
                 serializeObject(reply.getAugmentation(Replies1.class).getLsp(), buffer);

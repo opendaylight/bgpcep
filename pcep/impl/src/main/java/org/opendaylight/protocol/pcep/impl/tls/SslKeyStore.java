@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.impl.tls;
 
+import com.google.common.base.Preconditions;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -38,19 +39,15 @@ public final class SslKeyStore {
         switch (pathType) {
         case CLASSPATH:
             in = SslKeyStore.class.getResourceAsStream(filename);
-            if (in == null) {
-                throw new IllegalStateException("KeyStore file not found: "
-                        + filename);
-            }
+            Preconditions.checkArgument(in != null, "KeyStore file not found: %s", filename);
             break;
         case PATH:
             LOG.debug("Current dir using System: {}", System.getProperty("user.dir"));
             final File keystorefile = new File(filename);
             try {
                 in = new FileInputStream(keystorefile);
-            } catch (FileNotFoundException e) {
-                throw new IllegalStateException("KeyStore file not found: "
-                        + filename,e);
+            } catch (final FileNotFoundException e) {
+                throw new IllegalStateException("KeyStore file not found: " + filename,e);
             }
             break;
         default:

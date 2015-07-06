@@ -75,9 +75,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     public void serializeMessage(final Message message, final ByteBuf out) {
         Preconditions.checkArgument(message instanceof Pcreq, "Wrong instance of Message. Passed instance of %s. Need Pcreq.", message.getClass());
         final PcreqMessage msg = ((Pcreq) message).getPcreqMessage();
-        if (msg.getRequests() == null || msg.getRequests().isEmpty()) {
-            throw new IllegalArgumentException("Requests cannot be null or empty.");
-        }
+        Preconditions.checkArgument(msg.getRequests() != null && !msg.getRequests().isEmpty(), "Requests cannot be null or empty.");
         final ByteBuf buffer = Unpooled.buffer();
         if (msg.getMonitoringRequest() != null) {
             serializeMonitoringRequest(msg.getMonitoringRequest(), buffer);
@@ -157,9 +155,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 
     @Override
     protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
-        if (objects == null) {
-            throw new IllegalArgumentException("Passed list can't be null.");
-        }
+        Preconditions.checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty()) {
             throw new PCEPDeserializerException("Pcrep message cannot be empty.");
         }
@@ -358,9 +354,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     }
 
     private Svec getValidSvec(final SvecBuilder builder, final List<Object> objects) {
-        if (objects == null || objects.isEmpty()) {
-            throw new IllegalArgumentException("List cannot be null or empty.");
-        }
+        Preconditions.checkArgument(objects != null && !objects.isEmpty(), "Passed list can't be null or empty.");
 
         if (objects.get(0) instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.Svec) {
             builder.setSvec((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.Svec) objects.get(0));

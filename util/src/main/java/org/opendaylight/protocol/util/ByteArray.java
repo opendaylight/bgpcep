@@ -95,9 +95,7 @@ public final class ByteArray {
      * @return a new byte array that is a sub-array of the original
      */
     public static byte[] subByte(final byte[] bytes, final int startIndex, final int length) {
-        if (!checkLength(bytes, length) || !checkStartIndex(bytes, startIndex, length)) {
-            throw new IllegalArgumentException("Cannot create subByte, invalid arguments: Length: " + length + " startIndex: " + startIndex);
-        }
+        Preconditions.checkArgument(checkLength(bytes, length) && checkStartIndex(bytes, startIndex, length), "Cannot create subByte, invalid arguments: Length: %s startIndex: %s", length, startIndex);
         final byte[] res = new byte[length];
         System.arraycopy(bytes, startIndex, res, 0, length);
         return res;
@@ -119,9 +117,7 @@ public final class ByteArray {
      * @return int
      */
     public static int bytesToInt(final byte[] bytes) {
-        if (bytes.length > Integer.SIZE / Byte.SIZE) {
-            throw new IllegalArgumentException("Cannot convert bytes to integer. Byte array too big.");
-        }
+        Preconditions.checkArgument(bytes.length <= Integer.SIZE / Byte.SIZE, "Cannot convert bytes to integer. Byte array too big.");
         byte[] res = new byte[Integer.SIZE / Byte.SIZE];
         if (bytes.length != Integer.SIZE / Byte.SIZE) {
             System.arraycopy(bytes, 0, res, Integer.SIZE / Byte.SIZE - bytes.length, bytes.length);
@@ -140,9 +136,7 @@ public final class ByteArray {
      * @return long
      */
     public static long bytesToLong(final byte[] bytes) {
-        if (bytes.length > Long.SIZE / Byte.SIZE) {
-            throw new IllegalArgumentException("Cannot convert bytes to long.Byte array too big.");
-        }
+        Preconditions.checkArgument(bytes.length <= Long.SIZE / Byte.SIZE, "Cannot convert bytes to long.Byte array too big.");
         byte[] res = new byte[Long.SIZE / Byte.SIZE];
         if (bytes.length != Long.SIZE / Byte.SIZE) {
             System.arraycopy(bytes, 0, res, Long.SIZE / Byte.SIZE - bytes.length, bytes.length);
@@ -161,9 +155,7 @@ public final class ByteArray {
      * @return bytes array without first 'count' bytes
      */
     public static byte[] cutBytes(final byte[] bytes, final int count) {
-        if (bytes.length == 0 || count > bytes.length || count <= 0) {
-            throw new IllegalArgumentException("Cannot cut bytes, invalid arguments: Count: " + count + " bytes.length: " + bytes.length);
-        }
+        Preconditions.checkArgument(bytes.length != 0 && count <= bytes.length && count > 0, "Cannot cut bytes, invalid arguments: Count: %s bytes.length: %s", count, bytes.length);
         return Arrays.copyOfRange(bytes, count, bytes.length);
     }
 
@@ -259,12 +251,8 @@ public final class ByteArray {
      * @return copied value aligned to right
      */
     public static byte copyBitsRange(final byte src, final int fromBit, final int length) {
-        if (fromBit < 0 || fromBit > Byte.SIZE - 1 || length < 1 || length > Byte.SIZE) {
-            throw new IllegalArgumentException("fromBit or toBit is out of range.");
-        }
-        if (fromBit + length > Byte.SIZE) {
-            throw new IllegalArgumentException("Out of range.");
-        }
+        Preconditions.checkArgument(fromBit >= 0 && fromBit <= Byte.SIZE - 1 && length >= 1 && length <= Byte.SIZE, "fromBit or toBit is out of range.");
+        Preconditions.checkArgument(fromBit + length <= Byte.SIZE, "Out of range.");
 
         byte retByte = 0;
         int retI = 0;
