@@ -210,23 +210,12 @@ module bgp-types {
 
     grouping as-path-segment {
         reference "http://tools.ietf.org/html/rfc4271#section-5.1.2";
-        choice c-segment {
-            case a-set-case {
-                container a-set {
-                    leaf-list as-set {
-                        type inet:as-number;
-                    }
-                }
-            }
-            case a-list-case {
-                container a-list {
-                    list as-sequence {
-                        leaf as {
-                            type inet:as-number;
-                        }
-                    }
-                }
-            }
+        leaf-list as-sequence {
+            type inet:as-number;
+            ordered-by user;
+        }
+        leaf-list as-set {
+            type inet:as-number;
         }
     }
 }
