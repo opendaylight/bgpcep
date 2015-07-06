@@ -51,9 +51,7 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
                     serializeObject(rps.getRp(), buffer);
                 }
             }
-            if (n.getNotifications() == null || n.getNotifications().isEmpty()) {
-                throw new IllegalArgumentException("Message must contain at least one notification object");
-            }
+            Preconditions.checkArgument(n.getNotifications() != null && !n.getNotifications().isEmpty(), "Message must contain at least one notification object");
             for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.notifications.Notifications not : n.getNotifications()) {
                 serializeObject(not.getCNotification(), buffer);
             }
@@ -63,9 +61,7 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 
     @Override
     protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
-        if (objects == null) {
-            throw new IllegalArgumentException("Passed list can't be null.");
-        }
+        Preconditions.checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty()) {
             throw new PCEPDeserializerException("Notification message cannot be empty.");
         }

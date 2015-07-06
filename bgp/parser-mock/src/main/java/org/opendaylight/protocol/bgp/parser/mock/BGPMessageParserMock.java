@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.parser.mock;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.Map;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -34,9 +35,7 @@ public class BGPMessageParserMock implements MessageRegistry {
     @Override
     public Notification parseMessage(final ByteBuf buffer) throws BGPParsingException, BGPDocumentedException {
         final Notification ret = this.messages.get(buffer);
-        if (ret == null) {
-            throw new IllegalArgumentException("Undefined message encountered");
-        }
+        Preconditions.checkArgument(ret != null, "Undefined message encountered");
         return ret;
     }
 
