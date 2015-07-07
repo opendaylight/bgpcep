@@ -15,7 +15,6 @@ import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createPcRtp
 import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createSrp;
 import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.reqToRptPath;
 import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.updToRptPath;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -91,14 +90,14 @@ public class PccTunnelManagerImpl implements PccTunnelManager {
         for (int i = 1; i <= lspsCount; i++) {
             final Tunnel tunnel = new Tunnel(MsgBuilderUtil.getDefaultPathName(this.address, i), PCC_DELEGATION, LspType.PCC_LSP,
                     createPath(Lists.newArrayList(DEFAULT_ENDPOINT_HOP)));
-            tunnels.put(new PlspId((long) i), tunnel);
+            this.tunnels.put(new PlspId((long) i), tunnel);
         }
     }
 
     @Override
     public void reportToAll(final Updates update, final PccSession session) {
         final PlspId plspId = update.getLsp().getPlspId();
-        final Tunnel tunnel = tunnels.get(plspId);
+        final Tunnel tunnel = this.tunnels.get(plspId);
         final long srpId = update.getSrp().getOperationId().getValue();
         if (tunnel != null) {
             if (hasDelegation(tunnel, session)) {
@@ -120,7 +119,7 @@ public class PccTunnelManagerImpl implements PccTunnelManager {
     @Override
     public void returnDelegation(final Updates update, final PccSession session) {
         final PlspId plspId = update.getLsp().getPlspId();
-        final Tunnel tunnel = tunnels.get(plspId);
+        final Tunnel tunnel = this.tunnels.get(plspId);
         final long srpId = update.getSrp().getOperationId().getValue();
         if (tunnel != null) {
             //check if session really has a delegation
@@ -153,15 +152,15 @@ public class PccTunnelManagerImpl implements PccTunnelManager {
     public synchronized void onSessionUp(final PccSession session) {
         //first session - delegate all PCC's LSPs
         //only when reporting at startup
-        if (! sessions.containsKey(session.getId()) && session.getId() == 0) {
-            for (final PlspId plspId : tunnels.keySet()) {
+        if (! this.sessions.containsKey(session.getId()) && session.getId() == 0) {
+            for (final PlspId plspId : this.tunnels.keySet()) {
                 setDelegation(plspId, session);
             }
         }
-        sessions.put(session.getId(), session);
-        if (!tunnels.isEmpty()) {
+        this.sessions.put(session.getId(), session);
+        if (!this.tunnels.isEmpty()) {
             //report all known LSPs
-            for (final Entry<PlspId, Tunnel> entry : tunnels.entrySet()) {
+            for (final Entry<PlspId, Tunnel> entry : this.tunnels.entrySet()) {
                 final Tunnel tunnel = entry.getValue();
                 final boolean delegation = hasDelegation(tunnel, session);
                 if (delegation) {
@@ -169,7 +168,7 @@ public class PccTunnelManagerImpl implements PccTunnelManager {
                 }
                 final long plspId = entry.getKey().getValue();
                 final Tlvs tlvs = MsgBuilderUtil.createLspTlvs(plspId, true,
-                        getDestinationAddress(tunnel.getLspState().getEro().getSubobject(), PccTunnelManagerImpl.this.address), this.address,
+                        getDestinationAddress(tunnel.getLspState().getEro().getSubobject(), this.address), this.address,
                         this.address, Optional.of(tunnel.getPathName()));
                 session.sendReport(createPcRtpMessage(
                         createLsp(plspId, true, Optional.<Tlvs> fromNullable(tlvs), delegation, false), NO_SRP,
@@ -184,7 +183,7 @@ public class PccTunnelManagerImpl implements PccTunnelManager {
     @Override
     public void takeDelegation(final Requests request, final PccSession session) {
         final PlspId plspId = request.getLsp().getPlspId();
-        final Tunnel tunnel = tunnels.get(plspId);
+        final Tunnel tunnel = this.tunnels.get(plspId);
         final long srpId = request.getSrp().getOperationId().getValue();
         if (tunnel != null) {
             //check if tunnel has no delegation
@@ -209,7 +208,7 @@ public class PccTunnelManagerImpl implements PccTunnelManager {
 
     @Override
     public synchronized void onSessionDown(final PccSession session) {
-        for (final Entry<PlspId, Tunnel> entry : tunnels.entrySet()) {
+        for (final Entry<PlspId, Tunnel> entry : this.tunnels.entrySet()) {
             final Tunnel tunnel = entry.getValue();
             final PlspId plspId = entry.getKey();
             //deal with delegations
@@ -227,18 +226,18 @@ public class PccTunnelManagerImpl implements PccTunnelManager {
                 session.getId(), LspType.PCE_LSP, reqToRptPath(request));
         sendToAll(tunnel, plspId, request.getEro().getSubobject(), createSrp(request.getSrp().getOperationId().getValue()),
                 tunnel.getLspState(), new LspBuilder(request.getLsp()).addAugmentation(Lsp1.class, new Lsp1Builder().setCreate(true).build()).build());
-        tunnels.put(plspId, tunnel);
+        this.tunnels.put(plspId, tunnel);
     }
 
     @Override
     public void removeTunnel(final Requests request, final PccSession session) {
         final PlspId plspId = request.getLsp().getPlspId();
-        final Tunnel tunnel = tunnels.get(plspId);
+        final Tunnel tunnel = this.tunnels.get(plspId);
         final long srpId = request.getSrp().getOperationId().getValue();
         if (tunnel != null) {
             if (tunnel.getType() == LspType.PCE_LSP) {
                 if (hasDelegation(tunnel, session)) {
-                    tunnels.remove(plspId);
+                    this.tunnels.remove(plspId);
                     sendToAll(tunnel, plspId, tunnel.getLspState().getEro().getSubobject(),
                             new SrpBuilder(request.getSrp()).addAugmentation(Srp1.class, new Srp1Builder().setRemove(true).build()).build(),
                             reqToRptPath(request), request.getLsp());
@@ -254,7 +253,7 @@ public class PccTunnelManagerImpl implements PccTunnelManager {
     }
 
     private void sendToAll(final Tunnel tunnel, final PlspId plspId, final List<Subobject> subobjects, final Srp srp, final Path path, final Lsp lsp) {
-        for (final PccSession session : sessions.values()) {
+        for (final PccSession session : this.sessions.values()) {
             final boolean isDelegated = hasDelegation(tunnel, session);
             final Tlvs tlvs = createLspTlvs(plspId.getValue(), true,
                     getDestinationAddress(subobjects, this.address), this.address,
@@ -268,7 +267,7 @@ public class PccTunnelManagerImpl implements PccTunnelManager {
 
     private void startStateTimeout(final Tunnel tunnel, final PlspId plspId) {
         if (this.stateTimeout > -1) {
-            final Timeout stateTimeout = this.timer.newTimeout(new TimerTask() {
+            final Timeout newStateTimeout = this.timer.newTimeout(new TimerTask() {
                 @Override
                 public void run(final Timeout timeout) throws Exception {
                     if (tunnel.getType() == LspType.PCE_LSP) {
@@ -279,24 +278,24 @@ public class PccTunnelManagerImpl implements PccTunnelManager {
                     }
                 }
             }, this.stateTimeout, TimeUnit.SECONDS);
-            tunnel.setStateTimeout(stateTimeout);
+            tunnel.setStateTimeout(newStateTimeout);
         }
     }
 
     private void startRedelegationTimer(final Tunnel tunnel, final PlspId plspId, final PccSession session) {
-        final Timeout redelegationTimeout = this.timer.newTimeout(new TimerTask() {
+        final Timeout newRedelegationTimeout = this.timer.newTimeout(new TimerTask() {
             @Override
             public void run(final Timeout timeout) throws Exception {
                 //remove delegation
                 PccTunnelManagerImpl.this.setDelegation(plspId, null);
                 //delegate to another PCE
                 int index = session.getId();
-                for (int i = 1; i < sessions.size(); i++) {
+                for (int i = 1; i < PccTunnelManagerImpl.this.sessions.size(); i++) {
                     index++;
-                    if (index == sessions.size()) {
+                    if (index == PccTunnelManagerImpl.this.sessions.size()) {
                         index = 0;
                     }
-                    final PccSession nextSession = sessions.get(index);
+                    final PccSession nextSession = PccTunnelManagerImpl.this.sessions.get(index);
                     if (nextSession != null) {
                         tunnel.cancelTimeouts();
                         final Tlvs tlvs = createLspTlvs(plspId.getValue(), true,
@@ -311,11 +310,11 @@ public class PccTunnelManagerImpl implements PccTunnelManager {
                 }
             }
         }, this.redelegationTimeout, TimeUnit.SECONDS);
-        tunnel.setRedelegationTimeout(redelegationTimeout);
+        tunnel.setRedelegationTimeout(newRedelegationTimeout);
     }
 
     private void setDelegation(final PlspId plspId, final PccSession session) {
-        final Tunnel tunnel = tunnels.get(plspId);
+        final Tunnel tunnel = this.tunnels.get(plspId);
         final int sessionId;
         if (session != null) {
             sessionId = session.getId();
@@ -338,26 +337,30 @@ public class PccTunnelManagerImpl implements PccTunnelManager {
         private Timeout stateTimeout;
 
         public Tunnel(final byte[] pathName, final int delegationHolder, final LspType type, final Path lspState) {
-            this.pathName = pathName;
+            if (pathName != null) {
+                this.pathName = pathName.clone();
+            } else {
+                this.pathName = null;
+            }
             this.delegationHolder = delegationHolder;
             this.type = type;
             this.lspState = lspState;
         }
 
         public byte[] getPathName() {
-            return pathName;
+            return this.pathName;
         }
 
         public int getDelegationHolder() {
-            return delegationHolder;
+            return this.delegationHolder;
         }
 
         public LspType getType() {
-            return type;
+            return this.type;
         }
 
         public Path getLspState() {
-            return lspState;
+            return this.lspState;
         }
 
         public void setRedelegationTimeout(final Timeout redelegationTimeout) {
