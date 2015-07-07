@@ -1,0 +1,334 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_d362ceac",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/spi/BGPServerDispatcher.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:24:48Z",
+      "side": 1,
+      "message": "This removal shouldn\u0027t be in this commit, it\u0027s BGP.",
+      "revId": "4f3d13645c4e186d86c2148a25c77aa9fba08efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_13684686",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/PCEPSessionListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:24:48Z",
+      "side": 1,
+      "message": "javadocs",
+      "revId": "4f3d13645c4e186d86c2148a25c77aa9fba08efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_b3d4f220",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/PCEPSessionNegotiatorFactory.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:24:48Z",
+      "side": 1,
+      "message": "Missing copyright header.",
+      "revId": "4f3d13645c4e186d86c2148a25c77aa9fba08efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_d3d72e22",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/SessionNegotiator.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:24:48Z",
+      "side": 1,
+      "message": "Missing copyright header.",
+      "revId": "4f3d13645c4e186d86c2148a25c77aa9fba08efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_b30632cd",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/AbstractPCEPDispatcher.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:24:48Z",
+      "side": 1,
+      "message": "Copyright header is missing",
+      "revId": "4f3d13645c4e186d86c2148a25c77aa9fba08efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_73de5a41",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/AbstractPCEPSessionNegotiator.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:24:48Z",
+      "side": 1,
+      "message": "was that a bug that there wasn\u0027t a break in the first place? If yes, it needs to be a separate commit so that it can be cherry-picked to stable/lithium.",
+      "revId": "4f3d13645c4e186d86c2148a25c77aa9fba08efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_d3096ede",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/AbstractPCEPSessionNegotiator.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:24:48Z",
+      "side": 1,
+      "message": "move it back",
+      "revId": "4f3d13645c4e186d86c2148a25c77aa9fba08efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_73109a01",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPProtocolSessionPromise.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:24:48Z",
+      "side": 1,
+      "message": "Missing copyright header.",
+      "revId": "4f3d13645c4e186d86c2148a25c77aa9fba08efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_b32dd248",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/SessionNegotiatorImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:24:48Z",
+      "side": 1,
+      "message": "Missing copyright header.",
+      "revId": "4f3d13645c4e186d86c2148a25c77aa9fba08efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_d3308ea0",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/SessionNegotiatorImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:24:48Z",
+      "side": 1,
+      "message": "AbstractSessionNegotiator. Never name abstract class \u003cname\u003eImpl.",
+      "range": {
+        "startLine": 19,
+        "startChar": 22,
+        "endLine": 19,
+        "endChar": 43
+      },
+      "revId": "4f3d13645c4e186d86c2148a25c77aa9fba08efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_3321c24d",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/AbstractPCCDispatcher.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:24:48Z",
+      "side": 1,
+      "message": "Missing copyright header.",
+      "revId": "4f3d13645c4e186d86c2148a25c77aa9fba08efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_531c7e13",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/PCCPReconnectPromise.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:24:48Z",
+      "side": 1,
+      "message": "Missing copyright header.",
+      "revId": "4f3d13645c4e186d86c2148a25c77aa9fba08efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_53e31e05",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/PCCProtocolSessionPromise.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:24:48Z",
+      "side": 1,
+      "message": "Missing copyright header.",
+      "revId": "4f3d13645c4e186d86c2148a25c77aa9fba08efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_d3be4ed4",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/SimpleSessionListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:24:48Z",
+      "side": 1,
+      "message": "move this back",
+      "revId": "4f3d13645c4e186d86c2148a25c77aa9fba08efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_93b8d6e6",
+        "filename": "pcep/pcc-mock/src/test/java/org/opendaylight/protocol/pcep/pcc/mock/SimpleSessionListenerTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:24:48Z",
+      "side": 1,
+      "message": "no change, move it back",
+      "revId": "4f3d13645c4e186d86c2148a25c77aa9fba08efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_73b5faec",
+        "filename": "pcep/pcc-mock/src/test/java/org/opendaylight/protocol/pcep/pcc/mock/SimpleSessionListenerTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:24:48Z",
+      "side": 1,
+      "message": "what was wrong with specific type of exception?",
+      "range": {
+        "startLine": 70,
+        "startChar": 50,
+        "endLine": 70,
+        "endChar": 59
+      },
+      "revId": "4f3d13645c4e186d86c2148a25c77aa9fba08efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_f3f10ace",
+        "filename": "pcep/testtool/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:24:48Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be removed?",
+      "range": {
+        "startLine": 52,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 21
+      },
+      "revId": "4f3d13645c4e186d86c2148a25c77aa9fba08efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_131606f2",
+        "filename": "pcep/testtool/src/test/java/org/opendaylight/protocol/pcep/testtool/SimpleSessionListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:24:48Z",
+      "side": 1,
+      "message": "warn",
+      "range": {
+        "startLine": 48,
+        "startChar": 16,
+        "endLine": 48,
+        "endChar": 20
+      },
+      "revId": "4f3d13645c4e186d86c2148a25c77aa9fba08efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
