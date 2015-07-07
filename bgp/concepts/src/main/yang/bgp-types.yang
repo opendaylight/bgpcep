@@ -228,5 +228,12 @@ module bgp-types {
                 }
             }
         }
+        leaf-list as-sequence {
+            type inet:as-number;
+            ordered-by user;
+        }
+        leaf-list as-set {
+            type inet:as-number;
+        }
     }
 }
