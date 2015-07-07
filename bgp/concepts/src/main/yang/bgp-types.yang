@@ -228,5 +228,13 @@ module bgp-types {
                 }
             }
         }
+        leaf-list as-sequence {
+            type inet:as-number;
+            ordered-by user;
+            max-elements "255";
+        }
+        leaf-list as-set {
+            type inet:as-number;
+        }
     }
 }
