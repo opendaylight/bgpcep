@@ -71,12 +71,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.AListCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.ASetCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.AListBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequence;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequenceBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.set._case.ASetBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.Inet4SpecificExtendedCommunityCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.inet4.specific.extended.community._case.Inet4SpecificExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
@@ -185,10 +179,10 @@ public class BGPParserTest {
 
         // attributes
 
-        final List<AsSequence> asnums = Lists.newArrayList(new AsSequenceBuilder().setAs(new AsNumber(65002L)).build());
+        final List<AsNumber> asnumbers = new ArrayList<AsNumber>();
+        asnumbers.add(new AsNumber(65002L));
         final List<Segments> asPath = Lists.newArrayList();
-        asPath.add(new SegmentsBuilder().setCSegment(
-            new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
+        asPath.add(new SegmentsBuilder().setAsSequence(asnumbers).build());
 
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
             new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.2")).build()).build();
@@ -322,10 +316,10 @@ public class BGPParserTest {
 
         // attributes
 
-        final List<AsSequence> asnums = Lists.newArrayList(new AsSequenceBuilder().setAs(new AsNumber(65001L)).build());
+        final List<AsNumber> asnumbers = new ArrayList<AsNumber>();
+        asnumbers.add(new AsNumber(65001L));
         final List<Segments> asPath = Lists.newArrayList();
-        asPath.add(new SegmentsBuilder().setCSegment(
-            new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
+        asPath.add(new SegmentsBuilder().setAsSequence(asnumbers).build());
 
         final Ipv6NextHopCase nextHop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(
             new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1")).setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build()).build();
@@ -433,12 +427,11 @@ public class BGPParserTest {
         assertNull(message.getWithdrawnRoutes());
 
         // attributes
-        final List<AsSequence> asnums = Lists.newArrayList(new AsSequenceBuilder().setAs(new AsNumber(30L)).build());
+        final List<AsNumber> asnumbers = new ArrayList<AsNumber>();
+        asnumbers.add(new AsNumber(30L));
         final List<Segments> asPath = Lists.newArrayList();
-        asPath.add(new SegmentsBuilder().setCSegment(
-            new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
-        asPath.add(new SegmentsBuilder().setCSegment(
-            new ASetCaseBuilder().setASet(new ASetBuilder().setAsSet(Lists.newArrayList(new AsNumber(10L), new AsNumber(20L))).build()).build()).build());
+        asPath.add(new SegmentsBuilder().setAsSequence(asnumbers).build());
+        asPath.add(new SegmentsBuilder().setAsSet(Lists.newArrayList(new AsNumber(10L), new AsNumber(20L))).build());
 
         final Aggregator aggregator = new AggregatorBuilder().setAsNumber(new AsNumber((long) 30)).setNetworkAddress(
             new Ipv4Address("10.0.0.9")).build();
