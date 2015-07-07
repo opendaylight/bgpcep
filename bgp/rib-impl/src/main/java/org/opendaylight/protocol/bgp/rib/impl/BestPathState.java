@@ -29,24 +29,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.as.path.SegmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.CSegment;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.AListCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.AListCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.ASetCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.ASetCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.AList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.AListBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequence;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequenceBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.set._case.ASet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.set._case.ASetBuilder;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.QNameModule;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
 import org.opendaylight.yangtools.yang.data.api.schema.LeafSetEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.LeafSetNode;
@@ -64,12 +51,8 @@ final class BestPathState {
         private final Collection<PathArgument> locPref;
         private final Collection<PathArgument> med;
         private final Collection<PathArgument> orig;
-        private final NodeIdentifier cSegmentNid;
-        private final NodeIdentifier aSetNid;
         private final NodeIdentifier asSetNid;
-        private final NodeIdentifier aListNid;
         private final NodeIdentifier asSeqNid;
-        private final NodeIdentifier asNid;
 
         NamespaceSpecificIds(final QName namespace) {
             NodeIdentifier container = new NodeIdentifier(QName.cachedReference(QName.create(namespace, AsPath.QNAME.getLocalName())));
@@ -88,12 +71,8 @@ final class BestPathState {
             leaf = new NodeIdentifier(QName.cachedReference(QName.create(namespace, "value")));
             this.orig = ImmutableList.<PathArgument>of(container, leaf);
 
-            this.cSegmentNid = new NodeIdentifier(QName.cachedReference(QName.create(namespace, CSegment.QNAME.getLocalName())));
-            this.aSetNid = new NodeIdentifier(QName.cachedReference(QName.create(namespace, ASet.QNAME.getLocalName())));
             this.asSetNid = new NodeIdentifier(QName.cachedReference(QName.create(namespace, "as-set")));
-            this.aListNid = new NodeIdentifier(QName.cachedReference(QName.create(namespace, AList.QNAME.getLocalName())));
-            this.asSeqNid = new NodeIdentifier(QName.cachedReference(QName.create(namespace, AsSequence.QNAME.getLocalName())));
-            this.asNid = new NodeIdentifier(QName.cachedReference(QName.create(namespace, "as")));
+            this.asSeqNid = new NodeIdentifier(QName.cachedReference(QName.create(namespace, "as-sequence")));
         }
 
         Collection<PathArgument> getAsPath() {
@@ -112,28 +91,12 @@ final class BestPathState {
             return this.orig;
         }
 
-        NodeIdentifier getCSegment() {
-            return this.cSegmentNid;
-        }
-
-        NodeIdentifier getASet() {
-            return this.aSetNid;
-        }
-
         NodeIdentifier getAsSet() {
             return this.asSetNid;
         }
 
-        NodeIdentifier getAList() {
-            return this.aListNid;
-        }
-
         NodeIdentifier getAsSeq() {
             return this.asSeqNid;
-        }
-
-        NodeIdentifier getAs() {
-            return this.asNid;
         }
     }
 
@@ -249,74 +212,67 @@ final class BestPathState {
         int count = 0;
         boolean setPresent = false;
         for (final Segments s : segments) {
-            if (s.getCSegment() instanceof ASetCase) {
+            if (s.getAsSet() != null && !setPresent) {
                 setPresent = true;
-            } else {
-                final AListCase list = (AListCase) s.getCSegment();
-                count += list.getAList().getAsSequence().size();
+                count++;
+            } else if (s.getAsSequence() != null) {
+                count += s.getAsSequence().size();
             }
         }
-        return (setPresent) ? count + 1 : count;
+        return count;
     }
 
     private static AsNumber getPeerAs(final List<Segments> segments) {
         if (segments.isEmpty()) {
             return null;
         }
-        final AListCase first = (AListCase) segments.get(0).getCSegment();
-        return first.getAList().getAsSequence().get(0).getAs();
+        for (final Segments seg : segments) {
+            if (seg.getAsSequence() != null && !seg.getAsSequence().isEmpty()) {
+                return segments.get(0).getAsSequence().get(0);
+            }
+        }
+        return new AsNumber(0L);
     }
 
     @VisibleForTesting
     public List<Segments> extractSegments(final UnkeyedListNode segments) {
         // list segments
         final List<Segments> extracted = new ArrayList<>();
-        for (final UnkeyedListEntryNode seg : segments.getValue()) {
-            CSegment cs = null;
-            // choice c-segment
-            final ChoiceNode segmentType = (ChoiceNode) seg.getChild(this.ids.getCSegment()).get();
-            if (segmentType.getChild(this.ids.getASet()).isPresent()) {
-                // container a-set
-                cs = extractAsSet(segmentType.getChild(this.ids.getASet()).get());
-            } else if (segmentType.getChild(this.ids.getAList()).isPresent()) {
-                // container a-list
-                cs = extractAsSequence(segmentType.getChild(this.ids.getAList()).get());
-            }
-            extracted.add(new SegmentsBuilder().setCSegment(cs).build());
+        for (final UnkeyedListEntryNode segment : segments.getValue()) {
+            final SegmentsBuilder sb = new SegmentsBuilder();
+            // We are expecting that segment contains either as-sequence or as-set, so just one of them will be set, other would be null
+            sb.setAsSequence(extractAsSequence(segment)).setAsSet(extractAsSet(segment));
+            extracted.add(sb.build());
         }
         return extracted;
     }
 
-    private CSegment extractAsSet(final DataContainerChild<? extends PathArgument, ?> container) {
+    private List<AsNumber> extractAsSet(final UnkeyedListEntryNode segment) {
         final List<AsNumber> ases = new ArrayList<>();
-        // leaf-list a-set
-        final Optional<NormalizedNode<?, ?>> maybeSet = NormalizedNodes.findNode(container, this.ids.getAsSet());
+        // leaf-list as-set
+        final Optional<NormalizedNode<?, ?>> maybeSet = NormalizedNodes.findNode(segment, this.ids.getAsSet());
         if (maybeSet.isPresent()) {
             final LeafSetNode<?> list = (LeafSetNode<?>)maybeSet.get();
             for (final LeafSetEntryNode<?> as : list.getValue())  {
                 ases.add(new AsNumber((Long)as.getValue()));
             }
+            return ases;
         }
-        return new ASetCaseBuilder().setASet(new ASetBuilder().setAsSet(ases).build()).build();
+        return null;
     }
 
-    private CSegment extractAsSequence(final DataContainerChild<? extends PathArgument, ?> container) {
-        final List<AsSequence> ases = new ArrayList<>();
-        // list as-sequence
-        final Optional<NormalizedNode<?, ?>> maybeSet = NormalizedNodes.findNode(container, this.ids.getAsSeq());
+    private List<AsNumber> extractAsSequence(final UnkeyedListEntryNode segment) {
+        final List<AsNumber> ases = new ArrayList<>();
+        // leaf-list as-sequence
+        final Optional<NormalizedNode<?, ?>> maybeSet = NormalizedNodes.findNode(segment, this.ids.getAsSeq());
         if (maybeSet.isPresent()) {
-            final UnkeyedListNode list = (UnkeyedListNode)maybeSet.get();
-            // as-sequence
-            for (final UnkeyedListEntryNode as : list.getValue())  {
-                // as
-                final Optional<NormalizedNode<?, ?>> maybeAsSeq = NormalizedNodes.findNode(as, this.ids.getAs());
-                if (maybeAsSeq.isPresent()) {
-                    final LeafNode<?> asLeaf = (LeafNode<?>)maybeAsSeq.get();
-                    ases.add(new AsSequenceBuilder().setAs(new AsNumber((Long)asLeaf.getValue())).build());
-                }
+            final LeafSetNode<?> list = (LeafSetNode<?>)maybeSet.get();
+            for (final LeafSetEntryNode<?> as : list.getValue())  {
+                ases.add(new AsNumber((Long)as.getValue()));
             }
+            return ases;
         }
-        return new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(ases).build()).build();
+        return null;
     }
 
     ContainerNode getAttributes() {

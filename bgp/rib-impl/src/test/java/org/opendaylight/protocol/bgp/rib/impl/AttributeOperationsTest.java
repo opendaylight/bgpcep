@@ -10,10 +10,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
 import java.util.Collection;
 import java.util.Iterator;
-
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.AsPath;
@@ -26,7 +24,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeWithValue;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.LeafSetEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.LeafSetNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
@@ -45,7 +45,6 @@ public class AttributeOperationsTest {
     static final NodeIdentifier ORIGINATOR_C_NID = new NodeIdentifier(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, OriginatorId.QNAME.getLocalName()));
     static final NodeIdentifier ORIGINATOR_NID = new NodeIdentifier(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "originator"));
 
-
     @Test
     public void testExportedAttributesSetFirst() {
         final Long ourAs = 72L;
@@ -53,7 +52,7 @@ public class AttributeOperationsTest {
             .addChild(Builders.containerBuilder().withNodeIdentifier(AS_PATH_NID)
                 .addChild(Builders.unkeyedListBuilder().withNodeIdentifier(BestPathSelectorTest.SEGMENTS_NID)
                     .addChild(BestPathSelectorTest.SET_SEGMENT)
-                    .addChild(BestPathSelectorTest.LIST_SEGMENT)
+                    .addChild(BestPathSelectorTest.SEQ_SEGMENT)
                     .build())
             .build())
             .build();
@@ -61,9 +60,8 @@ public class AttributeOperationsTest {
         final ContainerNode exportedAttributes = operations.exportedAttributes(attributesSetBefore, ourAs);
 
         // make sure our AS is prepended to the list (as the AS-PATH starts with AS-SET)
-        final UnkeyedListEntryNode as = checkAsList(exportedAttributes).getValue().iterator().next();
-        assertTrue(as.getChild(BestPathSelectorTest.AS_NID).isPresent());
-        assertEquals(ourAs, as.getChild(BestPathSelectorTest.AS_NID).get().getValue());
+        final LeafSetNode<?> list = checkFirstLeafList(exportedAttributes);
+        assertEquals(ourAs, list.getValue().iterator().next().getValue());
     }
 
     @Test
@@ -72,7 +70,7 @@ public class AttributeOperationsTest {
         final ContainerNode attributesListBefore = Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(BestPathSelectorTest.ATTRS_EXTENSION_Q))
             .addChild(Builders.containerBuilder().withNodeIdentifier(AS_PATH_NID)
                 .addChild(Builders.unkeyedListBuilder().withNodeIdentifier(BestPathSelectorTest.SEGMENTS_NID)
-                    .addChild(BestPathSelectorTest.LIST_SEGMENT)
+                    .addChild(BestPathSelectorTest.SEQ_SEGMENT)
                     .addChild(BestPathSelectorTest.SET_SEGMENT)
                     .build())
             .build())
@@ -81,23 +79,12 @@ public class AttributeOperationsTest {
         final ContainerNode exportedAttributes = operations.exportedAttributes(attributesListBefore, ourAs);
 
         // make sure our AS is appended to the a-list (as the AS-PATH starts with A-LIST)
-        final Iterator<UnkeyedListEntryNode> as = checkAsList(exportedAttributes).getValue().iterator();
-
-        final UnkeyedListEntryNode a1 = as.next();
-        assertTrue(a1.getChild(BestPathSelectorTest.AS_NID).isPresent());
-        assertEquals(ourAs, a1.getChild(BestPathSelectorTest.AS_NID).get().getValue());
-
-        final UnkeyedListEntryNode a2 = as.next();
-        assertTrue(a2.getChild(BestPathSelectorTest.AS_NID).isPresent());
-        assertEquals(new Long(1), a2.getChild(BestPathSelectorTest.AS_NID).get().getValue());
-
-        final UnkeyedListEntryNode a3 = as.next();
-        assertTrue(a3.getChild(BestPathSelectorTest.AS_NID).isPresent());
-        assertEquals(new Long(2), a3.getChild(BestPathSelectorTest.AS_NID).get().getValue());
-
-        final UnkeyedListEntryNode a4 = as.next();
-        assertTrue(a4.getChild(BestPathSelectorTest.AS_NID).isPresent());
-        assertEquals(new Long(3), a4.getChild(BestPathSelectorTest.AS_NID).get().getValue());
+        final LeafSetNode<?> list = checkFirstLeafList(exportedAttributes);
+        final Iterator<?> iter = list.getValue().iterator();
+        assertEquals(ourAs, ((LeafSetEntryNode<?>)iter.next()).getValue());
+        assertEquals(1L, ((LeafSetEntryNode<?>)iter.next()).getValue());
+        assertEquals(2L, ((LeafSetEntryNode<?>)iter.next()).getValue());
+        assertEquals(3L, ((LeafSetEntryNode<?>)iter.next()).getValue());
     }
 
     @Test
@@ -119,23 +106,20 @@ public class AttributeOperationsTest {
         assertTrue(exportedAttributes.getChild(ORIGIN_NID).isPresent());
 
         // AS-PATH should also be there with our AS
-        final Collection<UnkeyedListEntryNode> asList = checkAsList(exportedAttributes).getValue();
-        assertEquals(1, asList.size());
-        final UnkeyedListEntryNode as = asList.iterator().next();
-        assertTrue(as.getChild(BestPathSelectorTest.AS_NID).isPresent());
-        assertEquals(ourAs, as.getChild(BestPathSelectorTest.AS_NID).get().getValue());
+        final LeafSetNode<?> list = checkFirstLeafList(exportedAttributes);
+        assertEquals(1, list.getValue().size());
+        assertEquals(ourAs, list.getValue().iterator().next().getValue());
 
         // Atomic Aggregate should be filtered out
         assertFalse(exportedAttributes.getChild(ATOMIC_NID).isPresent());
     }
 
-    private UnkeyedListNode checkAsList(final ContainerNode exportedAttributes) {
+    private LeafSetNode<?> checkFirstLeafList(final ContainerNode exportedAttributes) {
         assertTrue(NormalizedNodes.findNode(exportedAttributes, AS_PATH_NID, BestPathSelectorTest.SEGMENTS_NID).isPresent());
         final UnkeyedListNode segments = (UnkeyedListNode) NormalizedNodes.findNode(exportedAttributes, AS_PATH_NID, BestPathSelectorTest.SEGMENTS_NID).get();
         final UnkeyedListEntryNode seg = segments.getValue().iterator().next();
-        assertTrue(NormalizedNodes.findNode(seg, BestPathSelectorTest.C_SEGMENTS_NID, BestPathSelectorTest.A_LIST_NID, BestPathSelectorTest.AS_SEQ_NID).isPresent());
-        final UnkeyedListNode list = (UnkeyedListNode) NormalizedNodes.findNode(seg, BestPathSelectorTest.C_SEGMENTS_NID, BestPathSelectorTest.A_LIST_NID, BestPathSelectorTest.AS_SEQ_NID).get();
-        return list;
+        final DataContainerChild<? extends PathArgument, ?> firstLeafList = seg.getValue().iterator().next();
+        return (LeafSetNode<?>) firstLeafList;
     }
 
     @Test

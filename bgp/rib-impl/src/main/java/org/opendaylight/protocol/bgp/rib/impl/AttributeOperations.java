@@ -13,7 +13,6 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import java.util.Collection;
 import java.util.Iterator;
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -26,9 +25,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.UnrecognizedAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.CSegment;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.AList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequence;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.QNameModule;
@@ -36,7 +32,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.Augmentat
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeWithValue;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
@@ -50,7 +45,6 @@ import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.CollectionNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.ListNodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,19 +84,15 @@ final class AttributeOperations {
     private final NodeIdentifier clusterListLeaf;
     private final NodeIdentifier asPathContainer;
     private final NodeIdentifier asPathSegments;
-    private final NodeIdentifier asPathChoice;
-    private final NodeIdentifier asPathList;
     private final NodeIdentifier asPathSequence;
-    private final NodeIdentifier asPathId;
+    private final QName asNumberQname;
     private final NodeIdentifier transitiveLeaf;
 
     private AttributeOperations(final QNameModule namespace) {
         this.asPathContainer = new NodeIdentifier(QName.cachedReference(QName.create(namespace, AsPath.QNAME.getLocalName())));
         this.asPathSegments = new NodeIdentifier(QName.cachedReference(QName.create(namespace, Segments.QNAME.getLocalName())));
-        this.asPathChoice = new NodeIdentifier(QName.cachedReference(QName.create(namespace, CSegment.QNAME.getLocalName())));
-        this.asPathList = new NodeIdentifier(QName.cachedReference(QName.create(namespace, AList.QNAME.getLocalName())));
-        this.asPathSequence = new NodeIdentifier(QName.cachedReference(QName.create(namespace, AsSequence.QNAME.getLocalName())));
-        this.asPathId = new NodeIdentifier(QName.cachedReference(QName.create(namespace, "as")));
+        this.asPathSequence = new NodeIdentifier(QName.cachedReference(QName.create(namespace, "as-sequence")));
+        this.asNumberQname = QName.create(namespace, "as-number");
 
         this.clusterListContainer = new NodeIdentifier(QName.cachedReference(QName.create(namespace, ClusterId.QNAME.getLocalName())));
         this.clusterListLeaf = new NodeIdentifier(QName.cachedReference(QName.create(namespace, "cluster")));
@@ -119,91 +109,74 @@ final class AttributeOperations {
         return ATTRIBUTES_CACHE.getUnchecked(attributes.getNodeType().getModule());
     }
 
-    private Collection<UnkeyedListEntryNode> reusableSequence(final UnkeyedListEntryNode segment) {
-        final Optional<NormalizedNode<?, ?>> maybeAsSequence = NormalizedNodes.findNode(segment, this.asPathChoice, this.asPathList, this.asPathSequence);
+    private LeafSetNode<?> reusableSegment(final UnkeyedListEntryNode segment) {
+        final Optional<NormalizedNode<?, ?>> maybeAsSequence = NormalizedNodes.findNode(segment, this.asPathSequence);
         if (maybeAsSequence.isPresent()) {
-            final UnkeyedListNode asList = (UnkeyedListNode) maybeAsSequence.get();
-            if (asList.getSize() < Values.UNSIGNED_BYTE_MAX_VALUE) {
-                return asList.getValue();
+            final LeafSetNode<?> asList = (LeafSetNode<?>) maybeAsSequence.get();
+            if (asList.getValue().size() < Values.UNSIGNED_BYTE_MAX_VALUE) {
+                return asList;
             }
         }
-
         return null;
     }
 
     ContainerNode exportedAttributes(final ContainerNode attributes, final Long localAs) {
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> b = Builders.containerBuilder();
-        b.withNodeIdentifier(attributes.getIdentifier());
+        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> containerBuilder = Builders.containerBuilder();
+        containerBuilder.withNodeIdentifier(attributes.getIdentifier());
 
         // First filter out non-transitive attributes
         // FIXME: removes MULTI_EXIT_DISC, too.
-        spliceTransitives(b, attributes);
+        spliceTransitives(containerBuilder, attributes);
 
-        /*
-         * This is very ugly, as our AS_PATH model is needlessly complex. The top-level container contains a list
-         * of segments, each of which is a choice containing another list. Both are unkeyed lists, so we need to
-         * perform a wholesale replace.
-         */
-        final CollectionNodeBuilder<UnkeyedListEntryNode, UnkeyedListNode> sb = Builders.unkeyedListBuilder();
-        sb.withNodeIdentifier(this.asPathSegments);
+        final CollectionNodeBuilder<UnkeyedListEntryNode, UnkeyedListNode> segmentsBuilder = Builders.unkeyedListBuilder();
+        segmentsBuilder.withNodeIdentifier(this.asPathSegments);
 
         final Optional<NormalizedNode<?, ?>> maybeOldAsSegments = NormalizedNodes.findNode(attributes, this.asPathContainer, this.asPathSegments);
         if (maybeOldAsSegments.isPresent() && !((UnkeyedListNode) maybeOldAsSegments.get()).getValue().isEmpty()) {
-            // Builder of inner list
-            final CollectionNodeBuilder<UnkeyedListEntryNode, UnkeyedListNode> ilb = Builders.unkeyedListBuilder();
-            ilb.withNodeIdentifier(this.asPathSequence);
-            ilb.withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(this.asPathSequence).withChild(ImmutableNodes.leafNode(this.asPathId, localAs)).build());
 
             /*
-             * We need to check the first entry in the outer list, to check if the choice is a-list. If it is and its
-             * total number of elements is less than 255, we need to modify that one. Otherwise we need to create a
-             * new entry.
+             * We need to check the first segment.
+             * If it has as-set then new as-sequence with local AS is prepended.
+             * If it has as-sequence, we may add local AS when it has less than 255 elements.
+             * Otherwise we need to create new as-sequence for local AS.
              */
+
+            final ListNodeBuilder<Object,LeafSetEntryNode<Object>> asSequenceBuilder = Builders.orderedLeafSetBuilder();
+            // add local AS
+            asSequenceBuilder.withNodeIdentifier(this.asPathSequence).addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(this.asNumberQname, localAs)).withValue(localAs).build());
+
             final Iterator<UnkeyedListEntryNode> oldAsSegments = ((UnkeyedListNode) maybeOldAsSegments.get()).getValue().iterator();
             final UnkeyedListEntryNode firstSegment = oldAsSegments.next();
-            final Collection<UnkeyedListEntryNode> reusable = reusableSequence(firstSegment);
-            if (reusable != null) {
-                for (final UnkeyedListEntryNode child : reusable) {
-                    ilb.withChild(child);
+            final LeafSetNode<?> reusableAsSeq = reusableSegment(firstSegment);
+            // first segment contains as-sequence with less then 255 elements and it's append to local AS
+            if (reusableAsSeq != null) {
+                for (final LeafSetEntryNode<?> child : reusableAsSeq.getValue())  {
+                    asSequenceBuilder.withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(this.asNumberQname, child.getValue())).withValue(child.getValue()).build());
                 }
             }
-
-            // Builder of inner container
-            final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> icb = Builders.containerBuilder();
-            icb.withNodeIdentifier(this.asPathList);
-            icb.withChild(ilb.build());
-
-            // Choice inside the outer list
-            final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> ocb = Builders.choiceBuilder();
-            ocb.withNodeIdentifier(this.asPathChoice);
-            ocb.withChild(icb.build());
-
             // Add the new first segment
-            sb.withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(this.asPathSegments).withChild(ocb.build()).build());
+            segmentsBuilder.withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(this.asPathSegments).withChild(asSequenceBuilder.build()).build());
 
-            // If we did not merge into the original segment, add it
-            if (reusable == null) {
-                sb.withChild(firstSegment);
+            // When first segment contains as-set or full as-sequence, append it
+            if (reusableAsSeq == null) {
+                segmentsBuilder.withChild(firstSegment);
             }
 
             // Add all subsequent segments
             while (oldAsSegments.hasNext()) {
-                sb.withChild(oldAsSegments.next());
+                segmentsBuilder.withChild(oldAsSegments.next());
             }
         } else {
             // Segments are completely empty, create a completely new AS_PATH container with
             // a single entry
-            sb.withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(this.asPathSegments).withChild(
-                Builders.choiceBuilder().withNodeIdentifier(this.asPathChoice).withChild(
-                    Builders.containerBuilder().withNodeIdentifier(this.asPathList).withChild(
-                        Builders.unkeyedListBuilder().withNodeIdentifier(this.asPathSequence).withChild(
-                            Builders.unkeyedListEntryBuilder().withNodeIdentifier(this.asPathSequence).withChild(
-                                ImmutableNodes.leafNode(this.asPathId, localAs)).build()).build()).build()).build()).build());
+            segmentsBuilder.withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(this.asPathSegments).withChild(
+                Builders.orderedLeafSetBuilder().withNodeIdentifier(this.asPathSequence).addChild(
+                    Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(this.asNumberQname, localAs)).withValue(localAs).build()).build()).build());
 
         }
 
-        b.withChild(Builders.containerBuilder().withNodeIdentifier(this.asPathContainer).withChild(sb.build()).build());
-        return b.build();
+        containerBuilder.withChild(Builders.containerBuilder().withNodeIdentifier(this.asPathContainer).withChild(segmentsBuilder.build()).build());
+        return containerBuilder.build();
     }
 
     // Attributes when reflecting a route
