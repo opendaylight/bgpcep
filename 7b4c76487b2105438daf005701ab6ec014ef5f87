@@ -1,0 +1,181 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_78de3941",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/spi/BGPServerDispatcher.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:33:35Z",
+      "side": 1,
+      "message": "Why is this file deleted in this commit? It\u0027s BGP.",
+      "revId": "7b4c76487b2105438daf005701ab6ec014ef5f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_9e61c53b",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/PCEPSessionListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:33:35Z",
+      "side": 1,
+      "message": "keep the javadocs",
+      "revId": "7b4c76487b2105438daf005701ab6ec014ef5f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_be64c149",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/PCEPSessionListenerFactory.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:33:35Z",
+      "side": 1,
+      "message": "spacing and javadocs",
+      "revId": "7b4c76487b2105438daf005701ab6ec014ef5f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_58e33d05",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/AbstractPCEPSessionNegotiator.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:33:35Z",
+      "side": 1,
+      "message": "Milos: isn\u0027t there a reason why the break wasn\u0027t there in the first place, or was it a bug?",
+      "revId": "7b4c76487b2105438daf005701ab6ec014ef5f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_38e8c1e1",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/SessionNegotiatorImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:33:35Z",
+      "side": 1,
+      "message": "Abstract classes are named Abstract\u003cname\u003e, do not use \u0027Impl\u0027 when it\u0027s an abstract class.",
+      "range": {
+        "startLine": 23,
+        "startChar": 21,
+        "endLine": 23,
+        "endChar": 43
+      },
+      "revId": "7b4c76487b2105438daf005701ab6ec014ef5f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_18edc5ef",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/Main.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:33:35Z",
+      "side": 1,
+      "message": "This warning shouldn\u0027t be here, if all deprecated code was removed.",
+      "revId": "7b4c76487b2105438daf005701ab6ec014ef5f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_b8bb71e4",
+        "filename": "pcep/pcc-mock/src/test/java/org/opendaylight/protocol/pcep/pcc/mock/SimpleSessionListenerTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:33:35Z",
+      "side": 1,
+      "message": "why the change?",
+      "range": {
+        "startLine": 73,
+        "startChar": 50,
+        "endLine": 73,
+        "endChar": 59
+      },
+      "revId": "7b4c76487b2105438daf005701ab6ec014ef5f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_d8be6dd4",
+        "filename": "pcep/testtool/pom.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:33:35Z",
+      "side": 1,
+      "message": "This dependency should be removed.",
+      "range": {
+        "startLine": 52,
+        "startChar": 7,
+        "endLine": 55,
+        "endChar": 21
+      },
+      "revId": "7b4c76487b2105438daf005701ab6ec014ef5f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_78b5d9ec",
+        "filename": "pcep/testtool/src/test/java/org/opendaylight/protocol/pcep/testtool/SimpleSessionListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:33:35Z",
+      "side": 1,
+      "message": "warn",
+      "range": {
+        "startLine": 48,
+        "startChar": 16,
+        "endLine": 48,
+        "endChar": 20
+      },
+      "revId": "7b4c76487b2105438daf005701ab6ec014ef5f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
