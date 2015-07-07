@@ -11,7 +11,6 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -184,11 +183,12 @@ public class BGPParserTest {
         assertNull(message.getWithdrawnRoutes());
 
         // attributes
-
+        final List<AsNumber> asNumbers = new ArrayList<AsNumber>();
+        asNumbers.add(new AsNumber(65002L));
         final List<AsSequence> asnums = Lists.newArrayList(new AsSequenceBuilder().setAs(new AsNumber(65002L)).build());
         final List<Segments> asPath = Lists.newArrayList();
-        asPath.add(new SegmentsBuilder().setCSegment(
-            new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
+        asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).
+            setCSegment(new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
 
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
             new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.2")).build()).build();
@@ -321,11 +321,12 @@ public class BGPParserTest {
         assertNull(message.getNlri());
 
         // attributes
-
+        final List<AsNumber> asNumbers = new ArrayList<AsNumber>();
+        asNumbers.add(new AsNumber(65001L));
         final List<AsSequence> asnums = Lists.newArrayList(new AsSequenceBuilder().setAs(new AsNumber(65001L)).build());
         final List<Segments> asPath = Lists.newArrayList();
-        asPath.add(new SegmentsBuilder().setCSegment(
-            new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
+        asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).
+            setCSegment(new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
 
         final Ipv6NextHopCase nextHop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(
             new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1")).setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build()).build();
@@ -433,12 +434,15 @@ public class BGPParserTest {
         assertNull(message.getWithdrawnRoutes());
 
         // attributes
+        final List<AsNumber> asNumbers = new ArrayList<AsNumber>();
+        asNumbers.add(new AsNumber(30L));
         final List<AsSequence> asnums = Lists.newArrayList(new AsSequenceBuilder().setAs(new AsNumber(30L)).build());
         final List<Segments> asPath = Lists.newArrayList();
-        asPath.add(new SegmentsBuilder().setCSegment(
-            new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
-        asPath.add(new SegmentsBuilder().setCSegment(
-            new ASetCaseBuilder().setASet(new ASetBuilder().setAsSet(Lists.newArrayList(new AsNumber(10L), new AsNumber(20L))).build()).build()).build());
+        asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).
+            setCSegment(new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
+        final List<AsNumber> asSet = Lists.newArrayList(new AsNumber(10L), new AsNumber(20L));
+        asPath.add(new SegmentsBuilder().setAsSet(asSet).
+            setCSegment(new ASetCaseBuilder().setASet(new ASetBuilder().setAsSet(asSet).build()).build()).build());
 
         final Aggregator aggregator = new AggregatorBuilder().setAsNumber(new AsNumber((long) 30)).setNetworkAddress(
             new Ipv4Address("10.0.0.9")).build();

@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType.AS_SEQUENCE;
 import static org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType.AS_SET;
-
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,6 +73,14 @@ public final class AsPathSegmentParser {
         return (coll.isEmpty()) ? Collections.<AsSequence>emptyList() : coll;
     }
 
+    static List<AsNumber> parseAsSequenceToAsNumberList(final ReferenceCache refCache, final int count, final ByteBuf buffer) {
+        final List<AsNumber> coll = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            coll.add(refCache.getSharedReference(new AsNumber(buffer.readUnsignedInt())));
+        }
+        return (coll.isEmpty()) ? Collections.<AsNumber>emptyList() : coll;
+    }
+
     static List<AsNumber> parseAsSet(final ReferenceCache refCache, final int count, final ByteBuf buffer) {
         final List<AsNumber> coll = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
@@ -94,6 +101,17 @@ public final class AsPathSegmentParser {
         }
     }
 
+    static void serializeAsSet(final List<AsNumber> asList, final ByteBuf byteAggregator) {
+        if (asList == null) {
+            return;
+        }
+        byteAggregator.writeByte(serializeType(AS_SET));
+        byteAggregator.writeByte(asList.size());
+        for (final AsNumber asNumber : asList) {
+            byteAggregator.writeInt( asNumber.getValue().intValue());
+        }
+    }
+
     static void serializeAsSequence(final AListCase aListCase, final ByteBuf byteAggregator) {
         final AList alist = aListCase.getAList();
         if (alist == null || alist.getAsSequence() == null) {
@@ -103,6 +121,17 @@ public final class AsPathSegmentParser {
         byteAggregator.writeByte(alist.getAsSequence().size());
         for (final AsSequence value : alist.getAsSequence()) {
             byteAggregator.writeInt(value.getAs().getValue().intValue());
+        }
+    }
+
+    static void serializeAsSequence(final List<AsNumber> asList, final ByteBuf byteAggregator) {
+        if (asList == null) {
+            return;
+        }
+        byteAggregator.writeByte(serializeType(AS_SEQUENCE));
+        byteAggregator.writeByte(asList.size());
+        for (final AsNumber asNumber : asList) {
+            byteAggregator.writeInt( asNumber.getValue().intValue());
         }
     }
 }
