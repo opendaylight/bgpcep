@@ -10,10 +10,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
 import java.util.Collection;
 import java.util.Iterator;
-
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.AsPath;
@@ -53,7 +51,7 @@ public class AttributeOperationsTest {
             .addChild(Builders.containerBuilder().withNodeIdentifier(AS_PATH_NID)
                 .addChild(Builders.unkeyedListBuilder().withNodeIdentifier(BestPathSelectorTest.SEGMENTS_NID)
                     .addChild(BestPathSelectorTest.SET_SEGMENT)
-                    .addChild(BestPathSelectorTest.LIST_SEGMENT)
+                    .addChild(BestPathSelectorTest.SEQ_SEGMENT)
                     .build())
             .build())
             .build();
@@ -72,7 +70,7 @@ public class AttributeOperationsTest {
         final ContainerNode attributesListBefore = Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(BestPathSelectorTest.ATTRS_EXTENSION_Q))
             .addChild(Builders.containerBuilder().withNodeIdentifier(AS_PATH_NID)
                 .addChild(Builders.unkeyedListBuilder().withNodeIdentifier(BestPathSelectorTest.SEGMENTS_NID)
-                    .addChild(BestPathSelectorTest.LIST_SEGMENT)
+                    .addChild(BestPathSelectorTest.SEQ_SEGMENT)
                     .addChild(BestPathSelectorTest.SET_SEGMENT)
                     .build())
             .build())

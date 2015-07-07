@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.UnsignedInteger;
@@ -21,15 +20,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.as.path.SegmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.CSegment;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.AListCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.ASetCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.ASetCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.AList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.AListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequence;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequenceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.set._case.ASet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.set._case.ASetBuilder;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeWithValue;
@@ -62,40 +55,25 @@ public class BestPathSelectorTest {
     static final QName AS_NUMBER_Q = QName.create(ATTRS_EXTENSION_Q, "as-number");
     static final NodeIdentifier SEGMENTS_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, Segments.QNAME.getLocalName()));
     static final NodeIdentifier C_SEGMENTS_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, CSegment.QNAME.getLocalName()));
-    static final NodeIdentifier AS_SET_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "as-set"));
     static final NodeIdentifier A_SET_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, ASet.QNAME.getLocalName()));
     static final NodeIdentifier A_LIST_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, AList.QNAME.getLocalName()));
     static final NodeIdentifier AS_SEQ_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, AsSequence.QNAME.getLocalName()));
     static final NodeIdentifier AS_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "as"));
+    static final NodeIdentifier SET_LEAFLIST_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "as-set"));
+    static final NodeIdentifier SEQ_LEAFLIST_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "as-sequence"));
 
     static final UnkeyedListEntryNode SET_SEGMENT = Builders.unkeyedListEntryBuilder().withNodeIdentifier(SEGMENTS_NID)
-        .addChild(Builders.choiceBuilder().withNodeIdentifier(C_SEGMENTS_NID)
-            .addChild(Builders.containerBuilder().withNodeIdentifier(A_SET_NID)
-                .addChild(Builders.leafSetBuilder().withNodeIdentifier(AS_SET_NID)
-                    .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, 10L)).withValue(10L).build())
-                    .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, 11L)).withValue(11L).build())
-                .build())
-            .build())
-        .build())
-        .build();
+        .addChild(Builders.orderedLeafSetBuilder().withNodeIdentifier(SET_LEAFLIST_NID)
+            .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, 10L)).withValue(10L).build())
+            .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, 11L)).withValue(11L).build())
+            .build()).build();
 
-    static final UnkeyedListEntryNode LIST_SEGMENT = Builders.unkeyedListEntryBuilder().withNodeIdentifier(SEGMENTS_NID)
-        .addChild(Builders.choiceBuilder().withNodeIdentifier(C_SEGMENTS_NID)
-            .addChild(Builders.containerBuilder().withNodeIdentifier(A_LIST_NID)
-                .addChild(Builders.unkeyedListBuilder().withNodeIdentifier(AS_SEQ_NID)
-                    .addChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(AS_SEQ_NID)
-                        .addChild(Builders.leafBuilder().withNodeIdentifier(AS_NID).withValue(1L).build())
-                    .build())
-                    .addChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(AS_SEQ_NID)
-                        .addChild(Builders.leafBuilder().withNodeIdentifier(AS_NID).withValue(2L).build())
-                    .build())
-                    .addChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(AS_SEQ_NID)
-                        .addChild(Builders.leafBuilder().withNodeIdentifier(AS_NID).withValue(3L).build())
-                    .build())
-                .build())
-            .build())
-        .build())
-        .build();
+    static final UnkeyedListEntryNode SEQ_SEGMENT = Builders.unkeyedListEntryBuilder().withNodeIdentifier(SEGMENTS_NID)
+        .addChild(Builders.orderedLeafSetBuilder().withNodeIdentifier(SEQ_LEAFLIST_NID)
+            .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, 1L)).withValue(1L).build())
+            .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, 2L)).withValue(2L).build())
+            .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, 3L)).withValue(3L).build())
+            .build()).build();
 
     @Test
     public void testBestPathForEquality() {
@@ -191,21 +169,21 @@ public class BestPathSelectorTest {
         final CollectionNodeBuilder<UnkeyedListEntryNode, UnkeyedListNode> builder = Builders.unkeyedListBuilder();
         builder.withNodeIdentifier(SEGMENTS_NID);
         builder.addChild(SET_SEGMENT);
-        builder.addChild(LIST_SEGMENT).build();
+        builder.addChild(SEQ_SEGMENT);
 
         // expected
-        final List<AsSequence> sequences = new ArrayList<>();
-        sequences.add(new AsSequenceBuilder().setAs(new AsNumber(1L)).build());
-        sequences.add(new AsSequenceBuilder().setAs(new AsNumber(2L)).build());
-        sequences.add(new AsSequenceBuilder().setAs(new AsNumber(3L)).build());
+        final List<AsNumber> sequences = new ArrayList<>();
+        sequences.add(new AsNumber(1L));
+        sequences.add(new AsNumber(2L));
+        sequences.add(new AsNumber(3L));
         final List<Segments> expected = new ArrayList<>();
-        expected.add(new SegmentsBuilder().setCSegment(new ASetCaseBuilder().setASet(new ASetBuilder().setAsSet(Lists.newArrayList(new AsNumber(11L), new AsNumber(10L))).build()).build()).build());
-        expected.add(new SegmentsBuilder().setCSegment(new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(sequences).build()).build()).build());
+        expected.add(new SegmentsBuilder().setAsSet(Lists.newArrayList(new AsNumber(11L), new AsNumber(10L))).build());
+        expected.add(new SegmentsBuilder().setAsSequence(sequences).build());
         // test
         final List<Segments> actual = this.state.extractSegments(builder.build());
         assertEquals(expected.size(), actual.size());
         assertEquals(Sets.newHashSet(1,2,3), Sets.newHashSet(1,3,2));
-        assertEquals(Sets.newHashSet(((ASetCase)expected.get(0).getCSegment()).getASet().getAsSet()), Sets.newHashSet(((ASetCase)actual.get(0).getCSegment()).getASet().getAsSet()));
+        assertEquals(Sets.newHashSet(expected.get(0).getAsSet()), Sets.newHashSet(actual.get(0).getAsSet()));
         assertEquals(expected.get(1), actual.get(1));
     }
 }
