@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_13ba860a",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/PccTunnelManagerImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-07T13:06:25Z",
+      "side": 1,
+      "message": "first check if it\u0027s not null, to avoid NPE",
+      "revId": "ce30018be8956c83414323025352da31fcb1d99f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
