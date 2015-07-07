@@ -9,7 +9,6 @@
 package org.opendaylight.protocol.bmp.impl.app;
 
 import static org.opendaylight.protocol.bmp.impl.app.TablesUtil.BMP_TABLES_QNAME;
-
 import com.google.common.base.Preconditions;
 import java.util.HashSet;
 import java.util.Set;
@@ -60,7 +59,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
 
-public class BmpRouterPeerImpl implements BmpRouterPeer {
+public final class BmpRouterPeerImpl implements BmpRouterPeer {
 
     private static final QName PEER_ID_QNAME = QName.cachedReference(QName.create(Peer.QNAME, "peer-id"));
     private static final QName PEER_TYPE_QNAME = QName.cachedReference(QName.create(Peer.QNAME, "type"));
@@ -138,7 +137,7 @@ public class BmpRouterPeerImpl implements BmpRouterPeer {
     @Override
     public void onPeerMessage(final Notification message) {
         if (message instanceof PeerDownNotification) {
-            onPeerDown((PeerDownNotification) message);
+            onPeerDown();
         } else if (message instanceof RouteMonitoringMessage) {
             onRouteMonitoring((RouteMonitoringMessage) message);
         } else if (message instanceof StatsReportsMessage) {
@@ -171,7 +170,7 @@ public class BmpRouterPeerImpl implements BmpRouterPeer {
         }
     }
 
-    private void onPeerDown(final PeerDownNotification peerDown) {
+    private void onPeerDown() {
         final DOMDataWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, this.peerYangIId);
         wTx.submit();
@@ -180,7 +179,7 @@ public class BmpRouterPeerImpl implements BmpRouterPeer {
 
     @Override
     public PeerId getPeerId() {
-        return peerId;
+        return this.peerId;
     }
 
     @Override
@@ -260,7 +259,7 @@ public class BmpRouterPeerImpl implements BmpRouterPeer {
     }
 
     private ContainerNode createStats(final Stat stat, final Timestamp timestamp) {
-        DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> builder =
+        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> builder =
                 Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(Stats.QNAME));
         builder.withChild(ImmutableNodes.leafNode(PEER_STATS_TIMESTAMP_QNAME, timestamp.getValue()));
         if (stat.getTlvs() != null) {
