@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
@@ -69,6 +70,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     private final Long ourAs;
     private final RIBSupport ribSupport;
     private final NodeIdentifierWithPredicates tableKey;
+    private final TablesKey localTablesKey;
     private final RIBSupportContextRegistry registry;
     private final ListenerRegistration<LocRibWriter> reg;
 
@@ -76,6 +78,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         final DOMDataTreeChangeService service, final PolicyDatabase pd, final TablesKey tablesKey) {
         this.chain = Preconditions.checkNotNull(chain);
         this.tableKey = RibSupportUtils.toYangTablesKey(tablesKey);
+        this.localTablesKey = tablesKey;
         this.locRibTarget = YangInstanceIdentifier.create(target.node(LocRib.QNAME).node(Tables.QNAME).node(this.tableKey).getPathArguments());
         this.ourAs = Preconditions.checkNotNull(ourAs);
         this.registry = registry;
@@ -106,9 +109,9 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         this.chain.close();
     }
 
-    @Nonnull private AbstractRouteEntry createEntry(final PathArgument routeId) {
+    @Nonnull
+    private AbstractRouteEntry createEntry(final PathArgument routeId) {
         final AbstractRouteEntry ret = this.ribSupport.isComplexRoute() ? new ComplexRouteEntry() : new SimpleRouteEntry();
-
         this.routeEntries.put(routeId, ret);
         LOG.trace("Created new entry for {}", routeId);
         return ret;
@@ -116,7 +119,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
 
     @Override
     public void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
-        LOG.trace("Received data change to LocRib {}", changes);
+        LOG.trace("Received data change {} to LocRib {}", changes, this);
 
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         try {
@@ -142,6 +145,12 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         for (final DataTreeCandidate tc : changes) {
             final YangInstanceIdentifier rootPath = tc.getRootPath();
             final DataTreeCandidateNode rootNode = tc.getRootNode();
+            // filter out changes to supported tables
+            final DataTreeCandidateNode tablesChange = rootNode.getModifiedChild(AbstractPeerRoleTracker.PEER_TABLES);
+            if (tablesChange != null) {
+                this.peerPolicyTracker.onTablesChanged(tablesChange, IdentifierUtils.peerPath(rootPath));
+            }
+            // filter out peer role
             final DataTreeCandidateNode roleChange =  rootNode.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
             if (roleChange != null) {
                 this.peerPolicyTracker.onDataTreeChanged(roleChange, IdentifierUtils.peerPath(rootPath));
@@ -233,7 +242,8 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         }
     }
 
-    private void fillAdjRibsOut(final DOMDataWriteTransaction tx, final AbstractRouteEntry entry, final NormalizedNode<?, ?> value, final RouteUpdateKey key) {
+    @VisibleForTesting
+    void fillAdjRibsOut(final DOMDataWriteTransaction tx, final AbstractRouteEntry entry, final NormalizedNode<?, ?> value, final RouteUpdateKey key) {
         /*
          * We need to keep track of routers and populate adj-ribs-out, too. If we do not, we need to
          * expose from which client a particular route was learned from in the local RIB, and have
@@ -248,6 +258,10 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             if (peerGroup != null) {
                 final ContainerNode attributes = entry == null ? null : entry.attributes();
                 final PeerId peerId = key.getPeerId();
+                if (!this.peerPolicyTracker.isTableSupported(peerId, this.localTablesKey)) {
+                    LOG.trace("Route rejected, peer {} does not support this table type {}", peerId, this.tableKey);
+                    continue;
+                }
                 final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(peerId, attributes);
                 for (final Entry<PeerId, YangInstanceIdentifier> pid : peerGroup.getPeers()) {
                     final YangInstanceIdentifier routeTarget = this.ribSupport.routePath(pid.getValue().node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey).node(ROUTES_IDENTIFIER), key.getRouteId());
