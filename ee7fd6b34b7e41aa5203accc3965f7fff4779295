@@ -1,0 +1,282 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_1b8cdc7e",
+        "filename": "bgp/bmp-api/.project",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-08T11:47:34Z",
+      "side": 1,
+      "message": "Do not commit this file.",
+      "revId": "ee7fd6b34b7e41aa5203accc3965f7fff4779295",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_bbea880d",
+        "filename": "bgp/bmp-impl/.project",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-08T11:47:34Z",
+      "side": 1,
+      "message": "Do not commit this file.",
+      "revId": "ee7fd6b34b7e41aa5203accc3965f7fff4779295",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_dbed0427",
+        "filename": "bgp/bmp-spi/.project",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-08T11:47:34Z",
+      "side": 1,
+      "message": "Do not commit this file.",
+      "revId": "ee7fd6b34b7e41aa5203accc3965f7fff4779295",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_3bde786e",
+        "filename": "bgp/controller-config/src/main/resources/initial/31-bgp.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-08T11:47:34Z",
+      "side": 1,
+      "message": "This is the error, the revision is wrong.\n\nrevision \"2015-05-25\" (taken from odl-bgpcep-labeled-unicast-cfg.yang)",
+      "range": {
+        "startLine": 16,
+        "startChar": 126,
+        "endLine": 16,
+        "endChar": 145
+      },
+      "revId": "ee7fd6b34b7e41aa5203accc3965f7fff4779295",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_7bf4f0f1",
+        "filename": "bgp/flowspec/.project",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-08T11:47:34Z",
+      "side": 1,
+      "message": "Do not commit this file.",
+      "revId": "ee7fd6b34b7e41aa5203accc3965f7fff4779295",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_9bf78cf5",
+        "filename": "bgp/inet/.project",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-08T11:47:34Z",
+      "side": 1,
+      "message": "Do not commit this file.",
+      "revId": "ee7fd6b34b7e41aa5203accc3965f7fff4779295",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_5bd9f481",
+        "filename": "concepts/.gitignore",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-08T11:47:34Z",
+      "side": 1,
+      "message": "Do not commit this file.",
+      "revId": "ee7fd6b34b7e41aa5203accc3965f7fff4779295",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_fbe7a03e",
+        "filename": "features/.gitignore",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-08T11:47:34Z",
+      "side": 1,
+      "message": "Do not commit this file.",
+      "revId": "ee7fd6b34b7e41aa5203accc3965f7fff4779295",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_1be37c34",
+        "filename": "features/bgp/.checkstyle",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-08T11:47:34Z",
+      "side": 1,
+      "message": "Do not commit this file.",
+      "revId": "ee7fd6b34b7e41aa5203accc3965f7fff4779295",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_bbd12859",
+        "filename": "features/bgp/.project",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-08T11:47:34Z",
+      "side": 1,
+      "message": "Do not commit this file.",
+      "revId": "ee7fd6b34b7e41aa5203accc3965f7fff4779295",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_dbd42449",
+        "filename": "features/bmp/.checkstyle",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-08T11:47:34Z",
+      "side": 1,
+      "message": "Do not commit this file.",
+      "revId": "ee7fd6b34b7e41aa5203accc3965f7fff4779295",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_7bcb90a5",
+        "filename": "features/bmp/.project",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-08T11:47:34Z",
+      "side": 1,
+      "message": "Do not commit this file.",
+      "revId": "ee7fd6b34b7e41aa5203accc3965f7fff4779295",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_9bceacb3",
+        "filename": "features/extras/.checkstyle",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-08T11:47:34Z",
+      "side": 1,
+      "message": "Do not commit this file.",
+      "revId": "ee7fd6b34b7e41aa5203accc3965f7fff4779295",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_3bc5188e",
+        "filename": "features/extras/.project",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-08T11:47:34Z",
+      "side": 1,
+      "message": "Do not commit this file.",
+      "revId": "ee7fd6b34b7e41aa5203accc3965f7fff4779295",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_5bc0147c",
+        "filename": "features/pcep/.checkstyle",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-08T11:47:34Z",
+      "side": 1,
+      "message": "Do not commit this file.",
+      "revId": "ee7fd6b34b7e41aa5203accc3965f7fff4779295",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_fbbec0fe",
+        "filename": "features/pcep/.project",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-08T11:47:34Z",
+      "side": 1,
+      "message": "Do not commit this file.",
+      "revId": "ee7fd6b34b7e41aa5203accc3965f7fff4779295",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
