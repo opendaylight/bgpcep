@@ -10,8 +10,10 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.base.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.SupportedTables;
 import org.opendaylight.yangtools.yang.binding.BindingMapping;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -47,6 +49,7 @@ abstract class AbstractPeerRoleTracker {
     }
 
     static final NodeIdentifier PEER_ROLE_NID = new NodeIdentifier(QName.cachedReference(QName.create(Peer.QNAME, "peer-role")));
+    static final NodeIdentifier PEER_TABLES = new NodeIdentifier(SupportedTables.QNAME);
 
     protected AbstractPeerRoleTracker() {
     }

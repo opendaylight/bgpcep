@@ -99,9 +99,15 @@ module bgp-rib {
                 leaf peer-id {
                     type peer-id;
                 }
+
                 leaf peer-role {
                     type peer-role;
                     mandatory true;
+                }
+
+                list supported-tables {
+                    key "afi safi";
+                    uses bgp-mp:bgp-table-type;
                 }
 
                 container adj-rib-in {
