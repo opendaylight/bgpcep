@@ -34,10 +34,33 @@ public final class RibSupportUtils {
      */
     public static NodeIdentifierWithPredicates toYangTablesKey(final Class<? extends AddressFamily> afi,
             final Class<? extends SubsequentAddressFamily> safi) {
+        return toYangKey(Tables.QNAME, afi, safi);
+    }
+
+    /**
+     * Creates Yang Instance Identifier path argument from supplied AFI and SAFI
+     *
+     * @param id QNAME representing node
+     * @param afi Class representing AFI
+     * @param safi Class representing SAFI
+     * @return NodeIdentifierWithPredicates of 'id' for specified AFI, SAFI combination.
+     */
+    public static NodeIdentifierWithPredicates toYangKey(final QName id, final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
         final ImmutableMap<QName, Object> keyValues = ImmutableMap.<QName, Object>of(
                         AFI_QNAME, BindingReflections.findQName(afi),
                         SAFI_QNAME, BindingReflections.findQName(safi));
-        return new NodeIdentifierWithPredicates(Tables.QNAME, keyValues);
+        return new NodeIdentifierWithPredicates(id, keyValues);
+    }
+
+    /**
+     * Creates Yang Instance Identifier path argument from supplied {@link TablesKey}
+     *
+     * @param id QNAME representing node
+     * @param k Tables key representing table.
+     * @return NodeIdentifierWithPredicates of 'id' for specified AFI, SAFI combination.
+     */
+    public static NodeIdentifierWithPredicates toYangKey(final QName id, final TablesKey k) {
+        return toYangKey(id, k.getAfi(), k.getSafi());
     }
 
     /**
