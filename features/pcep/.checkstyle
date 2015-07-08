@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<fileset-config file-format-version="1.2.0" simple-config="false" sync-formatter="false">
+  <local-check-config name="maven-checkstyle-plugin default" location="jar:file:/home/odl/.m2/repository/org/opendaylight/odlparent/checkstyle/0.1.0-SNAPSHOT/checkstyle-0.1.0-SNAPSHOT.jar!/odl_checks.xml" type="remote" description="maven-checkstyle-plugin configuration default">
+    <property name="checkstyle.cache.file" value="${project_loc}/target/checkstyle-cachefile"/>
+    <property name="checkstyle.header.file" value="/home/odl/bgp0.5.0/bgpcep/features/pcep/target/checkstyle-header-default.txt"/>
+  </local-check-config>
+  <fileset name="java-sources-default" enabled="true" check-config-name="maven-checkstyle-plugin default" local="true">
+    <file-match-pattern match-pattern="src/main/java.*\.java" include-pattern="true"/>
+    <file-match-pattern match-pattern="src/main/java.*org/opendaylight/yang/gen/.*" include-pattern="false"/>
+    <file-match-pattern match-pattern="src/main/java.*.*config/yang/.*" include-pattern="false"/>
+    <file-match-pattern match-pattern="src/main/resources.*\.properties" include-pattern="true"/>
+    <file-match-pattern match-pattern="target/generated-resources/script.*\.properties" include-pattern="true"/>
+    <file-match-pattern match-pattern="src/test/resources.*\.properties" include-pattern="true"/>
+  </fileset>
+</fileset-config>
