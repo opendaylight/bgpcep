@@ -1,13 +1,18 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import org.junit.Test;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.SupportedTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -27,13 +32,27 @@ public class RibSupportUtilsTest {
     }
 
     @Test
-    public void test() {
-        final Class afi = Ipv4AddressFamily.class;
-        final Class safi = UnicastSubsequentAddressFamily.class;
+    public void testYangTablesKey() {
+        final Class<? extends AddressFamily> afi = Ipv4AddressFamily.class;
+        final Class<? extends SubsequentAddressFamily> safi = UnicastSubsequentAddressFamily.class;
         final TablesKey k = new TablesKey(afi, safi);
         final NodeIdentifierWithPredicates p = RibSupportUtils.toYangTablesKey(k);
         final Map<QName, Object> m = p.getKeyValues();
         assertFalse(m.isEmpty());
+        assertEquals(Tables.QNAME, p.getNodeType());
+        assertTrue(m.containsValue(BindingReflections.findQName(afi)));
+        assertTrue(m.containsValue(BindingReflections.findQName(safi)));
+    }
+
+    @Test
+    public void testYangKey() {
+        final Class<? extends AddressFamily> afi = Ipv4AddressFamily.class;
+        final Class<? extends SubsequentAddressFamily> safi = UnicastSubsequentAddressFamily.class;
+        final TablesKey k = new TablesKey(afi, safi);
+        final NodeIdentifierWithPredicates p = RibSupportUtils.toYangKey(SupportedTables.QNAME, k);
+        final Map<QName, Object> m = p.getKeyValues();
+        assertFalse(m.isEmpty());
+        assertEquals(SupportedTables.QNAME, p.getNodeType());
         assertTrue(m.containsValue(BindingReflections.findQName(afi)));
         assertTrue(m.containsValue(BindingReflections.findQName(safi)));
     }
