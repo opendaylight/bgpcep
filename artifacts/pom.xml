@@ -40,6 +40,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-labeled-unicast</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>bgp-linkstate</artifactId>
                 <version>${project.version}</version>
             </dependency>
