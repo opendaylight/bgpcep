@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_a848fc87",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-08T10:02:00Z",
+      "side": 1,
+      "message": "Use new AS path format here.",
+      "range": {
+        "startLine": 260,
+        "startChar": 28,
+        "endLine": 260,
+        "endChar": 37
+      },
+      "revId": "089aac6eb6dd7782cb530dd46d45cef8cdd5d611",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_88450072",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-08T10:02:00Z",
+      "side": 1,
+      "message": "Use new AS path format here.",
+      "range": {
+        "startLine": 269,
+        "startChar": 26,
+        "endLine": 269,
+        "endChar": 41
+      },
+      "revId": "089aac6eb6dd7782cb530dd46d45cef8cdd5d611",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_e84ef495",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-08T10:02:00Z",
+      "side": 1,
+      "message": "Use new AS path format here.",
+      "range": {
+        "startLine": 288,
+        "startChar": 21,
+        "endLine": 288,
+        "endChar": 33
+      },
+      "revId": "089aac6eb6dd7782cb530dd46d45cef8cdd5d611",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_287dccb1",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-08T10:02:00Z",
+      "side": 1,
+      "message": "Use new AS path format here.",
+      "range": {
+        "startLine": 301,
+        "startChar": 21,
+        "endLine": 301,
+        "endChar": 38
+      },
+      "revId": "089aac6eb6dd7782cb530dd46d45cef8cdd5d611",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
