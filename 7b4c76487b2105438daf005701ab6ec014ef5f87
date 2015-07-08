@@ -70,6 +70,24 @@
     },
     {
       "key": {
+        "uuid": "7a7fa997_c8ef7886",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/AbstractPCEPSessionNegotiator.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-08T08:14:59Z",
+      "side": 1,
+      "message": "It is a bug. The break statement should be there.",
+      "parentUuid": "7a7fa997_58e33d05",
+      "revId": "7b4c76487b2105438daf005701ab6ec014ef5f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a7fa997_38e8c1e1",
         "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/SessionNegotiatorImpl.java",
         "patchSetId": 6
