@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
@@ -31,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.AdjRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.AdjRibOut;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.EffectiveRibIn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.SupportedTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes;
@@ -44,7 +46,9 @@ import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableMapNodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,16 +59,18 @@ import org.slf4j.LoggerFactory;
 @NotThreadSafe
 final class AdjRibInWriter {
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibInWriter.class);
-
-    private static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_FALSE = ImmutableNodes.leafNode(QName.create(Attributes.QNAME, "uptodate"), Boolean.FALSE);
+    @VisibleForTesting
+    static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_FALSE = ImmutableNodes.leafNode(QName.create(Attributes.QNAME, "uptodate"), Boolean.FALSE);
     private static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_TRUE = ImmutableNodes.leafNode(ATTRIBUTES_UPTODATE_FALSE.getNodeType(), Boolean.TRUE);
-    private static final QName PEER_ID_QNAME = QName.cachedReference(QName.create(Peer.QNAME, "peer-id"));
+    @VisibleForTesting
+    static final QName PEER_ID_QNAME = QName.cachedReference(QName.create(Peer.QNAME, "peer-id"));
     private static final QName PEER_ROLE_QNAME = QName.cachedReference(QName.create(Peer.QNAME, "peer-role"));
     private static final NodeIdentifier ADJRIBIN = new NodeIdentifier(AdjRibIn.QNAME);
     private static final NodeIdentifier ADJRIBOUT = new NodeIdentifier(AdjRibOut.QNAME);
     private static final NodeIdentifier EFFRIBIN = new NodeIdentifier(EffectiveRibIn.QNAME);
     private static final NodeIdentifier PEER_ID = new NodeIdentifier(PEER_ID_QNAME);
     private static final NodeIdentifier PEER_ROLE = new NodeIdentifier(PEER_ROLE_QNAME);
+    private static final NodeIdentifier PEER_TABLES = new NodeIdentifier(SupportedTables.QNAME);
     private static final NodeIdentifier TABLES = new NodeIdentifier(Tables.QNAME);
 
     // FIXME: is there a utility method to construct this?
@@ -128,7 +134,7 @@ final class AdjRibInWriter {
 
         final YangInstanceIdentifier newPeerPath;
         if (!newPeerId.equals(this.peerId)) {
-            newPeerPath = this.createEmptyPeerStructure(newPeerId, isAppPeer, tx);
+            newPeerPath = createEmptyPeerStructure(newPeerId, isAppPeer, tx);
         } else {
             newPeerPath = this.peerPath;
 
@@ -154,9 +160,14 @@ final class AdjRibInWriter {
                 }
                 // install tables for adj-ribs-out (we do not need TableContext for that
                 if (!isAppPeer) {
+                    final NodeIdentifierWithPredicates supTablesKey = RibSupportUtils.toYangKey(SupportedTables.QNAME, k);
+                    final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> tt = Builders.mapEntryBuilder().withNodeIdentifier(supTablesKey);
+                    for (final Entry<QName, Object> e : supTablesKey.getKeyValues().entrySet()) {
+                        tt.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
+                    }
+                    tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath.node(PEER_TABLES).node(supTablesKey), tt.build());
                     rs.clearTable(tx, newPeerPath.node(EMPTY_ADJRIBOUT.getIdentifier()).node(TABLES).node(key));
                 }
-
                 // We will use table keys very often, make sure they are optimized
                 final InstanceIdentifierBuilder idb = YangInstanceIdentifier.builder(newPeerPath.node(EMPTY_ADJRIBIN.getIdentifier()).node(TABLES));
                 idb.nodeWithKey(key.getNodeType(), key.getKeyValues());
@@ -184,18 +195,24 @@ final class AdjRibInWriter {
         final NodeIdentifierWithPredicates peerKey = IdentifierUtils.domPeerId(newPeerId);
         final YangInstanceIdentifier newPeerPath = this.ribPath.node(Peer.QNAME).node(peerKey);
 
+        tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath, peerSkeleton(peerKey, newPeerId.getValue(), isAppPeer));
+        LOG.debug("New peer {} structure installed.", newPeerPath);
+        return newPeerPath;
+    }
+
+    @VisibleForTesting
+    MapEntryNode peerSkeleton(final NodeIdentifierWithPredicates peerKey, final String peerId, final boolean isAppPeer) {
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> pb = Builders.mapEntryBuilder();
         pb.withNodeIdentifier(peerKey);
-        pb.withChild(ImmutableNodes.leafNode(PEER_ID, newPeerId.getValue()));
+        pb.withChild(ImmutableNodes.leafNode(PEER_ID, peerId));
         pb.withChild(ImmutableNodes.leafNode(PEER_ROLE, this.role));
+        pb.withChild(ImmutableMapNodeBuilder.create().withNodeIdentifier(PEER_TABLES).build());
         pb.withChild(EMPTY_ADJRIBIN);
         pb.withChild(EMPTY_EFFRIBIN);
         if (!isAppPeer) {
             pb.withChild(EMPTY_ADJRIBOUT);
         }
-        tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath, pb.build());
-        LOG.debug("New peer {} structure installed.", newPeerPath);
-        return newPeerPath;
+        return pb.build();
     }
 
     /**
