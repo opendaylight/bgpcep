@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_8c518d10",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AttributeOperations.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-09T07:42:27Z",
+      "side": 1,
+      "message": "Is this necessary?",
+      "range": {
+        "startLine": 170,
+        "startChar": 51,
+        "endLine": 170,
+        "endChar": 117
+      },
+      "revId": "7dc5d1dd5f0dc13f91116f99c60bd6a9ebef0308",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_0c3d7dbb",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-09T07:42:27Z",
+      "side": 1,
+      "message": "OrderedLeafSetNode?",
+      "range": {
+        "startLine": 262,
+        "startChar": 41,
+        "endLine": 262,
+        "endChar": 52
+      },
+      "revId": "7dc5d1dd5f0dc13f91116f99c60bd6a9ebef0308",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
