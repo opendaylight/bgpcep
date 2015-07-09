@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a7fa997_0c649de3",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AttributeOperations.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-07-09T07:54:43Z",
+      "side": 1,
+      "message": "It doesn\u0027t have to be there, but it\u0027s also in base version on line 201. I\u0027m not sure if it should be there or not.",
+      "parentUuid": "7a7fa997_8c518d10",
+      "range": {
+        "startLine": 170,
+        "startChar": 51,
+        "endLine": 170,
+        "endChar": 117
+      },
+      "revId": "7dc5d1dd5f0dc13f91116f99c60bd6a9ebef0308",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a7fa997_0c3d7dbb",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
         "patchSetId": 12
@@ -36,6 +60,30 @@
       "writtenOn": "2015-07-09T07:42:27Z",
       "side": 1,
       "message": "OrderedLeafSetNode?",
+      "range": {
+        "startLine": 262,
+        "startChar": 41,
+        "endLine": 262,
+        "endChar": 52
+      },
+      "revId": "7dc5d1dd5f0dc13f91116f99c60bd6a9ebef0308",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_6c9c31c1",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-07-09T07:54:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a7fa997_0c3d7dbb",
       "range": {
         "startLine": 262,
         "startChar": 41,
