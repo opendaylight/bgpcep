@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_52ec6e8f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathSelector.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-10T14:43:29Z",
+      "side": 1,
+      "message": "Can you move this to separate commit please, so that it can  be cherry-picked to Lithium. Along with the test.",
+      "revId": "5079994bf119a865270090b32003051322ab561f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
