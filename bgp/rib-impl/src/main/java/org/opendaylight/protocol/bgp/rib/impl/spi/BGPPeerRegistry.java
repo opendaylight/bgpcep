@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
@@ -19,6 +20,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
  * IP address is uses as a key for configured peers. TODO Is IP sufficient ID for peers ?
  */
 public interface BGPPeerRegistry extends AutoCloseable {
+
+    /**
+     * Add RIB - sets up the local RIB ID and ASN
+     *
+     * @param RIB ID
+     * @param AS Number
+     */
+    void addRib(Ipv4Address bgpRibId, AsNumber localAs);
 
     /**
      * Add configured peer, its IP address and preferences. To be used when a BGP session is established.
@@ -55,8 +64,6 @@ public interface BGPPeerRegistry extends AutoCloseable {
      * Get configured peer after BGP session was successfully established. Called by negotiators.
      *
      * @param ip address of remote peer
-     * @param peerId - peer's BGP ID
-     * @param ourId - our BGP ID
      * @param openObj - the BGP Open message
      * @param inbound - is this an inbound session?
      * @return configured Peer as BGP listener
@@ -64,7 +71,7 @@ public interface BGPPeerRegistry extends AutoCloseable {
      * @throws BGPDocumentedException if session establishment cannot be finished successfully
      * @throws java.lang.IllegalStateException if there is no peer configured for provided ip address
      */
-    BGPSessionListener getPeer(IpAddress ip, Ipv4Address peerId, Ipv4Address ourId, Open openObj, boolean inbound) throws BGPDocumentedException;
+    BGPSessionListener getPeer(IpAddress ip, Open openObj, boolean inbound) throws BGPDocumentedException;
 
     /**
      * @param ip address of remote peer

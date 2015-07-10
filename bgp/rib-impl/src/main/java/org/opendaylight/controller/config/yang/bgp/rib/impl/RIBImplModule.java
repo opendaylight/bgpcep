@@ -21,6 +21,7 @@ import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
+import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
@@ -62,6 +63,7 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
             getBgpDispatcherDependency(), getTcpReconnectStrategyDependency(), getCodecTreeFactoryDependency(), getSessionReconnectStrategyDependency(),
             getDataProviderDependency(), getDomDataProviderDependency(), getLocalTableDependency(), classLoadingStrategy());
         registerSchemaContextListener(rib);
+        StrictBGPPeerRegistry.GLOBAL.addRib(getBgpRibId(), new AsNumber(getLocalAs()));
         return rib;
     }
 

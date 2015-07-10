@@ -7,6 +7,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
@@ -50,9 +51,9 @@ public class StrictBgpPeerRegistryModule extends org.opendaylight.controller.con
         }
 
         @Override
-        public BGPSessionListener getPeer(final IpAddress ip, final Ipv4Address sourceId, final Ipv4Address remoteId, final Open openObj, final boolean inbound)
+        public BGPSessionListener getPeer(final IpAddress ip, final Open openObj, final boolean inbound)
                 throws BGPDocumentedException {
-            return this.global.getPeer(ip, sourceId, remoteId, openObj, inbound);
+            return this.global.getPeer(ip, openObj, inbound);
         }
 
         @Override
@@ -73,6 +74,11 @@ public class StrictBgpPeerRegistryModule extends org.opendaylight.controller.con
         @Override
         public void addPeer(final IpAddress ip, final ReusableBGPPeer peer, final BGPSessionPreferences preferences) {
             this.global.addPeer(ip, peer, preferences);
+        }
+
+        @Override
+        public void addRib(final Ipv4Address getBgpId, final AsNumber localAs) {
+            this.global.addRib(getBgpId, localAs);
         }
 
         @Override

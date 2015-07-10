@@ -47,7 +47,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapability;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,15 +69,29 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     @GuardedBy("this")
     private final Map<IpAddress, BGPSessionPreferences> peerPreferences = Maps.newHashMap();
 
+    private AsNumber localAs;
+    private Ipv4Address bgpRibId;
+
+    public synchronized void addRib(final Ipv4Address bgpRibId, final AsNumber localAs) {
+        Preconditions.checkNotNull(bgpRibId);
+        Preconditions.checkNotNull(localAs);
+        this.bgpRibId = bgpRibId;
+        this.localAs = localAs;
+        LOG.warn("calling addRib for {} {}", bgpRibId, localAs);
+    }
+
     @Override
     public synchronized void addPeer(final IpAddress ip, final ReusableBGPPeer peer, final BGPSessionPreferences preferences) {
+        LOG.warn("calling addPeer for {}", ip);
         Preconditions.checkNotNull(ip);
         Preconditions.checkArgument(!this.peers.containsKey(ip), "Peer for %s already present", ip);
         this.peers.put(ip, Preconditions.checkNotNull(peer));
+        LOG.warn("put peer");
         Preconditions.checkNotNull(preferences.getMyAs());
         Preconditions.checkNotNull(preferences.getHoldTime());
         Preconditions.checkNotNull(preferences.getParams());
         Preconditions.checkNotNull(preferences.getBgpId());
+        LOG.warn("checked");
         this.peerPreferences.put(ip, preferences);
     }
 
@@ -105,11 +118,8 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     }
 
     @Override
-    public synchronized BGPSessionListener getPeer(final IpAddress ip, final Ipv4Address peerId,
-        final Ipv4Address ourId, final Open openObj, final boolean inbound) throws BGPDocumentedException {
+    public synchronized BGPSessionListener getPeer(final IpAddress ip, final Open openObj, final boolean inbound) throws BGPDocumentedException {
         Preconditions.checkNotNull(ip);
-        Preconditions.checkNotNull(peerId);
-        Preconditions.checkNotNull(ourId);
         Preconditions.checkNotNull(openObj);
 
         checkPeerConfigured(ip);
@@ -117,10 +127,24 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         final AsNumber asNumber = AsNumberUtil.advertizedAsNumber(openObj);
         final BGPSessionPreferences localPref = getPeerPreferences(ip);
 
-        final BGPSessionId currentConnection = new BGPSessionId(ourId, peerId, asNumber);
         final BGPSessionListener p = this.peers.get(ip);
 
         final BGPSessionId previousConnection = this.sessionIds.get(ip);
+
+        final Ipv4Address sourceId, remoteId;
+        if (inbound) {
+            sourceId = openObj.getBgpIdentifier();
+            remoteId = this.bgpRibId;
+        } else {
+            sourceId = this.bgpRibId;
+            remoteId = openObj.getBgpIdentifier();
+        }
+
+        final BGPSessionId currentConnection = new BGPSessionId(sourceId, remoteId, asNumber);
+
+        LOG.warn("calling getPeer for {}", ip);
+        LOG.warn("local AS {}", this.localAs);
+        LOG.warn("BGP RIB ID {}", this.bgpRibId);
 
         if (previousConnection != null) {
 
@@ -160,15 +184,17 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
                 return this.peers.get(ip);
             // Session reestablished with same source bgp id, dropping current as duplicate
             } else {
-                LOG.warn("BGP session from %s to %s has to be dropped. Same session already present", peerId, ourId);
+                LOG.warn("BGP session from %s to %s has to be dropped. Same session already present", sourceId, remoteId);
                 throw new BGPDocumentedException(
                     String.format("BGP session with %s initiated %s has to be dropped. Same session already present",
                         ip, currentConnection),
                         BGPError.CEASE);
             }
         } else {
+            LOG.warn("no existing session");
+
             //https://tools.ietf.org/html/rfc6286#section-2.2
-            if (openObj.getBgpIdentifier() != null && openObj.getBgpIdentifier().equals(localPref.getBgpId())) {
+            if (openObj.getBgpIdentifier() != null && openObj.getBgpIdentifier().equals(this.bgpRibId)) {
                 LOG.warn("Remote and local BGP Identifiers are the same: {}", openObj.getBgpIdentifier());
                 throw new BGPDocumentedException("Remote and local BGP Identifiers are the same.", BGPError.BAD_BGP_ID);
             }
@@ -185,8 +211,12 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
             } else {
                 throw new BGPDocumentedException("Open message unacceptable. Check the configuration of BGP speaker.", BGPError.UNSPECIFIC_OPEN_ERROR);
             }
-            final AsNumber expectedRemoteAs = localPref.getExpectedRemoteAs();
-            if (expectedRemoteAs != null && !expectedRemoteAs.equals(asNumber)) {
+            AsNumber expectedRemoteAs = localPref.getExpectedRemoteAs();
+            if (expectedRemoteAs == null)
+            {
+                expectedRemoteAs = this.localAs;
+            }
+            if (!expectedRemoteAs.equals(asNumber)) {
                 LOG.warn("Unexpected remote AS number. Expecting {}, got {}", expectedRemoteAs, asNumber);
                 throw new BGPDocumentedException("Peer AS number mismatch", BGPError.BAD_PEER_AS);
             }

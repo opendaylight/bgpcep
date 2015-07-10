@@ -70,6 +70,7 @@ public class BGPDispatcherImplTest {
     public void setUp() throws BGPDocumentedException {
         final EventLoopGroup group = new NioEventLoopGroup();
         this.registry = new StrictBGPPeerRegistry();
+        this.registry.addRib(new Ipv4Address(ADDRESS.getAddress().getHostAddress()), AS_NUMBER);
         this.registry.addPeer(new IpAddress(new Ipv4Address(CLIENT_ADDRESS.getAddress().getHostAddress())),
                 new SimpleSessionListener(), createPreferences(CLIENT_ADDRESS));
         this.registry.addPeer(new IpAddress(new Ipv4Address(ADDRESS.getAddress().getHostAddress())),

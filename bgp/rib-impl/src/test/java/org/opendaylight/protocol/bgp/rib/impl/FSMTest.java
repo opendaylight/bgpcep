@@ -68,6 +68,9 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class FSMTest {
 
+    private final Ipv4Address ourId = new Ipv4Address("1.1.1.1");
+    private final Ipv4Address peerId = new Ipv4Address("1.1.1.2");
+    private final AsNumber ourAs = new AsNumber(1234L);
 
     @Mock
     private EventLoop eventLoop;
@@ -107,14 +110,15 @@ public class FSMTest {
 
 
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
-        final BGPSessionPreferences prefs = new BGPSessionPreferences(new AsNumber(30L), (short) 3, new Ipv4Address("1.1.1.1"), tlvs, null);
+        final BGPSessionPreferences prefs = new BGPSessionPreferences(new AsNumber(30L), (short) 3, this.ourId, tlvs, null);
 
         final ChannelFuture f = mock(ChannelFuture.class);
         doReturn(null).when(f).addListener(any(GenericFutureListener.class));
 
         final InetAddress peerAddress = InetAddress.getByName("1.1.1.2");
         final BGPPeerRegistry peerRegistry = new StrictBGPPeerRegistry();
-        peerRegistry.addPeer(new IpAddress(new Ipv4Address(peerAddress.getHostAddress())), new SimpleSessionListener(), prefs);
+        peerRegistry.addRib(this.ourId, this.ourAs);
+        peerRegistry.addPeer(new IpAddress(this.peerId), new SimpleSessionListener(), prefs);
 
         this.clientSession = new BGPSessionNegotiator(new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE), this.speakerListener, peerRegistry, false);
         doAnswer(new Answer<Object>() {
@@ -135,7 +139,7 @@ public class FSMTest {
         doReturn(this.pipeline).when(this.pipeline).addLast(any(ChannelHandler.class));
         doReturn(mock(ChannelFuture.class)).when(this.speakerListener).close();
         this.classicOpen = new OpenBuilder().setMyAsNumber(30).setHoldTimer(3).setVersion(new ProtocolVersion((short) 4)).setBgpParameters(
-            tlvs).setBgpIdentifier(new Ipv4Address("1.1.1.2")).build();
+            tlvs).setBgpIdentifier(this.peerId).build();
     }
 
     @Test
@@ -165,7 +169,7 @@ public class FSMTest {
         this.clientSession.channelActive(null);
         assertEquals(1, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(0) instanceof Open);
-        this.clientSession.handleMessage(new OpenBuilder().setMyAsNumber(30).setHoldTimer(1).setVersion(new ProtocolVersion((short) 4)).build());
+        this.clientSession.handleMessage(new OpenBuilder().setMyAsNumber(30).setHoldTimer(1).setVersion(new ProtocolVersion((short) 4)).setBgpIdentifier(this.peerId).build());
         assertEquals(2, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(1) instanceof Notify);
         final Notification m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);
@@ -186,7 +190,7 @@ public class FSMTest {
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
         // Open Message without advertised four-octet AS Number capability
         this.clientSession.handleMessage(new OpenBuilder().setMyAsNumber(30).setHoldTimer(1).setVersion(
-            new ProtocolVersion((short) 4)).setBgpParameters(tlvs).setBgpIdentifier(new Ipv4Address("1.1.1.2")).build());
+            new ProtocolVersion((short) 4)).setBgpParameters(tlvs).setBgpIdentifier(this.peerId).build());
         assertEquals(2, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(1) instanceof Notify);
         final Notification m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);
@@ -200,7 +204,7 @@ public class FSMTest {
         this.clientSession.handleMessage(this.classicOpen);
         this.clientSession.handleMessage(new KeepaliveBuilder().build());
         assertEquals(this.clientSession.getState(), BGPSessionNegotiator.State.FINISHED);
-        this.clientSession.handleMessage(new OpenBuilder().setMyAsNumber(30).setHoldTimer(3).setVersion(new ProtocolVersion((short) 4)).build());
+        this.clientSession.handleMessage(new OpenBuilder().setMyAsNumber(30).setHoldTimer(3).setVersion(new ProtocolVersion((short) 4)).setBgpIdentifier(this.peerId).build());
         assertEquals(3, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(2) instanceof Notify);
         final Notification m = this.receivedMsgs.get(2);
@@ -214,7 +218,7 @@ public class FSMTest {
         assertEquals(1, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(0) instanceof Open);
 
-        this.clientSession.handleMessage(new OpenBuilder(this.classicOpen).setBgpIdentifier(new Ipv4Address("1.1.1.1")).build());
+        this.clientSession.handleMessage(new OpenBuilder(this.classicOpen).setBgpIdentifier(this.ourId).build());
         assertEquals(2, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(1) instanceof Notify);
         final Notification m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);
