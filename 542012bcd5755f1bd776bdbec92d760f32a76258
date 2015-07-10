@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a7fa997_cf53f737",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathSegmentParser.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-07-10T09:12:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a7fa997_2f45cb6f",
+      "range": {
+        "startLine": 108,
+        "startChar": 8,
+        "endLine": 108,
+        "endChar": 56
+      },
+      "revId": "542012bcd5755f1bd776bdbec92d760f32a76258",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a7fa997_4f484787",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AttributeOperations.java",
         "patchSetId": 15
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "7a7fa997_6f32e311",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AttributeOperations.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-07-10T09:12:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a7fa997_4f484787",
+      "revId": "542012bcd5755f1bd776bdbec92d760f32a76258",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a7fa997_0f5a4f50",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
         "patchSetId": 15
@@ -53,6 +95,24 @@
       "writtenOn": "2015-07-10T08:42:45Z",
       "side": 1,
       "message": "same methods to the letter :-)",
+      "revId": "542012bcd5755f1bd776bdbec92d760f32a76258",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_8f35fff8",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-07-10T09:12:29Z",
+      "side": 1,
+      "message": "there are not. One significant letter ;). \nline 253 getAsSe-t-()\nline 267 getAsSe-q-()\nbut segment type could be passed as parameter too.",
+      "parentUuid": "7a7fa997_0f5a4f50",
       "revId": "542012bcd5755f1bd776bdbec92d760f32a76258",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
