@@ -158,6 +158,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
                     sendErrorMessage(PCEPErrors.STARTTLS_TIMER_EXP);
                     negotiationFailed(new TimeoutException("StartTLSWait timer expired"));
                     AbstractPCEPSessionNegotiator.this.state = State.FINISHED;
+                    break;
                 case KEEP_WAIT:
                     sendErrorMessage(PCEPErrors.NO_MSG_BEFORE_EXP_KEEPWAIT);
                     negotiationFailed(new TimeoutException("KeepWait timer expired"));
