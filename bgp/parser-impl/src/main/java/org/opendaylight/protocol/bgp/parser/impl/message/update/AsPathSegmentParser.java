@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType.AS_SEQUENCE;
 import static org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType.AS_SET;
-
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,6 +73,14 @@ public final class AsPathSegmentParser {
         return (coll.isEmpty()) ? Collections.<AsSequence>emptyList() : coll;
     }
 
+    static List<AsNumber> parseAsSequenceToAsNumberList(final ReferenceCache refCache, final int count, final ByteBuf buffer) {
+        final List<AsNumber> coll = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            coll.add(refCache.getSharedReference(new AsNumber(buffer.readUnsignedInt())));
+        }
+        return (coll.isEmpty()) ? Collections.<AsNumber>emptyList() : coll;
+    }
+
     static List<AsNumber> parseAsSet(final ReferenceCache refCache, final int count, final ByteBuf buffer) {
         final List<AsNumber> coll = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
@@ -91,6 +98,17 @@ public final class AsPathSegmentParser {
         byteAggregator.writeByte(aset.getAsSet().size());
         for (final AsNumber asNumber : aset.getAsSet()) {
             byteAggregator.writeInt(asNumber.getValue().intValue());
+        }
+    }
+
+    static void serializeAsList(final List<AsNumber> asList, final SegmentType type, final ByteBuf byteAggregator) {
+        if (asList == null) {
+            return;
+        }
+        byteAggregator.writeByte(serializeType(type));
+        byteAggregator.writeByte(asList.size());
+        for (final AsNumber asNumber : asList) {
+            byteAggregator.writeInt( asNumber.getValue().intValue());
         }
     }
 
