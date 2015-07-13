@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a7fa997_6683e856",
+        "filename": "bgp/concepts/src/main/yang/bgp-types.yang",
+        "patchSetId": 18
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-07-13T09:59:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a7fa997_1ba05142",
+      "revId": "210a04c4f732fa4f63f9db07153240c6f2d0a9bb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a7fa997_fb8475b2",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathAttributeParser.java",
         "patchSetId": 18
@@ -30,6 +48,24 @@
       "writtenOn": "2015-07-13T07:39:10Z",
       "side": 1,
       "message": "Parse and serialize to/from a new format only.",
+      "revId": "210a04c4f732fa4f63f9db07153240c6f2d0a9bb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_86864464",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-07-13T09:59:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a7fa997_fb8475b2",
       "revId": "210a04c4f732fa4f63f9db07153240c6f2d0a9bb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
