@@ -60,7 +60,7 @@ final class BestPathSelector {
              * are better.
              */
             final BestPathState state = new BestPathState(attrs);
-            if (this.bestOriginatorId == null || !selectPath(originatorId, state)) {
+            if (this.bestOriginatorId == null || !isExistingPathBetter(originatorId, state)) {
                 LOG.trace("Selecting path from router {}", routerId);
                 this.bestOriginatorId = originatorId;
                 this.bestRouterId = routerId;
@@ -80,7 +80,7 @@ final class BestPathSelector {
      * @param state attributes of the new route
      * @return true if the existing path is better, false if the new path is better
      */
-    private boolean selectPath(@Nonnull final UnsignedInteger originatorId, @Nonnull final BestPathState state) {
+    private boolean isExistingPathBetter(@Nonnull final UnsignedInteger originatorId, @Nonnull final BestPathState state) {
         // 1. prefer path with accessible nexthop
         // - we assume that all nexthops are accessible
 
@@ -99,6 +99,9 @@ final class BestPathSelector {
         if (state.getLocalPref() != null && state.getLocalPref() > this.bestState.getLocalPref()) {
             return false;
         }
+        if (state.getLocalPref() != null && state.getLocalPref() < this.bestState.getLocalPref()) {
+            return true;
+        }
 
         // 3. prefer learned path
         // - we assume that all paths are learned
@@ -116,6 +119,8 @@ final class BestPathSelector {
 
             // This trick relies on the order in which the values are declared in the model.
             if (no.ordinal() < bo.ordinal()) {
+                return false;
+            } else {
                 return true;
             }
         }
@@ -137,6 +142,8 @@ final class BestPathSelector {
                 final Long bmed = this.bestState.getMultiExitDisc();
                 final Long nmed = state.getMultiExitDisc();
                 if (nmed < bmed) {
+                    return false;
+                } else {
                     return true;
                 }
             }
