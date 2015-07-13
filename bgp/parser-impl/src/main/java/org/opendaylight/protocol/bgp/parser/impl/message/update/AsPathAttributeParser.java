@@ -28,13 +28,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.AsPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.as.path.SegmentsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.AListCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.AListCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.ASetCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.ASetCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.AListBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequence;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.set._case.ASetBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,14 +68,12 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
             }
             final int count = buffer.readUnsignedByte();
 
+            final List<AsNumber> asList = AsPathSegmentParser.parseAsSegment(refCache, count, buffer.readSlice(count * AsPathSegmentParser.AS_NUMBER_LENGTH));
             if (segmentType == SegmentType.AS_SEQUENCE) {
-                final List<AsSequence> numbers = AsPathSegmentParser.parseAsSequence(refCache, count, buffer.readSlice(count * AsPathSegmentParser.AS_NUMBER_LENGTH));
-                ases.add(new SegmentsBuilder().setCSegment(
-                    new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(numbers).build()).build()).build());
+                ases.add(new SegmentsBuilder().setAsSequence(asList).build());
                 isSequence = true;
             } else {
-                final List<AsNumber> list = AsPathSegmentParser.parseAsSet(refCache, count, buffer.readSlice(count * AsPathSegmentParser.AS_NUMBER_LENGTH));
-                ases.add(new SegmentsBuilder().setCSegment(new ASetCaseBuilder().setASet(new ASetBuilder().setAsSet(list).build()).build()).build());
+                ases.add(new SegmentsBuilder().setAsSet(asList).build());
             }
         }
         if (!isSequence) {
@@ -109,14 +100,12 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
         final ByteBuf segmentsBuffer = Unpooled.buffer();
         if (asPath.getSegments() != null) {
             for (final Segments segments : asPath.getSegments()) {
-                if (segments.getCSegment() instanceof AListCase) {
-                    final AListCase listCase = (AListCase) segments.getCSegment();
-                    AsPathSegmentParser.serializeAsSequence(listCase, segmentsBuffer);
-                } else if (segments.getCSegment() instanceof ASetCase) {
-                    final ASetCase set = (ASetCase) segments.getCSegment();
-                    AsPathSegmentParser.serializeAsSet(set, segmentsBuffer);
+                if (segments.getAsSequence() != null) {
+                    AsPathSegmentParser.serializeAsList(segments.getAsSequence(), SegmentType.AS_SEQUENCE, segmentsBuffer);
+                } else if (segments.getAsSet() != null) {
+                    AsPathSegmentParser.serializeAsList(segments.getAsSet(), SegmentType.AS_SET, segmentsBuffer);
                 } else {
-                    LOG.warn("Segment class is neither AListCase nor ASetCase.");
+                    LOG.warn("Segment doesn't have AsSequence nor AsSet list.");
                 }
             }
         }

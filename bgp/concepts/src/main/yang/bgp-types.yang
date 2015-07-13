@@ -211,6 +211,8 @@ module bgp-types {
     grouping as-path-segment {
         reference "http://tools.ietf.org/html/rfc4271#section-5.1.2";
         choice c-segment {
+        description "This model is obsolete and please use just leaf-lists as-sequence and as-set nested directly under as-path-segment.";
+            status obsolete;
             case a-set-case {
                 container a-set {
                     leaf-list as-set {
@@ -227,6 +229,14 @@ module bgp-types {
                     }
                 }
             }
+        }
+        leaf-list as-sequence {
+            type inet:as-number;
+            ordered-by user;
+            max-elements "255";
+        }
+        leaf-list as-set {
+            type inet:as-number;
         }
     }
 }
