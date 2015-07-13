@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_1ba05142",
+        "filename": "bgp/concepts/src/main/yang/bgp-types.yang",
+        "patchSetId": 18
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-13T07:39:10Z",
+      "side": 1,
+      "message": "Please, add some description, briefly explaining deprecation of this model.",
+      "revId": "210a04c4f732fa4f63f9db07153240c6f2d0a9bb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_fb8475b2",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-13T07:39:10Z",
+      "side": 1,
+      "message": "Parse and serialize to/from a new format only.",
+      "revId": "210a04c4f732fa4f63f9db07153240c6f2d0a9bb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_1bb7f187",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-13T07:39:10Z",
+      "side": 1,
+      "message": "Does it mean the only first (if any) AS_SET is counted to path length?",
+      "range": {
+        "startLine": 215,
+        "startChar": 0,
+        "endLine": 220,
+        "endChar": 13
+      },
+      "revId": "210a04c4f732fa4f63f9db07153240c6f2d0a9bb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_9baa2118",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BestPathState.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-13T07:39:10Z",
+      "side": 1,
+      "message": "AS 0 is reserved.",
+      "range": {
+        "startLine": 227,
+        "startChar": 23,
+        "endLine": 227,
+        "endChar": 31
+      },
+      "revId": "210a04c4f732fa4f63f9db07153240c6f2d0a9bb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
