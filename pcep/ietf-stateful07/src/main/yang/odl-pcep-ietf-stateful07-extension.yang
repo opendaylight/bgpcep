@@ -1,0 +1,58 @@
+module odl-pcep-ietf-stateful07-extension {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:extended";
+    prefix "stateful-ext";
+
+    import odl-pcep-ietf-stateful07 { prefix stateful; revision-date 2013-12-22; }
+
+    organization "Cisco Systems, Inc.";
+    contact "Robert Varga <rovarga@cisco.com>";
+
+    description
+        "This module contains the data model of PCEP extensions defined
+        in draft-ietf-pce-stateful-sync-optimizations-02.
+
+        Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2015-7-14" {
+        description
+            "Initial revision.";
+        reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-sync-optimizations-02";
+    }
+
+    augment "/stateful:stateful-capability-tlv/stateful:stateful" {
+        description "STATEFUL-PCE-CAPABILITY TLV";
+        reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-sync-optimizations-02#section-7";
+
+		container stateful-capability-extension {
+	        leaf flags {
+	            type bits {
+	                bit triggered-initial-sync {
+	                    position 26;
+	                }
+	                bit delta-lsp-sync-capability {
+	                    position 27;
+	                }
+	                bit triggered-resync {
+	                    position 28;
+	                }
+	                bit lsp-instantiation-capability {
+	                    position 29;
+	                }
+	                bit include-db-version {
+	                    position 30;
+	                }
+	                bit lsp-update-capability {
+	                    position 31;
+	                }
+	            }
+	            mandatory true;
+	        }
+	    }
+    }
+}
