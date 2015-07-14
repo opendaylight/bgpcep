@@ -36,7 +36,7 @@ public class Stateful07SessionProposalFactoryTest {
 
     @Test
     public void testStateful07SessionProposalFactory() {
-        final Stateful07SessionProposalFactory sspf = new Stateful07SessionProposalFactory(DEAD_TIMER, KEEP_ALIVE, true, true, true);
+        final Stateful07SessionProposalFactory sspf = new Stateful07SessionProposalFactory(DEAD_TIMER, KEEP_ALIVE, true, true, true, true, true, true, true);
         Assert.assertEquals(DEAD_TIMER, sspf.getDeadTimer());
         Assert.assertEquals(KEEP_ALIVE, sspf.getKeepAlive());
         Assert.assertTrue(sspf.isActive());

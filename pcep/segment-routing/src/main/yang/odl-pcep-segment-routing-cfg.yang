@@ -23,6 +23,11 @@ module odl-pcep-segment-routing-cfg {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision "2015-07-15" {
+        description
+            "Extended SR stateful capabilities.";
+    }
+
     revision "2014-06-09" {
         description
             "Initial revision.";
@@ -46,39 +51,62 @@ module odl-pcep-segment-routing-cfg {
         config:provided-service pcep:pcep-session-proposal-factory;
     }
 
+	grouping sr-stateful-capabilities {
+        leaf dead-timer-value {
+            type uint8;
+            default 120;
+        }
+
+        leaf keep-alive-timer-value {
+            type uint8;
+            default 30;
+        }
+
+        leaf initiated {
+            type boolean;
+            default true;
+        }
+
+        leaf stateful {
+            type boolean;
+            default true;
+        }
+
+        leaf active {
+            type boolean;
+            default true;
+        }
+
+        leaf sr-capable {
+            type boolean;
+            default true;
+        }
+
+        leaf triggered-initial-sync {
+            type boolean;
+            default true;
+        }
+
+        leaf delta-lsp-sync-capability {
+            type boolean;
+            default true;
+        }
+
+        leaf triggered-resync {
+            type boolean;
+            default true;
+        }
+
+        leaf include-db-version {
+            type boolean;
+            default true;
+        }
+	}
+
     augment "/config:modules/config:module/config:configuration" {
         case pcep-session-proposal-factory-sr {
             when "/config:modules/config:module/config:type = 'pcep-session-proposal-factory-sr'";
-
-            leaf dead-timer-value {
-                type uint8;
-                default 120;
-            }
-
-            leaf keep-alive-timer-value {
-                type uint8;
-                default 30;
-            }
-
-            leaf initiated {
-                type boolean;
-                default true;
-            }
-
-            leaf stateful {
-                type boolean;
-                default true;
-            }
-
-            leaf active {
-                type boolean;
-                default true;
-            }
-
-            leaf sr-capable {
-                type boolean;
-                default true;
-            }
+            uses sr-stateful-capabilities;
         }
     }
 }

@@ -45,6 +45,10 @@ public final class Stateful07PCEPSessionProposalFactoryModule extends
         JmxAttributeValidationException.checkNotNull(getInitiated(), VALUE_IS_NOT_SET, initiatedJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getDeadTimerValue(), VALUE_IS_NOT_SET, deadTimerValueJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getKeepAliveTimerValue(), VALUE_IS_NOT_SET, keepAliveTimerValueJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getTriggeredInitialSync(), VALUE_IS_NOT_SET, triggeredInitialSyncJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getTriggeredResync(), VALUE_IS_NOT_SET, triggeredResyncJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getDeltaLspSyncCapability(), VALUE_IS_NOT_SET, deltaLspSyncCapabilityJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getIncludeDbVersion(), VALUE_IS_NOT_SET, includeDbVersionJmxAttribute);
         if (getKeepAliveTimerValue() != 0) {
             JmxAttributeValidationException.checkCondition(getKeepAliveTimerValue() >= 1, "minimum value is 1.",
                     keepAliveTimerValueJmxAttribute);
@@ -55,12 +59,13 @@ public final class Stateful07PCEPSessionProposalFactoryModule extends
         if (getActive() && !getStateful()) {
             setStateful(true);
         }
-        JmxAttributeValidationException.checkNotNull(getStateful(), "value is not set.", statefulJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getStateful(), VALUE_IS_NOT_SET, statefulJmxAttribute);
     }
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final Stateful07SessionProposalFactory inner = new Stateful07SessionProposalFactory(getDeadTimerValue(), getKeepAliveTimerValue(), getStateful(), getActive(), getInitiated());
+        final Stateful07SessionProposalFactory inner = new Stateful07SessionProposalFactory(getDeadTimerValue(), getKeepAliveTimerValue(), getStateful(), getActive(), getInitiated(),
+            getTriggeredInitialSync(), getTriggeredResync(), getDeltaLspSyncCapability(), getIncludeDbVersion());
         return new PCEPSessionProposalFactoryCloseable(inner);
     }
 
