@@ -88,5 +88,17 @@ module odl-pcep-ietf-stateful07-cfg {
             when "/config:modules/config:module/config:type = 'pcep-parser-ietf-initiated00'";
         }
     }
+
+    identity pcep-parser-sync-optimizations {
+        base config:module-type;
+        config:provided-service spi:extension;
+        config:java-name-prefix SyncOperationsPCEPParser;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case pcep-parser-sync-optimizations {
+            when "/config:modules/config:module/config:type = 'pcep-parser-sync-optimizations'";
+        }
+    }
 }
 
