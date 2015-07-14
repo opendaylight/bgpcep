@@ -15,7 +15,7 @@
         <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:spi?module=odl-pcep-spi-cfg&amp;revision=2013-11-15</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:programming:spi?module=odl-programming-spi-cfg&amp;revision=2013-11-15</capability>
     <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful02:cfg?module=odl-pcep-ietf-stateful02-cfg&amp;revision=2014-02-21</capability>
-    <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg?module=odl-pcep-ietf-stateful07-cfg&amp;revision=2014-02-21</capability>
+    <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg?module=odl-pcep-ietf-stateful07-cfg&amp;revision=2015-07-14</capability>
     </required-capabilities>
     <configuration>
 
@@ -42,6 +42,10 @@
                         <type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
                         <name>pcep-parser-ietf-initiated00</name>
                     </extension>
+                    <extension>
+                        <type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
+                        <name>pcep-parser-sync-optimizations</name>
+                    </extension>
 
 
                     <!-- This block is draft-ietf-pce-stateful-pce-02 + draft-crabbe-pce-inititated-pce-00 -->
@@ -65,6 +69,10 @@
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg">prefix:pcep-parser-ietf-initiated00</type>
                     <name>pcep-parser-ietf-initiated00</name>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg">prefix:pcep-parser-sync-optimizations</type>
+                    <name>pcep-parser-sync-optimizations</name>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful02:cfg">prefix:pcep-parser-ietf-stateful02</type>
@@ -166,6 +174,10 @@
                     <instance>
                         <name>pcep-parser-ietf-stateful02</name>
                         <provider>/config/modules/module[name='pcep-parser-ietf-stateful02']/instance[name='pcep-parser-ietf-stateful02']</provider>
+                    </instance>
+                    <instance>
+                        <name>pcep-parser-sync-optimizations</name>
+                        <provider>/config/modules/module[name='pcep-parser-sync-optimizations']/instance[name='pcep-parser-sync-optimizations']</provider>
                     </instance>
                 </service>
                 <service>

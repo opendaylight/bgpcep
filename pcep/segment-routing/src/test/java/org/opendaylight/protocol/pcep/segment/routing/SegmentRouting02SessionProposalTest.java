@@ -30,8 +30,15 @@ public class SegmentRouting02SessionProposalTest {
             .setKeepalive((short) KEEP_ALIVE)
             .setSessionId((short) SESSION_ID)
             .setTlvs(new TlvsBuilder()
-                .addAugmentation(Tlvs1.class, new Tlvs1Builder().setStateful(new StatefulBuilder().addAugmentation(Stateful1.class,
-                        new Stateful1Builder().setInitiation(true).build()).setLspUpdateCapability(true).build()).build())
+                .addAugmentation(Tlvs1.class, new Tlvs1Builder().setStateful(new StatefulBuilder()
+                    .addAugmentation(Stateful1.class, new Stateful1Builder().setInitiation(true).build())
+                    .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Stateful1.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Stateful1Builder()
+                        .setTriggeredInitialSync(true)
+                        .setTriggeredResync(false)
+                        .setDeltaLspSyncCapability(true)
+                        .setIncludeDbVersion(false)
+                        .build())
+                    .setLspUpdateCapability(true).build()).build())
                 .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.Tlvs1.class,
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.Tlvs1Builder()
                         .setSrPceCapability(new SrPceCapabilityBuilder().setMsd((short) 0).build()).build())
@@ -40,13 +47,17 @@ public class SegmentRouting02SessionProposalTest {
 
     @Test
     public void testSegmentRouting02SessionProposalFactory() {
-        final SegmentRoutingSessionProposalFactory sspf = new SegmentRoutingSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE, true, true, true, true);
+        final SegmentRoutingSessionProposalFactory sspf = new SegmentRoutingSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE, true, true, true, true, true, false, true, false);
         Assert.assertEquals(DEAD_TIMER, sspf.getDeadTimer());
         Assert.assertEquals(KEEP_ALIVE, sspf.getKeepAlive());
         Assert.assertTrue(sspf.isActive());
         Assert.assertTrue(sspf.isInstant());
         Assert.assertTrue(sspf.isStateful());
         Assert.assertTrue(sspf.isSegmentRoutingCapable());
+        Assert.assertFalse(sspf.isTriggeredResync());
+        Assert.assertTrue(sspf.isTriggeredSync());
+        Assert.assertTrue(sspf.isDeltaLspSync());
+        Assert.assertFalse(sspf.isIncludeDbVersion());
         Assert.assertEquals(OPEN_MSG, sspf.getSessionProposal(null, SESSION_ID));
     }
 }
