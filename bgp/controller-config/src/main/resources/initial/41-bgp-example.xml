@@ -76,7 +76,7 @@
                     <holdtimer>180</holdtimer>
                     <peer-role>ibgp</peer-role>
                     <rib>
-                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg">prefix:rib</type>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:rib-instance</type>
                         <name>example-bgp-rib</name>
                     </rib>
                     <peer-registry>
