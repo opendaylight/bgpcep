@@ -198,6 +198,36 @@ module pcep-types {
         }
     }
 
+    grouping stateful-pce-capability-tlv {
+        description "STATEFUL-PCE-CAPABILITY TLV";
+        reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-sync-optimizations-02#section-7";
+
+        uses tlv;
+        leaf flags {
+            type bits {
+                bit triggered-initial-sync {
+                    position 26;
+                }
+                bit delta-lsp-sync-capability {
+                    position 27;
+                }
+                bit triggered-resync {
+                    position 28;
+                }
+                bit lsp-instantiation-capability {
+                    position 29;
+                }
+                bit include-db-version {
+                    position 30;
+                }
+                bit lsp-update-capability {
+                    position 31;
+                }
+            }
+            mandatory true;
+        }
+    }
+
     // Objects
     grouping object-header {
         description "Common Object Header";
