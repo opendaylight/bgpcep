@@ -25,11 +25,11 @@ public class SrPCEPSessionProposalFactoryModule extends org.opendaylight.control
 
     private static final Logger LOG = LoggerFactory.getLogger(SrPCEPSessionProposalFactoryModule.class);
 
-    public SrPCEPSessionProposalFactoryModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+    public SrPCEPSessionProposalFactoryModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public SrPCEPSessionProposalFactoryModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, org.opendaylight.controller.config.yang.pcep.sr.cfg.SrPCEPSessionProposalFactoryModule oldModule, java.lang.AutoCloseable oldInstance) {
+    public SrPCEPSessionProposalFactoryModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final org.opendaylight.controller.config.yang.pcep.sr.cfg.SrPCEPSessionProposalFactoryModule oldModule, final java.lang.AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
@@ -39,14 +39,17 @@ public class SrPCEPSessionProposalFactoryModule extends org.opendaylight.control
         JmxAttributeValidationException.checkNotNull(getInitiated(), VALUE_IS_NOT_SET, initiatedJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getDeadTimerValue(), VALUE_IS_NOT_SET, deadTimerValueJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getKeepAliveTimerValue(), VALUE_IS_NOT_SET, keepAliveTimerValueJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getTriggeredInitialSync(), VALUE_IS_NOT_SET, triggeredInitialSyncJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getTriggeredResync(), VALUE_IS_NOT_SET, triggeredResyncJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getDeltaLspSyncCapability(), VALUE_IS_NOT_SET, deltaLspSyncCapabilityJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getIncludeDbVersion(), VALUE_IS_NOT_SET, includeDbVersionJmxAttribute);
         if (getKeepAliveTimerValue() != 0) {
-            JmxAttributeValidationException.checkCondition(getKeepAliveTimerValue() >= 1, "minimum value is 1.",
-                    keepAliveTimerValueJmxAttribute);
+            JmxAttributeValidationException.checkCondition(getKeepAliveTimerValue() >= 1, "minimum value is 1.", keepAliveTimerValueJmxAttribute);
             if (getDeadTimerValue() != 0 && (getDeadTimerValue() / getKeepAliveTimerValue() != DEADTIMER_KEEPALIVE_RATIO)) {
                 LOG.warn("DeadTimerValue should be 4 times greater than KeepAliveTimerValue");
             }
         }
-        if (getActive() && !getStateful()) {
+        if ((getActive() || getTriggeredInitialSync() || getTriggeredResync() || getDeltaLspSyncCapability() || getIncludeDbVersion()) && !getStateful()) {
             setStateful(true);
         }
         JmxAttributeValidationException.checkNotNull(getStateful(), VALUE_IS_NOT_SET, statefulJmxAttribute);
@@ -55,7 +58,8 @@ public class SrPCEPSessionProposalFactoryModule extends org.opendaylight.control
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final SegmentRoutingSessionProposalFactory inner = new SegmentRoutingSessionProposalFactory(getDeadTimerValue(), getKeepAliveTimerValue(), getStateful(), getActive(), getInitiated(), getSrCapable());
+        final SegmentRoutingSessionProposalFactory inner = new SegmentRoutingSessionProposalFactory(getDeadTimerValue(), getKeepAliveTimerValue(), getStateful(), getActive(), getInitiated(), getSrCapable(),
+            getTriggeredInitialSync(), getTriggeredResync(), getDeltaLspSyncCapability(), getIncludeDbVersion());
         return new PCEPSessionProposalFactoryCloseable(inner);
     }
 

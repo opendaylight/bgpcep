@@ -8,9 +8,9 @@
 
 package org.opendaylight.controller.config.yang.pcep.sr.cfg;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.ObjectName;
 import org.junit.Before;
@@ -29,13 +29,13 @@ public class SrPCEPSessionProposalFactoryModuleTest extends AbstractConfigTest {
 
     @Before
     public void setUp() throws Exception {
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new SrPCEPSessionProposalFactoryModuleFactory()));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.mockedContext, new SrPCEPSessionProposalFactoryModuleFactory()));
     }
 
     @Test
     public void testValidationExceptionDeadTimerValueNotSet() throws Exception {
         try {
-            createInstance(null, (short) 100, true, true, true, true);
+            createInstance(null, (short) 100, true, true, true, true, true, true, true, true);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("DeadTimerValue value is not set"));
@@ -45,7 +45,7 @@ public class SrPCEPSessionProposalFactoryModuleTest extends AbstractConfigTest {
     @Test
     public void testValidationExceptionKeepAliveTimerNotSet() throws Exception {
         try {
-            createInstance((short) 200, null, true, true, true, true);
+            createInstance((short) 200, null, true, true, true, true, true, true, true, true);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("KeepAliveTimerValue value is not set"));
@@ -55,7 +55,7 @@ public class SrPCEPSessionProposalFactoryModuleTest extends AbstractConfigTest {
     @Test
     public void testValidationExceptionStatefulNotSet() throws Exception {
         try {
-            createInstance((short) 200, (short) 100, null, false, false, true);
+            createInstance((short) 200, (short) 100, null, false, false, false, false, false, false, false);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("Stateful value is not set"));
@@ -65,7 +65,7 @@ public class SrPCEPSessionProposalFactoryModuleTest extends AbstractConfigTest {
     @Test
     public void testValidationExceptionActiveNotSet() throws Exception {
         try {
-            createInstance((short) 200, (short) 100, true, null, true, true);
+            createInstance((short) 200, (short) 100, true, null, true, true, true, true, true, true);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("Active value is not set"));
@@ -75,7 +75,7 @@ public class SrPCEPSessionProposalFactoryModuleTest extends AbstractConfigTest {
     @Test
     public void testValidationExceptionInstantiatedNotSet() throws Exception {
         try {
-            createInstance((short) 200, (short) 100, true, true, null, true);
+            createInstance((short) 200, (short) 100, true, true, null, true, true, true, true, true);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("Initiated value is not set"));
@@ -85,7 +85,7 @@ public class SrPCEPSessionProposalFactoryModuleTest extends AbstractConfigTest {
     @Test
     public void testValidationExceptionKeepAliveTimerMinValue() throws Exception {
         try {
-            createInstance((short) 200, (short) -10, true, true, true, true);
+            createInstance((short) 200, (short) -10, true, true, true, true, true, true, true, true);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("minimum value is 1."));
@@ -94,7 +94,7 @@ public class SrPCEPSessionProposalFactoryModuleTest extends AbstractConfigTest {
 
     @Test
     public void testStatefulAfterCommitted() throws Exception {
-        createInstance((short) 200, (short) 100, false, true, true, true);
+        createInstance((short) 200, (short) 100, false, true, true, true, true, true, true, true);
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         final Stateful07PCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(
                 FACTORY_NAME, INSTANCE_NAME), Stateful07PCEPSessionProposalFactoryModuleMXBean.class);
@@ -102,12 +102,61 @@ public class SrPCEPSessionProposalFactoryModuleTest extends AbstractConfigTest {
     }
 
     @Test
+    public void testNotStatefulAfterCommitted() throws Exception {
+        createInstance((short) 200, (short) 100, false, false, false, false, false, false, false, false);
+        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
+        final Stateful07PCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(
+                FACTORY_NAME, INSTANCE_NAME), Stateful07PCEPSessionProposalFactoryModuleMXBean.class);
+        assertFalse(mxBean.getStateful());
+    }
+
+    @Test
     public void testValidationExceptionSrCapableValueNotSet() throws Exception {
         try {
-            createInstance((short) 200, (short) 100, true, true, true, null);
+            createInstance((short) 200, (short) 100, true, true, true, null, false, false, false, false);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("SrCapable value is not set"));
+        }
+    }
+
+    @Test
+    public void testValidationExceptionTriggeredSyncNotSet() throws Exception {
+        try {
+            createInstance((short) 200, (short) 100, true, true, true, true, null, true, true, true);
+            fail();
+        } catch (final ValidationException e) {
+            assertTrue(e.getMessage().contains("TriggeredInitialSync value is not set"));
+        }
+    }
+
+    @Test
+    public void testValidationExceptionTriggeredResyncNotSet() throws Exception {
+        try {
+            createInstance((short) 200, (short) 100, true, true, true, true, true, null, true, true);
+            fail();
+        } catch (final ValidationException e) {
+            assertTrue(e.getMessage().contains("TriggeredResync value is not set"));
+        }
+    }
+
+    @Test
+    public void testValidationExceptionDeltaLspSyncNotSet() throws Exception {
+        try {
+            createInstance((short) 200, (short) 100, true, true, true, true, true, true, null, true);
+            fail();
+        } catch (final ValidationException e) {
+            assertTrue(e.getMessage().contains("DeltaLspSyncCapability value is not set"));
+        }
+    }
+
+    @Test
+    public void testValidationExceptionIncludeDBVersionNotSet() throws Exception {
+        try {
+            createInstance((short) 200, (short) 100, true, true, true, true, true, true, true, null);
+            fail();
+        } catch (final ValidationException e) {
+            assertTrue(e.getMessage().contains("IncludeDbVersion value is not set"));
         }
     }
 
@@ -141,18 +190,20 @@ public class SrPCEPSessionProposalFactoryModuleTest extends AbstractConfigTest {
     }
 
     private CommitStatus createInstance() throws Exception {
-        return createInstance((short) 200, (short) 100, true, true, true, true);
+        return createInstance((short) 200, (short) 100, true, true, true, true, true, true, true, true);
     }
 
     private CommitStatus createInstance(final Short deadTimer, final Short keepAlive,
-            final Boolean stateful, final Boolean active, final Boolean instant, final Boolean srCapable) throws Exception {
+            final Boolean stateful, final Boolean active, final Boolean instant, final Boolean srCapable,
+            final Boolean triggeredInitialSync, final Boolean triggeredResync, final Boolean deltaLspSyncCapability, final Boolean includeDbVersion) throws Exception {
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
-        createInstance(transaction, deadTimer, keepAlive, stateful, active, instant, srCapable);
+        createInstance(transaction, deadTimer, keepAlive, stateful, active, instant, srCapable, triggeredInitialSync, triggeredResync, deltaLspSyncCapability, includeDbVersion);
         return transaction.commit();
     }
 
     private ObjectName createInstance(final ConfigTransactionJMXClient transaction, final Short deadTimer, final Short keepAlive,
-            final Boolean stateful, final Boolean active, final Boolean instant, final Boolean srCapable) throws InstanceAlreadyExistsException {
+            final Boolean stateful, final Boolean active, final Boolean instant, final Boolean srCapable,
+            final Boolean triggeredInitialSync, final Boolean triggeredResync, final Boolean deltaLspSyncCapability, final Boolean includeDbVersion) throws InstanceAlreadyExistsException {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final SrPCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated,
                 SrPCEPSessionProposalFactoryModuleMXBean.class);
@@ -162,6 +213,10 @@ public class SrPCEPSessionProposalFactoryModuleTest extends AbstractConfigTest {
         mxBean.setKeepAliveTimerValue(keepAlive);
         mxBean.setStateful(stateful);
         mxBean.setSrCapable(srCapable);
+        mxBean.setTriggeredInitialSync(triggeredInitialSync);
+        mxBean.setTriggeredResync(triggeredResync);
+        mxBean.setDeltaLspSyncCapability(deltaLspSyncCapability);
+        mxBean.setIncludeDbVersion(includeDbVersion);
         return nameCreated;
     }
 }

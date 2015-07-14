@@ -30,18 +30,30 @@ public class Stateful07SessionProposalFactoryTest {
             .setKeepalive((short) KEEP_ALIVE)
             .setSessionId((short) SESSION_ID)
             .setTlvs(new TlvsBuilder()
-                .addAugmentation(Tlvs1.class, new Tlvs1Builder().setStateful(new StatefulBuilder().addAugmentation(Stateful1.class, new Stateful1Builder().setInitiation(true).build()).setLspUpdateCapability(true).build()).build())
+                .addAugmentation(Tlvs1.class, new Tlvs1Builder().setStateful(new StatefulBuilder()
+                    .addAugmentation(Stateful1.class, new Stateful1Builder().setInitiation(true).build())
+                    .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Stateful1.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Stateful1Builder()
+                        .setTriggeredInitialSync(true)
+                        .setTriggeredResync(false)
+                        .setDeltaLspSyncCapability(true)
+                        .setIncludeDbVersion(false)
+                        .build())
+                    .setLspUpdateCapability(true).build()).build())
                 .build())
             .build();
 
     @Test
     public void testStateful07SessionProposalFactory() {
-        final Stateful07SessionProposalFactory sspf = new Stateful07SessionProposalFactory(DEAD_TIMER, KEEP_ALIVE, true, true, true);
+        final Stateful07SessionProposalFactory sspf = new Stateful07SessionProposalFactory(DEAD_TIMER, KEEP_ALIVE, true, true, true, true, false, true, false);
         Assert.assertEquals(DEAD_TIMER, sspf.getDeadTimer());
         Assert.assertEquals(KEEP_ALIVE, sspf.getKeepAlive());
         Assert.assertTrue(sspf.isActive());
         Assert.assertTrue(sspf.isInstant());
         Assert.assertTrue(sspf.isStateful());
+        Assert.assertFalse(sspf.isTriggeredResync());
+        Assert.assertTrue(sspf.isTriggeredSync());
+        Assert.assertTrue(sspf.isDeltaLspSync());
+        Assert.assertFalse(sspf.isIncludeDbVersion());
         Assert.assertEquals(OPEN_MSG, sspf.getSessionProposal(null, SESSION_ID));
     }
 }
