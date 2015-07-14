@@ -117,7 +117,7 @@ public final class Main {
             deadTimerValue = keepAliveValue * KA_TO_DEADTIMER_RATIO;
         }
 
-        final PCEPSessionProposalFactory spf = new Stateful07SessionProposalFactory(deadTimerValue, keepAliveValue, stateful, active, instant);
+        final PCEPSessionProposalFactory spf = new Stateful07SessionProposalFactory(deadTimerValue, keepAliveValue, stateful, active, instant, false, false, false, false);
 
         final Open prefs = spf.getSessionProposal(address, 0);
 

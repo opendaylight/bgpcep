@@ -7,6 +7,7 @@ module odl-pcep-segment-routing-cfg {
     import config { prefix config; revision-date 2013-04-05; }
     import odl-pcep-api-cfg { prefix pcep; revision-date 2013-04-09; }
     import odl-pcep-spi-cfg { prefix spi; revision-date 2013-11-15; }
+    import odl-pcep-ietf-stateful07-cfg { prefix pcep-stateful07; revision-date 2015-07-14; }
 
     organization "Cisco Systems, Inc.";
 
@@ -49,32 +50,7 @@ module odl-pcep-segment-routing-cfg {
     augment "/config:modules/config:module/config:configuration" {
         case pcep-session-proposal-factory-sr {
             when "/config:modules/config:module/config:type = 'pcep-session-proposal-factory-sr'";
-
-            leaf dead-timer-value {
-                type uint8;
-                default 120;
-            }
-
-            leaf keep-alive-timer-value {
-                type uint8;
-                default 30;
-            }
-
-            leaf initiated {
-                type boolean;
-                default true;
-            }
-
-            leaf stateful {
-                type boolean;
-                default true;
-            }
-
-            leaf active {
-                type boolean;
-                default true;
-            }
-
+            uses pcep-stateful07:stateful-capabilities;
             leaf sr-capable {
                 type boolean;
                 default true;
