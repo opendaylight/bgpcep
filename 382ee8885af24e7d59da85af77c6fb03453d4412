@@ -22,6 +22,30 @@
       "revId": "382ee8885af24e7d59da85af77c6fb03453d4412",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_29ab80d7",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/ExportPolicyTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-07-14T13:43:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a7fa997_0969e4bd",
+      "range": {
+        "startLine": 41,
+        "startChar": 37,
+        "endLine": 41,
+        "endChar": 47
+      },
+      "revId": "382ee8885af24e7d59da85af77c6fb03453d4412",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
