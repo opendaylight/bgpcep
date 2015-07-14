@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.ietf.initiated00;
 
 import java.net.InetSocketAddress;
-
 import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1Builder;
@@ -19,14 +18,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public class Stateful07SessionProposalFactory extends BasePCEPSessionProposalFactory {
 
-    private final boolean stateful, active, instant;
+    private final boolean stateful, active, instant, triggeredSync, triggeredResync, deltaLspSync, includeDbVersion;
 
     public Stateful07SessionProposalFactory(final int deadTimer, final int keepAlive, final boolean stateful, final boolean active,
-            final boolean instant) {
+            final boolean instant, final boolean triggeredSync, final boolean triggeredResync, final boolean deltaLspSync, final boolean includeDbVersion) {
         super(deadTimer, keepAlive);
         this.stateful = stateful;
         this.active = active;
         this.instant = instant;
+        this.triggeredSync = triggeredSync;
+        this.triggeredResync = triggeredResync;
+        this.deltaLspSync = deltaLspSync;
+        this.includeDbVersion = includeDbVersion;
     }
 
     @Override
@@ -52,4 +55,19 @@ public class Stateful07SessionProposalFactory extends BasePCEPSessionProposalFac
         return this.instant;
     }
 
+    public boolean isTriggeredSync() {
+        return this.triggeredSync;
+    }
+
+    public boolean isTriggeredResync() {
+        return this.triggeredResync;
+    }
+
+    public boolean isDeltaLspSync() {
+        return this.deltaLspSync;
+    }
+
+    public boolean isIncludeDbVersion() {
+        return this.includeDbVersion;
+    }
 }

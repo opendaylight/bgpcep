@@ -34,34 +34,57 @@ module odl-pcep-ietf-stateful07-cfg {
         config:provided-service pcep:pcep-session-proposal-factory;
     }
 
+    grouping stateful-capabilities {
+        leaf dead-timer-value {
+            type uint8;
+            default 120;
+        }
+
+        leaf keep-alive-timer-value {
+            type uint8;
+            default 30;
+        }
+
+        leaf initiated {
+            type boolean;
+            default true;
+        }
+
+        leaf stateful {
+            type boolean;
+            default true;
+        }
+
+        leaf active {
+            type boolean;
+            default true;
+        }
+
+        leaf triggered-initial-sync {
+            type boolean;
+            default true;
+        }
+
+        leaf delta-lsp-sync-capability {
+            type boolean;
+            default true;
+        }
+
+        leaf triggered-resync {
+            type boolean;
+            default true;
+        }
+
+        leaf include-db-version {
+            type boolean;
+            default true;
+        }
+    }
+
     augment "/config:modules/config:module/config:configuration" {
         case pcep-session-proposal-factory-stateful07 {
             when "/config:modules/config:module/config:type = 'pcep-session-proposal-factory-stateful07'";
-
-            leaf dead-timer-value {
-                type uint8;
-                default 120;
-            }
-
-            leaf keep-alive-timer-value {
-                type uint8;
-                default 30;
-            }
-
-            leaf initiated {
-                type boolean;
-                default true;
-            }
-
-            leaf stateful {
-                type boolean;
-                default true;
-            }
-
-            leaf active {
-                type boolean;
-                default true;
-            }
+            uses stateful-capabilities;
         }
     }
 
@@ -86,6 +109,18 @@ module odl-pcep-ietf-stateful07-cfg {
     augment "/config:modules/config:module/config:configuration" {
         case pcep-parser-ietf-initiated00 {
             when "/config:modules/config:module/config:type = 'pcep-parser-ietf-initiated00'";
+        }
+    }
+
+    identity pcep-parser-sync-optimizations {
+        base config:module-type;
+        config:provided-service spi:extension;
+        config:java-name-prefix SyncOperationsPCEPParser;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case pcep-parser-sync-optimizations {
+            when "/config:modules/config:module/config:type = 'pcep-parser-sync-optimizations'";
         }
     }
 }
