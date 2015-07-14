@@ -20,8 +20,8 @@ public class SegmentRoutingSessionProposalFactory extends Stateful07SessionPropo
     private final boolean isSegmentRoutingCapable;
 
     public SegmentRoutingSessionProposalFactory(final int deadTimer, final int keepAlive, final boolean stateful, final boolean active,
-            final boolean instant, final boolean isSegmentRoutingCapable) {
-        super(deadTimer, keepAlive, stateful, active, instant);
+            final boolean instant, final boolean isSegmentRoutingCapable, final boolean triggeredSync, final boolean triggeredResync, final boolean deltaLspSync, final boolean includeDbVersion) {
+        super(deadTimer, keepAlive, stateful, active, instant, triggeredSync, triggeredResync, deltaLspSync, includeDbVersion);
         this.isSegmentRoutingCapable = isSegmentRoutingCapable;
     }
 

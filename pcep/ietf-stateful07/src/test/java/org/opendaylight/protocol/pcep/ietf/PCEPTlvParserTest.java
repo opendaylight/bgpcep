@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.ietf;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
@@ -22,6 +21,7 @@ import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07LspUpdateErrorTl
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07RSVPErrorSpecTlvParser;
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07StatefulCapabilityTlvParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsCapabilityTlvParser;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -55,6 +55,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 public class PCEPTlvParserTest {
 
     private static final byte[] statefulBytes = { 0x00, 0x10, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01 };
+    private static final byte[] STATEFUL_SYNC_OPT_BYTES = new byte[]{ 0x00, 0x10, 0x00, 0x04, 0x00, 0x00, 0x00, 0x33 };
     private static final byte[] symbolicNameBytes = { 0x00, 0x11, 0x00, 0x1C, 0x4d, 0x65, 0x64, 0x20, 0x74, 0x65, 0x73, 0x74, 0x20, 0x6f,
         0x66, 0x20, 0x73, 0x79, 0x6d, 0x62, 0x6f, 0x6c, 0x69, 0x63, 0x20, 0x6e, 0x61, 0x6d, 0x65, 0x65, 0x65, 0x65 };
     private static final byte[] lspUpdateErrorBytes = { 0x00, 0x14, 0x00, 0x04, 0x25, 0x68, (byte) 0x95, 0x03 };
@@ -81,6 +82,22 @@ public class PCEPTlvParserTest {
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(tlv, buff);
         assertArrayEquals(statefulBytes, ByteArray.getAllBytes(buff));
+    }
+
+    @Test
+    public void testStatefulTlvSyncOptimizationExtension() throws PCEPDeserializerException {
+        final SyncOptimizationsCapabilityTlvParser parser = new SyncOptimizationsCapabilityTlvParser();
+        final Stateful tlv = new StatefulBuilder().setLspUpdateCapability(Boolean.TRUE)
+            .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Stateful1.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Stateful1Builder()
+                .setTriggeredInitialSync(Boolean.TRUE)
+                .setDeltaLspSyncCapability(Boolean.TRUE)
+                .setIncludeDbVersion(Boolean.TRUE)
+                .build())
+            .build();
+        assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(STATEFUL_SYNC_OPT_BYTES, 4))));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeTlv(tlv, buff);
+        assertArrayEquals(STATEFUL_SYNC_OPT_BYTES, ByteArray.getAllBytes(buff));
     }
 
     @Test
