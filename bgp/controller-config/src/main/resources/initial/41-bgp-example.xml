@@ -72,7 +72,7 @@
                     <host>192.0.2.1</host>
                     <holdtimer>180</holdtimer>
                     <rib>
-                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg">prefix:rib</type>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:rib-instance</type>
                         <name>example-bgp-rib</name>
                     </rib>
                     <peer-registry>
