@@ -15,7 +15,7 @@
         <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:spi?module=odl-pcep-spi-cfg&amp;revision=2013-11-15</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:programming:spi?module=odl-programming-spi-cfg&amp;revision=2013-11-15</capability>
     <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful02:cfg?module=odl-pcep-ietf-stateful02-cfg&amp;revision=2014-02-21</capability>
-    <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg?module=odl-pcep-ietf-stateful07-cfg&amp;revision=2014-02-21</capability>
+    <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg?module=odl-pcep-ietf-stateful07-cfg&amp;revision=2015-07-14</capability>
     </required-capabilities>
     <configuration>
 

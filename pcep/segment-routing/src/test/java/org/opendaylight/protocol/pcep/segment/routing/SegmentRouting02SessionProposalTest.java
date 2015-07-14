@@ -40,7 +40,7 @@ public class SegmentRouting02SessionProposalTest {
 
     @Test
     public void testSegmentRouting02SessionProposalFactory() {
-        final SegmentRoutingSessionProposalFactory sspf = new SegmentRoutingSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE, true, true, true, true);
+        final SegmentRoutingSessionProposalFactory sspf = new SegmentRoutingSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE, true, true, true, true, true, true, true, true);
         Assert.assertEquals(DEAD_TIMER, sspf.getDeadTimer());
         Assert.assertEquals(KEEP_ALIVE, sspf.getKeepAlive());
         Assert.assertTrue(sspf.isActive());
