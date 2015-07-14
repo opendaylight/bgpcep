@@ -1,0 +1,59 @@
+module odl-pcep-sync-optimizations {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:pcep:sync:optimizations";
+    prefix "sync-optimizations";
+
+    import pcep-types { prefix pcep; revision-date 2013-10-05; }
+    import pcep-message { prefix msg; revision-date 2013-10-07; }
+    import network-topology { prefix nt; revision-date 2013-10-21; }
+    import network-topology-pcep { prefix topo; revision-date 2013-10-24; }
+    import odl-pcep-ietf-stateful07 { prefix stateful; revision-date 2013-12-22; }
+
+    organization "Pantheon Technologies";
+    contact "Iveta Halanova <iveta.halanova@pantheon.sk>";
+
+    description
+        "This module contains the data model of PCEP extensions defined
+        in draft-ietf-pce-stateful-sync-optimizations-02.
+
+        Copyright (c)2015 Cisco Systems, Inc. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2015-07-14" {
+        description
+            "Initial revision.";
+        reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-sync-optimizations-02";
+    }
+
+	grouping sync-optimizations-capability-tlv {
+        reference "http://tools.ietf.org/html/draft-ietf-pce-pce-initiated-lsp-00#section-4.1";
+        leaf triggered-initial-sync {
+            type boolean;
+            default false;
+        }
+        leaf delta-lsp-sync-capability {
+            type boolean;
+            default false;
+        }
+        leaf triggered-resync {
+            type boolean;
+            default false;
+        }
+        leaf include-db-version {
+            type boolean;
+            default false;
+        }
+    }
+
+    augment "/msg:open/msg:open-message/msg:open/msg:tlvs/stateful:stateful" {
+        uses sync-optimizations-capability-tlv;
+    }
+
+    augment "/nt:network-topology/nt:topology/nt:node/topo:path-computation-client/topo:stateful-tlv/stateful:stateful" {
+        uses sync-optimizations-capability-tlv;
+    }
+}
