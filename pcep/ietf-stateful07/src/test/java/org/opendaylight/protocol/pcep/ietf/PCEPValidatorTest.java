@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.ietf;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -30,6 +29,7 @@ import org.opendaylight.protocol.pcep.impl.Activator;
 import org.opendaylight.protocol.pcep.impl.message.PCEPOpenMessageParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
+import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
@@ -234,6 +234,14 @@ public class PCEPValidatorTest {
     }
 
     @Test
+    public void testSyncOptActivator() {
+        try (SyncOptimizationsActivator a = new SyncOptimizationsActivator()) {
+            a.start(this.ctx);
+            a.close();
+        }
+    }
+
+    @Test
     public void testUpdMsg() throws IOException, PCEPDeserializerException {
         try (CrabbeInitiatedActivator a = new CrabbeInitiatedActivator()) {
             a.start(this.ctx);
@@ -389,7 +397,7 @@ public class PCEPValidatorTest {
 
             PcerrMessageBuilder builder = new PcerrMessageBuilder();
             builder.setErrors(innerErr);
-            List<Srps> srps = new ArrayList<>();
+            final List<Srps> srps = new ArrayList<>();
             srps.add(new SrpsBuilder().setSrp(new SrpBuilder().setOperationId(new SrpIdNumber(3L)).setIgnore(false).setProcessingRule(false).setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder().build()).build()).build());
             builder.setErrorType(new StatefulCaseBuilder().setStateful(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcerr.pcerr.message.error.type.stateful._case.StatefulBuilder().setSrps(srps).build()).build());
 
@@ -488,7 +496,7 @@ public class PCEPValidatorTest {
         final PcerrBuilder builder = new PcerrBuilder();
         builder.setPcerrMessage(errMsgBuilder.build());
 
-        ByteBuf buf = Unpooled.wrappedBuffer(statefulMsg);
+        final ByteBuf buf = Unpooled.wrappedBuffer(statefulMsg);
         final List<Message> errors = Lists.<Message>newArrayList();
         parser.parseMessage(buf.slice(4, buf.readableBytes() - 4), errors);
         assertFalse(errors.isEmpty());
