@@ -62,6 +62,26 @@ module odl-pcep-ietf-stateful07-cfg {
                 type boolean;
                 default true;
             }
+
+            leaf triggered-initial-sync {
+	            type boolean;
+	            default false;
+	        }
+
+	        leaf delta-lsp-sync-capability {
+	            type boolean;
+	            default false;
+	        }
+
+	        leaf triggered-resync {
+	            type boolean;
+	            default false;
+	        }
+
+	        leaf include-db-version {
+	            type boolean;
+	            default false;
+	        }
         }
     }
 
@@ -86,6 +106,18 @@ module odl-pcep-ietf-stateful07-cfg {
     augment "/config:modules/config:module/config:configuration" {
         case pcep-parser-ietf-initiated00 {
             when "/config:modules/config:module/config:type = 'pcep-parser-ietf-initiated00'";
+        }
+    }
+
+    identity pcep-parser-sync-optimizations {
+        base config:module-type;
+        config:provided-service spi:extension;
+        config:java-name-prefix SyncOperationsPCEPParser;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case pcep-parser-sync-optimizations {
+            when "/config:modules/config:module/config:type = 'pcep-parser-sync-optimizations'";
         }
     }
 }

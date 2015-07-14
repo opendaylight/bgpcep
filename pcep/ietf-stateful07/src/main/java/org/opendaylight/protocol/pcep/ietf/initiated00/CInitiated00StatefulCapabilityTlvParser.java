@@ -18,9 +18,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 /**
  * Parser for {@link Stateful}
  */
-public final class CInitiated00StatefulCapabilityTlvParser extends Stateful07StatefulCapabilityTlvParser {
+public class CInitiated00StatefulCapabilityTlvParser extends Stateful07StatefulCapabilityTlvParser {
 
-    private static final int I_FLAG_OFFSET = 29;
+    protected static final int I_FLAG_OFFSET = 29;
 
     @Override
     protected void parseFlags(final StatefulBuilder sb, final ByteBuf buffer) {
