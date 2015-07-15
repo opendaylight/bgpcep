@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a7fa997_c74993d1",
+        "filename": "pcep/controller-config/src/main/resources/initial/32-pcep.xml",
+        "patchSetId": 13
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-07-15T13:08:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a7fa997_279f2752",
+      "revId": "694c24e78b28e8094b0521f73af018f74ceb8171",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a7fa997_07d22b00",
         "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/controller/config/yang/pcep/stateful07/cfg/Stateful07PCEPSessionProposalFactoryModule.java",
         "patchSetId": 13
@@ -47,6 +65,30 @@
       "writtenOn": "2015-07-15T13:03:03Z",
       "side": 1,
       "message": "This capability should be rather disabled by default.",
+      "range": {
+        "startLine": 70,
+        "startChar": 20,
+        "endLine": 70,
+        "endChar": 24
+      },
+      "revId": "694c24e78b28e8094b0521f73af018f74ceb8171",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_a716d7a5",
+        "filename": "pcep/ietf-stateful07/src/main/yang/odl-pcep-ietf-stateful07-cfg.yang",
+        "patchSetId": 13
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-07-15T13:08:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a7fa997_27cde75d",
       "range": {
         "startLine": 70,
         "startChar": 20,
