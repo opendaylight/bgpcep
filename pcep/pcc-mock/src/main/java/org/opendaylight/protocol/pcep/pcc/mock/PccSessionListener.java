@@ -51,26 +51,34 @@ public class PccSessionListener implements PCEPSessionListener, PccSession {
             return;
         }
         if (message instanceof Pcupd) {
-            final Updates update = ((Pcupd) message).getPcupdMessage().getUpdates().get(0);
-            if (update.getLsp().isDelegate() != null && update.getLsp().isDelegate()) {
-                //regular LSP update
-                this.tunnelManager.reportToAll(update, this);
-            } else {
-                //returning LSP delegation
-                this.tunnelManager.returnDelegation(update, this);
-            }
+            handlePcupd((Pcupd) message);
         } else if (message instanceof Pcinitiate) {
-            final Requests request = ((Pcinitiate) message).getPcinitiateMessage().getRequests().get(0);
-            if (request.getSrp().getAugmentation(Srp1.class) != null && request.getSrp().getAugmentation(Srp1.class).isRemove()) {
-                //remove LSP
-                this.tunnelManager.removeTunnel(request, this);
-            } else if (request.getLsp().isDelegate() != null && request.getLsp().isDelegate() && request.getEndpointsObj() == null) {
-                //take LSP delegation
-                this.tunnelManager.takeDelegation(request, this);
-            } else {
-                //create LSP
-                this.tunnelManager.addTunnel(request, this);
-            }
+            handlePcinitiate((Pcinitiate) message);
+        }
+    }
+
+    private void handlePcupd(final Pcupd message) {
+        final Updates update = message.getPcupdMessage().getUpdates().get(0);
+        if (update.getLsp().isDelegate() != null && update.getLsp().isDelegate()) {
+            //regular LSP update
+            this.tunnelManager.reportToAll(update, this);
+        } else {
+            //returning LSP delegation
+            this.tunnelManager.returnDelegation(update, this);
+        }
+    }
+
+    private void handlePcinitiate(final Pcinitiate message) {
+        final Requests request = message.getPcinitiateMessage().getRequests().get(0);
+        if (request.getSrp().getAugmentation(Srp1.class) != null && request.getSrp().getAugmentation(Srp1.class).isRemove()) {
+            //remove LSP
+            this.tunnelManager.removeTunnel(request, this);
+        } else if (request.getLsp().isDelegate() != null && request.getLsp().isDelegate() && request.getEndpointsObj() == null) {
+            //take LSP delegation
+            this.tunnelManager.takeDelegation(request, this);
+        } else {
+            //create LSP
+            this.tunnelManager.addTunnel(request, this);
         }
     }
 

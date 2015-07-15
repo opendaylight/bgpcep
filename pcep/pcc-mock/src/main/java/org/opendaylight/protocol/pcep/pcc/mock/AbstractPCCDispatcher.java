@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractPCCDispatcher implements Closeable {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPCCDispatcher.class);
+    private static final Integer SOCKET_BACKLOG_SIZE = 128;
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
     private final EventExecutor executor;
@@ -58,7 +59,7 @@ public abstract class AbstractPCCDispatcher implements Closeable {
                 initializer.initializeChannel(ch, new DefaultPromise(AbstractPCCDispatcher.this.executor));
             }
         });
-        b.option(ChannelOption.SO_BACKLOG, 128);
+        b.option(ChannelOption.SO_BACKLOG, SOCKET_BACKLOG_SIZE);
 
         b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
         this.customizeBootstrap(b);

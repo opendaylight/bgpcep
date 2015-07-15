@@ -21,6 +21,7 @@ import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
+import org.opendaylight.protocol.bgp.rib.impl.spi.ChannelPipelineInitializer;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.slf4j.Logger;
@@ -32,13 +33,13 @@ public class BGPReconnectPromise extends DefaultPromise<Void> {
     private final InetSocketAddress address;
     private final ReconnectStrategyFactory strategyFactory;
     private final Bootstrap b;
-    private final BGPDispatcherImpl.ChannelPipelineInitializer initializer;
+    private final ChannelPipelineInitializer initializer;
     private final EventExecutor executor;
     private Future<BGPSessionImpl> pending;
 
     public BGPReconnectPromise(final EventExecutor executor, final InetSocketAddress address,
                                final ReconnectStrategyFactory connectStrategyFactory, final Bootstrap b,
-                               final BGPDispatcherImpl.ChannelPipelineInitializer initializer) {
+                               final ChannelPipelineInitializer initializer) {
         super(executor);
         this.executor = executor;
         this.b = b;
@@ -51,7 +52,7 @@ public class BGPReconnectPromise extends DefaultPromise<Void> {
         final ReconnectStrategy cs = this.strategyFactory.createReconnectStrategy();
 
         // Set up a client with pre-configured bootstrap, but add a closed channel handler into the pipeline to support reconnect attempts
-        pending = createClient(this.address, cs, b, new BGPDispatcherImpl.ChannelPipelineInitializer() {
+        pending = createClient(this.address, cs, b, new ChannelPipelineInitializer() {
             @Override
             public void initializeChannel(final SocketChannel channel, final Promise<BGPSessionImpl> promise) {
                 initializer.initializeChannel(channel, promise);
@@ -74,7 +75,7 @@ public class BGPReconnectPromise extends DefaultPromise<Void> {
     }
 
     public Future<BGPSessionImpl> createClient(final InetSocketAddress address, final ReconnectStrategy strategy, final Bootstrap bootstrap,
-                                               final BGPDispatcherImpl.ChannelPipelineInitializer initializer) {
+                                               final ChannelPipelineInitializer initializer) {
         final BGPProtocolSessionPromise p = new BGPProtocolSessionPromise(this.executor, address, strategy, bootstrap);
         final ChannelHandler chInit = BGPDispatcherImpl.BGPChannel.createChannelInitializer(initializer, p);
         bootstrap.handler(chInit);
