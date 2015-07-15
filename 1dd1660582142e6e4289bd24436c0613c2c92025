@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a7fa997_a786d763",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/protocol/pcep/ietf/initiated00/Stateful07SessionProposalFactory.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-07-15T08:30:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a7fa997_6772ffae",
+      "range": {
+        "startLine": 43,
+        "startChar": 28,
+        "endLine": 46,
+        "endChar": 356
+      },
+      "revId": "1dd1660582142e6e4289bd24436c0613c2c92025",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a7fa997_a79fb7b3",
         "filename": "pcep/ietf-stateful07/src/main/yang/odl-pcep-ietf-stateful07-cfg.yang",
         "patchSetId": 11
@@ -36,6 +60,30 @@
       "writtenOn": "2015-07-15T08:01:00Z",
       "side": 1,
       "message": "Change the revision date in initial config file (32-pcep.xml) too.",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 5
+      },
+      "revId": "1dd1660582142e6e4289bd24436c0613c2c92025",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_477d836d",
+        "filename": "pcep/ietf-stateful07/src/main/yang/odl-pcep-ietf-stateful07-cfg.yang",
+        "patchSetId": 11
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-07-15T08:30:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a7fa997_a79fb7b3",
       "range": {
         "startLine": 26,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "7a7fa997_6780bf46",
+        "filename": "pcep/ietf-stateful07/src/main/yang/odl-pcep-ietf-stateful07-cfg.yang",
+        "patchSetId": 11
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-07-15T08:30:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a7fa997_276407e4",
+      "range": {
+        "startLine": 123,
+        "startChar": 32,
+        "endLine": 123,
+        "endChar": 56
+      },
+      "revId": "1dd1660582142e6e4289bd24436c0613c2c92025",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a7fa997_879cfbc1",
         "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing-cfg.yang",
         "patchSetId": 11
@@ -94,6 +166,53 @@
     },
     {
       "key": {
+        "uuid": "7a7fa997_e78b6f66",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing-cfg.yang",
+        "patchSetId": 11
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-07-15T08:30:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a7fa997_879cfbc1",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 5
+      },
+      "revId": "1dd1660582142e6e4289bd24436c0613c2c92025",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_e7460f4f",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing-cfg.yang",
+        "patchSetId": 11
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-07-15T08:30:29Z",
+      "side": 1,
+      "message": "tabs will be removed in next patch set",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 1
+      },
+      "revId": "1dd1660582142e6e4289bd24436c0613c2c92025",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a7fa997_e75daf16",
         "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing-cfg.yang",
         "patchSetId": 11
@@ -105,6 +224,30 @@
       "writtenOn": "2015-07-15T08:01:00Z",
       "side": 1,
       "message": "We already have this grouping, reuse it...and add \"sr-capable\" leaf.",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 2
+      },
+      "revId": "1dd1660582142e6e4289bd24436c0613c2c92025",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_87eabb0d",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing-cfg.yang",
+        "patchSetId": 11
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-07-15T08:30:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a7fa997_e75daf16",
       "range": {
         "startLine": 54,
         "startChar": 0,
