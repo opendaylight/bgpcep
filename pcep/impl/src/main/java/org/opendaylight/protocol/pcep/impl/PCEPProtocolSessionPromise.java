@@ -109,7 +109,7 @@ public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends Def
             }
         }
 
-        private class ReconnectingStrategyListener implements FutureListener<Void> {
+        private final class ReconnectingStrategyListener implements FutureListener<Void> {
             private ReconnectingStrategyListener() {
             }
 

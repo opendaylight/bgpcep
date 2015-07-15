@@ -107,7 +107,7 @@ public class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultProm
             }
         }
 
-        private class ReconnectingStrategyListener implements FutureListener<Void> {
+        private final class ReconnectingStrategyListener implements FutureListener<Void> {
             private ReconnectingStrategyListener() {
             }
 

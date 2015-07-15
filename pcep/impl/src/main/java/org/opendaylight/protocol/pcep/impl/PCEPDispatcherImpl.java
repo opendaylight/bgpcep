@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPDispatcherImpl.class);
+    private static final Integer CHANNEL_OPTION = 128;
     private final PCEPSessionNegotiatorFactory snf;
     private final PCEPHandlerFactory hf;
 
@@ -108,7 +109,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
                 initializer.initializeChannel(ch, new DefaultPromise(PCEPDispatcherImpl.this.executor));
             }
         });
-        b.option(ChannelOption.SO_BACKLOG, 128);
+        b.option(ChannelOption.SO_BACKLOG, CHANNEL_OPTION);
 
         b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
         this.customizeBootstrap(b);

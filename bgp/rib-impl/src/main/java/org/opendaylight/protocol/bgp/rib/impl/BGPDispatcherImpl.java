@@ -31,6 +31,7 @@ import org.opendaylight.protocol.bgp.rib.impl.protocol.BGPReconnectPromise;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
+import org.opendaylight.protocol.bgp.rib.impl.spi.ChannelPipelineInitializer;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionNegotiatorFactory;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
@@ -47,6 +48,7 @@ import org.slf4j.LoggerFactory;
  */
 public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BGPDispatcherImpl.class);
+    private static final int CHANNEL_OPTION = 128;
     private final MD5ServerChannelFactory<?> scf;
     private final MD5ChannelFactory<?> cf;
     private final BGPHandlerFactory hf;
@@ -123,7 +125,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
             (BGPDispatcherImpl.this.hf.getDecoders(), snf, BGPDispatcherImpl.this.hf.getEncoders());
         final ServerBootstrap b = new ServerBootstrap();
         b.childHandler(BGPChannel.createChannelInitializer(initializer, new DefaultPromise(BGPDispatcherImpl.this.executor)));
-        b.option(ChannelOption.SO_BACKLOG, Integer.valueOf(128));
+        b.option(ChannelOption.SO_BACKLOG, Integer.valueOf(CHANNEL_OPTION));
         b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
         this.customizeBootstrap(b);
 
@@ -179,11 +181,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         }
     }
 
-    public interface ChannelPipelineInitializer {
-        void initializeChannel(SocketChannel socketChannel, Promise<BGPSessionImpl> promise);
-    }
-
-    public static class BGPChannel {
+    public final static class BGPChannel {
         private static final String NEGOTIATOR = "negotiator";
 
         private BGPChannel() {

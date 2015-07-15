@@ -244,7 +244,7 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
         return this.state;
     }
 
-    private final void negotiationSuccessful(BGPSessionImpl session) {
+    private void negotiationSuccessful(BGPSessionImpl session) {
         LOG.debug("Negotiation on channel {} successful with session {}", this.channel, session);
         channel.pipeline().replace(this, "session", session);
         promise.setSuccess(session);
@@ -256,7 +256,7 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
         promise.setFailure(cause);
     }
 
-    private final void sendMessage(final Notification msg) {
+    private void sendMessage(final Notification msg) {
         channel.writeAndFlush(msg).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture f) {

@@ -109,7 +109,7 @@ public class PCCProtocolSessionPromise<S extends PCEPSession> extends DefaultPro
             }
         }
 
-        private class ReconnectingStrategyListener implements FutureListener<Void> {
+        private final class ReconnectingStrategyListener implements FutureListener<Void> {
             private ReconnectingStrategyListener() {
             }
 
