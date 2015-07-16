@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_f83a30cc",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/protocol/pcep/sync/optimizations/LspDbVersionTlvParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-16T15:47:47Z",
+      "side": 1,
+      "message": "This function returns \"long\" which has max. value 2^63-1.",
+      "range": {
+        "startLine": 40,
+        "startChar": 81,
+        "endLine": 40,
+        "endChar": 98
+      },
+      "revId": "b1d762aa83b46968f966d40d87b55fc59f585d1d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
