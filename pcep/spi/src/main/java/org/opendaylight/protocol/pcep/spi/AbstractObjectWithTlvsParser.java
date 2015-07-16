@@ -34,7 +34,7 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
         this.viTlvReg = Preconditions.checkNotNull(viTlvReg);
     }
 
-    protected final void parseTlvs(final T builder, final ByteBuf bytes) throws PCEPDeserializerException {
+    protected void parseTlvs(final T builder, final ByteBuf bytes) throws PCEPDeserializerException {
         Preconditions.checkArgument(bytes != null, "Array of bytes is mandatory. Can't be null.");
         if (!bytes.isReadable()) {
             return;
