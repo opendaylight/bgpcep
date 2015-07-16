@@ -69,6 +69,7 @@
                      connection will not be established.
                      If peer role is not present, default value "ibgp" will be used (allowed values are also "ebgp" and
                      "rr-client").
+                     -->
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-peer</type>
                     <name>example-bgp-peer</name>
@@ -99,8 +100,12 @@
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
                         <name>flowspec</name>
                     </advertized-table>
+                    <advertized-table>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+                        <name>labeled-unicast</name>
+                    </advertized-table>
                 </module>
-                -->
+                
 
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:rib-impl</type>
@@ -125,6 +130,10 @@
                     <local-table>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
                         <name>flowspec</name>
+                    </local-table>
+                    <local-table>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+                        <name>labeled-unicast</name>
                     </local-table>
                     <extensions>
                         <type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extensions</type>
