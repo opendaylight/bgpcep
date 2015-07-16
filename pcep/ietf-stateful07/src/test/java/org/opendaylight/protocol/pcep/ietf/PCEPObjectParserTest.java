@@ -9,25 +9,29 @@ package org.opendaylight.protocol.pcep.ietf;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
+import java.math.BigInteger;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.ietf.initiated00.CInitiated00LspObjectParser;
 import org.opendaylight.protocol.pcep.ietf.initiated00.CInitiated00SrpObjectParser;
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07LspObjectParser;
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07LspaObjectParser;
-import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07OpenObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
+import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsOpenObjectParser;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs3;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs3Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.lsp.db.version.tlv.LspDbVersionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.speaker.entity.id.tlv.SpeakerEntityIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Lsp1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Lsp1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1;
@@ -72,6 +76,9 @@ public class PCEPObjectParserTest {
 
     private VendorInformationTlvRegistry viTlvRegistry;
 
+    private static final byte[] DB_VERSION = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+    private static final byte[] SPEAKER_ID = {0x01, 0x02, 0x03, 0x04};
+
     @Before
     public void setUp() throws Exception {
         this.tlvRegistry = ServiceLoaderPCEPExtensionProviderContext.create().getTlvHandlerRegistry();
@@ -80,7 +87,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testOpenObjectWithTLV() throws PCEPDeserializerException, IOException {
-        final Stateful07OpenObjectParser parser = new Stateful07OpenObjectParser(this.tlvRegistry, this.viTlvRegistry);
+        final SyncOptimizationsOpenObjectParser parser = new SyncOptimizationsOpenObjectParser(this.tlvRegistry, this.viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPOpenObject1.bin"));
 
         final OpenBuilder builder = new OpenBuilder();
@@ -96,8 +103,14 @@ public class PCEPObjectParserTest {
         final Tlvs1Builder statBuilder = new Tlvs1Builder();
         statBuilder.setStateful(tlv1);
 
-        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder().addAugmentation(
-                Tlvs1.class, statBuilder.build()).build());
+        final Tlvs3Builder syncOptBuilder = new Tlvs3Builder();
+        syncOptBuilder.setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(new BigInteger(DB_VERSION)).build());
+        syncOptBuilder.setSpeakerEntityId(new SpeakerEntityIdBuilder().setSpeakerEntityIdValue(SPEAKER_ID).build());
+
+        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder()
+            .addAugmentation(Tlvs1.class, statBuilder.build())
+            .addAugmentation(Tlvs3.class, syncOptBuilder.build())
+            .build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buf = Unpooled.buffer();
