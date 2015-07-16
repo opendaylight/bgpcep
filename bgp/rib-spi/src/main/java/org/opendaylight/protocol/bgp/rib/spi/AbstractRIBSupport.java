@@ -50,7 +50,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     private static final NodeIdentifier ADVERTIZED_ROUTES = new NodeIdentifier(AdvertizedRoutes.QNAME);
     private static final NodeIdentifier WITHDRAWN_ROUTES = new NodeIdentifier(WithdrawnRoutes.QNAME);
     private static final NodeIdentifier DESTINATION_TYPE = new NodeIdentifier(DestinationType.QNAME);
-    private static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
+    protected static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
 
     private final NodeIdentifier routesContainerIdentifier;
     private final NodeIdentifier routesListIdentifier;
