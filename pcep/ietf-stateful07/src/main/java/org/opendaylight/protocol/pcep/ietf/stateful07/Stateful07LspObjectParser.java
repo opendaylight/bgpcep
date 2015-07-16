@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeMedium;
-
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
@@ -20,6 +19,7 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.util.BitArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.OperationalStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.error.code.tlv.LspErrorCode;
@@ -156,6 +156,10 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
             serializeTlv(tlvs.getVsTlv(), body);
         }
         serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
+        if (tlvs.getPathBinding() != null) {
+            serializeTlv(tlvs.getPathBinding(), body);
+        }
+        tlvs.getAugmentation(Tlvs1.class);
     }
 
     @Override

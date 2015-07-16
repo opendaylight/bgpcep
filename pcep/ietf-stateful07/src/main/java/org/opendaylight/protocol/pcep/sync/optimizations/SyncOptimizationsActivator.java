@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.lsp.db.version.tlv.LspDbVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.speaker.entity.id.tlv.SpeakerEntityId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.Stateful;
 
 public class SyncOptimizationsActivator extends AbstractPCEPExtensionProviderActivator {
@@ -21,6 +23,12 @@ public class SyncOptimizationsActivator extends AbstractPCEPExtensionProviderAct
 
         regs.add(context.registerTlvParser(SyncOptimizationsCapabilityTlvParser.TYPE, new SyncOptimizationsCapabilityTlvParser()));
         regs.add(context.registerTlvSerializer(Stateful.class, new SyncOptimizationsCapabilityTlvParser()));
+
+        regs.add(context.registerTlvParser(LspDbVersionTlvParser.TYPE, new LspDbVersionTlvParser()));
+        regs.add(context.registerTlvSerializer(LspDbVersion.class, new LspDbVersionTlvParser()));
+
+        regs.add(context.registerTlvParser(SpeakerEntityIdTlvParser.TYPE, new SpeakerEntityIdTlvParser()));
+        regs.add(context.registerTlvSerializer(SpeakerEntityId.class, new SpeakerEntityIdTlvParser()));
 
         return regs;
     }
