@@ -1,0 +1,136 @@
+module bgp-labeled-unicast {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:bgp-labeled-unicast";
+    prefix "bgp-lu";
+
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import bgp-message { prefix bgp-msg; revision-date 2013-09-19; }
+    import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
+    import bgp-rib { prefix bgp-rib; revision-date 2013-09-25; }
+    import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
+    import bmp-monitor { prefix bmp-mon; revision-date 2015-05-12; }
+
+    organization "Cisco Systems, Inc.";
+    contact "GE QU <gequ@cisco.com>";
+
+    description
+        "This module contains the base data model of a BGP message.
+        It rolls up the definitions contained in RFC3107.
+
+        Copyright (c)2015 Cisco Systems, Inc. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2015-05-25" {
+        description
+            "Initial Version.";
+    }
+
+    identity labeled-unicast-subsequent-address-family {
+        reference "https://tools.ietf.org/html/rfc3107#page-3";
+        base bgp-t:subsequent-address-family;
+    }
+    grouping label {
+        reference "https://tools.ietf.org/html/rfc3107#page-3";
+        leaf label-value {
+            type uint32{
+                range "0..1048575";
+            }
+        }
+        leaf exp {
+            type bits {
+                bit exp0 {
+                    position 0;
+                }
+                bit exp1 {
+                    position 1;
+                }
+                bit exp2 {
+                    position 2;
+                }
+            }
+        }
+        leaf bottom-bit {
+            type boolean;
+        }
+    }
+    grouping labeled-unicast-destination {
+        reference "https://tools.ietf.org/html/rfc3107#page-3";
+        list c-labeled-unicast-destination {
+            list label-stack {
+                uses label;
+            }
+            leaf prefix-type {
+                type inet:ip-prefix;
+            }
+        }
+    }
+    grouping labeled-unicast-routes {
+        container labeled-unicast-routes {
+            list labeled-unicast-route {
+                leaf route-key {
+                    type string;
+                }
+                key "route-key";
+                uses labeled-unicast-destination;
+                uses bgp-rib:route;
+            }
+        }
+    }
+    augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
+        case destination-labeled-unicast-case {
+            container destination-labeled-unicast {
+                uses labeled-unicast-destination;
+            }
+        }
+    }
+    augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type" {
+        case destination-labeled-unicast-case {
+            container destination-labeled-unicast {
+                uses labeled-unicast-destination;
+            }
+        }
+    }
+    augment "/bgp-rib:application-rib/bgp-rib:tables/bgp-rib:routes" {
+        case labeled-unicast-routes-case {
+            uses labeled-unicast-routes;
+        }
+    }
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:loc-rib/bgp-rib:tables/bgp-rib:routes" {
+        case labeled-unicast-routes-case {
+            uses labeled-unicast-routes;
+        }
+    }
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:adj-rib-in/bgp-rib:tables/bgp-rib:routes" {
+        case labeled-unicast-routes-case {
+            uses labeled-unicast-routes;
+        }
+    }
+
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:effective-rib-in/bgp-rib:tables/bgp-rib:routes" {
+        case labeled-unicast-routes-case {
+            uses labeled-unicast-routes;
+        }
+    }
+
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:adj-rib-out/bgp-rib:tables/bgp-rib:routes" {
+        case labeled-unicast-routes-case {
+            uses labeled-unicast-routes;
+        }
+    }
+
+    augment "/bmp-mon:bmp-monitor/bmp-mon:monitor/bmp-mon:router/bmp-mon:peer/bmp-mon:pre-policy-rib/bmp-mon:tables/bmp-mon:routes" {
+        case labeled-unicast-routes-case {
+            uses labeled-unicast-routes;
+        }
+    }
+
+    augment "/bmp-mon:bmp-monitor/bmp-mon:monitor/bmp-mon:router/bmp-mon:peer/bmp-mon:post-policy-rib/bmp-mon:tables/bmp-mon:routes" {
+        case labeled-unicast-routes-case {
+            uses labeled-unicast-routes;
+        }
+    }
+}
