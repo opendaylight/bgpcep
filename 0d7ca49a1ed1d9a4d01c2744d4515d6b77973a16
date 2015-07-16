@@ -1,0 +1,273 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_1df59eca",
+        "filename": "bgp/labeled-unicast/pom.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-16T09:36:19Z",
+      "side": 1,
+      "message": "year",
+      "range": {
+        "startLine": 4,
+        "startChar": 15,
+        "endLine": 4,
+        "endChar": 19
+      },
+      "revId": "0d7ca49a1ed1d9a4d01c2744d4515d6b77973a16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_fdf9c2c8",
+        "filename": "bgp/labeled-unicast/pom.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-16T09:36:19Z",
+      "side": 1,
+      "message": "run mvn dependency:analyze to get rid of unneeded dependencies",
+      "revId": "0d7ca49a1ed1d9a4d01c2744d4515d6b77973a16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_7d2db245",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/BGPActivator.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-16T09:36:19Z",
+      "side": 1,
+      "message": "remove this comment",
+      "revId": "0d7ca49a1ed1d9a4d01c2744d4515d6b77973a16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_9d30ce9f",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/BGPActivator.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-16T09:36:19Z",
+      "side": 1,
+      "message": "\u0027 \u003d \u0027 insert spaces",
+      "range": {
+        "startLine": 26,
+        "startChar": 33,
+        "endLine": 26,
+        "endChar": 34
+      },
+      "revId": "0d7ca49a1ed1d9a4d01c2744d4515d6b77973a16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_5d2a362d",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-16T09:36:19Z",
+      "side": 1,
+      "message": "field",
+      "range": {
+        "startLine": 103,
+        "startChar": 21,
+        "endLine": 103,
+        "endChar": 26
+      },
+      "revId": "0d7ca49a1ed1d9a4d01c2744d4515d6b77973a16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_fd20e24a",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-16T09:36:19Z",
+      "side": 1,
+      "message": "\u0027} else\u0027",
+      "range": {
+        "startLine": 112,
+        "startChar": 16,
+        "endLine": 112,
+        "endChar": 21
+      },
+      "revId": "0d7ca49a1ed1d9a4d01c2744d4515d6b77973a16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_bd1a6a15",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-16T09:36:19Z",
+      "side": 1,
+      "message": "you can move this line after \u0027else\u0027",
+      "range": {
+        "startLine": 122,
+        "startChar": 16,
+        "endLine": 122,
+        "endChar": 95
+      },
+      "revId": "0d7ca49a1ed1d9a4d01c2744d4515d6b77973a16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_dd15e6e5",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-16T09:36:19Z",
+      "side": 1,
+      "message": "\u0027} else\u0027",
+      "range": {
+        "startLine": 123,
+        "startChar": 12,
+        "endLine": 123,
+        "endChar": 17
+      },
+      "revId": "0d7ca49a1ed1d9a4d01c2744d4515d6b77973a16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_3dde5a40",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-16T09:36:19Z",
+      "side": 1,
+      "message": "insert spaces between methods (check all your clases)",
+      "revId": "0d7ca49a1ed1d9a4d01c2744d4515d6b77973a16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_fde78210",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-16T09:36:19Z",
+      "side": 1,
+      "message": "bottomBit !\u003d 1",
+      "range": {
+        "startLine": 170,
+        "startChar": 14,
+        "endLine": 170,
+        "endChar": 19
+      },
+      "revId": "0d7ca49a1ed1d9a4d01c2744d4515d6b77973a16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_bdf10acf",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LabeledUnicastRIBSupport.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-16T09:36:19Z",
+      "side": 1,
+      "message": "\u0027() !\u003d null\u0027",
+      "range": {
+        "startLine": 196,
+        "startChar": 55,
+        "endLine": 196,
+        "endChar": 64
+      },
+      "revId": "0d7ca49a1ed1d9a4d01c2744d4515d6b77973a16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_9dbe8ed3",
+        "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParserTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-16T09:36:19Z",
+      "side": 1,
+      "message": "remove commented code",
+      "revId": "0d7ca49a1ed1d9a4d01c2744d4515d6b77973a16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_1dca7e6e",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupport.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-16T09:36:19Z",
+      "side": 1,
+      "message": "Where do you use ROUTES?",
+      "revId": "0d7ca49a1ed1d9a4d01c2744d4515d6b77973a16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
