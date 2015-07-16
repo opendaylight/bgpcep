@@ -56,19 +56,7 @@
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-peer-registry</type>
                         <name>global-bgp-peer-registry</name>
                     </accepting-peer-registry>
-
                 </module>
-
-                <!--
-                     A single BGP peer. Note this section is deactivated because a misconfigured peer
-                     tends to log rather nasty error messages.
-
-                     For TCP-MD5 support, make sure the dispatcher associated with the rib has
-                     "md5-channel-factory" attribute set and then add a "password" attribute here.
-                     Note that the peer has to have the same password configured, otherwise the
-                     connection will not be established.
-                     If peer role is not present, default value "ibgp" will be used (allowed values are also "ebgp" and
-                     "rr-client").
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-peer</type>
                     <name>example-bgp-peer</name>
@@ -99,9 +87,11 @@
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
                         <name>flowspec</name>
                     </advertized-table>
+                    <advertized-table>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+                        <name>labeled-unicast</name>
+                    </advertized-table>
                 </module>
-                -->
-
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:rib-impl</type>
                     <name>example-bgp-rib</name>
@@ -125,6 +115,10 @@
                     <local-table>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
                         <name>flowspec</name>
+                    </local-table>
+                    <local-table>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+                        <name>labeled-unicast</name>
                     </local-table>
                     <extensions>
                         <type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extensions</type>
