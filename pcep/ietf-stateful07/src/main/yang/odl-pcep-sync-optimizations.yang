@@ -49,11 +49,59 @@ module odl-pcep-sync-optimizations {
         }
     }
 
+    grouping lsp-db-version-tlv {
+        container lsp-db-version {
+            uses pcep:tlv;
+            leaf lsp-db-version-value {
+                type uint64;
+            }
+        }
+    }
+
+    grouping speaker-entity-id-tlv {
+        container speaker-entity-id {
+            uses pcep:tlv;
+            leaf speaker-entity-id-value {
+                type binary;
+            }
+        }
+    }
+
     augment "/msg:open/msg:open-message/msg:open/msg:tlvs/stateful:stateful" {
         uses sync-optimizations-capability-tlv;
     }
 
     augment "/nt:network-topology/nt:topology/nt:node/topo:path-computation-client/topo:stateful-tlv/stateful:stateful" {
         uses sync-optimizations-capability-tlv;
+    }
+
+    augment "/msg:open/msg:open-message/msg:open/msg:tlvs" {
+        uses lsp-db-version-tlv;
+        uses speaker-entity-id-tlv;
+    }
+
+    augment "/stateful:pcupd/stateful:pcupd-message/stateful:updates/stateful:lsp/stateful:tlvs" {
+        uses lsp-db-version-tlv;
+    }
+
+    augment "/stateful:pcrpt/stateful:pcrpt-message/stateful:reports/stateful:lsp/stateful:tlvs" {
+        uses lsp-db-version-tlv;
+    }
+
+    augment "/nt:network-topology/nt:topology/nt:node/topo:path-computation-client/topo:reported-lsp/topo:path/stateful:lsp/stateful:tlvs" {
+        uses lsp-db-version-tlv;
+    }
+
+    augment "/topo:add-lsp/topo:input/topo:arguments/stateful:lsp/stateful:tlvs" {
+        uses lsp-db-version-tlv;
+    }
+
+    augment "/topo:update-lsp/topo:input/topo:arguments/stateful:lsp/stateful:tlvs" {
+        uses lsp-db-version-tlv;
+    }
+
+    augment "/msg:pcerr/msg:pcerr-message/msg:error-type/msg:session-case/msg:session/msg:open/msg:tlvs" {
+        uses lsp-db-version-tlv;
+        uses speaker-entity-id-tlv;
     }
 }
