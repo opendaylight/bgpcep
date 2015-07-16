@@ -12,6 +12,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.EventExecutor;
@@ -19,15 +20,14 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
-import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
-import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ChannelPipelineInitializer;
+import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BGPReconnectPromise extends DefaultPromise<Void> {
+public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Void> {
     private static final Logger LOG = LoggerFactory.getLogger(BGPReconnectPromise.class);
 
     private final InetSocketAddress address;
@@ -35,7 +35,7 @@ public class BGPReconnectPromise extends DefaultPromise<Void> {
     private final Bootstrap b;
     private final ChannelPipelineInitializer initializer;
     private final EventExecutor executor;
-    private Future<BGPSessionImpl> pending;
+    private Future<S> pending;
 
     public BGPReconnectPromise(final EventExecutor executor, final InetSocketAddress address,
                                final ReconnectStrategyFactory connectStrategyFactory, final Bootstrap b,
@@ -52,9 +52,9 @@ public class BGPReconnectPromise extends DefaultPromise<Void> {
         final ReconnectStrategy cs = this.strategyFactory.createReconnectStrategy();
 
         // Set up a client with pre-configured bootstrap, but add a closed channel handler into the pipeline to support reconnect attempts
-        pending = createClient(this.address, cs, b, new ChannelPipelineInitializer() {
+        pending = createClient(this.address, cs, b, new ChannelPipelineInitializer<S>() {
             @Override
-            public void initializeChannel(final SocketChannel channel, final Promise<BGPSessionImpl> promise) {
+            public void initializeChannel(final SocketChannel channel, final Promise<S> promise) {
                 initializer.initializeChannel(channel, promise);
                 // add closed channel handler
                 // This handler has to be added as last channel handler and the channel inactive event has to be caught by it
@@ -74,10 +74,16 @@ public class BGPReconnectPromise extends DefaultPromise<Void> {
         });
     }
 
-    public Future<BGPSessionImpl> createClient(final InetSocketAddress address, final ReconnectStrategy strategy, final Bootstrap bootstrap,
-                                               final ChannelPipelineInitializer initializer) {
+    public Future<S> createClient(final InetSocketAddress address, final ReconnectStrategy strategy, final Bootstrap bootstrap,
+                                  final ChannelPipelineInitializer initializer) {
         final BGPProtocolSessionPromise p = new BGPProtocolSessionPromise(this.executor, address, strategy, bootstrap);
-        final ChannelHandler chInit = BGPDispatcherImpl.BGPChannel.createChannelInitializer(initializer, p);
+        final ChannelHandler chInit = new ChannelInitializer<SocketChannel>() {
+            @Override
+            protected void initChannel(SocketChannel ch) {
+                initializer.initializeChannel(ch, p);
+            }
+        };
+
         bootstrap.handler(chInit);
         p.connect();
         LOG.debug("Client created.");

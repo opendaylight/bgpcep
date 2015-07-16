@@ -9,8 +9,8 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.concurrent.Promise;
-import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
+import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 
-public interface ChannelPipelineInitializer {
-    void initializeChannel(SocketChannel socketChannel, Promise<BGPSessionImpl> promise);
+public interface ChannelPipelineInitializer<S extends BGPSession> {
+    void initializeChannel(SocketChannel socketChannel, Promise<S> promise);
 }

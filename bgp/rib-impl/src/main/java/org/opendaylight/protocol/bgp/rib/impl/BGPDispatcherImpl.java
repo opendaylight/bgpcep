@@ -32,6 +32,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ChannelPipelineInitializer;
+import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionNegotiatorFactory;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
@@ -106,7 +107,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         this.keys = keys;
 
         final Bootstrap b = new Bootstrap();
-        final BGPReconnectPromise p = new BGPReconnectPromise(GlobalEventExecutor.INSTANCE, address,
+        final BGPReconnectPromise p = new BGPReconnectPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE, address,
             connectStrategyFactory, b, BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.hf.getDecoders(), snf, BGPDispatcherImpl.this.hf.getEncoders()));
         b.option(ChannelOption.SO_KEEPALIVE, Boolean.valueOf(true));
         this.customizeBootstrap(b);
@@ -181,19 +182,18 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         }
     }
 
-    public final static class BGPChannel {
+    private static final class BGPChannel {
         private static final String NEGOTIATOR = "negotiator";
 
         private BGPChannel() {
 
         }
 
-        public static <T extends BGPSessionNegotiatorFactory> ChannelPipelineInitializer createChannelPipelineInitializer(final ChannelHandler[] channelDecoder,
-                                                                                                                          final T snf,
-                                                                                                                          final ChannelHandler[] channelEncoder) {
-            return new ChannelPipelineInitializer() {
+        public static <S extends BGPSession, T extends BGPSessionNegotiatorFactory> ChannelPipelineInitializer
+            createChannelPipelineInitializer(final ChannelHandler[] channelDecoder, final T snf, final ChannelHandler[] channelEncoder) {
+            return new ChannelPipelineInitializer<S>() {
                 @Override
-                public void initializeChannel(final SocketChannel ch, final Promise<BGPSessionImpl> promise) {
+                public void initializeChannel(final SocketChannel ch, final Promise<S> promise) {
                     ch.pipeline().addLast(channelDecoder);
                     ch.pipeline().addLast(NEGOTIATOR, snf.getSessionNegotiator(ch, promise));
                     ch.pipeline().addLast(channelEncoder);
@@ -201,7 +201,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
             };
         }
 
-        public static ChannelHandler createChannelInitializer(final ChannelPipelineInitializer initializer, final Promise<BGPSessionImpl> promise) {
+        public static <S extends BGPSession> ChannelHandler createChannelInitializer(final ChannelPipelineInitializer initializer, final Promise<S> promise) {
             return new ChannelInitializer<SocketChannel>() {
                 @Override
                 protected void initChannel(SocketChannel ch) {
@@ -211,5 +211,3 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         }
     }
 }
-
-
