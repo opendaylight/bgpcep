@@ -9,7 +9,7 @@ package org.opendaylight.controller.config.yang.pcep.stateful07.cfg;
 
 import org.opendaylight.controller.config.api.DependencyResolver;
 import org.opendaylight.controller.config.api.ModuleIdentifier;
-import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
+import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator;
 
 public class SyncOptimizationsPCEPParserModule extends AbstractSyncOptimizationsPCEPParserModule {
 
@@ -24,7 +24,7 @@ public class SyncOptimizationsPCEPParserModule extends AbstractSyncOptimizations
 
     @Override
     protected AutoCloseable createInstance() {
-        return new StatefulActivator();
+        return new SyncOptimizationsActivator();
     }
 
 }
