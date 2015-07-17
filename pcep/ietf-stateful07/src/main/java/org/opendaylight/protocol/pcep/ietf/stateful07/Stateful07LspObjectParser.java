@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeMedium;
-
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
@@ -156,6 +155,9 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
             serializeTlv(tlvs.getVsTlv(), body);
         }
         serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
+        if (tlvs.getPathBinding() != null) {
+            serializeTlv(tlvs.getPathBinding(), body);
+        }
     }
 
     @Override
