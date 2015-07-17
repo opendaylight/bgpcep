@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_a23002e9",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/protocol/pcep/sync/optimizations/SyncOptimizationsLspObjectParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-17T06:27:35Z",
+      "side": 1,
+      "message": "Also extend parser and register in activator.",
+      "revId": "4d00f5737cf41556cb9c00f3d8a340b0469dffad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_424fae6b",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/protocol/pcep/sync/optimizations/SyncOptimizationsLspObjectParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-17T06:27:35Z",
+      "side": 1,
+      "message": "check if the augmentation is not null.",
+      "range": {
+        "startLine": 28,
+        "startChar": 30,
+        "endLine": 28,
+        "endChar": 34
+      },
+      "revId": "4d00f5737cf41556cb9c00f3d8a340b0469dffad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_6252ea14",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/protocol/pcep/sync/optimizations/SyncOptimizationsLspObjectParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-17T06:27:35Z",
+      "side": 1,
+      "message": "here use function from super class - serializeTlv(...)",
+      "range": {
+        "startLine": 34,
+        "startChar": 36,
+        "endLine": 34,
+        "endChar": 48
+      },
+      "revId": "4d00f5737cf41556cb9c00f3d8a340b0469dffad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
