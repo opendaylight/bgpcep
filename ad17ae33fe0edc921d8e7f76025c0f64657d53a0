@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_c23bbecf",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/protocol/pcep/ietf/stateful07/Stateful07LspObjectParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-17T06:22:15Z",
+      "side": 1,
+      "message": "please move this to separate commit, so we can cherry-pick the change to stable/lithium.",
+      "revId": "ad17ae33fe0edc921d8e7f76025c0f64657d53a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_e236fae6",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/protocol/pcep/sync/optimizations/LspDbVersionTlvParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-17T06:22:15Z",
+      "side": 1,
+      "message": "use readSlice or use readAllBytes",
+      "range": {
+        "startLine": 41,
+        "startChar": 84,
+        "endLine": 41,
+        "endChar": 89
+      },
+      "revId": "ad17ae33fe0edc921d8e7f76025c0f64657d53a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_022216a4",
+        "filename": "pcep/ietf-stateful07/src/main/yang/odl-pcep-sync-optimizations.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-17T06:22:15Z",
+      "side": 1,
+      "message": "add speaker entity TLV here",
+      "revId": "ad17ae33fe0edc921d8e7f76025c0f64657d53a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
