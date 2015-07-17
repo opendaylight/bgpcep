@@ -118,11 +118,7 @@ final class BestPathSelector {
             final BgpOrigin no = state.getOrigin();
 
             // This trick relies on the order in which the values are declared in the model.
-            if (no.ordinal() < bo.ordinal()) {
-                return false;
-            } else {
-                return true;
-            }
+            return no.ordinal() > bo.ordinal();
         }
 
         // FIXME: we should be able to cache the best AS
@@ -141,11 +137,7 @@ final class BestPathSelector {
             if (this.bestState.getMultiExitDisc() != null || state.getMultiExitDisc() != null) {
                 final Long bmed = this.bestState.getMultiExitDisc();
                 final Long nmed = state.getMultiExitDisc();
-                if (nmed < bmed) {
-                    return false;
-                } else {
-                    return true;
-                }
+                return nmed > bmed;
             }
         } else {
             /*
