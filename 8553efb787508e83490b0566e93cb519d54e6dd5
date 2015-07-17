@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_e264bae6",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/protocol/pcep/sync/optimizations/SyncOptimizationsLspObjectParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-17T07:28:31Z",
+      "side": 1,
+      "message": "Use the annotation provided by native java libraries.",
+      "range": {
+        "startLine": 12,
+        "startChar": 33,
+        "endLine": 12,
+        "endChar": 40
+      },
+      "revId": "8553efb787508e83490b0566e93cb519d54e6dd5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_826386db",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/protocol/pcep/sync/optimizations/SyncOptimizationsLspObjectParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-17T07:28:31Z",
+      "side": 1,
+      "message": "Extend tlvs parser not object parser.",
+      "range": {
+        "startLine": 42,
+        "startChar": 15,
+        "endLine": 42,
+        "endChar": 26
+      },
+      "revId": "8553efb787508e83490b0566e93cb519d54e6dd5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
