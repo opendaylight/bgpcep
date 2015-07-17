@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_82e86611",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/protocol/pcep/sync/optimizations/SyncOptimizationsLspObjectParser.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-17T07:54:34Z",
+      "side": 1,
+      "message": "This is not right. Absence of this TLV is correct use-case...Do what you did in open object extension.",
+      "range": {
+        "startLine": 34,
+        "startChar": 22,
+        "endLine": 34,
+        "endChar": 34
+      },
+      "revId": "5598cdbef53986890c52ed03734e1d4dcbd9c436",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_42eb2e13",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/protocol/pcep/sync/optimizations/SyncOptimizationsLspObjectParser.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-17T07:54:34Z",
+      "side": 1,
+      "message": "I am sorry, I confused you...I meant addTlv()...as you did in open object extension.",
+      "range": {
+        "startLine": 41,
+        "startChar": 19,
+        "endLine": 41,
+        "endChar": 28
+      },
+      "revId": "5598cdbef53986890c52ed03734e1d4dcbd9c436",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
