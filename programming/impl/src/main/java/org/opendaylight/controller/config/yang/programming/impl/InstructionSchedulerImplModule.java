@@ -25,8 +25,9 @@ import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.SchedulerException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RpcRegistration;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.ProgrammingService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.SubmitInstructionInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.InstructionsQueueKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.ProgrammingService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.SubmitInstructionInput;
 
 /**
  *
@@ -54,7 +55,8 @@ public final class InstructionSchedulerImplModule extends
     public java.lang.AutoCloseable createInstance() {
         final ListeningExecutorService exec = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
 
-        final ProgrammingServiceImpl inst = new ProgrammingServiceImpl(getDataProviderDependency(), getNotificationServiceDependency(), exec, getTimerDependency());
+        final ProgrammingServiceImpl inst = new ProgrammingServiceImpl(getDataProviderDependency(), getNotificationServiceDependency(), exec, getTimerDependency(),
+                new InstructionsQueueKey(getInstructionQueueId() != null ? getInstructionQueueId() : getIdentifier().getInstanceName()));
 
         final RpcRegistration<ProgrammingService> reg = getRpcRegistryDependency().addRpcImplementation(ProgrammingService.class, inst);
 
