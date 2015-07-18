@@ -24,6 +24,11 @@ module odl-programming-impl-cfg {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision "2015-07-20" {
+        description
+            "Introduce instruction queue id.";
+    }
+
     revision "2013-11-15" {
         description
             "Initial revision";
@@ -72,6 +77,10 @@ module odl-programming-impl-cfg {
                         config:required-identity netty:netty-timer;
                     }
                 }
+            }
+
+            leaf instruction-queue-id {
+                type string;
             }
         }
     }
