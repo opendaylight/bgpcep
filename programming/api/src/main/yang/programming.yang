@@ -66,6 +66,11 @@ module programming {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision "2015-07-20" {
+        description
+            "Introduce instruction queue id.";
+    }
+
     revision "2013-09-30" {
         description
             "Initial revision.";
@@ -179,6 +184,10 @@ module programming {
             "The bare minimum run-time information which should be
             exposed by an implementation of the instruction
             scheduler defined in this model";
+
+        leaf instruction-queue-id {
+            type string;
+        }
 
         list instruction {
             description
@@ -339,7 +348,8 @@ module programming {
         }
     }
 
-    container instructions-queue {
+    list instructions-queue {
+        key "instruction-queue-id";
         uses instruction-queue;
     }
 
