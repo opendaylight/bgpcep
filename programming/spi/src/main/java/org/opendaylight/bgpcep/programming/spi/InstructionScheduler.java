@@ -8,8 +8,7 @@
 package org.opendaylight.bgpcep.programming.spi;
 
 import com.google.common.util.concurrent.ListenableFuture;
-
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.SubmitInstructionInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.SubmitInstructionInput;
 
 public interface InstructionScheduler {
     /**

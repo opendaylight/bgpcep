@@ -8,7 +8,7 @@
 package org.opendaylight.bgpcep.programming;
 
 import java.math.BigInteger;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.Nanotime;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.Nanotime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
