@@ -16,13 +16,32 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev150515.bgp.common.afi.safi.list.AfiSafi;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev150515.bgp.common.afi.safi.list.AfiSafiBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.Bgp;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.BgpBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.GlobalBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.NeighborsBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.global.base.AfiSafisBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.global.base.ConfigBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev150515.Ipv4Unicast;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev150515.Ipv6Unicast;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
 import org.osgi.framework.BundleContext;
 
@@ -58,10 +77,11 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        RIBImpl rib = new RIBImpl(getRibId(), new AsNumber(getLocalAs()), getBgpRibId(), getClusterId(), getExtensionsDependency(),
+        final RIBImpl rib = new RIBImpl(getRibId(), new AsNumber(getLocalAs()), getBgpRibId(), getClusterId(), getExtensionsDependency(),
             getBgpDispatcherDependency(), getTcpReconnectStrategyDependency(), getCodecTreeFactoryDependency(), getSessionReconnectStrategyDependency(),
             getDataProviderDependency(), getDomDataProviderDependency(), getLocalTableDependency(), classLoadingStrategy());
         registerSchemaContextListener(rib);
+        createOpenconfig();
         return rib;
     }
 
@@ -69,8 +89,8 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
         return getExtensionsDependency().getClassLoadingStrategy();
     }
 
-    private void registerSchemaContextListener(RIBImpl rib) {
-        DOMDataBroker domBroker = getDomDataProviderDependency();
+    private void registerSchemaContextListener(final RIBImpl rib) {
+        final DOMDataBroker domBroker = getDomDataProviderDependency();
         if(domBroker instanceof SchemaService) {
             ((SchemaService) domBroker).registerSchemaContextListener(rib);
         } else {
@@ -80,7 +100,35 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
         }
     }
 
-    public void setBundleContext(BundleContext bundleContext) {
+    public void setBundleContext(final BundleContext bundleContext) {
         this.bundleContext = bundleContext;
+    }
+
+    private void createOpenconfig() {
+        final BgpBuilder builder = new BgpBuilder();
+        builder.setNeighbors(new NeighborsBuilder().build());
+        builder.setGlobal(new GlobalBuilder()
+            .setAfiSafis(new AfiSafisBuilder().setAfiSafi(toAfiSafi(getLocalTableDependency())).build())
+            .setConfig(
+                    new ConfigBuilder()
+                    .setAs(new AsNumber(getLocalAs()))
+                    .setRouterId(getBgpRibId())
+                    .build())
+            .build());
+        final WriteTransaction wTx = getDataProviderDependency().newWriteOnlyTransaction();
+        wTx.merge(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Bgp.class), builder.build());
+        wTx.submit();
+    }
+
+    private static List<AfiSafi> toAfiSafi(final List<BgpTableType> advertiedTables) {
+        final List<AfiSafi> afiSafis = new ArrayList<>();
+        for (final BgpTableType tableType : advertiedTables) {
+            if (tableType.getAfi() == Ipv4AddressFamily.class && tableType.getSafi() == UnicastSubsequentAddressFamily.class) {
+                afiSafis.add(new AfiSafiBuilder().setAfiSafiName(Ipv4Unicast.class).build());
+            } else if (tableType.getAfi() == Ipv6AddressFamily.class && tableType.getSafi() == UnicastSubsequentAddressFamily.class) {
+                afiSafis.add(new AfiSafiBuilder().setAfiSafiName(Ipv6Unicast.class).build());
+            }
+        }
+        return afiSafis;
     }
 }

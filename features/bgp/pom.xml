@@ -105,6 +105,12 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
+            <artifactId>features-netconf-connector</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
             <artifactId>features-config-netty</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
@@ -171,6 +177,10 @@
           <artifactId>concepts</artifactId>
       </dependency>
       <dependency>
+        <groupId>org.opendaylight.controller</groupId>
+        <artifactId>sal-netconf-connector</artifactId>
+      </dependency>
+      <dependency>
           <groupId>${project.groupId}</groupId>
           <artifactId>data-change-counter</artifactId>
       </dependency>
@@ -226,6 +236,16 @@
       <dependency>
           <groupId>com.google.guava</groupId>
           <artifactId>guava</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>bgp-openconfig-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>bgp-openconfig-impl</artifactId>
+        <version>${project.version}</version>
       </dependency>
   </dependencies>
 </project>

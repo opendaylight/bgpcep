@@ -20,16 +20,34 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import io.netty.util.concurrent.Future;
+import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.tcpmd5.api.KeyMapping;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev150515.bgp.common.afi.safi.list.AfiSafi;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev150515.bgp.common.afi.safi.list.AfiSafiBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.Bgp;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.Neighbors;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.neighbor.group.AfiSafisBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.neighbor.group.RouteReflectorBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.neighbor.group.TimersBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.neighbor.group.TransportBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.neighbor.group.route.reflector.ConfigBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.neighbors.Neighbor;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.neighbors.NeighborBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.neighbors.NeighborKey;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev150515.Ipv4Unicast;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev150515.Ipv6Unicast;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev150515.PeerType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
@@ -44,6 +62,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.GracefulRestartCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,6 +148,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
                 getPeerRegistryBackwards().removePeer(getHostWithoutValue());
             }
         };
+        createNeighbor();
 
         // Initiate connection
         if(getInitiateConnection()) {
@@ -225,6 +248,65 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         }
 
         return null;
+    }
+
+    private void createNeighbor() {
+        final NeighborBuilder builder = new NeighborBuilder();
+        builder.setAfiSafis(new AfiSafisBuilder().setAfiSafi(toAfiSafi(getAdvertizedTableDependency())).build());
+        builder.setNeighborAddress(getHost());
+        final ConfigBuilder rrConfigBuilder = new ConfigBuilder();
+        if (getPeerRole() == PeerRole.RrClient) {
+            rrConfigBuilder.setRouteReflectorClient(true);
+        } else {
+            rrConfigBuilder.setRouteReflectorClient(false);
+        }
+        builder.setRouteReflector(new RouteReflectorBuilder().setConfig(rrConfigBuilder.build()).build());
+        builder.setTimers(new TimersBuilder().setConfig(
+                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.neighbor.group.timers.ConfigBuilder()
+                .setHoldTime(new BigDecimal(getHoldtimer()))
+                .build()).build());
+        builder.setTransport(new TransportBuilder().setConfig(
+                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.neighbor.group.transport.ConfigBuilder()
+                .setPassiveMode(getInitiateConnection())
+                .build()).build());
+        final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.neighbor.group.ConfigBuilder configBuilder = new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.neighbor.group.ConfigBuilder();
+        configBuilder
+                .setAuthPassword(getPasswordOrNull())
+                .setLocalAs(new AsNumber(getAsOrDefault(getRibDependency())))
+                .setPeerType(toPeerType(getPeerRole()))
+                .setDescription(super.getIdentifier().getInstanceName());
+        if (getRemoteAs() != null) {
+            configBuilder.setPeerAs(new AsNumber(getRemoteAs()));
+        }
+        builder.setConfig(configBuilder.build());
+        builder.setKey(new NeighborKey(getHost()));
+
+        final WriteTransaction wTx = getRibDependency().getDataBroker().newWriteOnlyTransaction();
+        wTx.put(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Bgp.class).child(Neighbors.class).child(Neighbor.class, builder.getKey()), builder.build());
+        wTx.submit();
+    }
+
+    private static List<AfiSafi> toAfiSafi(final List<BgpTableType> advertiedTables) {
+        final List<AfiSafi> afiSafis = new ArrayList<>();
+        for (final BgpTableType tableType : advertiedTables) {
+            if (tableType.getAfi() == Ipv4AddressFamily.class && tableType.getSafi() == UnicastSubsequentAddressFamily.class) {
+                afiSafis.add(new AfiSafiBuilder().setAfiSafiName(Ipv4Unicast.class).build());
+            } else if (tableType.getAfi() == Ipv6AddressFamily.class && tableType.getSafi() == UnicastSubsequentAddressFamily.class) {
+                afiSafis.add(new AfiSafiBuilder().setAfiSafiName(Ipv6Unicast.class).build());
+            }
+        }
+        return afiSafis;
+    }
+
+    private static PeerType toPeerType(final PeerRole peerRole) {
+        switch (peerRole) {
+        case Ebgp:
+            return PeerType.EXTERNAL;
+        case Ibgp:
+            return PeerType.INTERNAL;
+        default:
+            return null;
+        }
     }
 
 }
