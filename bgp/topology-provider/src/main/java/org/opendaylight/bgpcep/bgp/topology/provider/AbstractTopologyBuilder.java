@@ -87,12 +87,6 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
     }
 
     @Deprecated
-    protected AbstractTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
-            final TopologyId topologyId, final TopologyTypes types, final Class<T> idClass) {
-        this(dataProvider, locRibReference, topologyId, types);
-    }
-
-    @Deprecated
     public final InstanceIdentifier<Tables> tableInstanceIdentifier(final Class<? extends AddressFamily> afi,
             final Class<? extends SubsequentAddressFamily> safi) {
         return this.locRibReference.getInstanceIdentifier().builder().child(LocRib.class).child(Tables.class, new TablesKey(afi, safi)).build();
@@ -133,34 +127,17 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
             LOG.trace("Transaction chain was already closed, skipping update.");
             return;
         }
-
         final ReadWriteTransaction trans = this.chain.newReadWriteTransaction();
         LOG.debug("Received data change {} event with transaction {}", changes, trans.getIdentifier());
-
         for (final DataTreeModification<T> change : changes) {
             try {
-                final DataObjectModification<T> root = change.getRootNode();
-                switch (root.getModificationType()) {
-                case DELETE:
-                    removeObject(trans, change.getRootPath().getRootIdentifier(), root.getDataBefore());
-                    break;
-                case SUBTREE_MODIFIED:
-                case WRITE:
-                    if (root.getDataBefore() != null) {
-                        removeObject(trans, change.getRootPath().getRootIdentifier(), root.getDataBefore());
-                    }
-                    createObject(trans, change.getRootPath().getRootIdentifier(), root.getDataAfter());
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unhandled modification type " + root.getModificationType());
-                }
+                routeChanged(change, trans);
             } catch (final RuntimeException e) {
                 LOG.warn("Data change {} was not completely propagated to listener {}, aborting", change, this, e);
                 trans.cancel();
                 return;
             }
         }
-
         Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
             @Override
             public void onSuccess(final Void result) {
@@ -172,6 +149,24 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
                 LOG.error("Failed to propagate change by listener {}", AbstractTopologyBuilder.this);
             }
         });
+    }
+
+    private void routeChanged(final DataTreeModification<T> change, final ReadWriteTransaction trans) {
+        final DataObjectModification<T> root = change.getRootNode();
+        switch (root.getModificationType()) {
+        case DELETE:
+            removeObject(trans, change.getRootPath().getRootIdentifier(), root.getDataBefore());
+            break;
+        case SUBTREE_MODIFIED:
+        case WRITE:
+            if (root.getDataBefore() != null) {
+                removeObject(trans, change.getRootPath().getRootIdentifier(), root.getDataBefore());
+            }
+            createObject(trans, change.getRootPath().getRootIdentifier(), root.getDataAfter());
+            break;
+        default:
+            throw new IllegalArgumentException("Unhandled modification type " + root.getModificationType());
+        }
     }
 
     @Override

@@ -262,37 +262,41 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
         final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> builder =
                 Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(Stats.QNAME));
         builder.withChild(ImmutableNodes.leafNode(PEER_STATS_TIMESTAMP_QNAME, timestamp.getValue()));
-        if (stat.getTlvs() != null) {
-            final Tlvs tlvs = stat.getTlvs();
-            if (tlvs.getRejectedPrefixesTlv() != null) {
-                builder.withChild(ImmutableNodes.leafNode(STAT0_QNAME, tlvs.getRejectedPrefixesTlv().getCount().getValue()));
-            }
-            if (tlvs.getDuplicatePrefixAdvertisementsTlv() != null) {
-                builder.withChild(ImmutableNodes.leafNode(STAT1_QNAME, tlvs.getDuplicatePrefixAdvertisementsTlv().getCount().getValue()));
-            }
-            if (tlvs.getDuplicateWithdrawsTlv() != null) {
-                builder.withChild(ImmutableNodes.leafNode(STAT2_QNAME, tlvs.getDuplicateWithdrawsTlv().getCount().getValue()));
-            }
-            if (tlvs.getInvalidatedClusterListLoopTlv() != null) {
-                builder.withChild(ImmutableNodes.leafNode(STAT3_QNAME, tlvs.getInvalidatedClusterListLoopTlv().getCount().getValue()));
-            }
-            if (tlvs.getInvalidatedAsPathLoopTlv() != null) {
-                builder.withChild(ImmutableNodes.leafNode(STAT4_QNAME, tlvs.getInvalidatedAsPathLoopTlv().getCount().getValue()));
-            }
-            if (tlvs.getInvalidatedOriginatorIdTlv() != null) {
-                builder.withChild(ImmutableNodes.leafNode(STAT5_QNAME, tlvs.getInvalidatedOriginatorIdTlv().getCount().getValue()));
-            }
-            if (tlvs.getInvalidatedAsConfedLoopTlv() != null) {
-                builder.withChild(ImmutableNodes.leafNode(STAT6_QNAME, tlvs.getInvalidatedAsConfedLoopTlv().getCount().getValue()));
-            }
-            if (tlvs.getAdjRibsInRoutesTlv() != null) {
-                builder.withChild(ImmutableNodes.leafNode(STAT7_QNAME, tlvs.getAdjRibsInRoutesTlv().getCount().getValue()));
-            }
-            if (tlvs.getLocRibRoutesTlv() != null) {
-                builder.withChild(ImmutableNodes.leafNode(STAT8_QNAME, tlvs.getLocRibRoutesTlv().getCount().getValue()));
-            }
+        final Tlvs tlvs = stat.getTlvs();
+        if (tlvs != null) {
+            statsForTlvs(tlvs, builder);
         }
         return builder.build();
+    }
+
+    private static void statsForTlvs(final Tlvs tlvs, final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> builder) {
+        if (tlvs.getRejectedPrefixesTlv() != null) {
+            builder.withChild(ImmutableNodes.leafNode(STAT0_QNAME, tlvs.getRejectedPrefixesTlv().getCount().getValue()));
+        }
+        if (tlvs.getDuplicatePrefixAdvertisementsTlv() != null) {
+            builder.withChild(ImmutableNodes.leafNode(STAT1_QNAME, tlvs.getDuplicatePrefixAdvertisementsTlv().getCount().getValue()));
+        }
+        if (tlvs.getDuplicateWithdrawsTlv() != null) {
+            builder.withChild(ImmutableNodes.leafNode(STAT2_QNAME, tlvs.getDuplicateWithdrawsTlv().getCount().getValue()));
+        }
+        if (tlvs.getInvalidatedClusterListLoopTlv() != null) {
+            builder.withChild(ImmutableNodes.leafNode(STAT3_QNAME, tlvs.getInvalidatedClusterListLoopTlv().getCount().getValue()));
+        }
+        if (tlvs.getInvalidatedAsPathLoopTlv() != null) {
+            builder.withChild(ImmutableNodes.leafNode(STAT4_QNAME, tlvs.getInvalidatedAsPathLoopTlv().getCount().getValue()));
+        }
+        if (tlvs.getInvalidatedOriginatorIdTlv() != null) {
+            builder.withChild(ImmutableNodes.leafNode(STAT5_QNAME, tlvs.getInvalidatedOriginatorIdTlv().getCount().getValue()));
+        }
+        if (tlvs.getInvalidatedAsConfedLoopTlv() != null) {
+            builder.withChild(ImmutableNodes.leafNode(STAT6_QNAME, tlvs.getInvalidatedAsConfedLoopTlv().getCount().getValue()));
+        }
+        if (tlvs.getAdjRibsInRoutesTlv() != null) {
+            builder.withChild(ImmutableNodes.leafNode(STAT7_QNAME, tlvs.getAdjRibsInRoutesTlv().getCount().getValue()));
+        }
+        if (tlvs.getLocRibRoutesTlv() != null) {
+            builder.withChild(ImmutableNodes.leafNode(STAT8_QNAME, tlvs.getLocRibRoutesTlv().getCount().getValue()));
+        }
     }
 
     private static String getStringIpAddress(final IpAddress ipAddress) {
