@@ -81,10 +81,10 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
 
         final Bootstrap b = new Bootstrap();
         final BGPProtocolSessionPromise p = new BGPProtocolSessionPromise(this.executor, address, strategy, b);
-        b.option(ChannelOption.SO_KEEPALIVE, Boolean.valueOf(true));
+        b.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE);
         b.handler(BGPChannel.createChannelInitializer(initializer, p));
         this.customizeBootstrap(b);
-        this.setWorkerGroup(b);
+        setWorkerGroup(b);
         p.connect();
         LOG.debug("Client created.");
         return p;
@@ -109,9 +109,9 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         final Bootstrap b = new Bootstrap();
         final BGPReconnectPromise p = new BGPReconnectPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE, address,
             connectStrategyFactory, b, BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.hf.getDecoders(), snf, BGPDispatcherImpl.this.hf.getEncoders()));
-        b.option(ChannelOption.SO_KEEPALIVE, Boolean.valueOf(true));
+        b.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE);
         this.customizeBootstrap(b);
-        this.setWorkerGroup(b);
+        setWorkerGroup(b);
         p.connect();
 
         this.keys = null;
@@ -166,7 +166,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
 
         try {
             b.channel(NioServerSocketChannel.class);
-        } catch (IllegalStateException e) {
+        } catch (final IllegalStateException e) {
             LOG.trace("Not overriding channelFactory on bootstrap {}", b, e);
         }
     }
@@ -177,7 +177,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         }
         try {
             b.channel(NioSocketChannel.class);
-        } catch (IllegalStateException e) {
+        } catch (final IllegalStateException e) {
             LOG.trace("Not overriding channelFactory on bootstrap {}", b, e);
         }
     }
@@ -204,7 +204,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         public static <S extends BGPSession> ChannelHandler createChannelInitializer(final ChannelPipelineInitializer initializer, final Promise<S> promise) {
             return new ChannelInitializer<SocketChannel>() {
                 @Override
-                protected void initChannel(SocketChannel ch) {
+                protected void initChannel(final SocketChannel ch) {
                     initializer.initializeChannel(ch, promise);
                 }
             };

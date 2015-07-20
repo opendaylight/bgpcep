@@ -53,6 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
@@ -148,7 +149,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
         final DOMDataBrokerExtension domDatatreeChangeService = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
         this.service = domDatatreeChangeService;
-        this.efWriter = EffectiveRibInWriter.create(getService(), this.createPeerChain(this), getYangRibId(), pd, this.ribContextRegistry);
+        this.efWriter = EffectiveRibInWriter.create(getService(), createPeerChain(this), getYangRibId(), pd, this.ribContextRegistry);
         LOG.debug("Effective RIB created.");
 
         for (final BgpTableType t : this.localTables) {
@@ -183,7 +184,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         } catch (final TransactionCommitFailedException e1) {
             LOG.error("Failed to initiate LocRIB for key {}", key, e1);
         }
-        this.locRibs.add(LocRibWriter.create(this.ribContextRegistry, key, this.createPeerChain(this), getYangRibId(), this.localAs, getService(), pd));
+        this.locRibs.add(LocRibWriter.create(this.ribContextRegistry, key, createPeerChain(this), getYangRibId(), this.localAs, getService(), pd));
     }
 
     @Override
@@ -258,20 +259,25 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
                     getInstanceIdentifier().child(LocRib.class).child(Tables.class, key)).checkedGet();
             if (tableMaybe.isPresent()) {
                 final Tables table = tableMaybe.get();
-                if (table.getRoutes() instanceof Ipv4RoutesCase) {
-                    final Ipv4RoutesCase routesCase = (Ipv4RoutesCase) table.getRoutes();
-                    if (routesCase.getIpv4Routes() != null && routesCase.getIpv4Routes().getIpv4Route() != null) {
-                        return routesCase.getIpv4Routes().getIpv4Route().size();
-                    }
-                } else if (table.getRoutes() instanceof Ipv6RoutesCase) {
-                    final Ipv6RoutesCase routesCase = (Ipv6RoutesCase) table.getRoutes();
-                    if (routesCase.getIpv6Routes() != null && routesCase.getIpv6Routes().getIpv6Route() != null) {
-                        return routesCase.getIpv6Routes().getIpv6Route().size();
-                    }
-                }
+                return countIpRoutes(table.getRoutes());
             }
         } catch (final ReadFailedException e) {
             LOG.debug("Failed to read tables", e);
+        }
+        return 0;
+    }
+
+    private int countIpRoutes(final Routes routes) {
+        if (routes instanceof Ipv4RoutesCase) {
+            final Ipv4RoutesCase routesCase = (Ipv4RoutesCase) routes;
+            if (routesCase.getIpv4Routes() != null && routesCase.getIpv4Routes().getIpv4Route() != null) {
+                return routesCase.getIpv4Routes().getIpv4Route().size();
+            }
+        } else if (routes instanceof Ipv6RoutesCase) {
+            final Ipv6RoutesCase routesCase = (Ipv6RoutesCase) routes;
+            if (routesCase.getIpv6Routes() != null && routesCase.getIpv6Routes().getIpv6Route() != null) {
+                return routesCase.getIpv6Routes().getIpv6Route().size();
+            }
         }
         return 0;
     }

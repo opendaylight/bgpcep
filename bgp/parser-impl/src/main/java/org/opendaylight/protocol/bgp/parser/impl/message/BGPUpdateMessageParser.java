@@ -81,7 +81,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
             }
         }
         final List<Ipv4Prefix> nlri = Ipv4Util.prefixListForBytes(ByteArray.readAllBytes(buffer));
-        if (nlri != null && !nlri.isEmpty()) {
+        if (!nlri.isEmpty()) {
             builder.setNlri(new NlriBuilder().setNlri(nlri).build());
         }
         final Update msg = builder.build();

@@ -102,22 +102,22 @@ final class UriBuilder {
         if (routerIdentifier == null) {
             return null;
         }
-
         if (routerIdentifier instanceof IsisNodeCase) {
             return isoId(((IsisNodeCase) routerIdentifier).getIsisNode().getIsoSystemId());
-        } else if (routerIdentifier instanceof IsisPseudonodeCase) {
+        }
+        if (routerIdentifier instanceof IsisPseudonodeCase) {
             final IsisPseudonode r = ((IsisPseudonodeCase) routerIdentifier).getIsisPseudonode();
-            return isoId(r.getIsIsRouterIdentifier().getIsoSystemId().getValue()) + '.'
-                + Hex.encodeHexString(new byte[] { UnsignedBytes.checkedCast(r.getPsn()) });
-        } else if (routerIdentifier instanceof OspfNodeCase) {
+            return isoId(r.getIsIsRouterIdentifier().getIsoSystemId().getValue()) + '.' + Hex.encodeHexString(new byte[] { UnsignedBytes.checkedCast(r.getPsn()) });
+        }
+        if (routerIdentifier instanceof OspfNodeCase) {
             return ((OspfNodeCase) routerIdentifier).getOspfNode().getOspfRouterId().toString();
-        } else if (routerIdentifier instanceof OspfPseudonodeCase) {
+        }
+        if (routerIdentifier instanceof OspfPseudonodeCase) {
             final OspfPseudonode r = ((OspfPseudonodeCase) routerIdentifier).getOspfPseudonode();
             return r.getOspfRouterId().toString() + ':' + r.getLanInterface().getValue();
-        } else {
-            LOG.warn("Unhandled router identifier type {}, fallback to toString()", routerIdentifier.getImplementedInterface());
-            return routerIdentifier.toString();
         }
+        LOG.warn("Unhandled router identifier type {}, fallback to toString()", routerIdentifier.getImplementedInterface());
+        return routerIdentifier.toString();
     }
 
     UriBuilder add(final String prefix, final NodeIdentifier node) {

@@ -44,17 +44,11 @@ final class BGPErrorIdentifier implements Serializable {
         if (this == obj) {
             return true;
         }
-        if (obj == null) {
-            return false;
-        }
-        if (this.getClass() != obj.getClass()) {
+        if (obj == null || this.getClass() != obj.getClass()) {
             return false;
         }
         final BGPErrorIdentifier other = (BGPErrorIdentifier) obj;
-        if (this.code != other.code) {
-            return false;
-        }
-        if (this.subcode != other.subcode) {
+        if (this.code != other.code || this.subcode != other.subcode) {
             return false;
         }
         return true;

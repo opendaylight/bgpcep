@@ -60,7 +60,7 @@ final class BestPathSelector {
              * are better.
              */
             final BestPathState state = new BestPathState(attrs);
-            if (this.bestOriginatorId == null || !isExistingPathBetter(originatorId, state)) {
+            if (this.bestOriginatorId == null || !isExistingPathBetter(state)) {
                 LOG.trace("Selecting path from router {}", routerId);
                 this.bestOriginatorId = originatorId;
                 this.bestRouterId = routerId;
@@ -76,14 +76,12 @@ final class BestPathSelector {
     /**
      * Chooses best route according to BGP best path selection.
      *
-     * @param originatorId of the new route
      * @param state attributes of the new route
      * @return true if the existing path is better, false if the new path is better
      */
-    private boolean isExistingPathBetter(@Nonnull final UnsignedInteger originatorId, @Nonnull final BestPathState state) {
+    private boolean isExistingPathBetter(@Nonnull final BestPathState state) {
         // 1. prefer path with accessible nexthop
         // - we assume that all nexthops are accessible
-
         /*
          * 2. prefer path with higher LOCAL_PREF
          *
@@ -102,7 +100,6 @@ final class BestPathSelector {
         if (state.getLocalPref() != null && state.getLocalPref() < this.bestState.getLocalPref()) {
             return true;
         }
-
         // 3. prefer learned path
         // - we assume that all paths are learned
 
@@ -120,7 +117,6 @@ final class BestPathSelector {
             // This trick relies on the order in which the values are declared in the model.
             return no.ordinal() > bo.ordinal();
         }
-
         // FIXME: we should be able to cache the best AS
         final Long bestAs = this.bestState.getPeerAs();
         final Long newAs = state.getPeerAs();

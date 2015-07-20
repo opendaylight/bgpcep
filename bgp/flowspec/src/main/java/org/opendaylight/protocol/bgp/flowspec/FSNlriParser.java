@@ -250,63 +250,7 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
     public static void serializeNlri(final List<Flowspec> flows, final ByteBuf buffer) {
         final ByteBuf nlriByteBuf = Unpooled.buffer();
         for (final Flowspec flow : flows) {
-            nlriByteBuf.writeByte(flow.getComponentType().getIntValue());
-            final FlowspecType value = flow.getFlowspecType();
-            switch (flow.getComponentType()) {
-            case DestinationPrefix:
-                nlriByteBuf.writeBytes(Ipv4Util.bytesForPrefixBegin(((DestinationPrefixCase) value).getDestinationPrefix()));
-                break;
-            case SourcePrefix:
-                nlriByteBuf.writeBytes(Ipv4Util.bytesForPrefixBegin(((SourcePrefixCase) value).getSourcePrefix()));
-                break;
-            case ProtocolIp:
-                serializeNumericTwoByteValue(((ProtocolIpCase) value).getProtocolIps(), nlriByteBuf);
-                break;
-            case Port:
-                serializeNumericTwoByteValue(((PortCase) value).getPorts(), nlriByteBuf);
-                break;
-            case DestinationPort:
-                serializeNumericTwoByteValue(((DestinationPortCase) value).getDestinationPorts(), nlriByteBuf);
-                break;
-            case SourcePort:
-                serializeNumericTwoByteValue(((SourcePortCase) value).getSourcePorts(), nlriByteBuf);
-                break;
-            case IcmpType:
-                serializeNumericOneByteValue(((IcmpTypeCase) value).getTypes(), nlriByteBuf);
-                break;
-            case IcmpCode:
-                serializeNumericOneByteValue(((IcmpCodeCase) value).getCodes(), nlriByteBuf);
-                break;
-            case TcpFlags:
-                final List<TcpFlags> flags = ((TcpFlagsCase) value).getTcpFlags();
-                for (final TcpFlags flag : flags) {
-                    final ByteBuf flagsBuf = Unpooled.buffer();
-                    writeShortest(flag.getValue(), flagsBuf);
-                    serializeBitmaskOperand(flag.getOp(), flagsBuf.readableBytes(), nlriByteBuf);
-                    nlriByteBuf.writeBytes(flagsBuf);
-                }
-                break;
-            case PacketLength:
-                serializeNumericTwoByteValue(((PacketLengthCase) value).getPacketLengths(), nlriByteBuf);
-                break;
-            case Dscp:
-                final List<Dscps> dscps = ((DscpCase) value).getDscps();
-                for (final Dscps dscp : dscps) {
-                    serializeNumericOperand(dscp.getOp(), 1, nlriByteBuf);
-                    writeShortest(dscp.getValue().getValue(), nlriByteBuf);
-                }
-                break;
-            case Fragment:
-                final List<Fragments> fragments = ((FragmentCase) value).getFragments();
-                for (final Fragments fragment : fragments) {
-                    serializeBitmaskOperand(fragment.getOp(), 1, nlriByteBuf);
-                    nlriByteBuf.writeByte(serializeFragment(fragment.getValue()));
-                }
-                break;
-            default:
-                LOG.warn("Unknown Component Type.");
-                break;
-            }
+            serializeFlow(flow, nlriByteBuf);
         }
         Preconditions.checkState(nlriByteBuf.readableBytes() <= MAX_NLRI_LENGTH, "Maximum length of Flowspec NLRI reached.");
         if (nlriByteBuf.readableBytes() <= MAX_NLRI_LENGTH_ONE_BYTE) {
@@ -315,6 +259,52 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
             buffer.writeShort(nlriByteBuf.readableBytes() + LENGTH_MAGIC);
         }
         buffer.writeBytes(nlriByteBuf);
+    }
+
+    private static void serializeFlow(final Flowspec flow, final ByteBuf nlriByteBuf) {
+        nlriByteBuf.writeByte(flow.getComponentType().getIntValue());
+        final FlowspecType value = flow.getFlowspecType();
+        switch (flow.getComponentType()) {
+        case DestinationPrefix:
+            nlriByteBuf.writeBytes(Ipv4Util.bytesForPrefixBegin(((DestinationPrefixCase) value).getDestinationPrefix()));
+            break;
+        case SourcePrefix:
+            nlriByteBuf.writeBytes(Ipv4Util.bytesForPrefixBegin(((SourcePrefixCase) value).getSourcePrefix()));
+            break;
+        case ProtocolIp:
+            serializeNumericTwoByteValue(((ProtocolIpCase) value).getProtocolIps(), nlriByteBuf);
+            break;
+        case Port:
+            serializeNumericTwoByteValue(((PortCase) value).getPorts(), nlriByteBuf);
+            break;
+        case DestinationPort:
+            serializeNumericTwoByteValue(((DestinationPortCase) value).getDestinationPorts(), nlriByteBuf);
+            break;
+        case SourcePort:
+            serializeNumericTwoByteValue(((SourcePortCase) value).getSourcePorts(), nlriByteBuf);
+            break;
+        case IcmpType:
+            serializeNumericOneByteValue(((IcmpTypeCase) value).getTypes(), nlriByteBuf);
+            break;
+        case IcmpCode:
+            serializeNumericOneByteValue(((IcmpCodeCase) value).getCodes(), nlriByteBuf);
+            break;
+        case TcpFlags:
+            serializeTcpFlags(((TcpFlagsCase) value).getTcpFlags(), nlriByteBuf);
+            break;
+        case PacketLength:
+            serializeNumericTwoByteValue(((PacketLengthCase) value).getPacketLengths(), nlriByteBuf);
+            break;
+        case Dscp:
+            serializeDscps(((DscpCase) value).getDscps(), nlriByteBuf);
+            break;
+        case Fragment:
+            serializeFragments(((FragmentCase) value).getFragments(), nlriByteBuf);
+            break;
+        default:
+            LOG.warn("Unknown Component Type.");
+            break;
+        }
     }
 
     /**
@@ -356,6 +346,29 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
         bs.set(NOT, op.isNot());
         final byte len = (byte) (Integer.numberOfTrailingZeros(length) << LENGTH_SHIFT);
         buffer.writeByte(bs.toByte() | len);
+    }
+
+    private static void serializeTcpFlags(final List<TcpFlags> flags, final ByteBuf nlriByteBuf) {
+        for (final TcpFlags flag : flags) {
+            final ByteBuf flagsBuf = Unpooled.buffer();
+            writeShortest(flag.getValue(), flagsBuf);
+            serializeBitmaskOperand(flag.getOp(), flagsBuf.readableBytes(), nlriByteBuf);
+            nlriByteBuf.writeBytes(flagsBuf);
+        }
+    }
+
+    private static void serializeDscps(final List<Dscps> dscps, final ByteBuf nlriByteBuf) {
+        for (final Dscps dscp : dscps) {
+            serializeNumericOperand(dscp.getOp(), 1, nlriByteBuf);
+            writeShortest(dscp.getValue().getValue(), nlriByteBuf);
+        }
+    }
+
+    private static void serializeFragments(final List<Fragments> fragments, final ByteBuf nlriByteBuf) {
+        for (final Fragments fragment : fragments) {
+            serializeBitmaskOperand(fragment.getOp(), 1, nlriByteBuf);
+            nlriByteBuf.writeByte(serializeFragment(fragment.getValue()));
+        }
     }
 
     @Override
