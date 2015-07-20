@@ -101,6 +101,10 @@ public class BGPSynchronization {
                 isEOR = true;
             }
         }
+        syncType(type, isEOR);
+    }
+
+    private void syncType(final TablesKey type, final boolean isEOR) {
         final SyncVariables s = this.syncStorage.get(type);
         if (s == null) {
             LOG.warn("BGPTableType was not present in open message : {}", type);

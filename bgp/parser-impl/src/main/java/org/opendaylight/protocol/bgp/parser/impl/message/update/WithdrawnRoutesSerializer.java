@@ -37,19 +37,23 @@ public class WithdrawnRoutesSerializer implements NlriSerializer {
         }
         final WithdrawnRoutes routes = mpUnreachNlri.getWithdrawnRoutes();
         if (routes != null) {
-            if (routes.getDestinationType() instanceof DestinationIpv4Case) {
-                final DestinationIpv4Case destinationIpv4Case = (DestinationIpv4Case)routes.getDestinationType();
-                if (destinationIpv4Case.getDestinationIpv4().getIpv4Prefixes() != null) {
-                    for (final Ipv4Prefixes ipv4Prefix : destinationIpv4Case.getDestinationIpv4().getIpv4Prefixes()) {
-                        byteAggregator.writeBytes(Ipv4Util.bytesForPrefixBegin(ipv4Prefix.getPrefix()));
-                    }
+            serializeRoutes(routes, byteAggregator);
+        }
+    }
+
+    private static void serializeRoutes(final WithdrawnRoutes routes, final ByteBuf byteAggregator) {
+        if (routes.getDestinationType() instanceof DestinationIpv4Case) {
+            final DestinationIpv4Case destinationIpv4Case = (DestinationIpv4Case) routes.getDestinationType();
+            if (destinationIpv4Case.getDestinationIpv4().getIpv4Prefixes() != null) {
+                for (final Ipv4Prefixes ipv4Prefix : destinationIpv4Case.getDestinationIpv4().getIpv4Prefixes()) {
+                    byteAggregator.writeBytes(Ipv4Util.bytesForPrefixBegin(ipv4Prefix.getPrefix()));
                 }
-            } else if (routes.getDestinationType() instanceof DestinationIpv6Case) {
-                final  DestinationIpv6Case destinationIpv6Case = (DestinationIpv6Case) routes.getDestinationType();
-                if (destinationIpv6Case.getDestinationIpv6().getIpv6Prefixes() != null) {
-                    for (final Ipv6Prefixes ipv6Prefix : destinationIpv6Case.getDestinationIpv6().getIpv6Prefixes()) {
-                        byteAggregator.writeBytes(Ipv6Util.bytesForPrefixBegin(ipv6Prefix.getPrefix()));
-                    }
+            }
+        } else if (routes.getDestinationType() instanceof DestinationIpv6Case) {
+            final DestinationIpv6Case destinationIpv6Case = (DestinationIpv6Case) routes.getDestinationType();
+            if (destinationIpv6Case.getDestinationIpv6().getIpv6Prefixes() != null) {
+                for (final Ipv6Prefixes ipv6Prefix : destinationIpv6Case.getDestinationIpv6().getIpv6Prefixes()) {
+                    byteAggregator.writeBytes(Ipv6Util.bytesForPrefixBegin(ipv6Prefix.getPrefix()));
                 }
             }
         }
