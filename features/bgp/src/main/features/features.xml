@@ -14,6 +14,7 @@
 
     <repository>mvn:org.opendaylight.controller/features-config/${config.version}/xml/features</repository>
     <repository>mvn:org.opendaylight.controller/features-mdsal/${mdsal.version}/xml/features</repository>
+    <repository>mvn:org.opendaylight.controller/features-netconf-connector/${mdsal.version}/xml/features</repository>
     <repository>mvn:org.opendaylight.yangtools/features-yangtools/${yangtools.version}/xml/features</repository>
     <repository>mvn:org.opendaylight.tcpmd5/features-tcpmd5/${tcpmd5.version}/xml/features</repository>
 
@@ -24,6 +25,7 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-flowspec</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-topology</feature>
+        <!-- need controller-config southbound plugin -->
         <configfile finalname="etc/opendaylight/karaf/31-bgp.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/config</configfile>
         <configfile finalname="etc/opendaylight/karaf/41-bgp-example.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/config-example</configfile>
     </feature>
@@ -90,7 +92,10 @@
         <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-api/{{VERSION}}</bundle>
+        <feature version='${mdsal.version}'>odl-netconf-connector-all</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-impl/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-impl/{{VERSION}}</bundle>
     </feature>
 
     <feature name='odl-bgpcep-bgp-topology' version='${project.version}'>

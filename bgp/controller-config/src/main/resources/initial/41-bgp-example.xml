@@ -20,6 +20,7 @@
         <capability>urn:opendaylight:params:xml:ns:yang:controller:netty?module=netty&amp;revision=2013-11-19</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:protocol:framework?module=protocol-framework&amp;revision=2014-03-13</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:topology?module=odl-topology-api-cfg&amp;revision=2013-11-15</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:openconfig?module=odl-openconfig-bgp-cfg&amp;revision=2015-07-18</capability>
     </required-capabilities>
     <configuration>
 
@@ -193,6 +194,14 @@
                         <name>example-bgp-rib</name>
                     </local-rib>
                     <topology-id>example-linkstate-topology</topology-id>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:openconfig">prefix:openconfig-bgp</type>
+                    <name>openconfig-bgp</name>
+                    <binding-broker>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">prefix:binding-broker-osgi-registry</type>
+                        <name>binding-osgi-broker</name>
+                    </binding-broker>
                 </module>
             </modules>
 

@@ -1,0 +1,39 @@
+module odl-openconfig-bgp-cfg {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:bgp:openconfig";
+    prefix "bgp-opencfg";
+
+    import config { prefix config; revision-date 2013-04-05; }
+    import opendaylight-md-sal-binding { prefix mdsal; revision-date 2013-10-28; }
+
+    description
+        "This module contains the base YANG definitions for
+        BGP openconfig application implementation.
+        Copyright (c)2015 Cisco Systems, Inc. All rights reserved.";
+
+    revision "2015-07-18" {
+        description
+            "Initial revision";
+    }
+
+    identity openconfig-bgp {
+        base config:module-type;
+        //config:provided-service lca:lsp-config-app;
+        config:java-name-prefix: BgpOpenonfigImpl;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case openconfig-bgp {
+            when "/config:modules/config:module/config:type = 'openconfig-bgp'";
+
+            container binding-broker {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity mdsal:binding-broker-osgi-registry;
+                    }
+                }
+            }
+        }
+    }
+}

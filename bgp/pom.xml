@@ -49,5 +49,7 @@
         <module>bmp-spi</module>
         <module>bmp-impl</module>
         <module>controller-config</module>
+        <module>openconfig-api</module>
+        <module>openconfig-impl</module>
     </modules>
 </project>

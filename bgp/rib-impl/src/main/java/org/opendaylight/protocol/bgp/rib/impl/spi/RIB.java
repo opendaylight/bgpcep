@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import java.util.Set;
 import javax.annotation.Nonnull;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
@@ -73,4 +74,6 @@ public interface RIB {
      * @return YangInstanceIdentifier
      */
     YangInstanceIdentifier getYangRibId();
+
+    DataBroker getDataBroker();
 }

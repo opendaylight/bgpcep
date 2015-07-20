@@ -359,6 +359,16 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <artifactId>bgp-openconfig-api</artifactId>
+                <groupId>${project.groupId}</groupId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <artifactId>bgp-openconfig-impl</artifactId>
+                <groupId>${project.groupId}</groupId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>bgp-controller-config</artifactId>
                 <version>${project.version}</version>

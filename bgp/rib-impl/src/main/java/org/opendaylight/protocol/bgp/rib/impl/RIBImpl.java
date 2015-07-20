@@ -308,4 +308,9 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     public void onGlobalContextUpdated(final SchemaContext context) {
         this.ribContextRegistry.onSchemaContextUpdated(context);
     }
+
+    @Override
+    public DataBroker getDataBroker() {
+        return this.dataBroker;
+    }
 }

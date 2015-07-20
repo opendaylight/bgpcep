@@ -24,6 +24,7 @@ import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeRegist
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpPeerState;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.RouteTable;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
@@ -335,5 +336,9 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
     @Override
     public void markUptodate(final TablesKey tablesKey) {
         this.ribWriter.markTableUptodate(tablesKey);
+    }
+
+    public DataBroker getDataBroker() {
+        return this.rib.getDataBroker();
     }
 }
