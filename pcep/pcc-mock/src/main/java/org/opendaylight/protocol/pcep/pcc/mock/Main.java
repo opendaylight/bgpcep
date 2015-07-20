@@ -61,6 +61,7 @@ public final class Main {
     private static final short DEFAULT_DEAD_TIMER = 120;
     private static final int RECONNECT_STRATEGY_TIMEOUT = 2000;
     private static final InetAddress LOCALHOST = InetAddresses.forString("127.0.0.1");
+    private static final int MILISECONDS = 1000;
 
     private Main() { }
 
@@ -101,7 +102,7 @@ public final class Main {
             } else if (args[argIdx].equals("--password")) {
                 password = args[++argIdx];
             } else if (args[argIdx].equals("--reconnect")) {
-                reconnectTime = Integer.valueOf(args[++argIdx]).intValue() * 1000;
+                reconnectTime = Integer.valueOf(args[++argIdx]).intValue() * MILISECONDS;
             } else if (args[argIdx].equals("--redelegation-timeout")) {
                 redelegationTimeout = Integer.valueOf(args[++argIdx]);
             } else if (args[argIdx].equals("--state-timeout")) {

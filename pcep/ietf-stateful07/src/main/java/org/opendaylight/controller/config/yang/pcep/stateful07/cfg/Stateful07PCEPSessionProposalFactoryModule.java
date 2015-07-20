@@ -49,13 +49,7 @@ public final class Stateful07PCEPSessionProposalFactoryModule extends
         JmxAttributeValidationException.checkNotNull(getTriggeredResync(), VALUE_IS_NOT_SET, triggeredResyncJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getDeltaLspSyncCapability(), VALUE_IS_NOT_SET, deltaLspSyncCapabilityJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getIncludeDbVersion(), VALUE_IS_NOT_SET, includeDbVersionJmxAttribute);
-        if (getKeepAliveTimerValue() != 0) {
-            JmxAttributeValidationException.checkCondition(getKeepAliveTimerValue() >= 1, "minimum value is 1.",
-                    keepAliveTimerValueJmxAttribute);
-            if (getDeadTimerValue() != 0 && (getDeadTimerValue() / getKeepAliveTimerValue() != DT_KA_RATIO)) {
-                LOG.warn("DeadTimerValue should be 4 times greater than KeepAliveTimerValue");
-            }
-        }
+        validateTimers();
         if ((getActive() || getTriggeredInitialSync() || getTriggeredResync() || getDeltaLspSyncCapability() || getIncludeDbVersion()) && !getStateful()) {
             setStateful(true);
         }
@@ -63,6 +57,16 @@ public final class Stateful07PCEPSessionProposalFactoryModule extends
             setIncludeDbVersion(true);
         }
         JmxAttributeValidationException.checkNotNull(getStateful(), VALUE_IS_NOT_SET, statefulJmxAttribute);
+    }
+
+    private void validateTimers() {
+        if (getKeepAliveTimerValue() != 0) {
+            JmxAttributeValidationException.checkCondition(getKeepAliveTimerValue() >= 1, "minimum value is 1.",
+                    keepAliveTimerValueJmxAttribute);
+            if (getDeadTimerValue() != 0 && (getDeadTimerValue() / getKeepAliveTimerValue() != DT_KA_RATIO)) {
+                LOG.warn("DeadTimerValue should be 4 times greater than KeepAliveTimerValue");
+            }
+        }
     }
 
     @Override

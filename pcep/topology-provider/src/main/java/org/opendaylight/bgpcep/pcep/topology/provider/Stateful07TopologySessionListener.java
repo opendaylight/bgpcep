@@ -166,7 +166,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
         return true;
     }
 
-    private boolean mangeNextReport(final Reports report, final MessageContext ctx) {
+    private boolean manageNextReport(final Reports report, final MessageContext ctx) {
         final Lsp lsp = report.getLsp();
         final PlspId plspid = lsp.getPlspId();
         if (!lsp.isSync() && (lsp.getPlspId() == null || plspid.getValue() == 0)) {
@@ -236,7 +236,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
         getSessionListenerState().updateLastReceivedRptMsg();
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.PcrptMessage rpt = ((PcrptMessage) message).getPcrptMessage();
         for (final Reports report : rpt.getReports()) {
-            if (!mangeNextReport(report, ctx)) {
+            if (!manageNextReport(report, ctx)) {
                 return false;
             }
         }
@@ -394,38 +394,39 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
                 }
             }
             final Srp srp = srpBuilder.build();
-
             final Lsp inputLsp = args.getLsp();
             final Lsp lsp = (inputLsp != null) ?
                 new LspBuilder().setPlspId(reportedLsp.getPlspId()).setDelegate((inputLsp.isDelegate() != null) ? inputLsp.isDelegate() : false).setTlvs(inputLsp.getTlvs()).setAdministrative((inputLsp.isAdministrative() != null) ? inputLsp.isAdministrative() : false).build()
                 : new LspBuilder().setPlspId(reportedLsp.getPlspId()).build();
-            Message msg = null;
-            // the D bit that was reported decides the type of PCE message sent
-            Preconditions.checkNotNull(reportedLsp.isDelegate());
-            if (reportedLsp.isDelegate()) {
-                // we already have delegation, send update
-                final UpdatesBuilder rb = new UpdatesBuilder();
-                rb.setSrp(srp);
-                rb.setLsp(lsp);
-                final PathBuilder pb = new PathBuilder();
-                pb.fieldsFrom(this.input.getArguments());
-                rb.setPath(pb.build());
-                final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
-                ub.setUpdates(Collections.singletonList(rb.build()));
-                msg = new PcupdBuilder().setPcupdMessage(ub.build()).build();
-            } else {
-                // we want to revoke delegation, different type of message
-                // is sent because of specification by Siva
-                // this message is also sent, when input delegate bit is set to 0
-                // generating an error in PCC
-                final List<Requests> reqs = new ArrayList<>();
-                reqs.add(new RequestsBuilder().setSrp(srp).setLsp(lsp).build());
-                final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder();
-                ib.setRequests(reqs);
-                msg = new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build();
-            }
+            final Message msg = redelegate(reportedLsp.isDelegate(), srp, lsp, this.input);
             return sendMessage(msg, srp.getOperationId(), this.input.getArguments().getMetadata());
         }
+    }
+
+    private Message redelegate(final Boolean isDelegate, final Srp srp, final Lsp lsp, final UpdateLspArgs input) {
+        // the D bit that was reported decides the type of PCE message sent
+        Preconditions.checkNotNull(isDelegate);
+        if (isDelegate) {
+            // we already have delegation, send update
+            final UpdatesBuilder rb = new UpdatesBuilder();
+            rb.setSrp(srp);
+            rb.setLsp(lsp);
+            final PathBuilder pb = new PathBuilder();
+            pb.fieldsFrom(input.getArguments());
+            rb.setPath(pb.build());
+            final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
+            ub.setUpdates(Collections.singletonList(rb.build()));
+            return new PcupdBuilder().setPcupdMessage(ub.build()).build();
+        }
+        // we want to revoke delegation, different type of message
+        // is sent because of specification by Siva
+        // this message is also sent, when input delegate bit is set to 0
+        // generating an error in PCC
+        final List<Requests> reqs = new ArrayList<>();
+        reqs.add(new RequestsBuilder().setSrp(srp).setLsp(lsp).build());
+        final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder();
+        ib.setRequests(reqs);
+        return new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build();
     }
 
     @Override

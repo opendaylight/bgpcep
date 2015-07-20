@@ -44,17 +44,11 @@ final class PCEPErrorIdentifier implements Serializable {
         if (this == obj) {
             return true;
         }
-        if (obj == null) {
-            return false;
-        }
-        if (this.getClass() != obj.getClass()) {
+        if (obj == null || this.getClass() != obj.getClass()) {
             return false;
         }
         final PCEPErrorIdentifier other = (PCEPErrorIdentifier) obj;
-        if (this.type != other.type) {
-            return false;
-        }
-        if (this.value != other.value) {
+        if (this.type != other.type || this.value != other.value) {
             return false;
         }
         return true;
