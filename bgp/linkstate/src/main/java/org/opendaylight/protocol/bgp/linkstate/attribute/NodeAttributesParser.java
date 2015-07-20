@@ -82,11 +82,7 @@ public final class NodeAttributesParser {
             LOG.trace("Node attribute TLV {}", key);
             switch (key) {
             case TlvUtil.MULTI_TOPOLOGY_ID:
-                while (value.isReadable()) {
-                    final TopologyIdentifier topId = new TopologyIdentifier(value.readUnsignedShort() & TlvUtil.TOPOLOGY_ID_OFFSET);
-                    topologyMembership.add(topId);
-                    LOG.debug("Parsed Topology Identifier: {}", topId);
-                }
+                parseTopologyId(topologyMembership, value);
                 break;
             case NODE_FLAG_BITS:
                 final BitArray flags = BitArray.valueOf(value, FLAGS_SIZE);
@@ -143,17 +139,18 @@ public final class NodeAttributesParser {
         return new NodeAttributesCaseBuilder().setNodeAttributes(builder.build()).build();
     }
 
+    private static void parseTopologyId(final List<TopologyIdentifier> topologyMembership, final ByteBuf value) {
+        while (value.isReadable()) {
+            final TopologyIdentifier topId = new TopologyIdentifier(value.readUnsignedShort() & TlvUtil.TOPOLOGY_ID_OFFSET);
+            topologyMembership.add(topId);
+            LOG.debug("Parsed Topology Identifier: {}", topId);
+        }
+    }
+
     static void serializeNodeAttributes(final NodeAttributesCase nodeAttributesCase, final ByteBuf byteAggregator) {
         LOG.trace("Started serializing Node Attributes");
         final NodeAttributes nodeAttributes = nodeAttributesCase.getNodeAttributes();
-        final List<TopologyIdentifier> topList = nodeAttributes.getTopologyIdentifier();
-        if (topList != null) {
-            final ByteBuf mpIdBuf = Unpooled.buffer();
-            for (final TopologyIdentifier topologyIdentifier : topList) {
-                mpIdBuf.writeShort(topologyIdentifier.getValue());
-            }
-            TlvUtil.writeTLV(TlvUtil.MULTI_TOPOLOGY_ID, mpIdBuf, byteAggregator);
-        }
+        serializeTopologyId(nodeAttributes.getTopologyIdentifier(), byteAggregator);
         serializeNodeFlagBits(nodeAttributes.getNodeFlags(), byteAggregator);
         if (nodeAttributes.getDynamicHostname() != null) {
             TlvUtil.writeTLV(DYNAMIC_HOSTNAME, Unpooled.wrappedBuffer(Charsets.UTF_8.encode(nodeAttributes.getDynamicHostname())), byteAggregator);
@@ -186,6 +183,16 @@ public final class NodeAttributesParser {
             TlvUtil.writeTLV(SR_ALGORITHMS, capBuffer, byteAggregator);
         }
         LOG.trace("Finished serializing Node Attributes");
+    }
+
+    private static void serializeTopologyId(final List<TopologyIdentifier> topList, final ByteBuf byteAggregator) {
+        if (topList != null) {
+            final ByteBuf mpIdBuf = Unpooled.buffer();
+            for (final TopologyIdentifier topologyIdentifier : topList) {
+                mpIdBuf.writeShort(topologyIdentifier.getValue());
+            }
+            TlvUtil.writeTLV(TlvUtil.MULTI_TOPOLOGY_ID, mpIdBuf, byteAggregator);
+        }
     }
 
     private static void serializeNodeFlagBits(final NodeFlagBits nodeFlagBits, final ByteBuf byteAggregator) {

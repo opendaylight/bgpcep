@@ -14,7 +14,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import org.opendaylight.protocol.bgp.linkstate.attribute.sr.SrLinkAttributesParser;
@@ -28,13 +27,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Ipv6RouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkProtectionType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.MplsProtocolMask;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.PeerSetSid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.PeerSetSidBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.PeerSid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.PeerSidBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrAdjId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrAdjIdBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrLanAdjId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.UnreservedBandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.UnreservedBandwidthBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.LinkStateAttribute;
@@ -101,24 +96,20 @@ public final class LinkAttributesParser {
             final ByteBuf value = entry.getValue();
             switch (key) {
             case TlvUtil.LOCAL_IPV4_ROUTER_ID:
-                final Ipv4RouterIdentifier lipv4 = new Ipv4RouterIdentifier(Ipv4Util.addressForByteBuf(value));
-                builder.setLocalIpv4RouterId(lipv4);
-                LOG.debug("Parsed IPv4 Router-ID of local node: {}", lipv4);
+                builder.setLocalIpv4RouterId(new Ipv4RouterIdentifier(Ipv4Util.addressForByteBuf(value)));
+                LOG.debug("Parsed IPv4 Router-ID of local node: {}", builder.getLocalIpv4RouterId());
                 break;
             case TlvUtil.LOCAL_IPV6_ROUTER_ID:
-                final Ipv6RouterIdentifier lipv6 = new Ipv6RouterIdentifier(Ipv6Util.addressForByteBuf(value));
-                builder.setLocalIpv6RouterId(lipv6);
-                LOG.debug("Parsed IPv6 Router-ID of local node: {}", lipv6);
+                builder.setLocalIpv6RouterId(new Ipv6RouterIdentifier(Ipv6Util.addressForByteBuf(value)));
+                LOG.debug("Parsed IPv6 Router-ID of local node: {}", builder.getLocalIpv6RouterId());
                 break;
             case REMOTE_IPV4_ROUTER_ID:
-                final Ipv4RouterIdentifier ripv4 = new Ipv4RouterIdentifier(Ipv4Util.addressForByteBuf(value));
-                builder.setRemoteIpv4RouterId(ripv4);
-                LOG.debug("Parsed IPv4 Router-ID of remote node: {}", ripv4);
+                builder.setRemoteIpv4RouterId(new Ipv4RouterIdentifier(Ipv4Util.addressForByteBuf(value)));
+                LOG.debug("Parsed IPv4 Router-ID of remote node: {}", builder.getRemoteIpv4RouterId());
                 break;
             case REMOTE_IPV6_ROUTER_ID:
-                final Ipv6RouterIdentifier ripv6 = new Ipv6RouterIdentifier(Ipv6Util.addressForByteBuf(value));
-                builder.setRemoteIpv6RouterId(ripv6);
-                LOG.debug("Parsed IPv6 Router-ID of remote node: {}", ripv6);
+                builder.setRemoteIpv6RouterId(new Ipv6RouterIdentifier(Ipv6Util.addressForByteBuf(value)));
+                LOG.debug("Parsed IPv6 Router-ID of remote node: {}", builder.getRemoteIpv6RouterId());
                 break;
             case ADMIN_GROUP:
                 builder.setAdminGroup(new AdministrativeGroup(value.readUnsignedInt()));
@@ -133,27 +124,15 @@ public final class LinkAttributesParser {
                 LOG.debug("Parsed Max Reservable Bandwidth {}", builder.getMaxReservableBandwidth());
                 break;
             case UNRESERVED_BANDWIDTH:
-                final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.UnreservedBandwidth> unreservedBandwidth = new ArrayList<>(UNRESERVED_BW_COUNT);
-                for (int i = 0; i < UNRESERVED_BW_COUNT; i++) {
-                    final ByteBuf v = value.readSlice(BANDWIDTH_LENGTH);
-                    unreservedBandwidth.add(new UnreservedBandwidthBuilder().setBandwidth(new Bandwidth(ByteArray.readAllBytes(v))).setPriority((short) i).build());
-                }
-                builder.setUnreservedBandwidth(unreservedBandwidth);
-                LOG.debug("Parsed Unreserved Bandwidth {}", builder.getUnreservedBandwidth());
+                parseUnreservedBandwidth(value, builder);
                 break;
             case TE_METRIC:
                 builder.setTeMetric(new TeMetric(ByteArray.bytesToLong(ByteArray.readAllBytes(value))));
                 LOG.debug("Parsed Metric {}", builder.getTeMetric());
                 break;
             case LINK_PROTECTION_TYPE:
-                final int l = value.readShort();
-                final LinkProtectionType lpt = LinkProtectionType.forValue(l);
-                if (lpt == null) {
-                    LOG.warn("Link Protection Type not recognized: {}", l);
-                    break;
-                }
-                builder.setLinkProtection(lpt);
-                LOG.debug("Parsed Link Protection Type {}", lpt);
+                builder.setLinkProtection(LinkProtectionType.forValue(value.readShort()));
+                LOG.debug("Parsed Link Protection Type {}", builder.getLinkProtection());
                 break;
             case MPLS_PROTOCOL:
                 final BitArray bits = BitArray.valueOf(value, FLAGS_SIZE);
@@ -166,40 +145,30 @@ public final class LinkAttributesParser {
                 LOG.debug("Parsed Metric {}", builder.getMetric());
                 break;
             case SHARED_RISK_LINK_GROUP:
-                final List<SrlgId> sharedRiskLinkGroups = new ArrayList<>();
-                while (value.isReadable()) {
-                    sharedRiskLinkGroups.add(new SrlgId(value.readUnsignedInt()));
-                }
-                builder.setSharedRiskLinkGroups(sharedRiskLinkGroups);
-                LOG.debug("Parsed Shared Risk Link Groups {}", Arrays.toString(sharedRiskLinkGroups.toArray()));
+                parseSrlg(value, builder);
                 break;
             case LINK_OPAQUE:
                 LOG.debug("Parsed Opaque value : {}", ByteBufUtil.hexDump(value));
                 break;
             case LINK_NAME:
-                final String name = new String(ByteArray.readAllBytes(value), Charsets.US_ASCII);
-                builder.setLinkName(name);
-                LOG.debug("Parsed Link Name : {}", name);
+                builder.setLinkName(new String(ByteArray.readAllBytes(value), Charsets.US_ASCII));
+                LOG.debug("Parsed Link Name : {}", builder.getLinkName());
                 break;
             case SR_ADJ_ID:
-                final SrAdjId srAdjId = new SrAdjIdBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value)).build();
-                builder.setSrAdjId(srAdjId);
-                LOG.debug("Parsed Adjacency Segment Identifier :{}", srAdjId);
+                builder.setSrAdjId(new SrAdjIdBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value)).build());
+                LOG.debug("Parsed Adjacency Segment Identifier :{}", builder.getSrAdjId());
                 break;
             case SR_LAN_ADJ_ID:
-                final SrLanAdjId srLanAdjId = SrLinkAttributesParser.parseLanAdjacencySegmentIdentifier(value);
-                builder.setSrLanAdjId(srLanAdjId);
-                LOG.debug("Parsed Adjacency Segment Identifier :{}", srLanAdjId);
+                builder.setSrLanAdjId(SrLinkAttributesParser.parseLanAdjacencySegmentIdentifier(value));
+                LOG.debug("Parsed Adjacency Segment Identifier :{}", builder.getSrLanAdjId());
                 break;
             case PEER_SID_CODE:
-                final PeerSid peerSid = new PeerSidBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value)).build();
-                builder.setPeerSid(peerSid);
-                LOG.debug("Parsed Peer Segment Identifier :{}", peerSid);
+                builder.setPeerSid(new PeerSidBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value)).build());
+                LOG.debug("Parsed Peer Segment Identifier :{}", builder.getPeerSid());
                 break;
             case PEER_SET_SID_CODE:
-                final PeerSetSid peerSetSid = new PeerSetSidBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value)).build();
-                builder.setPeerSetSid(peerSetSid);
-                LOG.debug("Parsed Peer Set Sid :{}", peerSetSid);
+                builder.setPeerSetSid(new PeerSetSidBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value)).build());
+                LOG.debug("Parsed Peer Set Sid :{}", builder.getPeerSetSid());
                 break;
             default:
                 LOG.warn("TLV {} is not a valid link attribute, ignoring it", key);
@@ -207,6 +176,25 @@ public final class LinkAttributesParser {
         }
         LOG.trace("Finished parsing Link Attributes.");
         return new LinkAttributesCaseBuilder().setLinkAttributes(builder.build()).build();
+    }
+
+    private static void parseUnreservedBandwidth(final ByteBuf value, final LinkAttributesBuilder builder) {
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.UnreservedBandwidth> unreservedBandwidth = new ArrayList<>(UNRESERVED_BW_COUNT);
+        for (int i = 0; i < UNRESERVED_BW_COUNT; i++) {
+            final ByteBuf v = value.readSlice(BANDWIDTH_LENGTH);
+            unreservedBandwidth.add(new UnreservedBandwidthBuilder().setBandwidth(new Bandwidth(ByteArray.readAllBytes(v))).setPriority((short) i).build());
+        }
+        builder.setUnreservedBandwidth(unreservedBandwidth);
+        LOG.debug("Parsed Unreserved Bandwidth {}", builder.getUnreservedBandwidth());
+    }
+
+    private static void parseSrlg(final ByteBuf value, final LinkAttributesBuilder builder) {
+        final List<SrlgId> sharedRiskLinkGroups = new ArrayList<>();
+        while (value.isReadable()) {
+            sharedRiskLinkGroups.add(new SrlgId(value.readUnsignedInt()));
+        }
+        builder.setSharedRiskLinkGroups(sharedRiskLinkGroups);
+        LOG.debug("Parsed Shared Risk Link Groups {}", builder.getSharedRiskLinkGroups());
     }
 
     static void serializeLinkAttributes(final LinkAttributesCase linkAttributesCase, final ByteBuf byteAggregator) {
@@ -233,15 +221,7 @@ public final class LinkAttributesParser {
         if (linkAttributes.getMaxReservableBandwidth() != null) {
             TlvUtil.writeTLV(MAX_RESERVABLE_BANDWIDTH, Unpooled.wrappedBuffer(linkAttributes.getMaxReservableBandwidth().getValue()), byteAggregator);
         }
-        // this sub-TLV contains eight 32-bit IEEE floating point numbers
-        final List<UnreservedBandwidth> ubList = linkAttributes.getUnreservedBandwidth();
-        if (ubList != null) {
-            final ByteBuf unreservedBandwithBuf = Unpooled.buffer();
-            for (final UnreservedBandwidth unreservedBandwidth : ubList) {
-                unreservedBandwithBuf.writeBytes(unreservedBandwidth.getBandwidth().getValue());
-            }
-            TlvUtil.writeTLV(UNRESERVED_BANDWIDTH, unreservedBandwithBuf, byteAggregator);
-        }
+        serializeUnreservedBw(linkAttributes.getUnreservedBandwidth(), byteAggregator);
         if (linkAttributes.getTeMetric() != null) {
             TlvUtil.writeTLV(TE_METRIC, Unpooled.copyLong(linkAttributes.getTeMetric().getValue().longValue()), byteAggregator);
         }
@@ -253,14 +233,7 @@ public final class LinkAttributesParser {
             // size of metric can be 1,2 or 3 depending on the protocol
             TlvUtil.writeTLV(METRIC, Unpooled.copyMedium(linkAttributes.getMetric().getValue().intValue()), byteAggregator);
         }
-        final List<SrlgId> srlgList = linkAttributes.getSharedRiskLinkGroups();
-        if (srlgList != null) {
-            final ByteBuf sharedRLGBuf = Unpooled.buffer();
-            for (final SrlgId srlgId : srlgList) {
-                sharedRLGBuf.writeInt(srlgId.getValue().intValue());
-            }
-            TlvUtil.writeTLV(SHARED_RISK_LINK_GROUP, sharedRLGBuf, byteAggregator);
-        }
+        serializeSrlg(linkAttributes.getSharedRiskLinkGroups(), byteAggregator);
         if (linkAttributes.getLinkName() != null) {
             TlvUtil.writeTLV(LINK_NAME, Unpooled.wrappedBuffer(Charsets.UTF_8.encode(linkAttributes.getLinkName())), byteAggregator);
         }
@@ -277,6 +250,27 @@ public final class LinkAttributesParser {
             TlvUtil.writeTLV(PEER_SET_SID_CODE, SrLinkAttributesParser.serializeAdjacencySegmentIdentifier(linkAttributes.getPeerSetSid()), byteAggregator);
         }
         LOG.trace("Finished serializing Link Attributes");
+    }
+
+    private static void serializeUnreservedBw(final List<UnreservedBandwidth> ubList, final ByteBuf byteAggregator) {
+        // this sub-TLV contains eight 32-bit IEEE floating point numbers
+        if (ubList != null) {
+            final ByteBuf unreservedBandwithBuf = Unpooled.buffer();
+            for (final UnreservedBandwidth unreservedBandwidth : ubList) {
+                unreservedBandwithBuf.writeBytes(unreservedBandwidth.getBandwidth().getValue());
+            }
+            TlvUtil.writeTLV(UNRESERVED_BANDWIDTH, unreservedBandwithBuf, byteAggregator);
+        }
+    }
+
+    private static void serializeSrlg(final List<SrlgId> srlgList, final ByteBuf byteAggregator) {
+        if (srlgList != null) {
+            final ByteBuf sharedRLGBuf = Unpooled.buffer();
+            for (final SrlgId srlgId : srlgList) {
+                sharedRLGBuf.writeInt(srlgId.getValue().intValue());
+            }
+            TlvUtil.writeTLV(SHARED_RISK_LINK_GROUP, sharedRLGBuf, byteAggregator);
+        }
     }
 
     private static void serializeMplsProtocolMask(final MplsProtocolMask mplsProtocolMask, final ByteBuf byteAggregator ) {
