@@ -106,6 +106,14 @@ public class PCEPMonitoringReplyMessageParser extends AbstractMessageParser {
             builder.setPccIdReq((PccIdReq) objects.get(0));
             objects.remove(0);
         }
+        validateSpecificMetrics(objects, builder);
+        if (!objects.isEmpty()) {
+            throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
+        }
+        return new PcmonrepBuilder().setPcmonrepMessage(builder.build()).build();
+    }
+
+    private void validateSpecificMetrics(final List<Object> objects, final PcmonrepMessageBuilder builder) throws PCEPDeserializerException {
         final List<SpecificMetrics> specificMetrics = new ArrayList<>();
         while (!objects.isEmpty()) {
             final SpecificMetricsBuilder smb = new SpecificMetricsBuilder();
@@ -127,9 +135,5 @@ public class PCEPMonitoringReplyMessageParser extends AbstractMessageParser {
         if (!specificMetrics.isEmpty()) {
             builder.setMonitoringMetricsList(new SpecificMetricsListBuilder().setSpecificMetrics(specificMetrics).build());
         }
-        if (!objects.isEmpty()) {
-            throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
-        }
-        return new PcmonrepBuilder().setPcmonrepMessage(builder.build()).build();
     }
 }

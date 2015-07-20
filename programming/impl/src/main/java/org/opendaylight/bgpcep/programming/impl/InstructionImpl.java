@@ -109,13 +109,7 @@ final class InstructionImpl implements Instruction {
             break;
         case Queued:
             LOG.debug("Instruction {} timed out while Queued, cancelling it", this.id);
-            final List<InstructionId> ids = new ArrayList<>();
-            for (final InstructionImpl d : this.dependencies) {
-                if (d.getStatus() != InstructionStatus.Successful) {
-                    ids.add(d.getId());
-                }
-            }
-            cancel(new DetailsBuilder().setUnmetDependencies(ids).build());
+            cancelInstrunction();
             break;
         case Scheduled:
             LOG.debug("Instruction {} timed out while Scheduled, cancelling it", this.id);
@@ -124,6 +118,16 @@ final class InstructionImpl implements Instruction {
         default:
             break;
         }
+    }
+
+    private synchronized void cancelInstrunction() {
+        final List<InstructionId> ids = new ArrayList<>();
+        for (final InstructionImpl d : this.dependencies) {
+            if (d.getStatus() != InstructionStatus.Successful) {
+                ids.add(d.getId());
+            }
+        }
+        cancel(new DetailsBuilder().setUnmetDependencies(ids).build());
     }
 
     @GuardedBy("this")
