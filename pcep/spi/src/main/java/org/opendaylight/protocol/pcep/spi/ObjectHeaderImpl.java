@@ -60,17 +60,14 @@ public class ObjectHeaderImpl implements ObjectHeader {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }
-        if (obj == null) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        ObjectHeaderImpl other = (ObjectHeaderImpl) obj;
+        final ObjectHeaderImpl other = (ObjectHeaderImpl) obj;
         if (this.ignored == null) {
             if (other.ignored != null) {
                 return false;
