@@ -84,18 +84,10 @@ public final class PrefixAttributesParser {
                 LOG.debug("Parsed IGP flag (up/down bit) : {}", upDownBit);
                 break;
             case ROUTE_TAG:
-                while (value.isReadable()) {
-                    final RouteTag routeTag = new RouteTag(ByteArray.readBytes(value, ROUTE_TAG_LENGTH));
-                    routeTags.add(routeTag);
-                    LOG.debug("Parsed Route Tag: {}", routeTag);
-                }
+                parseRouteTags(routeTags, value);
                 break;
             case EXTENDED_ROUTE_TAG:
-                while (value.isReadable()) {
-                    final ExtendedRouteTag exRouteTag = new ExtendedRouteTag(ByteArray.readBytes(value, EXTENDED_ROUTE_TAG_LENGTH));
-                    exRouteTags.add(exRouteTag);
-                    LOG.debug("Parsed Extended Route Tag: {}", exRouteTag);
-                }
+                parseExtendedRouteTags(exRouteTags, value);
                 break;
             case PREFIX_METRIC:
                 final IgpMetric metric = new IgpMetric(value.readUnsignedInt());
@@ -108,7 +100,9 @@ public final class PrefixAttributesParser {
                 LOG.debug("Parsed FWD Address: {}", fwdAddress);
                 break;
             case PREFIX_OPAQUE:
-                LOG.debug("Parsed Opaque value: {}, not preserving it", ByteBufUtil.hexDump(value));
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Parsed Opaque value: {}, not preserving it", ByteBufUtil.hexDump(value));
+                }
                 break;
             case PREFIX_SID:
                 final SrPrefix prefix = SrPrefixAttributesParser.parseSrPrefix(value);
@@ -123,6 +117,22 @@ public final class PrefixAttributesParser {
         builder.setRouteTags(routeTags);
         builder.setExtendedTags(exRouteTags);
         return new PrefixAttributesCaseBuilder().setPrefixAttributes(builder.build()).build();
+    }
+
+    private static void parseRouteTags(final List<RouteTag> routeTags, final ByteBuf value) {
+        while (value.isReadable()) {
+            final RouteTag routeTag = new RouteTag(ByteArray.readBytes(value, ROUTE_TAG_LENGTH));
+            routeTags.add(routeTag);
+            LOG.debug("Parsed Route Tag: {}", routeTag);
+        }
+    }
+
+    private static void parseExtendedRouteTags(final List<ExtendedRouteTag> exRouteTags, final ByteBuf value) {
+        while (value.isReadable()) {
+            final ExtendedRouteTag exRouteTag = new ExtendedRouteTag(ByteArray.readBytes(value, EXTENDED_ROUTE_TAG_LENGTH));
+            exRouteTags.add(exRouteTag);
+            LOG.debug("Parsed Extended Route Tag: {}", exRouteTag);
+        }
     }
 
     private static IpAddress parseForwardingAddress(final ByteBuf value) {
@@ -147,21 +157,8 @@ public final class PrefixAttributesParser {
             igpBit.set(UP_DOWN_BIT, prefixAtrributes.getIgpBits().getUpDown().isUpDown());
             TlvUtil.writeTLV(IGP_FLAGS, Unpooled.wrappedBuffer(igpBit.array()), byteAggregator);
         }
-        if (prefixAtrributes.getRouteTags() != null) {
-            final ByteBuf routeTagsBuf = Unpooled.buffer();
-            for (final RouteTag routeTag : prefixAtrributes.getRouteTags()) {
-                routeTagsBuf.writeBytes(routeTag.getValue());
-            }
-            TlvUtil.writeTLV(ROUTE_TAG, routeTagsBuf, byteAggregator);
-        }
-        final List<ExtendedRouteTag> routeTagList = prefixAtrributes.getExtendedTags();
-        if (routeTagList != null) {
-            final ByteBuf extendedBuf = Unpooled.buffer();
-            for (final ExtendedRouteTag extendedRouteTag : routeTagList) {
-                extendedBuf.writeBytes(extendedRouteTag.getValue());
-            }
-            TlvUtil.writeTLV(EXTENDED_ROUTE_TAG, extendedBuf, byteAggregator);
-        }
+        serializeRouteTags(prefixAtrributes.getRouteTags(), byteAggregator);
+        serializeExtendedRouteTags(prefixAtrributes.getExtendedTags(), byteAggregator);
         if (prefixAtrributes.getPrefixMetric() != null) {
             TlvUtil.writeTLV(PREFIX_METRIC, Unpooled.copyInt(prefixAtrributes.getPrefixMetric().getValue().intValue()), byteAggregator);
         }
@@ -172,6 +169,26 @@ public final class PrefixAttributesParser {
             TlvUtil.writeTLV(PREFIX_SID, b, byteAggregator);
         }
 
+    }
+
+    private static void serializeRouteTags(final List<RouteTag> routeTags, final ByteBuf byteAggregator) {
+        if (routeTags != null) {
+            final ByteBuf routeTagsBuf = Unpooled.buffer();
+            for (final RouteTag routeTag : routeTags) {
+                routeTagsBuf.writeBytes(routeTag.getValue());
+            }
+            TlvUtil.writeTLV(ROUTE_TAG, routeTagsBuf, byteAggregator);
+        }
+    }
+
+    private static void serializeExtendedRouteTags(final List<ExtendedRouteTag> exRouteTags, final ByteBuf byteAggregator) {
+        if (exRouteTags != null) {
+            final ByteBuf extendedBuf = Unpooled.buffer();
+            for (final ExtendedRouteTag exRouteTag : exRouteTags) {
+                extendedBuf.writeBytes(exRouteTag.getValue());
+            }
+            TlvUtil.writeTLV(EXTENDED_ROUTE_TAG, extendedBuf, byteAggregator);
+        }
     }
 
     private static void serializeForwardingAddress(final IpAddress forwardingAddress, final ByteBuf byteAggregator) {

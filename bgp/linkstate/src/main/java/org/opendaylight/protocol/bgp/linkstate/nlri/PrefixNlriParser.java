@@ -15,7 +15,6 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
@@ -77,15 +76,7 @@ public final class PrefixNlriParser {
                 LOG.trace("Parser RouteType: {}", routeType);
                 break;
             case IP_REACHABILITY:
-                IpPrefix prefix = null;
-                final int prefixLength = value.readByte();
-                final int size = prefixLength / Byte.SIZE + ((prefixLength % Byte.SIZE == 0) ? 0 : 1);
-                if (size != value.readableBytes()) {
-                    LOG.debug("Expected length {}, actual length {}.", size, value.readableBytes());
-                    throw new BGPParsingException("Illegal length of IP reachability TLV: " + (value.readableBytes()));
-                }
-                prefix = (ipv4) ? new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.readBytes(value, size), prefixLength)) :
-                    new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.readBytes(value, size), prefixLength));
+                final IpPrefix prefix = (ipv4) ? new IpPrefix(Ipv4Util.prefixForByteBuf(value)) : new IpPrefix(Ipv6Util.prefixForByteBuf(value));
                 builder.setIpReachabilityInformation(prefix);
                 LOG.trace("Parsed IP reachability info: {}", prefix);
                 break;

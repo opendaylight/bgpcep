@@ -158,6 +158,10 @@ public final class NodeNlriParser {
             }
         }
         LOG.trace("Finished parsing Node descriptors.");
+        return correctType(nlriType, local, asnumber, ai, routerId, bgpId, bgpRouterId, memberAsn);
+    }
+
+    private static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier correctType(final NlriType nlriType, final boolean local, final AsNumber asnumber, final AreaIdentifier ai, final CRouterIdentifier routerId, final DomainIdentifier bgpId, final Ipv4Address bgpRouterId, final AsNumber memberAsn) {
         switch (nlriType) {
         case Link:
             if (local) {
