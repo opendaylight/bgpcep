@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_31aafed4",
+        "filename": "bgp/bmp-spi/src/test/java/org/opendaylight/protocol/bmp/spi/parser/TlvUtilTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-21T11:28:32Z",
+      "side": 1,
+      "message": "Please, setup Organize Imports in Eclipse to not insert whitespaces between groups of imports.\nhttps://wiki.opendaylight.org/view/GettingStarted:_Eclipse#Import_ordering",
+      "revId": "47fbeeebd168ecc439089d786931e3b6ce7ee16b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
