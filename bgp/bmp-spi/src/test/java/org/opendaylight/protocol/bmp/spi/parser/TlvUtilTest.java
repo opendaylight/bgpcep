@@ -68,13 +68,24 @@ public class TlvUtilTest {
     @Test
     public void testFormatTlvASCII() throws Exception {
         final ByteBuf out = Unpooled.buffer(TLV_ASCII_OUT.length);
-        TlvUtil.formatTlvUtf8(1, "Name", out);
+        TlvUtil.formatTlvAscii(1, "Name", out);
         Assert.assertArrayEquals(TLV_ASCII_OUT, ByteArray.getAllBytes(out));
     }
 
     @Test(expected=UnsupportedOperationException.class)
     public void testBmpMessageConstantsPrivateConstructor() throws Throwable {
         final Constructor<BmpMessageConstants> c = BmpMessageConstants.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        try {
+            c.newInstance();
+        } catch (final InvocationTargetException e) {
+            throw e.getCause();
+        }
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testTlvUtilPrivateConstructor() throws Throwable {
+        final Constructor<TlvUtil> c = TlvUtil.class.getDeclaredConstructor();
         c.setAccessible(true);
         try {
             c.newInstance();
