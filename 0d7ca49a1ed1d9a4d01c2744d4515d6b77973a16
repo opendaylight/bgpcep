@@ -260,6 +260,92 @@
     },
     {
       "key": {
+        "uuid": "7a7fa997_71a076f4",
+        "filename": "bgp/labeled-unicast/src/main/yang/bgp-labeled-unicast.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-21T16:48:10Z",
+      "side": 1,
+      "message": "Please, add range restriction. Label value can be 20-bits long.",
+      "revId": "0d7ca49a1ed1d9a4d01c2744d4515d6b77973a16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_fc0f7d2c",
+        "filename": "bgp/labeled-unicast/src/main/yang/bgp-labeled-unicast.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-21T16:48:10Z",
+      "side": 1,
+      "message": "Do we need to expose this value to a user?",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 13
+      },
+      "revId": "0d7ca49a1ed1d9a4d01c2744d4515d6b77973a16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_5c28f185",
+        "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParserTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-21T16:48:10Z",
+      "side": 1,
+      "message": "Could you please add some tests for NLRI with a stack of labels?",
+      "range": {
+        "startLine": 34,
+        "startChar": 13,
+        "endLine": 34,
+        "endChar": 29
+      },
+      "revId": "0d7ca49a1ed1d9a4d01c2744d4515d6b77973a16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_7c2b6d82",
+        "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParserTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-21T16:48:10Z",
+      "side": 1,
+      "message": "Do not use \"this\" with static variables.",
+      "range": {
+        "startLine": 69,
+        "startChar": 19,
+        "endLine": 69,
+        "endChar": 29
+      },
+      "revId": "0d7ca49a1ed1d9a4d01c2744d4515d6b77973a16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a7fa997_9dbe8ed3",
         "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParserTest.java",
         "patchSetId": 6
@@ -271,6 +357,29 @@
       "writtenOn": "2015-07-16T09:36:19Z",
       "side": 1,
       "message": "remove commented code",
+      "revId": "0d7ca49a1ed1d9a4d01c2744d4515d6b77973a16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_1c2279a4",
+        "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParserTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-21T16:48:10Z",
+      "side": 1,
+      "message": "Do not use \"this\" with static variable.",
+      "range": {
+        "startLine": 99,
+        "startChar": 31,
+        "endLine": 99,
+        "endChar": 43
+      },
       "revId": "0d7ca49a1ed1d9a4d01c2744d4515d6b77973a16",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
