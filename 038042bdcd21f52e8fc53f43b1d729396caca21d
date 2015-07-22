@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_09b9d6e8",
+        "filename": "bgp/bmp-spi/src/test/java/org/opendaylight/protocol/bmp/spi/parser/TlvUtilTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-22T14:06:09Z",
+      "side": 1,
+      "message": "You should clean buffer and check if stays empty.",
+      "range": {
+        "startLine": 61,
+        "startChar": 42,
+        "endLine": 61,
+        "endChar": 45
+      },
+      "revId": "038042bdcd21f52e8fc53f43b1d729396caca21d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
