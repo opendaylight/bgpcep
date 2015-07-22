@@ -1,5 +1,5 @@
 // vi: set smarttab et sw=4 tabstop=4:
-module odl-bgp-treachability-ipv6-cfg {
+module odl-bgp-reachability-ipv6-cfg {
     yang-version 1;
     namespace "urn:opendaylight:params:xml:ns:yang:controller:bgp:reachability:ipv6";
     prefix "bgptopo";
