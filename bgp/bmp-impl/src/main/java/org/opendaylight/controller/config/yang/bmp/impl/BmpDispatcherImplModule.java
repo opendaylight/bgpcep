@@ -30,7 +30,7 @@ public class BmpDispatcherImplModule extends org.opendaylight.controller.config.
     @Override
     public java.lang.AutoCloseable createInstance() {
         return new BmpDispatcherImpl(getBossGroupDependency(), getWorkerGroupDependency(),
-                getBmpExtensionsDependency().getBmpMessageRegistry(), new DefaultBmpSessionFactory(), Optional.<MD5ServerChannelFactory<?>>absent());
+                getBmpExtensionsDependency().getBmpMessageRegistry(), new DefaultBmpSessionFactory(), Optional.<MD5ServerChannelFactory<?>>fromNullable(getMd5ServerChannelFactoryDependency()));
     }
 
 }
