@@ -81,7 +81,7 @@ public class BGPDispatcherImplTest {
         final ChannelFuture future = this.dispatcher.createServer(this.registry, ADDRESS, new BGPServerSessionValidator());
         future.addListener(new GenericFutureListener<Future<Void>>() {
             @Override
-            public void operationComplete(Future<Void> future) {
+            public void operationComplete(final Future<Void> future) {
                 if(!future.isSuccess()) {
                     Assert.fail("Failed to create server.");
                 }
@@ -137,7 +137,7 @@ public class BGPDispatcherImplTest {
                 .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build()).build())
             .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(30L)).build()).build()).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
-        return new BGPSessionPreferences(AS_NUMBER, (short) 4, new Ipv4Address(socketAddress.getAddress().getHostAddress()), tlvs);
+        return new BGPSessionPreferences(AS_NUMBER, (short) 4, new Ipv4Address(socketAddress.getAddress().getHostAddress()), AS_NUMBER, tlvs);
     }
 
 }
