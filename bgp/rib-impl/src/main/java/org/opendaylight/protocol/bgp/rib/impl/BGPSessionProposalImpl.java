@@ -41,11 +41,15 @@ public final class BGPSessionProposalImpl implements BGPSessionProposal {
 
     private final BGPSessionPreferences prefs;
 
+    private final AsNumber remoteAs;
+
     public BGPSessionProposalImpl(final short holdTimer, final AsNumber as, final Ipv4Address bgpId,
-            final Map<Class<? extends AddressFamily>, Class<? extends SubsequentAddressFamily>> tables) {
+        final Map<Class<? extends AddressFamily>, Class<? extends SubsequentAddressFamily>> tables,
+        final AsNumber remoteAs) {
         this.holdTimer = holdTimer;
         this.as = as;
         this.bgpId = bgpId;
+        this.remoteAs = remoteAs;
         final List<OptionalCapabilities> caps = new ArrayList<>();
 
         for (final Entry<Class<? extends AddressFamily>, Class<? extends SubsequentAddressFamily>> e : tables.entrySet()) {
@@ -58,7 +62,7 @@ public final class BGPSessionProposalImpl implements BGPSessionProposal {
         caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(
             CParameters1.class, new CParameters1Builder().setGracefulRestartCapability(
                 new GracefulRestartCapabilityBuilder().build()).build()).build()).build());
-        this.prefs = new BGPSessionPreferences(as, holdTimer, bgpId, Lists.newArrayList(
+        this.prefs = new BGPSessionPreferences(as, holdTimer, bgpId, remoteAs, Lists.newArrayList(
             new BgpParametersBuilder().setOptionalCapabilities(caps).build()));
     }
 
