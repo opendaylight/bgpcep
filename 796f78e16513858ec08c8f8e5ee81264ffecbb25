@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_d7693abf",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/controller/config/yang/bmp/impl/BmpDispatcherImplModule.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-22T07:43:44Z",
+      "side": 1,
+      "message": "Use Optional.fromNullable(...)",
+      "range": {
+        "startLine": 31,
+        "startChar": 102,
+        "endLine": 31,
+        "endChar": 140
+      },
+      "revId": "796f78e16513858ec08c8f8e5ee81264ffecbb25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_f76476e6",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/controller/config/yang/bmp/impl/BmpMonitorImplModule.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-22T07:43:44Z",
+      "side": 1,
+      "message": "Keep using optional.",
+      "range": {
+        "startLine": 87,
+        "startChar": 20,
+        "endLine": 87,
+        "endChar": 48
+      },
+      "revId": "796f78e16513858ec08c8f8e5ee81264ffecbb25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_974c2272",
+        "filename": "bgp/bmp-impl/src/main/yang/odl-bmp-impl-cfg.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-22T07:43:44Z",
+      "side": 1,
+      "message": "Name the list i.e. \"router\" or \"monitored-router\".",
+      "range": {
+        "startLine": 189,
+        "startChar": 17,
+        "endLine": 189,
+        "endChar": 23
+      },
+      "revId": "796f78e16513858ec08c8f8e5ee81264ffecbb25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_57768aa5",
+        "filename": "bgp/bmp-spi/src/main/java/org/opendaylight/protocol/bmp/api/BmpDispatcher.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-22T07:43:44Z",
+      "side": 1,
+      "message": "Keep using Optional - it is good way how to express the reference might not be present and avoid null reference (potential NPEs).",
+      "range": {
+        "startLine": 28,
+        "startChar": 89,
+        "endLine": 28,
+        "endChar": 99
+      },
+      "revId": "796f78e16513858ec08c8f8e5ee81264ffecbb25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_177012a4",
+        "filename": "bgp/controller-config/src/main/resources/initial/42-bmp-example.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-22T07:43:44Z",
+      "side": 1,
+      "message": "\"monitored routers\"",
+      "range": {
+        "startLine": 29,
+        "startChar": 51,
+        "endLine": 29,
+        "endChar": 55
+      },
+      "revId": "796f78e16513858ec08c8f8e5ee81264ffecbb25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
