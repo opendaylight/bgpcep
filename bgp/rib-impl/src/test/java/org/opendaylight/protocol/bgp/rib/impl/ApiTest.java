@@ -45,7 +45,7 @@ public class ApiTest {
         final Map<Class<? extends AddressFamily>, Class<? extends SubsequentAddressFamily>> map = new HashMap<>();
         map.put(key, value);
 
-        final BGPSessionProposalImpl proposal = new BGPSessionProposalImpl((short) 5, new AsNumber(58L), null, map);
+        final BGPSessionProposalImpl proposal = new BGPSessionProposalImpl((short) 5, new AsNumber(58L), null, map, null);
         final BGPSessionPreferences sp = proposal.getProposal();
         assertNull(sp.getBgpId());
         assertEquals(proposal.getHoldTimer(), sp.getHoldTime());
