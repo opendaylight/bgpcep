@@ -394,8 +394,8 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
         try {
             super.channelInactive(ctx);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to delegate channel inactive event on channel " + ctx.channel(), e);
+        } catch (final Exception e) {
+            throw new IllegalStateException("Failed to delegate channel inactive event on channel " + ctx.channel(), e);
         }
     }
 

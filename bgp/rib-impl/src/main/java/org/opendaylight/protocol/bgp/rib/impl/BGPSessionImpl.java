@@ -412,25 +412,25 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     }
 
     @Override
-    public final void channelInactive(ChannelHandlerContext ctx) {
+    public final void channelInactive(final ChannelHandlerContext ctx) {
         LOG.debug("Channel {} inactive.", ctx.channel());
         this.endOfInput();
 
         try {
             super.channelInactive(ctx);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to delegate channel inactive event on channel " + ctx.channel(), e);
+        } catch (final Exception e) {
+            throw new IllegalStateException("Failed to delegate channel inactive event on channel " + ctx.channel(), e);
         }
     }
 
     @Override
-    protected final void channelRead0(ChannelHandlerContext ctx, Notification msg) {
+    protected final void channelRead0(final ChannelHandlerContext ctx, final Notification msg) {
         LOG.debug("Message was received: {}", msg);
         this.handleMessage(msg);
     }
 
     @Override
-    public final void handlerAdded(ChannelHandlerContext ctx) {
+    public final void handlerAdded(final ChannelHandlerContext ctx) {
         this.sessionUp();
     }
 }
