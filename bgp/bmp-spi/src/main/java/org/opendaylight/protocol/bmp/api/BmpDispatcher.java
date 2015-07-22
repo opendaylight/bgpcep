@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bmp.api;
 
+import com.google.common.base.Optional;
 import io.netty.channel.ChannelFuture;
 import java.net.InetSocketAddress;
 import org.opendaylight.tcpmd5.api.KeyMapping;
@@ -25,5 +26,5 @@ public interface BmpDispatcher extends AutoCloseable {
      * @param slf Session listener factory
      * @return instance of BmpServer
      */
-    ChannelFuture createServer(InetSocketAddress address, BmpSessionListenerFactory slf, KeyMapping keys);
+    ChannelFuture createServer(InetSocketAddress address, BmpSessionListenerFactory slf, Optional<KeyMapping> keys);
 }

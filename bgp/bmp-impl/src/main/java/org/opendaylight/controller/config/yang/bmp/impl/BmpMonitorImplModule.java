@@ -9,6 +9,7 @@
 package org.opendaylight.controller.config.yang.bmp.impl;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import io.netty.util.internal.PlatformDependent;
@@ -51,21 +52,21 @@ public class BmpMonitorImplModule extends org.opendaylight.controller.config.yan
         return address.getIpv6Address().getValue();
     }
 
-    private KeyMapping constructKeys() {
+    private Optional<KeyMapping> constructKeys() {
         final KeyMapping ret = new KeyMapping();
-        if (getClient() != null) {
-            for (final Client c : getClient()) {
-                if (c.getAddress() == null) {
-                    LOG.warn("Client {} does not have an address skipping it", c);
+        if (getMonitoredRouter() != null) {
+            for (final MonitoredRouter mr : getMonitoredRouter()) {
+                if (mr.getAddress() == null) {
+                    LOG.warn("Monitored router {} does not have an address skipping it", mr);
                     continue;
                 }
-                if (c.getPassword() != null) {
-                    final String s = getAddressString(c.getAddress());
-                    ret.put(InetAddresses.forString(s), c.getPassword().getValue().getBytes(Charsets.US_ASCII));
+                if (mr.getPassword() != null) {
+                    final String s = getAddressString(mr.getAddress());
+                    ret.put(InetAddresses.forString(s), mr.getPassword().getValue().getBytes(Charsets.US_ASCII));
                 }
             }
         }
-        return ret;
+        return ret.isEmpty() ? Optional.absent() : ret;
     }
 
     @Override
@@ -79,12 +80,11 @@ public class BmpMonitorImplModule extends org.opendaylight.controller.config.yan
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final KeyMapping keys = constructKeys();
         try {
             return BmpMonitoringStationImpl.createBmpMonitorInstance(getExtensionsDependency(), getBmpDispatcherDependency(),
                     getDomDataProviderDependency(), new MonitorId(getIdentifier().getInstanceName()),
                     Ipv4Util.toInetSocketAddress(getBindingAddress(), getBindingPort()),
-                    keys.isEmpty() ? null : keys, getCodecTreeFactoryDependency(), getSchemaProvider());
+                    constructKeys(), getCodecTreeFactoryDependency(), getSchemaProvider());
         } catch(final InterruptedException e) {
             throw new IllegalStateException("Failed to istantiate BMP application.", e);
         }

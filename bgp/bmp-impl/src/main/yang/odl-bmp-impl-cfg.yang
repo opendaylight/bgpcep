@@ -186,7 +186,7 @@ module odl-bmp-impl-cfg {
                 mandatory true;
             }
 
-            list client {
+            list monitored-router {
                 leaf address {
                     type inet:ip-address;
                 }
