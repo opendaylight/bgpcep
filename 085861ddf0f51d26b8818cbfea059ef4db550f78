@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_c90f5e2d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/Codecs.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-22T11:50:47Z",
+      "side": 1,
+      "message": "Might concurrent reading/writing happens? Is this thread-safety?",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 78
+      },
+      "revId": "085861ddf0f51d26b8818cbfea059ef4db550f78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
