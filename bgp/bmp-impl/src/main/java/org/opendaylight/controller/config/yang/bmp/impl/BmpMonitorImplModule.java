@@ -8,7 +8,9 @@
 
 package org.opendaylight.controller.config.yang.bmp.impl;
 
-import com.google.common.base.Optional;
+import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
+import com.google.common.net.InetAddresses;
 import io.netty.util.internal.PlatformDependent;
 import java.security.AccessControlException;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
@@ -16,13 +18,18 @@ import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.protocol.bmp.impl.app.BmpMonitoringStationImpl;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.tcpmd5.api.KeyMapping;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.MonitorId;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BmpMonitorImplModule extends org.opendaylight.controller.config.yang.bmp.impl.AbstractBmpMonitorImplModule {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BmpMonitorImplModule.class);
 
     private static final int PRIVILEGED_PORTS = 1024;
 
@@ -36,6 +43,31 @@ public class BmpMonitorImplModule extends org.opendaylight.controller.config.yan
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
+    private String getAddressString(final IpAddress address) {
+        Preconditions.checkArgument(address.getIpv4Address() != null || address.getIpv6Address() != null, "Address %s is invalid", address);
+        if (address.getIpv4Address() != null) {
+            return address.getIpv4Address().getValue();
+        }
+        return address.getIpv6Address().getValue();
+    }
+
+    private KeyMapping constructKeys() {
+        final KeyMapping ret = new KeyMapping();
+        if (getClient() != null) {
+            for (final Client c : getClient()) {
+                if (c.getAddress() == null) {
+                    LOG.warn("Client {} does not have an address skipping it", c);
+                    continue;
+                }
+                if (c.getPassword() != null) {
+                    final String s = getAddressString(c.getAddress());
+                    ret.put(InetAddresses.forString(s), c.getPassword().getValue().getBytes(Charsets.US_ASCII));
+                }
+            }
+        }
+        return ret;
+    }
+
     @Override
     public void customValidation() {
         JmxAttributeValidationException.checkNotNull(getBindingPort(), bindingPortJmxAttribute);
@@ -47,11 +79,12 @@ public class BmpMonitorImplModule extends org.opendaylight.controller.config.yan
 
     @Override
     public java.lang.AutoCloseable createInstance() {
+        final KeyMapping keys = constructKeys();
         try {
             return BmpMonitoringStationImpl.createBmpMonitorInstance(getExtensionsDependency(), getBmpDispatcherDependency(),
                     getDomDataProviderDependency(), new MonitorId(getIdentifier().getInstanceName()),
                     Ipv4Util.toInetSocketAddress(getBindingAddress(), getBindingPort()),
-                    Optional.<KeyMapping>absent(), getCodecTreeFactoryDependency(), getSchemaProvider());
+                    keys.isEmpty() ? null : keys, getCodecTreeFactoryDependency(), getSchemaProvider());
         } catch(final InterruptedException e) {
             throw new IllegalStateException("Failed to istantiate BMP application.", e);
         }

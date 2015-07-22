@@ -49,6 +49,21 @@
                         <type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-threadgroup</type>
                         <name>global-worker-group</name>
                     </worker-group>
+
+                    <!--
+                         Uncomment this block to enable TCP MD5 Signature support
+
+                    <md5-channel-factory>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:tcpmd5:netty:cfg">prefix:md5-channel-factory</type>
+                        <name>md5-client-channel-factory</name>
+                    </md5-channel-factory>
+
+                    <md5-server-channel-factory>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:tcpmd5:netty:cfg">prefix:md5-server-channel-factory</type>
+                        <name>md5-server-channel-factory</name>
+                    </md5-server-channel-factory>
+                    -->
+                    
                 </module>
             </modules>
 

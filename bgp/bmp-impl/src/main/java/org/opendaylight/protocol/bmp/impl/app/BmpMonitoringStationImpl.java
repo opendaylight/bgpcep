@@ -8,7 +8,6 @@
 
 package org.opendaylight.protocol.bmp.impl.app;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -62,7 +61,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
     }
 
     public static BmpMonitoringStation createBmpMonitorInstance(final RIBExtensionConsumerContext ribExtensions, final BmpDispatcher dispatcher,
-            final DOMDataBroker domDataBroker, final MonitorId monitorId, final InetSocketAddress address, final Optional<KeyMapping> keys,
+            final DOMDataBroker domDataBroker, final MonitorId monitorId, final InetSocketAddress address, final KeyMapping keys,
             final BindingCodecTreeFactory codecFactory, final SchemaContext schemaContext) throws InterruptedException {
         Preconditions.checkNotNull(ribExtensions);
         Preconditions.checkNotNull(dispatcher);

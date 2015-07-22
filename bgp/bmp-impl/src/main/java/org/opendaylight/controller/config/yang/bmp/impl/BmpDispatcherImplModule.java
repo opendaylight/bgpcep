@@ -8,10 +8,8 @@
 
 package org.opendaylight.controller.config.yang.bmp.impl;
 
-import com.google.common.base.Optional;
 import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
 import org.opendaylight.protocol.bmp.impl.session.DefaultBmpSessionFactory;
-import org.opendaylight.tcpmd5.netty.MD5ServerChannelFactory;
 
 public class BmpDispatcherImplModule extends org.opendaylight.controller.config.yang.bmp.impl.AbstractBmpDispatcherImplModule {
     public BmpDispatcherImplModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -30,7 +28,7 @@ public class BmpDispatcherImplModule extends org.opendaylight.controller.config.
     @Override
     public java.lang.AutoCloseable createInstance() {
         return new BmpDispatcherImpl(getBossGroupDependency(), getWorkerGroupDependency(),
-                getBmpExtensionsDependency().getBmpMessageRegistry(), new DefaultBmpSessionFactory(), Optional.<MD5ServerChannelFactory<?>>absent());
+                getBmpExtensionsDependency().getBmpMessageRegistry(), new DefaultBmpSessionFactory(), getMd5ServerChannelFactoryDependency());
     }
 
 }

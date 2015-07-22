@@ -8,7 +8,6 @@
 
 package org.opendaylight.protocol.bmp.impl;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -38,10 +37,10 @@ public class BmpDispatcherImpl implements BmpDispatcher {
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
     private final BmpSessionFactory sessionFactory;
-    private final Optional<MD5ServerChannelFactory<?>> scf;
+    private final MD5ServerChannelFactory scf;
 
     public BmpDispatcherImpl(final EventLoopGroup bossGroup, final EventLoopGroup workerGroup, final BmpMessageRegistry registry,
-            final BmpSessionFactory sessionFactory, final Optional<MD5ServerChannelFactory<?>> scf) {
+            final BmpSessionFactory sessionFactory, final MD5ServerChannelFactory scf) {
         this.bossGroup = Preconditions.checkNotNull(bossGroup);
         this.workerGroup = Preconditions.checkNotNull(workerGroup);
         this.hf = new BmpHandlerFactory(Preconditions.checkNotNull(registry));
@@ -50,10 +49,11 @@ public class BmpDispatcherImpl implements BmpDispatcher {
     }
 
     @Override
-    public ChannelFuture createServer(final InetSocketAddress address, final BmpSessionListenerFactory slf, final Optional<KeyMapping> keys) {
+    public ChannelFuture createServer(final InetSocketAddress address, final BmpSessionListenerFactory slf, final KeyMapping keys) {
         Preconditions.checkNotNull(address);
         Preconditions.checkNotNull(slf);
         Preconditions.checkState(!keys.isPresent() || this.scf.isPresent(), "No key access instance available, cannot use key mapping.");
+
         final ServerBootstrap b = new ServerBootstrap();
         b.childHandler(new ChannelInitializer<Channel>() {
             @Override
