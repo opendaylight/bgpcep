@@ -46,30 +46,42 @@ public class TlvUtilTest {
 
     @Test
     public void testFormatTlvCounter32() throws Exception {
-        final ByteBuf out = Unpooled.buffer(TLV_COUNTER32_OUT.length);
+        ByteBuf out = Unpooled.buffer(TLV_COUNTER32_OUT.length);
         TlvUtil.formatTlvCounter32(1, new Counter32(5L), out);
         Assert.assertArrayEquals(TLV_COUNTER32_OUT, ByteArray.getAllBytes(out));
+        out = Unpooled.EMPTY_BUFFER;
+        TlvUtil.formatTlvCounter32(1, null, out);
+        Assert.assertFalse(out.isReadable());
     }
 
     @Test
     public void testFormatTlvGauge64() throws Exception {
-        final ByteBuf out = Unpooled.buffer(TLV_GAUGE64_OUT.length);
+        ByteBuf out = Unpooled.buffer(TLV_GAUGE64_OUT.length);
         TlvUtil.formatTlvGauge64(1, new Gauge64(BigInteger.valueOf(5)), out);
         Assert.assertArrayEquals(TLV_GAUGE64_OUT, ByteArray.getAllBytes(out));
+        out = Unpooled.EMPTY_BUFFER;
+        TlvUtil.formatTlvGauge64(1, null, out);
+        Assert.assertFalse(out.isReadable());
     }
 
     @Test
     public void testFormatTlvUtf8() throws Exception {
-        final ByteBuf out = Unpooled.buffer(TLV_UTF8_OUT.length);
+        ByteBuf out = Unpooled.buffer(TLV_UTF8_OUT.length);
         TlvUtil.formatTlvUtf8(1, "info1", out);
         Assert.assertArrayEquals(TLV_UTF8_OUT, ByteArray.getAllBytes(out));
+        out = Unpooled.EMPTY_BUFFER;
+        TlvUtil.formatTlvUtf8(1, null, out);
+        Assert.assertFalse(out.isReadable());
     }
 
     @Test
     public void testFormatTlvASCII() throws Exception {
-        final ByteBuf out = Unpooled.buffer(TLV_ASCII_OUT.length);
+        ByteBuf out = Unpooled.buffer(TLV_ASCII_OUT.length);
         TlvUtil.formatTlvAscii(1, "Name", out);
         Assert.assertArrayEquals(TLV_ASCII_OUT, ByteArray.getAllBytes(out));
+        out = Unpooled.EMPTY_BUFFER;
+        TlvUtil.formatTlvAscii(1, null, out);
+        Assert.assertFalse(out.isReadable());
     }
 
     @Test(expected=UnsupportedOperationException.class)
