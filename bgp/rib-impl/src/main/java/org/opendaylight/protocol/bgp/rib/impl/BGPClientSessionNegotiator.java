@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
+import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
@@ -37,7 +38,7 @@ public final class BGPClientSessionNegotiator extends AbstractBGPSessionNegotiat
     }
 
     @Override
-    protected AsNumber getAsNumber(Open openMsg, BGPSessionPreferences preferences) {
-        return preferences.getMyAs();
+    protected AsNumber getAsNumber(final Open openMsg, final BGPSessionPreferences preferences) {
+        return AsNumberUtil.advertizedAsNumber(openMsg);
     }
 }

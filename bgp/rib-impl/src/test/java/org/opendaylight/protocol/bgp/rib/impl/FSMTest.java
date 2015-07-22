@@ -14,7 +14,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-
 import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -106,7 +105,7 @@ public class FSMTest {
             new GracefulRestartCaseBuilder().setGracefulRestartCapability(
                 new GracefulRestartCapabilityBuilder().build()).build()).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
-        final BGPSessionPreferences prefs = new BGPSessionPreferences(new AsNumber(30L), (short) 3, new Ipv4Address("1.1.1.1"), tlvs);
+        final BGPSessionPreferences prefs = new BGPSessionPreferences(new AsNumber(30L), (short) 3, new Ipv4Address("1.1.1.1"), new AsNumber(30L), tlvs);
 
         final ChannelFuture f = mock(ChannelFuture.class);
         doReturn(null).when(f).addListener(any(GenericFutureListener.class));

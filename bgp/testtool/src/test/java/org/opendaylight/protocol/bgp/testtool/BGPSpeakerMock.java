@@ -86,13 +86,13 @@ public class BGPSpeakerMock<M, S extends ProtocolSession<M>, L extends SessionLi
             }
 
             @Override
-            public BGPSessionListener getPeer(final IpAddress ip, final Ipv4Address sourceId, final Ipv4Address remoteId, final AsNumber asNumber) throws BGPDocumentedException {
+            public BGPSessionListener getPeer(final IpAddress ip, final Ipv4Address sourceId, final Ipv4Address remoteId, final AsNumber asNumber, final Open open) throws BGPDocumentedException {
                 return new SpeakerSessionListener();
             }
 
             @Override
             public BGPSessionPreferences getPeerPreferences(final IpAddress ip) {
-                return new BGPSessionProposalImpl((short) 90, new AsNumber(72L), new Ipv4Address("127.0.0.2"), tables).getProposal();
+                return new BGPSessionProposalImpl((short) 90, new AsNumber(72L), new Ipv4Address("127.0.0.2"), tables, new AsNumber(72L)).getProposal();
             }
 
             @Override

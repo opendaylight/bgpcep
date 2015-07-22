@@ -101,7 +101,7 @@ public final class Main {
         tables.put(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
         tables.put(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
 
-        final BGPSessionProposalImpl prop = new BGPSessionProposalImpl(holdTimerValue, as, new Ipv4Address("25.25.25.2"), tables);
+        final BGPSessionProposalImpl prop = new BGPSessionProposalImpl(holdTimerValue, as, new Ipv4Address("25.25.25.2"), tables, as);
 
         final BGPSessionPreferences proposal = prop.getProposal();
 
