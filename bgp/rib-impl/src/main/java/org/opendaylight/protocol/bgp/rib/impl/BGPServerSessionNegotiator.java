@@ -39,7 +39,7 @@ public final class BGPServerSessionNegotiator extends AbstractBGPSessionNegotiat
     }
 
     @Override
-    protected AsNumber getAsNumber(Open openMsg, BGPSessionPreferences preferences) {
-        return new AsNumber(AsNumberUtil.advertizedAsNumber(openMsg));
+    protected AsNumber getAsNumber(final Open openMsg, final BGPSessionPreferences preferences) {
+        return AsNumberUtil.advertizedAsNumber(openMsg);
     }
 }
