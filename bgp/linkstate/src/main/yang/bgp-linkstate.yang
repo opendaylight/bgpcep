@@ -473,7 +473,7 @@ module bgp-linkstate {
         }
     }
 
-    grouping link-state {
+    grouping link-state-tlvs {
         reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.2";
         leaf local-ipv4-router-id {
             type ipv4-router-identifier;
@@ -591,7 +591,7 @@ module bgp-linkstate {
             }
             case link-attributes-case {
                 container link-attributes {
-                    uses link-state;
+                    uses link-state-tlvs;
                 }
             }
             case prefix-attributes-case {

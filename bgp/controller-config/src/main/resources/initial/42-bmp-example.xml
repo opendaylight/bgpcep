@@ -23,6 +23,17 @@
                     <name>example-bmp-monitor</name>
                     <!--<binding-address>0.0.0.0</binding-address>-->
                     <binding-port>12345</binding-port>
+                    <!--
+                         For TCP-MD5 support make sure the dispatcher has the "md5-server-channel-factory"
+                         attribute set and then set the appropriate monitored router entries here. Note that if this
+                         option is configured, the monitored router(s) connecting here must have the same password configured,
+                         otherwise they will not be able to connect at all.
+                    <client>
+                        <address>192.0.2.2</address>
+                        <password>changeme</password>
+                    </client>
+                    -->
+
                     <extensions>
                         <type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extensions</type>
                         <name>global-rib-extensions</name>
