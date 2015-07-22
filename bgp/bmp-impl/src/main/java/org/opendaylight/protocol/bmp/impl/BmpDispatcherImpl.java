@@ -54,6 +54,7 @@ public class BmpDispatcherImpl implements BmpDispatcher {
         Preconditions.checkNotNull(address);
         Preconditions.checkNotNull(slf);
         Preconditions.checkState(!keys.isPresent() || this.scf.isPresent(), "No key access instance available, cannot use key mapping.");
+
         final ServerBootstrap b = new ServerBootstrap();
         b.childHandler(new ChannelInitializer<Channel>() {
             @Override

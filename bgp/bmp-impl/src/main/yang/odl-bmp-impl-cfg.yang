@@ -8,6 +8,8 @@ module odl-bmp-impl-cfg {
     import odl-bmp-spi-cfg { prefix spi; revision-date 2015-05-13; }
     import odl-bgp-rib-spi-cfg { prefix ribspi; revision-date 2013-11-15; }
     import odl-bgp-parser-spi-cfg { prefix bgp-spi; revision-date 2013-11-15; }
+    import odl-tcpmd5-netty-cfg { prefix tcpmd5-netty; revision-date 2014-04-27; }
+    import odl-tcpmd5-cfg { prefix tcpmd5; revision-date 2014-04-27; }
     import netty { prefix netty; revision-date 2013-11-19; }
     import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
     import opendaylight-md-sal-binding {prefix mdsb; revision-date 2013-10-28; }
@@ -99,6 +101,24 @@ module odl-bmp-impl-cfg {
                     }
                 }
             }
+
+            container md5-channel-factory {
+                uses config:service-ref {
+                    refine type {
+                        mandatory false;
+                        config:required-identity tcpmd5-netty:md5-channel-factory;
+                    }
+                }
+            }
+
+            container md5-server-channel-factory {
+                uses config:service-ref {
+                    refine type {
+                        mandatory false;
+                        config:required-identity tcpmd5-netty:md5-server-channel-factory;
+                    }
+                }
+            }
         }
     }
 
@@ -166,6 +186,17 @@ module odl-bmp-impl-cfg {
                 mandatory true;
             }
 
+            list monitored-router {
+                leaf address {
+                    type inet:ip-address;
+                }
+                key "address";
+
+                leaf password {
+                    type tcpmd5:rfc2385-key;
+                    description "RFC2385 shared secret";
+                }
+            }
         }
     }
 }
