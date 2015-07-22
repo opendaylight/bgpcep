@@ -47,12 +47,12 @@ public class BGPSpeakerMock {
 
     private BGPSpeakerMock(final BGPServerSessionNegotiatorFactory negotiatorFactory, final BGPHandlerFactory factory,
                            final DefaultPromise<BGPSessionImpl> defaultPromise) {
-        disp = new BGPDispatcherImpl(null, new NioEventLoopGroup(), new NioEventLoopGroup());
+        this.disp = new BGPDispatcherImpl(null, new NioEventLoopGroup(), new NioEventLoopGroup());
         this.negotiatorFactory = Preconditions.checkNotNull(negotiatorFactory);
         this.factory = Preconditions.checkNotNull(factory);
 
 
-        peerRegistry = new BGPPeerRegistry() {
+        this.peerRegistry = new BGPPeerRegistry() {
             @Override
             public void addPeer(final IpAddress ip, final ReusableBGPPeer peer, final BGPSessionPreferences prefs) {
             }
@@ -67,13 +67,13 @@ public class BGPSpeakerMock {
             }
 
             @Override
-            public BGPSessionListener getPeer(final IpAddress ip, final Ipv4Address sourceId, final Ipv4Address remoteId, final AsNumber asNumber) throws BGPDocumentedException {
+            public BGPSessionListener getPeer(final IpAddress ip, final Ipv4Address sourceId, final Ipv4Address remoteId, final AsNumber asNumber, final Open open) throws BGPDocumentedException {
                 return new SpeakerSessionListener();
             }
 
             @Override
             public BGPSessionPreferences getPeerPreferences(final IpAddress ip) {
-                return new BGPSessionProposalImpl((short) 90, new AsNumber(72L), new Ipv4Address("127.0.0.2"), tables).getProposal();
+                return new BGPSessionProposalImpl((short) 90, new AsNumber(72L), new Ipv4Address("127.0.0.2"), BGPSpeakerMock.this.tables, new AsNumber(72L)).getProposal();
             }
 
             @Override
@@ -86,9 +86,9 @@ public class BGPSpeakerMock {
             }
         };
 
-        tables = new HashMap<>();
-        tables.put(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-        tables.put(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
+        this.tables = new HashMap<>();
+        this.tables.put(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+        this.tables.put(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
     }
 
     public void main(final String[] args) {
@@ -98,7 +98,7 @@ public class BGPSpeakerMock {
             public void validate(final Open openObj, final BGPSessionPreferences prefs) throws BGPDocumentedException {
                 // NOOP
             }
-        }, peerRegistry);
+        }, this.peerRegistry);
 
         final BGPSpeakerMock mock = new BGPSpeakerMock(snf, new BGPHandlerFactory(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry()), new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE));
 
@@ -106,7 +106,7 @@ public class BGPSpeakerMock {
     }
 
     private void createServer(final InetSocketAddress address) {
-        disp.createServer(peerRegistry,address, new BGPSessionValidator() {
+        this.disp.createServer(this.peerRegistry,address, new BGPSessionValidator() {
             @Override
             public void validate(final Open openObj, final BGPSessionPreferences prefs) throws BGPDocumentedException {
                 // NOOP
