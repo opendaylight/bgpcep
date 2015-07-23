@@ -1,0 +1,158 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_8254db21",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/controller/config/yang/bmp/impl/BmpMonitorImplModule.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-23T16:25:42Z",
+      "side": 1,
+      "message": "Variable \"ret\" is never null, absent when ret is empty.",
+      "range": {
+        "startLine": 69,
+        "startChar": 37,
+        "endLine": 69,
+        "endChar": 40
+      },
+      "revId": "06a3fa2fc2d26a9e0612ed7e942c39dc822cfdac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_22338715",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/controller/config/yang/bmp/impl/BmpMonitorImplModule.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-23T16:25:42Z",
+      "side": 1,
+      "message": "Simply call constructKeys() here.",
+      "range": {
+        "startLine": 88,
+        "startChar": 20,
+        "endLine": 88,
+        "endChar": 24
+      },
+      "revId": "06a3fa2fc2d26a9e0612ed7e942c39dc822cfdac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_0249ab8a",
+        "filename": "bgp/controller-config/src/main/resources/initial/42-bmp-example.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-23T16:25:42Z",
+      "side": 1,
+      "message": "monitored-router",
+      "range": {
+        "startLine": 31,
+        "startChar": 21,
+        "endLine": 31,
+        "endChar": 27
+      },
+      "revId": "06a3fa2fc2d26a9e0612ed7e942c39dc822cfdac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_e23cafe4",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/LinkAttributesParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-23T16:25:42Z",
+      "side": 1,
+      "message": "unrelated change",
+      "revId": "06a3fa2fc2d26a9e0612ed7e942c39dc822cfdac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_4236c304",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/sr/SrLinkAttributesParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-23T16:25:42Z",
+      "side": 1,
+      "message": "unrelated change",
+      "revId": "06a3fa2fc2d26a9e0612ed7e942c39dc822cfdac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_a25f9740",
+        "filename": "bgp/linkstate/src/main/yang/bgp-linkstate.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-23T16:25:42Z",
+      "side": 1,
+      "message": "unrelated change",
+      "revId": "06a3fa2fc2d26a9e0612ed7e942c39dc822cfdac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_c25ad34f",
+        "filename": "bgp/linkstate/src/test/java/org/opendaylight/protocol/bgp/linkstate/SrAttributeParserTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-23T16:25:42Z",
+      "side": 1,
+      "message": "unrelated change",
+      "revId": "06a3fa2fc2d26a9e0612ed7e942c39dc822cfdac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_62597f59",
+        "filename": "bgp/topology-provider/src/test/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateTopologyBuilderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-23T16:25:42Z",
+      "side": 1,
+      "message": "unrelated change",
+      "revId": "06a3fa2fc2d26a9e0612ed7e942c39dc822cfdac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
