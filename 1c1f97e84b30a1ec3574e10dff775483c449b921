@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_ce73dce5",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LabeledUnicastRIBSupport.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-25T07:20:10Z",
+      "side": 1,
+      "message": "Unnecessary variable.",
+      "range": {
+        "startLine": 65,
+        "startChar": 4,
+        "endLine": 65,
+        "endChar": 82
+      },
+      "revId": "1c1f97e84b30a1ec3574e10dff775483c449b921",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_ae78e0c4",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LabeledUnicastRIBSupport.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-25T07:20:10Z",
+      "side": 1,
+      "message": "Change variable name to \"routesPath\"",
+      "range": {
+        "startLine": 149,
+        "startChar": 99,
+        "endLine": 149,
+        "endChar": 108
+      },
+      "revId": "1c1f97e84b30a1ec3574e10dff775483c449b921",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_0e7234e5",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LabeledUnicastRIBSupport.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-25T07:20:10Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 156,
+        "startChar": 66,
+        "endLine": 156,
+        "endChar": 78
+      },
+      "revId": "1c1f97e84b30a1ec3574e10dff775483c449b921",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_4e682cf5",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LabeledUnicastRIBSupport.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-25T07:20:10Z",
+      "side": 1,
+      "message": "tablePath.node(routesNodeId) - now path is pointing to \"routes\"",
+      "range": {
+        "startLine": 170,
+        "startChar": 31,
+        "endLine": 170,
+        "endChar": 40
+      },
+      "revId": "1c1f97e84b30a1ec3574e10dff775483c449b921",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_ee6ed800",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LabeledUnicastRIBSupport.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-25T07:20:10Z",
+      "side": 1,
+      "message": "tablePath.node(routesNodeId)",
+      "range": {
+        "startLine": 178,
+        "startChar": 31,
+        "endLine": 178,
+        "endChar": 40
+      },
+      "revId": "1c1f97e84b30a1ec3574e10dff775483c449b921",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_8e7de4b3",
+        "filename": "bgp/labeled-unicast/src/main/yang/bgp-labeled-unicast.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-25T07:20:10Z",
+      "side": 1,
+      "message": "Range should be like 0..2^20-1",
+      "range": {
+        "startLine": 40,
+        "startChar": 16,
+        "endLine": 40,
+        "endChar": 31
+      },
+      "revId": "1c1f97e84b30a1ec3574e10dff775483c449b921",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
