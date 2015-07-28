@@ -2,6 +2,69 @@
   "comments": [
     {
       "key": {
+        "uuid": "7a7fa997_333198a2",
+        "filename": "bgp/controller-config/src/main/resources/initial/41-bgp-example.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-28T08:06:21Z",
+      "side": 1,
+      "message": "remove whitespaces, also do NOT uncomment the part",
+      "revId": "1c1f97e84b30a1ec3574e10dff775483c449b921",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_d3270463",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParser.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-28T08:06:21Z",
+      "side": 1,
+      "message": "Does not need to be global variable.\nRemove commented code.",
+      "range": {
+        "startLine": 62,
+        "startChar": 17,
+        "endLine": 62,
+        "endChar": 23
+      },
+      "revId": "1c1f97e84b30a1ec3574e10dff775483c449b921",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_f32a402b",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParser.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-28T08:06:21Z",
+      "side": 1,
+      "message": "This needs a rewrite. If you\u0027re assigning bottomBit before the while cycle, there is no need for the cycle at all. Also you don\u0027t need stop variable.",
+      "range": {
+        "startLine": 170,
+        "startChar": 7,
+        "endLine": 180,
+        "endChar": 9
+      },
+      "revId": "1c1f97e84b30a1ec3574e10dff775483c449b921",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a7fa997_ce73dce5",
         "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LabeledUnicastRIBSupport.java",
         "patchSetId": 7
@@ -110,6 +173,29 @@
         "startChar": 31,
         "endLine": 178,
         "endChar": 40
+      },
+      "revId": "1c1f97e84b30a1ec3574e10dff775483c449b921",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a7fa997_93218c4f",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LabeledUnicastRIBSupport.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-28T08:06:21Z",
+      "side": 1,
+      "message": "!\u003d null",
+      "range": {
+        "startLine": 197,
+        "startChar": 58,
+        "endLine": 197,
+        "endChar": 60
       },
       "revId": "1c1f97e84b30a1ec3574e10dff775483c449b921",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
