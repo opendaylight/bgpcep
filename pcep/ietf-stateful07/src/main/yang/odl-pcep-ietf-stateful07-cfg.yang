@@ -33,6 +33,7 @@ module odl-pcep-ietf-stateful07-cfg {
             "Updated revision dates for imports.";
     }
 
+    //TODO replace with pcep-capability implementation, fix initial config file too
     identity pcep-session-proposal-factory-stateful07 {
         base config:module-type;
         config:java-name-prefix "Stateful07PCEPSessionProposalFactory";

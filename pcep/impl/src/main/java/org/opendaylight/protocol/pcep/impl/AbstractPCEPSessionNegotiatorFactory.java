@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.impl;
 
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
+import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
@@ -24,7 +25,7 @@ public abstract class AbstractPCEPSessionNegotiatorFactory implements PCEPSessio
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPCEPSessionNegotiatorFactory.class);
 
-    private PCEPPeerRegistry sessionRegistry = new PCEPPeerRegistry();
+    private final PCEPPeerRegistry sessionRegistry = new PCEPPeerRegistry();
 
     /**
      * Create a new negotiator. This method needs to be implemented by subclasses to actually provide a negotiator.
@@ -36,14 +37,14 @@ public abstract class AbstractPCEPSessionNegotiatorFactory implements PCEPSessio
      * @return a PCEP session negotiator
      */
     protected abstract AbstractPCEPSessionNegotiator createNegotiator(Promise<PCEPSessionImpl> promise, PCEPSessionListener listener,
-            Channel channel, short sessionId);
+            Channel channel, short sessionId, final PCEPPeerProposal peerProposal);
 
     @Override
     public final SessionNegotiator getSessionNegotiator(final PCEPSessionListenerFactory factory,
-            final Channel channel, final Promise<PCEPSessionImpl> promise) {
+            final Channel channel, final Promise<PCEPSessionImpl> promise, final PCEPPeerProposal peerProposal) {
 
         LOG.debug("Instantiating bootstrap negotiator for channel {}", channel);
-        return new PCEPSessionNegotiator(channel, promise, factory, this);
+        return new PCEPSessionNegotiator(channel, promise, factory, this, peerProposal);
     }
 
     public PCEPPeerRegistry getSessionRegistry() {
