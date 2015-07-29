@@ -20,7 +20,6 @@ import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
 import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
-import org.opendaylight.controller.config.yang.pcep.stateful07.cfg.Stateful07PCEPSessionProposalFactoryModuleMXBean;
 
 public class SrPCEPSessionProposalFactoryModuleTest extends AbstractConfigTest {
 
@@ -96,8 +95,8 @@ public class SrPCEPSessionProposalFactoryModuleTest extends AbstractConfigTest {
     public void testStatefulAfterCommitted() throws Exception {
         createInstance((short) 200, (short) 100, false, true, true, true, true, true, true, true);
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
-        final Stateful07PCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(
-                FACTORY_NAME, INSTANCE_NAME), Stateful07PCEPSessionProposalFactoryModuleMXBean.class);
+        final SrPCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(
+                FACTORY_NAME, INSTANCE_NAME), SrPCEPSessionProposalFactoryModuleMXBean.class);
         assertTrue(mxBean.getStateful());
     }
 
@@ -105,8 +104,8 @@ public class SrPCEPSessionProposalFactoryModuleTest extends AbstractConfigTest {
     public void testNotStatefulAfterCommitted() throws Exception {
         createInstance((short) 200, (short) 100, false, false, false, false, false, false, false, false);
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
-        final Stateful07PCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(
-                FACTORY_NAME, INSTANCE_NAME), Stateful07PCEPSessionProposalFactoryModuleMXBean.class);
+        final SrPCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(
+                FACTORY_NAME, INSTANCE_NAME), SrPCEPSessionProposalFactoryModuleMXBean.class);
         assertFalse(mxBean.getStateful());
     }
 
@@ -114,8 +113,8 @@ public class SrPCEPSessionProposalFactoryModuleTest extends AbstractConfigTest {
     public void testIncludeDbVersionAfterCommitted() throws Exception {
         createInstance((short) 200, (short) 100, false, false, false, false, false, false, true, false);
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
-        final Stateful07PCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(
-                FACTORY_NAME, INSTANCE_NAME), Stateful07PCEPSessionProposalFactoryModuleMXBean.class);
+        final SrPCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(
+                FACTORY_NAME, INSTANCE_NAME), SrPCEPSessionProposalFactoryModuleMXBean.class);
         assertTrue(mxBean.getIncludeDbVersion());
     }
 
@@ -123,8 +122,8 @@ public class SrPCEPSessionProposalFactoryModuleTest extends AbstractConfigTest {
     public void testNotIncludeDbVersionAfterCommitted() throws Exception {
         createInstance((short) 200, (short) 100, false, false, false, false, false, false, false, false);
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
-        final Stateful07PCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(
-                FACTORY_NAME, INSTANCE_NAME), Stateful07PCEPSessionProposalFactoryModuleMXBean.class);
+        final SrPCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(
+                FACTORY_NAME, INSTANCE_NAME), SrPCEPSessionProposalFactoryModuleMXBean.class);
         assertFalse(mxBean.getIncludeDbVersion());
     }
 
@@ -200,8 +199,7 @@ public class SrPCEPSessionProposalFactoryModuleTest extends AbstractConfigTest {
         createInstance();
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
-        transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME),
-                Stateful07PCEPSessionProposalFactoryModuleMXBean.class);
+        transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME), SrPCEPSessionProposalFactoryModuleMXBean.class);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
         assertStatus(status, 0, 0, 1);
@@ -223,8 +221,7 @@ public class SrPCEPSessionProposalFactoryModuleTest extends AbstractConfigTest {
             final Boolean stateful, final Boolean active, final Boolean instant, final Boolean srCapable,
             final Boolean triggeredInitialSync, final Boolean triggeredResync, final Boolean deltaLspSyncCapability, final Boolean includeDbVersion) throws InstanceAlreadyExistsException {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
-        final SrPCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated,
-                SrPCEPSessionProposalFactoryModuleMXBean.class);
+        final SrPCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, SrPCEPSessionProposalFactoryModuleMXBean.class);
         mxBean.setActive(active);
         mxBean.setDeadTimerValue(deadTimer);
         mxBean.setInitiated(instant);

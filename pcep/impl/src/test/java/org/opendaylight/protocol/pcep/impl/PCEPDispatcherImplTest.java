@@ -25,6 +25,8 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
 import java.nio.channels.Channel;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Assert;
@@ -35,18 +37,18 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
+import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
+import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 import org.opendaylight.tcpmd5.api.KeyAccess;
 import org.opendaylight.tcpmd5.api.KeyAccessFactory;
 import org.opendaylight.tcpmd5.api.KeyMapping;
 import org.opendaylight.tcpmd5.netty.MD5NioServerSocketChannelFactory;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 
 public class PCEPDispatcherImplTest {
 
@@ -68,21 +70,21 @@ public class PCEPDispatcherImplTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        final Open open = new OpenBuilder().setSessionId((short) 0).setDeadTimer(DEAD_TIMER).setKeepalive(KEEP_ALIVE)
-                .build();
+        final List<PCEPCapability> capList = new ArrayList<>();
+        final PCEPSessionProposalFactory sessionProposal = new BasePCEPSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE, capList);
         final EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         final MessageRegistry msgReg = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance()
                 .getMessageHandlerRegistry();
-        this.dispatcher = new PCEPDispatcherImpl(msgReg, new DefaultPCEPSessionNegotiatorFactory(open, 0),
+        this.dispatcher = new PCEPDispatcherImpl(msgReg, new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0),
                 eventLoopGroup, eventLoopGroup);
 
         Mockito.doReturn("mockChannel").when(this.mockChannel).toString();
         Mockito.doReturn(this.mockKeyAccess).when(this.kaf).getKeyAccess(Mockito.any(Channel.class));
         final MD5NioServerSocketChannelFactory scf = new MD5NioServerSocketChannelFactory(this.kaf);
-        final PCEPDispatcherImpl dispatcher2 = new PCEPDispatcherImpl(msgReg, new DefaultPCEPSessionNegotiatorFactory(open, 0), eventLoopGroup, eventLoopGroup, scf);
+        final PCEPDispatcherImpl dispatcher2 = new PCEPDispatcherImpl(msgReg, new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0), eventLoopGroup, eventLoopGroup, scf);
         this.disp2Spy = Mockito.spy(dispatcher2);
 
-        this.pccMock = new PCCMock(new DefaultPCEPSessionNegotiatorFactory(open, 0),
+        this.pccMock = new PCCMock(new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0),
                 new PCEPHandlerFactory(msgReg), new DefaultPromise<PCEPSessionImpl>(
                     GlobalEventExecutor.INSTANCE));
     }
@@ -95,7 +97,7 @@ public class PCEPDispatcherImplTest {
                     public PCEPSessionListener getSessionListener() {
                         return new SimpleSessionListener();
                     }
-                });
+                }, null);
         final PCEPSessionImpl session1 = (PCEPSessionImpl) this.pccMock.createClient(CLIENT1_ADDRESS,
                 new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 500),
                 new PCEPSessionListenerFactory() {
@@ -136,7 +138,7 @@ public class PCEPDispatcherImplTest {
                     public PCEPSessionListener getSessionListener() {
                         return new SimpleSessionListener();
                     }
-                });
+                }, null);
         final PCEPSessionImpl session1 = (PCEPSessionImpl) this.pccMock.createClient(CLIENT1_ADDRESS,
             new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 500),
             new PCEPSessionListenerFactory() {
@@ -171,7 +173,7 @@ public class PCEPDispatcherImplTest {
                     public PCEPSessionListener getSessionListener() {
                         return new SimpleSessionListener();
                     }
-                });
+                }, null);
         final PCEPSessionImpl session1 = (PCEPSessionImpl) this.pccMock.createClient(CLIENT1_ADDRESS,
                 new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 500),
                 new PCEPSessionListenerFactory() {
@@ -214,7 +216,7 @@ public class PCEPDispatcherImplTest {
                 public PCEPSessionListener getSessionListener() {
                     return new SimpleSessionListener();
                 }
-            });
+            }, null);
         Mockito.verify(this.disp2Spy).customizeBootstrap(Mockito.any(ServerBootstrap.class));
     }
 
@@ -246,18 +248,18 @@ public class PCEPDispatcherImplTest {
                 @Override
                 public void initializeChannel(final SocketChannel ch, final Promise promise) {
                     ch.pipeline().addLast(PCCMock.this.factory.getDecoders());
-                    ch.pipeline().addLast("negotiator", PCCMock.this.negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise));
+                    ch.pipeline().addLast("negotiator", PCCMock.this.negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise, null));
                     ch.pipeline().addLast(PCCMock.this.factory.getEncoders());
                 }
             });
         }
 
-        Future<PCEPSession> createClient(InetSocketAddress address, ReconnectStrategy strategy, final PCEPDispatcherImpl.ChannelPipelineInitializer initializer) {
-            Bootstrap b = new Bootstrap();
+        Future<PCEPSession> createClient(final InetSocketAddress address, final ReconnectStrategy strategy, final PCEPDispatcherImpl.ChannelPipelineInitializer initializer) {
+            final Bootstrap b = new Bootstrap();
             final PCEPProtocolSessionPromise p = new PCEPProtocolSessionPromise(this.executor, address, strategy, b);
             (b.option(ChannelOption.SO_KEEPALIVE, Boolean.valueOf(true))).handler(new ChannelInitializer<SocketChannel>() {
                 @Override
-                protected void initChannel(SocketChannel ch) {
+                protected void initChannel(final SocketChannel ch) {
                     initializer.initializeChannel(ch, p);
                 }
             });
@@ -268,15 +270,15 @@ public class PCEPDispatcherImplTest {
             return p;
         }
 
-        private void setChannelFactory(Bootstrap b) {
+        private void setChannelFactory(final Bootstrap b) {
             try {
                 b.channel(NioSocketChannel.class);
-            } catch (IllegalStateException ignored) {
+            } catch (final IllegalStateException ignored) {
             }
 
         }
 
-        private void setWorkerGroup(Bootstrap b) {
+        private void setWorkerGroup(final Bootstrap b) {
             if (b.group() == null) {
                 b.group(this.workerGroup);
             }

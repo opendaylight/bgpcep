@@ -87,8 +87,17 @@
                     <name>global-pcep-session-proposal-factory</name>
                 </module>
                 <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg">prefix:pcep-session-proposal-factory-stateful07</type>
-                    <name>stateful07-prop</name>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg">prefix:pcep-stateful-capability</type>
+                    <name>pcep-stateful-cap</name>
+                    <dead-timer-value></dead-timer-value>
+                    <keep-alive-timer-value></keep-alive-timer-value>
+                    <initiated></initiated>
+                    <stateful></stateful>
+                    <active></active>
+                    <triggered-initial-sync></triggered-initial-sync>
+                    <delta-lsp-sync-capability></delta-lsp-sync-capability>
+                    <triggered-resync></triggered-resync>
+                    <include-db-version></include-db-version>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful02:cfg">prefix:pcep-session-proposal-factory-stateful02</type>
@@ -183,12 +192,16 @@
                 <service>
                     <type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep">pcep:pcep-session-proposal-factory</type>
                     <instance>
-                        <name>stateful07-proposal</name>
-                        <provider>/config/modules/module[name='pcep-session-proposal-factory-stateful07']/instance[name='stateful07-prop']</provider>
-                    </instance>
-                    <instance>
                         <name>stateful02-proposal</name>
                         <provider>/config/modules/module[name='pcep-session-proposal-factory-stateful02']/instance[name='stateful02-prop']</provider>
+                    </instance>
+                </service>
+
+                <service>
+                    <type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep">pcep:pcep-capability</type>
+                    <instance>
+                        <name>pcep-stateful-cap</name>
+                        <provider>/config/modules/module[name='pcep-stateful-capability']/instance[name='pcep-stateful-cap']</provider>
                     </instance>
                 </service>
 
