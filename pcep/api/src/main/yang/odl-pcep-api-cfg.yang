@@ -43,5 +43,12 @@ module odl-pcep-api-cfg {
         base "config:service-type";
         config:java-class "org.opendaylight.protocol.pcep.PCEPSessionProposalFactory";
     }
+
+    identity pcep-capability {
+        description "Service for storing usability of specific capabilities during 
+        	opened PCEP session.";
+        base "config:service-type";
+        config:java-class "org.opendaylight.protocol.pcep.PCEPCapability";
+    }
 }
 

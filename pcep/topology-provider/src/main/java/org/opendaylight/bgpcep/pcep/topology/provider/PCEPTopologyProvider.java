@@ -60,7 +60,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
         if (runtimeRootRegistrator.isPresent()) {
             manager.registerRuntimeRootRegistartion(runtimeRootRegistrator.get());
         }
-        final ChannelFuture f = dispatcher.createServer(address, keys, manager);
+        final ChannelFuture f = dispatcher.createServer(address, keys, manager, null);
         f.get();
 
         final BindingAwareBroker.RoutedRpcRegistration<NetworkTopologyPcepService> element = rpcRegistry.addRoutedRpcImplementation(

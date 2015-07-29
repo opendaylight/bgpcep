@@ -199,6 +199,15 @@ module odl-pcep-impl-cfg {
                 type uint8;
                 default 30;
             }
+
+            list capability {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity pcep:pcep-capability;
+                    }
+                }
+            }
         }
     }
 }

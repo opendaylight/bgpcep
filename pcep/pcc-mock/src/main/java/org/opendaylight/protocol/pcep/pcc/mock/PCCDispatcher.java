@@ -21,6 +21,7 @@ import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
+import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPHandlerFactory;
@@ -82,7 +83,7 @@ public final class PCCDispatcher extends AbstractPCCDispatcher implements PCEPDi
             public void initializeChannel(final SocketChannel ch, final Promise<PCEPSessionImpl> promise) {
                 ch.pipeline().addLast(PCCDispatcher.this.factory.getDecoders());
                 ch.pipeline().addLast("negotiator",
-                        negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise));
+                        negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise, null));
                 ch.pipeline().addLast(PCCDispatcher.this.factory.getEncoders());
             }
         });
@@ -91,9 +92,8 @@ public final class PCCDispatcher extends AbstractPCCDispatcher implements PCEPDi
     }
 
     @Override
-    public synchronized ChannelFuture createServer(final InetSocketAddress address,
-                                                   final PCEPSessionListenerFactory listenerFactory) {
-        return createServer(address, null, listenerFactory);
+    public synchronized ChannelFuture createServer(final InetSocketAddress address, final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
+        return createServer(address, null, listenerFactory, peerProposal);
     }
 
     @Override
@@ -114,13 +114,13 @@ public final class PCCDispatcher extends AbstractPCCDispatcher implements PCEPDi
 
     @Override
     public synchronized ChannelFuture createServer(final InetSocketAddress address, final KeyMapping keys,
-                                                   final PCEPSessionListenerFactory listenerFactory) {
+                                                   final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
         this.keys = keys;
         final ChannelFuture ret = super.createServer(address, new ChannelPipelineInitializer() {
             @Override
             public void initializeChannel(final SocketChannel ch, final Promise<PCEPSessionImpl> promise) {
                 ch.pipeline().addLast(PCCDispatcher.this.hf.getDecoders());
-                ch.pipeline().addLast("negotiator", PCCDispatcher.this.snf.getSessionNegotiator(listenerFactory, ch, promise));
+                ch.pipeline().addLast("negotiator", PCCDispatcher.this.snf.getSessionNegotiator(listenerFactory, ch, promise, peerProposal));
                 ch.pipeline().addLast(PCCDispatcher.this.hf.getEncoders());
             }
         });
@@ -138,7 +138,7 @@ public final class PCCDispatcher extends AbstractPCCDispatcher implements PCEPDi
 
             try {
                 factory = NativeKeyAccessFactory.getInstance();
-            } catch (NativeSupportUnavailableException e) {
+            } catch (final NativeSupportUnavailableException e) {
                 LOG.debug("Native key access not available, using no-op fallback", e);
                 factory = DummyKeyAccessFactory.getInstance();
             }
