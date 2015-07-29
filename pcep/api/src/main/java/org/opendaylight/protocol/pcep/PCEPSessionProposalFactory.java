@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep;
 
 import java.net.InetSocketAddress;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 
 /**
@@ -25,4 +24,6 @@ public interface PCEPSessionProposalFactory {
      * @return specific session proposal
      */
     Open getSessionProposal(InetSocketAddress address, int sessionId);
+
+    Open getSessionProposal(InetSocketAddress address, int sessionId, PCEPPeerProposal peerProposal);
 }

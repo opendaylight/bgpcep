@@ -8,26 +8,39 @@
 package org.opendaylight.protocol.pcep.impl;
 
 import java.net.InetSocketAddress;
+import java.util.List;
+import org.opendaylight.protocol.pcep.PCEPCapability;
+import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
 
-public class BasePCEPSessionProposalFactory implements PCEPSessionProposalFactory {
+final public class BasePCEPSessionProposalFactory implements PCEPSessionProposalFactory {
 
     private final int keepAlive, deadTimer;
+    private final List<PCEPCapability> capabilities;
 
-    public BasePCEPSessionProposalFactory(final int deadTimer, final int keepAlive) {
+    public BasePCEPSessionProposalFactory(final int deadTimer, final int keepAlive, final List<PCEPCapability> capabilities) {
         this.deadTimer = deadTimer;
         this.keepAlive = keepAlive;
+        this.capabilities = capabilities;
     }
 
-    protected void addTlvs(final InetSocketAddress address, final TlvsBuilder builder) {
-        // No TLVs by default
+    private void addTlvs(final InetSocketAddress address, final TlvsBuilder builder) {
+        for (final PCEPCapability capability : this.capabilities) {
+            capability.setCapabilityProposal(address, builder);
+        }
     }
 
     @Override
     public final Open getSessionProposal(final InetSocketAddress address, final int sessionId) {
+        return getSessionProposal(address, sessionId, null);
+    }
+
+    @Override
+    public Open getSessionProposal(final InetSocketAddress address, final int sessionId,
+            final PCEPPeerProposal peerProposal) {
         final OpenBuilder oBuilder = new OpenBuilder();
         oBuilder.setSessionId((short) sessionId);
         oBuilder.setKeepalive((short) BasePCEPSessionProposalFactory.this.keepAlive);
@@ -38,6 +51,9 @@ public class BasePCEPSessionProposalFactory implements PCEPSessionProposalFactor
         }
 
         final TlvsBuilder builder = new TlvsBuilder();
+        if (peerProposal != null) {
+            peerProposal.setPeerSpecificProposal(address, builder);
+        }
         addTlvs(address, builder);
         return oBuilder.setTlvs(builder.build()).build();
     }
@@ -49,4 +65,5 @@ public class BasePCEPSessionProposalFactory implements PCEPSessionProposalFactor
     public final int getDeadTimer() {
         return this.deadTimer;
     }
+
 }
