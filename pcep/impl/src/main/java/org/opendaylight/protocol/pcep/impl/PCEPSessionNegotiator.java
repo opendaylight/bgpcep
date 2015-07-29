@@ -16,6 +16,7 @@ import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
 import java.util.Comparator;
 import java.util.concurrent.ExecutionException;
+import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPPeerRegistry.SessionReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -31,14 +32,17 @@ public class PCEPSessionNegotiator extends AbstractSessionNegotiator {
     private final PCEPSessionListenerFactory factory;
 
     private final AbstractPCEPSessionNegotiatorFactory negFactory;
+    private final PCEPPeerProposal peerProposal;
 
     public PCEPSessionNegotiator(final Channel channel, final Promise<PCEPSessionImpl> promise, final PCEPSessionListenerFactory factory,
-        final AbstractPCEPSessionNegotiatorFactory negFactory) {
+        final AbstractPCEPSessionNegotiatorFactory negFactory, final PCEPPeerProposal peerProposal) {
         super(promise, channel);
         this.factory = factory;
         this.negFactory = negFactory;
+        this.peerProposal = peerProposal;
     }
 
+    @Override
     protected void startNegotiation() throws ExecutionException {
         final Object lock = this;
 
@@ -71,7 +75,8 @@ public class PCEPSessionNegotiator extends AbstractSessionNegotiator {
             }
 
             final Short sessionId = sessionReg.nextSession(clientAddress);
-            final AbstractPCEPSessionNegotiator n = this.negFactory.createNegotiator(this.promise, this.factory.getSessionListener(), this.channel, sessionId);
+            final AbstractPCEPSessionNegotiator n = this.negFactory.createNegotiator(this.promise, this.factory.getSessionListener(),
+                    this.channel, sessionId, this.peerProposal);
 
             sessionReg.putSessionReference(clientAddress, new SessionReference() {
                 @Override
@@ -104,6 +109,7 @@ public class PCEPSessionNegotiator extends AbstractSessionNegotiator {
         }
     }
 
+    @Override
     protected void handleMessage(final Message msg) {
         throw new IllegalStateException("Bootstrap negotiator should have been replaced");
     }

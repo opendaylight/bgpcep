@@ -8,9 +8,7 @@
 package org.opendaylight.protocol.pcep;
 
 import io.netty.channel.ChannelFuture;
-
 import java.net.InetSocketAddress;
-
 import org.opendaylight.tcpmd5.api.KeyMapping;
 
 /**
@@ -22,9 +20,10 @@ public interface PCEPDispatcher {
      *
      * @param address to be bound with the server
      * @param listenerFactory to create listeners for clients
+     * @param peerProposal information used in our Open message
      * @return instance of PCEPServer
      */
-    ChannelFuture createServer(InetSocketAddress address, PCEPSessionListenerFactory listenerFactory);
+    ChannelFuture createServer(InetSocketAddress address, PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal);
 
     /**
      * Creates server. Each server needs three factories to pass their instances to client sessions.
@@ -32,7 +31,8 @@ public interface PCEPDispatcher {
      * @param address to be bound with the server
      * @param keys RFC2385 key mapping
      * @param listenerFactory to create listeners for clients
+     * @param peerProposal information used in our Open message
      * @return instance of PCEPServer
      */
-    ChannelFuture createServer(InetSocketAddress address, KeyMapping keys, PCEPSessionListenerFactory listenerFactory);
+    ChannelFuture createServer(InetSocketAddress address, KeyMapping keys, PCEPSessionListenerFactory listenerFactory, PCEPPeerProposal peerProposal);
 }

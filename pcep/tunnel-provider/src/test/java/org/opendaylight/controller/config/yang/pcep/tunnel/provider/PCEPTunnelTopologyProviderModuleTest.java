@@ -9,7 +9,6 @@ package org.opendaylight.controller.config.yang.pcep.tunnel.provider;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
 import java.util.List;
 import javax.management.ObjectName;
 import org.junit.Test;
@@ -21,7 +20,7 @@ import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgrou
 import org.opendaylight.controller.config.yang.pcep.impl.PCEPDispatcherImplModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.impl.PCEPSessionProposalFactoryImplModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleFactory;
-import org.opendaylight.controller.config.yang.pcep.stateful07.cfg.Stateful07PCEPSessionProposalFactoryModuleFactory;
+import org.opendaylight.controller.config.yang.pcep.stateful07.cfg.PCEPStatefulCapabilityModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderModuleMXBean;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PCEPTopologyProviderModuleTest;
@@ -118,7 +117,7 @@ public class PCEPTunnelTopologyProviderModuleTest extends AbstractInstructionSch
         moduleFactories.add(new NettyThreadgroupModuleFactory());
         moduleFactories.add(new SimplePCEPExtensionProviderContextModuleFactory());
         moduleFactories.add(new Stateful07TopologySessionListenerModuleFactory());
-        moduleFactories.add(new Stateful07PCEPSessionProposalFactoryModuleFactory());
+        moduleFactories.add(new PCEPStatefulCapabilityModuleFactory());
         return moduleFactories;
     }
 
