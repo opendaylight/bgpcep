@@ -184,7 +184,10 @@ final class EffectiveRibInWriter implements AutoCloseable {
         @Override
         public void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
             LOG.trace("Data changed called to effective RIB. Change : {}", changes);
-            final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+
+            // we have a lot of transactions created for 'nothing' because a lot of changes
+            // are skipped, so ensure we only create one transaction when we really need it
+            DOMDataWriteTransaction tx = null;
             for (final DataTreeCandidate tc : changes) {
                 final YangInstanceIdentifier rootPath = tc.getRootPath();
 
@@ -210,10 +213,15 @@ final class EffectiveRibInWriter implements AutoCloseable {
                     continue;
                 }
                 for (final DataTreeCandidateNode table : tables.getChildNodes()) {
+                    if (tx == null) {
+                       tx = this.chain.newWriteOnlyTransaction();
+                    }
                     changeDataTree(tx, rootPath, root, peerKey, table);
                 }
             }
-            tx.submit();
+            if (tx != null) {
+                tx.submit();
+            }
         }
 
         private void changeDataTree(final DOMDataWriteTransaction tx, final YangInstanceIdentifier rootPath,
