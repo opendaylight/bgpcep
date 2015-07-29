@@ -10,7 +10,6 @@ package org.opendaylight.controller.config.yang.pcep.topology.provider;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.opendaylight.controller.config.yang.pcep.impl.PCEPDispatcherImplModuleTest.createDispatcherInstance;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -26,7 +25,7 @@ import org.opendaylight.controller.config.yang.pcep.impl.PCEPDispatcherImplModul
 import org.opendaylight.controller.config.yang.pcep.impl.PCEPDispatcherImplModuleMXBean;
 import org.opendaylight.controller.config.yang.pcep.impl.PCEPSessionProposalFactoryImplModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleFactory;
-import org.opendaylight.controller.config.yang.pcep.stateful07.cfg.Stateful07PCEPSessionProposalFactoryModuleFactory;
+import org.opendaylight.controller.config.yang.pcep.stateful07.cfg.PCEPStatefulCapabilityModuleFactory;
 import org.opendaylight.controller.config.yang.programming.impl.AbstractInstructionSchedulerTest;
 import org.opendaylight.controller.config.yang.tcpmd5.jni.cfg.NativeKeyAccessFactoryModuleFactory;
 import org.opendaylight.controller.config.yang.tcpmd5.netty.cfg.MD5ServerChannelFactoryModuleFactory;
@@ -136,9 +135,9 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
     }
 
     private CommitStatus createInstance(final String listenAddress, final PortNumber listenPort,
-                                        final TopologyId topologyId, boolean addMD5)
+                                        final TopologyId topologyId, final boolean addMD5)
             throws Exception {
-        ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         createPCEPTopologyProviderModuleInstance(transaction, listenAddress, listenPort, topologyId, addMD5);
         return transaction.commit();
     }
@@ -216,7 +215,7 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         moduleFactories.add(new NettyThreadgroupModuleFactory());
         moduleFactories.add(new SimplePCEPExtensionProviderContextModuleFactory());
         moduleFactories.add(new Stateful07TopologySessionListenerModuleFactory());
-        moduleFactories.add(new Stateful07PCEPSessionProposalFactoryModuleFactory());
+        moduleFactories.add(new PCEPStatefulCapabilityModuleFactory());
         moduleFactories.add(new NativeKeyAccessFactoryModuleFactory());
         moduleFactories.add(new MD5ServerChannelFactoryModuleFactory());
         return moduleFactories;
