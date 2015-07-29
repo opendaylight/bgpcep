@@ -23,6 +23,7 @@ import io.netty.util.concurrent.Promise;
 import java.io.Closeable;
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
+import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
@@ -85,20 +86,20 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
 
     @Override
     public synchronized ChannelFuture createServer(final InetSocketAddress address,
-                                                   final PCEPSessionListenerFactory listenerFactory) {
-        return createServer(address, null, listenerFactory);
+                                                   final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
+        return createServer(address, null, listenerFactory, peerProposal);
     }
 
     @Override
     public synchronized ChannelFuture createServer(final InetSocketAddress address, final KeyMapping keys,
-                                                   final PCEPSessionListenerFactory listenerFactory) {
+                                                   final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
         this.keys = keys;
 
         final ChannelPipelineInitializer initializer = new ChannelPipelineInitializer() {
             @Override
             public void initializeChannel(final SocketChannel ch, final Promise<PCEPSessionImpl> promise) {
                 ch.pipeline().addLast(PCEPDispatcherImpl.this.hf.getDecoders());
-                ch.pipeline().addLast("negotiator", PCEPDispatcherImpl.this.snf.getSessionNegotiator(listenerFactory, ch, promise));
+                ch.pipeline().addLast("negotiator", PCEPDispatcherImpl.this.snf.getSessionNegotiator(listenerFactory, ch, promise, peerProposal));
                 ch.pipeline().addLast(PCEPDispatcherImpl.this.hf.getEncoders());
             }
         };
@@ -119,11 +120,11 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
 
         try {
             b.channel(NioServerSocketChannel.class);
-        } catch (IllegalStateException e) {
+        } catch (final IllegalStateException e) {
             LOG.trace("Not overriding channelFactory on bootstrap {}", b, e);
         }
 
-        ChannelFuture f = b.bind(address);
+        final ChannelFuture f = b.bind(address);
         LOG.debug("Initiated server {} at {}.", f, address);
 
         this.keys = null;

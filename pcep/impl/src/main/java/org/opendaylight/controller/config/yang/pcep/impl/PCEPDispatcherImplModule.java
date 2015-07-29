@@ -19,7 +19,6 @@ package org.opendaylight.controller.config.yang.pcep.impl;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 
 /**
  *
@@ -66,8 +65,7 @@ public final class PCEPDispatcherImplModule extends org.opendaylight.controller.
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        Open localPrefs = getPcepSessionProposalFactoryDependency().getSessionProposal(null, 0);
-        DefaultPCEPSessionNegotiatorFactory negFactory = new DefaultPCEPSessionNegotiatorFactory(localPrefs, getMaxUnknownMessages(), getTls());
+        final DefaultPCEPSessionNegotiatorFactory negFactory = new DefaultPCEPSessionNegotiatorFactory(getPcepSessionProposalFactoryDependency(), getMaxUnknownMessages(), getTls());
 
         return new PCEPDispatcherImpl(getPcepExtensionsDependency().getMessageHandlerRegistry(), negFactory, getBossGroupDependency(), getWorkerGroupDependency(), getMd5ServerChannelFactoryDependency());
     }
