@@ -11,14 +11,17 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
+import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
-import org.opendaylight.protocol.pcep.ietf.initiated00.Stateful07SessionProposalFactory;
+import org.opendaylight.protocol.pcep.ietf.stateful07.PCEPStatefulCapability;
 import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
+import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,15 +120,15 @@ public final class Main {
             deadTimerValue = keepAliveValue * KA_TO_DEADTIMER_RATIO;
         }
 
-        final PCEPSessionProposalFactory spf = new Stateful07SessionProposalFactory(deadTimerValue, keepAliveValue, stateful, active, instant, false, false, false, false);
-
-        final Open prefs = spf.getSessionProposal(address, 0);
+        final List<PCEPCapability> caps = new ArrayList<>();
+        caps.add(new PCEPStatefulCapability(stateful, active, instant, false, false, false, false));
+        final PCEPSessionProposalFactory spf = new BasePCEPSessionProposalFactory(deadTimerValue, keepAliveValue, caps);
 
         try (final StatefulActivator activator07 = new StatefulActivator()) {
             activator07.start(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance());
 
-            try (final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(prefs, MAX_UNKNOWN_MESSAGES), new NioEventLoopGroup(), new NioEventLoopGroup())) {
-                dispatcher.createServer(address, new TestingSessionListenerFactory()).get();
+            try (final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(spf, MAX_UNKNOWN_MESSAGES), new NioEventLoopGroup(), new NioEventLoopGroup())) {
+                dispatcher.createServer(address, new TestingSessionListenerFactory(), null).get();
             }
         }
     }

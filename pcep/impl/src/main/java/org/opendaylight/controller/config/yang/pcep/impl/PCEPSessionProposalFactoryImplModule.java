@@ -18,6 +18,7 @@ package org.opendaylight.controller.config.yang.pcep.impl;
 
 import java.net.InetSocketAddress;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
+import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
@@ -60,7 +61,7 @@ public final class PCEPSessionProposalFactoryImplModule extends
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final BasePCEPSessionProposalFactory inner = new BasePCEPSessionProposalFactory(getDeadTimerValue(), getKeepAliveTimerValue());
+        final BasePCEPSessionProposalFactory inner = new BasePCEPSessionProposalFactory(getDeadTimerValue(), getKeepAliveTimerValue(), getCapabilityDependency());
         return new PCEPSessionProposalFactoryCloseable(inner);
     }
 
@@ -80,6 +81,12 @@ public final class PCEPSessionProposalFactoryImplModule extends
         @Override
         public Open getSessionProposal(final InetSocketAddress inetSocketAddress, final int i) {
             return this.inner.getSessionProposal(inetSocketAddress, i);
+        }
+
+        @Override
+        public Open getSessionProposal(final InetSocketAddress address,
+                final int sessionId, final PCEPPeerProposal peerProposal) {
+            return this.inner.getSessionProposal(address, sessionId, peerProposal);
         }
     }
 }

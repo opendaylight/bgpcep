@@ -22,28 +22,16 @@
                     <name>pcep-parser-segment-routing</name>
                 </module>
                 <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:sr:cfg">prefix:pcep-session-proposal-factory-sr</type>
-                    <name>pcep-session-proposal-factory-sr</name>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:sr:cfg">prefix:pcep-segment-routing-capability</type>
+                    <name>pcep-segment-routing-capability</name>
                 </module>
                 <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-dispatcher-impl</type>
-                    <name>global-pcep-dispatcher</name>
-                    <pcep-extensions>
-                        <type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extensions</type>
-                        <name>global-pcep-extensions</name>
-                    </pcep-extensions>
-                    <pcep-session-proposal-factory>
-                        <type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep">pcep:pcep-session-proposal-factory</type>
-                        <name>pcep-session-proposal-factory-sr</name>
-                    </pcep-session-proposal-factory>
-                    <boss-group>
-                        <type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-threadgroup</type>
-                        <name>global-boss-group</name>
-                    </boss-group>
-                    <worker-group>
-                        <type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-threadgroup</type>
-                        <name>global-worker-group</name>
-                    </worker-group>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-session-proposal-factory-impl</type>
+                    <name>global-pcep-session-proposal-factory</name>
+                    <capability>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep">prefix:pcep-capability</type>
+                        <name>pcep-segment-routing-capability</name>
+                    </capability>
                 </module>
             </modules>
             <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
@@ -55,10 +43,10 @@
                     </instance>
                 </service>
                 <service>
-                    <type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep">pcep:pcep-session-proposal-factory</type>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep">prefix:pcep-capability</type>
                     <instance>
-                        <name>pcep-session-proposal-factory-sr</name>
-                        <provider>/config/modules/module[name='pcep-session-proposal-factory-sr']/instance[name='pcep-session-proposal-factory-sr']</provider>
+                        <name>pcep-segment-routing-capability</name>
+                        <provider>/config/modules/module[name='pcep-segment-routing-capability']/instance[name='pcep-segment-routing-capability']</provider>
                     </instance>
                 </service>
            </services>

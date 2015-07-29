@@ -7,9 +7,11 @@
  */
 package org.opendaylight.protocol.pcep;
 
-import io.netty.channel.Channel;
-import io.netty.util.concurrent.Promise;
+import java.net.InetSocketAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
 
-public interface PCEPSessionNegotiatorFactory<S extends PCEPSession> {
-    SessionNegotiator getSessionNegotiator(PCEPSessionListenerFactory sessionListenerFactory, Channel channel, Promise<S> promise, final PCEPPeerProposal peerProposal);
+public interface PCEPCapability {
+
+    void setCapabilityProposal(InetSocketAddress address, TlvsBuilder builder);
+
 }
