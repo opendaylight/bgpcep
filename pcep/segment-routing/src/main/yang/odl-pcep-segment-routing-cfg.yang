@@ -41,15 +41,15 @@ module odl-pcep-segment-routing-cfg {
         }
     }
 
-    identity pcep-session-proposal-factory-sr {
+    identity pcep-segment-routing-capability {
         base config:module-type;
-        config:java-name-prefix "SrPCEPSessionProposalFactory";
-        config:provided-service pcep:pcep-session-proposal-factory;
+        config:java-name-prefix "PCEPSegmentRoutingCapability";
+        config:provided-service pcep:pcep-capability;
     }
 
     augment "/config:modules/config:module/config:configuration" {
-        case pcep-session-proposal-factory-sr {
-            when "/config:modules/config:module/config:type = 'pcep-session-proposal-factory-sr'";
+        case pcep-segment-routing-capability {
+            when "/config:modules/config:module/config:type = 'pcep-segment-routing-capability'";
             uses pcep-stateful07:stateful-capabilities;
             leaf sr-capable {
                 type boolean;
