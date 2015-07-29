@@ -10,6 +10,21 @@ package org.opendaylight.protocol.pcep;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
 
+/**
+ * Factory for creating PCEP session negotiator
+ *
+ * @param <S>
+ */
 public interface PCEPSessionNegotiatorFactory<S extends PCEPSession> {
-    SessionNegotiator getSessionNegotiator(PCEPSessionListenerFactory sessionListenerFactory, Channel channel, Promise<S> promise);
+
+    /**
+     * Creates PCEPSessionNegotiator instance for income attributes
+     *
+     * @param sessionListenerFactory
+     * @param channel
+     * @param promise
+     * @param peerProposal for setting LS DB version number
+     * @return PCEPSessionNegotiator instance
+     */
+    SessionNegotiator getSessionNegotiator(PCEPSessionListenerFactory sessionListenerFactory, Channel channel, Promise<S> promise, final PCEPPeerProposal peerProposal);
 }
