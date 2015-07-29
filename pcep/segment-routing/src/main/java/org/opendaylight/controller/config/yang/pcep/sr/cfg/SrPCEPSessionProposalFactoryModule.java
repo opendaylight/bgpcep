@@ -11,9 +11,9 @@ package org.opendaylight.controller.config.yang.pcep.sr.cfg;
 import com.google.common.base.Preconditions;
 import java.net.InetSocketAddress;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
+import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.segment.routing.SegmentRoutingSessionProposalFactory;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,12 +65,11 @@ public class SrPCEPSessionProposalFactoryModule extends org.opendaylight.control
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final SegmentRoutingSessionProposalFactory inner = new SegmentRoutingSessionProposalFactory(getDeadTimerValue(), getKeepAliveTimerValue(), getStateful(), getActive(), getInitiated(), getSrCapable(),
-            getTriggeredInitialSync(), getTriggeredResync(), getDeltaLspSyncCapability(), getIncludeDbVersion());
+        final SegmentRoutingSessionProposalFactory inner = new SegmentRoutingSessionProposalFactory(getSrCapable());
         return new PCEPSessionProposalFactoryCloseable(inner);
     }
 
-    private static final class PCEPSessionProposalFactoryCloseable implements PCEPSessionProposalFactory, AutoCloseable {
+    private static final class PCEPSessionProposalFactoryCloseable implements PCEPCapability, AutoCloseable {
         private final SegmentRoutingSessionProposalFactory inner;
 
         public PCEPSessionProposalFactoryCloseable(final SegmentRoutingSessionProposalFactory inner) {
@@ -82,9 +81,10 @@ public class SrPCEPSessionProposalFactoryModule extends org.opendaylight.control
         }
 
         @Override
-        public Open getSessionProposal(final InetSocketAddress inetSocketAddress, final int sessionId) {
-            return this.inner.getSessionProposal(inetSocketAddress, sessionId);
+        public void setCapabilityProposal(final InetSocketAddress address, final TlvsBuilder builder) {
+            this.inner.setCapabilityProposal(address, builder);
         }
+
     }
 
 }

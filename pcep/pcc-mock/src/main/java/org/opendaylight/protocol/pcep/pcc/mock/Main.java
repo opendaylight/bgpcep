@@ -23,6 +23,7 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -30,11 +31,14 @@ import org.opendaylight.protocol.framework.NeverReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.protocol.framework.TimedReconnectStrategy;
+import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
+import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.ietf.initiated00.CrabbeInitiatedActivator;
 import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
+import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PccTunnelManager;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
@@ -149,7 +153,9 @@ public final class Main {
     }
 
     private static PCEPSessionNegotiatorFactory getSessionNegotiatorFactory(final Open openMessage) {
-        return new DefaultPCEPSessionNegotiatorFactory(openMessage, 0);
+        final List<PCEPCapability> capabilities = new ArrayList<>();
+        final PCEPSessionProposalFactory proposal = new BasePCEPSessionProposalFactory(openMessage.getDeadTimer(), openMessage.getKeepalive(), capabilities);
+        return new DefaultPCEPSessionNegotiatorFactory(proposal, 0);
     }
 
     private static ch.qos.logback.classic.Logger getRootLogger(final LoggerContext lc) {

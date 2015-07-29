@@ -33,10 +33,10 @@ module odl-pcep-ietf-stateful07-cfg {
             "Updated revision dates for imports.";
     }
 
-    identity pcep-session-proposal-factory-stateful07 {
+    identity stateful-capability {
         base config:module-type;
-        config:java-name-prefix "Stateful07PCEPSessionProposalFactory";
-        config:provided-service pcep:pcep-session-proposal-factory;
+        config:java-name-prefix "PCEPStatefulCapability";
+        config:provided-service pcep:pcep-capability;
     }
 
     grouping stateful-capabilities {
@@ -87,8 +87,8 @@ module odl-pcep-ietf-stateful07-cfg {
     }
 
     augment "/config:modules/config:module/config:configuration" {
-        case pcep-session-proposal-factory-stateful07 {
-            when "/config:modules/config:module/config:type = 'pcep-session-proposal-factory-stateful07'";
+        case stateful-capability {
+            when "/config:modules/config:module/config:type = 'stateful-capability'";
             uses stateful-capabilities;
         }
     }

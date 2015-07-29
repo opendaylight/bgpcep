@@ -1,10 +1,3 @@
-/*
- * Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
- *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License v1.0 which accompanies this distribution,
- * and is available at http://www.eclipse.org/legal/epl-v10.html
- */
 package org.opendaylight.protocol.pcep.ietf;
 
 import static org.junit.Assert.assertFalse;
@@ -19,43 +12,23 @@ import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
 import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
-import org.opendaylight.controller.config.yang.pcep.stateful07.cfg.Stateful07PCEPSessionProposalFactoryModuleFactory;
-import org.opendaylight.controller.config.yang.pcep.stateful07.cfg.Stateful07PCEPSessionProposalFactoryModuleMXBean;
+import org.opendaylight.controller.config.yang.pcep.stateful07.cfg.PCEPStatefulCapabilityModuleFactory;
+import org.opendaylight.controller.config.yang.pcep.stateful07.cfg.PCEPStatefulCapabilityModuleMXBean;
 
-public class Stateful07SessionProposalFactoryModuleTest extends AbstractConfigTest {
+public class PCEPStatefulCapabilityModuleTest extends AbstractConfigTest {
 
-    private static final String INSTANCE_NAME = "pcep-stateful07-proposal";
-    private static final String FACTORY_NAME = Stateful07PCEPSessionProposalFactoryModuleFactory.NAME;
+    private static final String INSTANCE_NAME = "stateful-capability";
+    private static final String FACTORY_NAME = PCEPStatefulCapabilityModuleFactory.NAME;
 
     @Before
     public void setUp() throws Exception {
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.mockedContext, new Stateful07PCEPSessionProposalFactoryModuleFactory()));
-    }
-
-    @Test
-    public void testValidationExceptionDeadTimerValueNotSet() throws Exception {
-        try {
-            createInstance(null, (short) 100, true, true, true, true, true, true, true);
-            fail();
-        } catch (final ValidationException e) {
-            assertTrue(e.getMessage().contains("DeadTimerValue value is not set"));
-        }
-    }
-
-    @Test
-    public void testValidationExceptionKeepAliveTimerNotSet() throws Exception {
-        try {
-            createInstance((short) 200, null, true, true, true, true, true, true, true);
-            fail();
-        } catch (final ValidationException e) {
-            assertTrue(e.getMessage().contains("KeepAliveTimerValue value is not set"));
-        }
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.mockedContext, new PCEPStatefulCapabilityModuleFactory()));
     }
 
     @Test
     public void testValidationExceptionStatefulNotSet() throws Exception {
         try {
-            createInstance((short) 200, (short) 100, null, false, false, false, false, false, false);
+            createInstance(null, false, false, false, false, false, false);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("Stateful value is not set"));
@@ -65,7 +38,7 @@ public class Stateful07SessionProposalFactoryModuleTest extends AbstractConfigTe
     @Test
     public void testValidationExceptionActiveNotSet() throws Exception {
         try {
-            createInstance((short) 200, (short) 100, true, null, true, true, true, true, true);
+            createInstance(true, null, true, true, true, true, true);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("Active value is not set"));
@@ -75,7 +48,7 @@ public class Stateful07SessionProposalFactoryModuleTest extends AbstractConfigTe
     @Test
     public void testValidationExceptionInstantiatedNotSet() throws Exception {
         try {
-            createInstance((short) 200, (short) 100, true, true, null, true, true, true, true);
+            createInstance(true, true, null, true, true, true, true);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("Initiated value is not set"));
@@ -85,7 +58,7 @@ public class Stateful07SessionProposalFactoryModuleTest extends AbstractConfigTe
     @Test
     public void testValidationExceptionTriggeredSyncNotSet() throws Exception {
         try {
-            createInstance((short) 200, (short) 100, true, true, true, null, true, true, true);
+            createInstance(true, true, true, null, true, true, true);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("TriggeredInitialSync value is not set"));
@@ -95,7 +68,7 @@ public class Stateful07SessionProposalFactoryModuleTest extends AbstractConfigTe
     @Test
     public void testValidationExceptionTriggeredResyncNotSet() throws Exception {
         try {
-            createInstance((short) 200, (short) 100, true, true, true, true, null, true, true);
+            createInstance(true, true, true, true, null, true, true);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("TriggeredResync value is not set"));
@@ -105,7 +78,7 @@ public class Stateful07SessionProposalFactoryModuleTest extends AbstractConfigTe
     @Test
     public void testValidationExceptionDeltaLspSyncNotSet() throws Exception {
         try {
-            createInstance((short) 200, (short) 100, true, true, true, true, true, null, true);
+            createInstance(true, true, true, true, true, null, true);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("DeltaLspSyncCapability value is not set"));
@@ -115,7 +88,7 @@ public class Stateful07SessionProposalFactoryModuleTest extends AbstractConfigTe
     @Test
     public void testValidationExceptionIncludeDBVersionNotSet() throws Exception {
         try {
-            createInstance((short) 200, (short) 100, true, true, true, true, true, true, null);
+            createInstance(true, true, true, true, true, true, null);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("IncludeDbVersion value is not set"));
@@ -123,48 +96,38 @@ public class Stateful07SessionProposalFactoryModuleTest extends AbstractConfigTe
     }
 
     @Test
-    public void testValidationExceptionKeepAliveTimerMinValue() throws Exception {
-        try {
-            createInstance((short) 200, (short) -10, true, true, true, true, true, true, true);
-            fail();
-        } catch (final ValidationException e) {
-            assertTrue(e.getMessage().contains("minimum value is 1."));
-        }
-    }
-
-    @Test
     public void testStatefulAfterCommitted() throws Exception {
-        createInstance((short) 200, (short) 100, false, true, true, true, false, true, true);
+        createInstance(false, true, true, true, false, true, true);
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
-        final Stateful07PCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(
-                FACTORY_NAME, INSTANCE_NAME), Stateful07PCEPSessionProposalFactoryModuleMXBean.class);
+        final PCEPStatefulCapabilityModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(
+                FACTORY_NAME, INSTANCE_NAME), PCEPStatefulCapabilityModuleMXBean.class);
         assertTrue(mxBean.getStateful());
     }
 
     @Test
     public void testNotStatefulAfterCommitted() throws Exception {
-        createInstance((short) 200, (short) 100, false, false, false, false, false, false, false);
+        createInstance(false, false, false, false, false, false, false);
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
-        final Stateful07PCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(
-                FACTORY_NAME, INSTANCE_NAME), Stateful07PCEPSessionProposalFactoryModuleMXBean.class);
+        final PCEPStatefulCapabilityModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(
+                FACTORY_NAME, INSTANCE_NAME), PCEPStatefulCapabilityModuleMXBean.class);
         assertFalse(mxBean.getStateful());
     }
 
     @Test
     public void testIncludeDbVersionAfterCommitted() throws Exception {
-        createInstance((short) 200, (short) 100, false, false, false, false, false, true, false);
+        createInstance(false, false, false, false, false, true, false);
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
-        final Stateful07PCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(
-                FACTORY_NAME, INSTANCE_NAME), Stateful07PCEPSessionProposalFactoryModuleMXBean.class);
+        final PCEPStatefulCapabilityModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(
+                FACTORY_NAME, INSTANCE_NAME), PCEPStatefulCapabilityModuleMXBean.class);
         assertTrue(mxBean.getIncludeDbVersion());
     }
 
     @Test
     public void testNotIncludeDbVersionAfterCommitted() throws Exception {
-        createInstance((short) 200, (short) 100, false, false, false, false, false, false, false);
+        createInstance(false, false, false, false, false, false, false);
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
-        final Stateful07PCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(
-                FACTORY_NAME, INSTANCE_NAME), Stateful07PCEPSessionProposalFactoryModuleMXBean.class);
+        final PCEPStatefulCapabilityModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(
+                FACTORY_NAME, INSTANCE_NAME), PCEPStatefulCapabilityModuleMXBean.class);
         assertFalse(mxBean.getIncludeDbVersion());
     }
 
@@ -191,39 +154,37 @@ public class Stateful07SessionProposalFactoryModuleTest extends AbstractConfigTe
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
         transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME),
-                Stateful07PCEPSessionProposalFactoryModuleMXBean.class);
+            PCEPStatefulCapabilityModuleMXBean.class);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
         assertStatus(status, 0, 0, 1);
     }
 
-    private CommitStatus createInstance(final Short deadTimer, final Short keepAlive, final Boolean stateful, final Boolean active,
-            final Boolean instant, final Boolean triggeredInitialSync, final Boolean triggeredResync, final Boolean deltaLspSyncCapability, final Boolean includeDbVersion) throws Exception {
+    private CommitStatus createInstance(final Boolean stateful, final Boolean active, final Boolean instant,
+        final Boolean triggeredInitialSync, final Boolean triggeredResync, final Boolean deltaLspSyncCapability,
+        final Boolean includeDbVersion) throws Exception {
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
-        createInstance(transaction, deadTimer, keepAlive, stateful, active, instant, triggeredInitialSync, triggeredResync, deltaLspSyncCapability, includeDbVersion);
+        createInstance(transaction, stateful, active, instant, triggeredInitialSync, triggeredResync, deltaLspSyncCapability, includeDbVersion);
         return transaction.commit();
     }
 
     private CommitStatus createInstance() throws Exception {
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
-        createStateful07SessionProposalInstance(transaction);
+        createPCEPCapabilityInstance(transaction);
         return transaction.commit();
     }
 
-    public static ObjectName createStateful07SessionProposalInstance(final ConfigTransactionJMXClient transaction) throws Exception {
-        return createInstance(transaction, (short) 200, (short) 100, true, true, true, true, true, true, true);
+    public static ObjectName createPCEPCapabilityInstance(final ConfigTransactionJMXClient transaction) throws Exception {
+        return createInstance(transaction, true, true, true, true, true, true, true);
     }
 
-    private static ObjectName createInstance(final ConfigTransactionJMXClient transaction, final Short deadTimer, final Short keepAlive,
-            final Boolean stateful, final Boolean active, final Boolean instant,
+    private static ObjectName createInstance(final ConfigTransactionJMXClient transaction, final Boolean stateful, final Boolean active, final Boolean instant,
             final Boolean triggeredInitialSync, final Boolean triggeredResync, final Boolean deltaLspSyncCapability, final Boolean includeDbVersion) throws InstanceAlreadyExistsException {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
-        final Stateful07PCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated,
-                Stateful07PCEPSessionProposalFactoryModuleMXBean.class);
+        final PCEPStatefulCapabilityModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated,
+            PCEPStatefulCapabilityModuleMXBean.class);
         mxBean.setActive(active);
-        mxBean.setDeadTimerValue(deadTimer);
         mxBean.setInitiated(instant);
-        mxBean.setKeepAliveTimerValue(keepAlive);
         mxBean.setStateful(stateful);
         mxBean.setTriggeredInitialSync(triggeredInitialSync);
         mxBean.setTriggeredResync(triggeredResync);
@@ -231,5 +192,4 @@ public class Stateful07SessionProposalFactoryModuleTest extends AbstractConfigTe
         mxBean.setIncludeDbVersion(includeDbVersion);
         return nameCreated;
     }
-
 }
