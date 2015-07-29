@@ -11,5 +11,5 @@ import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
 
 public interface PCEPSessionNegotiatorFactory<S extends PCEPSession> {
-    SessionNegotiator getSessionNegotiator(PCEPSessionListenerFactory sessionListenerFactory, Channel channel, Promise<S> promise);
+    SessionNegotiator getSessionNegotiator(PCEPSessionListenerFactory sessionListenerFactory, Channel channel, Promise<S> promise, final PCEPPeerProposal peerProposal);
 }

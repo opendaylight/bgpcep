@@ -85,10 +85,14 @@
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-session-proposal-factory-impl</type>
                     <name>global-pcep-session-proposal-factory</name>
-                </module>
-                <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg">prefix:pcep-session-proposal-factory-stateful07</type>
-                    <name>stateful07-prop</name>
+                    <capability>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:api">prefix:pcep-capability</type>
+                        <name>pcep-stateful-capability</name>
+                    </capability>
+                    <capability>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:api">prefix:pcep-capability</type>
+                        <name>segment-routing-session-proposal</name>
+                    </capability>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful02:cfg">prefix:pcep-session-proposal-factory-stateful02</type>
@@ -183,12 +187,16 @@
                 <service>
                     <type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep">pcep:pcep-session-proposal-factory</type>
                     <instance>
-                        <name>stateful07-proposal</name>
-                        <provider>/config/modules/module[name='pcep-session-proposal-factory-stateful07']/instance[name='stateful07-prop']</provider>
-                    </instance>
-                    <instance>
                         <name>stateful02-proposal</name>
                         <provider>/config/modules/module[name='pcep-session-proposal-factory-stateful02']/instance[name='stateful02-prop']</provider>
+                    </instance>
+                    <instance>
+                        <name>pcep-stateful-capability</name>
+                        <provider>/config/modules/module[name='pcep-stateful-capability']/instance[name='pcep-stateful-capability']</provider>
+                    </instance>
+                    <instance>
+                        <name>segment-routing-session-proposal</name>
+                        <provider>/config/modules/module[name='segment-routing-session-proposal-factory']/instance[name='segment-routing-session-proposal']</provider>
                     </instance>
                 </service>
 

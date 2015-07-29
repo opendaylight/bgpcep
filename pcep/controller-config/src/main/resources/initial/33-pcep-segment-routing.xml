@@ -22,8 +22,8 @@
                     <name>pcep-parser-segment-routing</name>
                 </module>
                 <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:sr:cfg">prefix:pcep-session-proposal-factory-sr</type>
-                    <name>pcep-session-proposal-factory-sr</name>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:sr:cfg">prefix:pcep-segment-routing-capability</type>
+                    <name>pcep-segment-routing-capability</name>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-dispatcher-impl</type>
@@ -34,7 +34,7 @@
                     </pcep-extensions>
                     <pcep-session-proposal-factory>
                         <type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep">pcep:pcep-session-proposal-factory</type>
-                        <name>pcep-session-proposal-factory-sr</name>
+                        <name>pcep-segment-routing-capability</name>
                     </pcep-session-proposal-factory>
                     <boss-group>
                         <type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-threadgroup</type>
@@ -57,8 +57,8 @@
                 <service>
                     <type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep">pcep:pcep-session-proposal-factory</type>
                     <instance>
-                        <name>pcep-session-proposal-factory-sr</name>
-                        <provider>/config/modules/module[name='pcep-session-proposal-factory-sr']/instance[name='pcep-session-proposal-factory-sr']</provider>
+                        <name>pcep-segment-routing-capability</name>
+                        <provider>/config/modules/module[name='pcep-segment-routing-capability']/instance[name='pcep-segment-routing-capability']</provider>
                     </instance>
                 </service>
            </services>
