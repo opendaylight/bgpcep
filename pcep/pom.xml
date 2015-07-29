@@ -33,7 +33,6 @@
         <module>api</module>
         <module>impl</module>
         <module>spi</module>
-        <module>ietf-stateful02</module>
         <module>ietf-stateful07</module>
         <module>testtool</module>
         <module>topology-api</module>
