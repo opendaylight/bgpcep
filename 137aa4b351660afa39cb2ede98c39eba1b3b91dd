@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a7ca5a3_55eeec8c",
+        "filename": "pcep/controller-config/src/main/resources/initial/32-pcep.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-29T10:16:57Z",
+      "side": 1,
+      "message": "inject into pcep session proposal factory",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 25
+      },
+      "revId": "137aa4b351660afa39cb2ede98c39eba1b3b91dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_b5e1809c",
+        "filename": "pcep/controller-config/src/main/resources/initial/32-pcep.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-29T10:16:57Z",
+      "side": 1,
+      "message": "not correct",
+      "range": {
+        "startLine": 184,
+        "startChar": 91,
+        "endLine": 184,
+        "endChar": 125
+      },
+      "revId": "137aa4b351660afa39cb2ede98c39eba1b3b91dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_d5019c3a",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/controller/config/yang/pcep/stateful07/cfg/BasePCEPSessionProposalFactoryModule.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-29T10:16:57Z",
+      "side": 1,
+      "message": "We do not need to do this here - it is already done in pcep session proposal.",
+      "revId": "137aa4b351660afa39cb2ede98c39eba1b3b91dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_15e8747b",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/protocol/pcep/ietf/stateful07/PCEPCapabilityImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-07-29T10:16:57Z",
+      "side": 1,
+      "message": "Better name will be i.e. PCEPStatefulCapability",
+      "revId": "137aa4b351660afa39cb2ede98c39eba1b3b91dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
