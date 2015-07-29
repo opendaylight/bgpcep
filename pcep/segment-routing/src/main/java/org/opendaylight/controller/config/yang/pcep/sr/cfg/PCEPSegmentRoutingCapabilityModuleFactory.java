@@ -8,6 +8,6 @@
  */
 
 package org.opendaylight.controller.config.yang.pcep.sr.cfg;
-public class SrPCEPSessionProposalFactoryModuleFactory extends org.opendaylight.controller.config.yang.pcep.sr.cfg.AbstractSrPCEPSessionProposalFactoryModuleFactory {
+public class PCEPSegmentRoutingCapabilityModuleFactory extends org.opendaylight.controller.config.yang.pcep.sr.cfg.AbstractPCEPSegmentRoutingCapabilityModuleFactory {
 
 }

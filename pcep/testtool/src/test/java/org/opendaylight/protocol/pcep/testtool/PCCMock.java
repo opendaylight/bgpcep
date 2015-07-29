@@ -15,17 +15,21 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
+import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
+import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
+import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPHandlerFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.AbstractPCCDispatcher;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 
 public class PCCMock extends AbstractPCCDispatcher {
 
@@ -45,15 +49,16 @@ public class PCCMock extends AbstractPCCDispatcher {
             @Override
             public void initializeChannel(final SocketChannel ch, final Promise<PCEPSessionImpl> promise) {
                 ch.pipeline().addLast(PCCMock.this.factory.getDecoders());
-                ch.pipeline().addLast("negotiator", PCCMock.this.negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise));
+                ch.pipeline().addLast("negotiator", PCCMock.this.negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise, null));
                 ch.pipeline().addLast(PCCMock.this.factory.getEncoders());
             }
         });
     }
 
     public static void main(final String[] args) throws Exception {
-        final PCEPSessionNegotiatorFactory snf = new DefaultPCEPSessionNegotiatorFactory(new OpenBuilder().setKeepalive(
-                (short) 30).setDeadTimer((short) 120).setSessionId((short) 0).build(), 0);
+        final List<PCEPCapability> caps = new ArrayList<>();
+        final PCEPSessionProposalFactory proposal = new BasePCEPSessionProposalFactory((short) 120, (short) 30, caps);
+        final PCEPSessionNegotiatorFactory snf = new DefaultPCEPSessionNegotiatorFactory(proposal, 0);
 
         final PCCMock pcc = new PCCMock(snf, new PCEPHandlerFactory(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry()), new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE));
 

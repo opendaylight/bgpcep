@@ -61,10 +61,10 @@
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-session-proposal-factory-impl</type>
                     <name>global-pcep-session-proposal-factory</name>
-                </module>
-                <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg">prefix:pcep-session-proposal-factory-stateful07</type>
-                    <name>stateful07-prop</name>
+                    <capability>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:api">prefix:pcep-capability</type>
+                        <name>pcep-stateful-capability</name>
+                    </capability>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-dispatcher-impl</type>
@@ -147,8 +147,8 @@
                 <service>
                     <type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep">pcep:pcep-session-proposal-factory</type>
                     <instance>
-                        <name>stateful07-proposal</name>
-                        <provider>/config/modules/module[name='pcep-session-proposal-factory-stateful07']/instance[name='stateful07-prop']</provider>
+                        <name>pcep-stateful-capability</name>
+                        <provider>/config/modules/module[name='pcep-stateful-capability']/instance[name='pcep-stateful-capability']</provider>
                     </instance>
                 </service>
 
