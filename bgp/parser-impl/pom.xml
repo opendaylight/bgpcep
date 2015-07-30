@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
         <artifactId>bgp-parent</artifactId>
-        <version>0.3.5-SNAPSHOT</version>
+        <version>0.3.5-Helium-SR4</version>
     </parent>
 
     <artifactId>bgp-parser-impl</artifactId>

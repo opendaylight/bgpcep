@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
         <artifactId>commons.parent</artifactId>
-        <version>0.3.5-SNAPSHOT</version>
+        <version>0.3.5-Helium-SR4</version>
         <relativePath>../commons/parent</relativePath>
     </parent>
     <prerequisites>
