@@ -258,12 +258,12 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             if (peerGroup != null) {
                 final ContainerNode attributes = entry == null ? null : entry.attributes();
                 final PeerId peerId = key.getPeerId();
-                if (!this.peerPolicyTracker.isTableSupported(peerId, this.localTablesKey)) {
-                    LOG.trace("Route rejected, peer {} does not support this table type {}", peerId, this.tableKey);
-                    continue;
-                }
                 final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(peerId, attributes);
                 for (final Entry<PeerId, YangInstanceIdentifier> pid : peerGroup.getPeers()) {
+                    if (!this.peerPolicyTracker.isTableSupported(pid.getKey(), this.localTablesKey)) {
+                        LOG.trace("Route rejected, peer {} does not support this table type {}", pid.getKey(), this.localTablesKey);
+                        continue;
+                    }
                     final YangInstanceIdentifier routeTarget = this.ribSupport.routePath(pid.getValue().node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey).node(ROUTES_IDENTIFIER), key.getRouteId());
                     if (effectiveAttributes != null && value != null && !peerId.equals(pid.getKey())) {
                         LOG.debug("Write route {} to peers AdjRibsOut {}", value, pid.getKey());
