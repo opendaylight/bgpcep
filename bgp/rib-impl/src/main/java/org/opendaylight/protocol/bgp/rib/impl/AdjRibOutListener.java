@@ -56,7 +56,7 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
     private final YangInstanceIdentifier.NodeIdentifier routeKeyLeaf = new YangInstanceIdentifier.NodeIdentifier(PREFIX_QNAME);
 
     private final ChannelOutputLimiter session;
-    private final Codecs codecs;
+    private final CodecsImpl codecs;
     private final RIBSupport support;
     private final boolean mpSupport;
 
@@ -65,7 +65,7 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
         final ChannelOutputLimiter session, final boolean mpSupport) {
         this.session = Preconditions.checkNotNull(session);
         this.support = Preconditions.checkNotNull(support);
-        this.codecs = registry.getCodecs(this.support);
+        this.codecs = (CodecsImpl) registry.getCodecs(this.support);
         this.mpSupport = mpSupport;
         final YangInstanceIdentifier adjRibOutId =  ribId.node(Peer.QNAME).node(IdentifierUtils.domPeerId(peerId)).node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
         service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, adjRibOutId), this);

@@ -7,19 +7,18 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
-import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTree;
 
 /**
- * Registry for Codec classes
+ * Common interface for Codecs classes.
  *
  */
-public interface CodecsRegistry {
-
+public interface Codecs {
     /**
-     * Return the Codecs class registered for given RIBSupport.
+     * Called when Codec tree is updated. Implementations should
+     * refresh codec context.
      *
-     * @param ribSupport associated with Codecs class
-     * @return Codecs
+     * @param tree BindingCodecTree
      */
-    Codecs getCodecs(final RIBSupport ribSupport);
+    void onCodecTreeUpdated(final BindingCodecTree tree);
 }

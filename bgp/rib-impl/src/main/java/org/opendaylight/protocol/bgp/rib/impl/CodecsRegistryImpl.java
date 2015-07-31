@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTree;
@@ -47,7 +48,7 @@ final class CodecsRegistryImpl implements CodecsRegistry {
     }
 
     private Codecs createContext(final RIBSupport ribSupport) {
-        final Codecs codecs = new Codecs(ribSupport);
+        final Codecs codecs = new CodecsImpl(ribSupport);
         if (this.latestCodecTree != null) {
             // FIXME: Do we need to recalculate latestCodecTree? E.g. new rib support was added
             // after bgp was started.
