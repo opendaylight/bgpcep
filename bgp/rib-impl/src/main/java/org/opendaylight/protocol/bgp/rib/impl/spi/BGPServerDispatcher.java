@@ -16,10 +16,24 @@ import org.opendaylight.tcpmd5.api.KeyMapping;
  */
 public interface BGPServerDispatcher {
 
+    /**
+     * Create new BGP server to accept incoming bgp connections (bound to provided socket address).
+     *
+     * @param peerRegistry BGP peer registry
+     * @param address server address
+     * @param sessionValidator BGPSessionValidator
+     * @return ChannelFuture promising a server session
+     */
     ChannelFuture createServer(BGPPeerRegistry peerRegistry, InetSocketAddress address, BGPSessionValidator sessionValidator);
 
     /**
      * Create new BGP server to accept incoming bgp connections (bound to provided socket address).
+     *
+     * @param peerRegistry BGP peer registry
+     * @param address server address
+     * @param sessionValidator BGPSessionValidator
+     * @param keys KeyMapping
+     * @return ChannelFuture promising a server session
      */
     ChannelFuture createServer(BGPPeerRegistry peerRegistry, InetSocketAddress address, BGPSessionValidator sessionValidator, KeyMapping keys);
 }

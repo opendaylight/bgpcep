@@ -57,7 +57,7 @@ public abstract class RIBSupportContext {
     /**
      * Returns backing RIB support.
      *
-     * @return
+     * @return RIBSupport
      */
     public abstract RIBSupport getRibSupport();
 }

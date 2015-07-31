@@ -33,11 +33,27 @@ public interface BGPDispatcher{
     Future<? extends BGPSession> createClient(InetSocketAddress address, AsNumber remoteAs,
             BGPPeerRegistry peerRegistry, ReconnectStrategy strategy);
 
+    /**
+     * Creates Reconnecting client.
+     *
+     * @param address Peer address
+     * @param remoteAs remote AS
+     * @param peerRegistry BGP peer registry
+     * @param connectStrategyFactory reconnection strategy
+     * @param keys for TCPMD5
+     * @return Future promising a client session
+     */
     Future<Void> createReconnectingClient(InetSocketAddress address, AsNumber remoteAs,
                                           BGPPeerRegistry peerRegistry, ReconnectStrategyFactory connectStrategyFactory, KeyMapping keys);
 
     /**
      * Create new BGP server to accept incoming bgp connections (bound to provided socket address).
+     *
+     * @param peerRegistry BGP peer registry
+     * @param address Peer address
+     * @param sessionValidator BGPSessionValidator
+     *
+     * @return ChannelFuture promising a client session
      */
     ChannelFuture createServer(BGPPeerRegistry peerRegistry, InetSocketAddress address, BGPSessionValidator sessionValidator);
 }
