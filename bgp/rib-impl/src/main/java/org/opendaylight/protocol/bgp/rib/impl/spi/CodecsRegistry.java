@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
-import org.opendaylight.protocol.bgp.rib.impl.Codecs;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 
 /**

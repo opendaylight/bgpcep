@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
 import java.util.Set;
+import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.ClusterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.OriginatorId;
@@ -46,7 +47,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
-public final class Codecs {
+public final class CodecsImpl implements Codecs {
 
     private static final Set<Class<? extends DataObject>> ATTRIBUTE_CACHEABLES;
     private static final InstanceIdentifier<Tables> TABLE_BASE_II = InstanceIdentifier.builder(BgpRib.class)
@@ -88,7 +89,7 @@ public final class Codecs {
 
     private final RIBSupport ribSupport;
 
-    public Codecs(final RIBSupport ribSupport) {
+    public CodecsImpl(final RIBSupport ribSupport) {
         this.ribSupport = Preconditions.checkNotNull(ribSupport);
         final Builder<Class<? extends DataObject>> acb = ImmutableSet.builder();
         acb.addAll(ATTRIBUTE_CACHEABLES);
@@ -96,8 +97,9 @@ public final class Codecs {
         this.cacheableAttributes = acb.build();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
-    void onCodecTreeUpdated(final BindingCodecTree tree) {
+    public void onCodecTreeUpdated(final BindingCodecTree tree) {
 
         @SuppressWarnings("rawtypes")
         final BindingCodecTreeNode tableCodecContext = tree.getSubtreeCodec(TABLE_BASE_II);
@@ -112,22 +114,26 @@ public final class Codecs {
         this.unreachNlriCodec = tree.getSubtreeCodec(MP_UNREACH_NLRI_II).createCachingCodec(this.ribSupport.cacheableNlriObjects());
     }
 
-    ContainerNode serializeUnreachNlri(final MpUnreachNlri nlri) {
+    @Override
+    public ContainerNode serializeUnreachNlri(final MpUnreachNlri nlri) {
         Preconditions.checkState(this.unreachNlriCodec != null, "MpReachNlri codec not available");
         return (ContainerNode) this.unreachNlriCodec.serialize(nlri);
     }
 
-    ContainerNode serializeReachNlri(final MpReachNlri nlri) {
+    @Override
+    public ContainerNode serializeReachNlri(final MpReachNlri nlri) {
         Preconditions.checkState(this.reachNlriCodec != null, "MpReachNlri codec not available");
         return (ContainerNode) this.reachNlriCodec.serialize(nlri);
     }
 
-    Attributes deserializeAttributes(final NormalizedNode<?,?> attributes) {
+    @Override
+    public Attributes deserializeAttributes(final NormalizedNode<?,?> attributes) {
         Preconditions.checkState(this.attributesCodec != null, "Attributes codec not available");
         return this.attributesCodec.deserialize(attributes);
     }
 
-    ContainerNode serializeAttributes(final Attributes pathAttr) {
+    @Override
+    public ContainerNode serializeAttributes(final Attributes pathAttr) {
         Preconditions.checkState(this.attributesCodec != null, "Attributes codec not available");
         final AttributesBuilder a = new AttributesBuilder(pathAttr);
         a.addAugmentation(Attributes1.class, null);
