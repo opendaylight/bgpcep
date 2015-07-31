@@ -170,6 +170,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
      * Creates IpAddress from SocketAddress. Only InetSocketAddress is accepted with inner address: Inet4Address and Inet6Address.
      *
      * @param socketAddress socket address to transform
+     * @return IpAddress equivalent to given socket address
      * @throws IllegalArgumentException if submitted socket address is not InetSocketAddress[ipv4 | ipv6]
      */
     public static IpAddress getIpAddress(final SocketAddress socketAddress) {
