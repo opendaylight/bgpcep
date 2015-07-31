@@ -82,6 +82,7 @@ final class AttributeOperations {
     private final NodeIdentifier originatorIdLeaf;
     private final NodeIdentifier clusterListContainer;
     private final NodeIdentifier clusterListLeaf;
+    private final QName clusterQname;
     private final NodeIdentifier asPathContainer;
     private final NodeIdentifier asPathSegments;
     private final NodeIdentifier asPathSequence;
@@ -95,7 +96,8 @@ final class AttributeOperations {
         this.asNumberQname = QName.cachedReference(QName.create(namespace, "as-number"));
 
         this.clusterListContainer = new NodeIdentifier(QName.cachedReference(QName.create(namespace, ClusterId.QNAME.getLocalName())));
-        this.clusterListLeaf = new NodeIdentifier(QName.cachedReference(QName.create(namespace, "cluster")));
+        this.clusterQname = QName.cachedReference(QName.create(namespace, "cluster"));
+        this.clusterListLeaf = new NodeIdentifier(this.clusterQname);
         this.clusterListPath = ImmutableList.<PathArgument>of(this.clusterListContainer, this.clusterListLeaf);
         this.originatorIdContainer = new NodeIdentifier(QName.cachedReference(QName.create(namespace, OriginatorId.QNAME.getLocalName())));
         this.originatorIdLeaf = new NodeIdentifier(QName.cachedReference(QName.create(namespace, "originator")));
@@ -187,7 +189,7 @@ final class AttributeOperations {
         clb.withNodeIdentifier(this.clusterListLeaf);
 
         // prepend local CLUSTER_ID
-        clb.withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(ClusterId.QNAME, clusterId)).withValue(clusterId).build());
+        clb.withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(this.clusterQname, clusterId.getValue())).withValue(clusterId.getValue()).build());
 
         // if there was a CLUSTER_LIST attribute, add all other entries
         final Optional<NormalizedNode<?, ?>> maybeClusterList = NormalizedNodes.findNode(attributes, this.clusterListPath);
