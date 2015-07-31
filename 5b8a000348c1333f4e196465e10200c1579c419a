@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a7ca5a3_3e40ed55",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AttributeOperations.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-07-31T09:36:29Z",
+      "side": 1,
+      "message": "Is this correct? Try comparing the containers from the comment with this one (Use NormalizedNodes.toStringTree() for printing).",
+      "range": {
+        "startLine": 190,
+        "startChar": 90,
+        "endLine": 190,
+        "endChar": 99
+      },
+      "revId": "5b8a000348c1333f4e196465e10200c1579c419a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
