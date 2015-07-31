@@ -107,9 +107,9 @@ public class ExportPolicyTest {
         final ClusterIdentifier cluster2 = new ClusterIdentifier(new Ipv4Address("1.1.1.2"));
         return Builders.containerBuilder().withNodeIdentifier(clusterContNid).addChild(
             Builders.orderedLeafSetBuilder().withNodeIdentifier(clusterNid)
-            .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(ClusterId.QNAME, CLUSTER)).withValue(CLUSTER).build())
-            .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(ClusterId.QNAME, cluster2)).withValue(cluster2).build())
-            .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(ClusterId.QNAME, cluster1)).withValue(cluster1).build())
+            .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(ClusterId.QNAME, CLUSTER.getValue())).withValue(CLUSTER.getValue()).build())
+            .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(ClusterId.QNAME, cluster2.getValue())).withValue(cluster2.getValue()).build())
+            .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(ClusterId.QNAME, cluster1.getValue())).withValue(cluster1.getValue()).build())
             .build()).build();
     }
 

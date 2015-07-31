@@ -187,7 +187,7 @@ final class AttributeOperations {
         clb.withNodeIdentifier(this.clusterListLeaf);
 
         // prepend local CLUSTER_ID
-        clb.withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(ClusterId.QNAME, clusterId)).withValue(clusterId).build());
+        clb.withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(ClusterId.QNAME, clusterId.getValue())).withValue(clusterId.getValue()).build());
 
         // if there was a CLUSTER_LIST attribute, add all other entries
         final Optional<NormalizedNode<?, ?>> maybeClusterList = NormalizedNodes.findNode(attributes, this.clusterListPath);
