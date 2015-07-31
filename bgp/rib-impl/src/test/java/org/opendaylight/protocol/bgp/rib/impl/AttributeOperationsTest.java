@@ -140,7 +140,7 @@ public class AttributeOperationsTest {
         // ClusterIdentifier should be prepended
         final Collection<?> clusters = checkCluster(reflectedAttributes).getValue();
         assertEquals(1, clusters.size());
-        assertEquals(clusterId, ((LeafSetEntryNode<?>)clusters.iterator().next()).getValue());
+        assertEquals(clusterId.getValue(), ((LeafSetEntryNode<?>)clusters.iterator().next()).getValue());
 
         // OriginatorId should be added
         assertTrue(reflectedAttributes.getChild(ORIGINATOR_C_NID).isPresent());
@@ -159,8 +159,8 @@ public class AttributeOperationsTest {
             .build())
             .addChild(Builders.containerBuilder().withNodeIdentifier(CLUSTER_C_NID)
                 .addChild(Builders.orderedLeafSetBuilder().withNodeIdentifier(CLUSTER_NID)
-                    .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(CLUSTER_NID.getNodeType(), clusterId1)).withValue(clusterId1).build())
-                    .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(CLUSTER_NID.getNodeType(), clusterId2)).withValue(clusterId2).build())
+                    .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(CLUSTER_NID.getNodeType(), clusterId1.getValue())).withValue(clusterId1.getValue()).build())
+                    .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(CLUSTER_NID.getNodeType(), clusterId2.getValue())).withValue(clusterId2.getValue()).build())
                 .build())
             .build())
             .build();
@@ -173,13 +173,13 @@ public class AttributeOperationsTest {
         final Iterator<?> cl = clusters.iterator();
 
         final LeafSetEntryNode<?> c1 = (LeafSetEntryNode<?>) cl.next();
-        assertEquals(ourClusterId, c1.getValue());
+        assertEquals(ourClusterId.getValue(), c1.getValue());
 
         final LeafSetEntryNode<?> c2 = (LeafSetEntryNode<?>) cl.next();
-        assertEquals(clusterId1, c2.getValue());
+        assertEquals(clusterId1.getValue(), c2.getValue());
 
         final LeafSetEntryNode<?> c3 = (LeafSetEntryNode<?>) cl.next();
-        assertEquals(clusterId2, c3.getValue());
+        assertEquals(clusterId2.getValue(), c3.getValue());
 
         // OriginatorId should be the same
         assertTrue(reflectedAttributes.getChild(ORIGINATOR_C_NID).isPresent());

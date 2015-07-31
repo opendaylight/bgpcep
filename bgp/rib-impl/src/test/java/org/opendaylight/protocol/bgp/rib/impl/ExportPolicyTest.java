@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.ClusterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -107,9 +106,9 @@ public class ExportPolicyTest {
         final ClusterIdentifier cluster2 = new ClusterIdentifier(new Ipv4Address("1.1.1.2"));
         return Builders.containerBuilder().withNodeIdentifier(clusterContNid).addChild(
             Builders.orderedLeafSetBuilder().withNodeIdentifier(clusterNid)
-            .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(ClusterId.QNAME, CLUSTER)).withValue(CLUSTER).build())
-            .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(ClusterId.QNAME, cluster2)).withValue(cluster2).build())
-            .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(ClusterId.QNAME, cluster1)).withValue(cluster1).build())
+            .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(clusterQName, CLUSTER.getValue())).withValue(CLUSTER.getValue()).build())
+            .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(clusterQName, cluster2.getValue())).withValue(cluster2.getValue()).build())
+            .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(clusterQName, cluster1.getValue())).withValue(cluster1.getValue()).build())
             .build()).build();
     }
 
