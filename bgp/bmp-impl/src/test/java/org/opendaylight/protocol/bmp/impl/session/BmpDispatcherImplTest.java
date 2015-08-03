@@ -9,15 +9,11 @@
 package org.opendaylight.protocol.bmp.impl.session;
 
 import com.google.common.base.Optional;
-import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetSocketAddress;
 import org.junit.After;
 import org.junit.Assert;
@@ -37,7 +33,10 @@ import org.opendaylight.protocol.bmp.impl.BmpActivator;
 import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;
+import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
+import org.opendaylight.protocol.framework.TimedReconnectStrategy;
 import org.opendaylight.tcpmd5.api.KeyMapping;
+import org.opendaylight.tcpmd5.netty.MD5ChannelFactory;
 import org.opendaylight.tcpmd5.netty.MD5ServerChannelFactory;
 
 public class BmpDispatcherImplTest {
@@ -56,6 +55,8 @@ public class BmpDispatcherImplTest {
     private BmpSessionListenerFactory mockedListenerFactory;
     @Mock
     private ChannelHandler mockedChannelHandler;
+    @Mock
+    private ReconnectStrategyFactory mockedReconnectStrategyFactory;
 
     @Before
     public void setUp() throws Exception {
@@ -68,6 +69,8 @@ public class BmpDispatcherImplTest {
         Mockito.doNothing().when(this.mockedSession).channelUnregistered(Mockito.any(ChannelHandlerContext.class));
         Mockito.doNothing().when(this.mockedSession).channelReadComplete(Mockito.any(ChannelHandlerContext.class));
 
+        Mockito.doReturn(new TimedReconnectStrategy(GlobalEventExecutor.INSTANCE, 720000, 30000L, 1.0, 30000L, 10L, 720000L)).when(this.mockedReconnectStrategyFactory).createReconnectStrategy();
+
         this.bgpActivator = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         this.bgpActivator.start(context);
@@ -75,13 +78,15 @@ public class BmpDispatcherImplTest {
         this.bmpActivator = new BmpActivator(context);
         this.bmpActivator.start(ctx);
         final BmpMessageRegistry messageRegistry = ctx.getBmpMessageRegistry();
+
         this.dispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(), messageRegistry, new BmpSessionFactory() {
             @Override
             public BmpSession getSession(final Channel channel,
                     final BmpSessionListenerFactory sessionListenerFactory) {
                 return BmpDispatcherImplTest.this.mockedSession;
             }
-        }, Optional.<MD5ServerChannelFactory<?>>absent());
+        }, Optional.<MD5ChannelFactory<?>>absent(), Optional.<MD5ServerChannelFactory<?>>absent(),
+        mockedReconnectStrategyFactory);
     }
 
     @After
@@ -95,27 +100,13 @@ public class BmpDispatcherImplTest {
     public void testCreateServer() throws Exception {
         final Channel serverChannel = this.dispatcher.createServer(SERVER, this.mockedListenerFactory, Optional.<KeyMapping>absent()).await().channel();
         Assert.assertTrue(serverChannel.isActive());
-        final Channel clientChannel = connectTestClient();
+        final Channel clientChannel = this.dispatcher.createClient(CLIENT_REMOTE, this.mockedListenerFactory, Optional.<KeyMapping>absent()).await().channel();
         Assert.assertTrue(clientChannel.isActive());
         Thread.sleep(500);
-        Mockito.verify(this.mockedSession, Mockito.times(1)).handlerAdded(Mockito.any(ChannelHandlerContext.class));
-        Mockito.verify(this.mockedSession, Mockito.times(1)).channelRegistered(Mockito.any(ChannelHandlerContext.class));
-        Mockito.verify(this.mockedSession, Mockito.times(1)).channelActive(Mockito.any(ChannelHandlerContext.class));
+        Mockito.verify(this.mockedSession, Mockito.times(2)).handlerAdded(Mockito.any(ChannelHandlerContext.class));
+        Mockito.verify(this.mockedSession, Mockito.times(2)).channelRegistered(Mockito.any(ChannelHandlerContext.class));
+        Mockito.verify(this.mockedSession, Mockito.times(2)).channelActive(Mockito.any(ChannelHandlerContext.class));
         clientChannel.close().get();
         serverChannel.close().get();
-    }
-
-    private Channel connectTestClient() throws InterruptedException {
-        final Bootstrap b = new Bootstrap();
-        b.group(new NioEventLoopGroup());
-        b.option(ChannelOption.SO_KEEPALIVE, true);
-        b.channel(NioSocketChannel.class);
-        b.handler(new ChannelInitializer<SocketChannel>() {
-            @Override
-            protected void initChannel(final SocketChannel ch) throws Exception {
-                //no initialization
-            }
-        });
-        return b.connect(CLIENT_REMOTE).sync().channel();
     }
 }
