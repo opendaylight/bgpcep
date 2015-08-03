@@ -9,6 +9,7 @@ package org.opendaylight.controller.config.yang.bmp.impl;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
@@ -16,6 +17,7 @@ import com.google.common.io.Resources;
 import com.google.common.util.concurrent.CheckedFuture;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,7 +46,10 @@ import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomInmemoryDataBr
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomInmemoryDataBrokerModuleMXBean;
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.SchemaServiceImplSingletonModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.SchemaServiceImplSingletonModuleMXBean;
+import org.opendaylight.controller.config.yang.netty.eventexecutor.GlobalEventExecutorModuleFactory;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
+import org.opendaylight.controller.config.yang.protocol.framework.TimedReconnectStrategyFactoryModuleFactory;
+import org.opendaylight.controller.config.yang.protocol.framework.TimedReconnectStrategyFactoryModuleMXBean;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
@@ -75,6 +80,7 @@ public class BmpMonitorImplModuleTest extends AbstractConfigTest {
     private static final String CODEC_INSTANCE_NAME = "runtime-mapping-singleton";
     private static final String DOM_INSTANCE_NAME = "dom-data-instance";
     private static final String TRANSACTION_NAME = "testTransaction";
+    private static final String RECONNECTSTRATEGY_NAME = "test-reconnect-strategy";
 
     @Mock private ReadWriteTransaction mockedTransaction;
     @Mock private DataBroker mockedDataProvider;
@@ -94,7 +100,9 @@ public class BmpMonitorImplModuleTest extends AbstractConfigTest {
             new BmpDispatcherImplModuleFactory(),
             new NettyThreadgroupModuleFactory(),
             new SimpleBmpExtensionProviderContextModuleFactory(),
-            new SchemaServiceImplSingletonModuleFactory()));
+            new SchemaServiceImplSingletonModuleFactory(),
+            new GlobalEventExecutorModuleFactory(),
+            new TimedReconnectStrategyFactoryModuleFactory()));
 
         final Filter mockedFilter = mock(Filter.class);
         Mockito.doReturn(mockedFilter).when(this.mockedContext).createFilter(Mockito.anyString());
@@ -191,7 +199,7 @@ public class BmpMonitorImplModuleTest extends AbstractConfigTest {
     public void testCreateBean() throws Exception {
         final CommitStatus status = createInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 9, 0, 0);
+        assertStatus(status, 11, 0, 0);
     }
 
     @Test
@@ -201,7 +209,7 @@ public class BmpMonitorImplModuleTest extends AbstractConfigTest {
         assertBeanCount(1, FACTORY_NAME);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 9);
+        assertStatus(status, 0, 0, 11);
     }
 
     private CommitStatus createInstance() throws Exception {
@@ -213,6 +221,7 @@ public class BmpMonitorImplModuleTest extends AbstractConfigTest {
         mxBean.setDomDataProvider(createDomData(transaction));
         mxBean.setBmpDispatcher(createDispatcher(transaction));
         mxBean.setBindingPort(new PortNumber(9999));
+        mxBean.setSessionReconnectStrategy(createReconnectStrategy(transaction));
         return transaction.commit();
     }
 
@@ -243,5 +252,23 @@ public class BmpMonitorImplModuleTest extends AbstractConfigTest {
 
     private static ObjectName createDispatcher(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
         return BmpDispatcherImplModuleTest.createInstance(transaction);
+    }
+
+    private static ObjectName createGlobalEventExecutor(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
+        final ObjectName nameCreated = transaction.createModule(GlobalEventExecutorModuleFactory.NAME, GlobalEventExecutorModuleFactory.SINGLETON_NAME);
+        return nameCreated;
+    }
+
+    private static ObjectName createReconnectStrategy(final ConfigTransactionJMXClient transaction) throws Exception {
+        final ObjectName nameCreated = transaction.createModule(TimedReconnectStrategyFactoryModuleFactory.NAME, RECONNECTSTRATEGY_NAME);
+        final TimedReconnectStrategyFactoryModuleMXBean bean = transaction.newMXBeanProxy(nameCreated, TimedReconnectStrategyFactoryModuleMXBean.class);
+        bean.setConnectTime(720000);
+        bean.setDeadline(720000L);
+        bean.setMaxAttempts(10L);
+        bean.setMaxSleep(30000L);
+        bean.setMinSleep(30000L);
+        bean.setSleepFactor(new BigDecimal(1.0));
+        bean.setTimedReconnectExecutor(createGlobalEventExecutor(transaction));
+        return nameCreated;
     }
 }
