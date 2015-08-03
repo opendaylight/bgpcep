@@ -25,6 +25,40 @@
     },
     {
       "key": {
+        "uuid": "5a7ca5a3_a492acf4",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParser.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-08-03T10:39:59Z",
+      "side": 1,
+      "message": "is this annotation used?",
+      "revId": "b614a1d1f91c7b0965f3e56743295218fe75712c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_c48fa8cb",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParser.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-08-03T10:39:59Z",
+      "side": 1,
+      "message": "unused variable",
+      "revId": "b614a1d1f91c7b0965f3e56743295218fe75712c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a7ca5a3_e488a4c8",
         "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParser.java",
         "patchSetId": 8
@@ -42,6 +76,23 @@
         "endLine": 159,
         "endChar": 117
       },
+      "revId": "b614a1d1f91c7b0965f3e56743295218fe75712c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_64bc946d",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParser.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-08-03T10:39:59Z",
+      "side": 1,
+      "message": "with \u0027if\u0027 condition you are putting always only one label inside \u0027labels\u0027, hence the list is useless.",
       "revId": "b614a1d1f91c7b0965f3e56743295218fe75712c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
