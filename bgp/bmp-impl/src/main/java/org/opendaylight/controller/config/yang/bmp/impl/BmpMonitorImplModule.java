@@ -67,10 +67,7 @@ public class BmpMonitorImplModule extends org.opendaylight.controller.config.yan
             }
         }
 
-        if (ret.isEmpty()) {
-            return Optional.absent();
-        }
-        return Optional.of(ret);
+        return ret.isEmpty() ? Optional.<KeyMapping>absent() : Optional.<KeyMapping>of(ret);
     }
 
     @Override
@@ -88,7 +85,7 @@ public class BmpMonitorImplModule extends org.opendaylight.controller.config.yan
             return BmpMonitoringStationImpl.createBmpMonitorInstance(getExtensionsDependency(), getBmpDispatcherDependency(),
                     getDomDataProviderDependency(), new MonitorId(getIdentifier().getInstanceName()),
                     Ipv4Util.toInetSocketAddress(getBindingAddress(), getBindingPort()),
-                    constructKeys(), getCodecTreeFactoryDependency(), getSchemaProvider());
+                    constructKeys(), getCodecTreeFactoryDependency(), getSchemaProvider(), getMonitoredRouter());
         } catch(final InterruptedException e) {
             throw new IllegalStateException("Failed to istantiate BMP application.", e);
         }
