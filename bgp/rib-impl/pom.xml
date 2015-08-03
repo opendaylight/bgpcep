@@ -102,6 +102,18 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
+           <artifactId>sal-dom-broker-config</artifactId>
+        </dependency>
+         <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-dom-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-rest-connector</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
             <artifactId>protocol-framework</artifactId>
         </dependency>
         <dependency>
