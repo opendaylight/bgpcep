@@ -37,7 +37,9 @@ import org.opendaylight.protocol.bmp.impl.BmpActivator;
 import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;
+import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.tcpmd5.api.KeyMapping;
+import org.opendaylight.tcpmd5.netty.MD5ChannelFactory;
 import org.opendaylight.tcpmd5.netty.MD5ServerChannelFactory;
 
 public class BmpDispatcherImplTest {
@@ -81,7 +83,7 @@ public class BmpDispatcherImplTest {
                     final BmpSessionListenerFactory sessionListenerFactory) {
                 return BmpDispatcherImplTest.this.mockedSession;
             }
-        }, Optional.<MD5ServerChannelFactory<?>>absent());
+        }, Optional.<MD5ChannelFactory<?>>absent(), Optional.<MD5ServerChannelFactory<?>>absent(), Optional.<ReconnectStrategyFactory>absent());
     }
 
     @After
@@ -95,7 +97,7 @@ public class BmpDispatcherImplTest {
     public void testCreateServer() throws Exception {
         final Channel serverChannel = this.dispatcher.createServer(SERVER, this.mockedListenerFactory, Optional.<KeyMapping>absent()).await().channel();
         Assert.assertTrue(serverChannel.isActive());
-        final Channel clientChannel = connectTestClient();
+        final Channel clientChannel = this.dispatcher.createReconnectClient(CLIENT_REMOTE,  Optional.<KeyMapping>absent());
         Assert.assertTrue(clientChannel.isActive());
         Thread.sleep(500);
         Mockito.verify(this.mockedSession, Mockito.times(1)).handlerAdded(Mockito.any(ChannelHandlerContext.class));
