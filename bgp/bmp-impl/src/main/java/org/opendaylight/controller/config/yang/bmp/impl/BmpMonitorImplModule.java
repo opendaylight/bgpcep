@@ -73,6 +73,28 @@ public class BmpMonitorImplModule extends org.opendaylight.controller.config.yan
         return Optional.of(ret);
     }
 
+    private Optional<KeyMapping> constructClientKeys() {
+        final KeyMapping ret = new KeyMapping();
+        if (getBmpMonitorServer() != null) {
+            for (final BmpMonitorServer bms : getBmpMonitorServer()) {
+                if (bms.getAddress() == null) {
+                    LOG.warn("Bmp monitor server {} does not have an address skipping it", bms);
+                    continue;
+                }
+                if (bms.getPassword() != null) {
+                    final String s = getAddressString(bms.getAddress());
+                    ret.put(InetAddresses.forString(s), bms.getPassword().getValue().getBytes(Charsets.US_ASCII));
+                }
+            }
+        }
+
+        if (ret.isEmpty()) {
+            return Optional.absent();
+        }
+        return Optional.of(ret);
+    }
+
+
     @Override
     public void customValidation() {
         JmxAttributeValidationException.checkNotNull(getBindingPort(), bindingPortJmxAttribute);

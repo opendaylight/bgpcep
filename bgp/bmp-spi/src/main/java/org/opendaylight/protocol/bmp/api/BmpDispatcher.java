@@ -26,5 +26,7 @@ public interface BmpDispatcher extends AutoCloseable {
      * @param slf Session listener factory
      * @return instance of BmpServer
      */
+    ChannelFuture createReconnectClient(InetSocketAddress address, ReconectStrategyFactory rcsf, Optional<KeyMapping> keys);
     ChannelFuture createServer(InetSocketAddress address, BmpSessionListenerFactory slf, Optional<KeyMapping> keys);
+
 }
