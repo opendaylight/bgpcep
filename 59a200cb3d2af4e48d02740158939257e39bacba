@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a7ca5a3_e47664d8",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/controller/config/yang/pcep/stateful07/cfg/PCEPStatefulCapabilityModule.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-03T12:02:46Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 124
+      },
+      "revId": "59a200cb3d2af4e48d02740158939257e39bacba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_4472b8e6",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/controller/config/yang/pcep/sr/cfg/PCEPSegmentRoutingCapabilityModule.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-03T12:02:46Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 104
+      },
+      "revId": "59a200cb3d2af4e48d02740158939257e39bacba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_246d3c05",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/controller/config/yang/pcep/sr/cfg/PCEPSegmentRoutingCapabilityModule.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-03T12:02:46Z",
+      "side": 1,
+      "message": "We do not have to check this.",
+      "range": {
+        "startLine": 38,
+        "startChar": 8,
+        "endLine": 38,
+        "endChar": 110
+      },
+      "revId": "59a200cb3d2af4e48d02740158939257e39bacba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_8468d0f6",
+        "filename": "pcep/segment-routing/src/test/java/org/opendaylight/protocol/pcep/segment/routing/SegmentRouting02SessionProposalTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-03T12:02:46Z",
+      "side": 1,
+      "message": "Please, rename this test class.",
+      "revId": "59a200cb3d2af4e48d02740158939257e39bacba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
