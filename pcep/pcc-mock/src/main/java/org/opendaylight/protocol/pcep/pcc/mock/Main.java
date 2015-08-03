@@ -19,39 +19,27 @@ import com.google.common.net.HostAndPort;
 import com.google.common.net.InetAddresses;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
-import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.protocol.framework.NeverReconnectStrategy;
-import org.opendaylight.protocol.framework.ReconnectStrategy;
-import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
-import org.opendaylight.protocol.framework.TimedReconnectStrategy;
+import java.util.concurrent.TimeUnit;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
-import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.ietf.initiated00.CrabbeInitiatedActivator;
+import org.opendaylight.protocol.pcep.ietf.stateful07.PCEPStatefulCapability;
 import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
 import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
+import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PccTunnelManager;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 import org.opendaylight.tcpmd5.api.KeyMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.StatefulBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,9 +51,10 @@ public final class Main {
     private static final int DEFAULT_LOCAL_PORT = 0;
     private static final short DEFAULT_KEEP_ALIVE = 30;
     private static final short DEFAULT_DEAD_TIMER = 120;
-    private static final int RECONNECT_STRATEGY_TIMEOUT = 2000;
     private static final InetAddress LOCALHOST = InetAddresses.forString("127.0.0.1");
-    private static final int MILISECONDS = 1000;
+    private static final PCEPCapability STATEFUL_CAPABILITY = new PCEPStatefulCapability(true, true, true,
+            false, false, false, false);
+    private static final List<PCEPCapability> CAPABILITIES = Lists.newArrayList(STATEFUL_CAPABILITY);
 
     private Main() { }
 
@@ -79,7 +68,7 @@ public final class Main {
         short ka = DEFAULT_KEEP_ALIVE;
         short dt = DEFAULT_DEAD_TIMER;
         String password = null;
-        int reconnectTime = -1;
+        long reconnectTime = -1;
         int redelegationTimeout = 0;
         int stateTimeout = -1;
         final Timer timer = new HashedWheelTimer();
@@ -106,7 +95,7 @@ public final class Main {
             } else if (args[argIdx].equals("--password")) {
                 password = args[++argIdx];
             } else if (args[argIdx].equals("--reconnect")) {
-                reconnectTime = Integer.valueOf(args[++argIdx]).intValue() * MILISECONDS;
+                reconnectTime =  TimeUnit.SECONDS.toMillis(Integer.valueOf(args[++argIdx]).intValue());
             } else if (args[argIdx].equals("--redelegation-timeout")) {
                 redelegationTimeout = Integer.valueOf(args[++argIdx]);
             } else if (args[argIdx].equals("--state-timeout")) {
@@ -121,41 +110,36 @@ public final class Main {
 
     public static void createPCCs(final int lspsPerPcc, final boolean pcerr, final int pccCount,
             final InetSocketAddress localAddress, final List<InetSocketAddress> remoteAddress, final short keepalive, final short deadtimer,
-            final String password, final int reconnectTime, final int redelegationTimeout, final int stateTimeout, final Timer timer) throws InterruptedException, ExecutionException {
+            final String password, final long reconnectTime, final int redelegationTimeout, final int stateTimeout, final Timer timer) throws InterruptedException, ExecutionException {
         startActivators();
         InetAddress currentAddress = localAddress.getAddress();
-        final Open openMessage = getOpenMessage(keepalive, deadtimer);
-        final PCCDispatcher pccDispatcher = new PCCDispatcher(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(),
-                getSessionNegotiatorFactory(openMessage));
+        final PccDispatcherImpl pccDispatcher = new PccDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry());
         for (int i = 0; i < pccCount; i++) {
             final PccTunnelManager tunnelManager = new PccTunnelManagerImpl(lspsPerPcc, currentAddress,
                     redelegationTimeout, stateTimeout, timer);
             createPCC(pcerr, new InetSocketAddress(currentAddress, localAddress.getPort()),
-                    remoteAddress, openMessage, pccDispatcher, password, reconnectTime, tunnelManager);
+                    remoteAddress, getSessionNegotiatorFactory(keepalive, deadtimer), pccDispatcher, password, reconnectTime, tunnelManager);
             currentAddress = InetAddresses.increment(currentAddress);
         }
     }
 
     private static void createPCC(final boolean pcerr, final InetSocketAddress localAddress,
-            final List<InetSocketAddress> remoteAddress, final Open openMessage, final PCCDispatcher pccDispatcher,
-            final String password, final int reconnectTime, final PccTunnelManager tunnelManager) throws InterruptedException, ExecutionException {
-        final PCEPSessionNegotiatorFactory snf = getSessionNegotiatorFactory(openMessage);
+            final List<InetSocketAddress> remoteAddress, final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf, final PccDispatcherImpl pccDispatcher,
+            final String password, final long reconnectTime, final PccTunnelManager tunnelManager) throws InterruptedException, ExecutionException {
 
         for (final InetSocketAddress pceAddress : remoteAddress) {
-            pccDispatcher.createClient(localAddress, pceAddress, reconnectTime == -1 ? getNeverReconnectStrategyFactory() : getTimedReconnectStrategyFactory(reconnectTime),
+            pccDispatcher.createClient(pceAddress, reconnectTime,
                     new PCEPSessionListenerFactory() {
                         @Override
                         public PCEPSessionListener getSessionListener() {
                             return new PccSessionListener(remoteAddress.indexOf(pceAddress), tunnelManager, pcerr);
                         }
-                    } ,snf, getKeyMapping(pceAddress.getAddress(), password));
+                    }, snf, getKeyMapping(pceAddress.getAddress(), password), localAddress);
         }
     }
 
-    private static PCEPSessionNegotiatorFactory getSessionNegotiatorFactory(final Open openMessage) {
-        final List<PCEPCapability> capabilities = new ArrayList<>();
-        final PCEPSessionProposalFactory proposal = new BasePCEPSessionProposalFactory(openMessage.getDeadTimer(), openMessage.getKeepalive(), capabilities);
-        return new DefaultPCEPSessionNegotiatorFactory(proposal, 0);
+    private static PCEPSessionNegotiatorFactory<PCEPSessionImpl> getSessionNegotiatorFactory(final short keepAlive, final short deadTimer) {
+        return new DefaultPCEPSessionNegotiatorFactory(new BasePCEPSessionProposalFactory(deadTimer, keepAlive, CAPABILITIES), 0);
     }
 
     private static ch.qos.logback.classic.Logger getRootLogger(final LoggerContext lc) {
@@ -190,13 +174,6 @@ public final class Main {
         return null;
     }
 
-    private static Open getOpenMessage(final short keepalive, final short deadtimer) {
-        final Tlvs1 tlvs1 = new Tlvs1Builder().setStateful(new StatefulBuilder().addAugmentation(Stateful1.class,
-                new Stateful1Builder().setInitiation(true).build()).setLspUpdateCapability(true).build()).build();
-        return new OpenBuilder().setTlvs(new TlvsBuilder().addAugmentation(Tlvs1.class, tlvs1).build())
-                .setKeepalive(keepalive).setDeadTimer(deadtimer).setSessionId((short) 0).build();
-    }
-
     private static void startActivators() {
         final PCCActivator pccActivator = new PCCActivator();
         final StatefulActivator stateful = new StatefulActivator();
@@ -205,28 +182,6 @@ public final class Main {
         pccActivator.start(ctx);
         stateful.start(ctx);
         activator.start(ctx);
-    }
-
-    @SuppressWarnings("deprecation")
-    private static ReconnectStrategyFactory getNeverReconnectStrategyFactory() {
-        return new ReconnectStrategyFactory() {
-
-            @Override
-            public ReconnectStrategy createReconnectStrategy() {
-                return new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_STRATEGY_TIMEOUT);
-            }
-        };
-    }
-
-    @SuppressWarnings("deprecation")
-    private static ReconnectStrategyFactory getTimedReconnectStrategyFactory(final int reconnectTime) {
-        return new ReconnectStrategyFactory() {
-
-            @Override
-            public ReconnectStrategy createReconnectStrategy() {
-                return new TimedReconnectStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_STRATEGY_TIMEOUT, reconnectTime, 1.0, null, null, null);
-            }
-        };
     }
 
 }
