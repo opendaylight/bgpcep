@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bmp.impl;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
@@ -17,15 +18,20 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
+import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.tcpmd5.api.KeyMapping;
+import org.opendaylight.tcpmd5.netty.MD5ChannelFactory;
 import org.opendaylight.tcpmd5.netty.MD5ChannelOption;
-import org.opendaylight.tcpmd5.netty.MD5ServerChannelFactory;
+import org.opendaylight.tcpmd5.netty.MD5NioServerSocketChannelFactory;
+import org.opendaylight.tcpmd5.netty.MD5NioSocketChannelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,15 +45,49 @@ public class BmpDispatcherImpl implements BmpDispatcher {
     private final EventLoopGroup workerGroup;
     private final BmpSessionFactory sessionFactory;
     private final Optional<MD5ServerChannelFactory<?>> scf;
+    private final Optional<MD5ChannelFactory<?>> ccf;
 
     public BmpDispatcherImpl(final EventLoopGroup bossGroup, final EventLoopGroup workerGroup, final BmpMessageRegistry registry,
-            final BmpSessionFactory sessionFactory, final Optional<MD5ServerChannelFactory<?>> scf) {
+            final BmpSessionFactory sessionFactory, final Optional<MD5ChannelFactory<?>> ccf, final Optional<MD5ServerChannelFactory<?>> scf) {
         this.bossGroup = Preconditions.checkNotNull(bossGroup);
         this.workerGroup = Preconditions.checkNotNull(workerGroup);
         this.hf = new BmpHandlerFactory(Preconditions.checkNotNull(registry));
         this.sessionFactory = Preconditions.checkNotNull(sessionFactory);
         this.scf = scf;
+        this.ccf = ccf;
     }
+
+
+    @Override
+    public ChannelFuture createReconnectClient(InetSocketAddress address, ReconnectStrategyFactory rcsf, Optional<KeyMapping> keys) {
+        final Bootstrap b = new Bootstrap();
+        if (!this.ccf.isPresent() ) {
+            throw new UnsupportedOperationException("Client MD5 channel factory is null. ");
+        }
+
+        if (keys.isPresent()) {
+            b.option(MD5ChannelOption.TCP_MD5SIG, keys.get());
+            LOG.debug("Added MD5 keys {} to bootstrap {}", keys.get(), b);
+            b.channelFactory(this.ccf.get());
+        } else {
+            b.channel(NioSocketChannel.class);
+        }
+        /* setup bootstrap */
+        b.group(this.workerGroup);
+        b.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE);
+
+        final ChannelInitializer initializer = new ChannelInitializer<SocketChannel>() {
+            @Override
+            protected void initChannel(SocketChannel ch) {
+                ch.pipeline().addLast(BmpDispatcherImpl.this.hf.getDecoders());
+                ch.pipeline().addLast(BmpDispatcherImpl.this.hf.getEncoders());
+            }
+        };
+        b.handler(initializer);
+        final BmpReconnectPromise p = new BmpReconnectPromise(address, rcsf, b);
+        return p.connect();
+    }
+
 
     @Override
     public ChannelFuture createServer(final InetSocketAddress address, final BmpSessionListenerFactory slf, final Optional<KeyMapping> keys) {

@@ -58,6 +58,7 @@ import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderCont
 import org.opendaylight.tcpmd5.api.KeyAccess;
 import org.opendaylight.tcpmd5.api.KeyAccessFactory;
 import org.opendaylight.tcpmd5.api.KeyMapping;
+import org.opendaylight.tcpmd5.netty.MD5ChannelFactory;
 import org.opendaylight.tcpmd5.netty.MD5NioServerSocketChannelFactory;
 import org.opendaylight.tcpmd5.netty.MD5NioSocketChannelFactory;
 import org.opendaylight.tcpmd5.netty.MD5ServerChannelFactory;
@@ -168,7 +169,8 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
         this.msgRegistry = ctx.getBmpMessageRegistry();
 
         this.dispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
-                ctx.getBmpMessageRegistry(), new DefaultBmpSessionFactory(), Optional.<MD5ServerChannelFactory<?>>of(this.scfServerMd5));
+                ctx.getBmpMessageRegistry(), new DefaultBmpSessionFactory(), Optional.<MD5ChannelFactory<?>>of(this.scfMd5),
+                Optional.<MD5ServerChannelFactory<?>>of(this.scfServerMd5));
 
         this.bmpApp = BmpMonitoringStationImpl.createBmpMonitorInstance(ribExtension, this.dispatcher, getDomBroker(),
                 MONITOR_ID, new InetSocketAddress(InetAddresses.forString("0.0.0.0"), PORT), Optional.of(keys),

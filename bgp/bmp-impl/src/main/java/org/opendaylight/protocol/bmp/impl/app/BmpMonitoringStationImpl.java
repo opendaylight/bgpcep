@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.bmp.impl.app;
+package org.opendaylight.protocol.bmp.impl;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
