@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a7ca5a3_44a4f856",
+        "filename": "bgp/controller-config/src/main/resources/initial/41-bgp-example.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-03T10:35:58Z",
+      "side": 1,
+      "message": "Please, keep this module commented out.",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 25
+      },
+      "revId": "b614a1d1f91c7b0965f3e56743295218fe75712c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_e488a4c8",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParser.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-03T10:35:58Z",
+      "side": 1,
+      "message": "Please, use one of the utility functions (in Ipv4Util/Ipv6Util class) for parsing ip prefixes.",
+      "range": {
+        "startLine": 159,
+        "startChar": 0,
+        "endLine": 159,
+        "endChar": 117
+      },
+      "revId": "b614a1d1f91c7b0965f3e56743295218fe75712c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
