@@ -10,22 +10,36 @@ package org.opendaylight.protocol.bmp.impl;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+
+import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
+
 import java.net.InetSocketAddress;
+
 import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
+import org.opendaylight.protocol.framework.ReconnectStrategy;
+import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
+
 import org.opendaylight.tcpmd5.api.KeyMapping;
+import org.opendaylight.tcpmd5.netty.MD5ChannelFactory;
 import org.opendaylight.tcpmd5.netty.MD5ChannelOption;
+import org.opendaylight.tcpmd5.netty.MD5NioSocketChannel;
 import org.opendaylight.tcpmd5.netty.MD5ServerChannelFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,14 +53,66 @@ public class BmpDispatcherImpl implements BmpDispatcher {
     private final EventLoopGroup workerGroup;
     private final BmpSessionFactory sessionFactory;
     private final Optional<MD5ServerChannelFactory<?>> scf;
+    private final Optional<MD5ChannelFactory<?>> cf;
+    private final Optional<ReconnectStrategy> strategy;
 
-    public BmpDispatcherImpl(final EventLoopGroup bossGroup, final EventLoopGroup workerGroup, final BmpMessageRegistry registry,
-            final BmpSessionFactory sessionFactory, final Optional<MD5ServerChannelFactory<?>> scf) {
+    public BmpDispatcherImpl(final EventLoopGroup bossGroup, final EventLoopGroup workerGroup,
+            final BmpMessageRegistry registry, final BmpSessionFactory sessionFactory,
+            final Optional<MD5ServerChannelFactory<?>> scf) {
+        this(bossGroup, workerGroup, registry, sessionFactory, Optional.<MD5ChannelFactory<?>>absent(), scf, Optional.<ReconnectStrategyFactory>absent());
+    }
+
+    public BmpDispatcherImpl(final EventLoopGroup bossGroup, final EventLoopGroup workerGroup,
+            final BmpMessageRegistry registry, final BmpSessionFactory sessionFactory,
+            final Optional<MD5ChannelFactory<?>> cf, final Optional<MD5ServerChannelFactory<?>> scf,
+            final Optional<ReconnectStrategyFactory> brsf) {
         this.bossGroup = Preconditions.checkNotNull(bossGroup);
         this.workerGroup = Preconditions.checkNotNull(workerGroup);
         this.hf = new BmpHandlerFactory(Preconditions.checkNotNull(registry));
         this.sessionFactory = Preconditions.checkNotNull(sessionFactory);
         this.scf = scf;
+        this.cf  = cf;
+        if ( brsf.isPresent() ) {
+            this.strategy = Optional.<ReconnectStrategy>fromNullable(brsf.get().createReconnectStrategy());
+        } else {
+            this.strategy = Optional.<ReconnectStrategy>absent();
+        }
+    }
+
+    @Override
+    public Channel createReconnectClient(final InetSocketAddress address, Optional<KeyMapping> keys) {
+
+        try {
+            final NioEventLoopGroup workergroup = new NioEventLoopGroup();
+            final Bootstrap b = new Bootstrap();
+
+            Preconditions.checkNotNull(address);
+
+            if ( keys.isPresent() ) {
+                b.channel(MD5NioSocketChannel.class);
+                b.option(MD5ChannelOption.TCP_MD5SIG, keys.get());
+            } else {
+                LOG.info("no md5 key is not found. continue with bootstrap setup.");
+                b.channel(NioSocketChannel.class);
+            }
+            b.option(ChannelOption.SO_KEEPALIVE, true);
+            b.group(workergroup);
+
+            b.handler(new ChannelInitializer<NioSocketChannel>() {
+                @Override
+                protected void initChannel(final NioSocketChannel ch) throws Exception {
+                    //no initialization
+                }
+            });
+
+            ChannelFuture cf = b.connect(address);
+            cf.addListener(new BmpDispatcherImpl.BootstrapListener());
+            return cf.sync().channel();
+        }
+        catch (Exception ex) {
+            LOG.error("exception", ex);
+            return null;
+        }
     }
 
     @Override
@@ -89,4 +155,24 @@ public class BmpDispatcherImpl implements BmpDispatcher {
             this.bossGroup.shutdownGracefully();
         }
     }
+
+    private class BootstrapListener implements ChannelFutureListener {
+        @Override
+        public void operationComplete(final ChannelFuture cf) throws Exception {
+
+            if (cf.isCancelled()) {
+                LOG.info("connection {} cancelled!", cf);
+            } else if (cf.isSuccess()) {
+                LOG.info("connection {} succeeded!", cf);
+            } else {
+                if ( BmpDispatcherImpl.this.strategy.isPresent() ) {
+                    LOG.debug("connection attmpt {} failed! Reconnecting...", cf);
+                    BmpDispatcherImpl.this.strategy.get().scheduleReconnect(cf.cause());
+                } else {
+                    LOG.debug("no reconnect attempt will be made as no reconnection strategy configured.");
+                }
+            }
+        }
+    }
+
 }

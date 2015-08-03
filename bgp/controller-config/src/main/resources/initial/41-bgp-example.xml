@@ -28,10 +28,10 @@
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:protocol:framework">prefix:timed-reconnect-strategy-factory</type>
                     <name>example-reconnect-strategy-factory</name>
-                    <min-sleep>1000</min-sleep>
-                    <max-sleep>180000</max-sleep>
-                    <sleep-factor>2.00</sleep-factor>
-                    <connect-time>5000</connect-time>
+                    <min-sleep>30000</min-sleep>
+                    <max-sleep>720000</max-sleep>
+                    <sleep-factor>1.00</sleep-factor>
+                    <connect-time>720000</connect-time>
                     <timed-reconnect-executor>
                         <type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-event-executor</type>
                         <name>global-event-executor</name>

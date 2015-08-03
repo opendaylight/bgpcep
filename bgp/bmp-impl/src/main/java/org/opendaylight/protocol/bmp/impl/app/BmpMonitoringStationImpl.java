@@ -8,12 +8,18 @@
 
 package org.opendaylight.protocol.bmp.impl.app;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.net.InetAddresses;
+
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import java.net.InetSocketAddress;
+import java.util.List;
+
+import org.opendaylight.controller.config.yang.bmp.impl.MonitoredRouter;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
@@ -21,11 +27,14 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.impl.spi.BmpMonitoringStation;
+import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.tcpmd5.api.KeyMapping;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.BmpMonitor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.MonitorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.bmp.monitor.Monitor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.routers.Router;
+
 import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTree;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTreeFactory;
 import org.opendaylight.yangtools.sal.binding.generator.util.BindingRuntimeContext;
@@ -49,26 +58,66 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
     private final RouterSessionManager sessionManager;
     private final Channel channel;
     private final MonitorId monitorId;
+    private final List<MonitoredRouter> mrs;
 
     private BmpMonitoringStationImpl(final DOMDataBroker domDataBroker, final YangInstanceIdentifier yangMonitorId,
-            final Channel channel, final RouterSessionManager sessionManager, final MonitorId monitorId) {
+            final Channel channel, final RouterSessionManager sessionManager, final MonitorId monitorId,
+            final BmpDispatcher dispatcher, Optional<KeyMapping> keys, List<MonitoredRouter> mrs) {
         this.domDataBroker = Preconditions.checkNotNull(domDataBroker);
         this.yangMonitorId = Preconditions.checkNotNull(yangMonitorId);
         this.channel = Preconditions.checkNotNull(channel);
         this.sessionManager = Preconditions.checkNotNull(sessionManager);
         this.monitorId = monitorId;
+        this.mrs = mrs;
+
         createEmptyMonitor();
         LOG.info("BMP Monitoring station {} started", this.monitorId.getValue());
+
+        connectMonitoredRouters(dispatcher, mrs);
+        LOG.info("Connecting to monitored routers completed.");
+    }
+
+    private String getAddressString(final IpAddress address) {
+        Preconditions.checkArgument(address.getIpv4Address() != null || address.getIpv6Address() != null, "Address %s is invalid", address);
+        if (address.getIpv4Address() != null) {
+            return address.getIpv4Address().getValue();
+        }
+        return address.getIpv6Address().getValue();
+    }
+
+    public void connectMonitoredRouters(final BmpDispatcher dispatcher, final List<MonitoredRouter> mrs) {
+        final KeyMapping ret = new KeyMapping();
+        if (mrs != null) {
+            for (final MonitoredRouter mr : mrs) {
+                if ( mr.getActive() ) {
+                    if ( mr.getAddress() == null ) {
+                        LOG.warn("Bmp monitored client {} does not have an address skipping it", mr);
+                        continue;
+                    }
+                    if ( mr.getPassword() != null ) {
+                        ret.put(InetAddresses.forString(getAddressString(mr.getAddress())), mr.getPassword().getValue().getBytes(Charsets.US_ASCII));
+                    }
+                    if (mr.getPort() == null) {
+                        LOG.warn("bmp monitored client {} does not have an port. skipping it..", mr);
+                        continue;
+                    }
+                    dispatcher.createReconnectClient(Ipv4Util.toInetSocketAddress(mr.getAddress(), mr.getPort()), Optional.<KeyMapping>fromNullable(ret));
+                    ret.remove(mr.getAddress());
+                }
+            }
+        }
     }
 
     public static BmpMonitoringStation createBmpMonitorInstance(final RIBExtensionConsumerContext ribExtensions, final BmpDispatcher dispatcher,
-            final DOMDataBroker domDataBroker, final MonitorId monitorId, final InetSocketAddress address, final Optional<KeyMapping> keys,
-            final BindingCodecTreeFactory codecFactory, final SchemaContext schemaContext) throws InterruptedException {
+            final DOMDataBroker domDataBroker, final MonitorId monitorId, final InetSocketAddress address,
+            final Optional<KeyMapping> keys, final BindingCodecTreeFactory codecFactory, final SchemaContext schemaContext,
+            final List<MonitoredRouter> mrs ) throws InterruptedException {
         Preconditions.checkNotNull(ribExtensions);
         Preconditions.checkNotNull(dispatcher);
         Preconditions.checkNotNull(domDataBroker);
         Preconditions.checkNotNull(monitorId);
         Preconditions.checkNotNull(address);
+
         final YangInstanceIdentifier yangMonitorId = YangInstanceIdentifier.builder()
                 .node(BmpMonitor.QNAME)
                 .node(Monitor.QNAME)
@@ -80,7 +129,8 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
         final BindingCodecTree tree  = codecFactory.create(runtimeContext);
         final RouterSessionManager sessionManager = new RouterSessionManager(yangMonitorId, domDataBroker, ribExtensions, tree);
         final ChannelFuture channelFuture = dispatcher.createServer(address, sessionManager, keys);
-        return new BmpMonitoringStationImpl(domDataBroker, yangMonitorId, channelFuture.sync().channel(), sessionManager, monitorId);
+
+        return new BmpMonitoringStationImpl(domDataBroker, yangMonitorId, channelFuture.sync().channel(), sessionManager, monitorId, dispatcher, keys, mrs);
     }
 
     private void createEmptyMonitor() {
