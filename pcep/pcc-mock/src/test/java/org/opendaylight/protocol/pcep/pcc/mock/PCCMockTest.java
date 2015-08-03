@@ -15,8 +15,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,6 +28,8 @@ import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1;
 
 public class PCCMockTest {
 
@@ -43,14 +44,15 @@ public class PCCMockTest {
     private static final InetSocketAddress SERVER_ADDRESS4 = new InetSocketAddress(REMOTE_ADDRESS4, 4189);
     private static final String LOCAL_ADDRESS = "127.0.0.1";
     private static final String LOCAL_ADDRESS2 = "127.0.0.2";
+    private static final PCEPSessionProposalFactory PROPOSAL = new BasePCEPSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE,
+            Collections.<PCEPCapability>emptyList());
 
     private PCEPDispatcher pceDispatcher;
-    private static final List<PCEPCapability> CAPS = new ArrayList<>();
-    private static final PCEPSessionProposalFactory PROPOSAL = new BasePCEPSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE, CAPS);
 
     @Before
     public void setUp() {
-        final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(PROPOSAL, 0);
+        final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(
+                PROPOSAL, 0);
         this.pceDispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(),
                 nf, new NioEventLoopGroup(), new NioEventLoopGroup());
     }
@@ -60,7 +62,7 @@ public class PCCMockTest {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
         final Channel channel = this.pceDispatcher.createServer(new InetSocketAddress(REMOTE_ADDRESS, 4567), factory, null).channel();
         Main.main(new String[] {"--local-address", LOCAL_ADDRESS, "--remote-address", REMOTE_ADDRESS + ":4567", "--pcc", "1", "--lsp", "3",
-            "--log-level", "DEBUG", "-ka", "10", "-d", "40"});
+            "--log-level", "DEBUG", "-ka", "10", "-d", "40", "--reconnect", "-1", "--redelegation-timeout", "0", "--state-timeout", "-1"});
         Thread.sleep(1000);
         final TestingSessionListener sessionListener = factory.getSessionListenerByRemoteAddress(InetAddresses.forString(LOCAL_ADDRESS));
         Assert.assertTrue(sessionListener.isUp());
@@ -70,7 +72,7 @@ public class PCCMockTest {
         Assert.assertNotNull(session);
         Assert.assertEquals(40, session.getPeerPref().getDeadtimer().shortValue());
         Assert.assertEquals(10, session.getPeerPref().getKeepalive().shortValue());
-//        Assert.assertTrue(session.getRemoteTlvs().getAugmentation(Tlvs1.class).getStateful().getAugmentation(Stateful1.class).isInitiation());
+        Assert.assertTrue(session.getRemoteTlvs().getAugmentation(Tlvs1.class).getStateful().getAugmentation(Stateful1.class).isInitiation());
         channel.close().get();
     }
 

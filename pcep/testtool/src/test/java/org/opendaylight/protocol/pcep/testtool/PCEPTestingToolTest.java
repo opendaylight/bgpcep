@@ -24,7 +24,7 @@ public class PCEPTestingToolTest {
         try {
             Main.main(new String[]{"-a", "127.0.0.3:12345", "-ka", "10", "-d", "0", "--stateful", "--active", "--instant"});
             PCCMock.main(new String[0]);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             Assert.fail();
         }
     }
