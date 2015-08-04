@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a7ca5a3_2a09832c",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParser.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-04T06:52:46Z",
+      "side": 1,
+      "message": "Are you using this variable somewhere in tests? If not, you can remove an annotation.",
+      "range": {
+        "startLine": 61,
+        "startChar": 4,
+        "endLine": 62,
+        "endChar": 155
+      },
+      "revId": "30dc13afb01415a829ead50f33d852354e61fd1a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_ef0b9d29",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParser.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-04T06:52:46Z",
+      "side": 1,
+      "message": "Minimize a scope of variable.",
+      "range": {
+        "startLine": 144,
+        "startChar": 14,
+        "endLine": 144,
+        "endChar": 20
+      },
+      "revId": "30dc13afb01415a829ead50f33d852354e61fd1a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_af05a515",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParser.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-04T06:52:46Z",
+      "side": 1,
+      "message": "You can simplify the cycle using \"do-while\". Are we setting/getting bottom bit somewhere? If not, do we need to model the bottom bit flag in yang?",
+      "range": {
+        "startLine": 175,
+        "startChar": 0,
+        "endLine": 184,
+        "endChar": 9
+      },
+      "revId": "30dc13afb01415a829ead50f33d852354e61fd1a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_0a10474d",
+        "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParserTest.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-04T06:52:46Z",
+      "side": 1,
+      "message": "Could you please add some tests with multiple labels in one NLRI?",
+      "revId": "30dc13afb01415a829ead50f33d852354e61fd1a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_ea12ab57",
+        "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParserTest.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-04T06:52:46Z",
+      "side": 1,
+      "message": "354L",
+      "range": {
+        "startLine": 89,
+        "startChar": 40,
+        "endLine": 89,
+        "endChar": 50
+      },
+      "revId": "30dc13afb01415a829ead50f33d852354e61fd1a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
