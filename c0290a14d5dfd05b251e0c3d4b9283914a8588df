@@ -1,0 +1,176 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a7ca5a3_9ebfbcd0",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/controller/config/yang/bmp/impl/BmpMonitorImplModule.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-04T14:51:56Z",
+      "side": 1,
+      "message": "We should start configured clients here.",
+      "revId": "c0290a14d5dfd05b251e0c3d4b9283914a8588df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_bec71864",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/BmpDispatcherImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-04T14:51:56Z",
+      "side": 1,
+      "message": "Do we need global variable for keys?",
+      "range": {
+        "startLine": 45,
+        "startChar": 3,
+        "endLine": 45,
+        "endChar": 44
+      },
+      "revId": "c0290a14d5dfd05b251e0c3d4b9283914a8588df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_7ea180a8",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/BmpDispatcherImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-04T14:51:56Z",
+      "side": 1,
+      "message": "The \"keys\" is of type Optional.",
+      "range": {
+        "startLine": 67,
+        "startChar": 13,
+        "endLine": 67,
+        "endChar": 17
+      },
+      "revId": "c0290a14d5dfd05b251e0c3d4b9283914a8588df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_fecd9087",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/BmpDispatcherImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-04T14:51:56Z",
+      "side": 1,
+      "message": "The pipeline is missing session handler.",
+      "revId": "c0290a14d5dfd05b251e0c3d4b9283914a8588df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_1e796c2f",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/BmpReconnectPromise.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-04T14:51:56Z",
+      "side": 1,
+      "message": "Where is this handler used?",
+      "range": {
+        "startLine": 96,
+        "startChar": 31,
+        "endLine": 96,
+        "endChar": 47
+      },
+      "revId": "c0290a14d5dfd05b251e0c3d4b9283914a8588df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_5eb044f4",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpMonitoringStationImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-04T14:51:56Z",
+      "side": 1,
+      "message": "The class is still located in *.impl.app package.",
+      "range": {
+        "startLine": 9,
+        "startChar": 38,
+        "endLine": 9,
+        "endChar": 42
+      },
+      "revId": "c0290a14d5dfd05b251e0c3d4b9283914a8588df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_fee6f015",
+        "filename": "bgp/bmp-impl/src/main/yang/odl-bmp-impl-cfg.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-04T14:51:56Z",
+      "side": 1,
+      "message": "Can we use \"list monitor-router\" for this purpose? I suggest to add two more leafs to the monitor-router: \n1. \"active\" (boolean) - says if we are supposed to create reconnecting client\n2. \"port-number\" - we need to configure the router\u0027s port, when acting as a active part of connection.",
+      "range": {
+        "startLine": 211,
+        "startChar": 0,
+        "endLine": 221,
+        "endChar": 13
+      },
+      "revId": "c0290a14d5dfd05b251e0c3d4b9283914a8588df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_7e8f4024",
+        "filename": "bgp/bmp-spi/src/main/java/org/opendaylight/protocol/bmp/api/BmpDispatcher.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-04T14:51:56Z",
+      "side": 1,
+      "message": "Move over the javadoc or below the createServer and add some javadoc too.",
+      "range": {
+        "startLine": 29,
+        "startChar": 18,
+        "endLine": 29,
+        "endChar": 39
+      },
+      "revId": "c0290a14d5dfd05b251e0c3d4b9283914a8588df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
