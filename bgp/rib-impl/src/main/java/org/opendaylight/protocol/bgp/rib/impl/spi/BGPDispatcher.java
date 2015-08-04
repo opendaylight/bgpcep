@@ -51,9 +51,8 @@ public interface BGPDispatcher{
      *
      * @param peerRegistry BGP peer registry
      * @param address Peer address
-     * @param sessionValidator BGPSessionValidator
      *
      * @return ChannelFuture promising a client session
      */
-    ChannelFuture createServer(BGPPeerRegistry peerRegistry, InetSocketAddress address, BGPSessionValidator sessionValidator);
+    ChannelFuture createServer(BGPPeerRegistry peerRegistry, InetSocketAddress address);
 }

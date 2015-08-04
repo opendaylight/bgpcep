@@ -23,7 +23,6 @@ import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -93,12 +92,7 @@ public class BGPSpeakerMock {
 
     public void main(final String[] args) {
 
-        final BGPServerSessionNegotiatorFactory snf = new BGPServerSessionNegotiatorFactory(new BGPSessionValidator() {
-            @Override
-            public void validate(final Open openObj, final BGPSessionPreferences prefs) throws BGPDocumentedException {
-                // NOOP
-            }
-        }, this.peerRegistry);
+        final BGPServerSessionNegotiatorFactory snf = new BGPServerSessionNegotiatorFactory(this.peerRegistry);
 
         final BGPSpeakerMock mock = new BGPSpeakerMock(snf, new BGPHandlerFactory(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry()), new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE));
 
@@ -106,11 +100,6 @@ public class BGPSpeakerMock {
     }
 
     private void createServer(final InetSocketAddress address) {
-        this.disp.createServer(this.peerRegistry,address, new BGPSessionValidator() {
-            @Override
-            public void validate(final Open openObj, final BGPSessionPreferences prefs) throws BGPDocumentedException {
-                // NOOP
-            }
-        });
+        this.disp.createServer(this.peerRegistry,address);
     }
 }

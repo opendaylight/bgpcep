@@ -21,19 +21,17 @@ public interface BGPServerDispatcher {
      *
      * @param peerRegistry BGP peer registry
      * @param address server address
-     * @param sessionValidator BGPSessionValidator
      * @return ChannelFuture promising a server session
      */
-    ChannelFuture createServer(BGPPeerRegistry peerRegistry, InetSocketAddress address, BGPSessionValidator sessionValidator);
+    ChannelFuture createServer(BGPPeerRegistry peerRegistry, InetSocketAddress address);
 
     /**
      * Create new BGP server to accept incoming bgp connections (bound to provided socket address).
      *
      * @param peerRegistry BGP peer registry
      * @param address server address
-     * @param sessionValidator BGPSessionValidator
      * @param keys KeyMapping
      * @return ChannelFuture promising a server session
      */
-    ChannelFuture createServer(BGPPeerRegistry peerRegistry, InetSocketAddress address, BGPSessionValidator sessionValidator, KeyMapping keys);
+    ChannelFuture createServer(BGPPeerRegistry peerRegistry, InetSocketAddress address, KeyMapping keys);
 }

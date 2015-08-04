@@ -18,11 +18,11 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.concurrent.Promise;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
+import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.SessionNegotiator;
 import org.opendaylight.protocol.util.Values;
@@ -75,7 +75,6 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBGPSessionNegotiator.class);
     private final BGPPeerRegistry registry;
-    private final BGPSessionValidator sessionValidator;
     private final Promise<BGPSessionImpl> promise;
     private final Channel channel;
     @GuardedBy("this")
@@ -85,11 +84,10 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
     private BGPSessionImpl session;
 
     public AbstractBGPSessionNegotiator(final Promise<BGPSessionImpl> promise, final Channel channel,
-            final BGPPeerRegistry registry, final BGPSessionValidator sessionValidator) {
+            final BGPPeerRegistry registry) {
         this.promise = Preconditions.checkNotNull(promise);
         this.channel = Preconditions.checkNotNull(channel);
         this.registry = registry;
-        this.sessionValidator = sessionValidator;
     }
 
     private synchronized void startNegotiation() {
@@ -195,13 +193,6 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
 
     private void handleOpen(final Open openObj) {
         try {
-            this.sessionValidator.validate(openObj, getPreferences());
-        } catch (final BGPDocumentedException e) {
-            negotiationFailed(e);
-            return;
-        }
-
-        try {
             final BGPSessionListener peer = this.registry.getPeer(getRemoteIp(), getSourceId(openObj, getPreferences()), getDestinationId(openObj, getPreferences()), getAsNumber(openObj, getPreferences()), openObj);
             sendMessage(new KeepaliveBuilder().build());
             this.session = new BGPSessionImpl(peer, this.channel, openObj, getPreferences(), this.registry);
@@ -244,7 +235,9 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
      * @param preferences Local BGP speaker preferences
      * @return AS Number of device that initiate connection
      */
-    protected abstract AsNumber getAsNumber(final Open openMsg, final BGPSessionPreferences preferences);
+    protected AsNumber getAsNumber(final Open openMsg, final BGPSessionPreferences preferences) {
+        return AsNumberUtil.advertizedAsNumber(openMsg);
+    }
 
     public synchronized State getState() {
         return this.state;
