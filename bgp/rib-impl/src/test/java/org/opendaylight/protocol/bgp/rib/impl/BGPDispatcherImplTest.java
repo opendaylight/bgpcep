@@ -78,7 +78,7 @@ public class BGPDispatcherImplTest {
         this.clientDispatcher = new TestClientDispatcher(group, group, ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(),
                 CLIENT_ADDRESS);
 
-        final ChannelFuture future = this.dispatcher.createServer(this.registry, ADDRESS, new BGPServerSessionValidator());
+        final ChannelFuture future = this.dispatcher.createServer(this.registry, ADDRESS);
         future.addListener(new GenericFutureListener<Future<Void>>() {
             @Override
             public void operationComplete(final Future<Void> future) {
@@ -113,7 +113,7 @@ public class BGPDispatcherImplTest {
         this.registry.addPeer(new IpAddress(new Ipv4Address(CLIENT_ADDRESS2.getAddress().getHostAddress())), listener, createPreferences(CLIENT_ADDRESS2));
         final Future<Void> cf = this.clientDispatcher.createReconnectingClient(CLIENT_ADDRESS2, AS_NUMBER, this.registry,
                 new ReconnectStrategyFctImpl(), Optional.<InetSocketAddress>absent());
-        final Channel channel2 = this.dispatcher.createServer(this.registry, CLIENT_ADDRESS2, new BGPServerSessionValidator()).channel();
+        final Channel channel2 = this.dispatcher.createServer(this.registry, CLIENT_ADDRESS2).channel();
         Thread.sleep(1000);
         Assert.assertTrue(listener.up);
         Assert.assertTrue(channel2.isActive());
