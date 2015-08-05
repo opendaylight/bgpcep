@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a7ca5a3_f48851c8",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/PCEPDispatcher.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-05T07:35:56Z",
+      "side": 1,
+      "message": "missing javadoc @param",
+      "range": {
+        "startLine": 25,
+        "startChar": 125,
+        "endLine": 25,
+        "endChar": 137
+      },
+      "revId": "a10efd230c339c9bfca887cbeeb4f81debe4940d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_14862dba",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/PCEPDispatcher.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-05T07:35:56Z",
+      "side": 1,
+      "message": "missing javadoc @param",
+      "range": {
+        "startLine": 35,
+        "startChar": 136,
+        "endLine": 35,
+        "endChar": 148
+      },
+      "revId": "a10efd230c339c9bfca887cbeeb4f81debe4940d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_d48f55cb",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/PCEPPeerProposal.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-05T07:35:56Z",
+      "side": 1,
+      "message": "API is general, we can set whatever we need, not only LSP DB version.",
+      "range": {
+        "startLine": 19,
+        "startChar": 12,
+        "endLine": 19,
+        "endChar": 32
+      },
+      "revId": "a10efd230c339c9bfca887cbeeb4f81debe4940d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_94c1dde6",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/PCEPSessionNegotiatorFactory.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-05T07:35:56Z",
+      "side": 1,
+      "message": "generalize",
+      "range": {
+        "startLine": 26,
+        "startChar": 31,
+        "endLine": 26,
+        "endChar": 59
+      },
+      "revId": "a10efd230c339c9bfca887cbeeb4f81debe4940d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_34b6c98b",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/PCEPSessionProposalFactory.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-05T07:35:56Z",
+      "side": 1,
+      "message": "generalize",
+      "range": {
+        "startLine": 33,
+        "startChar": 49,
+        "endLine": 33,
+        "endChar": 69
+      },
+      "revId": "a10efd230c339c9bfca887cbeeb4f81debe4940d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7ca5a3_b4a97926",
+        "filename": "pcep/api/src/main/yang/odl-pcep-api-cfg.yang",
+        "patchSetId": 15
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-05T07:35:56Z",
+      "side": 1,
+      "message": "add description",
+      "range": {
+        "startLine": 48,
+        "startChar": 20,
+        "endLine": 48,
+        "endChar": 23
+      },
+      "revId": "a10efd230c339c9bfca887cbeeb4f81debe4940d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
