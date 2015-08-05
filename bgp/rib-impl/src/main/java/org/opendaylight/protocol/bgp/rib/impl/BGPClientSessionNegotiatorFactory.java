@@ -12,12 +12,11 @@ import io.netty.util.concurrent.Promise;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionNegotiatorFactory;
 import org.opendaylight.protocol.bgp.rib.spi.SessionNegotiator;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 public final class BGPClientSessionNegotiatorFactory implements BGPSessionNegotiatorFactory<BGPSessionImpl> {
     private final BGPPeerRegistry peerRegistry;
 
-    public BGPClientSessionNegotiatorFactory(final AsNumber remoteAs, final BGPPeerRegistry peerRegistry) {
+    public BGPClientSessionNegotiatorFactory(final BGPPeerRegistry peerRegistry) {
         this.peerRegistry = peerRegistry;
     }
 

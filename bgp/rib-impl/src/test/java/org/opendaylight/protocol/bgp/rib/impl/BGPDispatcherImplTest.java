@@ -92,7 +92,7 @@ public class BGPDispatcherImplTest {
 
     @Test
     public void testCreateClient() throws InterruptedException, ExecutionException {
-        final BGPSessionImpl session = this.clientDispatcher.createClient(ADDRESS, AS_NUMBER, this.registry,
+        final BGPSessionImpl session = this.clientDispatcher.createClient(ADDRESS, this.registry,
                 new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, TIMEOUT), Optional.<InetSocketAddress>absent()).get();
         Assert.assertEquals(BGPSessionImpl.State.UP, session.getState());
         Assert.assertEquals(AS_NUMBER, session.getAsNumber());
@@ -111,7 +111,7 @@ public class BGPDispatcherImplTest {
     public void testCreateReconnectingClient() throws InterruptedException, ExecutionException {
         final SimpleSessionListener listener = new SimpleSessionListener();
         this.registry.addPeer(new IpAddress(new Ipv4Address(CLIENT_ADDRESS2.getAddress().getHostAddress())), listener, createPreferences(CLIENT_ADDRESS2));
-        final Future<Void> cf = this.clientDispatcher.createReconnectingClient(CLIENT_ADDRESS2, AS_NUMBER, this.registry,
+        final Future<Void> cf = this.clientDispatcher.createReconnectingClient(CLIENT_ADDRESS2, this.registry,
                 new ReconnectStrategyFctImpl(), Optional.<InetSocketAddress>absent());
         final Channel channel2 = this.dispatcher.createServer(this.registry, CLIENT_ADDRESS2).channel();
         Thread.sleep(1000);

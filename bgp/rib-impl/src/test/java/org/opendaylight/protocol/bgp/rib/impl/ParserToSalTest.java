@@ -114,8 +114,7 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
         this.mock = new BGPMock(new EventBus("test"), ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(), Lists.newArrayList(fixMessages(bgpMessages)));
 
         Mockito.doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(this.dispatcher).createReconnectingClient(
-                Mockito.any(InetSocketAddress.class), Mockito.any(AsNumber.class),
-                Mockito.any(BGPPeerRegistry.class), Mockito.eq(this.tcpStrategyFactory), Mockito.any(KeyMapping.class));
+                Mockito.any(InetSocketAddress.class), Mockito.any(BGPPeerRegistry.class), Mockito.eq(this.tcpStrategyFactory), Mockito.any(KeyMapping.class));
 
         this.ext1 = new SimpleRIBExtensionProviderContext();
         this.ext2 = new SimpleRIBExtensionProviderContext();
