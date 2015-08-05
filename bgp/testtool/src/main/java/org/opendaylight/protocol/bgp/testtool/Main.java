@@ -111,7 +111,7 @@ public final class Main {
         final StrictBGPPeerRegistry strictBGPPeerRegistry = new StrictBGPPeerRegistry();
         strictBGPPeerRegistry.addPeer(StrictBGPPeerRegistry.getIpAddress(address), sessionListener, proposal);
 
-        m.dispatcher.createClient(addr, as, strictBGPPeerRegistry,
+        m.dispatcher.createClient(addr, strictBGPPeerRegistry,
             new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_MILLIS));
     }
 }

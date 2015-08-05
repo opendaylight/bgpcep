@@ -72,9 +72,8 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     }
 
     @Override
-    public synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress address,
-                                                            final AsNumber remoteAs, final BGPPeerRegistry listener, final ReconnectStrategy strategy) {
-        final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(remoteAs, listener);
+    public synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress address, final BGPPeerRegistry listener, final ReconnectStrategy strategy) {
+        final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(listener);
         final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer
             (BGPDispatcherImpl.this.hf.getDecoders(), snf, BGPDispatcherImpl.this.hf.getEncoders());
 
@@ -99,10 +98,9 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     }
 
     @Override
-    public synchronized Future<Void> createReconnectingClient(final InetSocketAddress address,
-                                                              final AsNumber remoteAs, final BGPPeerRegistry peerRegistry, final ReconnectStrategyFactory connectStrategyFactory,
-                                                              final KeyMapping keys) {
-        final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(remoteAs, peerRegistry);
+    public synchronized Future<Void> createReconnectingClient(final InetSocketAddress address, final BGPPeerRegistry peerRegistry,
+        final ReconnectStrategyFactory connectStrategyFactory, final KeyMapping keys) {
+        final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(peerRegistry);
         this.keys = keys;
 
         final Bootstrap b = new Bootstrap();
