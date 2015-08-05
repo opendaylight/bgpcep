@@ -102,10 +102,11 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
 
     @Override
     public synchronized BGPSessionListener getPeer(final IpAddress ip, final Ipv4Address sourceId,
-        final Ipv4Address remoteId, final AsNumber remoteAsNumber, final Open openObj) throws BGPDocumentedException {
+        final Ipv4Address remoteId, final Open openObj) throws BGPDocumentedException {
         Preconditions.checkNotNull(ip);
         Preconditions.checkNotNull(sourceId);
         Preconditions.checkNotNull(remoteId);
+        final AsNumber remoteAsNumber = AsNumberUtil.advertizedAsNumber(openObj);
         Preconditions.checkNotNull(remoteAsNumber);
 
         final BGPSessionPreferences prefs = getPeerPreferences(ip);
@@ -162,15 +163,14 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
                         BGPError.CEASE);
             }
         }
-        validateAs(openObj, prefs);
+        validateAs(remoteAsNumber, openObj, prefs);
 
         // Map session id to peer IP address
         this.sessionIds.put(ip, currentConnection);
         return p;
     }
 
-    private void validateAs(final Open openObj, final BGPSessionPreferences localPref) throws BGPDocumentedException {
-        final AsNumber remoteAs = AsNumberUtil.advertizedAsNumber(openObj);
+    private void validateAs(final AsNumber remoteAs, final Open openObj, final BGPSessionPreferences localPref) throws BGPDocumentedException {
         if (!remoteAs.equals(localPref.getExpectedRemoteAs())) {
             LOG.warn("Unexpected remote AS number. Expecting {}, got {}", remoteAs, localPref.getExpectedRemoteAs());
             throw new BGPDocumentedException("Peer AS number mismatch", BGPError.BAD_PEER_AS);
