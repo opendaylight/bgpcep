@@ -32,6 +32,9 @@ public class SimpleSessionListener implements ReusableBGPPeer {
 
     private BGPSession session;
 
+    public SimpleSessionListener() {
+    }
+
     public List<Notification> getListMsg() {
         return this.listMsg;
     }
@@ -66,7 +69,7 @@ public class SimpleSessionListener implements ReusableBGPPeer {
         if (this.session != null) {
             try {
                 this.session.close();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 LOG.warn("Error closing session", e);
             }
             this.session = null;

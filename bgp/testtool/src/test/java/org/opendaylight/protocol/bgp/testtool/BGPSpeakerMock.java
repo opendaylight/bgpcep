@@ -66,7 +66,7 @@ public class BGPSpeakerMock {
             }
 
             @Override
-            public BGPSessionListener getPeer(final IpAddress ip, final Ipv4Address sourceId, final Ipv4Address remoteId, final AsNumber asNumber, final Open open) throws BGPDocumentedException {
+            public BGPSessionListener getPeer(final IpAddress ip, final Ipv4Address sourceId, final Ipv4Address remoteId, final Open open) throws BGPDocumentedException {
                 return new SpeakerSessionListener();
             }
 

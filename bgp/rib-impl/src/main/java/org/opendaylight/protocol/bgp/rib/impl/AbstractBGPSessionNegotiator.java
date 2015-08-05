@@ -18,7 +18,6 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.concurrent.Promise;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
-import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -26,7 +25,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.SessionNegotiator;
 import org.opendaylight.protocol.util.Values;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
@@ -93,18 +91,17 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
     private synchronized void startNegotiation() {
         // Open can be sent first either from ODL (IDLE) or from peer (OPEN_CONFIRM)
         Preconditions.checkState(this.state == State.IDLE || this.state == State.OPEN_CONFIRM);
+        final IpAddress remoteIp = getRemoteIp();
 
         // Check if peer is configured in registry before retrieving preferences
-        if (!this.registry.isPeerConfigured(getRemoteIp())) {
+        if (!this.registry.isPeerConfigured(remoteIp)) {
             final BGPDocumentedException cause = new BGPDocumentedException(
-                    "BGP peer with ip: " + getRemoteIp()
-                    + " not configured, check configured peers in : "
-                    + this.registry, BGPError.CONNECTION_REJECTED);
+                String.format("BGP peer with ip: %s not configured, check configured peers in : %s", remoteIp, this.registry), BGPError.CONNECTION_REJECTED);
             negotiationFailed(cause);
             return;
         }
 
-        final BGPSessionPreferences preferences = getPreferences();
+        final BGPSessionPreferences preferences = this.registry.getPeerPreferences(remoteIp);
 
         int as = preferences.getMyAs().getValue().intValue();
         // Set as AS_TRANS if the value is bigger than 2B
@@ -127,10 +124,6 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
                 }
             }, INITIAL_HOLDTIMER, TimeUnit.MINUTES);
         }
-    }
-
-    private BGPSessionPreferences getPreferences() {
-        return this.registry.getPeerPreferences(getRemoteIp());
     }
 
     private IpAddress getRemoteIp() {
@@ -192,10 +185,12 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
     }
 
     private void handleOpen(final Open openObj) {
+        final IpAddress remoteIp = getRemoteIp();
+        final BGPSessionPreferences preferences = this.registry.getPeerPreferences(remoteIp);
         try {
-            final BGPSessionListener peer = this.registry.getPeer(getRemoteIp(), getSourceId(openObj, getPreferences()), getDestinationId(openObj, getPreferences()), getAsNumber(openObj, getPreferences()), openObj);
+            final BGPSessionListener peer = this.registry.getPeer(remoteIp, getSourceId(openObj, preferences), getDestinationId(openObj, preferences), openObj);
             sendMessage(new KeepaliveBuilder().build());
-            this.session = new BGPSessionImpl(peer, this.channel, openObj, getPreferences(), this.registry);
+            this.session = new BGPSessionImpl(peer, this.channel, openObj, preferences, this.registry);
             this.state = State.OPEN_CONFIRM;
             LOG.debug("Channel {} moved to OpenConfirm state with remote proposal {}", this.channel, openObj);
         } catch (final BGPDocumentedException e) {
@@ -229,15 +224,6 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
      * @return BGP Id of device that accepted the connection
      */
     protected abstract Ipv4Address getSourceId(final Open openMsg, final BGPSessionPreferences preferences);
-
-    /**
-     * @param openMsg Open message received from remote BGP speaker
-     * @param preferences Local BGP speaker preferences
-     * @return AS Number of device that initiate connection
-     */
-    protected AsNumber getAsNumber(final Open openMsg, final BGPSessionPreferences preferences) {
-        return AsNumberUtil.advertizedAsNumber(openMsg);
-    }
 
     public synchronized State getState() {
         return this.state;
