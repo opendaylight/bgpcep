@@ -29,7 +29,7 @@ public final class Values {
     /**
      * Maximum unsigned Integer value (2147483648);
      */
-    public static final long UNSIGNED_INT_MAX_VALUE = Integer.MAX_VALUE + 1;
+    public static final long UNSIGNED_INT_MAX_VALUE = (long) Integer.MAX_VALUE + 1;
 
     /**
      * Maximum unsigned Byte value in hex (0xFF).
