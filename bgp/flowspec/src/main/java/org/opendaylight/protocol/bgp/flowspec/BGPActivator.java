@@ -12,10 +12,12 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.ExtendedCommunitiesAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.FlowspecSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.routes.FlowspecRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.FlowspecSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.FlowspecIpv6Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.routes.FlowspecRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.ExtendedCommunities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
@@ -27,9 +29,12 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
         regs.add(context.registerSubsequentAddressFamily(FlowspecSubsequentAddressFamily.class, FLOWSPEC_SAFI));
 
-        regs.add(context.registerNlriParser(Ipv4AddressFamily.class, FlowspecSubsequentAddressFamily.class,
-                new FSNlriParser()));
-        regs.add(context.registerNlriSerializer(FlowspecRoutes.class, new FSNlriParser()));
+        final FSIpv4NlriParser ipv4Handler = new FSIpv4NlriParser();
+        final FSIpv6NlriParser ipv6Handler = new FSIpv6NlriParser();
+        regs.add(context.registerNlriParser(Ipv4AddressFamily.class, FlowspecSubsequentAddressFamily.class, ipv4Handler));
+        regs.add(context.registerNlriParser(Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class, ipv6Handler));
+        regs.add(context.registerNlriSerializer(FlowspecRoutes.class, ipv4Handler));
+        regs.add(context.registerNlriSerializer(FlowspecIpv6Routes.class, ipv6Handler));
 
         final ExtendedCommunitiesAttributeParser extendedCommunitiesAttributeParser = new FSExtendedCommunitiesAttributeParser(context.getReferenceCache());
         regs.add(context.registerAttributeSerializer(ExtendedCommunities.class, extendedCommunitiesAttributeParser));
