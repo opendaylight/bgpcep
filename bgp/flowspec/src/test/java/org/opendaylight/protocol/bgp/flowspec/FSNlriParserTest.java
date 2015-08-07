@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.flowspec;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.netty.buffer.ByteBuf;
@@ -19,7 +18,9 @@ import java.util.List;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.BitmaskOperand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.ComponentType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.Dscp;
@@ -34,6 +35,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.DestinationPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.DscpCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.DscpCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.FlowLabelCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.FlowLabelCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.FragmentCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.FragmentCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.IcmpCodeCase;
@@ -56,6 +59,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.destination.port._case.DestinationPortsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.dscp._case.Dscps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.dscp._case.DscpsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.flow.label._case.FlowLabel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.flow.label._case.FlowLabelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.fragment._case.Fragments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.fragment._case.FragmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.icmp.code._case.Codes;
@@ -84,6 +89,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
@@ -92,17 +99,24 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContaine
 
 public class FSNlriParserTest {
 
-    private static final byte[] nlri = new byte[] { 0x1D, 01, 0x18, 0x0a, 00, 01, 02, 0x08, (byte) 0xc0,
-        03, (byte) 0x81, 06, 04, 03, (byte) 0x89, 0x45, (byte) 0x8b, (byte) 0x91, 0x1f, (byte) 0x90,
+    private static final byte[] REACHED_NLRI_IPv4 = new byte[] { 0x21,
+        01, 0x20, 0x0a, 00, 01, 00,
+        02, 0x20, 01, 02, 03, 04,
+        03, (byte) 0x81, 06,
+        04, 03, (byte) 0x89, 0x45, (byte) 0x8b, (byte) 0x91, 0x1f, (byte) 0x90,
         05, 0x12, 0x0f, (byte) 0xf9, (byte) 0x81, (byte) 0xb3,
         06, (byte) 0x91, 0x1f, (byte) 0x90 };
 
-    private static final byte[] unnlri = new byte[] { 0x1B, 07, 4, 2, (byte) 0x84, 3,
+    private static final byte[] UNREACHED_NLRI_IPv6 = new byte[] { 0x31,
+        1, 0x28, 0, 1, 2, 3, 4, 5,
+        2, 0x28, 0, 1, 2, 3, 4, 6,
+        07, 4, 2, (byte) 0x84, 3,
         0x08, 06, 04, (byte) 0x80, 05,
         0x09, 0x12, 04, 01, (byte) 0x91, 0x56, (byte) 0xb1,
         0x0a, (byte) 0x96, (byte) 0xde, (byte) 0xad,
         0x0b, (byte) 0x86, 0x2a,
-        0x0c, (byte) 0x81, (byte) 0x0f };
+        0x0c, (byte) 0x81, (byte) 0x0f,
+        0x0d, (byte) 0xa1, 01, 0, 0, 06};
 
     @Test
     public void testParseLength() {
@@ -123,11 +137,11 @@ public class FSNlriParserTest {
 
         final FlowspecBuilder builder = new FlowspecBuilder();
         builder.setComponentType(ComponentType.DestinationPrefix);
-        final DestinationPrefixCase destinationPrefix = new DestinationPrefixCaseBuilder().setDestinationPrefix(new Ipv4Prefix("10.0.1.0/24")).build();
+        final DestinationPrefixCase destinationPrefix = new DestinationPrefixCaseBuilder().setDestinationPrefix(new IpPrefix(new Ipv4Prefix("10.0.1.0/32"))).build();
         builder.setFlowspecType(destinationPrefix);
         fs.add(builder.build());
         builder.setComponentType(ComponentType.SourcePrefix);
-        final SourcePrefixCase sourcePrefix = new SourcePrefixCaseBuilder().setSourcePrefix(new Ipv4Prefix("192.0.0.0/8")).build();
+        final SourcePrefixCase sourcePrefix = new SourcePrefixCaseBuilder().setSourcePrefix(new IpPrefix(new Ipv4Prefix("1.2.3.4/32"))).build();
         builder.setFlowspecType(sourcePrefix);
         fs.add(builder.build());
 
@@ -163,7 +177,8 @@ public class FSNlriParserTest {
         final FSNlriParser parser = new FSNlriParser();
 
         final MpReachNlriBuilder result = new MpReachNlriBuilder();
-        parser.parseNlri(Unpooled.wrappedBuffer(nlri), result);
+        result.setAfi(Ipv4AddressFamily.class);
+        parser.parseNlri(Unpooled.wrappedBuffer(REACHED_NLRI_IPv4), result);
 
         final List<Flowspec> flows = ((DestinationFlowspecCase) (result.getAdvertizedRoutes().getDestinationType())).getDestinationFlowspec().getFlowspec();
         assertEquals(6, flows.size());
@@ -175,11 +190,11 @@ public class FSNlriParserTest {
         assertEquals(sps, flows.get(5).getFlowspecType());
 
         final ByteBuf buffer = Unpooled.buffer();
-        parser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes1.class, new Attributes1Builder().setMpReachNlri(mp.build()).build()).build(), buffer);
-        assertArrayEquals(nlri, ByteArray.readAllBytes(buffer));
+        parser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes1.class, new Attributes1Builder().setMpReachNlri(mp.setAfi(Ipv4AddressFamily.class).build()).build()).build(), buffer);
+        assertArrayEquals(REACHED_NLRI_IPv4, ByteArray.readAllBytes(buffer));
 
-        assertEquals("all packets to 10.0.1.0/24", FSNlriParser.stringNlri(flows.get(0)));
-        assertEquals("all packets from 192.0.0.0/8", FSNlriParser.stringNlri(flows.get(1)));
+        assertEquals("all packets to 10.0.1.0/32", FSNlriParser.stringNlri(flows.get(0)));
+        assertEquals("all packets from 1.2.3.4/32", FSNlriParser.stringNlri(flows.get(1)));
         assertEquals("all packets where protocol equals to 6 ", FSNlriParser.stringNlri(flows.get(2)));
         assertEquals("all packets where port is greater than or equal to 137 and is less than or equal to 139 or equals to 8080 ", FSNlriParser.stringNlri(flows.get(3)));
         assertEquals("all packets where destination port is greater than 4089 or equals to 179 ", FSNlriParser.stringNlri(flows.get(4)));
@@ -192,6 +207,14 @@ public class FSNlriParserTest {
         final MpUnreachNlriBuilder mp = new MpUnreachNlriBuilder();
 
         final FlowspecBuilder builder = new FlowspecBuilder();
+        builder.setComponentType(ComponentType.DestinationPrefix);
+        final DestinationPrefixCase destinationPrefix = new DestinationPrefixCaseBuilder().setDestinationPrefix(new IpPrefix(new Ipv6Prefix("102:304:500::/40"))).build();
+        builder.setFlowspecType(destinationPrefix);
+        fs.add(builder.build());
+        builder.setComponentType(ComponentType.SourcePrefix);
+        final SourcePrefixCase sourcePrefix = new SourcePrefixCaseBuilder().setSourcePrefix(new IpPrefix(new Ipv6Prefix("102:304:600::/40"))).build();
+        builder.setFlowspecType(sourcePrefix);
+        fs.add(builder.build());
 
         builder.setComponentType(ComponentType.IcmpType);
         final List<Types> types = Lists.newArrayList(new TypesBuilder().setOp(new NumericOperand(false, false, false, false, true)).setValue((short) 2).build(),
@@ -232,34 +255,45 @@ public class FSNlriParserTest {
         builder.setFlowspecType(fragment);
         fs.add(builder.build());
 
-        mp.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
+        builder.setComponentType(ComponentType.FlowLabel);
+        final List<FlowLabel> labels = Lists.newArrayList(new FlowLabelBuilder().setOp(new NumericOperand(false, true, true, false, false)).setValue(new Long(16777222L)).build());
+        final FlowLabelCase label = new FlowLabelCaseBuilder().setFlowLabel(labels).build();
+        builder.setFlowspecType(label);
+        fs.add(builder.build());
+
+        mp.setAfi(Ipv6AddressFamily.class).setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecCaseBuilder().setDestinationFlowspec(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.flowspec._case.DestinationFlowspecBuilder().setFlowspec(fs).build()).build()).build());
 
         final FSNlriParser parser = new FSNlriParser();
 
         final MpUnreachNlriBuilder result = new MpUnreachNlriBuilder();
-        parser.parseNlri(Unpooled.wrappedBuffer(unnlri), result);
+        result.setAfi(Ipv6AddressFamily.class);
+        parser.parseNlri(Unpooled.wrappedBuffer(UNREACHED_NLRI_IPv6), result);
 
         final List<Flowspec> flows = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecCase) (result.getWithdrawnRoutes().getDestinationType())).getDestinationFlowspec().getFlowspec();
-        assertEquals(6, flows.size());
-        assertEquals(icmpType, flows.get(0).getFlowspecType());
-        assertEquals(icmpCode, flows.get(1).getFlowspecType());
-        assertEquals(tcp, flows.get(2).getFlowspecType());
-        assertEquals(packet, flows.get(3).getFlowspecType());
-        assertEquals(dscp, flows.get(4).getFlowspecType());
-        assertEquals(fragment, flows.get(5).getFlowspecType());
+        assertEquals(9, flows.size());
+        assertEquals(destinationPrefix, flows.get(0).getFlowspecType());
+        assertEquals(sourcePrefix, flows.get(1).getFlowspecType());
+        assertEquals(icmpType, flows.get(2).getFlowspecType());
+        assertEquals(icmpCode, flows.get(3).getFlowspecType());
+        assertEquals(tcp, flows.get(4).getFlowspecType());
+        assertEquals(packet, flows.get(5).getFlowspecType());
+        assertEquals(dscp, flows.get(6).getFlowspecType());
+        assertEquals(fragment, flows.get(7).getFlowspecType());
 
         final ByteBuf buffer = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes2.class, new Attributes2Builder().setMpUnreachNlri(mp.build()).build()).build(), buffer);
-        assertArrayEquals(unnlri, ByteArray.readAllBytes(buffer));
+        assertArrayEquals(UNREACHED_NLRI_IPv6, ByteArray.readAllBytes(buffer));
 
-        assertEquals("all packets where ICMP type is less than 2 or is less than 3 ", FSNlriParser.stringNlri(flows.get(0)));
-        assertEquals("all packets where ICMP code is less than is greater than 4 or 5 ", FSNlriParser.stringNlri(flows.get(1)));
-        assertEquals("all packets where TCP flags is not 1025 or does match 22193 ", FSNlriParser.stringNlri(flows.get(2)));
-        assertEquals("all packets where packet length is less than is greater than 57005 ", FSNlriParser.stringNlri(flows.get(3)));
-        assertEquals("all packets where DSCP is less than is greater than 42 ", FSNlriParser.stringNlri(flows.get(4)));
-        assertEquals("all packets where fragment does match 'DO NOT' 'IS FIRST' 'IS LAST' 'IS A' ", FSNlriParser.stringNlri(flows.get(5)));
+        assertEquals("all packets to 102:304:500::/40", FSNlriParser.stringNlri(flows.get(0)));
+        assertEquals("all packets from 102:304:600::/40", FSNlriParser.stringNlri(flows.get(1)));
+        assertEquals("all packets where ICMP type is less than 2 or is less than 3 ", FSNlriParser.stringNlri(flows.get(2)));
+        assertEquals("all packets where ICMP code is less than is greater than 4 or 5 ", FSNlriParser.stringNlri(flows.get(3)));
+        assertEquals("all packets where TCP flags is not 1025 or does match 22193 ", FSNlriParser.stringNlri(flows.get(4)));
+        assertEquals("all packets where packet length is less than is greater than 57005 ", FSNlriParser.stringNlri(flows.get(5)));
+        assertEquals("all packets where DSCP is less than is greater than 42 ", FSNlriParser.stringNlri(flows.get(6)));
+        assertEquals("all packets where fragment does match 'DO NOT' 'IS FIRST' 'IS LAST' 'IS A' ", FSNlriParser.stringNlri(flows.get(7)));
     }
 
     @Test
@@ -271,7 +305,7 @@ public class FSNlriParserTest {
             .withChild(Builders.leafBuilder().withNodeIdentifier(FSNlriParser.DEST_PREFIX_NID).withValue("127.0.0.5/32").build()).build());
         final FlowspecBuilder expected = new FlowspecBuilder();
         expected.setComponentType(ComponentType.DestinationPrefix);
-        expected.setFlowspecType(new DestinationPrefixCaseBuilder().setDestinationPrefix(new Ipv4Prefix("127.0.0.5/32")).build());
+        expected.setFlowspecType(new DestinationPrefixCaseBuilder().setDestinationPrefix(new IpPrefix(new Ipv4Prefix("127.0.0.5/32"))).build());
         assertEquals(expected.build(), FSNlriParser.extractFlowspec(entry.build()));
     }
 
@@ -284,7 +318,7 @@ public class FSNlriParserTest {
             .withChild(Builders.leafBuilder().withNodeIdentifier(FSNlriParser.SOURCE_PREFIX_NID).withValue("127.0.0.6/32").build()).build());
         final FlowspecBuilder expected = new FlowspecBuilder();
         expected.setComponentType(ComponentType.SourcePrefix);
-        expected.setFlowspecType(new SourcePrefixCaseBuilder().setSourcePrefix(new Ipv4Prefix("127.0.0.6/32")).build());
+        expected.setFlowspecType(new SourcePrefixCaseBuilder().setSourcePrefix(new IpPrefix(new Ipv4Prefix("127.0.0.6/32"))).build());
         assertEquals(expected.build(), FSNlriParser.extractFlowspec(entry.build()));
     }
 

@@ -96,9 +96,9 @@ final class FlowspecRIBSupport extends AbstractRIBSupport {
         .addChild(Builders.containerBuilder()
             .withNodeIdentifier(new NodeIdentifier(FlowspecRoutes.QNAME))
             .addChild(ImmutableNodes.mapNodeBuilder(FlowspecRoute.QNAME).build()).build()).build();
-    private final NodeIdentifier destination = new NodeIdentifier(DestinationFlowspec.QNAME);
-    private final NodeIdentifier route = new NodeIdentifier(FlowspecRoute.QNAME);
-    private final NodeIdentifier nlriRoutesList = new NodeIdentifier(Flowspec.QNAME);
+    private final NodeIdentifier destinationNid = new NodeIdentifier(DestinationFlowspec.QNAME);
+    private final NodeIdentifier routeNid = new NodeIdentifier(FlowspecRoute.QNAME);
+    private final NodeIdentifier nlriRoutesListNid = new NodeIdentifier(Flowspec.QNAME);
     private final ApplyRoute putRoute = new PutRoute();
 
     private FlowspecRIBSupport() {
@@ -131,17 +131,17 @@ final class FlowspecRIBSupport extends AbstractRIBSupport {
 
     @Override
     protected NodeIdentifier destinationContainerIdentifier() {
-        return this.destination;
+        return this.destinationNid;
     }
 
     private void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
         final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
-            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination.getChild(this.nlriRoutesList);
+            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination.getChild(this.nlriRoutesListNid);
             if (maybeRoutes.isPresent()) {
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof UnkeyedListNode) {
-                    final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(this.route);
+                    final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(this.routeNid);
                     for (final UnkeyedListEntryNode e : ((UnkeyedListNode)routes).getValue()) {
                         final NodeIdentifierWithPredicates routeKey = new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, ROUTE_KEY, FSNlriParser.stringNlri(e));
                         function.apply(tx, base, routeKey,  e, attributes);
