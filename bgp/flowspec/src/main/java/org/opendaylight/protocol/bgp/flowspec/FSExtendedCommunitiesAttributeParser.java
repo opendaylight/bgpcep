@@ -15,23 +15,23 @@ import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.ReferenceCache;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.Dscp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.extended.communities.extended.community.RedirectExtendedCommunityCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.extended.communities.extended.community.RedirectExtendedCommunityCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.extended.communities.extended.community.TrafficActionExtendedCommunityCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.extended.communities.extended.community.TrafficActionExtendedCommunityCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.extended.communities.extended.community.TrafficMarkingExtendedCommunityCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.extended.communities.extended.community.TrafficMarkingExtendedCommunityCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.extended.communities.extended.community.TrafficRateExtendedCommunityCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.extended.communities.extended.community.TrafficRateExtendedCommunityCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.extended.communities.extended.community.redirect.extended.community._case.RedirectExtendedCommunity;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.extended.communities.extended.community.redirect.extended.community._case.RedirectExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.extended.communities.extended.community.traffic.action.extended.community._case.TrafficActionExtendedCommunity;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.extended.communities.extended.community.traffic.action.extended.community._case.TrafficActionExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.extended.communities.extended.community.traffic.marking.extended.community._case.TrafficMarkingExtendedCommunity;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.extended.communities.extended.community.traffic.marking.extended.community._case.TrafficMarkingExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.extended.communities.extended.community.traffic.rate.extended.community._case.TrafficRateExtendedCommunity;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.extended.communities.extended.community.traffic.rate.extended.community._case.TrafficRateExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.Dscp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.extended.communities.extended.community.RedirectExtendedCommunityCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.extended.communities.extended.community.RedirectExtendedCommunityCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.extended.communities.extended.community.TrafficActionExtendedCommunityCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.extended.communities.extended.community.TrafficActionExtendedCommunityCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.extended.communities.extended.community.TrafficMarkingExtendedCommunityCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.extended.communities.extended.community.TrafficMarkingExtendedCommunityCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.extended.communities.extended.community.TrafficRateExtendedCommunityCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.extended.communities.extended.community.TrafficRateExtendedCommunityCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.extended.communities.extended.community.redirect.extended.community._case.RedirectExtendedCommunity;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.extended.communities.extended.community.redirect.extended.community._case.RedirectExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.extended.communities.extended.community.traffic.action.extended.community._case.TrafficActionExtendedCommunity;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.extended.communities.extended.community.traffic.action.extended.community._case.TrafficActionExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.extended.communities.extended.community.traffic.marking.extended.community._case.TrafficMarkingExtendedCommunity;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.extended.communities.extended.community.traffic.marking.extended.community._case.TrafficMarkingExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.extended.communities.extended.community.traffic.rate.extended.community._case.TrafficRateExtendedCommunity;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.extended.communities.extended.community.traffic.rate.extended.community._case.TrafficRateExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.ExtendedCommunities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.ExtendedCommunitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ShortAsNumber;
@@ -69,10 +69,10 @@ public class FSExtendedCommunitiesAttributeParser extends ExtendedCommunitiesAtt
     }
 
     @Override
-    public ExtendedCommunities parseExtendedCommunity(final ReferenceCache refCache, final ExtendedCommunitiesBuilder comm, final ByteBuf buffer) throws BGPDocumentedException {
+    public ExtendedCommunities parseExtendedCommunity(final ReferenceCache refCache, final ExtendedCommunitiesBuilder communitiesBuilder, final ByteBuf buffer) throws BGPDocumentedException {
         ExtendedCommunity c = null;
-        if (comm.getCommType().equals(FS_TYPE)) {
-            switch (comm.getCommSubType()) {
+        if (communitiesBuilder.getCommType().equals(FS_TYPE)) {
+            switch (communitiesBuilder.getCommSubType()) {
             case TRAFFIC_RATE_SUBTYPE:
                 final ShortAsNumber as = new ShortAsNumber((long) buffer.readUnsignedShort());
                 final Bandwidth value = new Bandwidth(ByteArray.readBytes(buffer, TRAFFIC_RATE_SIZE));
@@ -96,14 +96,14 @@ public class FSExtendedCommunitiesAttributeParser extends ExtendedCommunitiesAtt
                 c = new TrafficMarkingExtendedCommunityCaseBuilder().setTrafficMarkingExtendedCommunity(new TrafficMarkingExtendedCommunityBuilder().setGlobalAdministrator(dscp).build()).build();
                 break;
             default:
-                throw new BGPDocumentedException("Could not parse Flowspec Extended Community type: " + comm.getCommSubType(), BGPError.OPT_ATTR_ERROR);
+                throw new BGPDocumentedException("Could not parse Flowspec Extended Community type: " + communitiesBuilder.getCommSubType(), BGPError.OPT_ATTR_ERROR);
             }
         }
         if (c == null) {
             LOG.debug("Extended community is not from Flowspec, fallback to original communities.");
-            return super.parseExtendedCommunity(refCache, comm, buffer);
+            return super.parseExtendedCommunity(refCache, communitiesBuilder, buffer);
         }
-        return comm.setExtendedCommunity(c).build();
+        return communitiesBuilder.setExtendedCommunity(c).build();
     }
 
     @Override

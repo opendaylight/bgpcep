@@ -25,6 +25,12 @@ module bgp-flowspec {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision "2015-08-07" {
+        description
+            "IPv6 support";
+        reference "https://tools.ietf.org/html/draft-ietf-idr-flow-spec-v6-06";
+    }
+
     revision "2015-01-14" {
         description
             "Initial revision.";
@@ -35,48 +41,6 @@ module bgp-flowspec {
         reference "http://tools.ietf.org/html/rfc5575#section-11";
 
         base bgp-t:subsequent-address-family;
-    }
-
-    typedef component-type {
-        reference "http://tools.ietf.org/html/rfc5575#section-4";
-        type enumeration {
-            enum destination-prefix {
-                value 1;
-            }
-            enum source-prefix {
-                value 2;
-            }
-            enum protocol-ip {
-                value 3;
-            }
-            enum port {
-                value 4;
-            }
-            enum destination-port {
-                value 5;
-            }
-            enum source-port {
-                value 6;
-            }
-            enum icmp-type {
-                value 7;
-            }
-            enum icmp-code {
-                value 8;
-            }
-            enum tcp-flags {
-                value 9;
-            }
-            enum packet-length {
-                value 10;
-            }
-            enum dscp {
-                value 11;
-            }
-            enum fragment {
-                value 12;
-            }
-        }
     }
 
     typedef fragment {
@@ -196,80 +160,116 @@ module bgp-flowspec {
     grouping flowspec-destination {
         reference "http://tools.ietf.org/html/rfc5575#section-4";
         list flowspec {
-            leaf component-type {
-                type component-type;
-            }
             choice flowspec-type {
-                case destination-prefix-case {
-                    when "../component-type = destination-prefix";
-                    leaf destination-prefix {
-                        type inet:ipv4-prefix;
-                    }
-                }
-                case source-prefix-case {
-                    when "../component-type = source-prefix";
-                    leaf source-prefix {
-                        type inet:ipv4-prefix;
-                    }
-                }
-                case protocol-ip-case {
-                    when "../component-type = protocol-ip";
-                    list protocol-ips {
-                        uses numeric-two-byte-value;
-                    }
-                }
                 case port-case {
-                    when "../component-type = port";
                     list ports {
                         uses numeric-two-byte-value;
                     }
                 }
                 case destination-port-case {
-                    when "../component-type = destination-port";
                     list destination-ports {
                         uses numeric-two-byte-value;
                     }
                 }
                 case source-port-case {
-                    when "../component-type = source-port";
                     list source-ports {
                         uses numeric-two-byte-value;
                     }
                 }
                 case icmp-type-case {
-                    when "../component-type = icmp-type";
                     list types {
                         uses numeric-one-byte-value;
                     }
                 }
                 case icmp-code-case {
-                    when "../component-type = icmp-code";
                     list codes {
                         uses numeric-one-byte-value;
                     }
                 }
                 case tcp-flags-case {
-                    when "../component-type = tcp-flags";
                     list tcp-flags {
                         uses bitmask-two-byte-value;
                     }
                 }
                 case packet-length-case {
-                    when "../component-type = packet-length";
                     list packet-lengths {
                         uses numeric-two-byte-value;
                     }
                 }
                 case dscp-case {
-                    when "../component-type = dscp";
                     list dscps {
                         uses dscp-value;
                     }
                 }
+            }
+        }
+    }
+
+    grouping flowspec-destination-ipv4 {
+        reference "http://tools.ietf.org/html/rfc5575#section-4";
+        uses flowspec-destination {
+            augment "flowspec/flowspec-type" {
+                case destination-prefix-case {
+                    leaf destination-prefix {
+                        type inet:ipv4-prefix;
+                    }
+                }
+                case source-prefix-case {
+                    leaf source-prefix {
+                        type inet:ipv4-prefix;
+                    }
+                }
+                case protocol-ip-case {
+                    list protocol-ips {
+                        uses numeric-one-byte-value;
+                    }
+                }
                 case fragment-case {
-                    when "../component-type = fragment";
                     list fragments {
                         uses fragment-value;
+                    }
+                }
+            }
+        }
+    }
+
+    grouping flow-label-value {
+        reference "https://tools.ietf.org/html/draft-ietf-idr-flow-spec-v6-06#section-3";
+        leaf op {
+            type numeric-operand;
+        }
+        leaf value {
+            type uint32;
+        }
+    }
+
+    grouping flowspec-destination-ipv6 {
+        reference "https://tools.ietf.org/html/draft-ietf-idr-flow-spec-v6-06#section-3.1";
+        uses flowspec-destination {
+            augment "flowspec/flowspec-type" {
+                case destination-ipv6-prefix-case {
+                    leaf destination-prefix {
+                        type inet:ipv6-prefix;
+                    }
+                }
+                case source-ipv6-prefix-case {
+                    leaf source-prefix {
+                        type inet:ipv6-prefix;
+                    }
+                }
+                case next-header-case {
+                    list next-headers {
+                        uses numeric-one-byte-value;
+                    }
+                }
+                case fragment-ipv6-case {
+                    list fragments {
+                        uses fragment-value;
+                    }
+                }
+                case flow-label-case {
+                    list flow-label {
+                        uses flow-label-value;
                     }
                 }
             }
@@ -279,7 +279,12 @@ module bgp-flowspec {
     augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
         case destination-flowspec-case {
             container destination-flowspec {
-                uses flowspec-destination;
+                uses flowspec-destination-ipv4;
+            }
+        }
+        case destination-flowspec-ipv6-case {
+            container destination-flowspec {
+                uses flowspec-destination-ipv6;
             }
         }
     }
@@ -287,7 +292,12 @@ module bgp-flowspec {
     augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type" {
         case destination-flowspec-case {
             container destination-flowspec {
-                uses flowspec-destination;
+                uses flowspec-destination-ipv4;
+            }
+        }
+        case destination-flowspec-ipv6-case {
+            container destination-flowspec {
+                uses flowspec-destination-ipv6;
             }
         }
     }
@@ -305,7 +315,27 @@ module bgp-flowspec {
                 }
                 key "route-key";
 
-                uses flowspec-destination;
+                uses flowspec-destination-ipv4;
+
+                uses bgp-rib:route;
+            }
+        }
+    }
+
+    grouping flowspec-ipv6-routes {
+        container flowspec-ipv6-routes {
+            list flowspec-route {
+                leaf route-key {
+                    description
+                        "The sole function of this leaf
+                        to act as the key in the list.
+                        Its format does not form the
+                        API contract of this model.";
+                    type string;
+                }
+                key "route-key";
+
+                uses flowspec-destination-ipv6;
 
                 uses bgp-rib:route;
             }
@@ -365,11 +395,17 @@ module bgp-flowspec {
         case flowspec-routes-case {
             uses flowspec-routes;
         }
+        case flowspec-ipv6-routes-case {
+            uses flowspec-ipv6-routes;
+        }
     }
 
     augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:loc-rib/bgp-rib:tables/bgp-rib:routes" {
         case flowspec-routes-case {
             uses flowspec-routes;
+        }
+        case flowspec-ipv6-routes-case {
+            uses flowspec-ipv6-routes;
         }
     }
 
@@ -377,11 +413,17 @@ module bgp-flowspec {
         case flowspec-routes-case {
             uses flowspec-routes;
         }
+        case flowspec-ipv6-routes-case {
+            uses flowspec-ipv6-routes;
+        }
     }
 
     augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:effective-rib-in/bgp-rib:tables/bgp-rib:routes" {
         case flowspec-routes-case {
             uses flowspec-routes;
+        }
+        case flowspec-ipv6-routes-case {
+            uses flowspec-ipv6-routes;
         }
     }
 
@@ -389,17 +431,26 @@ module bgp-flowspec {
         case flowspec-routes-case {
             uses flowspec-routes;
         }
+        case flowspec-ipv6-routes-case {
+            uses flowspec-ipv6-routes;
+        }
     }
 
     augment "/bmp-mon:bmp-monitor/bmp-mon:monitor/bmp-mon:router/bmp-mon:peer/bmp-mon:pre-policy-rib/bmp-mon:tables/bmp-mon:routes" {
         case flowspec-routes-case {
             uses flowspec-routes;
         }
+        case flowspec-ipv6-routes-case {
+            uses flowspec-ipv6-routes;
+        }
     }
 
     augment "/bmp-mon:bmp-monitor/bmp-mon:monitor/bmp-mon:router/bmp-mon:peer/bmp-mon:post-policy-rib/bmp-mon:tables/bmp-mon:routes" {
         case flowspec-routes-case {
             uses flowspec-routes;
+        }
+        case flowspec-ipv6-routes-case {
+            uses flowspec-ipv6-routes;
         }
     }
 
