@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.flowspec;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.primitives.Bytes;
 import com.google.common.primitives.UnsignedBytes;
 import com.google.common.primitives.UnsignedInts;
 import io.netty.buffer.ByteBuf;
@@ -24,8 +25,11 @@ import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
+import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.protocol.util.Values;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.BitmaskOperand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.ComponentType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.Dscp;
@@ -42,6 +46,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.DestinationPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.DscpCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.DscpCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.FlowLabelCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.FlowLabelCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.FragmentCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.FragmentCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.IcmpCodeCase;
@@ -64,6 +70,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.destination.port._case.DestinationPortsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.dscp._case.Dscps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.dscp._case.DscpsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.flow.label._case.FlowLabel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.flow.label._case.FlowLabelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.fragment._case.Fragments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.fragment._case.FragmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.destination.flowspec.flowspec.type.icmp.code._case.Codes;
@@ -135,6 +143,7 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
     static final NodeIdentifier DSCP_NID = new NodeIdentifier(Dscps.QNAME);
     @VisibleForTesting
     static final NodeIdentifier FRAGMENT_NID = new NodeIdentifier(Fragments.QNAME);
+    static final NodeIdentifier FLOW_LABLE_NID = new NodeIdentifier(FlowLabel.QNAME);
     @VisibleForTesting
     static final NodeIdentifier OP_NID = new NodeIdentifier(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-flowspec","2015-01-14","op"));
     @VisibleForTesting
@@ -266,10 +275,10 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
         final FlowspecType value = flow.getFlowspecType();
         switch (flow.getComponentType()) {
         case DestinationPrefix:
-            nlriByteBuf.writeBytes(Ipv4Util.bytesForPrefixBegin(((DestinationPrefixCase) value).getDestinationPrefix()));
+            serializeIpPrefix(((DestinationPrefixCase) value).getDestinationPrefix(), nlriByteBuf);
             break;
         case SourcePrefix:
-            nlriByteBuf.writeBytes(Ipv4Util.bytesForPrefixBegin(((SourcePrefixCase) value).getSourcePrefix()));
+            serializeIpPrefix(((SourcePrefixCase) value).getSourcePrefix(), nlriByteBuf);
             break;
         case ProtocolIp:
             serializeNumericTwoByteValue(((ProtocolIpCase) value).getProtocolIps(), nlriByteBuf);
@@ -301,10 +310,36 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
         case Fragment:
             serializeFragments(((FragmentCase) value).getFragments(), nlriByteBuf);
             break;
+        case FlowLabel:
+            serializeNumericFourByteValue(((FlowLabelCase) value).getFlowLabel(), nlriByteBuf);
+            break;
         default:
             LOG.warn("Unknown Component Type.");
             break;
         }
+    }
+
+    private static void serializeNumericFourByteValue(final List<FlowLabel> list, final ByteBuf nlriByteBuf) {
+        for (final FlowLabel item : list) {
+            final ByteBuf protoBuf = Unpooled.buffer();
+            writeShortest(item.getValue().intValue(), protoBuf);
+            serializeNumericOperand(item.getOp(), protoBuf.readableBytes(), nlriByteBuf);
+            nlriByteBuf.writeBytes(protoBuf);
+        }
+    }
+
+    private static void serializeIpPrefix(final IpPrefix prefix, final ByteBuf nlriByteBuf) {
+        // output <len, offset, prefix>
+        if (prefix.getIpv4Prefix() != null) {
+            nlriByteBuf.writeBytes(insertOffsetByte(Ipv4Util.bytesForPrefixBegin(prefix.getIpv4Prefix())));
+        } else if (prefix.getIpv6Prefix() != null) {
+            nlriByteBuf.writeBytes(insertOffsetByte(Ipv6Util.bytesForPrefixBegin(prefix.getIpv6Prefix())));
+        }
+    }
+
+    private static byte[] insertOffsetByte(final byte[] ipPrefix) {
+        // income <len, prefix>
+        return Bytes.concat(new byte[] { ipPrefix[0] }, new byte[] { 0 }, ByteArray.subByte(ipPrefix, 1 , ipPrefix.length-1));
     }
 
     /**
@@ -427,10 +462,10 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
     private static void setFlowspecType(final FlowspecBuilder builder, final ComponentType type, final ByteBuf nlri) {
         switch (type) {
         case DestinationPrefix:
-            builder.setFlowspecType(new DestinationPrefixCaseBuilder().setDestinationPrefix(Ipv4Util.prefixForByteBuf(nlri)).build());
+            builder.setFlowspecType(new DestinationPrefixCaseBuilder().setDestinationPrefix(parseIpPrefix(nlri)).build());
             break;
         case SourcePrefix:
-            builder.setFlowspecType(new SourcePrefixCaseBuilder().setSourcePrefix(Ipv4Util.prefixForByteBuf(nlri)).build());
+            builder.setFlowspecType(new SourcePrefixCaseBuilder().setSourcePrefix(parseIpPrefix(nlri)).build());
             break;
         case ProtocolIp:
             builder.setFlowspecType(new ProtocolIpCaseBuilder().setProtocolIps(parseProtocolIp(nlri)).build());
@@ -462,8 +497,24 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
         case Fragment:
             builder.setFlowspecType(new FragmentCaseBuilder().setFragments(parseFragment(nlri)).build());
             break;
+        case FlowLabel:
+            builder.setFlowspecType(new FlowLabelCaseBuilder().setFlowLabel(parseFlowLabel(nlri)).build());
+            break;
         default:
             break;
+        }
+    }
+
+    private static IpPrefix parseIpPrefix(final ByteBuf nlri) {
+        // income <len, offset, prefix>
+        final int bitLength = nlri.readByte();
+        final int offset = nlri.readByte();
+        nlri.readBytes(offset);
+        final byte[] ipPrefix = ByteArray.readBytes(nlri, bitLength / Byte.SIZE);
+        try {
+            return new IpPrefix(Ipv4Util.prefixForBytes(ipPrefix, bitLength));
+        } catch (final IllegalArgumentException e) {
+            return new IpPrefix(Ipv6Util.prefixForBytes(ipPrefix, bitLength));
         }
     }
 
@@ -635,6 +686,23 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
         return fragments;
     }
 
+    private static List<FlowLabel> parseFlowLabel(final ByteBuf nlri) {
+        final List<FlowLabel> labels = new ArrayList<>();
+        boolean end = false;
+        // we can do this as all fields will be rewritten in the cycle
+        final FlowLabelBuilder builder = new FlowLabelBuilder();
+        while (!end) {
+            final byte b = nlri.readByte();
+            final NumericOperand op = parseNumeric(b);
+            builder.setOp(op);
+            final short length = parseLength(b);
+            builder.setValue(ByteArray.bytesToLong(ByteArray.readBytes(nlri, length)));
+            end = op.isEndOfList();
+            labels.add(builder.build());
+        }
+        return labels;
+    }
+
     private static NumericOperand parseNumeric(final byte op) {
         final BitArray bs = BitArray.valueOf(op);
         return new NumericOperand(bs.get(AND_BIT), bs.get(END_OF_LIST), bs.get(EQUAL), bs.get(GREATER_THAN), bs.get(LESS_THAN));
@@ -676,11 +744,13 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
         }
         final ChoiceNode fsType = (ChoiceNode) route.getChild(FLOWSPEC_TYPE_NID).get();
         if (fsType.getChild(DEST_PREFIX_NID).isPresent()) {
-            fs.setFlowspecType(new DestinationPrefixCaseBuilder().setDestinationPrefix(
-                    new Ipv4Prefix((String) fsType.getChild(DEST_PREFIX_NID).get().getValue())).build());
+            fs.setFlowspecType(new DestinationPrefixCaseBuilder()
+                .setDestinationPrefix(extractIpPrefix((String) fsType.getChild(DEST_PREFIX_NID).get().getValue()))
+                .build());
         } else if (fsType.getChild(SOURCE_PREFIX_NID).isPresent()) {
-            fs.setFlowspecType(new SourcePrefixCaseBuilder().setSourcePrefix(new Ipv4Prefix((String) fsType.getChild(SOURCE_PREFIX_NID).get().getValue()))
-                    .build());
+            fs.setFlowspecType(new SourcePrefixCaseBuilder()
+                .setSourcePrefix(extractIpPrefix((String) fsType.getChild(SOURCE_PREFIX_NID).get().getValue()))
+                .build());
         } else if (fsType.getChild(PROTOCOL_IP_NID).isPresent()) {
             fs.setFlowspecType(new ProtocolIpCaseBuilder().setProtocolIps(createProtocolsIps((UnkeyedListNode) fsType.getChild(PROTOCOL_IP_NID).get())).build());
         } else if (fsType.getChild(PORTS_NID).isPresent()) {
@@ -703,6 +773,14 @@ public class FSNlriParser implements NlriParser, NlriSerializer {
             fs.setFlowspecType(new FragmentCaseBuilder().setFragments(createFragments((UnkeyedListNode) fsType.getChild(FRAGMENT_NID).get())).build());
         }
         return fs.build();
+    }
+
+    private static IpPrefix extractIpPrefix(final String value) {
+        try {
+            return new IpPrefix(new Ipv4Prefix(value));
+        } catch (final IllegalArgumentException e) {
+            return new IpPrefix(new Ipv6Prefix(value));
+        }
     }
 
     private static NumericOperand createNumericOperand(final Set<String> opValues) {

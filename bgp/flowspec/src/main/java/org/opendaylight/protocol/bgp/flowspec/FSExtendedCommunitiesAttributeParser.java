@@ -69,10 +69,10 @@ public class FSExtendedCommunitiesAttributeParser extends ExtendedCommunitiesAtt
     }
 
     @Override
-    public ExtendedCommunities parseExtendedCommunity(final ReferenceCache refCache, final ExtendedCommunitiesBuilder comm, final ByteBuf buffer) throws BGPDocumentedException {
+    public ExtendedCommunities parseExtendedCommunity(final ReferenceCache refCache, final ExtendedCommunitiesBuilder communitiesBuilder, final ByteBuf buffer) throws BGPDocumentedException {
         ExtendedCommunity c = null;
-        if (comm.getCommType().equals(FS_TYPE)) {
-            switch (comm.getCommSubType()) {
+        if (communitiesBuilder.getCommType().equals(FS_TYPE)) {
+            switch (communitiesBuilder.getCommSubType()) {
             case TRAFFIC_RATE_SUBTYPE:
                 final ShortAsNumber as = new ShortAsNumber((long) buffer.readUnsignedShort());
                 final Bandwidth value = new Bandwidth(ByteArray.readBytes(buffer, TRAFFIC_RATE_SIZE));
@@ -96,14 +96,14 @@ public class FSExtendedCommunitiesAttributeParser extends ExtendedCommunitiesAtt
                 c = new TrafficMarkingExtendedCommunityCaseBuilder().setTrafficMarkingExtendedCommunity(new TrafficMarkingExtendedCommunityBuilder().setGlobalAdministrator(dscp).build()).build();
                 break;
             default:
-                throw new BGPDocumentedException("Could not parse Flowspec Extended Community type: " + comm.getCommSubType(), BGPError.OPT_ATTR_ERROR);
+                throw new BGPDocumentedException("Could not parse Flowspec Extended Community type: " + communitiesBuilder.getCommSubType(), BGPError.OPT_ATTR_ERROR);
             }
         }
         if (c == null) {
             LOG.debug("Extended community is not from Flowspec, fallback to original communities.");
-            return super.parseExtendedCommunity(refCache, comm, buffer);
+            return super.parseExtendedCommunity(refCache, communitiesBuilder, buffer);
         }
-        return comm.setExtendedCommunity(c).build();
+        return communitiesBuilder.setExtendedCommunity(c).build();
     }
 
     @Override

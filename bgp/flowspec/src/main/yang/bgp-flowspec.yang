@@ -76,6 +76,9 @@ module bgp-flowspec {
             enum fragment {
                 value 12;
             }
+            enum flow-label {
+                value 13;
+            }
         }
     }
 
@@ -193,6 +196,16 @@ module bgp-flowspec {
         }
     }
 
+    grouping flow-label-value {
+        reference "https://tools.ietf.org/html/draft-ietf-idr-flow-spec-v6-06#section-3";
+        leaf op {
+            type numeric-operand;
+        }
+        leaf value {
+            type uint32;
+        }
+    }
+
     grouping flowspec-destination {
         reference "http://tools.ietf.org/html/rfc5575#section-4";
         list flowspec {
@@ -203,13 +216,13 @@ module bgp-flowspec {
                 case destination-prefix-case {
                     when "../component-type = destination-prefix";
                     leaf destination-prefix {
-                        type inet:ipv4-prefix;
+                        type inet:ip-prefix;
                     }
                 }
                 case source-prefix-case {
                     when "../component-type = source-prefix";
                     leaf source-prefix {
-                        type inet:ipv4-prefix;
+                        type inet:ip-prefix;
                     }
                 }
                 case protocol-ip-case {
@@ -270,6 +283,12 @@ module bgp-flowspec {
                     when "../component-type = fragment";
                     list fragments {
                         uses fragment-value;
+                    }
+                }
+                case flow-label-case {
+                    when "../component-type = flow-label";
+                    list flow-label {
+                        uses flow-label-value;
                     }
                 }
             }
