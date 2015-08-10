@@ -1,0 +1,475 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_286e73ca",
+        "filename": "bgp/parser-api/src/main/yang/bgp-te-lsp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T12:24:56Z",
+      "side": 1,
+      "message": "I suggest to move rsvp related models to rsvp-api and add parser/serializers implementation into spi/impl. Optionally we can create new yang model for (g)mpls related stuff.\nThe BGP should just inject service (handler) provided by pcep/rsvp.",
+      "revId": "4b1dbf5ed686d56c676d4786e3c38f8d90940deb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_1d83b7cd",
+        "filename": "bgp/parser-api/src/main/yang/bgp-te-lsp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T12:24:56Z",
+      "side": 1,
+      "message": "already in pcep",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 5
+      },
+      "revId": "4b1dbf5ed686d56c676d4786e3c38f8d90940deb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_fd691b26",
+        "filename": "bgp/parser-api/src/main/yang/bgp-te-lsp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T12:24:56Z",
+      "side": 1,
+      "message": "already in pcep.",
+      "range": {
+        "startLine": 78,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 5
+      },
+      "revId": "4b1dbf5ed686d56c676d4786e3c38f8d90940deb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_5dc7ef12",
+        "filename": "bgp/parser-api/src/main/yang/bgp-te-lsp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T12:24:56Z",
+      "side": 1,
+      "message": "already in rsvp",
+      "range": {
+        "startLine": 100,
+        "startChar": 0,
+        "endLine": 153,
+        "endChar": 5
+      },
+      "revId": "4b1dbf5ed686d56c676d4786e3c38f8d90940deb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_bda64352",
+        "filename": "bgp/parser-api/src/main/yang/bgp-te-lsp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T12:24:56Z",
+      "side": 1,
+      "message": "flowspec",
+      "range": {
+        "startLine": 203,
+        "startChar": 25,
+        "endLine": 203,
+        "endChar": 37
+      },
+      "revId": "4b1dbf5ed686d56c676d4786e3c38f8d90940deb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_9da90727",
+        "filename": "bgp/parser-api/src/main/yang/bgp-te-lsp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T12:24:56Z",
+      "side": 1,
+      "message": "Define enumeration for \"controlled load\" and \"guarantee\" and do \"rate\" and slice conditional or use choice-case.",
+      "range": {
+        "startLine": 209,
+        "startChar": 0,
+        "endLine": 211,
+        "endChar": 13
+      },
+      "revId": "4b1dbf5ed686d56c676d4786e3c38f8d90940deb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_bd7de3b3",
+        "filename": "bgp/parser-api/src/main/yang/bgp-te-lsp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T12:24:56Z",
+      "side": 1,
+      "message": "Already in rsvp. Just add session-name.",
+      "range": {
+        "startLine": 254,
+        "startChar": 0,
+        "endLine": 290,
+        "endChar": 5
+      },
+      "revId": "4b1dbf5ed686d56c676d4786e3c38f8d90940deb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_1d441773",
+        "filename": "bgp/parser-api/src/main/yang/bgp-te-lsp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T12:24:56Z",
+      "side": 1,
+      "message": "rather use Boolean types - more user friendly",
+      "range": {
+        "startLine": 304,
+        "startChar": 0,
+        "endLine": 313,
+        "endChar": 13
+      },
+      "revId": "4b1dbf5ed686d56c676d4786e3c38f8d90940deb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_7d4f4b93",
+        "filename": "bgp/parser-api/src/main/yang/bgp-te-lsp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T12:24:56Z",
+      "side": 1,
+      "message": "use type bandwith",
+      "range": {
+        "startLine": 314,
+        "startChar": 0,
+        "endLine": 316,
+        "endChar": 13
+      },
+      "revId": "4b1dbf5ed686d56c676d4786e3c38f8d90940deb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_7dcc2b36",
+        "filename": "bgp/parser-api/src/main/yang/bgp-te-lsp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T12:24:56Z",
+      "side": 1,
+      "message": "already in pcep/rsvp.",
+      "range": {
+        "startLine": 359,
+        "startChar": 0,
+        "endLine": 399,
+        "endChar": 5
+      },
+      "revId": "4b1dbf5ed686d56c676d4786e3c38f8d90940deb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_3dd6b3c6",
+        "filename": "bgp/parser-api/src/main/yang/bgp-te-lsp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T12:24:56Z",
+      "side": 1,
+      "message": "already in rsvp/pcep",
+      "range": {
+        "startLine": 435,
+        "startChar": 0,
+        "endLine": 466,
+        "endChar": 5
+      },
+      "revId": "4b1dbf5ed686d56c676d4786e3c38f8d90940deb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_5d312f0a",
+        "filename": "bgp/parser-api/src/main/yang/bgp-te-lsp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T12:24:56Z",
+      "side": 1,
+      "message": "augment existing model (in rsvp) with protection subobject.",
+      "range": {
+        "startLine": 490,
+        "startChar": 0,
+        "endLine": 496,
+        "endChar": 5
+      },
+      "revId": "4b1dbf5ed686d56c676d4786e3c38f8d90940deb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_dd245fc8",
+        "filename": "bgp/parser-api/src/main/yang/bgp-te-lsp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T12:24:56Z",
+      "side": 1,
+      "message": "unnecessary",
+      "range": {
+        "startLine": 512,
+        "startChar": 0,
+        "endLine": 514,
+        "endChar": 13
+      },
+      "revId": "4b1dbf5ed686d56c676d4786e3c38f8d90940deb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_fd211bb5",
+        "filename": "bgp/parser-api/src/main/yang/bgp-te-lsp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T12:24:56Z",
+      "side": 1,
+      "message": "unnecessary to model...can be determined by \"lsp-flag\"",
+      "range": {
+        "startLine": 523,
+        "startChar": 0,
+        "endLine": 530,
+        "endChar": 13
+      },
+      "revId": "4b1dbf5ed686d56c676d4786e3c38f8d90940deb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_bd2ba393",
+        "filename": "bgp/parser-api/src/main/yang/bgp-te-lsp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T12:24:56Z",
+      "side": 1,
+      "message": "extract to typedef",
+      "range": {
+        "startLine": 535,
+        "startChar": 0,
+        "endLine": 557,
+        "endChar": 17
+      },
+      "revId": "4b1dbf5ed686d56c676d4786e3c38f8d90940deb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_7d1d0b73",
+        "filename": "bgp/parser-api/src/main/yang/bgp-te-lsp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T12:24:56Z",
+      "side": 1,
+      "message": "link-flags missing",
+      "revId": "4b1dbf5ed686d56c676d4786e3c38f8d90940deb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_9d2ee7a4",
+        "filename": "bgp/parser-api/src/main/yang/bgp-te-lsp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 598,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T12:24:56Z",
+      "side": 1,
+      "message": "typedef",
+      "range": {
+        "startLine": 574,
+        "startChar": 0,
+        "endLine": 598,
+        "endChar": 5
+      },
+      "revId": "4b1dbf5ed686d56c676d4786e3c38f8d90940deb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_6826abbc",
+        "filename": "bgp/parser-api/src/main/yang/bgp-te-lsp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 636,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T12:24:56Z",
+      "side": 1,
+      "message": "enumeration",
+      "range": {
+        "startLine": 634,
+        "startChar": 0,
+        "endLine": 636,
+        "endChar": 13
+      },
+      "revId": "4b1dbf5ed686d56c676d4786e3c38f8d90940deb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_882b0782",
+        "filename": "bgp/parser-api/src/main/yang/bgp-te-lsp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T12:24:56Z",
+      "side": 1,
+      "message": "simply use union ip-address",
+      "range": {
+        "startLine": 640,
+        "startChar": 0,
+        "endLine": 653,
+        "endChar": 13
+      },
+      "revId": "4b1dbf5ed686d56c676d4786e3c38f8d90940deb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_e8407b37",
+        "filename": "bgp/parser-api/src/main/yang/bgp-te-lsp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 800,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T12:24:56Z",
+      "side": 1,
+      "message": "how about leaf-list { type binary { length 4; } };\n-each octet will represent 8 flags.",
+      "range": {
+        "startLine": 700,
+        "startChar": 0,
+        "endLine": 800,
+        "endChar": 13
+      },
+      "revId": "4b1dbf5ed686d56c676d4786e3c38f8d90940deb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_bd45e3b4",
+        "filename": "bgp/parser-api/src/main/yang/bgp-te-lsp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 819,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T12:24:56Z",
+      "side": 1,
+      "message": "Do we need to model a header?",
+      "range": {
+        "startLine": 812,
+        "startChar": 0,
+        "endLine": 819,
+        "endChar": 5
+      },
+      "revId": "4b1dbf5ed686d56c676d4786e3c38f8d90940deb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
