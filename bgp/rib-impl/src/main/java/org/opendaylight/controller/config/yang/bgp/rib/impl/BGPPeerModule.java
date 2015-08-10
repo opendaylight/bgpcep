@@ -129,7 +129,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
         // Initiate connection
         if(getInitiateConnection()) {
-            final Future<Void> cf = initiateConnection(createAddress(), password, remoteAs, getPeerRegistryBackwards());
+            final Future<Void> cf = initiateConnection(createAddress(), password, getPeerRegistryBackwards());
             return new CloseableNoEx() {
                 @Override
                 public void close() {
@@ -199,7 +199,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         return new IpAddress(host.getIpv6Address());
     }
 
-    private io.netty.util.concurrent.Future<Void> initiateConnection(final InetSocketAddress address, final String password, final AsNumber remoteAs, final BGPPeerRegistry registry) {
+    private io.netty.util.concurrent.Future<Void> initiateConnection(final InetSocketAddress address, final String password, final BGPPeerRegistry registry) {
         final KeyMapping keys;
         if (password != null) {
             keys = new KeyMapping();

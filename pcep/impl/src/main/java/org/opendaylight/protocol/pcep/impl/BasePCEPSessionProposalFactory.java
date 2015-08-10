@@ -16,7 +16,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
 
-final public class BasePCEPSessionProposalFactory implements PCEPSessionProposalFactory {
+public final class BasePCEPSessionProposalFactory implements PCEPSessionProposalFactory {
 
     private final int keepAlive, deadTimer;
     private final List<PCEPCapability> capabilities;
@@ -34,7 +34,7 @@ final public class BasePCEPSessionProposalFactory implements PCEPSessionProposal
     }
 
     @Override
-    public final Open getSessionProposal(final InetSocketAddress address, final int sessionId) {
+    public Open getSessionProposal(final InetSocketAddress address, final int sessionId) {
         return getSessionProposal(address, sessionId, null);
     }
 
@@ -58,11 +58,11 @@ final public class BasePCEPSessionProposalFactory implements PCEPSessionProposal
         return oBuilder.setTlvs(builder.build()).build();
     }
 
-    public final int getKeepAlive() {
+    public int getKeepAlive() {
         return this.keepAlive;
     }
 
-    public final int getDeadTimer() {
+    public int getDeadTimer() {
         return this.deadTimer;
     }
 
