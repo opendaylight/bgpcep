@@ -25,8 +25,8 @@
         <feature version='${config.version}'>odl-config-netty</feature>
         <bundle>mvn:io.netty/netty-codec/${netty.version}</bundle>
         <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-rib-models</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib</feature>
-        <feature version='${project.version}'>odl-bgpcep-bgp-rib-impl</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-flowspec</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-api/{{VERSION}}</bundle>
