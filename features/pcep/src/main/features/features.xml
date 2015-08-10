@@ -19,13 +19,17 @@
 
     <feature name='odl-bgpcep-pcep-all' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-pcep</feature>
+    </feature>
+
+    <feature name='odl-bgpcep-pcep' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-pcep-api</feature>
         <feature version='${project.version}'>odl-bgpcep-pcep-impl</feature>
         <feature version='${project.version}'>odl-bgpcep-pcep-stateful07</feature>
         <feature version='${project.version}'>odl-bgpcep-pcep-segment-routing</feature>
         <feature version='${project.version}'>odl-bgpcep-pcep-topology</feature>
         <feature version='${project.version}'>odl-bgpcep-pcep-topology-provider</feature>
         <feature version='${project.version}'>odl-bgpcep-pcep-tunnel-provider</feature>
-        <feature version='${project.version}'>odl-bgpcep-programming</feature>
+        <feature version='${project.version}'>odl-bgpcep-programming-api</feature>
         <feature version='${project.version}'>odl-bgpcep-programming-impl</feature>
     </feature>
 
@@ -41,7 +45,7 @@
         <bundle>mvn:org.opendaylight.bgpcep/util/{{VERSION}}</bundle>
     </feature>
 
-    <feature name='odl-bgpcep-pcep' version='${project.version}'>
+    <feature name='odl-bgpcep-pcep-api' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-pcep-dependencies</feature>
         <bundle>mvn:org.opendaylight.bgpcep/rsvp-api/{{VERSION}}</bundle>
         <feature version='${tcpmd5.version}'>odl-tcpmd5-netty</feature>
@@ -53,12 +57,12 @@
     </feature>
 
     <feature name='odl-bgpcep-pcep-impl' version='${project.version}'>
-        <feature version='${project.version}'>odl-bgpcep-pcep</feature>
+        <feature version='${project.version}'>odl-bgpcep-pcep-api</feature>
         <bundle>mvn:io.netty/netty-codec/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/pcep-impl/{{VERSION}}</bundle>
     </feature>
 
-    <feature name='odl-bgpcep-programming' version='${project.version}'>
+    <feature name='odl-bgpcep-programming-api' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-pcep-dependencies</feature>
         <feature version='${config.version}'>odl-config-api</feature>
         <bundle>mvn:org.opendaylight.bgpcep/topology-api/{{VERSION}}</bundle>
@@ -70,7 +74,7 @@
     </feature>
 
     <feature name='odl-bgpcep-programming-impl' version='${project.version}'>
-        <feature version='${project.version}'>odl-bgpcep-programming</feature>
+        <feature version='${project.version}'>odl-bgpcep-programming-api</feature>
         <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
         <feature version='${tcpmd5.version}'>odl-tcpmd5-netty</feature>
         <bundle>mvn:org.opendaylight.bgpcep/programming-impl/{{VERSION}}</bundle>
@@ -78,8 +82,8 @@
     </feature>
 
     <feature name='odl-bgpcep-pcep-topology' version='${project.version}'>
-        <feature version='${project.version}'>odl-bgpcep-pcep</feature>
-        <feature version='${project.version}'>odl-bgpcep-programming</feature>
+        <feature version='${project.version}'>odl-bgpcep-pcep-api</feature>
+        <feature version='${project.version}'>odl-bgpcep-programming-api</feature>
         <bundle>mvn:org.opendaylight.bgpcep/pcep-tunnel-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/pcep-topology-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/pcep-topology-spi/{{VERSION}}</bundle>
