@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_fdcd9b5e",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSNlriParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T08:26:55Z",
+      "side": 1,
+      "message": "Now we allow a user to push flowspec ipv4 route with flow-label. Also, we allow to mix ipv4/ipv6 source/destination in ipv4/ipv6 flowspec routes.",
+      "range": {
+        "startLine": 313,
+        "startChar": 0,
+        "endLine": 315,
+        "endChar": 18
+      },
+      "revId": "be62e08b68ff00a4d91906d61d9af64c966948bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_7de2ebd6",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSNlriParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 519,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-10T08:26:55Z",
+      "side": 1,
+      "message": "This is not going to be working well...The \"offset\" can appear in ipv6 source/destination only. Since we have common parser for both ipv4/ipv6 - how do we determine what type of prefix to read?",
+      "range": {
+        "startLine": 508,
+        "startChar": 0,
+        "endLine": 519,
+        "endChar": 5
+      },
+      "revId": "be62e08b68ff00a4d91906d61d9af64c966948bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
