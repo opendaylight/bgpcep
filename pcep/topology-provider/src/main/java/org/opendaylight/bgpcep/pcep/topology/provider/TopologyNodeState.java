@@ -46,6 +46,8 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
     private final BindingTransactionChain chain;
     private final long holdStateNanos;
     private long lastReleased = 0;
+    //cache initial node state, if any node was persisted
+    private Node initialNodeState = null;
 
     public TopologyNodeState(final DataBroker broker, final InstanceIdentifier<Topology> topology, final NodeId id, final long holdStateNanos) {
         Preconditions.checkArgument(holdStateNanos >= 0);
@@ -83,38 +85,61 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
         }
     }
 
-    public synchronized void released() {
+    public synchronized void released(final boolean persist) {
         // The session went down. Undo all the Topology changes we have done.
-        final WriteTransaction trans = beginTransaction();
+        // We might want to persist topology node for later re-use.
+        if (!persist) {
+            final WriteTransaction trans = beginTransaction();
+            trans.delete(LogicalDatastoreType.OPERATIONAL, this.nodeId);
+            Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
+                @Override
+                public void onSuccess(final Void result) {
+                    LOG.trace("Internal state for node {} cleaned up successfully", nodeId);
+                }
 
-        trans.delete(LogicalDatastoreType.OPERATIONAL, this.nodeId);
-
-        Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(final Void result) {
-                LOG.trace("Internal state for node {} cleaned up successfully", nodeId);
-            }
-
-            @Override
-            public void onFailure(final Throwable t) {
-                LOG.error("Failed to cleanup internal state for session {}", nodeId, t);
-            }
-        });
+                @Override
+                public void onFailure(final Throwable t) {
+                    LOG.error("Failed to cleanup internal state for session {}", nodeId, t);
+                }
+            });
+        }
 
         lastReleased = System.nanoTime();
     }
 
-    public synchronized void taken() {
+    public synchronized void taken(final boolean retrieveNode) {
         final long now = System.nanoTime();
 
         if (now - lastReleased > holdStateNanos) {
             metadata.clear();
         }
 
-        final Node node = new NodeBuilder().setKey(nodeId.getKey()).setNodeId(nodeId.getKey().getNodeId()).build();
-        final WriteTransaction t = chain.newWriteOnlyTransaction();
-        t.put(LogicalDatastoreType.OPERATIONAL, nodeId, node);
-        t.submit();
+        //try to get the topology's node
+        if (retrieveNode) {
+            Futures.addCallback(readOperationalData(nodeId), new FutureCallback<Optional<Node>>() {
+
+                @Override
+                public void onSuccess(final Optional<Node> result) {
+                    if (!result.isPresent()) {
+                        putTopologyNode();
+                    } else {
+                        //cache retrieved node
+                        initialNodeState = result.get();
+                    }
+                }
+
+                @Override
+                public void onFailure(final Throwable t) {
+                    LOG.error("Failed to get topology node {}", nodeId, t);
+                }
+            });
+        } else {
+            putTopologyNode();
+        }
+    }
+
+    public synchronized Node getInitialNodeState() {
+        return initialNodeState;
     }
 
     WriteTransaction beginTransaction() {
@@ -145,6 +170,13 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
     @Override
     public void close() {
         chain.close();
+    }
+
+    private void putTopologyNode() {
+        final Node node = new NodeBuilder().setKey(nodeId.getKey()).setNodeId(nodeId.getKey().getNodeId()).build();
+        final WriteTransaction t = beginTransaction();
+        t.put(LogicalDatastoreType.OPERATIONAL, nodeId, node);
+        t.submit();
     }
 
 }
