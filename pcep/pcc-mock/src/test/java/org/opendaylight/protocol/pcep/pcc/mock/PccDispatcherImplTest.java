@@ -93,7 +93,7 @@ public class PccDispatcherImplTest {
     }
 
     private int getRandomPort() {
-        return this.random.nextInt(this.random.nextInt(60000) + 1024);
+        return this.random.nextInt(4000) + 1024;
     }
 
 }
