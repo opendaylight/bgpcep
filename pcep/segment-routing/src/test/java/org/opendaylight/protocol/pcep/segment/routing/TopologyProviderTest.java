@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.opendaylight.bgpcep.pcep.topology.provider.AbstractPCEPSessionTest;
 import org.opendaylight.bgpcep.pcep.topology.provider.AbstractTopologySessionListener;
 import org.opendaylight.bgpcep.pcep.topology.provider.Stateful07TopologySessionListenerFactory;
+import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Path1;
@@ -52,6 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07TopologySessionListenerFactory> {
 
     private AbstractTopologySessionListener<SrpIdNumber, PlspId> listener;
+    private PCEPSession session;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -59,6 +61,7 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<Stateful07Topo
     public void setUp() throws Exception {
         super.setUp();
         this.listener = (AbstractTopologySessionListener<SrpIdNumber, PlspId>) getSessionListener();
+        this.session = getPCEPSession(getLocalPref(), getRemotePref());
     }
 
     @Test

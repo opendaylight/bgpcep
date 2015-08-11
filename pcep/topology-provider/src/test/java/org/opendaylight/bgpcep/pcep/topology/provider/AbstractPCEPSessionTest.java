@@ -40,9 +40,9 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiator;
-import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
@@ -80,8 +80,6 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
 
     protected List<Notification> receivedMsgs;
 
-    protected PCEPSessionImpl session;
-
     @Mock
     private EventLoop eventLoop;
 
@@ -98,9 +96,13 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
 
     private final Open localPrefs = new OpenBuilder().setDeadTimer((short) 30).setKeepalive((short) 10).setSessionId((short) 0).build();
 
+    private final Open remotePrefs = localPrefs;
+
     protected ServerSessionManager manager;
 
     protected NetworkTopologyPcepService topologyRpcs;
+
+    private DefaultPCEPSessionNegotiator neg;
 
     @Before
     public void setUp() throws Exception {
@@ -131,8 +133,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         this.listenerFactory = (T) ((Class)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
         this.manager = new ServerSessionManager(getDataBroker(), TOPO_IID, this.listenerFactory);
 
-        final DefaultPCEPSessionNegotiator neg = new DefaultPCEPSessionNegotiator(mock(Promise.class), this.clientListener, this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
-        this.session = neg.createSession(this.clientListener, getLocalPref(), getLocalPref());
+        this.neg = new DefaultPCEPSessionNegotiator(mock(Promise.class), this.clientListener, this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
         this.topologyRpcs = new TopologyRPCs(this.manager);
     }
 
@@ -166,7 +167,15 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         return this.localPrefs;
     }
 
+    protected Open getRemotePref() {
+        return this.remotePrefs;
+    }
+
     protected PCEPSessionListener getSessionListener() {
         return this.manager.getSessionListener();
+    }
+
+    protected final PCEPSession getPCEPSession(final Open localOpen, final Open remoteOpen) {
+        return neg.createSession(this.clientListener, localOpen, remoteOpen);
     }
 }

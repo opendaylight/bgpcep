@@ -14,6 +14,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createLspTlvs;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import java.net.UnknownHostException;
@@ -25,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.SessionState;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
+import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
@@ -97,11 +99,14 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
 
     private Stateful07TopologySessionListener listener;
 
+    private PCEPSession session;
+
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
         this.listener = (Stateful07TopologySessionListener) getSessionListener();
+        this.session = getPCEPSession(getLocalPref(), getRemotePref());
     }
 
     @Test
@@ -302,8 +307,8 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder().setLspIdentifiers(new LspIdentifiersBuilder().setLspId(new LspId(1L)).build()).setSymbolicPathName(
                                 new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(new byte[] { 22, 34 })).build()).build()).build()).build());
         final Pcrpt rptmsg = new PcrptBuilder().setPcrptMessage(new PcrptMessageBuilder().setReports(reports).build()).build();
-        this.session.sessionUp();
-        this.session.handleMessage(rptmsg);
+        this.listener.onSessionUp(this.session);
+        this.listener.onMessage(this.session, rptmsg);
         final Topology topology = getTopology().get();
         assertFalse(topology.getNode().isEmpty());
     }
@@ -364,6 +369,11 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
             .addAugmentation(Stateful1.class, new Stateful1Builder().setInitiation(Boolean.TRUE).build())
             .addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Stateful1.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Stateful1Builder().setTriggeredInitialSync(Boolean.TRUE).build())
             .build()).build()).build()).build();
+    }
+
+    @Override
+    protected Open getRemotePref() {
+        return getLocalPref();
     }
 
     private AddLspInput createAddLspInput() {
