@@ -51,6 +51,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLspKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.Path;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -117,6 +118,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     private TopologyNodeState nodeState;
     private boolean synced = false;
     private PCEPSession session;
+    private SyncOptimization syncOptimization;
 
     private ListenerStateRuntimeRegistration registration;
     private final SessionListenerState listenerState;
@@ -136,23 +138,47 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
          */
         final InetAddress peerAddress = session.getRemoteAddress();
 
-        final TopologyNodeState state = this.serverSessionManager.takeNodeState(peerAddress, this);
+        syncOptimization  = new SyncOptimization(session);
+
+        final TopologyNodeState state = this.serverSessionManager.takeNodeState(peerAddress, this, isLspDbRetreived());
+
+        this.session = session;
+        this.nodeState = state;
 
         LOG.trace("Peer {} resolved to topology node {}", peerAddress, state.getNodeId());
-        this.synced = false;
 
         // Our augmentation in the topology node
         final PathComputationClientBuilder pccBuilder = new PathComputationClientBuilder();
-        pccBuilder.setIpAddress(IpAddressBuilder.getDefaultInstance(peerAddress.getHostAddress()));
 
         onSessionUp(session, pccBuilder);
+        this.synced = isSynchronized();
 
-        final Node1 ta = new Node1Builder().setPathComputationClient(pccBuilder.build()).build();
+        pccBuilder.setIpAddress(IpAddressBuilder.getDefaultInstance(peerAddress.getHostAddress()));
         final InstanceIdentifier<Node1> topologyAugment = state.getNodeId().augmentation(Node1.class);
         this.pccIdentifier = topologyAugment.child(PathComputationClient.class);
+        final boolean isNodePresent = isLspDbRetreived() && state.getRetrievedNode() != null;
+        writeNode(pccBuilder, state, topologyAugment, isNodePresent);
+        if (isNodePresent) {
+            loadLspData(lspData, lsps);
+        }
+        this.listenerState.init(session);
+        if (this.serverSessionManager.getRuntimeRootRegistration().isPresent()) {
+            this.registration = this.serverSessionManager.getRuntimeRootRegistration().get().register(this);
+        }
+        LOG.info("Session with {} attached to topology node {}", session.getRemoteAddress(), state.getNodeId());
+    }
+
+    private void writeNode(final PathComputationClientBuilder pccBuilder, final TopologyNodeState state,
+            final InstanceIdentifier<Node1> topologyAugment, final boolean isNodePresent) {
+        final Node1 ta = new Node1Builder().setPathComputationClient(pccBuilder.build()).build();
 
         final ReadWriteTransaction trans = state.rwTransaction();
-        trans.put(LogicalDatastoreType.OPERATIONAL, topologyAugment, ta);
+        if (isNodePresent) {
+            //already have node in DS, just merge
+            trans.merge(LogicalDatastoreType.OPERATIONAL, topologyAugment, ta);
+        } else {
+            trans.put(LogicalDatastoreType.OPERATIONAL, topologyAugment, ta);
+        }
         LOG.trace("Peer data {} set to {}", topologyAugment, ta);
 
         // All set, commit the modifications
@@ -168,21 +194,14 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
                 session.close(TerminationReason.UNKNOWN);
             }
         });
-
-        this.session = session;
-        this.nodeState = state;
-        this.listenerState.init(session);
-        if (this.serverSessionManager.getRuntimeRootRegistration().isPresent()) {
-            this.registration = this.serverSessionManager.getRuntimeRootRegistration().get().register(this);
-        }
-        LOG.info("Session with {} attached to topology node {}", session.getRemoteAddress(), state.getNodeId());
     }
 
     @GuardedBy("this")
     private void tearDown(final PCEPSession session) {
-        this.serverSessionManager.releaseNodeState(this.nodeState, session);
+        this.serverSessionManager.releaseNodeState(this.nodeState, session, isLspDbPersisted());
         this.nodeState = null;
         this.session = null;
+        this.syncOptimization = null;
         unregister();
         this.listenerState.stop();
 
@@ -404,15 +423,23 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
         // Update synchronization flag
         this.synced = true;
-        ctx.trans.merge(LogicalDatastoreType.OPERATIONAL, this.pccIdentifier, new PathComputationClientBuilder().setStateSync(PccSyncState.Synchronized).build());
+        updatePccNode(ctx, new PathComputationClientBuilder().setStateSync(PccSyncState.Synchronized).build());
 
         // The node has completed synchronization, cleanup metadata no longer reported back
         this.nodeState.cleanupExcept(this.lsps.values());
         LOG.debug("Session {} achieved synchronized state", this.session);
     }
 
+    protected final synchronized void updatePccNode(final MessageContext ctx, final PathComputationClient pcc) {
+        ctx.trans.merge(LogicalDatastoreType.OPERATIONAL, this.pccIdentifier, pcc);
+    }
+
     protected final InstanceIdentifier<ReportedLsp> lspIdentifier(final String name) {
         return this.pccIdentifier.child(ReportedLsp.class, new ReportedLspKey(name));
+    }
+
+    protected final InstanceIdentifier<PathComputationClient> getPccIdentifier() {
+        return this.pccIdentifier;
     }
 
     /**
@@ -458,7 +485,37 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         return this.nodeState.readOperationalData(id);
     }
 
+    protected final Node getRetrievedNode() {
+        if (nodeState != null) {
+            return this.nodeState.getRetrievedNode();
+        }
+        return null;
+    }
+
     protected abstract Object validateReportedLsp(final Optional<ReportedLsp> rep, final LspId input);
+
+    protected abstract void loadLspData(final Map<String, ReportedLsp> lspData, final Map<L, String> lsps);
+
+    protected final boolean isLspDbPersisted() {
+        if (syncOptimization != null) {
+            return syncOptimization.isSyncAvoidanceEnabled();
+        }
+        return false;
+    }
+
+    protected final boolean isLspDbRetreived() {
+        if (syncOptimization != null) {
+            return syncOptimization.isDbVersionPresent();
+        }
+        return false;
+    }
+
+    protected final boolean isSynchronized() {
+        if (syncOptimization != null) {
+            return syncOptimization.doesLspDbMatch();
+        }
+        return false;
+    }
 
     protected SessionListenerState getSessionListenerState() {
         return this.listenerState;
