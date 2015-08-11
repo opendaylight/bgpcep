@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,9 +24,11 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.EnsureLspOperationalInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
@@ -47,7 +50,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-final class ServerSessionManager implements PCEPSessionListenerFactory, AutoCloseable, TopologySessionRPCs, PCEPTopologyProviderRuntimeMXBean {
+final class ServerSessionManager implements PCEPSessionListenerFactory, AutoCloseable, TopologySessionRPCs, PCEPTopologyProviderRuntimeMXBean, PCEPPeerProposal {
     private static final Logger LOG = LoggerFactory.getLogger(ServerSessionManager.class);
     private static final long DEFAULT_HOLD_STATE_NANOS = TimeUnit.MINUTES.toNanos(5);
 
@@ -56,6 +59,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
     private final TopologySessionListenerFactory listenerFactory;
     private final InstanceIdentifier<Topology> topology;
     private final DataBroker broker;
+    private final PCEPStatefulPeerProposal peerProposal;
     private Optional<PCEPTopologyProviderRuntimeRegistration> runtimeRootRegistration = Optional.absent();
 
     public ServerSessionManager(final DataBroker broker, final InstanceIdentifier<Topology> topology,
@@ -63,6 +67,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
         this.broker = Preconditions.checkNotNull(broker);
         this.topology = Preconditions.checkNotNull(topology);
         this.listenerFactory = Preconditions.checkNotNull(listenerFactory);
+        this.peerProposal = PCEPStatefulPeerProposal.createStatefulPeerProposal(this.broker, this.topology);
 
         // Now create the base topology
         final TopologyKey k = InstanceIdentifier.keyOf(topology);
@@ -78,13 +83,13 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
         return new NodeId("pcc://" + addr.getHostAddress());
     }
 
-    synchronized void releaseNodeState(final TopologyNodeState nodeState, final PCEPSession session) {
+    synchronized void releaseNodeState(final TopologyNodeState nodeState, final PCEPSession session, final boolean persistNode) {
         LOG.debug("Node {} unbound", nodeState.getNodeId());
         this.nodes.remove(createNodeId(session.getRemoteAddress()));
-        nodeState.released();
+        nodeState.released(persistNode);
     }
 
-    synchronized TopologyNodeState takeNodeState(final InetAddress address, final TopologySessionListener sessionListener) {
+    synchronized TopologyNodeState takeNodeState(final InetAddress address, final TopologySessionListener sessionListener, final boolean retrieveNode) {
         final NodeId id = createNodeId(address);
 
         LOG.debug("Node {} requested by listener {}", id, sessionListener);
@@ -97,7 +102,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
         }
         // FIXME: else check for conflicting session
 
-        ret.taken();
+        ret.taken(retrieveNode);
         this.nodes.put(id, sessionListener);
         LOG.debug("Node {} bound to listener {}", id, sessionListener);
         return ret;
@@ -164,5 +169,11 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
 
     public Optional<PCEPTopologyProviderRuntimeRegistration> getRuntimeRootRegistration() {
         return this.runtimeRootRegistration;
+    }
+
+    @Override
+    public void setPeerSpecificProposal(final InetSocketAddress address, final TlvsBuilder openBuilder) {
+        Preconditions.checkNotNull(address);
+        peerProposal.setPeerProposal(createNodeId(address.getAddress()), openBuilder);
     }
 }
