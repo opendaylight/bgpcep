@@ -9,6 +9,8 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -16,6 +18,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -46,6 +49,8 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
     private final BindingTransactionChain chain;
     private final long holdStateNanos;
     private long lastReleased = 0;
+    //cache only for a short period of time
+    private final Cache<NodeKey, Node> initNode = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.SECONDS).build();
 
     public TopologyNodeState(final DataBroker broker, final InstanceIdentifier<Topology> topology, final NodeId id, final long holdStateNanos) {
         Preconditions.checkArgument(holdStateNanos >= 0);
@@ -83,38 +88,61 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
         }
     }
 
-    public synchronized void released() {
+    public synchronized void released(final boolean persist) {
         // The session went down. Undo all the Topology changes we have done.
-        final WriteTransaction trans = beginTransaction();
+        // We might want to persist topology node for later re-use.
+        if (!persist) {
+            final WriteTransaction trans = beginTransaction();
+            trans.delete(LogicalDatastoreType.OPERATIONAL, this.nodeId);
+            Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
+                @Override
+                public void onSuccess(final Void result) {
+                    LOG.trace("Internal state for node {} cleaned up successfully", nodeId);
+                }
 
-        trans.delete(LogicalDatastoreType.OPERATIONAL, this.nodeId);
-
-        Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(final Void result) {
-                LOG.trace("Internal state for node {} cleaned up successfully", nodeId);
-            }
-
-            @Override
-            public void onFailure(final Throwable t) {
-                LOG.error("Failed to cleanup internal state for session {}", nodeId, t);
-            }
-        });
+                @Override
+                public void onFailure(final Throwable t) {
+                    LOG.error("Failed to cleanup internal state for session {}", nodeId, t);
+                }
+            });
+        }
 
         lastReleased = System.nanoTime();
     }
 
-    public synchronized void taken() {
+    public synchronized void taken(final boolean retrieveNode) {
         final long now = System.nanoTime();
 
         if (now - lastReleased > holdStateNanos) {
             metadata.clear();
         }
 
-        final Node node = new NodeBuilder().setKey(nodeId.getKey()).setNodeId(nodeId.getKey().getNodeId()).build();
-        final WriteTransaction t = chain.newWriteOnlyTransaction();
-        t.put(LogicalDatastoreType.OPERATIONAL, nodeId, node);
-        t.submit();
+        //try to get the topology's node
+        if (retrieveNode) {
+            Futures.addCallback(readOperationalData(nodeId), new FutureCallback<Optional<Node>>() {
+
+                @Override
+                public void onSuccess(final Optional<Node> result) {
+                    if (!result.isPresent()) {
+                        putTopologyNode();
+                    } else {
+                        //cache retrieved node
+                        TopologyNodeState.this.initNode.put(nodeId.getKey(), result.get());
+                    }
+                }
+
+                @Override
+                public void onFailure(final Throwable t) {
+                    LOG.error("Failed to get topology node {}", nodeId, t);
+                }
+            });
+        } else {
+            putTopologyNode();
+        }
+    }
+
+    public synchronized Node getRetrievedNode() {
+        return initNode.getIfPresent(nodeId.getKey());
     }
 
     WriteTransaction beginTransaction() {
@@ -145,6 +173,13 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
     @Override
     public void close() {
         chain.close();
+    }
+
+    private void putTopologyNode() {
+        final Node node = new NodeBuilder().setKey(nodeId.getKey()).setNodeId(nodeId.getKey().getNodeId()).build();
+        final WriteTransaction t = beginTransaction();
+        t.put(LogicalDatastoreType.OPERATIONAL, nodeId, node);
+        t.submit();
     }
 
 }
