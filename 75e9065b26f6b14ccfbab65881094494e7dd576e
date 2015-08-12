@@ -1,0 +1,141 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_0a13645d",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/BGPActivator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-08-12T08:17:00Z",
+      "side": 1,
+      "message": "No need to create three separate instances of this parser.",
+      "range": {
+        "startLine": 33,
+        "startChar": 108,
+        "endLine": 33,
+        "endChar": 126
+      },
+      "revId": "75e9065b26f6b14ccfbab65881094494e7dd576e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_2a10a04d",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSExtendedCommunitiesAttributeParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-08-12T08:17:00Z",
+      "side": 1,
+      "message": "If renaming was the only change, push it as a separate commit, as it has nothing to do with the feature.",
+      "revId": "75e9065b26f6b14ccfbab65881094494e7dd576e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_ca1c8c6d",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSNlriParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-08-12T08:17:00Z",
+      "side": 1,
+      "message": "LABEL",
+      "range": {
+        "startLine": 149,
+        "startChar": 37,
+        "endLine": 149,
+        "endChar": 42
+      },
+      "revId": "75e9065b26f6b14ccfbab65881094494e7dd576e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_aa2b5081",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSNlriParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-08-12T08:17:00Z",
+      "side": 1,
+      "message": "If we deal with Ipv6, the last bit must be set to 0.",
+      "range": {
+        "startLine": 502,
+        "startChar": 12,
+        "endLine": 502,
+        "endChar": 21
+      },
+      "revId": "75e9065b26f6b14ccfbab65881094494e7dd576e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_0a3a84cd",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSNlriParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1025,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-08-12T08:17:00Z",
+      "side": 1,
+      "message": "Missing \u0027next-header\u0027.",
+      "revId": "75e9065b26f6b14ccfbab65881094494e7dd576e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_2a3740e5",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FlowspecRIBSupport.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-08-12T08:17:00Z",
+      "side": 1,
+      "message": "If renaming was the only change, push it as a separate commit, as it has nothing to do with the feature.",
+      "revId": "75e9065b26f6b14ccfbab65881094494e7dd576e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_6a0e9836",
+        "filename": "bgp/flowspec/src/main/yang/bgp-flowspec.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-08-12T08:17:00Z",
+      "side": 1,
+      "message": "I\u0027d add a new revision.",
+      "revId": "75e9065b26f6b14ccfbab65881094494e7dd576e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
