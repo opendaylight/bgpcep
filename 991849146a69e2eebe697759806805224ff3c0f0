@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_c609e496",
+        "filename": "features/bgp/src/main/features/features.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2015-08-13T11:37:04Z",
+      "side": 1,
+      "message": "What about odl-bgpcep-bgp-api?",
+      "range": {
+        "startLine": 67,
+        "startChar": 19,
+        "endLine": 67,
+        "endChar": 44
+      },
+      "revId": "991849146a69e2eebe697759806805224ff3c0f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_46ce345c",
+        "filename": "features/pcep/src/main/features/features.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2015-08-13T11:37:04Z",
+      "side": 1,
+      "message": "Oh, I have recalled that originally, I wanted this feature to be named odl-bgpcep-pcep-protocol, and the *-all equivalent one to be named odl-bgpcep-pcep.",
+      "range": {
+        "startLine": 59,
+        "startChar": 19,
+        "endLine": 59,
+        "endChar": 34
+      },
+      "revId": "991849146a69e2eebe697759806805224ff3c0f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
