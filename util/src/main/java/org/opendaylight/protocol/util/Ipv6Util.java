@@ -92,7 +92,7 @@ public final class Ipv6Util {
         final InetAddress a = InetAddresses.forString(p.substring(0, sep));
         Preconditions.checkArgument(a instanceof Inet6Address);
         final byte[] bytes = a.getAddress();
-        return Bytes.concat(bytes, new byte[] { Byte.valueOf(p.substring(sep + 1, p.length())) });
+        return Bytes.concat(bytes, new byte[] { UnsignedBytes.parseUnsignedByte(p.substring(sep + 1, p.length())) });
     }
 
     /**
