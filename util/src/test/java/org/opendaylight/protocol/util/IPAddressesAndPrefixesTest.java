@@ -125,6 +125,8 @@ public class IPAddressesAndPrefixesTest {
         assertEquals(new Ipv6Prefix("2001:db8:1:2::/64"), Ipv6Util.prefixForBytes(bytes, 64));
         assertArrayEquals(new byte[] { 0x20, (byte) 0x01, 0x0d, (byte) 0xb8, 0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x40 }, Ipv6Util.bytesForPrefix(new Ipv6Prefix("2001:db8:1:2::/64")));
+        assertArrayEquals(new byte[] { 0x20, (byte) 0x01, 0x0d, (byte) 0xb8, 0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, (byte)0x80 }, Ipv6Util.bytesForPrefix(new Ipv6Prefix("2001:db8:1:2::/128")));
 
         try {
             Ipv6Util.prefixForBytes(bytes, 200);
