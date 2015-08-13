@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3a79b1b5_a6606836",
+        "filename": "features/bgp/src/main/features/features.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2015-08-13T11:59:43Z",
+      "side": 1,
+      "message": "This is the top-level feature for bgp, so without -protocol.",
+      "parentUuid": "3a79b1b5_46239405",
+      "range": {
+        "startLine": 24,
+        "startChar": 19,
+        "endLine": 24,
+        "endChar": 42
+      },
+      "revId": "991849146a69e2eebe697759806805224ff3c0f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a79b1b5_c67ec4e4",
         "filename": "features/bgp/src/main/features/features.xml",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2015-08-13T11:56:42Z",
       "side": 1,
       "message": "and what about -rib? leave it without -impl? or other suffix?",
+      "range": {
+        "startLine": 26,
+        "startChar": 61,
+        "endLine": 27,
+        "endChar": 66
+      },
+      "revId": "991849146a69e2eebe697759806805224ff3c0f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_c6656446",
+        "filename": "features/bgp/src/main/features/features.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2015-08-13T11:59:43Z",
+      "side": 1,
+      "message": "Rib is already a \"subfeature\", no additional suffix needed.",
+      "parentUuid": "3a79b1b5_c67ec4e4",
       "range": {
         "startLine": 26,
         "startChar": 61,
