@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_e96153d4",
+        "filename": "bgp/labeled-unicast/src/main/yang/bgp-labeled-unicast.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-13T13:37:48Z",
+      "side": 1,
+      "message": "create grouping (i.e. labeled-unicast), move the list and leaf into grouping and use grouping here.",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 13
+      },
+      "revId": "d27d76e6ac759a983fb6428694eaed0af5b72a5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_095fef0f",
+        "filename": "bgp/labeled-unicast/src/main/yang/bgp-labeled-unicast.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-13T13:37:48Z",
+      "side": 1,
+      "message": "Use grouping \"labeled-unicast\" here.",
+      "range": {
+        "startLine": 78,
+        "startChar": 16,
+        "endLine": 78,
+        "endChar": 49
+      },
+      "revId": "d27d76e6ac759a983fb6428694eaed0af5b72a5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
