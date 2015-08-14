@@ -192,86 +192,90 @@ module bgp-flowspec {
         }
     }
 
+    grouping flowspec {
+        leaf component-type {
+            type component-type;
+        }
+        choice flowspec-type {
+            case destination-prefix-case {
+                when "../component-type = destination-prefix";
+                leaf destination-prefix {
+                    type inet:ipv4-prefix;
+                }
+            }
+            case source-prefix-case {
+                when "../component-type = source-prefix";
+                leaf source-prefix {
+                    type inet:ipv4-prefix;
+                }
+            }
+            case protocol-ip-case {
+                when "../component-type = protocol-ip";
+                list protocol-ips {
+                    uses numeric-two-byte-value;
+                }
+            }
+            case port-case {
+                when "../component-type = port";
+                list ports {
+                    uses numeric-two-byte-value;
+                }
+            }
+            case destination-port-case {
+                when "../component-type = destination-port";
+                list destination-ports {
+                    uses numeric-two-byte-value;
+                }
+            }
+            case source-port-case {
+                when "../component-type = source-port";
+                list source-ports {
+                    uses numeric-two-byte-value;
+                }
+            }
+            case icmp-type-case {
+                when "../component-type = icmp-type";
+                list types {
+                    uses numeric-one-byte-value;
+                }
+            }
+            case icmp-code-case {
+                when "../component-type = icmp-code";
+                list codes {
+                    uses numeric-one-byte-value;
+                }
+            }
+            case tcp-flags-case {
+                when "../component-type = tcp-flags";
+                list tcp-flags {
+                    uses bitmask-two-byte-value;
+                }
+            }
+            case packet-length-case {
+                when "../component-type = packet-length";
+                list packet-lengths {
+                    uses numeric-two-byte-value;
+                }
+            }
+            case dscp-case {
+                when "../component-type = dscp";
+                list dscps {
+                    uses dscp-value;
+                }
+            }
+            case fragment-case {
+                when "../component-type = fragment";
+                list fragments {
+                    uses fragment-value;
+                }
+            }
+        }
+    }
+
     grouping flowspec-destination {
         reference "http://tools.ietf.org/html/rfc5575#section-4";
         list flowspec {
-            leaf component-type {
-                type component-type;
-            }
-            choice flowspec-type {
-                case destination-prefix-case {
-                    when "../component-type = destination-prefix";
-                    leaf destination-prefix {
-                        type inet:ipv4-prefix;
-                    }
-                }
-                case source-prefix-case {
-                    when "../component-type = source-prefix";
-                    leaf source-prefix {
-                        type inet:ipv4-prefix;
-                    }
-                }
-                case protocol-ip-case {
-                    when "../component-type = protocol-ip";
-                    list protocol-ips {
-                        uses numeric-two-byte-value;
-                    }
-                }
-                case port-case {
-                    when "../component-type = port";
-                    list ports {
-                        uses numeric-two-byte-value;
-                    }
-                }
-                case destination-port-case {
-                    when "../component-type = destination-port";
-                    list destination-ports {
-                        uses numeric-two-byte-value;
-                    }
-                }
-                case source-port-case {
-                    when "../component-type = source-port";
-                    list source-ports {
-                        uses numeric-two-byte-value;
-                    }
-                }
-                case icmp-type-case {
-                    when "../component-type = icmp-type";
-                    list types {
-                        uses numeric-one-byte-value;
-                    }
-                }
-                case icmp-code-case {
-                    when "../component-type = icmp-code";
-                    list codes {
-                        uses numeric-one-byte-value;
-                    }
-                }
-                case tcp-flags-case {
-                    when "../component-type = tcp-flags";
-                    list tcp-flags {
-                        uses bitmask-two-byte-value;
-                    }
-                }
-                case packet-length-case {
-                    when "../component-type = packet-length";
-                    list packet-lengths {
-                        uses numeric-two-byte-value;
-                    }
-                }
-                case dscp-case {
-                    when "../component-type = dscp";
-                    list dscps {
-                        uses dscp-value;
-                    }
-                }
-                case fragment-case {
-                    when "../component-type = fragment";
-                    list fragments {
-                        uses fragment-value;
-                    }
-                }
-            }
+            uses flowspec;
         }
     }
 
@@ -304,7 +308,7 @@ module bgp-flowspec {
                 }
                 key "route-key";
 
-                uses flowspec-destination;
+                uses flowspec;
 
                 uses bgp-rib:route;
             }
