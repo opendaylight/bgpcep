@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_1bf88d7b",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/AbstractFSNlriParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-16T19:39:47Z",
+      "side": 1,
+      "message": "Abstract class should implement NlriParser and NlriSerializer. Subclass should implement abstract methods only. Other methods should be hidden or final.\nAlso take a look at the \"template pattern\".",
+      "revId": "1bbb883ca076706c0ac10acaef563cfdabcceafb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_fbeef1b3",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FlowspecIpv6RIBSupport.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-16T19:39:47Z",
+      "side": 1,
+      "message": "Move overlapping functionality of ipv4 and ipv6 RIB support to the common abstract class.",
+      "range": {
+        "startLine": 56,
+        "startChar": 13,
+        "endLine": 56,
+        "endChar": 35
+      },
+      "revId": "1bbb883ca076706c0ac10acaef563cfdabcceafb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_3bf54983",
+        "filename": "bgp/flowspec/src/main/yang/bgp-flowspec.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-16T19:39:47Z",
+      "side": 1,
+      "message": "Is the \"fragments\" differnet for ipv4 and ipv6?",
+      "range": {
+        "startLine": 227,
+        "startChar": 1,
+        "endLine": 231,
+        "endChar": 17
+      },
+      "revId": "1bbb883ca076706c0ac10acaef563cfdabcceafb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
