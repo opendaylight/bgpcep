@@ -9,7 +9,6 @@ package org.opendaylight.protocol.pcep.impl.subobject;
 
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
-
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -19,7 +18,7 @@ import org.opendaylight.protocol.pcep.spi.XROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.SubobjectBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.ExcludeRouteSubobjects.Attribute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.ExcludeRouteSubobjects;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.SrlgId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.SrlgSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.SrlgCase;
@@ -33,7 +32,7 @@ public class XROSRLGSubobjectParser implements XROSubobjectParser, XROSubobjectS
 
     public static final int TYPE = 34;
 
-    private static final int CONTENT_LENGTH = 5;
+    private static final int CONTENT_LENGTH = 6;
 
     @Override
     public Subobject parseSubobject(final ByteBuf buffer, final boolean mandatory) throws PCEPDeserializerException {
@@ -44,8 +43,10 @@ public class XROSRLGSubobjectParser implements XROSubobjectParser, XROSubobjectS
         }
         final SubobjectBuilder builder = new SubobjectBuilder();
         builder.setMandatory(mandatory);
-        builder.setAttribute(Attribute.Srlg);
+
         builder.setSubobjectType(new SrlgCaseBuilder().setSrlg(new SrlgBuilder().setSrlgId(new SrlgId(buffer.readUnsignedInt())).build()).build());
+        buffer.readByte();
+        builder.setAttribute(ExcludeRouteSubobjects.Attribute.forValue(buffer.readUnsignedByte()));
         return builder.build();
     }
 
@@ -57,6 +58,7 @@ public class XROSRLGSubobjectParser implements XROSubobjectParser, XROSubobjectS
         Preconditions.checkArgument(specObj.getSrlgId() != null, "SrlgId is mandatory.");
         writeUnsignedInt(specObj.getSrlgId().getValue(), body);
         Preconditions.checkArgument(subobject.getAttribute() != null, "Attribute is mandatory.");
+        writeUnsignedByte(null, body);
         writeUnsignedByte((short) subobject.getAttribute().getIntValue(), body);
         XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
     }
