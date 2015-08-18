@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_e3cc0738",
+        "filename": "rsvp/api/src/main/yang/rsvp.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-18T09:37:16Z",
+      "side": 1,
+      "message": "Is it necessary to model class-type? Does it mean the user has to provide correct type?",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 5
+      },
+      "revId": "86cafe6a68716aadb4264b3bcc8f4987aaa4fc68",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_83d193cf",
+        "filename": "rsvp/api/src/main/yang/rsvp.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-18T09:37:16Z",
+      "side": 1,
+      "message": "inet:ip-address is the same",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 5
+      },
+      "revId": "86cafe6a68716aadb4264b3bcc8f4987aaa4fc68",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_c3bc6b6f",
+        "filename": "rsvp/api/src/main/yang/rsvp.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 660,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-18T09:37:16Z",
+      "side": 1,
+      "message": "extract to typedef",
+      "range": {
+        "startLine": 653,
+        "startChar": 0,
+        "endLine": 660,
+        "endChar": 17
+      },
+      "revId": "86cafe6a68716aadb4264b3bcc8f4987aaa4fc68",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_a3d60fc4",
+        "filename": "rsvp/api/src/main/yang/rsvp.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 689,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-18T09:37:16Z",
+      "side": 1,
+      "message": "extract to typedef",
+      "range": {
+        "startLine": 682,
+        "startChar": 0,
+        "endLine": 689,
+        "endChar": 17
+      },
+      "revId": "86cafe6a68716aadb4264b3bcc8f4987aaa4fc68",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_e3c167e5",
+        "filename": "rsvp/api/src/main/yang/rsvp.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 801,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-18T09:37:16Z",
+      "side": 1,
+      "message": "Extract to typedef.",
+      "range": {
+        "startLine": 794,
+        "startChar": 0,
+        "endLine": 801,
+        "endChar": 17
+      },
+      "revId": "86cafe6a68716aadb4264b3bcc8f4987aaa4fc68",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_43029b3f",
+        "filename": "rsvp/api/src/main/yang/rsvp.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 844,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-18T09:37:16Z",
+      "side": 1,
+      "message": "I guess the bandwidth and metric objects are already defined in PCEP - do we need them here?\nThe http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-01 is referring to PCEP objects not RSVP.",
+      "range": {
+        "startLine": 832,
+        "startChar": 0,
+        "endLine": 844,
+        "endChar": 5
+      },
+      "revId": "86cafe6a68716aadb4264b3bcc8f4987aaa4fc68",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_43b05b8b",
+        "filename": "rsvp/api/src/main/yang/rsvp.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 1000,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-18T09:37:16Z",
+      "side": 1,
+      "message": "try following:               \ntype binary {\n   length 4;\n}",
+      "range": {
+        "startLine": 903,
+        "startChar": 0,
+        "endLine": 1000,
+        "endChar": 17
+      },
+      "revId": "86cafe6a68716aadb4264b3bcc8f4987aaa4fc68",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
