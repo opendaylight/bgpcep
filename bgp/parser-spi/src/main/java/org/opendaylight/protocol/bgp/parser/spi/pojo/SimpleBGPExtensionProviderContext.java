@@ -26,10 +26,24 @@ import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.RsvpTeObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.SubobjectType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import parser.spi.EROSubobjectParser;
+import parser.spi.EROSubobjectSerializer;
+import parser.spi.LabelParser;
+import parser.spi.LabelSerializer;
+import parser.spi.RROSubobjectParser;
+import parser.spi.RROSubobjectSerializer;
+import parser.spi.RSVPTeObjectParser;
+import parser.spi.RSVPTeObjectSerializer;
+import parser.spi.XROSubobjectParser;
+import parser.spi.XROSubobjectSerializer;
 
-public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsumerContext implements BGPExtensionProviderContext {
+public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsumerContext implements
+    BGPExtensionProviderContext {
 
     public static final int DEFAULT_MAXIMUM_CACHED_OBJECTS = 100000;
 
@@ -59,7 +73,7 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
         this.maximumCachedObjects = maximumCachedObjects;
 
         final Cache<Object, Object> cache = CacheBuilder.newBuilder().maximumSize(maximumCachedObjects).build();
-        this.cacheRef = new AtomicReference<Cache<Object,Object>>(cache);
+        this.cacheRef = new AtomicReference<Cache<Object, Object>>(cache);
     }
 
     @Override
@@ -99,13 +113,13 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
 
     @Override
     public AutoCloseable registerNlriParser(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi,
-            final NlriParser parser) {
+                                            final NlriParser parser) {
         return this.getNlriRegistry().registerNlriParser(afi, safi, parser);
     }
 
     @Override
     public AutoCloseable registerNlriSerializer(final Class<? extends DataObject> nlriClass, final NlriSerializer serializer) {
-        return this.getNlriRegistry().registerNlriSerializer(nlriClass,serializer);
+        return this.getNlriRegistry().registerNlriSerializer(nlriClass, serializer);
     }
 
     @Override
@@ -138,5 +152,55 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
         Cache<Object, Object> newCache = CacheBuilder.newBuilder().maximumSize(maximumCachedObjects).build();
         newCache.putAll(this.cacheRef.get().asMap());
         this.cacheRef.set(newCache);
+    }
+
+    @Override
+    public void registerRsvpObjectParser(final int classNum, final int cType, final RSVPTeObjectParser parser) {
+        this.getRsvpRegistry().registerRsvpObjectParser(classNum, cType, parser);
+    }
+
+    @Override
+    public void registerRsvpObjectSerializer(final Class<? extends RsvpTeObject> objectClass, final int cType, final RSVPTeObjectSerializer serializer) {
+        this.getRsvpRegistry().registerRsvpObjectSerializer(objectClass, cType, serializer);
+    }
+
+    @Override
+    public AutoCloseable registerXROSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass, final XROSubobjectSerializer serializer) {
+        return this.getXROSubobjectHandlerRegistry().registerSubobjectSerializer(subobjectClass, serializer);
+    }
+
+    @Override
+    public AutoCloseable registerXROSubobjectParser(final int subobjectType, final XROSubobjectParser parser) {
+        return this.getXROSubobjectHandlerRegistry().registerSubobjectParser(subobjectType, parser);
+    }
+
+    @Override
+    public AutoCloseable registerRROSubobjectSerializer(final Class<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.SubobjectType> subobjectClass, final RROSubobjectSerializer serializer) {
+        return this.getRROSubobjectHandlerRegistry().registerSubobjectSerializer(subobjectClass, serializer);
+    }
+
+    @Override
+    public AutoCloseable registerRROSubobjectParser(final int subobjectType, final RROSubobjectParser parser) {
+        return this.getRROSubobjectHandlerRegistry().registerSubobjectParser(subobjectType, parser);
+    }
+
+    @Override
+    public AutoCloseable registerEROSubobjectSerializer(final Class<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.SubobjectType> subobjectClass, final EROSubobjectSerializer serializer) {
+        return this.getEROSubobjectHandlerRegistry().registerSubobjectSerializer(subobjectClass, serializer);
+    }
+
+    @Override
+    public AutoCloseable registerEROSubobjectParser(final int subobjectType, final EROSubobjectParser parser) {
+        return this.getEROSubobjectHandlerRegistry().registerSubobjectParser(subobjectType, parser);
+    }
+
+    @Override
+    public AutoCloseable registerLabelSerializer(final Class<? extends LabelType> labelClass, final LabelSerializer serializer) {
+        return this.getLabelHandlerRegistry().registerLabelSerializer(labelClass, serializer);
+    }
+
+    @Override
+    public AutoCloseable registerLabelParser(final int cType, final LabelParser parser) {
+        return this.getLabelHandlerRegistry().registerLabelParser(cType, parser);
     }
 }
