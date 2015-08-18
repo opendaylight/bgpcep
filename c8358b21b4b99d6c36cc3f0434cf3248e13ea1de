@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_03582355",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/AbstractFlowspecRIBSupport.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-18T10:37:11Z",
+      "side": 1,
+      "message": "simply use logger for abstract class here",
+      "range": {
+        "startLine": 98,
+        "startChar": 4,
+        "endLine": 98,
+        "endChar": 42
+      },
+      "revId": "c8358b21b4b99d6c36cc3f0434cf3248e13ea1de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_23551f1d",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/AbstractFlowspecRIBSupport.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-18T10:37:11Z",
+      "side": 1,
+      "message": "the \"final\" is unnecessary",
+      "range": {
+        "startLine": 127,
+        "startChar": 12,
+        "endLine": 127,
+        "endChar": 17
+      },
+      "revId": "c8358b21b4b99d6c36cc3f0434cf3248e13ea1de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
