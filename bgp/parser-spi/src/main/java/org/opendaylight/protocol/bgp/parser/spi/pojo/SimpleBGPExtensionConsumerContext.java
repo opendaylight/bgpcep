@@ -7,9 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
-import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 
-class SimpleBGPExtensionConsumerContext implements BGPExtensionConsumerContext {
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
+import parser.spi.pojo.SimpleRSVPExtensionProviderContext;
+
+class SimpleBGPExtensionConsumerContext extends SimpleRSVPExtensionProviderContext implements BGPExtensionConsumerContext {
     private final SimpleAddressFamilyRegistry afiReg = new SimpleAddressFamilyRegistry();
     private final SimpleAttributeRegistry attrReg = new SimpleAttributeRegistry();
     private final SimpleCapabilityRegistry capReg = new SimpleCapabilityRegistry();
