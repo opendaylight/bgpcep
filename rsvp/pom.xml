@@ -33,5 +33,6 @@
     <modules>
         <module>api</module>
         <module>spi</module>
+        <module>impl</module>
     </modules>
 </project>
