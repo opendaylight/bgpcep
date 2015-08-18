@@ -38,6 +38,21 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>rsvp-api</artifactId>
+            <version>0.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>rsvp-spi</artifactId>
+            <version>0.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>rsvp-impl</artifactId>
+            <version>0.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>bgp-concepts</artifactId>
         </dependency>
         <dependency>
@@ -154,7 +169,6 @@
          <dependency>
              <groupId>${project.groupId}</groupId>
              <artifactId>bgp-parser-impl</artifactId>
-             <scope>test</scope>
          </dependency>
          <dependency>
             <groupId>org.opendaylight.controller</groupId>
