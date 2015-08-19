@@ -1,0 +1,326 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_9bcb3372",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/BmpDispatcherImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-19T20:56:06Z",
+      "side": 1,
+      "message": "The pipeline needs to be initialized the same way as a server\u0027s pipeline.",
+      "range": {
+        "startLine": 104,
+        "startChar": 20,
+        "endLine": 104,
+        "endChar": 39
+      },
+      "revId": "f8055d5a19f9df34e3fc7e1bcae6b7f46320c9d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_5bc59b59",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/BmpDispatcherImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-19T20:56:06Z",
+      "side": 1,
+      "message": "The reconnect strategy should be mandatory (not optional) for reconnecting client.",
+      "range": {
+        "startLine": 159,
+        "startChar": 18,
+        "endLine": 159,
+        "endChar": 35
+      },
+      "revId": "f8055d5a19f9df34e3fc7e1bcae6b7f46320c9d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_dbb0cbf6",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpMonitoringStationImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-19T20:56:06Z",
+      "side": 1,
+      "message": "We already have the same function in the module class. Move it to some common place.",
+      "range": {
+        "startLine": 80,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 5
+      },
+      "revId": "f8055d5a19f9df34e3fc7e1bcae6b7f46320c9d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_9b925356",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpMonitoringStationImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-19T20:56:06Z",
+      "side": 1,
+      "message": "Creataed clients should be stored, so we can close them when closing an instance of this class.",
+      "range": {
+        "startLine": 88,
+        "startChar": 16,
+        "endLine": 88,
+        "endChar": 39
+      },
+      "revId": "f8055d5a19f9df34e3fc7e1bcae6b7f46320c9d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_5b9cbb69",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpMonitoringStationImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-19T20:56:06Z",
+      "side": 1,
+      "message": "Minimize a scope of variable.",
+      "range": {
+        "startLine": 89,
+        "startChar": 8,
+        "endLine": 89,
+        "endChar": 48
+      },
+      "revId": "f8055d5a19f9df34e3fc7e1bcae6b7f46320c9d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_7bcad750",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpMonitoringStationImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-19T20:56:06Z",
+      "side": 1,
+      "message": "The address is mandatory. Verify before creating an instance (in module class).",
+      "range": {
+        "startLine": 93,
+        "startChar": 0,
+        "endLine": 96,
+        "endChar": 21
+      },
+      "revId": "f8055d5a19f9df34e3fc7e1bcae6b7f46320c9d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_9bc7b345",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpMonitoringStationImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-19T20:56:06Z",
+      "side": 1,
+      "message": "The port is mandatory. Verify before creating an instance.",
+      "range": {
+        "startLine": 100,
+        "startChar": 0,
+        "endLine": 103,
+        "endChar": 21
+      },
+      "revId": "f8055d5a19f9df34e3fc7e1bcae6b7f46320c9d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_bb82affe",
+        "filename": "bgp/bmp-impl/src/main/yang/odl-bmp-impl-cfg.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-19T20:56:06Z",
+      "side": 1,
+      "message": "I guess, one list will be enough.",
+      "range": {
+        "startLine": 208,
+        "startChar": 0,
+        "endLine": 241,
+        "endChar": 13
+      },
+      "revId": "f8055d5a19f9df34e3fc7e1bcae6b7f46320c9d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_fb8fc721",
+        "filename": "bgp/bmp-spi/src/main/java/org/opendaylight/protocol/bmp/api/BmpDispatcher.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-19T20:56:06Z",
+      "side": 1,
+      "message": "The \"slf\" is not reconnect strategy.",
+      "range": {
+        "startLine": 30,
+        "startChar": 21,
+        "endLine": 30,
+        "endChar": 47
+      },
+      "revId": "f8055d5a19f9df34e3fc7e1bcae6b7f46320c9d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_1b95e332",
+        "filename": "bgp/bmp-spi/src/main/java/org/opendaylight/protocol/bmp/api/BmpDispatcher.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-19T20:56:06Z",
+      "side": 1,
+      "message": "The \"Channel\" is returned.",
+      "range": {
+        "startLine": 41,
+        "startChar": 22,
+        "endLine": 41,
+        "endChar": 26
+      },
+      "revId": "f8055d5a19f9df34e3fc7e1bcae6b7f46320c9d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_7ba3b79e",
+        "filename": "bgp/controller-config/src/main/resources/initial/41-bgp-example.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-19T20:56:06Z",
+      "side": 1,
+      "message": "Do not modify bgp configuration.",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 55
+      },
+      "revId": "f8055d5a19f9df34e3fc7e1bcae6b7f46320c9d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_5baa7b71",
+        "filename": "bgp/controller-config/src/main/resources/initial/42-bmp-example.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-19T20:56:06Z",
+      "side": 1,
+      "message": "30000",
+      "range": {
+        "startLine": 24,
+        "startChar": 31,
+        "endLine": 24,
+        "endChar": 35
+      },
+      "revId": "f8055d5a19f9df34e3fc7e1bcae6b7f46320c9d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_fbb6e7db",
+        "filename": "bgp/controller-config/src/main/resources/initial/42-bmp-example.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-19T20:56:06Z",
+      "side": 1,
+      "message": "720000",
+      "range": {
+        "startLine": 25,
+        "startChar": 31,
+        "endLine": 25,
+        "endChar": 37
+      },
+      "revId": "f8055d5a19f9df34e3fc7e1bcae6b7f46320c9d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_bbb06fde",
+        "filename": "bgp/controller-config/src/main/resources/initial/42-bmp-example.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-19T20:56:06Z",
+      "side": 1,
+      "message": "Fix tag.",
+      "range": {
+        "startLine": 44,
+        "startChar": 38,
+        "endLine": 44,
+        "endChar": 42
+      },
+      "revId": "f8055d5a19f9df34e3fc7e1bcae6b7f46320c9d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
