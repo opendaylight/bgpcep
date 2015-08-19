@@ -106,6 +106,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-dom-broker-config</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
