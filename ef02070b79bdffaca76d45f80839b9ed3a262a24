@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_9b3c9331",
+        "filename": "rsvp/api/src/main/yang/rsvp.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-19T21:22:03Z",
+      "side": 1,
+      "message": "New revsion should be added.",
+      "range": {
+        "startLine": 25,
+        "startChar": 4,
+        "endLine": 25,
+        "endChar": 12
+      },
+      "revId": "ef02070b79bdffaca76d45f80839b9ed3a262a24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_1b31635a",
+        "filename": "rsvp/api/src/main/yang/rsvp.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-19T21:22:03Z",
+      "side": 1,
+      "message": "Really necessary?",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 5
+      },
+      "revId": "ef02070b79bdffaca76d45f80839b9ed3a262a24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
