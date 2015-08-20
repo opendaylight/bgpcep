@@ -13,6 +13,7 @@ import org.opendaylight.protocol.bgp.linkstate.attribute.LinkstateAttributeParse
 import org.opendaylight.protocol.bgp.linkstate.nlri.LinkstateNlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
+import org.opendaylight.protocol.rsvp.parser.spi.RSVPTeObjectRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateSubsequentAddressFamily;
@@ -30,13 +31,17 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
     private final boolean ianaLinkstateAttributeType;
 
+    private final RSVPTeObjectRegistry rsvpTeObjectRegistry;
+
     public BGPActivator() {
         super();
         this.ianaLinkstateAttributeType = true;
+        rsvpTeObjectRegistry = null;
     }
 
-    public BGPActivator(final boolean ianaLinkstateAttributeType) {
+    public BGPActivator(final boolean ianaLinkstateAttributeType, final RSVPTeObjectRegistry rsvpTeObjectRegistry) {
         super();
+        this.rsvpTeObjectRegistry = rsvpTeObjectRegistry;
         this.ianaLinkstateAttributeType = ianaLinkstateAttributeType;
     }
 
@@ -53,8 +58,8 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
                 new LinkstateNlriParser(true)));
         regs.add(context.registerNlriSerializer(LinkstateRoutes.class, new LinkstateNlriParser(false)));
 
-        regs.add(context.registerAttributeSerializer(Attributes1.class, new LinkstateAttributeParser(this.ianaLinkstateAttributeType)));
-        final LinkstateAttributeParser linkstateAttributeParser = new LinkstateAttributeParser(this.ianaLinkstateAttributeType);
+        regs.add(context.registerAttributeSerializer(Attributes1.class, new LinkstateAttributeParser(this.ianaLinkstateAttributeType, this.rsvpTeObjectRegistry)));
+        final LinkstateAttributeParser linkstateAttributeParser = new LinkstateAttributeParser(this.ianaLinkstateAttributeType, this.rsvpTeObjectRegistry);
         regs.add(context.registerAttributeParser(linkstateAttributeParser.getType(), linkstateAttributeParser));
 
         return regs;
