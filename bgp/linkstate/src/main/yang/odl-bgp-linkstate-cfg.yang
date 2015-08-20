@@ -7,6 +7,7 @@ module odl-bgp-linkstate-cfg {
     import config { prefix config; revision-date 2013-04-05; }
     import odl-bgp-parser-spi-cfg { prefix bgpspi; revision-date 2013-11-15; }
     import odl-bgp-rib-spi-cfg { prefix ribspi; revision-date 2013-11-15; }
+    import odl-rsvp-parser-spi-cfg { prefix rsvp-spi; revision-date 2015-08-26; }
 
     organization "Cisco Systems, Inc.";
 
@@ -22,6 +23,11 @@ module odl-bgp-linkstate-cfg {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2015-08-26" {
+        description
+            "Add rsvp-extensions";
+    }
 
     revision "2013-11-15" {
         description
@@ -44,6 +50,15 @@ module odl-bgp-linkstate-cfg {
                     else type (=99) is used for parsing/serialization";
                 type boolean;
                 default true;
+            }
+
+            container rsvp-extensions {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity rsvp-spi:consumer-extensions;
+                    }
+                }
             }
         }
     }
