@@ -80,6 +80,9 @@
         <bundle>mvn:org.opendaylight.bgpcep/rsvp-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-linkstate/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-api/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/rsvp-spi/{{VERSION}}</bundle>
+        <feature version='${tcpmd5.version}'>odl-tcpmd5-netty</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-api/{{VERSION}}</bundle>
     </feature>
 
     <feature name='odl-bgpcep-bgp-flowspec' version='${project.version}'>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
+  ~
+  ~ This program and the accompanying materials are made available under the
+  ~ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+  ~ and is available at http://www.eclipse.org/legal/epl-v10.html
+  -->
+
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+
+<snapshot>
+    <required-capabilities>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:rsvp:parser:spi?module=odl-rsvp-parser-spi-cfg&amp;revision=2015-08-26</capability>
+    </required-capabilities>
+    <configuration>
+        <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+            <modules xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:linkstate">prefix:bgp-linkstate</type>
+                    <name>bgp-linkstate</name>
+                    <rsvp-extensions>
+                        <type xmlns:rsvpspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi">rsvpspi:rsvp-extensions</type>
+                        <name>global-rsvp-extensions</name>
+                    </rsvp-extensions>
+                </module>
+            </modules>
+        </data>
+    </configuration>
+</snapshot>
