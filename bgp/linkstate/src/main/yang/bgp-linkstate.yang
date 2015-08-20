@@ -72,6 +72,14 @@ module bgp-linkstate {
             enum ipv6-prefix {
                 value 4;
             }
+            enum ipv4-te-lsp {
+                reference "http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03#section-4.1";
+                value 5;
+            }
+            enum ipv6-te-lsp {
+                reference "http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03#section-4.1";
+                value 6;
+            }
         }
     }
 
@@ -96,9 +104,17 @@ module bgp-linkstate {
             enum static {
                 value 5;
             }
+            enum rsvp-te {
+                reference "http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03#section-2.1";
+                value 6;
+            }
             enum bgp-epe {
                 reference "https://tools.ietf.org/html/draft-ietf-idr-bgpls-segment-routing-epe-00#section-4";
                 value 7;
+            }
+            enum segment-routing {
+                reference "http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03#section-2.1";
+                value 8; // segment-routing protocol-id TBD by IANA
             }
         }
     }
@@ -328,6 +344,36 @@ module bgp-linkstate {
                 }
                 container prefix-descriptors {
                     uses prefix-identifiers;
+                }
+            }
+            case te-lsp-case {
+                choice address-family {
+                    case ipv4-case {
+                        leaf ipv4-tunnel-sender-address {
+                            type inet:ipv4-address;
+                            mandatory true;
+                        }
+                        leaf ipv4-tunnel-endpoint-address {
+                            type inet:ipv4-address;
+                            mandatory true;
+                        }
+                    }
+                    case ipv6-case {
+                        leaf ipv6-tunnel-sender-address {
+                            type inet:ipv6-address;
+                            mandatory true;
+                        }
+                        leaf ipv6-tunnel-endpoint-address {
+                            type inet:ipv6-address;
+                            mandatory true;
+                        }
+                    }
+                }
+                leaf tunnel-id {
+                    type rsvp:tunnel-id;
+                }
+                leaf lsp-id {
+                    type rsvp:lsp-id;
                 }
             }
         }
@@ -597,6 +643,30 @@ module bgp-linkstate {
             case prefix-attributes-case {
                 container prefix-attributes {
                     uses prefix-state;
+                }
+            }
+            case te-lsp-attributes-case {
+                description "LSP Object";
+                reference "http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03#section-2.2";
+                container te-lsp-attributes {
+                    uses rsvp:tspec-object;
+                    uses rsvp:flow-spec-object;
+                    uses rsvp:session-attribute-object;
+                    uses rsvp:explicit-route-object;
+                    uses rsvp:secondary-explicit-route-object;
+                    uses rsvp:record-route-object;
+                    uses rsvp:secondary-record-route-object;
+                    uses rsvp:fast-reroute-object;
+                    uses rsvp:detour-object;
+                    uses rsvp:exclude-route-object;
+                    uses rsvp:lsp-attributes-object;
+                    uses rsvp:lsp-required-attributes-object;
+                    uses rsvp:protection-object;
+                    uses rsvp:association-object;
+                    uses rsvp:primary-path-route-object;
+                    uses rsvp:admin-status-object;
+                    uses rsvp:bandwidth-object;
+                    uses rsvp:metric-object;
                 }
             }
         }
