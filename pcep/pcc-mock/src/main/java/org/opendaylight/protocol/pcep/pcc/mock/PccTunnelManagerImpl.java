@@ -15,6 +15,7 @@ import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createPcRtp
 import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createSrp;
 import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.reqToRptPath;
 import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.updToRptPath;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -259,7 +260,13 @@ public class PccTunnelManagerImpl implements PccTunnelManager {
                     getDestinationAddress(subobjects, this.address), this.address,
                     this.address, Optional.of(tunnel.getPathName()));
             final Pcrpt pcRpt = createPcRtpMessage(
-                    new LspBuilder(lsp).setPlspId(plspId).setOperational(OperationalStatus.Up).setDelegate(isDelegated).setTlvs(tlvs).build(),
+                    new LspBuilder(lsp)
+                        .setPlspId(plspId)
+                        .setOperational(OperationalStatus.Up)
+                        .setDelegate(isDelegated)
+                        .setSync(true)
+                        .addAugmentation(Lsp1.class, new Lsp1Builder().setCreate(tunnel.getType() == LspType.PCE_LSP ? true : false).build())
+                        .setTlvs(tlvs).build(),
                     Optional.fromNullable(srp), path);
             session.sendReport(pcRpt);
         }
