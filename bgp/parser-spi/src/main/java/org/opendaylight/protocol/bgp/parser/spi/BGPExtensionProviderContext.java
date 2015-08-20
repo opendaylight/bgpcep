@@ -13,13 +13,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import parser.spi.RSVPExtensionProviderContext;
 
 /**
  * Context for registering providers of the various types of extension points BGP provides. These are then consumed by
  * extension consumers. It also provides access to the context-wide object cache, which extension providers can use to
  * increase the in-memory efficiency when the same objects are created over and over again.
  */
-public interface BGPExtensionProviderContext extends BGPExtensionConsumerContext {
+public interface BGPExtensionProviderContext extends BGPExtensionConsumerContext, RSVPExtensionProviderContext {
     AutoCloseable registerAddressFamily(Class<? extends AddressFamily> clazz, int number);
 
     AutoCloseable registerSubsequentAddressFamily(Class<? extends SubsequentAddressFamily> clazz, int number);
