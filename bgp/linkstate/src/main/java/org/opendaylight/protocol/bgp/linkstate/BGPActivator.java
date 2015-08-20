@@ -18,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.LinkstateRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
+import parser.impl.RSVPActivator;
 
 /**
  * Activator for registering linkstate extensions to BGP parser.
@@ -44,6 +45,9 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
         final List<AutoCloseable> regs = new ArrayList<>();
 
+        RSVPActivator rsvpActivator = new RSVPActivator();
+        rsvpActivator.start(context);
+
         regs.add(context.registerAddressFamily(LinkstateAddressFamily.class, LINKSTATE_AFI));
         regs.add(context.registerSubsequentAddressFamily(LinkstateSubsequentAddressFamily.class, LINKSTATE_SAFI));
 
@@ -53,8 +57,10 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
                 new LinkstateNlriParser(true)));
         regs.add(context.registerNlriSerializer(LinkstateRoutes.class, new LinkstateNlriParser(false)));
 
-        regs.add(context.registerAttributeSerializer(Attributes1.class, new LinkstateAttributeParser(this.ianaLinkstateAttributeType)));
-        final LinkstateAttributeParser linkstateAttributeParser = new LinkstateAttributeParser(this.ianaLinkstateAttributeType);
+        regs.add(context.registerAttributeSerializer(Attributes1.class, new LinkstateAttributeParser(
+            this.ianaLinkstateAttributeType, context.getRsvpRegistry())));
+        final LinkstateAttributeParser linkstateAttributeParser = new LinkstateAttributeParser(
+            this.ianaLinkstateAttributeType, context.getRsvpRegistry());
         regs.add(context.registerAttributeParser(linkstateAttributeParser.getType(), linkstateAttributeParser));
 
         return regs;
