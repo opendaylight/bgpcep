@@ -18,13 +18,19 @@ import io.netty.buffer.Unpooled;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.linkstate.attribute.LinkAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.attribute.LinkstateAttributeParser;
 import org.opendaylight.protocol.bgp.linkstate.attribute.NodeAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.attribute.PrefixAttributesParser;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.rsvp.parser.impl.RSVPActivator;
+import org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionProviderContext;
+import org.opendaylight.protocol.rsvp.parser.spi.pojo.SimpleRSVPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.Ipv4Util;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv4CaseBuilder;
@@ -37,13 +43,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.LinkCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.NodeCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.PrefixCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.TeLspCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.PrefixDescriptorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.LinkAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.NodeAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.PrefixAttributesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.TeLspAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.link.attributes._case.LinkAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.node.attributes._case.NodeAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.prefix.attributes._case.PrefixAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.te.lsp.attributes._case.TeLspAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
@@ -54,10 +63,27 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.AssociationType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.association.object.AssociationObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.tspec.object.TspecObject;
 
 public class LinkstateAttributeParserTest {
 
-    private static final byte[] LINK_ATTR =  { 0x04, 0x04, 0, 0x04, 0x2a, 0x2a, 0x2a, 0x2a, 0x04, 0x06, 0, 0x04, 0x2b, 0x2b, 0x2b, 0x2b,
+    static final byte[] TE_LSP_ATTR = {0x00, (byte) 0x63, 0x00, (byte) 0x30, // TE LSP Attribute Type, lenght, value
+        0x00, (byte) 0x20, (byte) 0x0c, 0x02,  // Lenght, Class, Ctype
+        0x00, 0x00, 0x00, 0x07,
+        0x01, 0x00, 0x00, 0x06,
+        (byte) 0x7f, 0x00, 0x00, 0x05,
+        0x00, 0x00, 0x00, 0x01, //Token Bucket Rate
+        0x00, 0x00, 0x00, 0x02, //Token Bucket Size
+        0x00, 0x00, 0x00, 0x03, //Peak Data Rate
+        0x00, 0x00, 0x00, 0x04, //Minimum Policed Unit
+        0x00, 0x00, 0x00, 0x05, //Maximum Packet Size
+        0x00, (byte) 0x08, (byte) 0xc7, 0x01,  // Lenght, Class, Ctype
+        0x00, 0x01, 0x00, 0x02,
+        0x01, 0x02, 0x03, 0x04,};
+    private static final byte[] LINK_ATTR = {0x04, 0x04, 0, 0x04, 0x2a, 0x2a, 0x2a, 0x2a, 0x04, 0x06, 0, 0x04, 0x2b, 0x2b, 0x2b, 0x2b,
         0x04, 0x40, 0, 0x04, 0, 0, 0, 0, 0x04, 0x41, 0, 0x04, 0x49, (byte) 0x98, (byte) 0x96, (byte) 0x80, 0x04, 0x42, 0, 0x04,
         0x46, 0x43, 0x50, 0, 0x04, 0x43, 0, 0x20, 0x46, 0x43, 0x50, 0, 0x46, 0x43, 0x50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x04, 0x44, 0, 0x08, 0, 0, 0, 0, 0, 0, 0, 0, 0x04, 0x45, 0, 0x02, 0, 0x08, 0x04, 0x46, 0, 0x01,
@@ -79,8 +105,17 @@ public class LinkstateAttributeParserTest {
         0x10, 0x30, 0x50, 0x70, 0x04, (byte) 0x82, 0, 0x08, 0x12, 0x34, 0x56, 0x78, 0x10, 0x30, 0x50, 0x70,
         0x04, (byte) 0x83, 0, 0x04, 0, 0, 0, 0x0a, 0x04, (byte) 0x84, 0, 0x04, 0x0a, 0x19, 0x02, 0x1b, 0x04, (byte) 0x88, 0, 0x01, 0x0a };
 
-    private final LinkstateAttributeParser parser = new LinkstateAttributeParser(false);
+    private RSVPExtensionProviderContext context;
+    private RSVPActivator rsvpActivator;
+    private LinkstateAttributeParser parser;
 
+    @Before
+    public final void setUp() {
+        context = new SimpleRSVPExtensionProviderContext();
+        rsvpActivator = new RSVPActivator();
+        rsvpActivator.start(context);
+        parser = new LinkstateAttributeParser(false,context.getRsvpRegistry());
+    }
     private static AttributesBuilder createBuilder(final ObjectType type) {
         return new AttributesBuilder().addAugmentation(
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1.class,
@@ -226,6 +261,36 @@ public class LinkstateAttributeParserTest {
         buff.skipBytes(3);
         // there is unresolved TLV at the end, that needs to be cut off
         assertArrayEquals(ByteArray.subByte(P4_ATTR, 0, P4_ATTR.length -5), ByteArray.getAllBytes(buff));
+    }
+
+    @Test
+    public void testPositiveTELspAttribute() throws BGPParsingException {
+        final AttributesBuilder builder = createBuilder(new TeLspCaseBuilder().build());
+        this.parser.parseAttribute(Unpooled.copiedBuffer(TE_LSP_ATTR), builder);
+
+        final Attributes1 attrs = builder.getAugmentation(Attributes1.class);
+        final TeLspAttributes teLspAttributes = ((TeLspAttributesCase) attrs.getLinkStateAttribute()).getTeLspAttributes();
+        assertNotNull(teLspAttributes);
+        final TspecObject tSpec = teLspAttributes.getTspecObject();
+        assertNotNull(tSpec);
+        assertEquals(new Float32(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01}), tSpec.getTokenBucketRate());
+        assertEquals(new Float32(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x02}), teLspAttributes.getTspecObject().getTokenBucketSize());
+        assertEquals(new Float32(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x03}), tSpec.getPeakDataRate());
+        assertEquals(new Long("4"), tSpec.getMinimumPolicedUnit());
+        assertEquals(new Long("5"), tSpec.getMaximumPacketSize());
+
+        AssociationObject associationObject = teLspAttributes.getAssociationObject();
+        assertEquals(AssociationType.Recovery, associationObject.getAssociationType());
+        final IpAddress ipv4 = new IpAddress(Ipv4Util.addressForByteBuf(Unpooled.copiedBuffer(new byte[]{0x01, 0x02, 0x03, 0x04})));
+        assertEquals(ipv4, associationObject.getIpAddress());
+        final short associationId = 2;
+        assertEquals(associationId, associationObject.getAssociationId().shortValue());
+
+        //serialization
+        final ByteBuf buff = Unpooled.buffer();
+        this.parser.serializeAttribute(builder.build(), buff);
+        assertArrayEquals(TE_LSP_ATTR, ByteArray.getAllBytes(buff));
+        assertTrue(Arrays.equals(TE_LSP_ATTR, ByteArray.getAllBytes(buff)));
     }
 
     @Test(expected=UnsupportedOperationException.class)

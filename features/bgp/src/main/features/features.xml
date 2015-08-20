@@ -18,6 +18,7 @@
     <repository>mvn:org.opendaylight.yangtools/features-yangtools/{{VERSION}}/xml/features</repository>
     <repository>mvn:org.opendaylight.tcpmd5/features-tcpmd5/{{VERSION}}/xml/features</repository>
     <repository>mvn:org.opendaylight.mdsal.model/features-mdsal-model/{{VERSION}}/xml/features</repository>
+    <repository>mvn:org.opendaylight.bgpcep/features-rsvp/{{VERSION}}/xml/features</repository>
 
 
     <feature name='odl-bgpcep-bgp-all' version='${project.version}'>
@@ -79,7 +80,7 @@
     <feature name='odl-bgpcep-bgp-linkstate' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
-        <bundle>mvn:org.opendaylight.bgpcep/rsvp-api/{{VERSION}}</bundle>
+        <feature version='${project.version}'>odl-bgpcep-rsvp</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-linkstate/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-api/{{VERSION}}</bundle>
     </feature>
