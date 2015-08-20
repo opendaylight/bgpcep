@@ -11,13 +11,14 @@
     <required-capabilities>
         <capability>urn:opendaylight:params:xml:ns:yang:bgp-linkstate?module=bgp-linkstate&amp;revision=2015-02-10</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:bgp-types?module=bgp-types&amp;revision=2013-09-19</capability>
-        <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:linkstate?module=odl-bgp-linkstate-cfg&amp;revision=2013-11-15</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:linkstate?module=odl-bgp-linkstate-cfg&amp;revision=2015-08-26</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:flowspec?module=odl-bgp-flowspec-cfg&amp;revision=2015-04-23</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi?module=odl-bgp-parser-spi-cfg&amp;revision=2013-11-15</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi?module=odl-bgp-rib-spi-cfg&amp;revision=2013-11-15</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl?module=odl-bgp-rib-impl-cfg&amp;revision=2013-04-09</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:netty?module=netty&amp;revision=2013-11-19</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:rsvp:spi?module=odl-rsvp-parser-spi-cfg&amp;revision=2015-08-26</capability>
     </required-capabilities>
     <configuration>
 
@@ -74,6 +75,11 @@
                     <!-- IANA has issued an early allocation for the BGP Linkstate path attribute (=29).
                         To preserve (TYPE = 99) set value bellow to false; to use IANA assigned type set the value to true or remove (true by default)-->
                     <iana-linkstate-attribute-type>true</iana-linkstate-attribute-type>
+                    <!-- RSVP Extensions -->
+                    <rsvp-extensions>
+                        <type xmlns:rsvp-spi="urn:opendaylight:params:xml:ns:yang:controller:rsvp:spi">rsvp-spi:rsvp-extensions</type>
+                        <name>global-rsvp-extensions</name>
+                    </rsvp-extensions>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:flowspec">prefix:bgp-flowspec</type>
