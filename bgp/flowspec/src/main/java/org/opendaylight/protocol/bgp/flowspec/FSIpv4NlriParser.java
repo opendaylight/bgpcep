@@ -87,7 +87,7 @@ public final class FSIpv4NlriParser extends AbstractFSNlriParser {
             nlriByteBuf.writeBytes(Ipv4Util.bytesForPrefixBegin(((SourcePrefixCase) value).getSourcePrefix()));
         } else if (value instanceof ProtocolIpCase) {
             nlriByteBuf.writeByte(IP_PROTOCOL_VALUE);
-            serializeNumericOneByteValue(((ProtocolIpCase) value).getProtocolIps(), nlriByteBuf);
+            NumericOneByteOperandParser.INSTANCE.serialize(((ProtocolIpCase) value).getProtocolIps(), nlriByteBuf);
         } else if (value instanceof FragmentCase) {
             nlriByteBuf.writeByte(FRAGMENT_VALUE);
             serializeFragments(((FragmentCase) value).getFragments(), nlriByteBuf);
@@ -135,7 +135,7 @@ public final class FSIpv4NlriParser extends AbstractFSNlriParser {
         final ProtocolIpsBuilder builder = new ProtocolIpsBuilder();
         while (!end) {
             final byte b = nlri.readByte();
-            final NumericOperand op = parseNumeric(b);
+            final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
             builder.setValue(nlri.readUnsignedByte());
             end = op.isEndOfList();
@@ -180,7 +180,7 @@ public final class FSIpv4NlriParser extends AbstractFSNlriParser {
             final ProtocolIpsBuilder ipsBuilder = new ProtocolIpsBuilder();
             final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
             if (opValue.isPresent()) {
-                ipsBuilder.setOp(createNumericOperand((Set<String>) opValue.get().getValue()));
+                ipsBuilder.setOp(NumericOneByteOperandParser.INSTANCE.create((Set<String>) opValue.get().getValue()));
             }
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
             if (valueNode.isPresent()) {
@@ -202,7 +202,7 @@ public final class FSIpv4NlriParser extends AbstractFSNlriParser {
             buffer.append(((SourcePrefixCase) value).getSourcePrefix().getValue());
         } else if (value instanceof ProtocolIpCase) {
             buffer.append("where IP protocol ");
-            buffer.append(stringNumericOne(((ProtocolIpCase) value).getProtocolIps()));
+            buffer.append(NumericOneByteOperandParser.INSTANCE.toString(((ProtocolIpCase) value).getProtocolIps()));
         }
     }
 

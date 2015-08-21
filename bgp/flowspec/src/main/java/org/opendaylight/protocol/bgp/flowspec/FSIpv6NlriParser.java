@@ -94,7 +94,7 @@ public final class FSIpv6NlriParser extends AbstractFSNlriParser {
             nlriByteBuf.writeBytes(insertOffsetByte(Ipv6Util.bytesForPrefixBegin(((SourceIpv6PrefixCase) value).getSourcePrefix())));
         } else if (value instanceof NextHeaderCase) {
             nlriByteBuf.writeByte(NEXT_HEADER_VALUE);
-            serializeNumericOneByteValue(((NextHeaderCase) value).getNextHeaders(), nlriByteBuf);
+            NumericOneByteOperandParser.INSTANCE.serialize(((NextHeaderCase) value).getNextHeaders(), nlriByteBuf);
         } else if (value instanceof FragmentCase) {
             nlriByteBuf.writeByte(FRAGMENT_VALUE);
             serializeFragments(((FragmentCase) value).getFragments(), nlriByteBuf);
@@ -107,8 +107,8 @@ public final class FSIpv6NlriParser extends AbstractFSNlriParser {
     private static void serializeNumericFourByteValue(final List<FlowLabel> list, final ByteBuf nlriByteBuf) {
         for (final FlowLabel item : list) {
             final ByteBuf protoBuf = Unpooled.buffer();
-            writeShortest(item.getValue().intValue(), protoBuf);
-            serializeNumericOperand(item.getOp(), protoBuf.readableBytes(), nlriByteBuf);
+            Util.writeShortest(item.getValue().intValue(), protoBuf);
+            NumericOneByteOperandParser.INSTANCE.serialize(item.getOp(), protoBuf.readableBytes(), nlriByteBuf);
             nlriByteBuf.writeBytes(protoBuf);
         }
     }
@@ -185,7 +185,7 @@ public final class FSIpv6NlriParser extends AbstractFSNlriParser {
         final NextHeadersBuilder builder = new NextHeadersBuilder();
         while (!end) {
             final byte b = nlri.readByte();
-            final NumericOperand op = parseNumeric(b);
+            final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
             builder.setValue(nlri.readUnsignedByte());
             end = op.isEndOfList();
@@ -201,9 +201,9 @@ public final class FSIpv6NlriParser extends AbstractFSNlriParser {
         final FlowLabelBuilder builder = new FlowLabelBuilder();
         while (!end) {
             final byte b = nlri.readByte();
-            final NumericOperand op = parseNumeric(b);
+            final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
-            final short length = parseLength(b);
+            final short length = AbstractOperandParser.parseLength(b);
             builder.setValue(ByteArray.bytesToLong(ByteArray.readBytes(nlri, length)));
             end = op.isEndOfList();
             labels.add(builder.build());
@@ -235,7 +235,7 @@ public final class FSIpv6NlriParser extends AbstractFSNlriParser {
             final NextHeadersBuilder nextHeadersBuilder = new NextHeadersBuilder();
             final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
             if (opValue.isPresent()) {
-                nextHeadersBuilder.setOp(createNumericOperand((Set<String>) opValue.get().getValue()));
+                nextHeadersBuilder.setOp(NumericOneByteOperandParser.INSTANCE.create((Set<String>) opValue.get().getValue()));
             }
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
             if (valueNode.isPresent()) {
@@ -254,7 +254,7 @@ public final class FSIpv6NlriParser extends AbstractFSNlriParser {
             final FlowLabelBuilder flowLabelsBuilder = new FlowLabelBuilder();
             final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
             if (opValue.isPresent()) {
-                flowLabelsBuilder.setOp(createNumericOperand((Set<String>) opValue.get().getValue()));
+                flowLabelsBuilder.setOp(NumericOneByteOperandParser.INSTANCE.create((Set<String>) opValue.get().getValue()));
             }
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
             if (valueNode.isPresent()) {
@@ -276,7 +276,7 @@ public final class FSIpv6NlriParser extends AbstractFSNlriParser {
             buffer.append(((SourceIpv6PrefixCase) value).getSourcePrefix().getValue());
         } else if (value instanceof NextHeaderCase) {
             buffer.append("where next header ");
-            buffer.append(stringNumericOne(((NextHeaderCase) value).getNextHeaders()));
+            buffer.append(NumericOneByteOperandParser.INSTANCE.toString(((NextHeaderCase) value).getNextHeaders()));
         } else if (value instanceof FlowLabelCase) {
             buffer.append("where flow label ");
             buffer.append(stringFlowLabel(((FlowLabelCase) value).getFlowLabel()));
@@ -287,7 +287,7 @@ public final class FSIpv6NlriParser extends AbstractFSNlriParser {
         final StringBuilder buffer = new StringBuilder();
         boolean isFirst = true;
         for (final FlowLabel item : list) {
-            buffer.append(stringNumericOperand(item.getOp(), isFirst));
+            buffer.append(NumericOneByteOperandParser.INSTANCE.toString(item.getOp(), isFirst));
             buffer.append(item.getValue());
             buffer.append(' ');
             if (isFirst) {

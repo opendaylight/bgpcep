@@ -10,8 +10,6 @@ package org.opendaylight.protocol.bgp.flowspec;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
-import com.google.common.primitives.UnsignedInts;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -20,16 +18,11 @@ import java.util.Set;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
-import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
-import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.BitmaskOperand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.Dscp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.Fragment;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.NumericOneByteValue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.NumericOperand;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.NumericTwoByteValue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.Flowspec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.FlowspecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.FlowspecType;
@@ -136,18 +129,6 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
     protected static final int NLRI_LENGTH = 1;
     protected static final int NLRI_LENGTH_EXTENDED = 2;
 
-    private static final int OPERAND_LENGTH = 8;
-
-    private static final int END_OF_LIST = 0;
-    private static final int AND_BIT = 1;
-    private static final int LENGTH_BITMASK = 48;
-    private static final int LENGTH_SHIFT = 4;
-    private static final int LESS_THAN = 5;
-    private static final int GREATER_THAN = 6;
-    private static final int EQUAL = 7;
-    private static final int NOT = 6;
-    private static final int MATCH = 7;
-
     /**
      * Add this constant to length value to achieve all ones in the leftmost nibble.
      */
@@ -155,20 +136,6 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
     private static final int MAX_NLRI_LENGTH = 4095;
     private static final int MAX_NLRI_LENGTH_ONE_BYTE = 240;
 
-    @VisibleForTesting
-    static final String AND_BIT_VALUE = "and-bit";
-    @VisibleForTesting
-    static final String END_OF_LIST_VALUE = "end-of-list";
-    @VisibleForTesting
-    static final String EQUALS_VALUE = "equals";
-    @VisibleForTesting
-    static final String GREATER_THAN_VALUE = "greater-than";
-    @VisibleForTesting
-    static final String LESS_THAN_VALUE = "less-than";
-    @VisibleForTesting
-    static final String MATCH_VALUE = "match";
-    @VisibleForTesting
-    static final String NOT_VALUE = "not";
     @VisibleForTesting
     static final String DO_NOT_VALUE = "do-not";
     @VisibleForTesting
@@ -252,94 +219,25 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
         buffer.writeBytes(nlriByteBuf);
     }
 
-    /**
-     * Serializes Flowspec component type that has maximum of 2B sized value field and numeric operand.
-     *
-     * @param list of items to be serialized
-     * @param nlriByteBuf where the items will be serialized
-     */
-    protected static final <T extends NumericTwoByteValue> void serializeNumericTwoByteValue(final List<T> list, final ByteBuf nlriByteBuf) {
-        for (final T item : list) {
-            final ByteBuf protoBuf = Unpooled.buffer();
-            writeShortest(item.getValue(), protoBuf);
-            serializeNumericOperand(item.getOp(), protoBuf.readableBytes(), nlriByteBuf);
-            nlriByteBuf.writeBytes(protoBuf);
-        }
-    }
-
-    /**
-     * Serializes Flowspec component type that has maximum of 1B sized value field and numeric operand.
-     *
-     * @param list of items to be serialized
-     * @param nlriByteBuf where the items will be serialized
-     */
-    protected static final <T extends NumericOneByteValue> void serializeNumericOneByteValue(final List<T> list, final ByteBuf nlriByteBuf) {
-        for (final T type : list) {
-            serializeNumericOperand(type.getOp(), 1, nlriByteBuf);
-            writeShortest(type.getValue(), nlriByteBuf);
-        }
-    }
-
-    /**
-     * Given the integer values, this method instead of writing the value
-     * in 4B field, compresses the value to lowest required byte field
-     * depending on the value.
-     *
-     * @param value integer to be written
-     * @param buffer ByteBuf where the value will be written
-     */
-    protected static final void writeShortest(final int value, final ByteBuf buffer) {
-        if (value <= Values.UNSIGNED_BYTE_MAX_VALUE) {
-            buffer.writeByte(UnsignedBytes.checkedCast(value));
-        } else if (value <= Values.UNSIGNED_SHORT_MAX_VALUE) {
-            ByteBufWriteUtil.writeUnsignedShort(value, buffer);
-        } else if (value <= Values.UNSIGNED_INT_MAX_VALUE) {
-            ByteBufWriteUtil.writeUnsignedInt(UnsignedInts.toLong(value), buffer);
-        } else {
-            buffer.writeLong(value);
-        }
-    }
-
-    protected static final void serializeNumericOperand(final NumericOperand op, final int length, final ByteBuf buffer) {
-        final BitArray bs = new BitArray(OPERAND_LENGTH);
-        bs.set(END_OF_LIST, op.isEndOfList());
-        bs.set(AND_BIT, op.isAndBit());
-        bs.set(LESS_THAN, op.isLessThan());
-        bs.set(GREATER_THAN, op.isGreaterThan());
-        bs.set(EQUAL, op.isEquals());
-        final byte len = (byte) (Integer.numberOfTrailingZeros(length) << LENGTH_SHIFT);
-        buffer.writeByte(bs.toByte() | len);
-    }
-
-    protected static final void serializeBitmaskOperand(final BitmaskOperand op, final int length, final ByteBuf buffer) {
-        final BitArray bs = new BitArray(OPERAND_LENGTH);
-        bs.set(END_OF_LIST, op.isEndOfList());
-        bs.set(AND_BIT, op.isAndBit());
-        bs.set(MATCH, op.isMatch());
-        bs.set(NOT, op.isNot());
-        final byte len = (byte) (Integer.numberOfTrailingZeros(length) << LENGTH_SHIFT);
-        buffer.writeByte(bs.toByte() | len);
-    }
-
     protected static final void serializeTcpFlags(final List<TcpFlags> flags, final ByteBuf nlriByteBuf) {
         for (final TcpFlags flag : flags) {
             final ByteBuf flagsBuf = Unpooled.buffer();
-            writeShortest(flag.getValue(), flagsBuf);
-            serializeBitmaskOperand(flag.getOp(), flagsBuf.readableBytes(), nlriByteBuf);
+            Util.writeShortest(flag.getValue(), flagsBuf);
+            BitmaskOperandParser.INSTANCE.serialize(flag.getOp(), flagsBuf.readableBytes(), nlriByteBuf);
             nlriByteBuf.writeBytes(flagsBuf);
         }
     }
 
     protected static final void serializeDscps(final List<Dscps> dscps, final ByteBuf nlriByteBuf) {
         for (final Dscps dscp : dscps) {
-            serializeNumericOperand(dscp.getOp(), 1, nlriByteBuf);
-            writeShortest(dscp.getValue().getValue(), nlriByteBuf);
+            NumericOneByteOperandParser.INSTANCE.serialize(dscp.getOp(), 1, nlriByteBuf);
+            Util.writeShortest(dscp.getValue().getValue(), nlriByteBuf);
         }
     }
 
     protected final void serializeFragments(final List<Fragments> fragments, final ByteBuf nlriByteBuf) {
         for (final Fragments fragment : fragments) {
-            serializeBitmaskOperand(fragment.getOp(), 1, nlriByteBuf);
+            BitmaskOperandParser.INSTANCE.serialize(fragment.getOp(), 1, nlriByteBuf);
             nlriByteBuf.writeByte(serializeFragment(fragment.getValue()));
         }
     }
@@ -348,25 +246,25 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
         final FlowspecType fsType = flow.getFlowspecType();
         if (fsType instanceof PortCase) {
             nlriByteBuf.writeByte(PORT_VALUE);
-            serializeNumericTwoByteValue(((PortCase) fsType).getPorts(), nlriByteBuf);
+            NumericTwoByteOperandParser.INSTANCE.serialize(((PortCase) fsType).getPorts(), nlriByteBuf);
         } else if (fsType instanceof DestinationPortCase) {
             nlriByteBuf.writeByte(DESTINATION_PORT_VALUE);
-            serializeNumericTwoByteValue(((DestinationPortCase) fsType).getDestinationPorts(), nlriByteBuf);
+            NumericTwoByteOperandParser.INSTANCE.serialize(((DestinationPortCase) fsType).getDestinationPorts(), nlriByteBuf);
         } else if (fsType instanceof SourcePortCase) {
             nlriByteBuf.writeByte(SOURCE_PORT_VALUE);
-            serializeNumericTwoByteValue(((SourcePortCase) fsType).getSourcePorts(), nlriByteBuf);
+            NumericTwoByteOperandParser.INSTANCE.serialize(((SourcePortCase) fsType).getSourcePorts(), nlriByteBuf);
         } else if (fsType instanceof IcmpTypeCase) {
             nlriByteBuf.writeByte(ICMP_TYPE_VALUE);
-            serializeNumericOneByteValue(((IcmpTypeCase) fsType).getTypes(), nlriByteBuf);
+            NumericOneByteOperandParser.INSTANCE.serialize(((IcmpTypeCase) fsType).getTypes(), nlriByteBuf);
         } else if (fsType instanceof IcmpCodeCase) {
             nlriByteBuf.writeByte(ICMP_CODE_VALUE);
-            serializeNumericOneByteValue(((IcmpCodeCase) fsType).getCodes(), nlriByteBuf);
+            NumericOneByteOperandParser.INSTANCE.serialize(((IcmpCodeCase) fsType).getCodes(), nlriByteBuf);
         } else if (fsType instanceof TcpFlagsCase) {
             nlriByteBuf.writeByte(TCP_FLAGS_VALUE);
             serializeTcpFlags(((TcpFlagsCase) fsType).getTcpFlags(), nlriByteBuf);
         } else if (fsType instanceof PacketLengthCase) {
             nlriByteBuf.writeByte(PACKET_LENGTH_VALUE);
-            serializeNumericTwoByteValue(((PacketLengthCase) fsType).getPacketLengths(), nlriByteBuf);
+            NumericTwoByteOperandParser.INSTANCE.serialize(((PacketLengthCase) fsType).getPacketLengths(), nlriByteBuf);
         } else if (fsType instanceof DscpCase) {
             nlriByteBuf.writeByte(DSCP_VALUE);
             serializeDscps(((DscpCase) fsType).getDscps(), nlriByteBuf);
@@ -440,9 +338,9 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
         final PortsBuilder builder = new PortsBuilder();
         while (!end) {
             final byte b = nlri.readByte();
-            final NumericOperand op = parseNumeric(b);
+            final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
-            final short length = parseLength(b);
+            final short length = AbstractOperandParser.parseLength(b);
             builder.setValue(ByteArray.bytesToInt(ByteArray.readBytes(nlri, length)));
             end = op.isEndOfList();
             ports.add(builder.build());
@@ -457,9 +355,9 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
         final DestinationPortsBuilder builder = new DestinationPortsBuilder();
         while (!end) {
             final byte b = nlri.readByte();
-            final NumericOperand op = parseNumeric(b);
+            final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
-            final short length = parseLength(b);
+            final short length = AbstractOperandParser.parseLength(b);
             builder.setValue(ByteArray.bytesToInt(ByteArray.readBytes(nlri, length)));
             end = op.isEndOfList();
             ports.add(builder.build());
@@ -474,9 +372,9 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
         final SourcePortsBuilder builder = new SourcePortsBuilder();
         while (!end) {
             final byte b = nlri.readByte();
-            final NumericOperand op = parseNumeric(b);
+            final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
-            final short length = parseLength(b);
+            final short length = AbstractOperandParser.parseLength(b);
             builder.setValue(ByteArray.bytesToInt(ByteArray.readBytes(nlri, length)));
             end = op.isEndOfList();
             ports.add(builder.build());
@@ -491,7 +389,7 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
         final TypesBuilder builder = new TypesBuilder();
         while (!end) {
             final byte b = nlri.readByte();
-            final NumericOperand op = parseNumeric(b);
+            final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
             builder.setValue(nlri.readUnsignedByte());
             end = op.isEndOfList();
@@ -507,7 +405,7 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
         final CodesBuilder builder = new CodesBuilder();
         while (!end) {
             final byte b = nlri.readByte();
-            final NumericOperand op = parseNumeric(b);
+            final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
             builder.setValue(nlri.readUnsignedByte());
             end = op.isEndOfList();
@@ -523,9 +421,9 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
         final TcpFlagsBuilder builder = new TcpFlagsBuilder();
         while (!end) {
             final byte b = nlri.readByte();
-            final BitmaskOperand op = parseBitmask(b);
+            final BitmaskOperand op = BitmaskOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
-            final short length = parseLength(b);
+            final short length = AbstractOperandParser.parseLength(b);
             builder.setValue(ByteArray.bytesToInt(ByteArray.readBytes(nlri, length)));
             end = op.isEndOfList();
             flags.add(builder.build());
@@ -541,9 +439,9 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
         while (!end) {
             final byte b = nlri.readByte();
             // RFC does not specify which operand to use
-            final NumericOperand op = parseNumeric(b);
+            final NumericOperand op = NumericTwoByteOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
-            final short length = parseLength(b);
+            final short length = AbstractOperandParser.parseLength(b);
             builder.setValue(ByteArray.bytesToInt(ByteArray.readBytes(nlri, length)));
             end = op.isEndOfList();
             plengths.add(builder.build());
@@ -559,7 +457,7 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
         while (!end) {
             final byte b = nlri.readByte();
             // RFC does not specify operator
-            final NumericOperand op = parseNumeric(b);
+            final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
             builder.setValue(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.Dscp(nlri.readUnsignedByte()));
             end = op.isEndOfList();
@@ -575,28 +473,13 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
         final FragmentsBuilder builder = new FragmentsBuilder();
         while (!end) {
             final byte b = nlri.readByte();
-            final BitmaskOperand op = parseBitmask(b);
+            final BitmaskOperand op = BitmaskOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
             builder.setValue(parseFragment(nlri.readByte()));
             end = op.isEndOfList();
             fragments.add(builder.build());
         }
         return fragments;
-    }
-
-    protected static final NumericOperand parseNumeric(final byte op) {
-        final BitArray bs = BitArray.valueOf(op);
-        return new NumericOperand(bs.get(AND_BIT), bs.get(END_OF_LIST), bs.get(EQUAL), bs.get(GREATER_THAN), bs.get(LESS_THAN));
-    }
-
-    protected static final BitmaskOperand parseBitmask(final byte op) {
-        final BitArray bs = BitArray.valueOf(op);
-        return new BitmaskOperand(bs.get(AND_BIT), bs.get(END_OF_LIST), bs.get(MATCH), bs.get(NOT));
-    }
-
-    @VisibleForTesting
-    public static final short parseLength(final byte op) {
-        return (short) (1 << ((op & LENGTH_BITMASK) >> LENGTH_SHIFT));
     }
 
     public final String stringNlri(final DataContainerNode<?> flowspec) {
@@ -640,7 +523,7 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
             final PortsBuilder portsBuilder = new PortsBuilder();
             final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
             if (opValue.isPresent()) {
-                portsBuilder.setOp(createNumericOperand((Set<String>) opValue.get().getValue()));
+                portsBuilder.setOp(NumericTwoByteOperandParser.INSTANCE.create((Set<String>) opValue.get().getValue()));
             }
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
             if (valueNode.isPresent()) {
@@ -660,7 +543,7 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
             if (node.getNodeType().getLocalName().equals("op")) {
                 final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
                 if (opValue.isPresent()) {
-                    destPortsBuilder.setOp(createNumericOperand((Set<String>) opValue.get().getValue()));
+                    destPortsBuilder.setOp(NumericTwoByteOperandParser.INSTANCE.create((Set<String>) opValue.get().getValue()));
                 }
             }
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
@@ -680,7 +563,7 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
             final SourcePortsBuilder sourcePortsBuilder = new SourcePortsBuilder();
             final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
             if (opValue.isPresent()) {
-                sourcePortsBuilder.setOp(createNumericOperand((Set<String>) opValue.get().getValue()));
+                sourcePortsBuilder.setOp(NumericTwoByteOperandParser.INSTANCE.create((Set<String>) opValue.get().getValue()));
             }
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
             if (valueNode.isPresent()) {
@@ -699,7 +582,7 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
             final TypesBuilder typesBuilder = new TypesBuilder();
             final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
             if (opValue.isPresent()) {
-                typesBuilder.setOp(createNumericOperand((Set<String>) opValue.get().getValue()));
+                typesBuilder.setOp(NumericOneByteOperandParser.INSTANCE.create((Set<String>) opValue.get().getValue()));
             }
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
             if (valueNode.isPresent()) {
@@ -718,7 +601,7 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
             final CodesBuilder codesBuilder = new CodesBuilder();
             final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
             if (opValue.isPresent()) {
-                codesBuilder.setOp(createNumericOperand((Set<String>) opValue.get().getValue()));
+                codesBuilder.setOp(NumericOneByteOperandParser.INSTANCE.create((Set<String>) opValue.get().getValue()));
             }
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
             if (valueNode.isPresent()) {
@@ -737,7 +620,7 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
             final TcpFlagsBuilder tcpFlagsBuilder = new TcpFlagsBuilder();
             final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
             if (opValue.isPresent()) {
-                tcpFlagsBuilder.setOp(createBitmaskOperand((Set<String>) opValue.get().getValue()));
+                tcpFlagsBuilder.setOp(BitmaskOperandParser.INSTANCE.create((Set<String>) opValue.get().getValue()));
             }
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
             if (valueNode.isPresent()) {
@@ -756,7 +639,7 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
             final PacketLengthsBuilder packetLengthsBuilder = new PacketLengthsBuilder();
             final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
             if (opValue.isPresent()) {
-                packetLengthsBuilder.setOp(createNumericOperand((Set<String>) opValue.get().getValue()));
+                packetLengthsBuilder.setOp(NumericTwoByteOperandParser.INSTANCE.create((Set<String>) opValue.get().getValue()));
             }
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
             if (valueNode.isPresent()) {
@@ -775,7 +658,7 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
             final DscpsBuilder dscpsLengthsBuilder = new DscpsBuilder();
             final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
             if (opValue.isPresent()) {
-                dscpsLengthsBuilder.setOp(createNumericOperand((Set<String>) opValue.get().getValue()));
+                dscpsLengthsBuilder.setOp(NumericOneByteOperandParser.INSTANCE.create((Set<String>) opValue.get().getValue()));
             }
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
             if (valueNode.isPresent()) {
@@ -794,7 +677,7 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
             final FragmentsBuilder fragmentsBuilder = new FragmentsBuilder();
             final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
             if (opValue.isPresent()) {
-                fragmentsBuilder.setOp(createBitmaskOperand((Set<String>) opValue.get().getValue()));
+                fragmentsBuilder.setOp(BitmaskOperandParser.INSTANCE.create((Set<String>) opValue.get().getValue()));
             }
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
             if (valueNode.isPresent()) {
@@ -810,38 +693,30 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
         return new Fragment(data.contains(DO_NOT_VALUE), data.contains(FIRST_VALUE), data.contains(IS_A_VALUE), data.contains(LAST_VALUE));
     }
 
-    protected static final NumericOperand createNumericOperand(final Set<String> opValues) {
-        return new NumericOperand(opValues.contains(AND_BIT_VALUE), opValues.contains(END_OF_LIST_VALUE), opValues.contains(EQUALS_VALUE), opValues.contains(GREATER_THAN_VALUE), opValues.contains(LESS_THAN_VALUE));
-    }
-
-    private static BitmaskOperand createBitmaskOperand(final Set<String> opValues) {
-        return new BitmaskOperand(opValues.contains(AND_BIT_VALUE), opValues.contains(END_OF_LIST_VALUE), opValues.contains(MATCH_VALUE), opValues.contains(NOT_VALUE));
-    }
-
     @VisibleForTesting
     final String stringNlri(final Flowspec flow) {
         final StringBuilder buffer = new StringBuilder("all packets ");
         final FlowspecType value = flow.getFlowspecType();
         if (value instanceof PortCase) {
             buffer.append("where port ");
-            buffer.append(stringNumericTwo(((PortCase) value).getPorts()));
+            buffer.append(NumericTwoByteOperandParser.INSTANCE.toString(((PortCase) value).getPorts()));
         } else if (value instanceof DestinationPortCase) {
             buffer.append("where destination port ");
-            buffer.append(stringNumericTwo(((DestinationPortCase) value).getDestinationPorts()));
+            buffer.append(NumericTwoByteOperandParser.INSTANCE.toString(((DestinationPortCase) value).getDestinationPorts()));
         } else if (value instanceof SourcePortCase) {
             buffer.append("where source port ");
-            buffer.append(stringNumericTwo(((SourcePortCase) value).getSourcePorts()));
+            buffer.append(NumericTwoByteOperandParser.INSTANCE.toString(((SourcePortCase) value).getSourcePorts()));
         } else if (value instanceof IcmpTypeCase) {
             buffer.append("where ICMP type ");
-            buffer.append(stringNumericOne(((IcmpTypeCase) value).getTypes()));
+            buffer.append(NumericOneByteOperandParser.INSTANCE.toString(((IcmpTypeCase) value).getTypes()));
         } else if (value instanceof IcmpCodeCase) {
             buffer.append("where ICMP code ");
-            buffer.append(stringNumericOne(((IcmpCodeCase) value).getCodes()));
+            buffer.append(NumericOneByteOperandParser.INSTANCE.toString(((IcmpCodeCase) value).getCodes()));
         } else if (value instanceof TcpFlagsCase) {
             buffer.append(stringTcpFlags(((TcpFlagsCase) value).getTcpFlags()));
         } else if (value instanceof PacketLengthCase) {
             buffer.append("where packet length ");
-            buffer.append(stringNumericTwo(((PacketLengthCase) value).getPacketLengths()));
+            buffer.append(NumericTwoByteOperandParser.INSTANCE.toString(((PacketLengthCase) value).getPacketLengths()));
         } else if (value instanceof DscpCase) {
             buffer.append(stringDscp(((DscpCase) value).getDscps()));
         } else if (value instanceof FragmentCase) {
@@ -852,91 +727,16 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
         return buffer.toString();
     }
 
-    private static <T extends NumericTwoByteValue> String stringNumericTwo(final List<T> list) {
-        final StringBuilder buffer = new StringBuilder();
-        boolean isFirst = true;
-        for (final T item : list) {
-            buffer.append(stringNumericOperand(item.getOp(), isFirst));
-            buffer.append(item.getValue());
-            buffer.append(' ');
-            if (isFirst) {
-                isFirst = false;
-            }
-        }
-        return buffer.toString();
-    }
-
-    protected static final <T extends NumericOneByteValue> String stringNumericOne(final List<T> list) {
-        final StringBuilder buffer = new StringBuilder();
-        boolean isFirst = true;
-        for (final T item : list) {
-            buffer.append(stringNumericOperand(item.getOp(), isFirst));
-            buffer.append(item.getValue());
-            buffer.append(' ');
-            if (isFirst) {
-                isFirst = false;
-            }
-        }
-        return buffer.toString();
-    }
-
-    protected static final String stringNumericOperand(final NumericOperand op, final boolean isFirst) {
-        final StringBuilder buffer = new StringBuilder();
-        if (!op.isAndBit() && !isFirst) {
-            buffer.append("or ");
-        }
-        if (op.isAndBit()) {
-            buffer.append("and ");
-        }
-        if (op.isLessThan() && op.isEquals()) {
-            buffer.append("is less than or equal to ");
-            return buffer.toString();
-        } else if (op.isGreaterThan() && op.isEquals()) {
-            buffer.append("is greater than or equal to ");
-            return buffer.toString();
-        }
-        if (op.isEquals()) {
-            buffer.append("equals to ");
-        }
-        if (op.isLessThan()) {
-            buffer.append("is less than ");
-        }
-        if (op.isGreaterThan()) {
-            buffer.append("is greater than ");
-        }
-        return buffer.toString();
-    }
-
     private static String stringTcpFlags(final List<TcpFlags> flags) {
         final StringBuilder buffer = new StringBuilder("where TCP flags ");
         boolean isFirst = true;
         for (final TcpFlags item : flags) {
-            buffer.append(stringBitmaskOperand(item.getOp(), isFirst));
+            buffer.append(BitmaskOperandParser.INSTANCE.toString(item.getOp(), isFirst));
             buffer.append(item.getValue());
             buffer.append(' ');
             if (isFirst) {
                 isFirst = false;
             }
-        }
-        return buffer.toString();
-    }
-
-    private static String stringBitmaskOperand(final BitmaskOperand op, final boolean isFirst) {
-        final StringBuilder buffer = new StringBuilder();
-        if (!op.isAndBit() && !isFirst) {
-            buffer.append("or ");
-        }
-        if (op.isAndBit()) {
-            buffer.append("and ");
-        }
-        if (op.isMatch()) {
-            buffer.append("does ");
-            if (op.isNot()) {
-                buffer.append("not ");
-            }
-            buffer.append("match ");
-        } else if (op.isNot()) {
-            buffer.append("is not ");
         }
         return buffer.toString();
     }
@@ -945,7 +745,7 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
         final StringBuilder buffer = new StringBuilder("where DSCP ");
         boolean isFirst = true;
         for (final Dscps item : dscps) {
-            buffer.append(stringNumericOperand(item.getOp(), isFirst));
+            buffer.append(NumericOneByteOperandParser.INSTANCE.toString(item.getOp(), isFirst));
             buffer.append(item.getValue().getValue());
             buffer.append(' ');
             if (isFirst) {
@@ -959,7 +759,7 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
         final StringBuilder buffer = new StringBuilder("where fragment ");
         boolean isFirst = true;
         for (final Fragments item : fragments) {
-            buffer.append(stringBitmaskOperand(item.getOp(), isFirst));
+            buffer.append(BitmaskOperandParser.INSTANCE.toString(item.getOp(), isFirst));
             buffer.append(stringFragment(item.getValue()));
             if (isFirst) {
                 isFirst = false;

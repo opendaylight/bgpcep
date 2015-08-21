@@ -161,7 +161,7 @@ public class FSIpv6NlriParserTest {
         entry.withChild(Builders.choiceBuilder().withNodeIdentifier(new NodeIdentifier(FlowspecType.QNAME))
             .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FSIpv6NlriParser.FRAGMENT_NID)
                 .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv6NlriParser.OP_NID)
-                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv6NlriParser.OP_NID).withValue(Sets.<String>newHashSet(FSIpv6NlriParser.AND_BIT_VALUE, FSIpv6NlriParser.END_OF_LIST_VALUE, FSIpv6NlriParser.MATCH_VALUE, FSIpv6NlriParser.NOT_VALUE)).build())
+                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv6NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE, AbstractOperandParser.END_OF_LIST_VALUE, BitmaskOperandParser.MATCH_VALUE, BitmaskOperandParser.NOT_VALUE)).build())
                         .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv6NlriParser.VALUE_NID).withValue(Sets.newHashSet(FSIpv6NlriParser.DO_NOT_VALUE, FSIpv6NlriParser.FIRST_VALUE, FSIpv6NlriParser.IS_A_VALUE, FSIpv6NlriParser.LAST_VALUE)).build()).build())
                 .build()).build()).build();
         final FlowspecBuilder expected = new FlowspecBuilder();
@@ -176,13 +176,13 @@ public class FSIpv6NlriParserTest {
         entry.withChild(Builders.choiceBuilder().withNodeIdentifier(new NodeIdentifier(FlowspecType.QNAME))
             .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FSIpv6NlriParser.NEXT_HEADER_NID)
                 .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv6NlriParser.NEXT_HEADER_NID)
-                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv6NlriParser.OP_NID).withValue(Sets.<String>newHashSet(FSIpv4NlriParser.END_OF_LIST_VALUE, FSIpv4NlriParser.AND_BIT_VALUE)).build())
+                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv6NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.END_OF_LIST_VALUE, AbstractOperandParser.AND_BIT_VALUE)).build())
                         .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv6NlriParser.VALUE_NID).withValue((short) 100).build()).build())
                 .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv6NlriParser.NEXT_HEADER_NID)
-                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv6NlriParser.OP_NID).withValue(Sets.<String>newHashSet(FSIpv4NlriParser.AND_BIT_VALUE)).build())
+                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv6NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE)).build())
                         .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv6NlriParser.VALUE_NID).withValue((short) 200).build()).build())
                 .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv6NlriParser.NEXT_HEADER_NID)
-                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv6NlriParser.OP_NID).withValue(Sets.<String>newHashSet(FSIpv4NlriParser.END_OF_LIST_VALUE, FSIpv4NlriParser.AND_BIT_VALUE, FSIpv4NlriParser.EQUALS_VALUE)).build())
+                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv6NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.END_OF_LIST_VALUE, AbstractOperandParser.AND_BIT_VALUE, AbstractNumericOperandParser.EQUALS_VALUE)).build())
                         .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv6NlriParser.VALUE_NID).withValue((short) 210).build()).build())
                 .build()).build());
 
@@ -201,10 +201,10 @@ public class FSIpv6NlriParserTest {
         entry.withChild(Builders.choiceBuilder().withNodeIdentifier(new NodeIdentifier(FlowspecType.QNAME))
             .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FSIpv6NlriParser.FLOW_LABEL_NID)
                 .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv6NlriParser.FLOW_LABEL_NID)
-                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv6NlriParser.OP_NID).withValue(Sets.<String>newHashSet(FSIpv4NlriParser.END_OF_LIST_VALUE, FSIpv4NlriParser.AND_BIT_VALUE)).build())
+                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv6NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.END_OF_LIST_VALUE, AbstractOperandParser.AND_BIT_VALUE)).build())
                         .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv6NlriParser.VALUE_NID).withValue(100L).build()).build())
                 .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv6NlriParser.FLOW_LABEL_NID)
-                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv6NlriParser.OP_NID).withValue(Sets.<String>newHashSet(FSIpv4NlriParser.AND_BIT_VALUE)).build())
+                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv6NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE)).build())
                         .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv6NlriParser.VALUE_NID).withValue(200L).build()).build())
                 .build()).build());
 

@@ -114,18 +114,6 @@ public class FSIpv4NlriParserTest {
     private static final FSIpv4NlriParser FS_PARSER = new FSIpv4NlriParser();
 
     @Test
-    public void testParseLength() {
-        // 00-00-0000 = 1
-        assertEquals(1, FSIpv4NlriParser.parseLength((byte) 0x00));
-        // 00-01-0000 = 2
-        assertEquals(2, FSIpv4NlriParser.parseLength((byte) 16));
-        // 00-10-0000 = 4
-        assertEquals(4, FSIpv4NlriParser.parseLength((byte) 32));
-        // 00-11-0000 = 8
-        assertEquals(8, FSIpv4NlriParser.parseLength((byte) 48));
-    }
-
-    @Test
     public void testParseMpReachNlri() throws BGPParsingException {
         final List<Flowspec> fs = new ArrayList<>();
         final MpReachNlriBuilder mp = new MpReachNlriBuilder();
@@ -295,13 +283,13 @@ public class FSIpv4NlriParserTest {
         entry.withChild(Builders.choiceBuilder().withNodeIdentifier(new NodeIdentifier(FlowspecType.QNAME))
             .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FSIpv4NlriParser.PROTOCOL_IP_NID)
                 .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.PROTOCOL_IP_NID)
-                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(FSIpv4NlriParser.END_OF_LIST_VALUE, FSIpv4NlriParser.AND_BIT_VALUE)).build())
+                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.END_OF_LIST_VALUE, AbstractOperandParser.AND_BIT_VALUE)).build())
                         .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue((short) 100).build()).build())
                 .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.PROTOCOL_IP_NID)
-                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(FSIpv4NlriParser.AND_BIT_VALUE)).build())
+                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE)).build())
                         .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue((short) 200).build()).build())
                 .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.PROTOCOL_IP_NID)
-                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(FSIpv4NlriParser.END_OF_LIST_VALUE, FSIpv4NlriParser.AND_BIT_VALUE, FSIpv4NlriParser.EQUALS_VALUE)).build())
+                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.END_OF_LIST_VALUE, AbstractOperandParser.AND_BIT_VALUE, AbstractNumericOperandParser.EQUALS_VALUE)).build())
                         .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue((short) 240).build()).build())
                 .build()).build());
 
@@ -320,7 +308,7 @@ public class FSIpv4NlriParserTest {
         entry.withChild(Builders.choiceBuilder().withNodeIdentifier(new NodeIdentifier(FlowspecType.QNAME))
             .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FSIpv4NlriParser.PORTS_NID)
                 .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.PROTOCOL_IP_NID)
-                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(FSIpv4NlriParser.END_OF_LIST_VALUE, FSIpv4NlriParser.AND_BIT_VALUE, FSIpv4NlriParser.LESS_THAN_VALUE)).build())
+                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.END_OF_LIST_VALUE, AbstractOperandParser.AND_BIT_VALUE, AbstractNumericOperandParser.LESS_THAN_VALUE)).build())
                         .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue(100).build()).build())
                 .build()).build()).build();
         final FlowspecBuilder expected = new FlowspecBuilder();
@@ -335,7 +323,7 @@ public class FSIpv4NlriParserTest {
         entry.withChild(Builders.choiceBuilder().withNodeIdentifier(new NodeIdentifier(FlowspecType.QNAME))
             .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FSIpv4NlriParser.DEST_PORT_NID)
                 .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID)
-                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(FSIpv4NlriParser.END_OF_LIST_VALUE, FSIpv4NlriParser.EQUALS_VALUE)).build())
+                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.END_OF_LIST_VALUE, AbstractNumericOperandParser.EQUALS_VALUE)).build())
                         .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue(1024).build()).build())
                 .build()).build()).build();
         final FlowspecBuilder expected = new FlowspecBuilder();
@@ -350,7 +338,7 @@ public class FSIpv4NlriParserTest {
         entry.withChild(Builders.choiceBuilder().withNodeIdentifier(new NodeIdentifier(FlowspecType.QNAME))
             .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FSIpv4NlriParser.SOURCE_PORT_NID)
                 .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID)
-                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(FSIpv4NlriParser.AND_BIT_VALUE, FSIpv4NlriParser.END_OF_LIST_VALUE, FSIpv4NlriParser.EQUALS_VALUE, FSIpv4NlriParser.GREATER_THAN_VALUE, FSIpv4NlriParser.LESS_THAN_VALUE)).build())
+                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE, AbstractOperandParser.END_OF_LIST_VALUE, AbstractNumericOperandParser.EQUALS_VALUE, AbstractNumericOperandParser.GREATER_THAN_VALUE, AbstractNumericOperandParser.LESS_THAN_VALUE)).build())
                         .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue(8080).build()).build())
                 .build()).build()).build();
         final FlowspecBuilder expected = new FlowspecBuilder();
@@ -365,7 +353,7 @@ public class FSIpv4NlriParserTest {
         entry.withChild(Builders.choiceBuilder().withNodeIdentifier(new NodeIdentifier(FlowspecType.QNAME))
             .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FSIpv4NlriParser.ICMP_TYPE_NID)
                 .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID)
-                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(FSIpv4NlriParser.AND_BIT_VALUE, FSIpv4NlriParser.END_OF_LIST_VALUE, FSIpv4NlriParser.EQUALS_VALUE, FSIpv4NlriParser.GREATER_THAN_VALUE, FSIpv4NlriParser.LESS_THAN_VALUE)).build())
+                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE, AbstractOperandParser.END_OF_LIST_VALUE, AbstractNumericOperandParser.EQUALS_VALUE, AbstractNumericOperandParser.GREATER_THAN_VALUE, AbstractNumericOperandParser.LESS_THAN_VALUE)).build())
                         .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue((short) 22).build()).build())
                 .build()).build()).build();
         final FlowspecBuilder expected = new FlowspecBuilder();
@@ -395,7 +383,7 @@ public class FSIpv4NlriParserTest {
         entry.withChild(Builders.choiceBuilder().withNodeIdentifier(new NodeIdentifier(FlowspecType.QNAME))
             .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FSIpv4NlriParser.TCP_FLAGS_NID)
                 .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID)
-                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(FSIpv4NlriParser.AND_BIT_VALUE, FSIpv4NlriParser.END_OF_LIST_VALUE)).build())
+                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE, AbstractOperandParser.END_OF_LIST_VALUE)).build())
                         .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue(99).build()).build())
                 .build()).build()).build();
         final FlowspecBuilder expected = new FlowspecBuilder();
@@ -410,7 +398,7 @@ public class FSIpv4NlriParserTest {
         entry.withChild(Builders.choiceBuilder().withNodeIdentifier(new NodeIdentifier(FlowspecType.QNAME))
             .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FSIpv4NlriParser.PACKET_LENGTHS_NID)
                 .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID)
-                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(FSIpv4NlriParser.AND_BIT_VALUE, FSIpv4NlriParser.GREATER_THAN_VALUE)).build())
+                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE, AbstractNumericOperandParser.GREATER_THAN_VALUE)).build())
                         .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue(101).build()).build())
                .build()).build()).build();
         final FlowspecBuilder expected = new FlowspecBuilder();
@@ -425,7 +413,7 @@ public class FSIpv4NlriParserTest {
         entry.withChild(Builders.choiceBuilder().withNodeIdentifier(new NodeIdentifier(FlowspecType.QNAME))
             .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FSIpv4NlriParser.DSCP_NID)
                 .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID)
-                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(FSIpv4NlriParser.AND_BIT_VALUE, FSIpv4NlriParser.END_OF_LIST_VALUE, FSIpv4NlriParser.GREATER_THAN_VALUE)).build())
+                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE, AbstractOperandParser.END_OF_LIST_VALUE, AbstractNumericOperandParser.GREATER_THAN_VALUE)).build())
                         .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue((short)15).build()).build())
                .build()).build()).build();
         final FlowspecBuilder expected = new FlowspecBuilder();
@@ -440,7 +428,7 @@ public class FSIpv4NlriParserTest {
         entry.withChild(Builders.choiceBuilder().withNodeIdentifier(new NodeIdentifier(FlowspecType.QNAME))
             .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FSIpv4NlriParser.FRAGMENT_NID)
                 .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID)
-                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(FSIpv4NlriParser.AND_BIT_VALUE, FSIpv4NlriParser.END_OF_LIST_VALUE, FSIpv4NlriParser.MATCH_VALUE, FSIpv4NlriParser.NOT_VALUE)).build())
+                        .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE, AbstractOperandParser.END_OF_LIST_VALUE, BitmaskOperandParser.MATCH_VALUE, BitmaskOperandParser.NOT_VALUE)).build())
                         .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue(Sets.newHashSet(FSIpv4NlriParser.DO_NOT_VALUE, FSIpv4NlriParser.FIRST_VALUE, FSIpv4NlriParser.IS_A_VALUE, FSIpv4NlriParser.LAST_VALUE)).build()).build())
                 .build()).build()).build();
         final FlowspecBuilder expected = new FlowspecBuilder();
