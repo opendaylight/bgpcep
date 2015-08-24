@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "3a79b1b5_24aaf319",
+        "filename": "rsvp/api/src/main/yang/rsvp.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-24T12:41:03Z",
+      "side": 1,
+      "message": "08",
+      "range": {
+        "startLine": 25,
+        "startChar": 19,
+        "endLine": 25,
+        "endChar": 20
+      },
+      "revId": "eead881627fc770a2cb335be17ac275325eaa980",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a79b1b5_64722b7e",
         "filename": "rsvp/api/src/main/yang/rsvp.yang",
         "patchSetId": 7
