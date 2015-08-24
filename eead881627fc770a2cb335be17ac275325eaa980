@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_64722b7e",
+        "filename": "rsvp/api/src/main/yang/rsvp.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-08-24T08:29:38Z",
+      "side": 1,
+      "message": "Not a user value.",
+      "revId": "eead881627fc770a2cb335be17ac275325eaa980",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_245513c6",
+        "filename": "rsvp/api/src/main/yang/rsvp.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-08-24T08:29:38Z",
+      "side": 1,
+      "message": "Any reason for the enum not to be ordered?",
+      "revId": "eead881627fc770a2cb335be17ac275325eaa980",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_a45843fb",
+        "filename": "rsvp/api/src/main/yang/rsvp.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-08-24T08:29:38Z",
+      "side": 1,
+      "message": "1to1",
+      "revId": "eead881627fc770a2cb335be17ac275325eaa980",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_e405dbc2",
+        "filename": "rsvp/api/src/main/yang/rsvp.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-08-24T08:29:38Z",
+      "side": 1,
+      "message": "ordering",
+      "revId": "eead881627fc770a2cb335be17ac275325eaa980",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
