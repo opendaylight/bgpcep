@@ -1,0 +1,205 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_043c90e1",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/BmpDispatcherImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T21:36:39Z",
+      "side": 1,
+      "message": "calling \"get\" on absent will cause IllegalStateException",
+      "range": {
+        "startLine": 75,
+        "startChar": 51,
+        "endLine": 75,
+        "endChar": 61
+      },
+      "revId": "45901a6a368abf7529366ca94bd00de803bac625",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_24418c5a",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/BmpDispatcherImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T21:36:39Z",
+      "side": 1,
+      "message": "DEBUG level will be enough",
+      "range": {
+        "startLine": 161,
+        "startChar": 20,
+        "endLine": 161,
+        "endChar": 24
+      },
+      "revId": "45901a6a368abf7529366ca94bd00de803bac625",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_842f40a1",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/BmpDispatcherImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T21:36:39Z",
+      "side": 1,
+      "message": "same as above",
+      "range": {
+        "startLine": 163,
+        "startChar": 20,
+        "endLine": 163,
+        "endChar": 24
+      },
+      "revId": "45901a6a368abf7529366ca94bd00de803bac625",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_bf13655b",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpMonitoringStationImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T21:36:39Z",
+      "side": 1,
+      "message": "unused input parameter",
+      "range": {
+        "startLine": 65,
+        "startChar": 65,
+        "endLine": 65,
+        "endChar": 69
+      },
+      "revId": "45901a6a368abf7529366ca94bd00de803bac625",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_a42cbcac",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpMonitoringStationImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T21:36:39Z",
+      "side": 1,
+      "message": "should be private",
+      "range": {
+        "startLine": 81,
+        "startChar": 4,
+        "endLine": 81,
+        "endChar": 16
+      },
+      "revId": "45901a6a368abf7529366ca94bd00de803bac625",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_641ea472",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpMonitoringStationImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T21:36:39Z",
+      "side": 1,
+      "message": "Monitoredrouter list is already iterated in \"BmpMonitorImplModule\". Can we merge those two iterations into one?",
+      "range": {
+        "startLine": 82,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 9
+      },
+      "revId": "45901a6a368abf7529366ca94bd00de803bac625",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_8406601f",
+        "filename": "bgp/bmp-impl/src/test/java/org/opendaylight/protocol/bmp/impl/session/BmpDispatcherImplTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T21:36:39Z",
+      "side": 1,
+      "message": "is this client used now - if not remove.",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 5
+      },
+      "revId": "45901a6a368abf7529366ca94bd00de803bac625",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_a4035c0e",
+        "filename": "bgp/controller-config/src/main/resources/initial/42-bmp-example.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T21:36:39Z",
+      "side": 1,
+      "message": "please, see my comment in previous patchset.",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 53
+      },
+      "revId": "45901a6a368abf7529366ca94bd00de803bac625",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_3f00b500",
+        "filename": "programming/impl/src/test/java/org/opendaylight/controller/config/yang/programming/impl/AbstractInstructionSchedulerTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T21:36:39Z",
+      "side": 1,
+      "message": "there should be no whitespace.",
+      "revId": "45901a6a368abf7529366ca94bd00de803bac625",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
