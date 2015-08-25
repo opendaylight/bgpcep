@@ -1,0 +1,193 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_7f1dcd65",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 16
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T22:25:38Z",
+      "side": 1,
+      "message": "Improve commit message - add brief descritption and reference to the bugzilla bug",
+      "revId": "71a932e43d633270f6608aaf7826793d7e97af10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_9f1a296d",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/BGPActivator.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T22:25:38Z",
+      "side": 1,
+      "message": "final",
+      "range": {
+        "startLine": 25,
+        "startChar": 8,
+        "endLine": 25,
+        "endChar": 20
+      },
+      "revId": "71a932e43d633270f6608aaf7826793d7e97af10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_9fb6a93c",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParser.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T22:25:38Z",
+      "side": 1,
+      "message": "Please, follow coding style and import ordering for ODL.",
+      "revId": "71a932e43d633270f6608aaf7826793d7e97af10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_3f2755b8",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParser.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T22:25:38Z",
+      "side": 1,
+      "message": "use Label.QNAME",
+      "range": {
+        "startLine": 66,
+        "startChar": 73,
+        "endLine": 66,
+        "endChar": 143
+      },
+      "revId": "71a932e43d633270f6608aaf7826793d7e97af10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_df3e61b8",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParser.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T22:25:38Z",
+      "side": 1,
+      "message": "is this function used somewhere?",
+      "range": {
+        "startLine": 201,
+        "startChar": 0,
+        "endLine": 203,
+        "endChar": 5
+      },
+      "revId": "71a932e43d633270f6608aaf7826793d7e97af10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_3f83d557",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LabeledUnicastRIBSupport.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T22:25:38Z",
+      "side": 1,
+      "message": "Please, follow coding style and import ordering for ODL.",
+      "revId": "71a932e43d633270f6608aaf7826793d7e97af10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_1f82994f",
+        "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/controller/config/yang/bgp/labeled_unicast/LabeledUnicastModuleTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T22:25:38Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 3
+      },
+      "revId": "71a932e43d633270f6608aaf7826793d7e97af10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_9f8d497e",
+        "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParserTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T22:25:38Z",
+      "side": 1,
+      "message": "Please add parser/serializer test for LU NLRI with label stack including multiple labels.",
+      "range": {
+        "startLine": 38,
+        "startChar": 13,
+        "endLine": 38,
+        "endChar": 29
+      },
+      "revId": "71a932e43d633270f6608aaf7826793d7e97af10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_5fefb11e",
+        "filename": "features/bgp/src/main/features/features.xml",
+        "patchSetId": 16
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T22:25:38Z",
+      "side": 1,
+      "message": "change to odl-bgpcep-bgp-rib-api",
+      "range": {
+        "startLine": 91,
+        "startChar": 46,
+        "endLine": 91,
+        "endChar": 64
+      },
+      "revId": "71a932e43d633270f6608aaf7826793d7e97af10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
