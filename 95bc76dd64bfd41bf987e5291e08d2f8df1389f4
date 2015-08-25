@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_44c84822",
+        "filename": "bgp/linkstate/pom.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T21:05:31Z",
+      "side": 1,
+      "message": "We should not depend on implementation.",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 21
+      },
+      "revId": "95bc76dd64bfd41bf987e5291e08d2f8df1389f4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_24a50c53",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/LinkstateAttributeParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T21:05:31Z",
+      "side": 1,
+      "message": "static variable should be initialized in static manner.",
+      "range": {
+        "startLine": 61,
+        "startChar": 8,
+        "endLine": 61,
+        "endChar": 80
+      },
+      "revId": "95bc76dd64bfd41bf987e5291e08d2f8df1389f4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_c489b8cb",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/TeLspAttributesParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T21:05:31Z",
+      "side": 1,
+      "message": "2015",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "95bc76dd64bfd41bf987e5291e08d2f8df1389f4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_e48634b9",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/TeLspAttributesParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T21:05:31Z",
+      "side": 1,
+      "message": "store in variable",
+      "range": {
+        "startLine": 130,
+        "startChar": 34,
+        "endLine": 130,
+        "endChar": 64
+      },
+      "revId": "95bc76dd64bfd41bf987e5291e08d2f8df1389f4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_8493c0f9",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/TeLspAttributesParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T21:05:31Z",
+      "side": 1,
+      "message": "magic number",
+      "range": {
+        "startLine": 205,
+        "startChar": 26,
+        "endLine": 205,
+        "endChar": 28
+      },
+      "revId": "95bc76dd64bfd41bf987e5291e08d2f8df1389f4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_c45e9845",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/TeLspNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T21:05:31Z",
+      "side": 1,
+      "message": "2015",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "95bc76dd64bfd41bf987e5291e08d2f8df1389f4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

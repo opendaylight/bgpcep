@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_64cd4431",
+        "filename": "bgp/linkstate/pom.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-25T21:05:31Z",
+      "side": 0,
+      "message": "Why the scope was changed?",
+      "range": {
+        "startLine": 157,
+        "startChar": 13,
+        "endLine": 157,
+        "endChar": 32
+      },
+      "revId": "f01ebf3f90f0ef4d5b7d84efc7825727861f0b8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
