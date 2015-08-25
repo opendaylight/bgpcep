@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_b9262515",
+        "filename": "rsvp/api/src/main/yang/rsvp.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-08-25T14:56:23Z",
+      "side": 1,
+      "message": "Really? :-)",
+      "revId": "7c60ca352d98449c4087e094a02335a6110e4fb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_d923e103",
+        "filename": "rsvp/api/src/main/yang/rsvp.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 705,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2015-08-25T14:56:23Z",
+      "side": 1,
+      "message": "Do we need length field?",
+      "revId": "7c60ca352d98449c4087e094a02335a6110e4fb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
