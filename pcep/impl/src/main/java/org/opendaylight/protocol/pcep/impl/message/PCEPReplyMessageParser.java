@@ -22,9 +22,9 @@ import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.VendorInformationObjectRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcrep;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcrepBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.BandwidthObjectCommon;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.Iro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.Metrics;
@@ -98,7 +98,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         }
         serializeObject(f.getNoPath(), buffer);
         serializeObject(f.getLspa(), buffer);
-        serializeObject(f.getBandwidth(), buffer);
+        serializeBandwidth(f.getBandwidthChoice(), buffer);
         if (f.getMetrics() != null) {
             for (final Metrics m : f.getMetrics()) {
                 serializeObject(m.getMetric(), buffer);
@@ -115,7 +115,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
             serializeObject(p.getEro(), buffer);
             serializeObject(p.getLspa(), buffer);
             serializeObject(p.getOf(), buffer);
-            serializeObject(p.getBandwidth(), buffer);
+            serializeBandwidth(p.getBandwidthChoice(), buffer);
             if (p.getMetrics() != null) {
                 for (final Metrics m : p.getMetrics()) {
                     serializeObject(m.getMetric(), buffer);
@@ -258,8 +258,8 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
                 return State.LSPA_IN;
             }
         case LSPA_IN:
-            if (obj instanceof Bandwidth) {
-                builder.setBandwidth((Bandwidth) obj);
+            if (obj instanceof BandwidthObjectCommon) {
+                builder.setBandwidthChoice(addBandwidthChoice(obj));
                 return State.BANDWIDTH_IN;
             }
         case BANDWIDTH_IN:
@@ -310,8 +310,8 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
                 return State.OF_IN;
             }
         case OF_IN:
-            if (obj instanceof Bandwidth) {
-                builder.setBandwidth((Bandwidth) obj);
+            if (obj instanceof BandwidthObjectCommon) {
+                builder.setBandwidthChoice(addBandwidthChoice(obj));
                 return State.BANDWIDTH_IN;
             }
         case BANDWIDTH_IN:

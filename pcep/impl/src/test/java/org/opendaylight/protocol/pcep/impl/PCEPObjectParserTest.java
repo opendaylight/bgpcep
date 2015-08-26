@@ -13,7 +13,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
@@ -77,14 +76,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PceId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RequestId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.BandwidthBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.bandwidth.choice.basic.bandwidth.object._case.BasicBandwidthObjectBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.bandwidth.choice.reoptimization.bandwidth.object._case.ReoptimizationBandwidthObjectBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.common.BandwidthObjectCommonBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.classtype.object.ClassTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CCloseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv4CaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv6CaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.ipv4._case.Ipv4Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.ipv6._case.Ipv6Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.EndpointsObjBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.endpoints.obj.Ipv4EndpointsObjBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.endpoints.obj.Ipv6EndpointsObjBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.endpoints.obj.ipv4.endpoints.obj.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.endpoints.obj.ipv6.endpoints.obj.Ipv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.XroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.SubobjectBuilder;
@@ -380,10 +380,12 @@ public class PCEPObjectParserTest {
         final PCEPBandwidthObjectParser parser = new PCEPBandwidthObjectParser();
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPBandwidthObject1LowerBounds.bin"));
 
-        final BandwidthBuilder builder = new BandwidthBuilder();
+        final BasicBandwidthObjectBuilder builder = new BasicBandwidthObjectBuilder();
         builder.setProcessingRule(true);
         builder.setIgnore(true);
-        builder.setBandwidth(new Bandwidth(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 }));
+        BandwidthObjectCommonBuilder bandCommmonBuilder = new BandwidthObjectCommonBuilder()
+            .setBandwidth(new Bandwidth(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00}));
+        builder.setBandwidthObjectCommon(bandCommmonBuilder.build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buf = Unpooled.buffer();
@@ -409,10 +411,13 @@ public class PCEPObjectParserTest {
         final PCEPExistingBandwidthObjectParser parser = new PCEPExistingBandwidthObjectParser();
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPBandwidthObject2UpperBounds.bin"));
 
-        final BandwidthBuilder builder = new BandwidthBuilder();
+        final ReoptimizationBandwidthObjectBuilder builder = new ReoptimizationBandwidthObjectBuilder();
         builder.setProcessingRule(true);
         builder.setIgnore(true);
-        builder.setBandwidth(new Bandwidth(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }));
+        BandwidthObjectCommonBuilder bandCommmonBuilder = new BandwidthObjectCommonBuilder()
+            .setBandwidth(new Bandwidth(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}));
+
+        builder.setBandwidthObjectCommon(bandCommmonBuilder.build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buf = Unpooled.buffer();
@@ -441,12 +446,11 @@ public class PCEPObjectParserTest {
         final PCEPEndPointsIpv4ObjectParser parser = new PCEPEndPointsIpv4ObjectParser();
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPEndPointsObject1IPv4.bin"));
 
-        final EndpointsObjBuilder builder = new EndpointsObjBuilder();
+        final Ipv4EndpointsObjBuilder builder = new Ipv4EndpointsObjBuilder();
         builder.setProcessingRule(true);
         builder.setIgnore(false);
-        builder.setAddressFamily(new Ipv4CaseBuilder().setIpv4(
-                new Ipv4Builder().setSourceIpv4Address(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes))).setDestinationIpv4Address(
-                        Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(destIPBytes))).build()).build());
+        builder.setIpv4(new Ipv4Builder().setSourceIpv4Address(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes)))
+            .setDestinationIpv4Address(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(destIPBytes))).build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buf = Unpooled.buffer();
@@ -477,12 +481,11 @@ public class PCEPObjectParserTest {
         final PCEPEndPointsIpv6ObjectParser parser = new PCEPEndPointsIpv6ObjectParser();
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPEndPointsObject2IPv6.bin"));
 
-        final EndpointsObjBuilder builder = new EndpointsObjBuilder();
+        final Ipv6EndpointsObjBuilder builder = new Ipv6EndpointsObjBuilder();
         builder.setProcessingRule(true);
         builder.setIgnore(false);
-        builder.setAddressFamily(new Ipv6CaseBuilder().setIpv6(
-                new Ipv6Builder().setSourceIpv6Address(Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes))).setDestinationIpv6Address(
-                        Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(destIPBytes))).build()).build());
+        builder.setIpv6(new Ipv6Builder().setSourceIpv6Address(Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes)))
+            .setDestinationIpv6Address(Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(destIPBytes))).build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buf = Unpooled.buffer();

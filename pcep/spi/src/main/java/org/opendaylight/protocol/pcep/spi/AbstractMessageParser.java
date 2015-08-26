@@ -23,6 +23,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.BandwidthChoice;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.bandwidth.choice.BasicBandwidthObjectCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.bandwidth.choice.BasicBandwidthObjectCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.bandwidth.choice.ReoptimizationBandwidthObjectCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.bandwidth.choice.ReoptimizationBandwidthObjectCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.bandwidth.choice.basic.bandwidth.object._case.BasicBandwidthObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.bandwidth.choice.reoptimization.bandwidth.object._case.ReoptimizationBandwidthObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.EndpointsObj;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.endpoints.obj.Ipv4EndpointsObj;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.endpoints.obj.Ipv6EndpointsObj;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
@@ -156,5 +166,31 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
             objects.remove(0);
         }
         return vendorInfo;
+    }
+
+    protected final void serializeBandwidth(final BandwidthChoice bandwidthChoice, final ByteBuf buffer) {
+        if (bandwidthChoice instanceof BasicBandwidthObjectCase) {
+            serializeObject(((BasicBandwidthObjectCase) bandwidthChoice).getBasicBandwidthObject(), buffer);
+        } else if (bandwidthChoice instanceof ReoptimizationBandwidthObjectCase) {
+            serializeObject(((ReoptimizationBandwidthObjectCase) bandwidthChoice).getReoptimizationBandwidthObject(), buffer);
+        }
+    }
+
+    protected BandwidthChoice addBandwidthChoice(final Object obj) {
+        if (obj instanceof ReoptimizationBandwidthObject) {
+            return new ReoptimizationBandwidthObjectCaseBuilder().setReoptimizationBandwidthObject((
+                (ReoptimizationBandwidthObject) obj)).build();
+        }else if (obj instanceof BasicBandwidthObject) {
+            return new BasicBandwidthObjectCaseBuilder().setBasicBandwidthObject(((BasicBandwidthObject) obj)).build();
+        }
+        return null;
+    }
+
+    protected void serializeEndPoints(final EndpointsObj endpointsObj, final ByteBuf buffer) {
+        if (endpointsObj instanceof Ipv6EndpointsObj) {
+            serializeObject(((Ipv6EndpointsObj) endpointsObj), buffer);
+        }else if (endpointsObj instanceof Ipv4EndpointsObj){
+            serializeObject(((Ipv4EndpointsObj) endpointsObj), buffer);
+        }
     }
 }

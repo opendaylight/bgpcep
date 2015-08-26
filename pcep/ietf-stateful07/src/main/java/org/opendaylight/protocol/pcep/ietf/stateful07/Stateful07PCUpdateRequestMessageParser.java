@@ -27,9 +27,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcupd.message.pcupd.message.updates.Path;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcupd.message.pcupd.message.updates.PathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.BandwidthObjectCommon;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.Iro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.Metrics;
@@ -68,7 +68,7 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
         if (p != null) {
             serializeObject(p.getEro(), buffer);
             serializeObject(p.getLspa(), buffer);
-            serializeObject(p.getBandwidth(), buffer);
+            serializeBandwidth(p.getBandwidthChoice(), buffer);
             if (p.getMetrics() != null) {
                 for (final Metrics m : p.getMetrics()) {
                     serializeObject(m.getMetric(), buffer);
@@ -158,8 +158,8 @@ public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParse
                 return State.LSPA_IN;
             }
         case LSPA_IN:
-            if (obj instanceof Bandwidth) {
-                pBuilder.setBandwidth((Bandwidth) obj);
+            if (obj instanceof BandwidthObjectCommon) {
+                pBuilder.setBandwidthChoice(addBandwidthChoice(obj));
                 return State.BANDWIDTH_IN;
             }
         case BANDWIDTH_IN:

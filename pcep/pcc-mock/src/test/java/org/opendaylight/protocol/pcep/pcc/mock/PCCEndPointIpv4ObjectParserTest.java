@@ -18,8 +18,7 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv4Case;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.EndpointsObj;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.endpoints.obj.Ipv4EndpointsObj;
 
 public class PCCEndPointIpv4ObjectParserTest {
 
@@ -40,10 +39,10 @@ public class PCCEndPointIpv4ObjectParserTest {
         final ByteBuf bytes = Unpooled.buffer();
         bytes.writeBytes(Ipv4Util.bytesForAddress(new Ipv4Address(this.ip1)));
         bytes.writeBytes(Ipv4Util.bytesForAddress(new Ipv4Address(this.ip2)));
-        final EndpointsObj output = (EndpointsObj) new PCCEndPointIpv4ObjectParser().parseObject(header, bytes);
+        final Ipv4EndpointsObj output = (Ipv4EndpointsObj) new PCCEndPointIpv4ObjectParser().parseObject(header, bytes);
 
-        assertEquals(this.ip1, ((Ipv4Case) output.getAddressFamily()).getIpv4().getSourceIpv4Address().getValue());
-        assertEquals(this.ip2, ((Ipv4Case) output.getAddressFamily()).getIpv4().getDestinationIpv4Address().getValue());
+        assertEquals(this.ip1, output.getIpv4().getSourceIpv4Address().getValue());
+        assertEquals(this.ip2, output.getIpv4().getDestinationIpv4Address().getValue());
         assertFalse(output.isIgnore());
         assertFalse(output.isProcessingRule());
     }

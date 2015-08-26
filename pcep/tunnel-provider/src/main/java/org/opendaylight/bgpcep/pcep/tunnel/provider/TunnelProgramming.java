@@ -26,6 +26,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.AdministrativeStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Arguments2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Arguments2Builder;
@@ -34,14 +35,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcepCreateP2pTunnelInput1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcepUpdateTunnelInput1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.LspBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.BandwidthBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.bandwidth.choice.BasicBandwidthObjectCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.bandwidth.choice.BasicBandwidthObjectCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.bandwidth.choice.basic.bandwidth.object._case.BasicBandwidthObjectBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.common.BandwidthObjectCommonBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.classtype.object.ClassTypeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv4CaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv6CaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.ipv4._case.Ipv4Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.ipv6._case.Ipv6Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.EndpointsObjBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.EndpointsObj;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.endpoints.obj.Ipv4EndpointsObjBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.endpoints.obj.Ipv6EndpointsObjBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.endpoints.obj.ipv4.endpoints.obj.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.endpoints.obj.ipv6.endpoints.obj.Ipv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
@@ -152,7 +155,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
         }
     }
 
-    private AddressFamily buildAddressFamily(final TerminationPoint sp, final TerminationPoint dp) {
+    private EndpointsObj buildAddressFamily(final TerminationPoint sp, final TerminationPoint dp) {
         // We need the IGP augmentation -- it has IP addresses
         final TerminationPoint1 sp1 = Preconditions.checkNotNull(sp.getAugmentation(TerminationPoint1.class));
         final TerminationPoint1 dp1 = Preconditions.checkNotNull(dp.getAugmentation(TerminationPoint1.class));
@@ -173,7 +176,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
          * IPv4 or both IPv6. We are in IPv6-enabled world now, so let's
          * prefer that.
          */
-        AddressFamily ret = findIpv6(sips.getIpAddress(), dips.getIpAddress());
+        EndpointsObj ret = findIpv6(sips.getIpAddress(), dips.getIpAddress());
         if (ret == null) {
             ret = findIpv4(sips.getIpAddress(), dips.getIpAddress());
         }
@@ -184,13 +187,14 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
         return ret;
     }
 
-    private AddressFamily findIpv4(final List<IpAddress> srcs, final List<IpAddress> dsts) {
+    private EndpointsObj findIpv4(final List<IpAddress> srcs, final List<IpAddress> dsts) {
         for (final IpAddress sc : srcs) {
             if (sc.getIpv4Address() != null) {
                 for (final IpAddress dc : dsts) {
                     if (dc.getIpv4Address() != null) {
-                        return new Ipv4CaseBuilder().setIpv4(
-                                new Ipv4Builder().setSourceIpv4Address(sc.getIpv4Address()).setDestinationIpv4Address(dc.getIpv4Address()).build()).build();
+                        return new Ipv4EndpointsObjBuilder().setIpv4(
+                                new Ipv4Builder().setSourceIpv4Address(sc.getIpv4Address()).setDestinationIpv4Address
+                                    (dc.getIpv4Address()).build()).build();
                     }
                 }
             }
@@ -199,13 +203,13 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
         return null;
     }
 
-    private AddressFamily findIpv6(final List<IpAddress> srcs, final List<IpAddress> dsts) {
+    private EndpointsObj findIpv6(final List<IpAddress> srcs, final List<IpAddress> dsts) {
         for (final IpAddress sc : srcs) {
             if (sc.getIpv6Address() != null) {
                 for (final IpAddress dc : dsts) {
                     if (dc.getIpv6Address() != null) {
-                        return new Ipv6CaseBuilder().setIpv6(
-                                new Ipv6Builder().setSourceIpv6Address(sc.getIpv6Address()).setDestinationIpv6Address(dc.getIpv6Address()).build()).build();
+                        return new Ipv6EndpointsObjBuilder().setIpv6(new Ipv6Builder().setSourceIpv6Address(sc.getIpv6Address())
+                            .setDestinationIpv6Address(dc.getIpv6Address()).build()).build();
                     }
                 }
             }
@@ -290,15 +294,22 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
         return Futures.immediateFuture(res);
     }
 
+    private BasicBandwidthObjectCase addBandwidthChoice(final Bandwidth bandwidth){
+        return new BasicBandwidthObjectCaseBuilder().setBasicBandwidthObject(
+            new BasicBandwidthObjectBuilder().setBandwidthObjectCommon(
+                new BandwidthObjectCommonBuilder().setBandwidth(bandwidth).build()).build()).build();
+    }
+
     private Arguments buildArguments(final PcepCreateP2pTunnelInput input, final TerminationPoint sp, final TerminationPoint dp) {
         final ArgumentsBuilder args = new ArgumentsBuilder();
         if (input.getBandwidth() != null) {
-            args.setBandwidth(new BandwidthBuilder().setBandwidth(input.getBandwidth()).build());
+            // Not clear if it should be BasicBandwidthObject or ReoptimizationBandwidthObjectCase
+            args.setBandwidthChoice(addBandwidthChoice(input.getBandwidth())).build();
         }
         if (input.getClassType() != null) {
             args.setClassType(new ClassTypeBuilder().setClassType(input.getClassType()).build());
         }
-        args.setEndpointsObj(new EndpointsObjBuilder().setAddressFamily(buildAddressFamily(sp, dp)).build());
+        args.setEndpointsObj(buildAddressFamily(sp, dp));
         args.setEro(buildEro(input.getExplicitHops()));
         args.setLspa(new LspaBuilder(input).build());
 
@@ -394,7 +405,8 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
         ab.setNode(Preconditions.checkNotNull(supportingNode(node)));
 
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder args = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder();
-        args.setBandwidth(new BandwidthBuilder().setBandwidth(input.getBandwidth()).build());
+        // Not clear if it should be BasicBandwidthObject or ReoptimizationBandwidthObjectCase
+        args.setBandwidthChoice(addBandwidthChoice(input.getBandwidth())).build();
         args.setClassType(new ClassTypeBuilder().setClassType(input.getClassType()).build());
         args.setEro(buildEro(input.getExplicitHops()));
         args.setLspa(new LspaBuilder(input).build());

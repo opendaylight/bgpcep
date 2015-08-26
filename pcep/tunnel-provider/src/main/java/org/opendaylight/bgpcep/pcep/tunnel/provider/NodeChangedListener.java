@@ -30,6 +30,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv6Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv4._case.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv6._case.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.BandwidthChoice;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.bandwidth.choice.BasicBandwidthObjectCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.bandwidth.choice.ReoptimizationBandwidthObjectCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClient;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLsp;
@@ -232,8 +235,15 @@ public final class NodeChangedListener implements DataChangeListener {
 
         final Path path0 = value.getPath().get(0);
         final Link1Builder lab = new Link1Builder();
-        if (path0.getBandwidth() != null) {
-            lab.setBandwidth(path0.getBandwidth().getBandwidth());
+        final BandwidthChoice bandChoice = path0.getBandwidthChoice();
+        if (bandChoice != null) {
+            if(bandChoice instanceof BasicBandwidthObjectCase){
+                lab.setBandwidth(((BasicBandwidthObjectCase) bandChoice).getBasicBandwidthObject()
+                    .getBandwidthObjectCommon().getBandwidth());
+            }else if (bandChoice instanceof ReoptimizationBandwidthObjectCase) {
+                lab.setBandwidth(((ReoptimizationBandwidthObjectCase)bandChoice).getReoptimizationBandwidthObject()
+                    .getBandwidthObjectCommon().getBandwidth());
+            }
         }
         if (path0.getClassType() != null) {
             lab.setClassType(path0.getClassType().getClassType());

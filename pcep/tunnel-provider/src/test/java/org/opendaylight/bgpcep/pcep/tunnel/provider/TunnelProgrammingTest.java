@@ -41,8 +41,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcepUpdateTunnelInput1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcepUpdateTunnelInput1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ClassType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv4Case;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.ipv4._case.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.bandwidth.choice.BasicBandwidthObjectCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.endpoints.obj.Ipv4EndpointsObj;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.endpoints.obj.ipv4.endpoints.obj.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.InstructionStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.SubmitInstructionInput;
@@ -224,9 +225,10 @@ public class TunnelProgrammingTest extends AbstractDataBrokerTest {
         Assert.assertEquals(tunnelName, this.addLspInput.getName());
         final Arguments agrs = this.addLspInput.getArguments();
         Assert.assertNotNull(agrs);
-        Assert.assertEquals(bwd, agrs.getBandwidth().getBandwidth());
+        Assert.assertEquals(bwd, ((BasicBandwidthObjectCase) agrs.getBandwidthChoice()).getBasicBandwidthObject()
+            .getBandwidthObjectCommon().getBandwidth());
         Assert.assertEquals(classType, agrs.getClassType().getClassType());
-        final Ipv4 ipv4Endpoints = ((Ipv4Case) agrs.getEndpointsObj().getAddressFamily()).getIpv4();
+        final Ipv4 ipv4Endpoints = ((Ipv4EndpointsObj)agrs.getEndpointsObj()).getIpv4();
         Assert.assertEquals(NODE1_IPV4, ipv4Endpoints.getSourceIpv4Address().getValue());
         Assert.assertEquals(NODE2_IPV4, ipv4Endpoints.getDestinationIpv4Address().getValue());
         Assert.assertEquals(NODE1_ID.getValue(), this.addLspInput.getNode().getValue());

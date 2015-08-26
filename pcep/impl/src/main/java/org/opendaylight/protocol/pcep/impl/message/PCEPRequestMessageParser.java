@@ -21,11 +21,16 @@ import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.VendorInformationObjectRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcreq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcreqBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.BandwidthObjectCommon;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.Bandwidth;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.BandwidthChoice;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.bandwidth.choice.BasicBandwidthObjectCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.bandwidth.choice.ReoptimizationBandwidthObjectCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.classtype.object.ClassType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.EndpointsObj;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.endpoints.obj.Ipv4EndpointsObj;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.endpoints.obj.Ipv6EndpointsObj;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.Xro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.gc.object.Gc;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.Iro;
@@ -118,19 +123,23 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         }
     }
 
+
+
     protected void serializeP2P(final ByteBuf buffer, final P2p p2p) {
-        serializeObject(p2p.getEndpointsObj(), buffer);
+        serializeEndPoints(p2p.getEndpointsObj(), buffer);
+
         serializeVendorInformationObjects(p2p.getVendorInformationObject(), buffer);
         if (p2p.getReportedRoute() != null) {
             final ReportedRoute rr = p2p.getReportedRoute();
             if (rr != null) {
                 serializeObject(rr.getRro(), buffer);
-                serializeObject(rr.getBandwidth(), buffer);
+                serializeBandwidth(rr.getBandwidthChoice(), buffer);
             }
         }
         serializeObject(p2p.getLoadBalancing(), buffer);
         serializeObject(p2p.getLspa(), buffer);
-        serializeObject(p2p.getBandwidth(), buffer);
+        serializeBandwidth(p2p.getBandwidthChoice(), buffer);
+
         if (p2p.getMetrics() != null) {
             for (final Metrics m : p2p.getMetrics()) {
                 serializeObject(m.getMetric(), buffer);
@@ -221,7 +230,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             if (!objects.isEmpty() && objects.get(0) instanceof EndpointsObj) {
                 final EndpointsObj ep = (EndpointsObj) objects.get(0);
                 objects.remove(0);
-                if (!ep.isProcessingRule()) {
+                if (!endpointsObjIsProcessingRule((EndpointsObj) ep)) {
                     errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.of(rpObj)));
                 } else {
                     p2pBuilder.setEndpointsObj(ep);
@@ -242,6 +251,15 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         return requests;
     }
 
+    private Boolean endpointsObjIsProcessingRule(final EndpointsObj endpointsObj) {
+        if (endpointsObj instanceof Ipv6EndpointsObj) {
+            return ((Ipv6EndpointsObj) endpointsObj).isProcessingRule();
+        } else if (endpointsObj instanceof Ipv4EndpointsObj) {
+            return ((Ipv4EndpointsObj) endpointsObj).isProcessingRule();
+        }
+        return null;
+    }
+
     protected SegmentComputation getSegmentComputation(final P2pBuilder builder, final List<Object> objects, final List<Message> errors,
             final Rp rp) {
         final List<Metrics> metrics = new ArrayList<>();
@@ -260,16 +278,27 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         if (!viObjects.isEmpty()) {
             builder.setVendorInformationObject(viObjects);
         }
-
+        ;
         if (rp.isReoptimization()
-                && builder.getBandwidth() != null
-                && !builder.getReportedRoute().getBandwidth().getBandwidth().equals(
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth(new byte[] { 0 }))
+                && builder.getBandwidthChoice() != null
+                && !isBandwhtidhEqual(builder.getReportedRoute().getBandwidthChoice())
                 && builder.getReportedRoute().getRro() == null) {
             errors.add(createErrorMsg(PCEPErrors.RRO_MISSING, Optional.of(rp)));
             return null;
         }
         return new SegmentComputationBuilder().setP2p(builder.build()).build();
+    }
+
+    private boolean isBandwhtidhEqual(final BandwidthChoice bandwidthObject) {
+        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth bandwidth = null;
+        if (bandwidthObject instanceof BasicBandwidthObjectCase) {
+            bandwidth =((BasicBandwidthObjectCase) bandwidthObject).getBasicBandwidthObject().getBandwidthObjectCommon().getBandwidth();
+        } else if (bandwidthObject instanceof ReoptimizationBandwidthObjectCase) {
+            bandwidth = ((ReoptimizationBandwidthObjectCase) bandwidthObject).getReoptimizationBandwidthObject().getBandwidthObjectCommon()
+                .getBandwidth();
+        }
+        return bandwidth.equals(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts
+            .rev131125.Bandwidth(new byte[]{0}));
     }
 
     private State insertObject(final State state, final List<Object> objects, final List<VendorInformationObject> viObjects, final P2pBuilder builder, final List<Metrics> metrics, final List<Message> errors, final Rp rp) {
@@ -281,8 +310,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 rrBuilder.setRro((Rro) obj);
                 objects.remove(0);
                 final Object nextObj = objects.get(0);
-                if (nextObj instanceof Bandwidth) {
-                    rrBuilder.setBandwidth((Bandwidth) nextObj);
+                if (nextObj instanceof BandwidthObjectCommon) {
+                    rrBuilder.setBandwidthChoice(addBandwidthChoice(nextObj));
                 }
                 return State.REPORTED_IN;
             }
@@ -302,8 +331,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 return State.LSPA_IN;
             }
         case LSPA_IN:
-            if (obj instanceof Bandwidth) {
-                builder.setBandwidth((Bandwidth) obj);
+            if (obj instanceof BandwidthObjectCommon) {
+                builder.setBandwidthChoice(addBandwidthChoice(obj));
                 return State.BANDWIDTH_IN;
             }
         case BANDWIDTH_IN:

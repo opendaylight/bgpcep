@@ -377,11 +377,15 @@ module pcep-types {
         }
     }
 
-    grouping endpoints {
-        choice address-family {
+    grouping endpoints-object {
+        description "END-POINTS Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.6";
+
+        choice endpoints-obj {
             mandatory true;
 
-            case ipv4-case {
+            case ipv4-endpoints-obj {
+                uses object;
                 container ipv4 {
                     leaf source-ipv4-address {
                         type inet:ipv4-address;
@@ -394,7 +398,8 @@ module pcep-types {
                     }
                 }
             }
-            case ipv6-case {
+            case ipv6-endpoints-obj {
+                uses object;
                 container ipv6 {
                     leaf source-ipv6-address {
                         type inet:ipv6-address;
@@ -410,22 +415,27 @@ module pcep-types {
         }
     }
 
-    grouping endpoints-object {
-        description "END-POINTS Object";
-        reference "https://tools.ietf.org/html/rfc5440#section-7.6";
-
-        container endpoints-obj {
-            uses object;
-            uses endpoints;
-        }
-    }
-
     grouping bandwidth-object {
         description "BANDWIDTH Object";
         reference "https://tools.ietf.org/html/rfc5440#section-7.7";
-        container bandwidth {
-            uses object;
+        choice bandwidth-choice {
+            mandatory true;
+            case basic-bandwidth-object-case {
+                container basic-bandwidth-object {
+                    uses bandwidth-object-common;
+                }
+            }
+            case reoptimization-bandwidth-object-case {
+                container reoptimization-bandwidth-object {
+                    uses bandwidth-object-common;
+                }
+            }
+        }
+    }
 
+    grouping bandwidth-object-common {
+        uses object;
+        container bandwidth-object-common {
             // No possibility to carry TLVs
             leaf bandwidth {
                 type netc:bandwidth;
