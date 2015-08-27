@@ -16,5 +16,6 @@
     <module>pcep</module>
     <module>extras</module>
     <module>bmp</module>
+    <module>rsvp</module>
   </modules>
 </project>
