@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+<!--
+    Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v1.0 which accompanies this distribution,
+    and is available at http://www.eclipse.org/legal/epl-v10.html
+-->
+<snapshot>
+    <required-capabilities>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:rsvp:parser:spi?module=odl-rsvp-parser-spi-cfg&amp;revision=2015-08-26</capability>
+    </required-capabilities>
+    <configuration>
+        <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+            <modules xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:rsvp:parser:spi">prefix:rsvp-extensions-impl</type>
+                    <name>global-rsvp-extensions</name>
+                    <extension>
+                        <type xmlns:rsvpspi="urn:opendaylight:params:xml:ns:yang:controller:rsvp:parser:spi">rsvpspi:extension</type>
+                        <name>rsvp-parser</name>
+                    </extension>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:rsvp-parser</type>
+                    <name>rsvp-parser</name>
+                </module>
+                <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+                    <service>
+                        <type xmlns:rsvpspi="urn:opendaylight:params:xml:ns:yang:controller:rsvp:parser:spi">rsvpspi:rsvp-extensions</type>
+                        <instance>
+                            <name>global-rsvp-extensions</name>
+                            <provider>/modules/module[type='rsvp-extensions-impl'][name='global-rsvp-extensions']</provider>
+                        </instance>
+                    </service>
+            </services>
+            </modules>
+        </data>
+    </configuration>
+</snapshot>
