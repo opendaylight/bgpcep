@@ -328,7 +328,25 @@ public enum PCEPErrors {
     /**
      * LSP is not PCE-initiated
      */
-    LSP_NOT_PCE_INITIATED(19, 9);
+    LSP_NOT_PCE_INITIATED(19, 9),
+    /**
+     * LSP-DB-VERSION TLV missing
+     */
+    LSP_DB_VERSION_MISSING(6, 12),
+    /**
+     * Attempt to trigger a synchronization when the
+     * PCE triggered synchronization capability has not been advertised.
+     */
+    UNEXPECTED_SYNCHRONIZATION_ATTEMPT(20, 4),
+    /**
+     * No sufficient LSP change information for
+     * incremental LSP state synchronization.
+     */
+    NO_SUFFICIENT_LSP_CHANGE(20, 6),
+    /**
+     * Received an invalid LSP DB Version Number
+     */
+    INVALID_LSP_DB_VERSION(20, 7);
 
     private PCEPErrorIdentifier errorId;
     private static final Map<PCEPErrorIdentifier, PCEPErrors> VALUE_MAP;
