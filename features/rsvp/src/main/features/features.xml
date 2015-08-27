@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
+  ~
+  ~ This program and the accompanying materials are made available under the
+  ~ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+  ~ and is available at http://www.eclipse.org/legal/epl-v10.html
+  -->
+
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+
+
+<features name="odl-bgpcep-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
+
+    <repository>mvn:org.opendaylight.controller/features-config/{{VERSION}}/xml/features</repository>
+    <repository>mvn:org.opendaylight.controller/features-protocol-framework/{{VERSION}}/xml/features</repository>
+    <repository>mvn:org.opendaylight.yangtools/features-yangtools/{{VERSION}}/xml/features</repository>
+    <repository>mvn:org.opendaylight.tcpmd5/features-tcpmd5/{{VERSION}}/xml/features</repository>
+
+    <feature name='odl-bgpcep-rsvp' version='${project.version}'>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-api/{{VERSION}}</bundle>
+        <feature version='${project.version}'>odl-bgpcep-rsvp-dependencies</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/rsvp-api/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/rsvp-spi/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/rsvp-impl/{{VERSION}}</bundle>
+        <configfile finalname="etc/opendaylight/karaf/27-rsvp.xml">mvn:org.opendaylight.bgpcep/rsvp-controller-config/{{VERSION}}/xml/config</configfile>
+    </feature>
+
+    <feature name='odl-bgpcep-rsvp-dependencies' version='${project.version}'>
+        <!--  concepts -->
+        <bundle>mvn:com.google.guava/guava/{{VERSION}}</bundle>
+        <feature version='${yangtools.version}'>odl-yangtools-models</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/concepts/{{VERSION}}</bundle>
+        <feature version='${protocol-framework.version}'>odl-protocol-framework</feature>
+        <!-- util -->
+        <bundle>mvn:commons-codec/commons-codec/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/util/{{VERSION}}</bundle>
+        <feature version='${tcpmd5.version}'>odl-tcpmd5-netty</feature>
+    </feature>
+</features>
+
