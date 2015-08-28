@@ -104,4 +104,8 @@ module odl-pcep-sync-optimizations {
         uses lsp-db-version-tlv;
         uses speaker-entity-id-tlv;
     }
+
+    augment "/nt:network-topology/nt:topology/nt:node/topo:path-computation-client" {
+        uses lsp-db-version-tlv;
+    }
 }
