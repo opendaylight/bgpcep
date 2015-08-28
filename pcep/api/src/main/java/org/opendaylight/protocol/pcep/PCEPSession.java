@@ -38,4 +38,6 @@ public interface PCEPSession extends AutoCloseable, PcepSessionState {
     InetAddress getRemoteAddress();
 
     void resetStats();
+
+    Tlvs getLocalTlvs();
 }
