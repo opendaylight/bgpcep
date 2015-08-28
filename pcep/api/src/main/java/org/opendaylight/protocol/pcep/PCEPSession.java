@@ -38,4 +38,10 @@ public interface PCEPSession extends AutoCloseable, PcepSessionState {
     InetAddress getRemoteAddress();
 
     void resetStats();
+
+    /**
+     * Returns session characteristics of the local PCEP Speaker
+     * @return Open message TLVs
+     */
+    Tlvs localSessionCharacteristics();
 }
