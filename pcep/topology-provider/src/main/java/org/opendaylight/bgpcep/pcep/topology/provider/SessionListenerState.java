@@ -51,7 +51,14 @@ final class SessionListenerState {
         Preconditions.checkNotNull(session);
         this.localPref = getLocalPref(session.getLocalPref());
         this.peerPref = getPeerPref(session.getPeerPref());
+        resetSessionUpDuration();
         this.sessionUpDuration.start();
+    }
+
+    private void resetSessionUpDuration() {
+        if (this.sessionUpDuration.isRunning()) {
+            this.sessionUpDuration.reset();
+        }
     }
 
     public void processRequestStats(final long duration) {
@@ -171,5 +178,9 @@ final class SessionListenerState {
         msgs.setSentMsgCount(messages.getSentMsgCount());
         msgs.setUnknownMsgReceived(msgs.getUnknownMsgReceived());
         return msgs;
+    }
+
+    public void stop() {
+        resetSessionUpDuration();
     }
 }

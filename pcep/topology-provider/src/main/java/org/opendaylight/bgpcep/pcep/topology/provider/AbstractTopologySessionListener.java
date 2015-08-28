@@ -184,6 +184,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         this.nodeState = null;
         this.session = null;
         unregister();
+        this.listenerState.stop();
 
         // Clear all requests we know about
         for (final Entry<S, PCEPRequest> e : this.requests.entrySet()) {
