@@ -409,4 +409,9 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     public final void handlerAdded(final ChannelHandlerContext ctx) {
         this.sessionUp();
     }
+
+    @Override
+    public Tlvs localSessionCharacteristics() {
+        return localOpen.getTlvs();
+    }
 }
