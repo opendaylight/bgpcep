@@ -51,6 +51,9 @@ final class SessionListenerState {
         Preconditions.checkNotNull(session);
         this.localPref = getLocalPref(session.getLocalPref());
         this.peerPref = getPeerPref(session.getPeerPref());
+        if (this.sessionUpDuration.isRunning()) {
+            this.sessionUpDuration.reset();
+        }
         this.sessionUpDuration.start();
     }
 
