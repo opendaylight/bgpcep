@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "3a79b1b5_10727c49",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-31T23:29:02Z",
+      "side": 1,
+      "message": "-add a reference to the bugzilla bug number\n-add some brief description what is the change about and add reference to the RFC\n-\"Support multiple label stacks and multiple labels for each label stack.\" - this sentence is confusing.",
+      "revId": "0fc27a5658c01d6083fbc45705f724ce39367d06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a79b1b5_90b8cce6",
         "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/BGPActivator.java",
         "patchSetId": 19
