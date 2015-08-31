@@ -48,6 +48,76 @@
     },
     {
       "key": {
+        "uuid": "3a79b1b5_b0a2a8ac",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParser.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-31T23:05:18Z",
+      "side": 1,
+      "message": "and is already defined as constatnt in this class",
+      "parentUuid": "3a79b1b5_30cf7881",
+      "range": {
+        "startLine": 101,
+        "startChar": 34,
+        "endLine": 101,
+        "endChar": 35
+      },
+      "revId": "0fc27a5658c01d6083fbc45705f724ce39367d06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_f0c82076",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParser.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-31T23:05:18Z",
+      "side": 1,
+      "message": "\"magic number\"",
+      "range": {
+        "startLine": 108,
+        "startChar": 87,
+        "endLine": 108,
+        "endChar": 88
+      },
+      "revId": "0fc27a5658c01d6083fbc45705f724ce39367d06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_70ac10a1",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LabeledUnicastRIBSupport.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-31T23:05:18Z",
+      "side": 1,
+      "message": "Repetitive code.",
+      "range": {
+        "startLine": 230,
+        "startChar": 0,
+        "endLine": 237,
+        "endChar": 9
+      },
+      "revId": "0fc27a5658c01d6083fbc45705f724ce39367d06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a79b1b5_f0f100ce",
         "filename": "bgp/labeled-unicast/src/main/yang/bgp-labeled-unicast.yang",
         "patchSetId": 19
@@ -88,6 +158,23 @@
     },
     {
       "key": {
+        "uuid": "3a79b1b5_3096984d",
+        "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParserTest.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-31T23:05:18Z",
+      "side": 1,
+      "message": "Overall, this test suite code is hard to read...please refactor.",
+      "revId": "0fc27a5658c01d6083fbc45705f724ce39367d06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a79b1b5_b0bb88e4",
         "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParserTest.java",
         "patchSetId": 19
@@ -99,6 +186,29 @@
       "writtenOn": "2015-08-31T22:52:00Z",
       "side": 1,
       "message": "import order",
+      "revId": "0fc27a5658c01d6083fbc45705f724ce39367d06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_90af6c94",
+        "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParserTest.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-31T23:05:18Z",
+      "side": 1,
+      "message": "why?",
+      "range": {
+        "startLine": 96,
+        "startChar": 1,
+        "endLine": 96,
+        "endChar": 35
+      },
       "revId": "0fc27a5658c01d6083fbc45705f724ce39367d06",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
