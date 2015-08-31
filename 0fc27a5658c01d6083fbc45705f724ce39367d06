@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_90b8cce6",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/BGPActivator.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-31T22:52:00Z",
+      "side": 1,
+      "message": "use \"dot\" rather than \"underscore\"",
+      "range": {
+        "startLine": 8,
+        "startChar": 45,
+        "endLine": 8,
+        "endChar": 46
+      },
+      "revId": "0fc27a5658c01d6083fbc45705f724ce39367d06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_30cf7881",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParser.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-31T22:52:00Z",
+      "side": 1,
+      "message": "\"magic number\"",
+      "range": {
+        "startLine": 101,
+        "startChar": 34,
+        "endLine": 101,
+        "endChar": 35
+      },
+      "revId": "0fc27a5658c01d6083fbc45705f724ce39367d06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_f0f100ce",
+        "filename": "bgp/labeled-unicast/src/main/yang/bgp-labeled-unicast.yang",
+        "patchSetId": 19
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-31T22:52:00Z",
+      "side": 1,
+      "message": "is the bottom-bit leaf used somewhere? But we should preserve the order of label stack, right?",
+      "range": {
+        "startLine": 56,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 9
+      },
+      "revId": "0fc27a5658c01d6083fbc45705f724ce39367d06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_10ed9cef",
+        "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled_unicast/ActivatorTest.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-31T22:52:00Z",
+      "side": 1,
+      "message": "import order",
+      "revId": "0fc27a5658c01d6083fbc45705f724ce39367d06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_b0bb88e4",
+        "filename": "bgp/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled_unicast/LUNlriParserTest.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-31T22:52:00Z",
+      "side": 1,
+      "message": "import order",
+      "revId": "0fc27a5658c01d6083fbc45705f724ce39367d06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
