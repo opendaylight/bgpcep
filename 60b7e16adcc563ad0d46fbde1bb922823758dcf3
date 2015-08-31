@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_d08c0438",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/BmpDispatcherImpl.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-31T23:23:08Z",
+      "side": 1,
+      "message": "Not the best way for an exception catching...anyway is any catching required here?",
+      "range": {
+        "startLine": 102,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 9
+      },
+      "revId": "60b7e16adcc563ad0d46fbde1bb922823758dcf3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_7083b004",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpMonitoringStationImpl.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-31T23:23:08Z",
+      "side": 1,
+      "message": "reading/writing the list should be thread safety.",
+      "range": {
+        "startLine": 61,
+        "startChar": 32,
+        "endLine": 61,
+        "endChar": 46
+      },
+      "revId": "60b7e16adcc563ad0d46fbde1bb922823758dcf3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_90868c12",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpMonitoringStationImpl.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-31T23:23:08Z",
+      "side": 1,
+      "message": "The list is already iterated - can the code be merged to one?",
+      "range": {
+        "startLine": 84,
+        "startChar": 23,
+        "endLine": 84,
+        "endChar": 38
+      },
+      "revId": "60b7e16adcc563ad0d46fbde1bb922823758dcf3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_307d381d",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpMonitoringStationImpl.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-08-31T23:23:08Z",
+      "side": 1,
+      "message": "closing process should be blocking.",
+      "range": {
+        "startLine": 160,
+        "startChar": 15,
+        "endLine": 160,
+        "endChar": 20
+      },
+      "revId": "60b7e16adcc563ad0d46fbde1bb922823758dcf3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
