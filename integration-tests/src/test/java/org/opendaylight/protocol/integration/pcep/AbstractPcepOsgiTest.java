@@ -71,7 +71,7 @@ public class AbstractPcepOsgiTest {
 
     private Option pcepModules() {
         return new DefaultCompositeOption(
-                mavenBundle("org.opendaylight.yangtools.model", "ietf-topology").versionAsInProject(), //
+                mavenBundle("org.opendaylight.mdsal.model", "ietf-topology").versionAsInProject(), //
                 mavenBundle("org.opendaylight.yangtools", "object-cache-api").versionAsInProject(), //
                 mavenBundle("org.opendaylight.bgpcep", "pcep-topology-api").versionAsInProject(), //
                 mavenBundle("org.opendaylight.bgpcep", "pcep-tunnel-api").versionAsInProject(), //

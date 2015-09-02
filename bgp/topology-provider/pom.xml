@@ -77,7 +77,7 @@
             <artifactId>concepts</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.yangtools</groupId>
+            <groupId>org.opendaylight.mdsal</groupId>
             <artifactId>yang-binding</artifactId>
         </dependency>
         <dependency>
@@ -102,27 +102,27 @@
         </dependency>
 
         <dependency>
-            <groupId>org.opendaylight.yangtools.model</groupId>
+            <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>ietf-ted</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.yangtools.model</groupId>
+            <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>ietf-topology</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.yangtools.model</groupId>
+            <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>ietf-topology-isis</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.yangtools.model</groupId>
+            <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>ietf-topology-ospf</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.yangtools.model</groupId>
+            <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>ietf-topology-l3-unicast-igp</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.yangtools.model</groupId>
+            <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>ietf-inet-types</artifactId>
         </dependency>
 

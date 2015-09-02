@@ -20,7 +20,7 @@
 
     <feature name='odl-bgpcep-bmp' version='${project.version}'>
         <feature version='${tcpmd5.version}'>odl-tcpmd5-netty</feature>
-        <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
+        <feature version='${controller.mdsal.version}'>odl-mdsal-broker</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-dependencies</feature>
         <feature version='${config.version}'>odl-config-netty</feature>
         <bundle>mvn:io.netty/netty-codec/${netty.version}</bundle>
