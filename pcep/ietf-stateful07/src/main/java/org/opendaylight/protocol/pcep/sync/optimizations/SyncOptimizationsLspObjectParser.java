@@ -28,8 +28,10 @@ public class SyncOptimizationsLspObjectParser extends CInitiated00LspObjectParse
 
     @Override
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
-        super.serializeTlvs(tlvs, body);
-        serializeAugmentation(tlvs.getAugmentation(Tlvs1.class), body);
+        if (tlvs != null) {
+            super.serializeTlvs(tlvs, body);
+            serializeAugmentation(tlvs.getAugmentation(Tlvs1.class), body);
+        }
     }
 
     private void serializeAugmentation(final Tlvs1 tlv, final ByteBuf body) {
