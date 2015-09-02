@@ -53,7 +53,7 @@
             <artifactId>yang-binding</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.yangtools.model</groupId>
+            <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>ietf-inet-types</artifactId>
             <scope>test</scope>
         </dependency>
