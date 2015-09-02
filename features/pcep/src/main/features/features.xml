@@ -37,7 +37,7 @@
     <feature name='odl-bgpcep-pcep-dependencies' version='${project.version}'>
         <!--  concepts -->
         <bundle>mvn:com.google.guava/guava/{{VERSION}}</bundle>
-        <feature version='${yangtools.version}'>odl-yangtools-models</feature>
+        <feature version='${yangtools.version}'>odl-mdsal-models</feature>
         <bundle>mvn:org.opendaylight.bgpcep/concepts/{{VERSION}}</bundle>
         <!-- util -->
         <bundle>mvn:commons-codec/commons-codec/{{VERSION}}</bundle>
