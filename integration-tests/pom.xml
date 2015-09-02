@@ -99,9 +99,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.controller</groupId>
+            <groupId>org.opendaylight.netconf</groupId>
             <artifactId>config-netconf-connector</artifactId>
-            <version>${controller.config.version}</version>
+            <version>${netconf.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -110,22 +110,22 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.controller</groupId>
+            <groupId>org.opendaylight.netconf</groupId>
             <artifactId>netconf-monitoring</artifactId>
-            <version>${controller.config.version}</version>
+            <version>${netconf.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.controller</groupId>
+            <groupId>org.opendaylight.netconf</groupId>
             <artifactId>netconf-impl</artifactId>
-            <version>${controller.config.version}</version>
+            <version>${netconf.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.opendaylight.controller</groupId>
+            <groupId>org.opendaylight.netconf</groupId>
             <artifactId>ietf-netconf-monitoring</artifactId>
-            <version>${controller.config.version}</version>
+            <version>${netconf.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -344,9 +344,9 @@
         </dependency>
 
         <dependency>
-          <groupId>org.opendaylight.controller</groupId>
+          <groupId>org.opendaylight.netconf</groupId>
           <artifactId>netconf-client</artifactId>
-          <version>${controller.config.version}</version>
+            <version>${netconf.version}</version>
           <scope>test</scope>
         </dependency>
 
