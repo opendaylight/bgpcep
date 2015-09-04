@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_28738816",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled/unicast/LabeledUnicastRIBSupport.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T14:00:54Z",
+      "side": 1,
+      "message": "return value is not assigned",
+      "range": {
+        "startLine": 224,
+        "startChar": 12,
+        "endLine": 224,
+        "endChar": 23
+      },
+      "revId": "2c882489cc597d510abfc1e4ac387d909d036295",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_c861b43a",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled/unicast/LabeledUnicastRIBSupport.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T14:00:54Z",
+      "side": 1,
+      "message": "return value is not assigned",
+      "range": {
+        "startLine": 244,
+        "startChar": 12,
+        "endLine": 244,
+        "endChar": 25
+      },
+      "revId": "2c882489cc597d510abfc1e4ac387d909d036295",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_a85eb874",
+        "filename": "bgp/labeled-unicast/src/main/yang/bgp-labeled-unicast.yang",
+        "patchSetId": 22
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T14:00:54Z",
+      "side": 1,
+      "message": "are those flags used in implementation?",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 9
+      },
+      "revId": "2c882489cc597d510abfc1e4ac387d909d036295",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_e864b04a",
+        "filename": "bgp/labeled-unicast/src/main/yang/bgp-labeled-unicast.yang",
+        "patchSetId": 22
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T14:00:54Z",
+      "side": 1,
+      "message": "Is this value used in implementation?",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 9
+      },
+      "revId": "2c882489cc597d510abfc1e4ac387d909d036295",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_885bbc86",
+        "filename": "bgp/labeled-unicast/src/main/yang/bgp-labeled-unicast.yang",
+        "patchSetId": 22
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T14:00:54Z",
+      "side": 1,
+      "message": "I think the list should be \"ordered by user\"",
+      "range": {
+        "startLine": 68,
+        "startChar": 19,
+        "endLine": 68,
+        "endChar": 24
+      },
+      "revId": "2c882489cc597d510abfc1e4ac387d909d036295",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
