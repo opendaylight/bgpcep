@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_887dfc70",
+        "filename": "rsvp/impl/src/main/java/org/opendaylight/protocol/rsvp/parser/impl/subobject/RRO/RROIpv4PrefixSubobjectParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T11:57:43Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 39,
+        "startChar": 48,
+        "endLine": 39,
+        "endChar": 51
+      },
+      "revId": "ab9dd5f6e863e07e2a3583508ab6e95dc52426be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
