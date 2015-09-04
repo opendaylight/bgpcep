@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_e8783091",
+        "filename": "rsvp/spi/src/main/java/org/opendaylight/controller/config/yang/rsvp/spi/SimpleRSVPExtensionProviderContextModule.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T11:01:52Z",
+      "side": 1,
+      "message": "missing copyright header",
+      "revId": "16b12105895313a34880d4d529415d1361b5ce65",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_886f3cc5",
+        "filename": "rsvp/spi/src/main/java/org/opendaylight/controller/config/yang/rsvp/spi/SimpleRSVPExtensionProviderContextModuleFactory.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T11:01:52Z",
+      "side": 1,
+      "message": "copyright header",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 2
+      },
+      "revId": "16b12105895313a34880d4d529415d1361b5ce65",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
