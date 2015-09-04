@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_08e80c0f",
+        "filename": "rsvp/impl/src/main/java/org/opendaylight/protocol/rsvp/parser/impl/RSVPActivator.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T12:12:47Z",
+      "side": 1,
+      "message": "missing registration for ipv6 serializer?",
+      "revId": "d8679b1ade58152a713ad6af79fd7bdd9ff15c4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_68d98082",
+        "filename": "rsvp/impl/src/main/java/org/opendaylight/protocol/rsvp/parser/impl/RSVPActivator.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T12:12:47Z",
+      "side": 1,
+      "message": "missing serializer registration for path key 64",
+      "revId": "d8679b1ade58152a713ad6af79fd7bdd9ff15c4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_e8d4b048",
+        "filename": "rsvp/impl/src/main/java/org/opendaylight/protocol/rsvp/parser/impl/RSVPActivator.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T12:12:47Z",
+      "side": 1,
+      "message": "srro",
+      "range": {
+        "startLine": 255,
+        "startChar": 49,
+        "endLine": 255,
+        "endChar": 53
+      },
+      "revId": "d8679b1ade58152a713ad6af79fd7bdd9ff15c4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
