@@ -1,0 +1,257 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_0877ac3b",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/LinkstateAttributeParser.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T13:39:56Z",
+      "side": 1,
+      "message": "why not using getAttributesMap()? Truth is there can be only one LSP State TLV, but you can simply get first entry from map.",
+      "range": {
+        "startLine": 124,
+        "startChar": 0,
+        "endLine": 125,
+        "endChar": 58
+      },
+      "revId": "1ca1bb69d4989193192b402c67fa6c079eed3c3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_a8eb18af",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/TeLspAttributesParser.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T13:39:56Z",
+      "side": 1,
+      "message": "Is it necessary?",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 18
+      },
+      "revId": "1ca1bb69d4989193192b402c67fa6c079eed3c3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_e8ba70bf",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/TeLspAttributesParser.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T13:39:56Z",
+      "side": 1,
+      "message": "please, add some comment here like \"TBD by IANA\"",
+      "range": {
+        "startLine": 58,
+        "startChar": 44,
+        "endLine": 58,
+        "endChar": 46
+      },
+      "revId": "1ca1bb69d4989193192b402c67fa6c079eed3c3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_08f32c9f",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/TeLspAttributesParser.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T13:39:56Z",
+      "side": 1,
+      "message": "Optionally, you can save few lines of code and instead creating variable, directly call get*Object();",
+      "range": {
+        "startLine": 128,
+        "startChar": 33,
+        "endLine": 128,
+        "endChar": 38
+      },
+      "revId": "1ca1bb69d4989193192b402c67fa6c079eed3c3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_a839d842",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/LinkstateNlriParser.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T13:39:56Z",
+      "side": 1,
+      "message": "just moving code or is there some change?",
+      "range": {
+        "startLine": 100,
+        "startChar": 0,
+        "endLine": 107,
+        "endChar": 64
+      },
+      "revId": "1ca1bb69d4989193192b402c67fa6c079eed3c3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_880dfc92",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/LinkstateNlriParser.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T13:39:56Z",
+      "side": 1,
+      "message": "rather create function for this",
+      "range": {
+        "startLine": 193,
+        "startChar": 0,
+        "endLine": 199,
+        "endChar": 72
+      },
+      "revId": "1ca1bb69d4989193192b402c67fa6c079eed3c3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_a810f8a8",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/LinkstateNlriParser.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T13:39:56Z",
+      "side": 1,
+      "message": "rather create function",
+      "range": {
+        "startLine": 202,
+        "startChar": 0,
+        "endLine": 208,
+        "endChar": 70
+      },
+      "revId": "1ca1bb69d4989193192b402c67fa6c079eed3c3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_484044a5",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/LinkstateNlriParser.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T13:39:56Z",
+      "side": 1,
+      "message": "Just moving code (move it back) or is there some change?",
+      "range": {
+        "startLine": 365,
+        "startChar": 0,
+        "endLine": 418,
+        "endChar": 5
+      },
+      "revId": "1ca1bb69d4989193192b402c67fa6c079eed3c3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_6822e002",
+        "filename": "bgp/linkstate/src/main/yang/odl-bgp-linkstate-cfg.yang",
+        "patchSetId": 16
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T13:39:56Z",
+      "side": 1,
+      "message": "2015",
+      "range": {
+        "startLine": 27,
+        "startChar": 17,
+        "endLine": 27,
+        "endChar": 18
+      },
+      "revId": "1ca1bb69d4989193192b402c67fa6c079eed3c3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_c87a14f1",
+        "filename": "features/bgp/src/main/features/features.xml",
+        "patchSetId": 16
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T13:39:56Z",
+      "side": 1,
+      "message": "why adding tcp-md5?",
+      "range": {
+        "startLine": 84,
+        "startChar": 8,
+        "endLine": 84,
+        "endChar": 71
+      },
+      "revId": "1ca1bb69d4989193192b402c67fa6c079eed3c3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_e87d90e8",
+        "filename": "features/bgp/src/main/features/features.xml",
+        "patchSetId": 16
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T13:39:56Z",
+      "side": 1,
+      "message": "is it necessary?",
+      "range": {
+        "startLine": 85,
+        "startChar": 8,
+        "endLine": 85,
+        "endChar": 73
+      },
+      "revId": "1ca1bb69d4989193192b402c67fa6c079eed3c3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
