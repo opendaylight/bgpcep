@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_48fa84be",
+        "filename": "features/rsvp/src/main/features/features.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T12:24:57Z",
+      "side": 1,
+      "message": "use {{VERSION}} here",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 103
+      },
+      "revId": "7810d934e136815285e4bac0db0783307092acbc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_e83030a0",
+        "filename": "features/rsvp/src/main/features/features.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T12:24:57Z",
+      "side": 1,
+      "message": "why do we need dependency on pcep bundles?",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 73
+      },
+      "revId": "7810d934e136815285e4bac0db0783307092acbc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
