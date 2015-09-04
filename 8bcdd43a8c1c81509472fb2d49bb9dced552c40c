@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_e867d023",
+        "filename": "pcep/api/src/main/yang/pcep-types.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T14:17:40Z",
+      "side": 1,
+      "message": "Please do not do unnecessary changes like renaming...it will affect users of this API",
+      "range": {
+        "startLine": 380,
+        "startChar": 0,
+        "endLine": 416,
+        "endChar": 5
+      },
+      "revId": "8bcdd43a8c1c81509472fb2d49bb9dced552c40c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_c84bf485",
+        "filename": "pcep/api/src/main/yang/pcep-types.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T14:17:40Z",
+      "side": 1,
+      "message": "try to do it in way which does not impact API users",
+      "range": {
+        "startLine": 418,
+        "startChar": 0,
+        "endLine": 444,
+        "endChar": 5
+      },
+      "revId": "8bcdd43a8c1c81509472fb2d49bb9dced552c40c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a79b1b5_a848f887",
+        "filename": "pcep/spi/src/main/java/org/opendaylight/protocol/pcep/spi/AbstractMessageParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-04T14:17:40Z",
+      "side": 1,
+      "message": "is this really necessary to do the change here? Can we hide this in object handlers?",
+      "range": {
+        "startLine": 171,
+        "startChar": 0,
+        "endLine": 195,
+        "endChar": 5
+      },
+      "revId": "8bcdd43a8c1c81509472fb2d49bb9dced552c40c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
