@@ -19,6 +19,11 @@ import org.opendaylight.protocol.pcep.spi.RROSubobjectUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PathKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PceId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.subobject.path.key.choice.PathKey128Case;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.subobject.path.key.choice.PathKey32Case;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.subobject.path.key.choice.PathKey32CaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.subobject.path.key.choice.path.key._32._case.PathKey32;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.subobject.path.key.choice.path.key._32._case.PathKey32Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.subobject.subobject.type.PathKeyCase;
@@ -47,10 +52,9 @@ public class RROPathKey32SubobjectParser implements RROSubobjectParser, RROSubob
         final int pathKey = buffer.readUnsignedShort();
         final byte[] pceId = ByteArray.readBytes(buffer, PCE_ID_F_LENGTH);
         final SubobjectBuilder builder = new SubobjectBuilder();
-        final PathKeyBuilder pBuilder = new PathKeyBuilder();
-        pBuilder.setPceId(new PceId(pceId));
-        pBuilder.setPathKey(new PathKey(pathKey));
-        builder.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
+        final PathKey32Case pk32 = new PathKey32CaseBuilder().setPathKey32(new PathKey32Builder().setPceId(
+            new PceId(pceId)).setPathKey(new PathKey(pathKey)).build()).build();
+        builder.setSubobjectType(new PathKeyCaseBuilder().setPathKey(new PathKeyBuilder().setPathKeyChoice(pk32).build()).build());
         return builder.build();
     }
 
@@ -60,10 +64,16 @@ public class RROPathKey32SubobjectParser implements RROSubobjectParser, RROSubob
         final PathKeyCase pkcase = (PathKeyCase) subobject.getSubobjectType();
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.subobject.subobject.type.path.key._case.PathKey pk = pkcase.getPathKey();
         final ByteBuf body = Unpooled.buffer();
-        Preconditions.checkArgument(pk.getPathKey() != null, "PathKey is mandatory.");
-        writeUnsignedShort(pk.getPathKey().getValue(), body);
-        Preconditions.checkArgument(pk.getPceId() != null, "PceId is mandatory.");
-        body.writeBytes(pk.getPceId().getBinary());
+        Preconditions.checkArgument(pk.getPathKeyChoice() != null, "PathKey is mandatory.");
+        if (pk.getPathKeyChoice() instanceof PathKey128Case) {
+            RROPathKey128SubobjectParser.serializeSubobject(subobject,buffer);
+            return;
+        }
+        Preconditions.checkArgument(pk.getPathKeyChoice() instanceof PathKey32Case, "PathKey32 is mandatory.");
+        final PathKey32 pk32 = ((PathKey32Case) pk.getPathKeyChoice()).getPathKey32();
+        writeUnsignedShort(pk32.getPathKey().getValue(), body);
+        Preconditions.checkArgument(pk32.getPceId() != null, "PceId is mandatory.");
+        body.writeBytes(pk32.getPceId().getBinary());
         RROSubobjectUtil.formatSubobject(TYPE, body, buffer);
     }
 }
