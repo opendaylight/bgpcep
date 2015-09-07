@@ -32,6 +32,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.PathKeyCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.path.key._case.PathKeyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.subobject.path.key.choice.PathKey128CaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.subobject.path.key.choice.PathKey32CaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.subobject.path.key.choice.path.key._128._case.PathKey128Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.subobject.path.key.choice.path.key._32._case.PathKey32Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.ExcludeRouteSubobjects.Attribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.SrlgId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.AsNumberCaseBuilder;
@@ -200,10 +204,11 @@ public class PCEPXROSubobjectParserTest {
         final XROPathKey32SubobjectParser parser = new XROPathKey32SubobjectParser();
         final SubobjectBuilder subs = new SubobjectBuilder();
         subs.setMandatory(true);
-        final PathKeyBuilder pBuilder = new PathKeyBuilder();
+        final PathKey32Builder pBuilder = new PathKey32Builder();
         pBuilder.setPceId(new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00 }));
         pBuilder.setPathKey(new PathKey(4660));
-        subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
+        subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(new PathKeyBuilder().setPathKeyChoice(new
+            PathKey32CaseBuilder().setPathKey32(pBuilder.build()).build()).build()).build());
         assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(pathKey32Bytes, 2)), true));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeSubobject(subs.build(), buff);
@@ -228,11 +233,12 @@ public class PCEPXROSubobjectParserTest {
         final XROPathKey128SubobjectParser parser = new XROPathKey128SubobjectParser();
         final SubobjectBuilder subs = new SubobjectBuilder();
         subs.setMandatory(true);
-        final PathKeyBuilder pBuilder = new PathKeyBuilder();
+        final PathKey128Builder pBuilder = new PathKey128Builder();
         pBuilder.setPceId(new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC, (byte) 0xDE,
             (byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 }));
         pBuilder.setPathKey(new PathKey(4660));
-        subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
+        subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(new PathKeyBuilder().setPathKeyChoice(new
+            PathKey128CaseBuilder().setPathKey128(pBuilder.build()).build()).build()).build());
         assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(pathKey128Bytes, 2)), true));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeSubobject(subs.build(), buff);
