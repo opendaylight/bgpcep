@@ -60,9 +60,13 @@ public class EROPathKey32SubobjectParser implements EROSubobjectParser, EROSubob
         Preconditions.checkArgument(subobject.getSubobjectType() instanceof PathKeyCase, "Unknown subobject instance. Passed %s. Needed PathKey.", subobject.getSubobjectType().getClass());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.path.key._case.PathKey pk = ((PathKeyCase) subobject.getSubobjectType()).getPathKey();
         final ByteBuf body = Unpooled.buffer();
+        Preconditions.checkArgument(pk.getPceId() != null, "PceId is mandatory.");
+        if(pk.getPceId().getBinary().length == 16) {
+            EROPathKey128SubobjectParser.serializeSubobject(subobject,buffer);
+        }
         Preconditions.checkArgument(pk.getPathKey() != null, "PathKey is mandatory.");
         writeUnsignedShort(pk.getPathKey().getValue(), body);
-        Preconditions.checkArgument(pk.getPceId() != null, "PceId is mandatory.");
+        Preconditions.checkArgument(pk.getPceId().getBinary().length == 4, "PceId 32 Bit required.");
         body.writeBytes(pk.getPceId().getBinary());
         EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
     }
