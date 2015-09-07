@@ -405,16 +405,28 @@ module pcep-types {
         }
     }
 
+    grouping bandwidth {
+        // No possibility to carry TLVs
+        leaf bandwidth {
+            type netc:bandwidth;
+        }
+    }
+
     grouping bandwidth-object {
         description "BANDWIDTH Object";
         reference "https://tools.ietf.org/html/rfc5440#section-7.7";
         container bandwidth {
             uses object;
+            uses bandwidth;
+        }
+    }
 
-            // No possibility to carry TLVs
-            leaf bandwidth {
-                type netc:bandwidth;
-            }
+    grouping reoptimization-bandwidth-object {
+        description "BANDWIDTH Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.7";
+        container reoptimization-bandwidth {
+            uses object;
+            uses bandwidth;
         }
     }
 
@@ -969,7 +981,7 @@ module pcep-types {
                         container reported-route {
                             uses reported-route-object;
 
-                            uses bandwidth-object;
+                            uses reoptimization-bandwidth-object;
                         }
 
                         uses vendor-information-objects;

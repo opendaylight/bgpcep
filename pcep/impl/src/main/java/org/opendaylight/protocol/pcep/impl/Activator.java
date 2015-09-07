@@ -120,6 +120,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure._case.NoPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure._case.no.path.tlvs.NoPathVector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.proc.time.object.ProcTime;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reoptimization.bandwidth.object.ReoptimizationBandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.Rro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.req.missing.tlv.ReqMissing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
@@ -211,16 +212,17 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
         regs.add(context.registerObjectSerializer(NoPath.class, noPathParser));
 
         final PCEPEndPointsIpv4ObjectParser endpoints4Parser = new PCEPEndPointsIpv4ObjectParser();
+        final PCEPEndPointsIpv6ObjectParser endpoints6Parser = new PCEPEndPointsIpv6ObjectParser();
         regs.add(context.registerObjectParser(PCEPEndPointsIpv4ObjectParser.CLASS, PCEPEndPointsIpv4ObjectParser.TYPE, endpoints4Parser));
-        regs.add(context.registerObjectParser(PCEPEndPointsIpv6ObjectParser.CLASS, PCEPEndPointsIpv6ObjectParser.TYPE,
-            new PCEPEndPointsIpv4ObjectParser()));
+        regs.add(context.registerObjectParser(PCEPEndPointsIpv6ObjectParser.CLASS, PCEPEndPointsIpv6ObjectParser.TYPE, endpoints6Parser));
         regs.add(context.registerObjectSerializer(EndpointsObj.class, endpoints4Parser));
 
         final PCEPBandwidthObjectParser bwParser = new PCEPBandwidthObjectParser();
+        final PCEPBandwidthObjectParser bwExistingParser = new PCEPBandwidthObjectParser();
         regs.add(context.registerObjectParser(PCEPBandwidthObjectParser.CLASS, PCEPBandwidthObjectParser.TYPE, bwParser));
-        regs.add(context.registerObjectParser(PCEPExistingBandwidthObjectParser.CLASS, PCEPExistingBandwidthObjectParser.TYPE,
-            new PCEPExistingBandwidthObjectParser()));
+        regs.add(context.registerObjectParser(PCEPExistingBandwidthObjectParser.CLASS, PCEPExistingBandwidthObjectParser.TYPE, bwExistingParser));
         regs.add(context.registerObjectSerializer(Bandwidth.class, bwParser));
+        regs.add(context.registerObjectSerializer(ReoptimizationBandwidth.class, bwExistingParser));
 
         final PCEPMetricObjectParser metricParser = new PCEPMetricObjectParser();
         regs.add(context.registerObjectParser(PCEPMetricObjectParser.CLASS, PCEPMetricObjectParser.TYPE, metricParser));

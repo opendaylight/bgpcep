@@ -14,7 +14,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectParser;
-import org.opendaylight.protocol.pcep.spi.XROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject;
@@ -28,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 /**
  * Parser for {@link PathKey}
  */
-public class XROPathKey128SubobjectParser implements XROSubobjectParser, XROSubobjectSerializer {
+public class XROPathKey128SubobjectParser implements XROSubobjectParser {
 
     public static final int TYPE = 65;
 
@@ -54,8 +53,7 @@ public class XROPathKey128SubobjectParser implements XROSubobjectParser, XROSubo
         return builder.build();
     }
 
-    @Override
-    public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
+    public static void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
         Preconditions.checkArgument(subobject.getSubobjectType() instanceof PathKeyCase, "Unknown subobject instance. Passed %s. Needed PathKey.", subobject.getSubobjectType().getClass());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route
             .subobjects.subobject.type.path.key._case.PathKey pk = ((PathKeyCase) subobject.getSubobjectType()).getPathKey();

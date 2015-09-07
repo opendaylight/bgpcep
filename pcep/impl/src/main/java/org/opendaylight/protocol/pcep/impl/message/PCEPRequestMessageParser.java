@@ -56,6 +56,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.P2pBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.ReportedRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.ReportedRouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reoptimization.bandwidth.object.ReoptimizationBandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.Rro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.objects.VendorInformationObject;
@@ -125,7 +126,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             final ReportedRoute rr = p2p.getReportedRoute();
             if (rr != null) {
                 serializeObject(rr.getRro(), buffer);
-                serializeObject(rr.getBandwidth(), buffer);
+                serializeObject(rr.getReoptimizationBandwidth(), buffer);
             }
         }
         serializeObject(p2p.getLoadBalancing(), buffer);
@@ -263,7 +264,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 
         if (rp.isReoptimization()
                 && builder.getBandwidth() != null
-                && !builder.getReportedRoute().getBandwidth().getBandwidth().equals(
+                && !builder.getReportedRoute().getReoptimizationBandwidth().getBandwidth().equals(
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth(new byte[] { 0 }))
                 && builder.getReportedRoute().getRro() == null) {
             errors.add(createErrorMsg(PCEPErrors.RRO_MISSING, Optional.of(rp)));
@@ -281,8 +282,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 rrBuilder.setRro((Rro) obj);
                 objects.remove(0);
                 final Object nextObj = objects.get(0);
-                if (nextObj instanceof Bandwidth) {
-                    rrBuilder.setBandwidth((Bandwidth) nextObj);
+                if (nextObj instanceof ReoptimizationBandwidth) {
+                    rrBuilder.setReoptimizationBandwidth((ReoptimizationBandwidth) nextObj);
                 }
                 return State.REPORTED_IN;
             }
