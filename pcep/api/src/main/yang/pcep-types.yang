@@ -426,9 +426,24 @@ module pcep-types {
         container bandwidth {
             uses object;
 
-            // No possibility to carry TLVs
-            leaf bandwidth {
-                type netc:bandwidth;
+            choice bandwidth-choice {
+                mandatory true;
+                case bandwidth-object-case {
+                    container bandwidth-object {
+                        // No possibility to carry TLVs
+                        leaf bandwidth {
+                            type netc:bandwidth;
+                        }
+                    }
+                }
+                case reoptimization-bandwidth-object-case {
+                    container reoptimization-bandwidth-object {
+                        // No possibility to carry TLVs
+                        leaf bandwidth {
+                            type netc:bandwidth;
+                        }
+                    }
+                }
             }
         }
     }
@@ -676,10 +691,7 @@ module pcep-types {
         }
     }
 
-    grouping path-key-subobject {
-        reference "https://tools.ietf.org/html/rfc5520#section-3.1";
-        uses rsvp:c-subobject;
-
+    grouping pks {
         leaf pce-id {
             type pce-id;
             mandatory true;
@@ -688,6 +700,24 @@ module pcep-types {
         leaf path-key {
             type path-key;
             mandatory true;
+        }
+    }
+
+    grouping path-key-subobject {
+        reference "https://tools.ietf.org/html/rfc5520#section-3.1";
+        uses rsvp:c-subobject;
+
+        choice path-key-choice {
+            case path-key-32-case {
+                container path-key-32 {
+                    uses pks;
+                }
+            }
+            case path-key-128-case {
+                container path-key-128 {
+                    uses pks;
+                }
+            }
         }
     }
 
