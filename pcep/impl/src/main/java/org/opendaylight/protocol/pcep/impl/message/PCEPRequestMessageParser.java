@@ -281,8 +281,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 rrBuilder.setRro((Rro) obj);
                 objects.remove(0);
                 final Object nextObj = objects.get(0);
-                if (nextObj instanceof Bandwidth) {
-                    rrBuilder.setBandwidth((Bandwidth) nextObj);
+                if (nextObj instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reoptimization.bandwidth.object.Bandwidth) {
+                    rrBuilder.setBandwidth((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reoptimization.bandwidth.object.Bandwidth) nextObj);
                 }
                 return State.REPORTED_IN;
             }
