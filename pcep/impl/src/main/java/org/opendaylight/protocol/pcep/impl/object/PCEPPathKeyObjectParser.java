@@ -50,7 +50,7 @@ public class PCEPPathKeyObjectParser extends AbstractEROWithSubobjectsParser {
         final List<Subobject> subs = parseSubobjects(bytes);
         for (final Subobject s : subs) {
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.PathKeyCase k = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.PathKeyCase) s.getSubobjectType();
-            pk.add(new PathKeysBuilder().setLoose(s.isLoose()).setPceId(k.getPathKey().getPceId()).setPathKey(k.getPathKey().getPathKey()).build());
+            pk.add(new PathKeysBuilder().setLoose(s.isLoose()).setPathKeyChoice(k.getPathKey().getPathKeyChoice()).build());
         }
         builder.setPathKeys(pk);
         return builder.build();
@@ -66,8 +66,9 @@ public class PCEPPathKeyObjectParser extends AbstractEROWithSubobjectsParser {
         for (final PathKeys p : pk) {
             subs.add(new SubobjectBuilder().setLoose(p.isLoose()).setSubobjectType(
                     new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.PathKeyCaseBuilder().setPathKey(
-                            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.path.key._case.PathKeyBuilder().setPathKey(
-                                    p.getPathKey()).setPceId(p.getPceId()).build()).build()).build());
+                            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005
+                                .explicit.route.object.ero.subobject.subobject.type.path.key._case.PathKeyBuilder().setPathKeyChoice(
+                                    p.getPathKeyChoice()).build()).build()).build());
         }
         serializeSubobject(subs, body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
