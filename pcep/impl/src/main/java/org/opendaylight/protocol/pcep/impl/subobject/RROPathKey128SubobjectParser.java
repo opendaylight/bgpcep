@@ -14,7 +14,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
-import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobject;
@@ -25,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.PathKeyCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
 
-public class RROPathKey128SubobjectParser implements RROSubobjectParser, RROSubobjectSerializer {
+public class RROPathKey128SubobjectParser implements RROSubobjectParser {
 
     public static final int TYPE = 65;
 
@@ -55,8 +54,7 @@ public class RROPathKey128SubobjectParser implements RROSubobjectParser, RROSubo
         return builder.build();
     }
 
-    @Override
-    public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
+    public static void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
         final PathKeyCase pkcase = (PathKeyCase) subobject.getSubobjectType();
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects
             .subobject.type.path.key._case.PathKey pk = pkcase.getPathKey();
