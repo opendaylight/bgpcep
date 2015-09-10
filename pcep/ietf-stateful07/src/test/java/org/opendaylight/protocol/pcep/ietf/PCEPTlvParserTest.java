@@ -54,7 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 
 public class PCEPTlvParserTest {
 
-    private static final byte[] statefulBytes = { 0x00, 0x10, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01 };
+    private static final byte[] statefulBytes = { 0x00, 0x10, 0x00, 0x04, 0x00, 0x00, 0x00, 0x3f };
     private static final byte[] STATEFUL_SYNC_OPT_BYTES = new byte[]{ 0x00, 0x10, 0x00, 0x04, 0x00, 0x00, 0x00, 0x33 };
     private static final byte[] symbolicNameBytes = { 0x00, 0x11, 0x00, 0x1C, 0x4d, 0x65, 0x64, 0x20, 0x74, 0x65, 0x73, 0x74, 0x20, 0x6f,
         0x66, 0x20, 0x73, 0x79, 0x6d, 0x62, 0x6f, 0x6c, 0x69, 0x63, 0x20, 0x6e, 0x61, 0x6d, 0x65, 0x65, 0x65, 0x65 };
@@ -77,7 +77,13 @@ public class PCEPTlvParserTest {
     @Test
     public void testStatefulTlv() throws PCEPDeserializerException {
         final Stateful07StatefulCapabilityTlvParser parser = new Stateful07StatefulCapabilityTlvParser();
-        final Stateful tlv = new StatefulBuilder().setLspUpdateCapability(Boolean.TRUE).build();
+        final Stateful tlv = new StatefulBuilder()
+            .setTriggeredInitialResync(Boolean.TRUE)
+            .setDeltaLspSyncCapability(Boolean.TRUE)
+            .setLspInstantiationCapability(Boolean.TRUE)
+            .setIncludeDbVersion(Boolean.TRUE)
+            .setTriggeredResync(Boolean.TRUE)
+            .setLspUpdateCapability(Boolean.TRUE).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(statefulBytes, 4))));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(tlv, buff);

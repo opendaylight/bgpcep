@@ -29,6 +29,11 @@ public class Stateful07StatefulCapabilityTlvParser implements TlvParser, TlvSeri
     protected static final int FLAGS_F_LENGTH = 32;
 
     protected static final int U_FLAG_OFFSET = 31;
+    protected static final int S_FLAG_OFFSET = 30;
+    protected static final int I_FLAG_OFFSET = 29;
+    protected static final int T_FLAG_OFFSET = 28;
+    protected static final int D_FLAG_OFFSET = 27;
+    protected static final int F_FLAG_OFFSET = 26;
 
     @Override
     public Stateful parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
@@ -47,6 +52,11 @@ public class Stateful07StatefulCapabilityTlvParser implements TlvParser, TlvSeri
     protected void parseFlags(final StatefulBuilder sb, final ByteBuf buffer) {
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_F_LENGTH);
         sb.setLspUpdateCapability(flags.get(U_FLAG_OFFSET));
+        sb.setIncludeDbVersion(flags.get(S_FLAG_OFFSET));
+        sb.setLspInstantiationCapability(flags.get(I_FLAG_OFFSET));
+        sb.setTriggeredResync(flags.get(T_FLAG_OFFSET));
+        sb.setDeltaLspSyncCapability(flags.get(D_FLAG_OFFSET));
+        sb.setTriggeredInitialResync(flags.get(F_FLAG_OFFSET));
     }
 
     @Override
@@ -59,6 +69,11 @@ public class Stateful07StatefulCapabilityTlvParser implements TlvParser, TlvSeri
     protected BitArray serializeFlags(final Stateful sct) {
         final BitArray flags = new BitArray(FLAGS_F_LENGTH);
         flags.set(U_FLAG_OFFSET, sct.isLspUpdateCapability());
+        flags.set(S_FLAG_OFFSET, sct.isIncludeDbVersion());
+        flags.set(I_FLAG_OFFSET, sct.isLspInstantiationCapability());
+        flags.set(T_FLAG_OFFSET, sct.isTriggeredResync());
+        flags.set(D_FLAG_OFFSET, sct.isDeltaLspSyncCapability());
+        flags.set(F_FLAG_OFFSET, sct.isTriggeredInitialResync());
         return flags;
     }
 }

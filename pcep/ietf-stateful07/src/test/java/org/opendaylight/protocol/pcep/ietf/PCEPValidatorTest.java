@@ -220,7 +220,10 @@ public class PCEPValidatorTest {
             b.setKeepalive((short) 30);
             b.setDeadTimer((short) 120);
             b.setSessionId((short) 1);
-            final Stateful tlv1 = new StatefulBuilder().setLspUpdateCapability(Boolean.TRUE).build();
+            final Stateful tlv1 = new StatefulBuilder().setDeltaLspSyncCapability(Boolean.FALSE)
+                .setIncludeDbVersion(Boolean.FALSE).setLspInstantiationCapability(Boolean.FALSE)
+                .setTriggeredInitialResync(Boolean.FALSE).setTriggeredResync(Boolean.FALSE)
+                .setLspUpdateCapability(Boolean.TRUE).build();
             b.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder().addAugmentation(
                 Tlvs1.class, new Tlvs1Builder().setStateful(tlv1).build()).build());
             builder.setOpen(b.build());

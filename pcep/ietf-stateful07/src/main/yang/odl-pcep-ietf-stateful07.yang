@@ -171,11 +171,37 @@ module odl-pcep-ietf-stateful07 {
     grouping stateful-capability-tlv {
         description "Stateful PCE Capability TLV";
         reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-7.1.1";
+        reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-sync-optimizations-02#section-7";
 
         container stateful {
             uses pcep:tlv;
 
             leaf lsp-update-capability {
+                type boolean;
+                default false;
+            }
+
+            leaf include-db-version {
+                type boolean;
+                default false;
+            }
+
+            leaf lsp-instantiation-capability {
+                type boolean;
+                default false;
+            }
+
+            leaf triggered-resync {
+                type boolean;
+                default false;
+            }
+
+            leaf delta-lsp-sync-capability {
+                type boolean;
+                default false;
+            }
+
+            leaf triggered-initial-resync {
                 type boolean;
                 default false;
             }
