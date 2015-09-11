@@ -1,4 +1,3 @@
-// vi: set smarttab et sw=4 tabstop=4:
 module odl-bmp-impl-cfg {
     yang-version 1;
     namespace "urn:opendaylight:params:xml:ns:yang:controller:bmp:impl";

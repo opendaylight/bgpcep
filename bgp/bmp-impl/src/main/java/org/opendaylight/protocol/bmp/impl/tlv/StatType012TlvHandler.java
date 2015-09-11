@@ -16,17 +16,17 @@ import org.opendaylight.protocol.bmp.spi.parser.BmpTlvSerializer;
 import org.opendaylight.protocol.bmp.spi.parser.TlvUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.Counter32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.InvalidatedOriginatorIdTlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.InvalidatedOriginatorIdTlvBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.PrefixesTreatedAsWithdrawTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.PrefixesTreatedAsWithdrawTlvBuilder;
 
-public class StatType5TlvHandler implements BmpTlvParser, BmpTlvSerializer {
+public class StatType012TlvHandler implements BmpTlvParser, BmpTlvSerializer {
 
-    public static final int TYPE = 5;
+    public static final int TYPE = 12;
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf output) {
-        Preconditions.checkArgument(tlv instanceof InvalidatedOriginatorIdTlv, "InvalidatedOriginatorIdTlv is mandatory.");
-        TlvUtil.formatTlvCounter32(TYPE, ((InvalidatedOriginatorIdTlv) tlv).getCount(), output);
+        Preconditions.checkArgument(tlv instanceof PrefixesTreatedAsWithdrawTlv, "PrefixesTreatedAsWithdrawTlv is mandatory.");
+        TlvUtil.formatTlvCounter32(TYPE, ((PrefixesTreatedAsWithdrawTlv) tlv).getCount(), output);
     }
 
     @Override
@@ -34,7 +34,6 @@ public class StatType5TlvHandler implements BmpTlvParser, BmpTlvSerializer {
         if (buffer == null) {
             return null;
         }
-        return new InvalidatedOriginatorIdTlvBuilder().setCount(new Counter32(buffer.readUnsignedInt())).build();
+        return new PrefixesTreatedAsWithdrawTlvBuilder().setCount(new Counter32(buffer.readUnsignedInt())).build();
     }
-
 }
