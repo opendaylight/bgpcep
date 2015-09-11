@@ -159,7 +159,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         final boolean isNodePresent = isLspDbRetreived() && state.getRetrievedNode() != null;
         writeNode(pccBuilder, state, topologyAugment, isNodePresent);
         if (isNodePresent) {
-            loadLspData(lspData, lsps);
+            loadLspData(lspData, lsps, isIncrementalSynchro());
         }
         this.listenerState.init(session);
         if (this.serverSessionManager.getRuntimeRootRegistration().isPresent()) {
@@ -494,7 +494,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
     protected abstract Object validateReportedLsp(final Optional<ReportedLsp> rep, final LspId input);
 
-    protected abstract void loadLspData(final Map<String, ReportedLsp> lspData, final Map<L, String> lsps);
+    protected abstract void loadLspData(final Map<String, ReportedLsp> lspData, final Map<L, String> lsps, final boolean incrementalSynchro);
 
     protected final boolean isLspDbPersisted() {
         if (syncOptimization != null) {
@@ -506,6 +506,20 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     protected final boolean isLspDbRetreived() {
         if (syncOptimization != null) {
             return syncOptimization.isDbVersionPresent();
+        }
+        return false;
+    }
+
+    protected final boolean isIncrementalSynchro() {
+        if (syncOptimization != null) {
+            return syncOptimization.isDeltaSyncEnabled();
+        }
+        return false;
+    }
+
+    protected final boolean isTriggeredInitialSynchro() {
+        if (syncOptimization != null) {
+            return syncOptimization.isTriggeredInitSyncEnabled();
         }
         return false;
     }
