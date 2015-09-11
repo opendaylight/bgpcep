@@ -47,8 +47,8 @@ def parse_arguments():
     str_help = "The number of prefixes to process without withdrawals"
     parser.add_argument("--prefill", default="0", type=int, help=str_help)
     str_help = "Single or two separate UPDATEs for NLRI and WITHDRAWN lists sent"
-    parser.add_argument("--updates", choices=["single", "mixed"],
-                        default=["mixed"], help=str_help)
+    parser.add_argument("--updates", choices=["single", "separate"],
+                        default=["separate"], help=str_help)
     str_help = "Base prefix IP address for prefix generation"
     parser.add_argument("--firstprefix", default="8.0.1.0",
                         type=ipaddr.IPv4Address, help=str_help)
