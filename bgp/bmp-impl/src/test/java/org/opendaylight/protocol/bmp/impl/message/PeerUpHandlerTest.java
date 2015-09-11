@@ -23,7 +23,7 @@ public class PeerUpHandlerTest extends AbstractBmpMessageTest {
     private static final byte[] PEER_UP_NOTIFICATION = {
         /*
          * 03 <- bmp version
-         * 00 00 00 D3 <- total length of initiation message + common header lenght
+         * 00 00 00 D3 <- total length of peer up message + common header lenght
          * 00 <- bmp message type Route Monitor
          *
          * 00 <- global type
@@ -51,9 +51,12 @@ public class PeerUpHandlerTest extends AbstractBmpMessageTest {
          * 14 14 14 14 <- bgp id
          * 0E <- number of opt
          * 02 0C 41 04 00 00 00 46 41 04 00 00 00 50 <- opt values
+         *
+         * 00 00 00 04 <- information tlv - type and length
+         * 61 61 61 61 <- value
          */
         (byte) 0x03,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x9A,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xA2,
         (byte) 0x03,
 
         (byte) 0x00,
@@ -90,7 +93,9 @@ public class PeerUpHandlerTest extends AbstractBmpMessageTest {
         (byte) 0x03, (byte) 0xE8,
         (byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x14,
         (byte) 0x0E,
-        (byte) 0x02, (byte) 0x0C, (byte) 0x41, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x46, (byte) 0x41, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x50
+        (byte) 0x02, (byte) 0x0C, (byte) 0x41, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x46, (byte) 0x41, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x50,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x04,
+        (byte) 0x61, (byte) 0x61, (byte) 0x61, (byte) 0x61
     };
 
     @Test
@@ -102,8 +107,8 @@ public class PeerUpHandlerTest extends AbstractBmpMessageTest {
 
     @Test
     public void testParsePeerUpNotification() throws BmpDeserializationException {
-        final PeerUpNotification parsedPeerDownNotif = (PeerUpNotification) getBmpMessageRegistry().parseMessage(
+        final PeerUpNotification parsedPeerUpNotif = (PeerUpNotification) getBmpMessageRegistry().parseMessage(
                 Unpooled.copiedBuffer(PEER_UP_NOTIFICATION));
-        assertEquals(createPeerUpNotification(), parsedPeerDownNotif);
+        assertEquals(createPeerUpNotification(), parsedPeerUpNotif);
     }
 }
