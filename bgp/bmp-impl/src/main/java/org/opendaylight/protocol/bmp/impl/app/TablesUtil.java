@@ -21,9 +21,8 @@ public final class TablesUtil {
     public static final QName BMP_TABLES_QNAME = QName.cachedReference(QName.create(BmpMonitor.QNAME.getNamespace(), BmpMonitor.QNAME.getRevision(), "tables"));
     public static final QName BMP_ATTRIBUTES_QNAME = QName.cachedReference(QName.create(BmpMonitor.QNAME.getNamespace(), BmpMonitor.QNAME.getRevision(), "attributes"));
     public static final QName BMP_ROUTES_QNAME = QName.cachedReference(QName.create(BmpMonitor.QNAME.getNamespace(), BmpMonitor.QNAME.getRevision(), "routes"));
-
-    private static final QName AFI_QNAME = QName.cachedReference(QName.create(BMP_TABLES_QNAME, "afi"));
-    private static final QName SAFI_QNAME = QName.cachedReference(QName.create(BMP_TABLES_QNAME, "safi"));
+    public static final QName BMP_AFI_QNAME = QName.cachedReference(QName.create(BMP_TABLES_QNAME, "afi"));
+    public static final QName BMP_SAFI_QNAME = QName.cachedReference(QName.create(BMP_TABLES_QNAME, "safi"));
 
     private TablesUtil() {
         throw new UnsupportedOperationException("Utility class");
@@ -39,9 +38,27 @@ public final class TablesUtil {
     public static NodeIdentifierWithPredicates toYangTablesKey(final Class<? extends AddressFamily> afi,
             final Class<? extends SubsequentAddressFamily> safi) {
         final ImmutableMap<QName, Object> keyValues = ImmutableMap.<QName, Object>of(
+                        BMP_AFI_QNAME, BindingReflections.findQName(afi),
+                        BMP_SAFI_QNAME, BindingReflections.findQName(safi));
+        return new NodeIdentifierWithPredicates(BMP_TABLES_QNAME, keyValues);
+    }
+
+    /**
+     * Creates Yang Instance Identifier path argument from supplied QNAMES and AFI and SAFI
+     *
+     * @param nodeName QName reprenting node
+     * @param afi Class representing AFI
+     * @param safi Class representing SAFI
+     * @return NodeIdentifierWithPredicates for specified AFI, SAFI combination.
+     */
+    public static NodeIdentifierWithPredicates toYangTablesKey(final QName nodeName, final Class<? extends AddressFamily> afi,
+            final Class<? extends SubsequentAddressFamily> safi) {
+        final QName AFI_QNAME = QName.cachedReference(QName.create(nodeName, "afi"));
+        final QName SAFI_QNAME = QName.cachedReference(QName.create(nodeName, "safi"));
+        final ImmutableMap<QName, Object> keyValues = ImmutableMap.<QName, Object>of(
                         AFI_QNAME, BindingReflections.findQName(afi),
                         SAFI_QNAME, BindingReflections.findQName(safi));
-        return new NodeIdentifierWithPredicates(BMP_TABLES_QNAME, keyValues);
+        return new NodeIdentifierWithPredicates(nodeName, keyValues);
     }
 
     /**

@@ -26,4 +26,7 @@ public interface BmpExtensionProviderContext extends BmpMessageRegistrator, BmpE
 
     AutoCloseable registerBmpTerminationTlvSerializer(Class<? extends Tlv> tlvClass, BmpTlvSerializer serializer);
 
+    AutoCloseable registerBmpRouteMirroringTlvParser(int tlvType, BmpTlvParser parser);
+
+    AutoCloseable registerBmpRouteMirroringTlvSerializer(Class<? extends Tlv> tlvClass, BmpTlvSerializer serializer);
 }
