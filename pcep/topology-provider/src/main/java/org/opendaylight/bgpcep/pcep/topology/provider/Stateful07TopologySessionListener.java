@@ -114,6 +114,8 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
                 pccBuilder.setReportedLsp(Collections.<ReportedLsp> emptyList());
                 if (isSynchronized()) {
                     pccBuilder.setStateSync(PccSyncState.Synchronized);
+                } else if (isIncrementalSynchro()) {
+                    pccBuilder.setStateSync(PccSyncState.IncrementalSync);
                 } else {
                     pccBuilder.setStateSync(PccSyncState.InitialResync);
                 }
@@ -184,7 +186,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     private boolean manageNextReport(final Reports report, final MessageContext ctx) {
         final Lsp lsp = report.getLsp();
         final PlspId plspid = lsp.getPlspId();
-        if (!lsp.isSync() && (lsp.getPlspId() == null || plspid.getValue() == 0)) {
+        if (!lsp.isSync() && (plspid == null || plspid.getValue() == 0)) {
             purgeStaleLsps(ctx);
             stateSynchronizationAchieved(ctx);
             return true;
@@ -566,8 +568,14 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         return capa;
     }
 
+    /**
+     * Recover lspData and mark any LSPs in the LSP database that were previously reported by the PCC as stale
+     * @param lspData
+     * @param lsps
+     * @param incrementalSynchro
+     */
     @Override
-    protected synchronized void loadLspData(final Map<String, ReportedLsp> lspData, final Map<PlspId, String> lsps) {
+    protected synchronized void loadLspData(final Map<String, ReportedLsp> lspData, final Map<PlspId, String> lsps, final boolean incrementalSynchro) {
         //load node's lsps from DS if present
         final Node node = getRetrievedNode();
         if (node != null) {
@@ -580,7 +588,9 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
                     final Path1 path1 = reportedLsp.getPath().get(0).getAugmentation(Path1.class);
                     if (path1 != null) {
                         final PlspId plspId = path1.getLsp().getPlspId();
-                        staleLsps.add(plspId);
+                        if (!incrementalSynchro) {
+                            staleLsps.add(plspId);
+                        }
                         lsps.put(plspId, lspName);
                     }
                 }
@@ -588,12 +598,23 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         }
     }
 
+    /**
+     * When the PCC reports an LSP during state synchronization, if the LSP already
+     * exists in the LSP database, the PCE MUST update the LSP database and
+     * clear the stale marker from the LSP
+     * @param plspId
+     * @param sync
+     */
     private synchronized void unmarkStaleLsp(final PlspId plspId, final boolean sync) {
         if (!sync) {
             staleLsps.remove(plspId);
         }
     }
 
+    /**
+     *  Purge any LSPs from the LSP database that are still marked as stale
+     * @param ctx
+     */
     private synchronized void purgeStaleLsps(final MessageContext ctx) {
         for (final PlspId plspId : staleLsps) {
             removeLsp(ctx, plspId);
