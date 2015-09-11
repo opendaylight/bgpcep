@@ -20,6 +20,7 @@ final class SyncOptimization {
 
     private final boolean dbVersionMatch;
     private final boolean isSyncAvoidanceEnabled;
+    private final boolean isDeltaSyncEnabled;
     private final boolean isDbVersionPresent;
 
     public SyncOptimization(final PCEPSession session) {
@@ -30,6 +31,7 @@ final class SyncOptimization {
         final LspDbVersion remoteLspDbVersion = getLspDbVersion(remote);
         this.dbVersionMatch = compareLspDbVersion(localLspDbVersion, remoteLspDbVersion);
         this.isSyncAvoidanceEnabled = isSyncAvoidance(local) && isSyncAvoidance(remote);
+        this.isDeltaSyncEnabled = isDeltaSync(local) && isDeltaSync(remote);
         this.isDbVersionPresent = localLspDbVersion != null || remoteLspDbVersion != null;
     }
 
@@ -39,6 +41,10 @@ final class SyncOptimization {
 
     public boolean isSyncAvoidanceEnabled() {
         return isSyncAvoidanceEnabled;
+    }
+
+    public boolean isDeltaSyncEnabled() {
+        return isDeltaSyncEnabled;
     }
 
     public boolean isDbVersionPresent() {
@@ -70,6 +76,19 @@ final class SyncOptimization {
                 final Stateful1 stateful1 = tlvs1.getStateful().getAugmentation(Stateful1.class);
                 if (stateful1 != null && stateful1.isIncludeDbVersion() != null) {
                     return stateful1.isIncludeDbVersion();
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean isDeltaSync(final Tlvs openTlvs) {
+        if (openTlvs != null) {
+            final Tlvs1 tlvs1 = openTlvs.getAugmentation(Tlvs1.class);
+            if (tlvs1 != null && tlvs1.getStateful() != null) {
+                final Stateful1 stateful1 = tlvs1.getStateful().getAugmentation(Stateful1.class);
+                if (stateful1 != null && stateful1.isDeltaLspSyncCapability() != null) {
+                    return stateful1.isDeltaLspSyncCapability();
                 }
             }
         }
