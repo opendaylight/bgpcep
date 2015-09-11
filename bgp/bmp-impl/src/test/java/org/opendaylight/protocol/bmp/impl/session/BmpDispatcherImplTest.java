@@ -72,7 +72,7 @@ public class BmpDispatcherImplTest {
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         this.bgpActivator.start(context);
         final SimpleBmpExtensionProviderContext ctx = new SimpleBmpExtensionProviderContext();
-        this.bmpActivator = new BmpActivator(context.getMessageRegistry());
+        this.bmpActivator = new BmpActivator(context);
         this.bmpActivator.start(ctx);
         final BmpMessageRegistry messageRegistry = ctx.getBmpMessageRegistry();
         this.dispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(), messageRegistry, new BmpSessionFactory() {
