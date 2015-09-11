@@ -16,17 +16,17 @@ import org.opendaylight.protocol.bmp.spi.parser.BmpTlvSerializer;
 import org.opendaylight.protocol.bmp.spi.parser.TlvUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.Counter32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.RejectedPrefixesTlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.RejectedPrefixesTlvBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.DuplicateWithdrawsTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.DuplicateWithdrawsTlvBuilder;
 
-public class StatType0TlvHandler implements BmpTlvParser, BmpTlvSerializer {
+public class StatType002TlvHandler implements BmpTlvParser, BmpTlvSerializer {
 
-    public static final int TYPE = 0;
+    public static final int TYPE = 2;
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf output) {
-        Preconditions.checkArgument(tlv instanceof RejectedPrefixesTlv, "RejectedPrefixesTlv is mandatory.");
-        TlvUtil.formatTlvCounter32(TYPE, ((RejectedPrefixesTlv) tlv).getCount(), output);
+        Preconditions.checkArgument(tlv instanceof DuplicateWithdrawsTlv, "DuplicateWithdrawsTlv is mandatory.");
+        TlvUtil.formatTlvCounter32(TYPE, ((DuplicateWithdrawsTlv) tlv).getCount(), output);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class StatType0TlvHandler implements BmpTlvParser, BmpTlvSerializer {
         if (buffer == null) {
             return null;
         }
-        return new RejectedPrefixesTlvBuilder().setCount(new Counter32(buffer.readUnsignedInt())).build();
+        return new DuplicateWithdrawsTlvBuilder().setCount(new Counter32(buffer.readUnsignedInt())).build();
     }
 
 }

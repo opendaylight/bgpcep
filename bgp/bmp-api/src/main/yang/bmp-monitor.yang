@@ -4,6 +4,7 @@ module bmp-monitor {
     prefix "bmp-mon";
 
     import bgp-rib { prefix rib; revision-date 2013-09-25; }
+    import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
     import bmp-message { prefix bmp-msg; revision-date 2015-05-12; }
     import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
     import ietf-yang-types { prefix yang; revision-date 2010-09-24; }
@@ -40,6 +41,16 @@ module bmp-monitor {
         type enumeration {
             enum up;
             enum down;
+        }
+    }
+
+    grouping afi-safi-route-counter {
+        list afi-safi {
+            uses bgp-mp:bgp-table-type;
+            key "afi safi";
+            leaf count {
+                type yang:gauge64;
+            }
         }
     }
 
@@ -87,6 +98,21 @@ module bmp-monitor {
                 }
                 leaf loc-rib-routes {
                     type yang:gauge64;
+                }
+                container per-afi-safi-adj-rib-in-routes {
+                    uses afi-safi-route-counter;
+                }
+                container per-afi-safi-loc-rib-routes {
+                    uses afi-safi-route-counter;
+                }
+                leaf updates-treated-as-withdraw {
+                    type yang:counter32;
+                }
+                leaf prefixes-treated-as-withdraw {
+                    type yang:counter32;
+                }
+                leaf duplicate-updates {
+                    type yang:counter32;
                 }
                 uses bmp-msg:timestamp;
             }

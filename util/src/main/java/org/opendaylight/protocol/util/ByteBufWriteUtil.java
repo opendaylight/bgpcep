@@ -39,6 +39,10 @@ public final class ByteBufWriteUtil {
 
     public static final int IPV6_PREFIX_BYTE_LENGTH = Ipv6Util.IPV6_LENGTH + 1;
 
+    public static final int ADDRESSFAMILY_BYTES_LENGTH = 2;
+
+    public static final int SUBSEQUENTADDRESSFAMILY_BYTES_LENGTH = 1;
+
     private ByteBufWriteUtil() {
         throw new UnsupportedOperationException();
     }

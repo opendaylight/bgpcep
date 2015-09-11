@@ -10,25 +10,23 @@ package org.opendaylight.protocol.bmp.impl.tlv;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-import java.math.BigInteger;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvSerializer;
 import org.opendaylight.protocol.bmp.spi.parser.TlvUtil;
-import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.Gauge64;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.MirrorInformationCode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.AdjRibsInRoutesTlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.AdjRibsInRoutesTlvBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.mirror.information.tlv.MirrorInformationTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.mirror.information.tlv.MirrorInformationTlvBuilder;
 
-public class StatType7TlvHandler implements BmpTlvParser, BmpTlvSerializer {
+public class MirrorInformationTlvHandler implements BmpTlvParser, BmpTlvSerializer {
 
-    public static final int TYPE = 7;
+    public static final int TYPE = 1;
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf output) {
-        Preconditions.checkArgument(tlv instanceof AdjRibsInRoutesTlv, "AdjRibsInRoutesTlv is mandatory.");
-        TlvUtil.formatTlvGauge64(TYPE, ((AdjRibsInRoutesTlv) tlv).getCount(), output);
+        Preconditions.checkArgument(tlv instanceof MirrorInformationTlv, "MirrorInformationTlv is mandatory.");
+        TlvUtil.formatTlvShort16(TYPE, ((MirrorInformationTlv) tlv).getCode().getIntValue(), output);
     }
 
     @Override
@@ -36,7 +34,6 @@ public class StatType7TlvHandler implements BmpTlvParser, BmpTlvSerializer {
         if (buffer == null) {
             return null;
         }
-        return new AdjRibsInRoutesTlvBuilder().setCount(new Gauge64(new BigInteger(ByteArray.readAllBytes(buffer)))).build();
+        return new MirrorInformationTlvBuilder().setCode(MirrorInformationCode.forValue(buffer.readUnsignedShort())).build();
     }
-
 }
