@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bmp.impl.app;
 
+import static org.opendaylight.protocol.bmp.impl.app.TablesUtil.BMP_AFI_QNAME;
+import static org.opendaylight.protocol.bmp.impl.app.TablesUtil.BMP_SAFI_QNAME;
 import static org.opendaylight.protocol.bmp.impl.app.TablesUtil.BMP_TABLES_QNAME;
 import com.google.common.base.Preconditions;
 import java.util.HashSet;
@@ -37,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.up.ReceivedOpen;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.up.SentOpen;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.Tlvs;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.BmpMonitor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.bmp.monitor.Monitor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.peers.Peer;
@@ -58,6 +61,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
+
 
 public final class BmpRouterPeerImpl implements BmpRouterPeer {
 
@@ -83,6 +87,11 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     private static final QName STAT6_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "invalidated-as-confed-loop"));
     private static final QName STAT7_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "adj-ribs-in-routes"));
     private static final QName STAT8_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "loc-rib-routes"));
+    private static final QName STAT9_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "per-afi-safi-adj-rib-in-routes"));
+    private static final QName STAT10_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "per-afi-safi-loc-rib-routes"));
+    private static final QName STAT11_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "updates-treated-as-withdraw"));
+    private static final QName STAT12_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "prefixes-treated-as-withdraw"));
+    private static final QName STAT13_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "duplicate-updates"));
 
     private static final InstanceIdentifier<SentOpen> SENT_OPEN_IID = InstanceIdentifier.builder(BmpMonitor.class)
             .child(Monitor.class)
@@ -296,6 +305,26 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
         }
         if (tlvs.getLocRibRoutesTlv() != null) {
             builder.withChild(ImmutableNodes.leafNode(STAT8_QNAME, tlvs.getLocRibRoutesTlv().getCount().getValue()));
+        }
+        if (tlvs.getPerAfiSafiAdjRibInTlv() != null) {
+            builder.withChild(Builders.mapBuilder()
+                .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(STAT9_QNAME))
+                .withChild(Builders.mapEntryBuilder()
+                    .withChild(ImmutableNodes.leafNode(BMP_AFI_QNAME, tlvs.getPerAfiSafiAdjRibInTlv().getAfi()))
+                    .withChild(ImmutableNodes.leafNode(BMP_SAFI_QNAME, tlvs.getPerAfiSafiAdjRibInTlv().getSafi()))
+                    .withChild(ImmutableNodes.leafNode(STAT9_QNAME, tlvs.getPerAfiSafiAdjRibInTlv().getCount().getValue())).build()).build());
+        }
+        if (tlvs.getPerAfiSafiLocRibTlv() != null) {
+            builder.withChild(ImmutableNodes.leafNode(STAT10_QNAME, tlvs.getPerAfiSafiLocRibTlv().getCount().getValue()));
+        }
+        if (tlvs.getUpdatesTreatedAsWithdrawTlv() != null) {
+            builder.withChild(ImmutableNodes.leafNode(STAT11_QNAME, tlvs.getUpdatesTreatedAsWithdrawTlv().getCount().getValue()));
+        }
+        if (tlvs.getPrefixesTreatedAsWithdrawTlv() != null) {
+            builder.withChild(ImmutableNodes.leafNode(STAT11_QNAME, tlvs.getPrefixesTreatedAsWithdrawTlv().getCount().getValue()));
+        }
+        if (tlvs.getDuplicateUpdatesTlv() != null) {
+            builder.withChild(ImmutableNodes.leafNode(STAT13_QNAME, tlvs.getDuplicateUpdatesTlv().getCount().getValue()));
         }
     }
 
