@@ -32,9 +32,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.down.data.FsmEventCodeBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-/**
- * Created by cgasparini on 13.5.2015.
- */
 public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNotificationBuilder> {
 
     private static final int MESSAGE_TYPE = 2;
@@ -94,6 +91,10 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
                 break;
             case REASON_FOUR:
                 peerDown.setLocalSystemClosed(false);
+                peerDown.setData(parseBgpNotificationMessage(bytes));
+                break;
+            case REASON_FIVE:
+                peerDown.setLocalSystemClosed(false);
                 break;
             default:
                 break;
@@ -129,7 +130,7 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
 
     public enum Reason {
 
-        REASON_ONE((short) 1), REASON_TWO((short) 2), REASON_THREE((short) 3), REASON_FOUR((short) 4);
+        REASON_ONE((short) 1), REASON_TWO((short) 2), REASON_THREE((short) 3), REASON_FOUR((short) 4), REASON_FIVE((short) 5);
 
         private static final Map<Short, Reason> VALUE_MAP;
 

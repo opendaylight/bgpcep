@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bmp.impl.message;
 
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -17,6 +18,7 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.bmp.spi.parser.AbstractBmpPerPeerMessageParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
+import org.opendaylight.protocol.bmp.spi.parser.BmpTlvRegistry;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -26,19 +28,26 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.OpenMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerUpNotification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerUpNotificationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.up.Information;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.up.InformationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.up.ReceivedOpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.peer.up.SentOpenBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.string.informations.StringInformation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.string.informations.StringInformationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.string.tlv.StringTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.string.tlv.StringTlvBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
  * Created by cgasparini on 13.5.2015.
  */
-public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<PeerUpNotificationBuilder> {
+public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<InformationBuilder> {
 
     private static final int MESSAGE_TYPE = 3;
 
-    public PeerUpHandler(final MessageRegistry bgpMssageRegistry) {
-        super(bgpMssageRegistry);
+    public PeerUpHandler(final MessageRegistry bgpMssageRegistry, final BmpTlvRegistry tlvRegistry) {
+        super(bgpMssageRegistry, tlvRegistry);
     }
 
     @Override
@@ -58,6 +67,17 @@ public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<PeerUpNotific
 
         getBgpMessageRegistry().serializeMessage(new OpenBuilder(peerUp.getReceivedOpen()).build(), buffer);
         getBgpMessageRegistry().serializeMessage(new OpenBuilder(peerUp.getSentOpen()).build(), buffer);
+        serializeTlvs(peerUp.getInformation(), buffer);
+    }
+
+    private void serializeTlvs(final Information tlvs, final ByteBuf output) {
+        if (tlvs.getStringInformation() != null) {
+            for (final StringInformation stringInfo : tlvs.getStringInformation()) {
+                if (stringInfo.getStringTlv() != null) {
+                    serializeTlv(stringInfo.getStringTlv(), output);
+                }
+            }
+        }
     }
 
     @Override
@@ -78,18 +98,38 @@ public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<PeerUpNotific
             Preconditions.checkArgument(opSent instanceof OpenMessage, "An instance of OpenMessage notification is required");
             final OpenMessage sent = (OpenMessage) opSent;
 
-            final Notification opRec = getBgpMessageRegistry().parseMessage(bytes);
+            final Notification opRec = getBgpMessageRegistry().parseMessage(bytes.readSlice(getBgpMessageLength(bytes)));
             Preconditions.checkNotNull(opRec, "Error on parse Received  OPEN Message, Received  OPEN Message is null");
             Preconditions.checkArgument(opRec instanceof OpenMessage, "An instance of OpenMessage notification is required");
             final OpenMessage received = (OpenMessage) opRec;
 
             peerUpNot.setSentOpen(new SentOpenBuilder(sent).build());
             peerUpNot.setReceivedOpen(new ReceivedOpenBuilder(received).build());
+
+            final InformationBuilder infos = new InformationBuilder();
+            if ( bytes.isReadable() ) {
+                parseTlvs(infos, bytes);
+                peerUpNot.setInformation(infos.build());
+            }
+
         } catch (final BGPDocumentedException | BGPParsingException e) {
             throw new BmpDeserializationException("Error while parsing BGP Open Message.", e);
         }
 
         return peerUpNot.build();
+    }
+
+    @Override
+    protected void addTlv(final InformationBuilder builder, final Tlv tlv) {
+        if (tlv instanceof StringTlv) {
+            final ImmutableList.Builder stringInfoListBuilder = ImmutableList.<StringInformation>builder();
+            if ( builder.getStringInformation() != null ) {
+                stringInfoListBuilder.addAll(builder.getStringInformation());
+            }
+            builder.setStringInformation(stringInfoListBuilder
+                .add(new StringInformationBuilder().setStringTlv(
+                    new StringTlvBuilder((StringTlv) tlv).build()).build()).build());
+        }
     }
 
     @Override

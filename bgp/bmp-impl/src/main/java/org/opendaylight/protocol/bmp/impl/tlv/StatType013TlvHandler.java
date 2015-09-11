@@ -16,17 +16,17 @@ import org.opendaylight.protocol.bmp.spi.parser.BmpTlvSerializer;
 import org.opendaylight.protocol.bmp.spi.parser.TlvUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.Counter32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.InvalidatedAsPathLoopTlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.InvalidatedAsPathLoopTlvBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.DuplicateUpdatesTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.DuplicateUpdatesTlvBuilder;
 
-public class StatType4TlvHandler implements BmpTlvParser, BmpTlvSerializer {
+public class StatType013TlvHandler implements BmpTlvParser, BmpTlvSerializer {
 
-    public static final int TYPE = 4;
+    public static final int TYPE = 13;
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf output) {
-        Preconditions.checkArgument(tlv instanceof InvalidatedAsPathLoopTlv, "InvalidatedAsPathLoopTlv is mandatory.");
-        TlvUtil.formatTlvCounter32(TYPE, ((InvalidatedAsPathLoopTlv) tlv).getCount(), output);
+        Preconditions.checkArgument(tlv instanceof DuplicateUpdatesTlv, "DuplicateUpdatesTlv is mandatory.");
+        TlvUtil.formatTlvCounter32(TYPE, ((DuplicateUpdatesTlv) tlv).getCount(), output);
     }
 
     @Override
@@ -34,6 +34,6 @@ public class StatType4TlvHandler implements BmpTlvParser, BmpTlvSerializer {
         if (buffer == null) {
             return null;
         }
-        return new InvalidatedAsPathLoopTlvBuilder().setCount(new Counter32(buffer.readUnsignedInt())).build();
+        return new DuplicateUpdatesTlvBuilder().setCount(new Counter32(buffer.readUnsignedInt())).build();
     }
 }

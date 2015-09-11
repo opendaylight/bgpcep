@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bmp.spi.parser;
 
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.INT_BYTES_LENGTH;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.LONG_BYTES_LENGTH;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.SHORT_BYTES_LENGTH;
 import com.google.common.base.Charsets;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -29,6 +30,11 @@ public final class TlvUtil {
     public static void formatTlv(final int type, final ByteBuf value, final ByteBuf out) {
         formatTlvHeader(type, value.readableBytes(), out);
         out.writeBytes(value);
+    }
+
+    public static void formatTlvShort16(final int type, final int value, final ByteBuf out) {
+        formatTlvHeader(type, SHORT_BYTES_LENGTH, out);
+        ByteBufWriteUtil.writeUnsignedShort(value, out);
     }
 
     public static void formatTlvCounter32(final int type, final Counter32 value, final ByteBuf out) {

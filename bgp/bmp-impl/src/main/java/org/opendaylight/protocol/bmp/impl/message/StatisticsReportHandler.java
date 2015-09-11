@@ -25,13 +25,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.AdjRibsInRoutesTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.DuplicatePrefixAdvertisementsTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.DuplicateUpdatesTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.DuplicateWithdrawsTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.InvalidatedAsConfedLoopTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.InvalidatedAsPathLoopTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.InvalidatedClusterListLoopTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.InvalidatedOriginatorIdTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.LocRibRoutesTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.PerAfiSafiAdjRibInTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.PerAfiSafiLocRibTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.PrefixesTreatedAsWithdrawTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.RejectedPrefixesTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.UpdatesTreatedAsWithdrawTlv;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
@@ -80,6 +85,12 @@ public class StatisticsReportHandler extends AbstractBmpPerPeerMessageParser<Tlv
         serializeStatTlv(tlvs.getInvalidatedAsConfedLoopTlv(), tlvsBuffer, counter);
         serializeStatTlv(tlvs.getAdjRibsInRoutesTlv(), tlvsBuffer, counter);
         serializeStatTlv(tlvs.getLocRibRoutesTlv(), tlvsBuffer, counter);
+        serializeStatTlv(tlvs.getPerAfiSafiAdjRibInTlv(), tlvsBuffer, counter);
+        serializeStatTlv(tlvs.getPerAfiSafiLocRibTlv(), tlvsBuffer, counter);
+        serializeStatTlv(tlvs.getUpdatesTreatedAsWithdrawTlv(), tlvsBuffer, counter);
+        serializeStatTlv(tlvs.getPrefixesTreatedAsWithdrawTlv(), tlvsBuffer, counter);
+        serializeStatTlv(tlvs.getDuplicateUpdatesTlv(), tlvsBuffer, counter);
+
         writeUnsignedInt(counter.longValue(), output);
         output.writeBytes(tlvsBuffer);
     }
@@ -111,7 +122,16 @@ public class StatisticsReportHandler extends AbstractBmpPerPeerMessageParser<Tlv
             builder.setLocRibRoutesTlv((LocRibRoutesTlv) tlv);
         } else if (tlv instanceof RejectedPrefixesTlv) {
             builder.setRejectedPrefixesTlv((RejectedPrefixesTlv) tlv);
+        } else if (tlv instanceof PerAfiSafiAdjRibInTlv) {
+            builder.setPerAfiSafiAdjRibInTlv((PerAfiSafiAdjRibInTlv) tlv);
+        } else if (tlv instanceof PerAfiSafiLocRibTlv) {
+            builder.setPerAfiSafiLocRibTlv((PerAfiSafiLocRibTlv) tlv);
+        } else if (tlv instanceof UpdatesTreatedAsWithdrawTlv) {
+            builder.setUpdatesTreatedAsWithdrawTlv((UpdatesTreatedAsWithdrawTlv) tlv);
+        } else if (tlv instanceof PrefixesTreatedAsWithdrawTlv) {
+            builder.setPrefixesTreatedAsWithdrawTlv((PrefixesTreatedAsWithdrawTlv) tlv);
+        } else if (tlv instanceof DuplicateUpdatesTlv) {
+            builder.setDuplicateUpdatesTlv((DuplicateUpdatesTlv) tlv);
         }
     }
-
 }
