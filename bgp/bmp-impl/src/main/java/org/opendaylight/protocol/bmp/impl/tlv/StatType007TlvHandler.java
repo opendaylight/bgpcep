@@ -10,23 +10,25 @@ package org.opendaylight.protocol.bmp.impl.tlv;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import java.math.BigInteger;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvSerializer;
 import org.opendaylight.protocol.bmp.spi.parser.TlvUtil;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.Counter32;
+import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.Gauge64;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.InvalidatedAsConfedLoopTlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.InvalidatedAsConfedLoopTlvBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.AdjRibsInRoutesTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.AdjRibsInRoutesTlvBuilder;
 
-public class StatType6TlvHandler implements BmpTlvParser, BmpTlvSerializer {
+public class StatType007TlvHandler implements BmpTlvParser, BmpTlvSerializer {
 
-    public static final int TYPE = 6;
+    public static final int TYPE = 7;
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf output) {
-        Preconditions.checkArgument(tlv instanceof InvalidatedAsConfedLoopTlv, "InvalidatedAsConfedLoopTlv is mandatory.");
-        TlvUtil.formatTlvCounter32(TYPE, ((InvalidatedAsConfedLoopTlv) tlv).getCount(), output);
+        Preconditions.checkArgument(tlv instanceof AdjRibsInRoutesTlv, "AdjRibsInRoutesTlv is mandatory.");
+        TlvUtil.formatTlvGauge64(TYPE, ((AdjRibsInRoutesTlv) tlv).getCount(), output);
     }
 
     @Override
@@ -34,7 +36,7 @@ public class StatType6TlvHandler implements BmpTlvParser, BmpTlvSerializer {
         if (buffer == null) {
             return null;
         }
-        return new InvalidatedAsConfedLoopTlvBuilder().setCount(new Counter32(buffer.readUnsignedInt())).build();
+        return new AdjRibsInRoutesTlvBuilder().setCount(new Gauge64(new BigInteger(ByteArray.readAllBytes(buffer)))).build();
     }
 
 }

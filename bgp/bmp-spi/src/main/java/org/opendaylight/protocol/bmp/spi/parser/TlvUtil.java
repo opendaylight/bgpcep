@@ -8,12 +8,16 @@
 
 package org.opendaylight.protocol.bmp.spi.parser;
 
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.ADDRESSFAMILY_BYTES_LENGTH;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.INT_BYTES_LENGTH;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.LONG_BYTES_LENGTH;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.SUBSEQUENTADDRESSFAMILY_BYTES_LENGTH;
 import com.google.common.base.Charsets;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana.afn.safi.rev130704.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana.afn.safi.rev130704.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.Counter32;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.Gauge64;
 
@@ -44,6 +48,16 @@ public final class TlvUtil {
             ByteBufWriteUtil.writeUnsignedLong(value.getValue(), out);
         }
     }
+
+    public static void formatTlvPerAfiSafiGauge64(final int type, final AddressFamily afi, final SubsequentAddressFamily safi, final Gauge64 value, final ByteBuf out) {
+        if (value != null && value.getValue() != null) {
+            formatTlvHeader(type, LONG_BYTES_LENGTH + ADDRESSFAMILY_BYTES_LENGTH + SUBSEQUENTADDRESSFAMILY_BYTES_LENGTH, out);
+            ByteBufWriteUtil.writeAddressFamily(afi, out);
+            ByteBufWriteUtil.writeSubsequentAddressFamily(safi, out);
+            ByteBufWriteUtil.writeUnsignedLong(value.getValue(), out);
+        }
+    }
+
 
     public static void formatTlvUtf8(final int type, final String value, final ByteBuf out) {
         if (value != null) {

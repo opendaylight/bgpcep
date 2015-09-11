@@ -12,6 +12,8 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.math.BigInteger;
 import java.util.BitSet;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana.afn.safi.rev130704.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana.afn.safi.rev130704.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
@@ -38,6 +40,10 @@ public final class ByteBufWriteUtil {
     public static final int IPV4_PREFIX_BYTE_LENGTH = Ipv4Util.IP4_LENGTH + 1;
 
     public static final int IPV6_PREFIX_BYTE_LENGTH = Ipv6Util.IPV6_LENGTH + 1;
+
+    public static final int ADDRESSFAMILY_BYTES_LENGTH = 2;
+
+    public static final int SUBSEQUENTADDRESSFAMILY_BYTES_LENGTH = 1;
 
     private ByteBufWriteUtil() {
         throw new UnsupportedOperationException();
@@ -96,6 +102,44 @@ public final class ByteBufWriteUtil {
             output.writeZero(SHORT_BYTES_LENGTH);
         }
     }
+
+    /**
+     * Writes address family <code>afi</code> if not null, otherwise writes
+     * zeros to the <code>output</code> ByteBuf. ByteBuf's writerIndex is
+     * increased by 2.
+     *
+     * @param afi
+     *            AddressFamily enum value to be written to the output.
+     * @param output
+     *            ByteBuf, where value or zeros are written.
+     */
+    public static void writeAddressFamily(final AddressFamily afi, final ByteBuf output) {
+        if (afi != null) {
+            output.writeShort(afi.getIntValue());
+        } else {
+            output.writeZero(ADDRESSFAMILY_BYTES_LENGTH);
+        }
+    }
+
+    /**
+     * Writes subsequent address family <code>safi</code> if not null, otherwise writes
+     * zeros to the <code>output</code> ByteBuf. ByteBuf's writerIndex is
+     * increased by 2.
+     *
+     * @param safi
+     *            SubsequentAddressFamily enum to be written to the output.
+     * @param output
+     *            ByteBuf, where value or zeros are written.
+     */
+    public static void writeSubsequentAddressFamily(final SubsequentAddressFamily safi, final ByteBuf output) {
+        if (safi != null) {
+            output.writeShort(safi.getIntValue());
+        } else {
+            output.writeZero(SUBSEQUENTADDRESSFAMILY_BYTES_LENGTH);
+        }
+    }
+
+
 
     /**
      * Writes 64-bit long <code>value</code> if not null, otherwise writes zeros
