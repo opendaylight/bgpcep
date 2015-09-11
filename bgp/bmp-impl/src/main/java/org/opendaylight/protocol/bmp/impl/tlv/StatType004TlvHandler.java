@@ -16,17 +16,17 @@ import org.opendaylight.protocol.bmp.spi.parser.BmpTlvSerializer;
 import org.opendaylight.protocol.bmp.spi.parser.TlvUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.Counter32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.InvalidatedOriginatorIdTlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.InvalidatedOriginatorIdTlvBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.InvalidatedAsPathLoopTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.InvalidatedAsPathLoopTlvBuilder;
 
-public class StatType5TlvHandler implements BmpTlvParser, BmpTlvSerializer {
+public class StatType004TlvHandler implements BmpTlvParser, BmpTlvSerializer {
 
-    public static final int TYPE = 5;
+    public static final int TYPE = 4;
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf output) {
-        Preconditions.checkArgument(tlv instanceof InvalidatedOriginatorIdTlv, "InvalidatedOriginatorIdTlv is mandatory.");
-        TlvUtil.formatTlvCounter32(TYPE, ((InvalidatedOriginatorIdTlv) tlv).getCount(), output);
+        Preconditions.checkArgument(tlv instanceof InvalidatedAsPathLoopTlv, "InvalidatedAsPathLoopTlv is mandatory.");
+        TlvUtil.formatTlvCounter32(TYPE, ((InvalidatedAsPathLoopTlv) tlv).getCount(), output);
     }
 
     @Override
@@ -34,7 +34,6 @@ public class StatType5TlvHandler implements BmpTlvParser, BmpTlvSerializer {
         if (buffer == null) {
             return null;
         }
-        return new InvalidatedOriginatorIdTlvBuilder().setCount(new Counter32(buffer.readUnsignedInt())).build();
+        return new InvalidatedAsPathLoopTlvBuilder().setCount(new Counter32(buffer.readUnsignedInt())).build();
     }
-
 }

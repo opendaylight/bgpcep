@@ -16,17 +16,17 @@ import org.opendaylight.protocol.bmp.spi.parser.BmpTlvSerializer;
 import org.opendaylight.protocol.bmp.spi.parser.TlvUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.Counter32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.DuplicateWithdrawsTlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.DuplicateWithdrawsTlvBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.PrefixesTreatedAsWithdrawTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.PrefixesTreatedAsWithdrawTlvBuilder;
 
-public class StatType2TlvHandler implements BmpTlvParser, BmpTlvSerializer {
+public class StatType012TlvHandler implements BmpTlvParser, BmpTlvSerializer {
 
-    public static final int TYPE = 2;
+    public static final int TYPE = 12;
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf output) {
-        Preconditions.checkArgument(tlv instanceof DuplicateWithdrawsTlv, "DuplicateWithdrawsTlv is mandatory.");
-        TlvUtil.formatTlvCounter32(TYPE, ((DuplicateWithdrawsTlv) tlv).getCount(), output);
+        Preconditions.checkArgument(tlv instanceof PrefixesTreatedAsWithdrawTlv, "PrefixesTreatedAsWithdrawTlv is mandatory.");
+        TlvUtil.formatTlvCounter32(TYPE, ((PrefixesTreatedAsWithdrawTlv) tlv).getCount(), output);
     }
 
     @Override
@@ -34,7 +34,6 @@ public class StatType2TlvHandler implements BmpTlvParser, BmpTlvSerializer {
         if (buffer == null) {
             return null;
         }
-        return new DuplicateWithdrawsTlvBuilder().setCount(new Counter32(buffer.readUnsignedInt())).build();
+        return new PrefixesTreatedAsWithdrawTlvBuilder().setCount(new Counter32(buffer.readUnsignedInt())).build();
     }
-
 }

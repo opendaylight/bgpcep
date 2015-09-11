@@ -21,9 +21,8 @@ public final class TablesUtil {
     public static final QName BMP_TABLES_QNAME = QName.cachedReference(QName.create(BmpMonitor.QNAME.getNamespace(), BmpMonitor.QNAME.getRevision(), "tables"));
     public static final QName BMP_ATTRIBUTES_QNAME = QName.cachedReference(QName.create(BmpMonitor.QNAME.getNamespace(), BmpMonitor.QNAME.getRevision(), "attributes"));
     public static final QName BMP_ROUTES_QNAME = QName.cachedReference(QName.create(BmpMonitor.QNAME.getNamespace(), BmpMonitor.QNAME.getRevision(), "routes"));
-
-    private static final QName AFI_QNAME = QName.cachedReference(QName.create(BMP_TABLES_QNAME, "afi"));
-    private static final QName SAFI_QNAME = QName.cachedReference(QName.create(BMP_TABLES_QNAME, "safi"));
+    public static final QName BMP_AFI_QNAME = QName.cachedReference(QName.create(BMP_TABLES_QNAME, "afi"));
+    public static final QName BMP_SAFI_QNAME = QName.cachedReference(QName.create(BMP_TABLES_QNAME, "safi"));
 
     private TablesUtil() {
         throw new UnsupportedOperationException("Utility class");
@@ -39,8 +38,8 @@ public final class TablesUtil {
     public static NodeIdentifierWithPredicates toYangTablesKey(final Class<? extends AddressFamily> afi,
             final Class<? extends SubsequentAddressFamily> safi) {
         final ImmutableMap<QName, Object> keyValues = ImmutableMap.<QName, Object>of(
-                        AFI_QNAME, BindingReflections.findQName(afi),
-                        SAFI_QNAME, BindingReflections.findQName(safi));
+                        BMP_AFI_QNAME, BindingReflections.findQName(afi),
+                        BMP_SAFI_QNAME, BindingReflections.findQName(safi));
         return new NodeIdentifierWithPredicates(BMP_TABLES_QNAME, keyValues);
     }
 

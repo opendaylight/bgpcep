@@ -19,7 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.DuplicatePrefixAdvertisementsTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.DuplicatePrefixAdvertisementsTlvBuilder;
 
-public class StatType1TlvHandler implements BmpTlvParser, BmpTlvSerializer {
+public class StatType001TlvHandler implements BmpTlvParser, BmpTlvSerializer {
 
     public static final int TYPE = 1;
 
