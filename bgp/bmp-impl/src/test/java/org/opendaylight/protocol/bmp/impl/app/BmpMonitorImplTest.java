@@ -163,7 +163,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         this.bgpActivator.start(context);
         final SimpleBmpExtensionProviderContext ctx = new SimpleBmpExtensionProviderContext();
-        this.bmpActivator = new BmpActivator(context.getMessageRegistry());
+        this.bmpActivator = new BmpActivator(context);
         this.bmpActivator.start(ctx);
         this.msgRegistry = ctx.getBmpMessageRegistry();
 

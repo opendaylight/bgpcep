@@ -4,6 +4,7 @@ module bmp-message {
     prefix "bmp-msg";
 
     import bgp-message { prefix bgp-msg; revision-date 2013-09-19; }
+    import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
     import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
     import ietf-yang-types { prefix yang; revision-date 2010-09-24; }
 
@@ -99,6 +100,29 @@ module bmp-message {
         }
     }
 
+    typedef mirror-type {
+        type enumeration {
+            enum type0 {
+                value 0;
+            }
+            enum type1 {
+                value 1;
+            }
+        }
+    }
+
+    typedef mirror-information-code {
+        type enumeration {
+            enum code0 {
+                value 0;
+            }
+            enum code1 {
+                value 1;
+            }
+        }
+    }
+
+
     grouping tlv {
         description
             "Common marker for all BMP TLVs.";
@@ -185,6 +209,44 @@ module bmp-message {
              termination.";
     }
 
+    grouping mirror-information-tlv {
+        container mirror-information-tlv {
+            uses tlv;
+            leaf code {
+                type mirror-information-code;
+            }
+            description
+                "Type = 1: Information. A two-byte code that provides information
+                 about the mirrored message or message stream.";
+        }
+    }
+
+    grouping mirror-pdu-tlvs {
+       container pdu-update-tlv {
+           uses tlv;
+           uses bgp-msg:update-message;
+       }
+       container pdu-open-tlv {
+           uses tlv;
+           uses bgp-msg:open-message;
+       }
+       description
+           "BGP Message.  A BGP PDU.  This PDU may or may not be an
+           Update message.  If the BGP Message TLV occurs in the Route
+           Mirroring message, it MUST occur last in the list of TLVs.";
+    }
+
+    grouping mirror-tlvs {
+        uses mirror-information-tlv;
+        uses mirror-pdu-tlvs;
+    }
+
+    grouping mirror {
+        container tlvs {
+            uses mirror-tlvs;
+        }
+    }
+
     grouping count-tlv {
         uses tlv;
         leaf count {
@@ -194,6 +256,14 @@ module bmp-message {
 
     grouping gauge-tlv {
         uses tlv;
+        leaf count {
+            type yang:gauge64;
+        }
+    }
+
+    grouping afi-safi-gauge-tlv {
+        uses tlv;
+        uses bgp-mp:bgp-table-type;
         leaf count {
             type yang:gauge64;
         }
@@ -254,6 +324,38 @@ module bmp-message {
         }
         description
             "Each counter is encoded as a TLV.";
+        container per-afi-safi-adj-rib-in-tlv {
+            uses afi-safi-gauge-tlv;
+            description
+                "Stat Type = 9: Number of routes in per-AFI/SAFI Adj-RIB-In.  The
+                 value is structured as: AFI (2 bytes), SAFI (1 byte), followed by
+                 a 64-bit Gauge.";
+        }
+        container per-afi-safi-loc-rib-tlv {
+            uses afi-safi-gauge-tlv;
+            description
+                "Stat Type = 10: Number of routes in per-AFI/SAFI Loc-RIB.  The
+                value is structured as: AFI (2 bytes), SAFI (1 byte), followed by
+                a 64-bit Gauge.";
+        }
+        container updates-treated-as-withdraw-tlv {
+            uses count-tlv;
+            description
+                "Stat Type = 11: (32-bit Counter) Number of updates subjected to
+                treat-as-withdraw treatment. ";
+        }
+        container prefixes-treated-as-withdraw-tlv {
+            uses count-tlv;
+            description
+                "Stat Type = 12: (32-bit Counter) Number of prefixes subjected to
+                treat-as-withdraw treatment. ";
+        }
+        container duplicate-updates-tlv {
+            uses count-tlv;
+            description
+            "Stat Type = 13: (32-bit Counter) Number of duplicate update
+            messages received. ";
+        }
     }
 
     grouping timestamp {
@@ -461,6 +563,16 @@ module bmp-message {
             "https://tools.ietf.org/html/draft-ietf-grow-bmp-07#section-4.5";
     }
 
+    notification route-mirroring-message {
+        uses peer-header;
+        uses mirror;
+        description
+            "Route Mirroring messages are used for verbatim duplication of
+             messages as received.";
+        reference
+            "https://tools.ietf.org/html/draft-ietf-grow-bmp-15#section-4.7";
+    }
+
     notification stats-reports-message {
         uses peer-header;
         uses stat;
@@ -491,5 +603,4 @@ module bmp-message {
         reference
             "https://tools.ietf.org/html/draft-ietf-grow-bmp-07#section-4.8";
     }
-
 }

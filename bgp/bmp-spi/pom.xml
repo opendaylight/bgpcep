@@ -87,7 +87,11 @@
             <artifactId>config-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.mdsal</groupId>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>config-util</artifactId>
+        </dependency>
+         <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-binding</artifactId>
         </dependency>
         <dependency>
