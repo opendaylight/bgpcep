@@ -22,6 +22,9 @@ public class SimpleBmpExtensionProviderContext implements BmpExtensionConsumerCo
     private final BmpTlvRegistry bmpStatisticsTlvRegistry = new SimpleBmpTlvRegistry();
     private final BmpTlvRegistry bmpInitiationTlvRegistry = new SimpleBmpTlvRegistry();
     private final BmpTlvRegistry bmpTerminationTlvRegistry = new SimpleBmpTlvRegistry();
+    private final BmpTlvRegistry bmpRouteMirroringTlvRegistry = new SimpleBmpTlvRegistry();
+    private final BmpTlvRegistry bmpPeerUpTlvRegistry = new SimpleBmpTlvRegistry();
+
 
     @Override
     public AutoCloseable registerBmpMessageParser(final int messageType, final BmpMessageParser parser) {
@@ -49,6 +52,16 @@ public class SimpleBmpExtensionProviderContext implements BmpExtensionConsumerCo
     }
 
     @Override
+    public AutoCloseable registerBmpPeerUpTlvParser(final int tlvType, final BmpTlvParser parser) {
+        return this.bmpPeerUpTlvRegistry.registerBmpTlvParser(tlvType, parser);
+    }
+
+    @Override
+    public AutoCloseable registerBmpPeerUpTlvSerializer(final Class<? extends Tlv> tlvClass, final BmpTlvSerializer serializer) {
+        return this.bmpPeerUpTlvRegistry.registerBmpTlvSerializer(tlvClass, serializer);
+    }
+
+    @Override
     public AutoCloseable registerBmpInitiationTlvParser(final int tlvType, final BmpTlvParser parser) {
         return this.bmpInitiationTlvRegistry.registerBmpTlvParser(tlvType, parser);
     }
@@ -69,6 +82,16 @@ public class SimpleBmpExtensionProviderContext implements BmpExtensionConsumerCo
     }
 
     @Override
+    public AutoCloseable registerBmpRouteMirroringTlvParser(final int tlvType, final BmpTlvParser parser) {
+        return this.bmpRouteMirroringTlvRegistry.registerBmpTlvParser(tlvType, parser);
+    }
+
+    @Override
+    public AutoCloseable registerBmpRouteMirroringTlvSerializer(final Class<? extends Tlv> tlvClass, final BmpTlvSerializer serializer) {
+        return this.bmpRouteMirroringTlvRegistry.registerBmpTlvSerializer(tlvClass, serializer);
+    }
+
+    @Override
     public BmpTlvRegistry getBmpStatisticsTlvRegistry() {
         return this.bmpStatisticsTlvRegistry;
     }
@@ -79,8 +102,18 @@ public class SimpleBmpExtensionProviderContext implements BmpExtensionConsumerCo
     }
 
     @Override
+    public BmpTlvRegistry getBmpPeerUpTlvRegistry() {
+        return this.bmpPeerUpTlvRegistry;
+    }
+
+    @Override
     public BmpTlvRegistry getBmpTerminationTlvRegistry() {
         return this.bmpTerminationTlvRegistry;
+    }
+
+    @Override
+    public BmpTlvRegistry getBmpRouteMirroringTlvRegistry() {
+        return this.bmpRouteMirroringTlvRegistry;
     }
 
 }

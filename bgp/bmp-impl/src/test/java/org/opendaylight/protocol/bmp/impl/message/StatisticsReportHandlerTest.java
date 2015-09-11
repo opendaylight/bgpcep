@@ -23,7 +23,7 @@ public class StatisticsReportHandlerTest extends AbstractBmpMessageTest {
     private static final byte[] STATS_REPORT = {
         /*
          * 03 <- bmp version
-         * 00 00 00 82 <- total length of initiation message + common header lenght
+         * 00 00 00 c2 <- total length of stats message + common header lenght
          * 01 <- bmp message type - statistcs report
          *
          * 00 <- global type
@@ -37,7 +37,7 @@ public class StatisticsReportHandlerTest extends AbstractBmpMessageTest {
          * 00 00 00 05 <- time stamp - 4 bytes
          * 00 00 00 0A <- time stamp micro - 4 bytes
          *
-         * 00 00 00 09 <- TLVs count
+         * 00 00 00 0E <- TLVs count
          * 00 00 - rejected prefix type
          * 00 04 - length
          * 00 00 00 08 - value
@@ -65,30 +65,71 @@ public class StatisticsReportHandlerTest extends AbstractBmpMessageTest {
          * 00 08 <- loc rib routes type
          * 00 08 <- length
          * 00 00 00 00 00 00 00 64 <- value
+         * 00 09 <- per afi safi adj rib routes type
+         * 00 0B <- length
+         * 00 01 <- afi
+         * 01    <- safi
+         * 00 00 00 00 00 00 00 09 <- value
+         * 00 0A <- per afi safi local rib type
+         * 00 0B <- length
+         * 00 01 <- afi
+         * 01    <- safi
+         * 00 00 00 00 00 00 00 0A <- value
+         * 00 0B <- updates treated as withdraw
+         * 00 04 <- length
+         * 00 00 00 0B  <- value
+         * 00 0C <- prefixes treated as withdraw
+         * 00 04 <- length
+         * 00 00 00 0C  <- value
+         * 00 0D <- duplicate updates
+         * 00 04 <- length
+         * 00 00 00 0D  <- value
          */
+
         (byte) 0x03,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x84,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xBA,
         (byte) 0x01,
 
         (byte) 0x00,
         (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,    // < - element 28
         (byte) 0x0A, (byte) 0x0A, (byte) 0x0A, (byte) 0x0A,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x48,
         (byte) 0x0A, (byte) 0x0A, (byte) 0x0A, (byte) 0x0A,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x05,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0A,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0A,  // <-element 48
 
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x09, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x04, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0E,  // <- tlv counts
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x04, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x08, (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x10,
         (byte) 0x00, (byte) 0x02, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0B, (byte) 0x00, (byte) 0x03, (byte) 0x00,
         (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x35, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x42, (byte) 0x00, (byte) 0x05, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x46, (byte) 0x00,
         (byte) 0x06, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x37, (byte) 0x00, (byte) 0x07, (byte) 0x00, (byte) 0x08,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0A, (byte) 0x00, (byte) 0x08, (byte) 0x00,
-        (byte) 0x08, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x64
+        (byte) 0x08, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x64,
+
+        (byte) 0x00, (byte) 0x09, //  <- per afi safi adj rib routes type
+        (byte) 0x00, (byte) 0x0B, //  <- length
+        (byte) 0x00, (byte) 0x01, //  <- afi
+        (byte) 0x01,              //  <- safi
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x09, //  <- value
+        (byte) 0x00, (byte) 0x0A, //  <- per afi safi local rib routes type
+        (byte) 0x00, (byte) 0x0B, //  <- length
+        (byte) 0x00, (byte) 0x01, //  <- afi
+        (byte) 0x01,              //  <- safi
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0A, //  <- value
+        (byte) 0x00, (byte) 0x0B, //  <- updates treated as withdraw
+        (byte) 0x00, (byte) 0x04, // <- length
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0B, //  <- value
+        (byte) 0x00, (byte) 0x0C, //  <- prefixes treated as withdraw
+        (byte) 0x00, (byte) 0x04,  //  <- length
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0C,//  <- value
+        (byte) 0x00, (byte) 0x0D, //  <- duplicate updates
+        (byte) 0x00, (byte) 0x04, //  <- length
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0D  // <- value
     };
 
     @Test
@@ -100,7 +141,7 @@ public class StatisticsReportHandlerTest extends AbstractBmpMessageTest {
 
     @Test
     public void testParseStatsReportMessage() throws BmpDeserializationException {
-        final StatsReportsMessage parsedInitMsg = (StatsReportsMessage) getBmpMessageRegistry().parseMessage(Unpooled.copiedBuffer(STATS_REPORT));
-        assertEquals(createStatsReportMsg(), parsedInitMsg);
+        final StatsReportsMessage parsedStatsReportsMsg = (StatsReportsMessage) getBmpMessageRegistry().parseMessage(Unpooled.copiedBuffer(STATS_REPORT));
+        assertEquals(createStatsReportMsg(), parsedStatsReportsMsg);
     }
 }

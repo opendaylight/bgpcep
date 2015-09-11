@@ -26,7 +26,7 @@ public class BaseBmpParserModule extends org.opendaylight.controller.config.yang
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        return new BmpActivator(getBgpExtensionsDependency().getMessageRegistry());
+        return new BmpActivator(getBgpExtensionsDependency());
     }
 
 }
