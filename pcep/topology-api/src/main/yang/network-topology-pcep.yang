@@ -46,6 +46,10 @@ module network-topology-pcep {
                 description
                     "Initial state resynchronization is being performed.";
             }
+            enum incremental-sync {
+                description
+                    "Incremental state resynchronization is being performed.";
+            }
             enum synchronized {
                 description
                     "State synchronization has been achieved.";
