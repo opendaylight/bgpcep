@@ -10,47 +10,67 @@ package org.opendaylight.protocol.bmp.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
+import org.opendaylight.protocol.bgp.parser.spi.CapabilityRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.protocol.bmp.impl.message.InitiationHandler;
 import org.opendaylight.protocol.bmp.impl.message.PeerDownHandler;
 import org.opendaylight.protocol.bmp.impl.message.PeerUpHandler;
+import org.opendaylight.protocol.bmp.impl.message.RouteMirroringMessageHandler;
 import org.opendaylight.protocol.bmp.impl.message.RouteMonitoringMessageHandler;
 import org.opendaylight.protocol.bmp.impl.message.StatisticsReportHandler;
 import org.opendaylight.protocol.bmp.impl.message.TerminationHandler;
 import org.opendaylight.protocol.bmp.impl.tlv.DescriptionTlvHandler;
+import org.opendaylight.protocol.bmp.impl.tlv.MirrorInformationTlvHandler;
 import org.opendaylight.protocol.bmp.impl.tlv.NameTlvHandler;
 import org.opendaylight.protocol.bmp.impl.tlv.ReasonTlvHandler;
-import org.opendaylight.protocol.bmp.impl.tlv.StatType0TlvHandler;
-import org.opendaylight.protocol.bmp.impl.tlv.StatType1TlvHandler;
-import org.opendaylight.protocol.bmp.impl.tlv.StatType2TlvHandler;
-import org.opendaylight.protocol.bmp.impl.tlv.StatType3TlvHandler;
-import org.opendaylight.protocol.bmp.impl.tlv.StatType4TlvHandler;
-import org.opendaylight.protocol.bmp.impl.tlv.StatType5TlvHandler;
-import org.opendaylight.protocol.bmp.impl.tlv.StatType6TlvHandler;
-import org.opendaylight.protocol.bmp.impl.tlv.StatType7TlvHandler;
-import org.opendaylight.protocol.bmp.impl.tlv.StatType8TlvHandler;
+import org.opendaylight.protocol.bmp.impl.tlv.StatType000TlvHandler;
+import org.opendaylight.protocol.bmp.impl.tlv.StatType001TlvHandler;
+import org.opendaylight.protocol.bmp.impl.tlv.StatType002TlvHandler;
+import org.opendaylight.protocol.bmp.impl.tlv.StatType003TlvHandler;
+import org.opendaylight.protocol.bmp.impl.tlv.StatType004TlvHandler;
+import org.opendaylight.protocol.bmp.impl.tlv.StatType005TlvHandler;
+import org.opendaylight.protocol.bmp.impl.tlv.StatType006TlvHandler;
+import org.opendaylight.protocol.bmp.impl.tlv.StatType007TlvHandler;
+import org.opendaylight.protocol.bmp.impl.tlv.StatType008TlvHandler;
+import org.opendaylight.protocol.bmp.impl.tlv.StatType009TlvHandler;
+import org.opendaylight.protocol.bmp.impl.tlv.StatType010TlvHandler;
+import org.opendaylight.protocol.bmp.impl.tlv.StatType011TlvHandler;
+import org.opendaylight.protocol.bmp.impl.tlv.StatType012TlvHandler;
+import org.opendaylight.protocol.bmp.impl.tlv.StatType013TlvHandler;
 import org.opendaylight.protocol.bmp.impl.tlv.StringTlvHandler;
 import org.opendaylight.protocol.bmp.spi.registry.AbstractBmpExtensionProviderActivator;
 import org.opendaylight.protocol.bmp.spi.registry.BmpExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.InitiationMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerDownNotification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerUpNotification;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.RouteMirroringMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.RouteMonitoringMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.StatsReportsMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.TerminationMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.description.tlv.DescriptionTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.mirror.information.tlv.MirrorInformationTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.name.tlv.NameTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.reason.tlv.ReasonTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.AdjRibsInRoutesTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.DuplicatePrefixAdvertisementsTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.DuplicateUpdatesTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.DuplicateWithdrawsTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.InvalidatedAsConfedLoopTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.InvalidatedAsPathLoopTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.InvalidatedClusterListLoopTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.InvalidatedOriginatorIdTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.LocRibRoutesTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.PerAfiSafiAdjRibInTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.PerAfiSafiLocRibTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.PrefixesTreatedAsWithdrawTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.RejectedPrefixesTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.UpdatesTreatedAsWithdrawTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.string.tlv.StringTlv;
+
+
 
 /**
  * Created by cgasparini on 15.5.2015.
@@ -58,9 +78,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 public final class BmpActivator extends AbstractBmpExtensionProviderActivator {
 
     private final MessageRegistry messageRegistry;
+    private final CapabilityRegistry capabilityRegistry;
+    private final AddressFamilyRegistry afiRegistry;
+    private final SubsequentAddressFamilyRegistry safiRegistry;
 
-    public BmpActivator(final MessageRegistry messageRegistry) {
-        this.messageRegistry = messageRegistry;
+    public BmpActivator(final BGPExtensionConsumerContext context) {
+        this.messageRegistry = context.getMessageRegistry();
+        this.capabilityRegistry = context.getCapabilityRegistry();
+        this.afiRegistry = context.getAddressFamilyRegistry();
+        this.safiRegistry = context.getSubsequentAddressFamilyRegistry();
     }
 
     @Override
@@ -98,6 +124,10 @@ public final class BmpActivator extends AbstractBmpExtensionProviderActivator {
         regs.add(context.registerBmpMessageParser(routeMonitoringMessageHandler.getBmpMessageType(), routeMonitoringMessageHandler));
         regs.add(context.registerBmpMessageSerializer(RouteMonitoringMessage.class, routeMonitoringMessageHandler));
 
+        final RouteMirroringMessageHandler routeMirroringMessageHandler = new RouteMirroringMessageHandler(this.messageRegistry, context.getBmpRouteMirroringTlvRegistry());
+        regs.add(context.registerBmpMessageParser(routeMirroringMessageHandler.getBmpMessageType(), routeMirroringMessageHandler));
+        regs.add(context.registerBmpMessageSerializer(RouteMirroringMessage.class, routeMirroringMessageHandler));
+
     }
 
     private void registerBmpTlvHandlers(final List<AutoCloseable> regs, final BmpExtensionProviderContext context) {
@@ -118,43 +148,68 @@ public final class BmpActivator extends AbstractBmpExtensionProviderActivator {
         final ReasonTlvHandler reasonTlvHandler = new ReasonTlvHandler();
         regs.add(context.registerBmpTerminationTlvParser(ReasonTlvHandler.TYPE, reasonTlvHandler));
         regs.add(context.registerBmpTerminationTlvSerializer(ReasonTlv.class, reasonTlvHandler));
+
+        final MirrorInformationTlvHandler informationTlvHandler = new MirrorInformationTlvHandler();
+        regs.add(context.registerBmpRouteMirroringTlvParser(MirrorInformationTlvHandler.TYPE, informationTlvHandler));
+        regs.add(context.registerBmpRouteMirroringTlvSerializer(MirrorInformationTlv.class, informationTlvHandler));
     }
 
     private void registerBmpStatTlvHandlers(final List<AutoCloseable> regs, final BmpExtensionProviderContext context) {
-        final StatType0TlvHandler statType0TlvHandler = new StatType0TlvHandler();
-        regs.add(context.registerBmpStatisticsTlvParser(StatType0TlvHandler.TYPE, statType0TlvHandler));
-        regs.add(context.registerBmpStatisticsTlvSerializer(RejectedPrefixesTlv.class, statType0TlvHandler));
+        final StatType000TlvHandler statType000TlvHandler = new StatType000TlvHandler();
+        regs.add(context.registerBmpStatisticsTlvParser(StatType000TlvHandler.TYPE, statType000TlvHandler));
+        regs.add(context.registerBmpStatisticsTlvSerializer(RejectedPrefixesTlv.class, statType000TlvHandler));
 
-        final StatType1TlvHandler statType1TlvHandler = new StatType1TlvHandler();
-        regs.add(context.registerBmpStatisticsTlvParser(StatType1TlvHandler.TYPE, statType1TlvHandler));
-        regs.add(context.registerBmpStatisticsTlvSerializer(DuplicatePrefixAdvertisementsTlv.class, statType1TlvHandler));
+        final StatType001TlvHandler statType001TlvHandler = new StatType001TlvHandler();
+        regs.add(context.registerBmpStatisticsTlvParser(StatType001TlvHandler.TYPE, statType001TlvHandler));
+        regs.add(context.registerBmpStatisticsTlvSerializer(DuplicatePrefixAdvertisementsTlv.class, statType001TlvHandler));
 
-        final StatType2TlvHandler statType2TlvHandler = new StatType2TlvHandler();
-        regs.add(context.registerBmpStatisticsTlvParser(StatType2TlvHandler.TYPE, statType2TlvHandler));
-        regs.add(context.registerBmpStatisticsTlvSerializer(DuplicateWithdrawsTlv.class, statType2TlvHandler));
+        final StatType002TlvHandler statType002TlvHandler = new StatType002TlvHandler();
+        regs.add(context.registerBmpStatisticsTlvParser(StatType002TlvHandler.TYPE, statType002TlvHandler));
+        regs.add(context.registerBmpStatisticsTlvSerializer(DuplicateWithdrawsTlv.class, statType002TlvHandler));
 
-        final StatType3TlvHandler statType3TlvHandler = new StatType3TlvHandler();
-        regs.add(context.registerBmpStatisticsTlvParser(StatType3TlvHandler.TYPE, statType3TlvHandler));
-        regs.add(context.registerBmpStatisticsTlvSerializer(InvalidatedClusterListLoopTlv.class, statType3TlvHandler));
+        final StatType003TlvHandler statType003TlvHandler = new StatType003TlvHandler();
+        regs.add(context.registerBmpStatisticsTlvParser(StatType003TlvHandler.TYPE, statType003TlvHandler));
+        regs.add(context.registerBmpStatisticsTlvSerializer(InvalidatedClusterListLoopTlv.class, statType003TlvHandler));
 
-        final StatType4TlvHandler statType4TlvHandler = new StatType4TlvHandler();
-        regs.add(context.registerBmpStatisticsTlvParser(StatType4TlvHandler.TYPE, statType4TlvHandler));
-        regs.add(context.registerBmpStatisticsTlvSerializer(InvalidatedAsPathLoopTlv.class, statType4TlvHandler));
+        final StatType004TlvHandler statType004TlvHandler = new StatType004TlvHandler();
+        regs.add(context.registerBmpStatisticsTlvParser(StatType004TlvHandler.TYPE, statType004TlvHandler));
+        regs.add(context.registerBmpStatisticsTlvSerializer(InvalidatedAsPathLoopTlv.class, statType004TlvHandler));
 
-        final StatType5TlvHandler statType5TlvHandler = new StatType5TlvHandler();
-        regs.add(context.registerBmpStatisticsTlvParser(StatType5TlvHandler.TYPE, statType5TlvHandler));
-        regs.add(context.registerBmpStatisticsTlvSerializer(InvalidatedOriginatorIdTlv.class, statType5TlvHandler));
+        final StatType005TlvHandler statType005TlvHandler = new StatType005TlvHandler();
+        regs.add(context.registerBmpStatisticsTlvParser(StatType005TlvHandler.TYPE, statType005TlvHandler));
+        regs.add(context.registerBmpStatisticsTlvSerializer(InvalidatedOriginatorIdTlv.class, statType005TlvHandler));
 
-        final StatType6TlvHandler statType6TlvHandler = new StatType6TlvHandler();
-        regs.add(context.registerBmpStatisticsTlvParser(StatType6TlvHandler.TYPE, statType6TlvHandler));
-        regs.add(context.registerBmpStatisticsTlvSerializer(InvalidatedAsConfedLoopTlv.class, statType6TlvHandler));
+        final StatType006TlvHandler statType006TlvHandler = new StatType006TlvHandler();
+        regs.add(context.registerBmpStatisticsTlvParser(StatType006TlvHandler.TYPE, statType006TlvHandler));
+        regs.add(context.registerBmpStatisticsTlvSerializer(InvalidatedAsConfedLoopTlv.class, statType006TlvHandler));
 
-        final StatType7TlvHandler statType7TlvHandler = new StatType7TlvHandler();
-        regs.add(context.registerBmpStatisticsTlvParser(StatType7TlvHandler.TYPE, statType7TlvHandler));
-        regs.add(context.registerBmpStatisticsTlvSerializer(AdjRibsInRoutesTlv.class, statType7TlvHandler));
+        final StatType007TlvHandler statType007TlvHandler = new StatType007TlvHandler();
+        regs.add(context.registerBmpStatisticsTlvParser(StatType007TlvHandler.TYPE, statType007TlvHandler));
+        regs.add(context.registerBmpStatisticsTlvSerializer(AdjRibsInRoutesTlv.class, statType007TlvHandler));
 
-        final StatType8TlvHandler statType8TlvHandler = new StatType8TlvHandler();
-        regs.add(context.registerBmpStatisticsTlvParser(StatType8TlvHandler.TYPE, statType8TlvHandler));
-        regs.add(context.registerBmpStatisticsTlvSerializer(LocRibRoutesTlv.class, statType8TlvHandler));
+        final StatType008TlvHandler statType008TlvHandler = new StatType008TlvHandler();
+        regs.add(context.registerBmpStatisticsTlvParser(StatType008TlvHandler.TYPE, statType008TlvHandler));
+        regs.add(context.registerBmpStatisticsTlvSerializer(LocRibRoutesTlv.class, statType008TlvHandler));
+
+        final StatType009TlvHandler statType009TlvHandler = new StatType009TlvHandler(this.afiRegistry, this.safiRegistry);
+        regs.add(context.registerBmpStatisticsTlvParser(StatType009TlvHandler.TYPE, statType009TlvHandler));
+        regs.add(context.registerBmpStatisticsTlvSerializer(PerAfiSafiAdjRibInTlv.class, statType009TlvHandler));
+
+        final StatType010TlvHandler statType010TlvHandler = new StatType010TlvHandler(this.afiRegistry, this.safiRegistry);
+        regs.add(context.registerBmpStatisticsTlvParser(StatType010TlvHandler.TYPE, statType010TlvHandler));
+        regs.add(context.registerBmpStatisticsTlvSerializer(PerAfiSafiLocRibTlv.class, statType010TlvHandler));
+
+        final StatType011TlvHandler statType011TlvHandler = new StatType011TlvHandler();
+        regs.add(context.registerBmpStatisticsTlvParser(StatType011TlvHandler.TYPE, statType011TlvHandler));
+        regs.add(context.registerBmpStatisticsTlvSerializer(UpdatesTreatedAsWithdrawTlv.class, statType011TlvHandler));
+
+        final StatType012TlvHandler statType012TlvHandler = new StatType012TlvHandler();
+        regs.add(context.registerBmpStatisticsTlvParser(StatType012TlvHandler.TYPE, statType012TlvHandler));
+        regs.add(context.registerBmpStatisticsTlvSerializer(PrefixesTreatedAsWithdrawTlv.class, statType012TlvHandler));
+
+        final StatType013TlvHandler statType013TlvHandler = new StatType013TlvHandler();
+        regs.add(context.registerBmpStatisticsTlvParser(StatType013TlvHandler.TYPE, statType013TlvHandler));
+        regs.add(context.registerBmpStatisticsTlvSerializer(DuplicateUpdatesTlv.class, statType013TlvHandler));
+
     }
 }

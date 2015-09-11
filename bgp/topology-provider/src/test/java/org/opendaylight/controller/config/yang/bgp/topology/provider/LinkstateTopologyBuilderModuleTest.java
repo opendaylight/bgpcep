@@ -42,6 +42,7 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
         paths.add("/META-INF/yang/rsvp.yang");
         paths.add("/META-INF/yang/iana.yang");
         paths.add("/META-INF/yang/bgp-epe.yang");
+        paths.add("/META-INF/yang/iana-afn-safi@2013-07-04.yang");
         paths.add("/META-INF/yang/bmp-monitor.yang");
         paths.add("/META-INF/yang/bmp-message.yang");
         paths.add("/META-INF/yang/ietf-yang-types.yang");

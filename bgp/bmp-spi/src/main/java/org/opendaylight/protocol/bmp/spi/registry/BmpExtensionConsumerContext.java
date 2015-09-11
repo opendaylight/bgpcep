@@ -20,4 +20,6 @@ public interface BmpExtensionConsumerContext {
 
     BmpTlvRegistry getBmpTerminationTlvRegistry();
 
+    BmpTlvRegistry getBmpRouteMirroringTlvRegistry();
+
 }

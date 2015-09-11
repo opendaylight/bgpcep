@@ -97,6 +97,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.InvalidatedClusterListLoopTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.InvalidatedOriginatorIdTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.LocRibRoutesTlvBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.PerAfiSafiAdjRibInTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.stat.tlvs.RejectedPrefixesTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.string.informations.StringInformation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.string.informations.StringInformationBuilder;
@@ -345,6 +346,7 @@ public final class TestUtil {
         tlvsBuilder.setInvalidatedOriginatorIdTlv(new InvalidatedOriginatorIdTlvBuilder().setCount(new Counter32(70L)).build());
         tlvsBuilder.setLocRibRoutesTlv(new LocRibRoutesTlvBuilder().setCount(new Gauge64(BigInteger.valueOf(100L))).build());
         tlvsBuilder.setRejectedPrefixesTlv(new RejectedPrefixesTlvBuilder().setCount(new Counter32(8L)).build());
+        tlvsBuilder.setPerAfiSafiAdjRibInTlv(new PerAfiSafiAdjRibInTlvBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setCount(new Gauge64(BigInteger.valueOf(9L))).build());
         return statsReportMsgBuilder.setTlvs(tlvsBuilder.build()).build();
     }
 
@@ -353,7 +355,7 @@ public final class TestUtil {
     }
 
 
-    public static RouteMonitoringMessage creaetRouteMonMsgWithEndOfRibMarker(final Ipv4Address bgpId, final AdjRibInType ribType) {
+    public static RouteMonitoringMessage createRouteMonMsgWithEndOfRibMarker(final Ipv4Address bgpId, final AdjRibInType ribType) {
         return new RouteMonitoringMessageBuilder().setPeerHeader(createPeerHeader(bgpId, ribType)).setUpdate(createEndOfRibMarker()).build();
     }
 
