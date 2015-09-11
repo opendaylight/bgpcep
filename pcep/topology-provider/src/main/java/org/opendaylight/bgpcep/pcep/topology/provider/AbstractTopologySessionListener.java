@@ -159,7 +159,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         final Node initialNodeState = state.getInitialNodeState();
         final boolean isNodePresent = isLspDbRetreived() && initialNodeState != null;
         if (isNodePresent) {
-            loadLspData(initialNodeState, lspData, lsps);
+            loadLspData(initialNodeState, lspData, lsps, isIncrementalSynchro());
             pccBuilder.setReportedLsp(initialNodeState.getAugmentation(Node1.class).getPathComputationClient().getReportedLsp());
         }
         writeNode(pccBuilder, state, topologyAugment);
@@ -483,7 +483,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
     protected abstract Object validateReportedLsp(final Optional<ReportedLsp> rep, final LspId input);
 
-    protected abstract void loadLspData(final Node node, final Map<String, ReportedLsp> lspData, final Map<L, String> lsps);
+    protected abstract void loadLspData(final Node node, final Map<String, ReportedLsp> lspData, final Map<L, String> lsps, final boolean incrementalSynchro);
 
     protected final boolean isLspDbPersisted() {
         if (syncOptimization != null) {
@@ -495,6 +495,18 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     protected final boolean isLspDbRetreived() {
         if (syncOptimization != null) {
             return syncOptimization.isDbVersionPresent();
+        }
+        return false;
+    }
+
+    /**
+     * Is Incremental synchronization if LSP-DB-VERSION are included,
+     * LSP-DB-VERSION TLV values doesnt match, and  LSP-SYNC-CAPABILITY is enabled
+     * @return
+     */
+    protected final boolean isIncrementalSynchro() {
+        if (syncOptimization != null) {
+            return syncOptimization.isSyncAvoidanceEnabled() && syncOptimization.isDeltaSyncEnabled();
         }
         return false;
     }
