@@ -86,5 +86,25 @@ module network-topology-pcep-programming {
             uses ntp:topology-instruction-output;
         }
     }
+
+    rpc submit-trigger-re-sync {
+        input {
+            uses ntp:topology-instruction-input;
+            uses pcep:trigger-re-sync-args;
+        }
+        output {
+            uses ntp:topology-instruction-output;
+        }
+    }
+
+    rpc submit-trigger-re-sync-lsp{
+        input {
+            uses ntp:topology-instruction-input;
+            uses pcep:trigger-re-sync-lsp-args;
+        }
+        output {
+            uses ntp:topology-instruction-output;
+        }
+    }
 }
 
