@@ -39,7 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.MessageHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ProtocolVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
@@ -51,6 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLspKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.Path;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -111,7 +111,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     private final Map<String, ReportedLsp> lspData = new HashMap<>();
 
     @GuardedBy("this")
-    private final Map<L, String> lsps = new HashMap<>();
+    protected final Map<L, String> lsps = new HashMap<>();
 
     private final ServerSessionManager serverSessionManager;
     private InstanceIdentifier<PathComputationClient> pccIdentifier;
@@ -191,6 +191,27 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
             @Override
             public void onFailure(final Throwable t) {
                 LOG.error("Failed to update internal state for session {}, terminating it", session, t);
+                session.close(TerminationReason.UNKNOWN);
+            }
+        });
+    }
+
+    protected void updatePccState(final PccSyncState pccSyncState) {
+        final MessageContext ctx = new MessageContext(this.nodeState.beginTransaction());
+        updatePccNode(ctx, new PathComputationClientBuilder().setStateSync(pccSyncState).build());
+        if (pccSyncState != PccSyncState.Synchronized) {
+            this.synced = false;
+        }
+        // All set, commit the modifications
+        Futures.addCallback(ctx.trans.submit(), new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(final Void result) {
+                LOG.trace("Internal state for session {} updated successfully", session);
+            }
+
+            @Override
+            public void onFailure(final Throwable t) {
+                LOG.error("Failed to update internal state for session {}", session, t);
                 session.close(TerminationReason.UNKNOWN);
             }
         });
@@ -491,7 +512,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         return null;
     }
 
-    protected abstract Object validateReportedLsp(final Optional<ReportedLsp> rep, final LspId input);
+    protected abstract Object validateReportedLsp(final Optional<ReportedLsp> rep, final NodeId nodeId, final String name);
 
     protected abstract void loadLspData(final Map<String, ReportedLsp> lspData, final Map<L, String> lsps, final boolean incrementalSynchro);
 
@@ -524,6 +545,13 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     protected final boolean isTriggeredInitialSynchro() {
         if (syncOptimization != null) {
             return syncOptimization.isTriggeredInitSyncEnabled();
+        }
+        return false;
+    }
+
+    protected final boolean isTriggeredReSyncEnabled() {
+        if (syncOptimization != null) {
+            return syncOptimization.isTriggeredReSyncEnabled();
         }
         return false;
     }
