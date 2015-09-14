@@ -31,8 +31,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitAddLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitEnsureLspOperationalInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitRemoveLspInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerInitialSyncInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerInitialSyncInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerSyncInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerSyncInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitUpdateLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitUpdateLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspInput;
@@ -42,8 +42,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.EnsureLspOperationalInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.NetworkTopologyPcepService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerInitialSyncInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerInitialSyncInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerSyncInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerSyncInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerSyncOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.PcepCreateP2pTunnelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.PcepCreateP2pTunnelInputBuilder;
@@ -117,7 +118,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
 
                 testAddLspRpce(consumerPcepService);
                 testEnsureLspRpce(consumerPcepService);
-                testTriggerInitialSyncRpce(consumerPcepService);
+                testTriggerSyncRpce(consumerPcepService);
             }
 
             private void testAddLspRpce(final NetworkTopologyPcepService consumerPcepService) {
@@ -135,20 +136,20 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
                 verify(pcepService2).addLsp(addLspInput);
             }
 
-            private void testTriggerInitialSyncRpce(final NetworkTopologyPcepService consumerPcepService) {
-                TriggerInitialSyncInput triggerInput = getInputForRpc(topology, TriggerInitialSyncInputBuilder.class,
-                    TriggerInitialSyncInput.class);
-                consumerPcepService.triggerInitialSync(triggerInput);
+            private void testTriggerSyncRpce(final NetworkTopologyPcepService consumerPcepService) {
+                TriggerSyncInput triggerInput = getInputForRpc(topology, TriggerSyncInputBuilder.class,
+                    TriggerSyncInput.class);
+                consumerPcepService.triggerSync(triggerInput);
 
-                verify(pcepService1).triggerInitialSync(triggerInput);
+                verify(pcepService1).triggerSync(triggerInput);
                 verifyZeroInteractions(pcepService2);
 
-                triggerInput = getInputForRpc(topology2, TriggerInitialSyncInputBuilder.class, TriggerInitialSyncInput.class);
+                triggerInput = getInputForRpc(topology2, TriggerSyncInputBuilder.class, TriggerSyncInput.class);
 
-                consumerPcepService.triggerInitialSync(triggerInput);
+                consumerPcepService.triggerSync(triggerInput);
 
                 verifyZeroInteractions(pcepService1);
-                verify(pcepService2).triggerInitialSync(triggerInput);
+                verify(pcepService2).triggerSync(triggerInput);
             }
 
             private void testEnsureLspRpce(final NetworkTopologyPcepService consumerPcepService) {
@@ -176,9 +177,11 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
 
         @SuppressWarnings("rawtypes")
         final ListenableFuture future = Futures.immediateFuture(RpcResultBuilder.<AddLspOutput>success().build());
+        final ListenableFuture futureSyncTrigger = Futures.immediateFuture(RpcResultBuilder.<TriggerSyncOutput>success().build());
+
         when(pcepService.addLsp(Mockito.<AddLspInput>any())).thenReturn(future);
         when(pcepService.removeLsp(Mockito.<RemoveLspInput>any())).thenReturn(future);
-        when(pcepService.triggerInitialSync(Mockito.<TriggerInitialSyncInput>any())).thenReturn(future);
+        when(pcepService.triggerSync(Mockito.<TriggerSyncInput>any())).thenReturn(futureSyncTrigger);
         when(pcepService.ensureLspOperational(Mockito.<EnsureLspOperationalInput>any())).thenReturn(future);
         when(pcepService.updateLsp(Mockito.<UpdateLspInput>any())).thenReturn(future);
 
@@ -251,7 +254,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
 
                 testSubmitAddLspRpc(consumerPcepService);
                 testSubmitUpdateLspRpc(consumerPcepService);
-                testTriggerInitialSyncRpc(consumerPcepService);
+                testTriggerSyncRpc(consumerPcepService);
             }
 
             private void testSubmitAddLspRpc(final NetworkTopologyPcepProgrammingService consumerPcepService) {
@@ -285,22 +288,22 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
                 verify(pcepService2).submitUpdateLsp(submitLspInput);
             }
 
-            private void testTriggerInitialSyncRpc(final NetworkTopologyPcepProgrammingService consumerPcepService) {
-                SubmitTriggerInitialSyncInput submitTriggerInput = getInputForRpc(topology,
-                    SubmitTriggerInitialSyncInputBuilder.class,
-                    SubmitTriggerInitialSyncInput.class);
-                consumerPcepService.submitTriggerInitialSync(submitTriggerInput);
+            private void testTriggerSyncRpc(final NetworkTopologyPcepProgrammingService consumerPcepService) {
+                SubmitTriggerSyncInput submitTriggerSyncInput = getInputForRpc(topology,
+                    SubmitTriggerSyncInputBuilder.class,
+                    SubmitTriggerSyncInput.class);
+                consumerPcepService.submitTriggerSync(submitTriggerSyncInput);
 
-                verify(pcepService1).submitTriggerInitialSync(submitTriggerInput);
+                verify(pcepService1).submitTriggerSync(submitTriggerSyncInput);
                 verifyZeroInteractions(pcepService2);
 
-                submitTriggerInput = getInputForRpc(topology2, SubmitTriggerInitialSyncInputBuilder.class,
-                    SubmitTriggerInitialSyncInput.class);
+                submitTriggerSyncInput = getInputForRpc(topology2, SubmitTriggerSyncInputBuilder.class,
+                    SubmitTriggerSyncInput.class);
 
-                consumerPcepService.submitTriggerInitialSync(submitTriggerInput);
+                consumerPcepService.submitTriggerSync(submitTriggerSyncInput);
 
                 verifyZeroInteractions(pcepService1);
-                verify(pcepService2).submitTriggerInitialSync(submitTriggerInput);
+                verify(pcepService2).submitTriggerSync(submitTriggerSyncInput);
             }
         };
         broker.registerConsumer(consumer, getBundleContext());
@@ -310,9 +313,10 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
     private void initMock(final NetworkTopologyPcepProgrammingService pcepService) {
         @SuppressWarnings("rawtypes")
         final ListenableFuture future = Futures.immediateFuture(RpcResultBuilder.<AddLspOutput>success().build());
+        final ListenableFuture futureTriggerSync = Futures.immediateFuture(RpcResultBuilder.<TriggerSyncOutput>success().build());
         when(pcepService.submitAddLsp(Mockito.<SubmitAddLspInput>any())).thenReturn(future);
         when(pcepService.submitRemoveLsp(Mockito.<SubmitRemoveLspInput>any())).thenReturn(future);
-        when(pcepService.submitTriggerInitialSync(Mockito.<SubmitTriggerInitialSyncInput>any())).thenReturn(future);
+        when(pcepService.submitTriggerSync(Mockito.<SubmitTriggerSyncInput>any())).thenReturn(futureTriggerSync);
         when(pcepService.submitEnsureLspOperational(Mockito.<SubmitEnsureLspOperationalInput>any())).thenReturn(future);
         when(pcepService.submitUpdateLsp(Mockito.<SubmitUpdateLspInput>any())).thenReturn(future);
     }
@@ -377,7 +381,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
 
             private void testCreateP2pTunnel(final TopologyTunnelPcepProgrammingService consumerPcepService) {
                 PcepCreateP2pTunnelInput addLspInput = getInputForRpc(topology, PcepCreateP2pTunnelInputBuilder.class,
-                        PcepCreateP2pTunnelInput.class);
+                    PcepCreateP2pTunnelInput.class);
                 consumerPcepService.pcepCreateP2pTunnel(addLspInput);
 
                 verify(pcepService1).pcepCreateP2pTunnel(addLspInput);
