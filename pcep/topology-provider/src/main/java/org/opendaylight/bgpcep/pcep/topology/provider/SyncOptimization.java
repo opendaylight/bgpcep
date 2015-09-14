@@ -23,7 +23,7 @@ final class SyncOptimization {
     private final boolean isDeltaSyncEnabled;
     private final boolean isDbVersionPresent;
     private final boolean isTriggeredInitialSynEnable;
-    private final boolean isTriggeredReSynEnable;
+    private final boolean isTriggeredReSyncEnable;
 
     public SyncOptimization(final PCEPSession session) {
         Preconditions.checkNotNull(session);
@@ -36,7 +36,7 @@ final class SyncOptimization {
         this.isDeltaSyncEnabled = isDeltaSync(local) && isDeltaSync(remote);
         this.isDbVersionPresent = localLspDbVersion != null || remoteLspDbVersion != null;
         this.isTriggeredInitialSynEnable = isTriggeredInitialSync(local) && isTriggeredInitialSync(remote);
-        this.isTriggeredReSynEnable = isTriggeredReSync(local) && isTriggeredReSync(remote);
+        this.isTriggeredReSyncEnable = isTriggeredReSync(local) && isTriggeredReSync(remote);
     }
 
     public boolean doesLspDbMatch() {
@@ -50,12 +50,12 @@ final class SyncOptimization {
     public boolean isDeltaSyncEnabled() {
         return isDeltaSyncEnabled;
     }
-    /**
-     * Returns
-     * @return isTriggeredInitialSynEnable
-     */
+
     public boolean isTriggeredInitSyncEnabled() {
         return isTriggeredInitialSynEnable;
+    }
+    public boolean isTriggeredReSyncEnabled() {
+        return isTriggeredReSyncEnable;
     }
 
     public boolean isDbVersionPresent() {
