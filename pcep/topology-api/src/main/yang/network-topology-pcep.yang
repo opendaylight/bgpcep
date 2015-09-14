@@ -54,6 +54,10 @@ module network-topology-pcep {
                 description
                      "Triggered initial state resynchronization is being performed.";
             }
+            enum pcep-triggered-resync {
+                description
+                    "Pcep triggered state resynchronization is being performed.";
+            }
             enum synchronized {
                 description
                     "State synchronization has been achieved.";
@@ -275,17 +279,20 @@ module network-topology-pcep {
         }
     }
 
-    grouping trigger-initial-sync-args {
+    grouping trigger-sync-args {
         leaf node {
             type nt:node-ref;
             mandatory true;
         }
+        leaf name {
+            type string;
+        }
     }
 
-    rpc trigger-initial-sync {
+    rpc trigger-sync {
         input {
             uses ont:network-topology-reference;
-            uses trigger-initial-sync-args;
+            uses trigger-sync-args;
         }
         output {
             uses operation-result;

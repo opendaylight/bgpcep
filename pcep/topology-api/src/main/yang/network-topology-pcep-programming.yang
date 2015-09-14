@@ -77,10 +77,10 @@ module network-topology-pcep-programming {
         }
     }
 
-    rpc submit-trigger-initial-sync {
+    rpc submit-trigger-sync {
         input {
             uses ntp:topology-instruction-input;
-            uses pcep:trigger-initial-sync-args;
+            uses pcep:trigger-sync-args;
         }
         output {
             uses ntp:topology-instruction-output;

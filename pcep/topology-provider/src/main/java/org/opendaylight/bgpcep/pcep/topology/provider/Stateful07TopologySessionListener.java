@@ -69,12 +69,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.setup.type.tlv.PathSetupType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.EnsureLspOperationalInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.PccSyncState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspArgs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerInitialSyncArgs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerSyncArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClient;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClientBuilder;
@@ -82,6 +81,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.StatefulTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.Path;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -134,20 +134,40 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     /**
-     * when PCE-triggered Initial State Synchronization Procedure is set during the session establishment, PCC will
-     * wait arrival of PCUpd message with PLSP-ID = 0 and SYNC = 1 in order to trigger the LSP-DB synchronization
-     * process.
      * @param input
      * @return
      */
     @Override
-    public synchronized ListenableFuture<OperationResult> triggerInitialSync(final TriggerInitialSyncArgs input) {
-        if(isTriggeredInitialSynchro() && !isSynchronized()) {
+    public synchronized ListenableFuture<OperationResult> triggerSync(final TriggerSyncArgs input) {
+        if (isTriggeredInitialSynchro() && !isSynchronized()) {
+            LOG.trace("Trigger Initial Synchronization {}", input);
             final PcupdMessageBuilder pcupdMessageBuilder = new PcupdMessageBuilder(MESSAGE_HEADER);
             final SrpIdNumber srpIdNumber = createUpdateMessageSync(pcupdMessageBuilder);
             final Message msg = new PcupdBuilder().setPcupdMessage(pcupdMessageBuilder.build()).build();
             // Send the message
             return sendMessage(msg, srpIdNumber, null);
+        } else if (isSynchronized() && isTriggeredReSyncEnabled()) {
+            Preconditions.checkArgument(input != null && input.getNode() != null, MISSING_XML_TAG);
+            if (input.getName() == null) {
+                LOG.trace("Trigger Resynchronization {}", input);
+                markAllLspAsStale();
+                updatePccState(PccSyncState.PcepTriggeredResync);
+                final PcupdMessageBuilder pcupdMessageBuilder = new PcupdMessageBuilder(MESSAGE_HEADER);
+                final SrpIdNumber srpIdNumber = createUpdateMessageSync(pcupdMessageBuilder);
+                final Message msg = new PcupdBuilder().setPcupdMessage(pcupdMessageBuilder.build()).build();
+                // Send the message
+                return sendMessage(msg, srpIdNumber, null);
+            } else {
+                LOG.trace("Trigger Lsp Resynchronization {}", input);
+
+                // Make sure the LSP exists
+                final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
+                final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
+                if (f == null) {
+                    return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
+                }
+                return Futures.transform(f, new ResyncLspFunction(input));
+            }
         }
         return OperationResults.UNSENT.future();
     }
@@ -158,7 +178,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         final Lsp lsp = new LspBuilder().setPlspId(new PlspId(0L)).setSync(Boolean.TRUE).build();
         // SRP Mandatory in Upd
         final SrpBuilder srpBuilder = new SrpBuilder();
-        // not sue wheter use 0 instead of nextRequest() or dont  insert srp == SRP-ID-number = 0
+        // not sue whether use 0 instead of nextRequest() or do not insert srp == SRP-ID-number = 0
         srpBuilder.setOperationId(nextRequest());
         final Srp srp = srpBuilder.build();
         //ERO Mandatory in Upd
@@ -170,6 +190,66 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
 
         pcupdMessageBuilder.setUpdates(Collections.singletonList(updBuilder.build()));
         return srp.getOperationId();
+    }
+
+    private void markAllLspAsStale() {
+        for (final PlspId plspId : lsps.keySet()) {
+            staleLsps.add(plspId);
+        }
+    }
+
+    private class ResyncLspFunction implements AsyncFunction<Optional<ReportedLsp>, OperationResult>  {
+
+        private final TriggerSyncArgs input;
+
+        public ResyncLspFunction(final TriggerSyncArgs input) {
+            this.input = input;
+        }
+
+        @Override
+        public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
+            final Lsp reportedLsp = validateReportedLsp(rep, this.input.getNode(), this.input.getName());
+            if (reportedLsp == null || !rep.isPresent()) {
+                return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
+            }
+            // mark lsp as stale
+            final ReportedLsp staleLsp = rep.get();
+            if (!staleLsp.getPath().isEmpty()) {
+                final Path1 path1 = staleLsp.getPath().get(0).getAugmentation(Path1.class);
+                if (path1 != null) {
+                    staleLsps.add(path1.getLsp().getPlspId());
+                }
+            }
+            updatePccState(PccSyncState.PcepTriggeredResync);
+            // create PCUpd with mandatory objects and LSP object set to 1
+            final SrpBuilder srpBuilder = new SrpBuilder();
+            srpBuilder.setOperationId(nextRequest());
+            srpBuilder.setProcessingRule(Boolean.TRUE);
+
+            final Optional<PathSetupType> maybePST = getPST(rep);
+            if (maybePST.isPresent()) {
+                srpBuilder.setTlvs(
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder()
+                        .setPathSetupType(maybePST.get()).build());
+            }
+
+            final Srp srp = srpBuilder.build();
+            final Lsp lsp = new LspBuilder().setPlspId(reportedLsp.getPlspId()).setSync(Boolean.TRUE).build();
+
+            final Message msg = createPcepUpd(srp,lsp);
+            return sendMessage(msg, srp.getOperationId(), null);
+        }
+
+        private Message createPcepUpd(final Srp srp, final Lsp lsp) {
+            final UpdatesBuilder rb = new UpdatesBuilder();
+            rb.setSrp(srp);
+            rb.setLsp(lsp);
+            final PathBuilder pb = new PathBuilder();
+            rb.setPath(pb.build());
+            final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
+            ub.setUpdates(Collections.singletonList(rb.build()));
+            return new PcupdBuilder().setPcupdMessage(ub.build()).build();
+        }
     }
 
     private boolean handleErrorMessage(final PcerrMessage message) {
@@ -229,6 +309,8 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     private boolean manageNextReport(final Reports report, final MessageContext ctx) {
         final Lsp lsp = report.getLsp();
         final PlspId plspid = lsp.getPlspId();
+        final Srp srp = report.getSrp();
+
         if (!lsp.isSync() && (plspid == null || plspid.getValue() == 0)) {
             purgeStaleLsps(ctx);
             stateSynchronizationAchieved(ctx);
@@ -236,7 +318,6 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         }
         final ReportedLspBuilder rlb = new ReportedLspBuilder();
         boolean solicited = false;
-        final Srp srp = report.getSrp();
         solicited = isSolicited(srp, lsp, ctx, rlb);
 
         // if remove flag is set in SRP object, remove the tunnel immediately
@@ -260,7 +341,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
                     new PathComputationClient1Builder().setLspDbVersion(lspDbVersion).build()).build());
         }
         updateLsp(ctx, plspid, name, rlb, solicited, lsp.isRemove());
-        unmarkStaleLsp(plspid, lsp.isSync());
+        unmarkStaleLsp(plspid);
 
         LOG.debug("LSP {} updated", lsp);
         return true;
@@ -410,7 +491,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         return Futures.transform(f, new AsyncFunction<Optional<ReportedLsp>, OperationResult>() {
             @Override
             public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
-                final Lsp reportedLsp = validateReportedLsp(rep, input);
+                final Lsp reportedLsp = validateReportedLsp(rep, input.getNode(), input.getName());
                 if (reportedLsp == null) {
                     return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
                 }
@@ -447,7 +528,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
 
         @Override
         public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
-            final Lsp reportedLsp = validateReportedLsp(rep, this.input);
+            final Lsp reportedLsp = validateReportedLsp(rep, this.input.getNode(), this.input.getName());
             if (reportedLsp == null) {
                 return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
             }
@@ -565,9 +646,9 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     @Override
-    protected Lsp validateReportedLsp(final Optional<ReportedLsp> rep, final LspId input) {
+    protected Lsp validateReportedLsp(final Optional<ReportedLsp> rep, final NodeId nodeId, final String name) {
         if (!rep.isPresent()) {
-            LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
+            LOG.debug("Node {} does not contain LSP {}", nodeId, name);
             return null;
         }
         // it doesn't matter how many lsps there are in the path list, we only need data that is the same in each path
@@ -643,12 +724,9 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
      * exists in the LSP database, the PCE MUST update the LSP database and
      * clear the stale marker from the LSP
      * @param plspId
-     * @param sync
      */
-    private synchronized void unmarkStaleLsp(final PlspId plspId, final boolean sync) {
-        if (!sync) {
-            staleLsps.remove(plspId);
-        }
+    private synchronized void unmarkStaleLsp(final PlspId plspId) {
+        staleLsps.remove(plspId);
     }
 
     /**
