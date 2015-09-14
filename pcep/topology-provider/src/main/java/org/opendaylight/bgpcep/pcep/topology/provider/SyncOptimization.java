@@ -22,6 +22,8 @@ final class SyncOptimization {
     private final boolean isSyncAvoidanceEnabled;
     private final boolean isDeltaSyncEnabled;
     private final boolean isDbVersionPresent;
+    private final boolean isTriggeredInitialSynEnable;
+    private final boolean isTriggeredReSynEnable;
 
     public SyncOptimization(final PCEPSession session) {
         Preconditions.checkNotNull(session);
@@ -33,6 +35,8 @@ final class SyncOptimization {
         this.isSyncAvoidanceEnabled = isSyncAvoidance(local) && isSyncAvoidance(remote);
         this.isDeltaSyncEnabled = this.isSyncAvoidanceEnabled && isDeltaSync(local) && isDeltaSync(remote);
         this.isDbVersionPresent = localLspDbVersion != null || remoteLspDbVersion != null;
+        this.isTriggeredInitialSynEnable = isTriggeredInitialSync(local) && isTriggeredInitialSync(remote);
+        this.isTriggeredReSynEnable = isTriggeredReSync(local) && isTriggeredReSync(remote);
     }
 
     public boolean doesLspDbMatch() {
@@ -49,6 +53,13 @@ final class SyncOptimization {
      */
     public boolean isDeltaSyncEnabled() {
         return isDeltaSyncEnabled;
+    }
+    /**
+     * Returns
+     * @return isTriggeredInitialSynEnable
+     */
+    public boolean isTriggeredInitSyncEnabled() {
+        return isTriggeredInitialSynEnable;
     }
 
     public boolean isDbVersionPresent() {
@@ -99,4 +110,29 @@ final class SyncOptimization {
         return false;
     }
 
+    private static boolean isTriggeredInitialSync(final Tlvs openTlvs) {
+        if (openTlvs != null) {
+            final Tlvs1 tlvs1 = openTlvs.getAugmentation(Tlvs1.class);
+            if (tlvs1 != null && tlvs1.getStateful() != null) {
+                final Stateful1 stateful1 = tlvs1.getStateful().getAugmentation(Stateful1.class);
+                if (stateful1 != null && stateful1.isTriggeredInitialSync() != null) {
+                    return stateful1.isTriggeredInitialSync();
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean isTriggeredReSync(final Tlvs openTlvs) {
+        if (openTlvs != null) {
+            final Tlvs1 tlvs1 = openTlvs.getAugmentation(Tlvs1.class);
+            if (tlvs1 != null && tlvs1.getStateful() != null) {
+                final Stateful1 stateful1 = tlvs1.getStateful().getAugmentation(Stateful1.class);
+                if (stateful1 != null && stateful1.isTriggeredResync() != null) {
+                    return stateful1.isTriggeredResync();
+                }
+            }
+        }
+        return false;
+    }
 }

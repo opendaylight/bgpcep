@@ -20,7 +20,7 @@ module network-topology-pcep {
         This module exposes three programming instructions,add-lsp,
         remove-lsp and update-lsp, which map to actively-stateful PCEP
         operations using PCInitiate and PCUpd messages to initiate,
-        destroy and udpate LSP configuration. The lifecycle of these
+        destroy and update LSP configuration. The lifecycle of these
         instructions follows draft-crabbe-pce-pce-initiated-lsp and
         draft-ietf-pce-stateful-pce, completing execution once the head-end
         router has acknowledged operation success. Should the router become
@@ -269,6 +269,20 @@ module network-topology-pcep {
         input {
             uses ont:network-topology-reference;
             uses ensure-lsp-operational-args;
+        }
+        output {
+            uses operation-result;
+        }
+    }
+
+    grouping trigger-initial-sync-args {
+        uses lsp-id;
+    }
+
+    rpc trigger-initial-sync {
+        input {
+            uses ont:network-topology-reference;
+            uses trigger-initial-sync-args;
         }
         output {
             uses operation-result;
