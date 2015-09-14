@@ -516,6 +516,13 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         return false;
     }
 
+    protected final boolean isTriggeredInitialSynchro() {
+        if (syncOptimization != null) {
+            return syncOptimization.isTriggeredInitSyncEnabled();
+        }
+        return false;
+    }
+
     protected final boolean isSynchronized() {
         if (syncOptimization != null) {
             return syncOptimization.doesLspDbMatch();
