@@ -288,5 +288,40 @@ module network-topology-pcep {
             uses operation-result;
         }
     }
+
+    grouping trigger-re-sync-args {
+        uses lsp-id;
+    }
+
+    rpc trigger-re-sync {
+        input {
+            uses ont:network-topology-reference;
+            uses trigger-re-sync-args;
+        }
+        output {
+            uses operation-result;
+        }
+    }
+
+    grouping trigger-re-sync-lsp-args {
+        uses lsp-id;
+
+        container arguments {
+
+            uses pcep:path-definition;
+
+            uses lsp-metadata;
+        }
+    }
+
+    rpc trigger-re-sync-lsp {
+        input {
+            uses ont:network-topology-reference;
+            uses trigger-re-sync-lsp-args;
+        }
+        output {
+            uses operation-result;
+        }
+    }
 }
 
