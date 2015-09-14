@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.util.concurrent.Future;
 import org.opendaylight.bgpcep.pcep.topology.spi.AbstractInstructionExecutor;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
@@ -26,6 +27,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerInitialSyncInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerInitialSyncOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerInitialSyncOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerReSyncInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerReSyncLspInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerReSyncLspOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerReSyncLspOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerReSyncOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerReSyncOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitUpdateLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitUpdateLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitUpdateLspOutputBuilder;
@@ -134,6 +141,39 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
         }));
 
         final RpcResult<SubmitTriggerInitialSyncOutput> res = SuccessfulRpcResult.create(b.build());
+        return Futures.immediateFuture(res);
+    }
+
+    @Override
+    public ListenableFuture<RpcResult<SubmitTriggerReSyncOutput>> submitTriggerReSync(final SubmitTriggerReSyncInput input) {
+        Preconditions.checkArgument(input.getNode() != null);
+
+        final SubmitTriggerReSyncOutputBuilder b = new SubmitTriggerReSyncOutputBuilder();
+        b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
+            @Override
+            protected ListenableFuture<OperationResult> invokeOperation() {
+                return TopologyProgramming.this.manager.triggerReSync(input);
+            }
+        }));
+
+        final RpcResult<SubmitTriggerReSyncOutput> res = SuccessfulRpcResult.create(b.build());
+        return Futures.immediateFuture(res);
+    }
+
+    @Override
+    public Future<RpcResult<SubmitTriggerReSyncLspOutput>> submitTriggerReSyncLsp(final SubmitTriggerReSyncLspInput input) {
+        Preconditions.checkArgument(input.getNode() != null);
+        Preconditions.checkArgument(input.getName() != null);
+
+        final SubmitTriggerReSyncLspOutputBuilder b = new SubmitTriggerReSyncLspOutputBuilder();
+        b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
+            @Override
+            protected ListenableFuture<OperationResult> invokeOperation() {
+                return TopologyProgramming.this.manager.triggerReSyncLsp(input);
+            }
+        }));
+
+        final RpcResult<SubmitTriggerReSyncLspOutput> res = SuccessfulRpcResult.create(b.build());
         return Futures.immediateFuture(res);
     }
 }

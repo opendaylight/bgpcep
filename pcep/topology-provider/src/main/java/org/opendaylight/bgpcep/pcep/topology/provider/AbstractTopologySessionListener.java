@@ -30,6 +30,7 @@ import org.opendaylight.controller.config.yang.pcep.topology.provider.StatefulMe
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
@@ -111,7 +112,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     private final Map<String, ReportedLsp> lspData = new HashMap<>();
 
     @GuardedBy("this")
-    private final Map<L, String> lsps = new HashMap<>();
+    protected final Map<L, String> lsps = new HashMap<>();
 
     private final ServerSessionManager serverSessionManager;
     private InstanceIdentifier<PathComputationClient> pccIdentifier;
@@ -194,6 +195,38 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
                 session.close(TerminationReason.UNKNOWN);
             }
         });
+    }
+
+    protected void updatePccState(final PccSyncState pccSyncState) {
+        final ReadWriteTransaction trans = this.nodeState.rwTransaction();
+        Optional<PathComputationClient> pcc = null;
+        try {
+            pcc = trans.read(LogicalDatastoreType.OPERATIONAL, this.pccIdentifier).checkedGet();
+        } catch (ReadFailedException e) {
+            LOG.warn("Failed to update Node State {}", this.nodeState.getNodeId(), e);
+        }
+        if (pcc.isPresent()) {
+            final PathComputationClientBuilder pccBuilder = new PathComputationClientBuilder(pcc.get());
+            pccBuilder.setStateSync(pccSyncState);
+            trans.merge(LogicalDatastoreType.OPERATIONAL, this.pccIdentifier, pccBuilder.build());
+            if (pccSyncState != PccSyncState.Synchronized) {
+                this.synced = false;
+            }
+            // All set, commit the modifications
+            Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
+                @Override
+                public void onSuccess(final Void result) {
+                    LOG.trace("Internal state for session {} updated successfully", session);
+                }
+
+                @Override
+                public void onFailure(final Throwable t) {
+                    LOG.error("Failed to update internal state for session {}", session, t);
+                    session.close(TerminationReason.UNKNOWN);
+                }
+            });
+        }
+
     }
 
     @GuardedBy("this")
@@ -524,6 +557,13 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     protected final boolean isTriggeredInitialSynchro() {
         if (syncOptimization != null) {
             return syncOptimization.isTriggeredInitSyncEnabled();
+        }
+        return false;
+    }
+
+    protected final boolean isTriggeredReSyncEnabled() {
+        if (syncOptimization != null) {
+            return syncOptimization.isTriggeredReSyncEnabled();
         }
         return false;
     }

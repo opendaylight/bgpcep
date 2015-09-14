@@ -26,6 +26,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerInitialSyncInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerInitialSyncOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerInitialSyncOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerReSyncInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerReSyncLspInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerReSyncLspOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerReSyncLspOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerReSyncOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerReSyncOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspOutputBuilder;
@@ -64,6 +70,26 @@ final class TopologyRPCs implements NetworkTopologyPcepService {
             @Override
             public RpcResult<TriggerInitialSyncOutput> apply(final OperationResult input) {
                 return SuccessfulRpcResult.create(new TriggerInitialSyncOutputBuilder(input).build());
+            }
+        });
+    }
+
+    @Override
+    public Future<RpcResult<TriggerReSyncOutput>> triggerReSync(final TriggerReSyncInput input) {
+        return Futures.transform(manager.triggerReSync(input), new Function<OperationResult, RpcResult<TriggerReSyncOutput>>() {
+            @Override
+            public RpcResult<TriggerReSyncOutput> apply(final OperationResult input) {
+                return SuccessfulRpcResult.create(new TriggerReSyncOutputBuilder(input).build());
+            }
+        });
+    }
+
+    @Override
+    public Future<RpcResult<TriggerReSyncLspOutput>> triggerReSyncLsp(final TriggerReSyncLspInput input) {
+        return Futures.transform(manager.triggerReSyncLsp(input), new Function<OperationResult, RpcResult<TriggerReSyncLspOutput>>() {
+            @Override
+            public RpcResult<TriggerReSyncLspOutput> apply(final OperationResult input) {
+                return SuccessfulRpcResult.create(new TriggerReSyncLspOutputBuilder(input).build());
             }
         });
     }
