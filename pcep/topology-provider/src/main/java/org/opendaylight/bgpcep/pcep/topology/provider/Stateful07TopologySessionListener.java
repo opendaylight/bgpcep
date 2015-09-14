@@ -64,6 +64,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.symbolic.path.name.tlv.SymbolicPathNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcerrMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.setup.type.tlv.PathSetupType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspArgs;
@@ -73,6 +74,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.PccSyncState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspArgs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerInitialSyncArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClient;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClientBuilder;
@@ -114,6 +116,8 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
                 pccBuilder.setReportedLsp(Collections.<ReportedLsp> emptyList());
                 if (isSynchronized()) {
                     pccBuilder.setStateSync(PccSyncState.Synchronized);
+                } else if (isTriggeredInitialSynchro()) {
+                    pccBuilder.setStateSync(PccSyncState.TriggeredInitialSync);
                 } else if (isIncrementalSynchro()) {
                     pccBuilder.setStateSync(PccSyncState.IncrementalSync);
                 } else {
@@ -127,6 +131,41 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         } else {
             LOG.debug("Peer {} does not advertise stateful TLV", peerAddress);
         }
+    }
+
+    /**
+     * when PCE-triggered Initial State Synchronization Procedure is set during the session establishment, PCC will
+     * wait arrival of PCUpd message with PLSP-ID = 0 and SYNC = 1 in order to trigger the LSP-DB synchronization
+     * process.
+     * @param input
+     * @return
+     */
+    @Override
+    public synchronized ListenableFuture<OperationResult> triggerInitialSync(final TriggerInitialSyncArgs input) {
+        if(isTriggeredInitialSynchro()) {
+            final UpdatesBuilder rb = new UpdatesBuilder();
+            // LSP mandatory in Upd
+            final Lsp lsp = new LspBuilder().setPlspId(new PlspId(0L)).setSync(Boolean.TRUE).build();
+            // SRP Mandatory in Upd
+            final SrpBuilder srpBuilder = new SrpBuilder();
+            // not sue wheter use 0 instead of nextRequest() or dont  insert srp == SRP-ID-number = 0
+            srpBuilder.setOperationId(nextRequest());
+            final Srp srp = srpBuilder.build();
+            //ERO Mandatory in Upd
+            final PathBuilder pb = new PathBuilder();
+            pb.setEro(new EroBuilder().build());
+
+            rb.setPath(pb.build());
+            rb.setLsp(lsp).setSrp(srp).setPath(pb.build());
+
+
+            final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
+            ub.setUpdates(Collections.singletonList(rb.build()));
+            final Message msg = new PcupdBuilder().setPcupdMessage(ub.build()).build();
+            // Send the message
+            return sendMessage(msg, srp.getOperationId(), null);
+        }
+        return null;
     }
 
     private boolean handleErrorMessage(final PcerrMessage message) {

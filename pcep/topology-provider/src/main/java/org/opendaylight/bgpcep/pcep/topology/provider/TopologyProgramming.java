@@ -10,7 +10,6 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import org.opendaylight.bgpcep.pcep.topology.spi.AbstractInstructionExecutor;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
@@ -24,6 +23,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitRemoveLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitRemoveLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitRemoveLspOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerInitialSyncInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerInitialSyncOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerInitialSyncOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitUpdateLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitUpdateLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitUpdateLspOutputBuilder;
@@ -115,6 +117,24 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
         }));
 
         final RpcResult<SubmitEnsureLspOperationalOutput> res = SuccessfulRpcResult.create(b.build());
+        return Futures.immediateFuture(res);
+    }
+
+
+    @Override
+    public ListenableFuture<RpcResult<SubmitTriggerInitialSyncOutput>> submitTriggerInitialSync(final SubmitTriggerInitialSyncInput input) {
+        Preconditions.checkArgument(input.getNode() != null);
+        Preconditions.checkArgument(input.getName() != null);
+
+        final SubmitTriggerInitialSyncOutputBuilder b = new SubmitTriggerInitialSyncOutputBuilder();
+        b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
+            @Override
+            protected ListenableFuture<OperationResult> invokeOperation() {
+                return TopologyProgramming.this.manager.triggerInitialSync(input);
+            }
+        }));
+
+        final RpcResult<SubmitTriggerInitialSyncOutput> res = SuccessfulRpcResult.create(b.build());
         return Futures.immediateFuture(res);
     }
 }
