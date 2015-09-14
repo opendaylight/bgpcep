@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_eacb2ca3",
+        "filename": "pcep/api/src/main/yang/pcep-types.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 708,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-09-14T10:18:34Z",
+      "side": 1,
+      "message": "this is not needed -- pce-id is a union of the two possibilities.",
+      "revId": "5a40cf9167e36e9e22a88b44f5da8be310426989",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
