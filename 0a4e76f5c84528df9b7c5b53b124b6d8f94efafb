@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_aade946b",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/SessionListenerState.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-09-14T10:13:26Z",
+      "side": 1,
+      "message": "I would assume we cannot hit this method with the stopwatch running. Am I missing something? (In which case a comment about it would be nice).",
+      "revId": "0a4e76f5c84528df9b7c5b53b124b6d8f94efafb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
