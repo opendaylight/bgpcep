@@ -44,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerInitialSyncInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerInitialSyncInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerInitialSyncOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.PcepCreateP2pTunnelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.PcepCreateP2pTunnelInputBuilder;
@@ -176,9 +177,11 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
 
         @SuppressWarnings("rawtypes")
         final ListenableFuture future = Futures.immediateFuture(RpcResultBuilder.<AddLspOutput>success().build());
+        final ListenableFuture futureTrigger = Futures.immediateFuture(RpcResultBuilder
+            .<TriggerInitialSyncOutput>success().build());
         when(pcepService.addLsp(Mockito.<AddLspInput>any())).thenReturn(future);
         when(pcepService.removeLsp(Mockito.<RemoveLspInput>any())).thenReturn(future);
-        when(pcepService.triggerInitialSync(Mockito.<TriggerInitialSyncInput>any())).thenReturn(future);
+        when(pcepService.triggerInitialSync(Mockito.<TriggerInitialSyncInput>any())).thenReturn(futureTrigger);
         when(pcepService.ensureLspOperational(Mockito.<EnsureLspOperationalInput>any())).thenReturn(future);
         when(pcepService.updateLsp(Mockito.<UpdateLspInput>any())).thenReturn(future);
 
@@ -310,9 +313,11 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
     private void initMock(final NetworkTopologyPcepProgrammingService pcepService) {
         @SuppressWarnings("rawtypes")
         final ListenableFuture future = Futures.immediateFuture(RpcResultBuilder.<AddLspOutput>success().build());
+        final ListenableFuture futureTrigger = Futures.immediateFuture(RpcResultBuilder.<TriggerInitialSyncOutput>success().build
+            ());
         when(pcepService.submitAddLsp(Mockito.<SubmitAddLspInput>any())).thenReturn(future);
         when(pcepService.submitRemoveLsp(Mockito.<SubmitRemoveLspInput>any())).thenReturn(future);
-        when(pcepService.submitTriggerInitialSync(Mockito.<SubmitTriggerInitialSyncInput>any())).thenReturn(future);
+        when(pcepService.submitTriggerInitialSync(Mockito.<SubmitTriggerInitialSyncInput>any())).thenReturn(futureTrigger);
         when(pcepService.submitEnsureLspOperational(Mockito.<SubmitEnsureLspOperationalInput>any())).thenReturn(future);
         when(pcepService.submitUpdateLsp(Mockito.<SubmitUpdateLspInput>any())).thenReturn(future);
     }

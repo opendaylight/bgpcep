@@ -75,6 +75,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.PccSyncState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerInitialSyncArgs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerReSyncArgs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerReSyncLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClient;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClientBuilder;
@@ -143,29 +145,97 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     @Override
     public synchronized ListenableFuture<OperationResult> triggerInitialSync(final TriggerInitialSyncArgs input) {
         if(isTriggeredInitialSynchro()) {
-            final UpdatesBuilder rb = new UpdatesBuilder();
-            // LSP mandatory in Upd
-            final Lsp lsp = new LspBuilder().setPlspId(new PlspId(0L)).setSync(Boolean.TRUE).build();
-            // SRP Mandatory in Upd
-            final SrpBuilder srpBuilder = new SrpBuilder();
-            // not sue wheter use 0 instead of nextRequest() or dont  insert srp == SRP-ID-number = 0
-            srpBuilder.setOperationId(nextRequest());
-            final Srp srp = srpBuilder.build();
-            //ERO Mandatory in Upd
-            final PathBuilder pb = new PathBuilder();
-            pb.setEro(new EroBuilder().build());
-
-            rb.setPath(pb.build());
-            rb.setLsp(lsp).setSrp(srp).setPath(pb.build());
-
-
-            final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
-            ub.setUpdates(Collections.singletonList(rb.build()));
-            final Message msg = new PcupdBuilder().setPcupdMessage(ub.build()).build();
+            final PcupdMessageBuilder pcupdMessageBuilder = new PcupdMessageBuilder(MESSAGE_HEADER);
+            final SrpIdNumber srpIdNumber = createUpdateMessageSync(pcupdMessageBuilder);
+            final Message msg = new PcupdBuilder().setPcupdMessage(pcupdMessageBuilder.build()).build();
             // Send the message
-            return sendMessage(msg, srp.getOperationId(), null);
+            return sendMessage(msg, srpIdNumber, null);
         }
-        return null;
+
+        // TODO Check for correct Error
+        return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
+    }
+
+    private SrpIdNumber createUpdateMessageSync(final PcupdMessageBuilder pcupdMessageBuilder) {
+        final UpdatesBuilder updBuilder = new UpdatesBuilder();
+        // LSP mandatory in Upd
+        final Lsp lsp = new LspBuilder().setPlspId(new PlspId(0L)).setSync(Boolean.TRUE).build();
+        // SRP Mandatory in Upd
+        final SrpBuilder srpBuilder = new SrpBuilder();
+        // not sue wheter use 0 instead of nextRequest() or dont  insert srp == SRP-ID-number = 0
+        srpBuilder.setOperationId(nextRequest());
+        final Srp srp = srpBuilder.build();
+        //ERO Mandatory in Upd
+        final PathBuilder pb = new PathBuilder();
+        pb.setEro(new EroBuilder().build());
+
+        updBuilder.setPath(pb.build());
+        updBuilder.setLsp(lsp).setSrp(srp).setPath(pb.build());
+
+        pcupdMessageBuilder.setUpdates(Collections.singletonList(updBuilder.build()));
+        return srp.getOperationId();
+    }
+
+    @Override
+    public synchronized ListenableFuture<OperationResult> triggerReSync(final TriggerReSyncArgs input) {
+        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null, MISSING_XML_TAG);
+
+        LOG.trace("Trigger Full Resync {}", input);
+
+        // TODO Check for correct Error
+        return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
+    }
+
+    private class ResyncLspFunction implements AsyncFunction<Optional<ReportedLsp>, OperationResult>  {
+
+        private final TriggerReSyncLspArgs input;
+
+        public ResyncLspFunction(final TriggerReSyncLspArgs input) {
+            this.input = input;
+        }
+
+        @Override
+        public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
+            final Lsp reportedLsp = validateReportedLsp(rep, this.input);
+            if (reportedLsp == null || !rep.isPresent()) {
+                return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
+            }
+            final ReportedLsp lsp = rep.get();
+            if (!lsp.getPath().isEmpty()) {
+                final Path1 path1 = lsp.getPath().get(0).getAugmentation(Path1.class);
+                if (path1 != null) {
+                    staleLsps.add(path1.getLsp().getPlspId());
+                }
+            }
+
+            // We send message with upd message asking for re-synchronization of the entire LSP database
+            final PcupdMessageBuilder pcupdMessageBuilder = new PcupdMessageBuilder(MESSAGE_HEADER);
+            final SrpIdNumber srpIdNumber = createUpdateMessageSync(pcupdMessageBuilder);
+            final Message msg = new PcupdBuilder().setPcupdMessage(pcupdMessageBuilder.build()).build();
+            // Send the message
+            return sendMessage(msg, srpIdNumber, null);
+        }
+    }
+
+    @Override
+    public synchronized ListenableFuture<OperationResult> triggerReSyncLsp(final TriggerReSyncLspArgs input) {
+        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null && input.getArguments() != null, MISSING_XML_TAG);
+
+        LOG.trace("Trigger Lsp Resync {}", input);
+
+        if(isTriggeredReSyncEnabled()){
+
+            // Make sure the LSP exists
+            final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
+            final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
+            if (f == null) {
+                return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
+            }
+            return Futures.transform(f, new ResyncLspFunction(input));
+        }
+
+        // TODO Check for correct Error
+        return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
     }
 
     private boolean handleErrorMessage(final PcerrMessage message) {
@@ -503,7 +573,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     }
 
     @Override
-    public synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {
+    public synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {aa
         Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null && input.getArguments() != null, MISSING_XML_TAG);
         LOG.trace("UpdateLspArgs {}", input);
         // Make sure the LSP exists

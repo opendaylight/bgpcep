@@ -47,19 +47,15 @@ final class SyncOptimization {
         return isSyncAvoidanceEnabled;
     }
 
-    /**
-     * Returns true in case SyncAvoidance and DeltaSync are enabled
-     * @return isDeltaSyncEnabled
-     */
     public boolean isDeltaSyncEnabled() {
         return isDeltaSyncEnabled;
     }
-    /**
-     * Returns
-     * @return isTriggeredInitialSynEnable
-     */
+
     public boolean isTriggeredInitSyncEnabled() {
         return isTriggeredInitialSynEnable;
+    }
+    public boolean isTriggeredReSyncEnabled() {
+        return isTriggeredReSynEnable;
     }
 
     public boolean isDbVersionPresent() {
