@@ -34,6 +34,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitEnsureLspOperationalInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitRemoveLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerInitialSyncInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerReSyncInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerReSyncLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitUpdateLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspInput;
@@ -46,6 +48,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerInitialSyncArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerInitialSyncInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerInitialSyncOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerReSyncArgs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerReSyncInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerReSyncLspArgs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerReSyncLspInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerReSyncLspOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerReSyncOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspOutput;
@@ -68,6 +76,8 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
     private UpdateLspArgs updateLspArgs;
     private RemoveLspArgs removeLspArgs;
     private TriggerInitialSyncArgs triggerInitialSyncArgs;
+    private TriggerReSyncArgs triggerReSyncArgs;
+    private TriggerReSyncLspArgs triggerReSyncLspArgs;
     private EnsureLspOperationalInput ensureLspInput;
 
     @Mock
@@ -78,6 +88,10 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
     private ListenableFuture<RpcResult<RemoveLspOutput>> futureRemoveLspOutput;
     @Mock
     private ListenableFuture<RpcResult<TriggerInitialSyncOutput>> futureTriggerInitialSyncOutput;
+    @Mock
+    private ListenableFuture<RpcResult<TriggerReSyncOutput>> futureTriggerReSyncOutput;
+    @Mock
+    private ListenableFuture<RpcResult<TriggerReSyncLspOutput>> futureTriggerReSyncLspOutput;
     @Mock
     private ListenableFuture<RpcResult<EnsureLspOperationalOutput>> futureEnsureLspOutput;
 
@@ -138,6 +152,22 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
                 callback.run();
                 return null;
             }
+        }).when(this.futureTriggerReSyncOutput).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
+        Mockito.doAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(final InvocationOnMock invocation) throws Throwable {
+                final Runnable callback = (Runnable) invocation.getArguments()[0];
+                callback.run();
+                return null;
+            }
+        }).when(this.futureTriggerReSyncLspOutput).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
+        Mockito.doAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(final InvocationOnMock invocation) throws Throwable {
+                final Runnable callback = (Runnable) invocation.getArguments()[0];
+                callback.run();
+                return null;
+            }
         }).when(this.futureEnsureLspOutput).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
         Mockito.doAnswer(new Answer<Future<RpcResult<AddLspOutput>>>() {
             @Override
@@ -167,6 +197,20 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
                 return TopologyProgrammingTest.this.futureTriggerInitialSyncOutput;
             }
         }).when(listener).triggerInitialSync(Mockito.any(TriggerInitialSyncInput.class));
+        Mockito.doAnswer(new Answer<Future<RpcResult<TriggerReSyncOutput>>>() {
+            @Override
+            public Future<RpcResult<TriggerReSyncOutput>> answer(final InvocationOnMock invocation) throws Throwable {
+                TopologyProgrammingTest.this.triggerReSyncArgs = (TriggerReSyncArgs) invocation.getArguments()[0];
+                return TopologyProgrammingTest.this.futureTriggerReSyncOutput;
+            }
+        }).when(listener).triggerReSync(Mockito.any(TriggerReSyncInput.class));
+        Mockito.doAnswer(new Answer<Future<RpcResult<TriggerReSyncLspOutput>>>() {
+            @Override
+            public Future<RpcResult<TriggerReSyncLspOutput>> answer(final InvocationOnMock invocation) throws Throwable {
+                TopologyProgrammingTest.this.triggerReSyncLspArgs = (TriggerReSyncLspArgs) invocation.getArguments()[0];
+                return TopologyProgrammingTest.this.futureTriggerReSyncLspOutput;
+            }
+        }).when(listener).triggerReSyncLsp(Mockito.any(TriggerReSyncLspInput.class));
         Mockito.doAnswer(new Answer<Future<RpcResult<EnsureLspOperationalOutput>>>() {
             @Override
             public Future<RpcResult<EnsureLspOperationalOutput>> answer(final InvocationOnMock invocation) throws Throwable {
@@ -238,6 +282,28 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
         Assert.assertNotNull(this.triggerInitialSyncArgs);
         Assert.assertEquals(NAME, this.triggerInitialSyncArgs.getName());
         Assert.assertEquals(NODE_ID, this.triggerInitialSyncArgs.getNode());
+    }
+
+    @Test
+    public void testSubmitTriggerReSync() {
+        final SubmitTriggerReSyncInputBuilder inputBuilder = new SubmitTriggerReSyncInputBuilder();
+        inputBuilder.setName(NAME);
+        inputBuilder.setNode(NODE_ID);
+        this.topologyProgramming.submitTriggerReSync(inputBuilder.build());
+        Assert.assertNotNull(this.triggerReSyncArgs);
+        Assert.assertEquals(NAME, this.triggerReSyncArgs.getName());
+        Assert.assertEquals(NODE_ID, this.triggerReSyncArgs.getNode());
+    }
+
+    @Test
+    public void testSubmitTriggerReSyncLsp() {
+        final SubmitTriggerReSyncLspInputBuilder inputBuilder = new SubmitTriggerReSyncLspInputBuilder();
+        inputBuilder.setName(NAME);
+        inputBuilder.setNode(NODE_ID);
+        this.topologyProgramming.submitTriggerReSyncLsp(inputBuilder.build());
+        Assert.assertNotNull(this.triggerReSyncLspArgs);
+        Assert.assertEquals(NAME, this.triggerReSyncLspArgs.getName());
+        Assert.assertEquals(NODE_ID, this.triggerReSyncLspArgs.getNode());
     }
 
     protected static final class MockedTopologySessionListenerFactory implements TopologySessionListenerFactory {

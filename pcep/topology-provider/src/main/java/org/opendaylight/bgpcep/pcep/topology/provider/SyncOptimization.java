@@ -50,12 +50,12 @@ final class SyncOptimization {
     public boolean isDeltaSyncEnabled() {
         return isDeltaSyncEnabled;
     }
-    /**
-     * Returns
-     * @return isTriggeredInitialSynEnable
-     */
+
     public boolean isTriggeredInitSyncEnabled() {
         return isTriggeredInitialSynEnable;
+    }
+    public boolean isTriggeredReSyncEnabled() {
+        return isTriggeredReSynEnable;
     }
 
     public boolean isDbVersionPresent() {
