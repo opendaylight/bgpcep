@@ -445,18 +445,6 @@ module rsvp {
                     uses unnumbered-subobject;
                 }
             }
-
-            case basic-protection-case {
-                container basic-protection {
-                    uses protection-subobject;
-                }
-            }
-
-            case dynamic-control-protection-case {
-                container dynamic-control-protection {
-                    uses protection-subobject;
-                }
-            }
         }
     }
 
@@ -546,14 +534,42 @@ module rsvp {
             reference "http://tools.ietf.org/html/rfc4873#section-4.1";
 
             uses rsvp-te-object;
-            uses explicit-route-subobjects-list;
+            uses explicit-route-subobjects-list {
+                augment "subobject-container/subobject-type" {
+                    case basic-protection-case {
+                        container basic-protection {
+                            uses protection-subobject;
+                        }
+                    }
+
+                    case dynamic-control-protection-case {
+                        container dynamic-control-protection {
+                            uses protection-subobject;
+                        }
+                    }
+                }
+            }
         }
     }
 
     grouping secondary-record-route-object {
         container secondary-record-route-object {
             uses rsvp-te-object;
-            uses record-route-subobjects-list;
+            uses record-route-subobjects-list {
+                augment "subobject-container/subobject-type" {
+                    case basic-protection-case {
+                        container basic-protection {
+                            uses protection-subobject;
+                        }
+                    }
+
+                    case dynamic-control-protection-case {
+                        container dynamic-control-protection {
+                            uses protection-subobject;
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -594,18 +610,6 @@ module rsvp {
                         list exrs {
                             uses exclude-route-subobjects;
                         }
-                    }
-                }
-
-                case basic-protection-case {
-                    container basic-protection {
-                        uses protection-subobject;
-                    }
-                }
-
-                case dynamic-control-protection-case {
-                    container dynamic-control-protection {
-                        uses protection-subobject;
                     }
                 }
             }
