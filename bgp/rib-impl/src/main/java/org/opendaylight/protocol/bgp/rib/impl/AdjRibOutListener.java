@@ -90,9 +90,11 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
                         LOG.debug("Skipping unmodified route {}", route.getIdentifier());
                         continue;
                     case DELETE:
+                    case DISAPPEARED:
                         // FIXME: we can batch deletions into a single batch
                         update = withdraw((MapEntryNode) route.getDataBefore().get());
                         break;
+                    case APPEARED:
                     case SUBTREE_MODIFIED:
                     case WRITE:
                         update = advertise((MapEntryNode) route.getDataAfter().get());

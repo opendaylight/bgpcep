@@ -84,11 +84,13 @@ final class EffectiveRibInWriter implements AutoCloseable {
             final YangInstanceIdentifier routeId = ribSupport.routePath(routesPath, route.getIdentifier());
             switch (route.getModificationType()) {
             case DELETE:
+            case DISAPPEARED:
                 tx.delete(LogicalDatastoreType.OPERATIONAL, routeId);
                 break;
             case UNMODIFIED:
                 // No-op
                 break;
+            case APPEARED:
             case SUBTREE_MODIFIED:
             case WRITE:
                 tx.put(LogicalDatastoreType.OPERATIONAL, routeId, route.getDataAfter().get());
@@ -125,6 +127,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
                 final YangInstanceIdentifier childPath = tablePath.node(child.getIdentifier());
                 switch (child.getModificationType()) {
                 case DELETE:
+                case DISAPPEARED:
                     tx.delete(LogicalDatastoreType.OPERATIONAL, tablePath.node(child.getIdentifier()));
                     break;
                 case UNMODIFIED:
@@ -139,6 +142,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
                         tx.put(LogicalDatastoreType.OPERATIONAL, childPath, child.getDataAfter().get());
                     }
                     break;
+                case APPEARED:
                 case WRITE:
                     tx.put(LogicalDatastoreType.OPERATIONAL, childPath, child.getDataAfter().get());
                     // Routes are special, as they may end up being filtered. The previous put conveniently
@@ -232,6 +236,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
 
             switch (root.getModificationType()) {
             case DELETE:
+            case DISAPPEARED:
                 // delete the corresponding effective table
                 tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath(peerKey, tableKey));
                 break;
@@ -241,6 +246,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
             case UNMODIFIED:
                 LOG.info("Ignoring spurious notification on {} data {}", rootPath, table);
                 break;
+            case APPEARED:
             case WRITE:
                 writeTable(tx, peerKey, tableKey, table);
                 break;
