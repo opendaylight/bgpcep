@@ -34,6 +34,9 @@ final class ToReflectorClientExportPolicy extends AbstractReflectingExportPolicy
         case RrClient:
             // Client iBGP -> Client iBGP, reflect
             return reflectedAttributes(attributes);
+        case Internal:
+            // Client Internal iBGP -> Non-Client iBGP, reflect
+            return reflectedFromInternalAttributes(attributes);
         default:
             throw new IllegalArgumentException("Unhandled source role " + sourceRole);
         }

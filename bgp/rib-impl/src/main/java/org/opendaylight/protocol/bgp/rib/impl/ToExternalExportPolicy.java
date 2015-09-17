@@ -35,6 +35,9 @@ final class ToExternalExportPolicy extends AbstractExportPolicy {
         case RrClient:
             // Client iBGP -> eBGP, propagate
             return ret;
+        case Internal:
+            // Client iBGP -> eBGP, propagate
+            return ret;
         default:
             throw new IllegalArgumentException("Unhandled source role " + sourceRole);
         }
