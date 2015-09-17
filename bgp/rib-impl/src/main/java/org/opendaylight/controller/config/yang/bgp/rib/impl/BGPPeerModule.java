@@ -89,6 +89,10 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
                 "Underlying dispatcher does not support MD5 clients", passwordJmxAttribute);
 
         }
+
+        if (getPeerRole() != null) {
+            Preconditions.checkArgument(getPeerRole() != PeerRole.Internal, "Internal Peer Role is reserved for Application Peer use.");
+        }
     }
 
     private InetSocketAddress createAddress() {
@@ -109,6 +113,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         final String password = getPasswordOrNull();
         final BGPSessionPreferences prefs = new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), remoteAs, tlvs);
         final BGPPeer bgpClientPeer;
+
         if (getPeerRole() != null) {
             bgpClientPeer = new BGPPeer(peerName(getHostWithoutValue()), r, getPeerRole());
         } else {
