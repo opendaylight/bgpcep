@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a79b1b5_27094e95",
+        "filename": "pcep/api/src/main/yang/pcep-types.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 1029,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-09-17T09:18:42Z",
+      "side": 1,
+      "message": "this will still break users due to rename of the nested container.",
+      "revId": "ff6b50f063e8a76c9d898014e5aa62506fc742b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
