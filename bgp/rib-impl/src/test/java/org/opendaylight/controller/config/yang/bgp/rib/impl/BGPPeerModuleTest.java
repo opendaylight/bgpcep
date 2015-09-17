@@ -10,6 +10,7 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
+
 import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
@@ -27,6 +28,7 @@ import org.opendaylight.controller.config.yang.tcpmd5.netty.cfg.MD5ClientChannel
 import org.opendaylight.tcpmd5.jni.NativeTestSupport;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.PortNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.tcpmd5.cfg.rev140427.Rfc2385Key;
@@ -66,6 +68,16 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("Port value is not set."));
+        }
+    }
+
+    @Test
+    public void testValidationExceptionInternalPeerRole() throws Exception {
+        try {
+            createInternalBgpPeerInstance();
+            fail();
+        } catch (final ValidationException e) {
+            assertTrue(e.getMessage().contains("Internal Peer Role is reserved for Application Peer use."));
         }
     }
 
@@ -136,7 +148,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
     }
 
     private ObjectName createBgpPeerInstance(final ConfigTransactionJMXClient transaction, final String host,
-            final PortNumber port, final boolean md5) throws Exception {
+            final PortNumber port, final boolean md5, final boolean internalPeerRole) throws Exception {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final BGPPeerModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, BGPPeerModuleMXBean.class);
 
@@ -167,6 +179,10 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
 
         }
 
+        if(internalPeerRole) {
+            mxBean.setPeerRole(PeerRole.Internal);
+        }
+
         mxBean.setAdvertizedTable(Lists.newArrayList(BGPTableTypeImplModuleTest.createTableInstance(transaction,
                 new IdentityAttributeRef(Ipv4AddressFamily.QNAME.toString()),
                 new IdentityAttributeRef(MplsLabeledVpnSubsequentAddressFamily.QNAME.toString()))));
@@ -194,7 +210,13 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
 
     private CommitStatus createBgpPeerInstance(final String host, final PortNumber port, final boolean md5) throws Exception {
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
-        createBgpPeerInstance(transaction, host, port, md5);
+        createBgpPeerInstance(transaction, host, port, md5, false);
+        return transaction.commit();
+    }
+
+    private CommitStatus createInternalBgpPeerInstance() throws Exception {
+        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
+        createBgpPeerInstance(transaction, HOST, portNumber, false, true);
         return transaction.commit();
     }
 }
