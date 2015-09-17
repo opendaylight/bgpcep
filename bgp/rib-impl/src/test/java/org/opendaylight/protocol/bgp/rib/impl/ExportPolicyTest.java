@@ -66,6 +66,17 @@ public class ExportPolicyTest {
         assertEquals(createPathInputWithAs(), EXT_POLICY.effectiveAttributes(peerRole, asPathIn));
     }
 
+    @Test
+    public void testInternalPeerEffectiveAttributes() {
+        final ContainerNode clusterIn = createClusterInput();
+        final PeerRole peerRole = PeerRole.Internal;
+        assertEquals(createInternalOutput(), REF_POLICY.effectiveAttributes(peerRole, clusterIn));
+        assertEquals(createInternalOutput(), INT_POLICY.effectiveAttributes(peerRole, clusterIn));
+
+        final ContainerNode asPathIn = createPathInput(null);
+        assertEquals(createPathInputWithAs(), EXT_POLICY.effectiveAttributes(peerRole, asPathIn));
+    }
+
     /**
      * container cluster-id {
      *     leaf-list cluster {
@@ -89,11 +100,40 @@ public class ExportPolicyTest {
         return b.build();
     }
 
+    private static ContainerNode createInternalOutput() {
+        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> b = Builders.containerBuilder();
+        b.withNodeIdentifier(new NodeIdentifier(QName.cachedReference(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "attribute-container"))));
+        b.withChild(createWithoutInternalClusterId());
+        b.withChild(createEmptyOriginatorId());
+        return b.build();
+    }
+
     private static ContainerNode createClusterInput() {
         final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> b = Builders.containerBuilder();
         b.withNodeIdentifier(new NodeIdentifier(QName.cachedReference(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "attribute-container"))));
-        b.withChild(createClusterId());
+        b.withChild(createClusterIdInput());
         return b.build();
+    }
+
+    private static ContainerNode createWithoutInternalClusterId() {
+        final QName clusterContQName = QName.cachedReference(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "cluster-id"));
+        final QName clusterQName = QName.cachedReference(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "cluster"));
+        final NodeIdentifier clusterContNid = new NodeIdentifier(clusterContQName);
+        final NodeIdentifier clusterNid = new NodeIdentifier(clusterQName);
+
+        final ClusterIdentifier cluster1 = new ClusterIdentifier(new Ipv4Address("1.1.1.1"));
+        final ClusterIdentifier cluster2 = new ClusterIdentifier(new Ipv4Address("1.1.1.2"));
+        return Builders.containerBuilder().withNodeIdentifier(clusterContNid).addChild(Builders.orderedLeafSetBuilder().withNodeIdentifier(clusterNid)
+                .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(clusterQName, cluster2.getValue())).withValue(cluster2.getValue()).build())
+                .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(clusterQName, cluster1.getValue())).withValue(cluster1.getValue()).build())
+                .build()).build();
+    }
+
+    private static ContainerNode createEmptyOriginatorId() {
+        final QName originatorContQName = QName.cachedReference(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "originator-id"));
+        final NodeIdentifier originatorContNid = new NodeIdentifier(originatorContQName);
+
+        return Builders.containerBuilder().withNodeIdentifier(originatorContNid).build();
     }
 
     private static ContainerNode createClusterId() {
@@ -106,7 +146,22 @@ public class ExportPolicyTest {
         final ClusterIdentifier cluster2 = new ClusterIdentifier(new Ipv4Address("1.1.1.2"));
         return Builders.containerBuilder().withNodeIdentifier(clusterContNid).addChild(
             Builders.orderedLeafSetBuilder().withNodeIdentifier(clusterNid)
-            .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(clusterQName, CLUSTER.getValue())).withValue(CLUSTER.getValue()).build())
+                .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(clusterQName, CLUSTER.getValue())).withValue(CLUSTER.getValue()).build())
+                .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(clusterQName, cluster2.getValue())).withValue(cluster2.getValue()).build())
+                .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(clusterQName, cluster1.getValue())).withValue(cluster1.getValue()).build())
+                .build()).build();
+    }
+
+    private static ContainerNode createClusterIdInput() {
+        final QName clusterContQName = QName.cachedReference(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "cluster-id"));
+        final QName clusterQName = QName.cachedReference(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "cluster"));
+        final NodeIdentifier clusterContNid = new NodeIdentifier(clusterContQName);
+        final NodeIdentifier clusterNid = new NodeIdentifier(clusterQName);
+
+        final ClusterIdentifier cluster1 = new ClusterIdentifier(new Ipv4Address("1.1.1.1"));
+        final ClusterIdentifier cluster2 = new ClusterIdentifier(new Ipv4Address("1.1.1.2"));
+        return Builders.containerBuilder().withNodeIdentifier(clusterContNid).addChild(
+            Builders.orderedLeafSetBuilder().withNodeIdentifier(clusterNid)
             .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(clusterQName, cluster2.getValue())).withValue(cluster2.getValue()).build())
             .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(clusterQName, cluster1.getValue())).withValue(cluster1.getValue()).build())
             .build()).build();
