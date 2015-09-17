@@ -15,7 +15,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Iterator;
 import org.opendaylight.protocol.util.Values;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.AsPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.ClusterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Communities;
@@ -24,7 +23,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.OriginatorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.UnrecognizedAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.as.path.Segments;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.QNameModule;
@@ -42,7 +40,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.CollectionNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.ListNodeBuilder;
@@ -181,48 +178,25 @@ final class AttributeOperations {
     }
 
     // Attributes when reflecting a route
-    ContainerNode reflectedAttributes(final ContainerNode attributes, final Ipv4Address originatorId, final ClusterIdentifier clusterId) {
+    ContainerNode reflectedAttributes(final ContainerNode attributes) {
         final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> b = Builders.containerBuilder(attributes);
 
         // Create a new CLUSTER_LIST builder
         final ListNodeBuilder<Object, LeafSetEntryNode<Object>> clb = Builders.orderedLeafSetBuilder();
         clb.withNodeIdentifier(this.clusterListLeaf);
 
-        // prepend local CLUSTER_ID
-        clb.withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(this.clusterQname, clusterId.getValue())).withValue(clusterId.getValue()).build());
+        LOG.debug("Creating fresh CLUSTER_LIST attribute");
 
-        // if there was a CLUSTER_LIST attribute, add all other entries
-        final Optional<NormalizedNode<?, ?>> maybeClusterList = NormalizedNodes.findNode(attributes, this.clusterListPath);
-        if (maybeClusterList.isPresent()) {
-            final NormalizedNode<?, ?> clusterList = maybeClusterList.get();
-            if (clusterList instanceof LeafSetNode) {
-                for (final LeafSetEntryNode<?> n : ((LeafSetNode<?>)clusterList).getValue()) {
-                    // There's no way we can safely avoid this cast
-                    @SuppressWarnings("unchecked")
-                    final LeafSetEntryNode<Object> child = (LeafSetEntryNode<Object>)n;
-                    clb.addChild(child);
-                }
-            } else {
-                LOG.warn("Ignoring malformed CLUSTER_LIST {}", clusterList);
-            }
-        } else {
-            LOG.debug("Creating fresh CLUSTER_LIST attribute");
-        }
+        // add empty ORIGINATOR_ID containe
+        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> oib = Builders.containerBuilder();
+        oib.withNodeIdentifier(this.originatorIdContainer);
+        b.withChild(oib.build());
 
         // Now wrap it in a container and add it to attributes
         final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> cb = Builders.containerBuilder();
         cb.withNodeIdentifier(this.clusterListContainer);
         cb.withChild(clb.build());
         b.withChild(cb.build());
-
-        // add ORIGINATOR_ID if not present
-        final Optional<NormalizedNode<?, ?>> maybeOriginatorId = NormalizedNodes.findNode(attributes, this.originatorIdPath);
-        if (!maybeOriginatorId.isPresent()) {
-            final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> oib = Builders.containerBuilder();
-            oib.withNodeIdentifier(this.originatorIdContainer);
-            oib.withChild(ImmutableNodes.leafNode(this.originatorIdLeaf, originatorId.getValue()));
-            b.withChild(oib.build());
-        }
 
         return b.build();
     }
