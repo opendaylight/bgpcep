@@ -13,10 +13,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
- *  Invoked on routes which we send to our normal home AS peers.
+ * Invoked on routes which we send to our reflector peers. This is a special-case of
+ * FromInternalImportPolicy.
  */
-final class ToInternalExportPolicy extends AbstractReflectingExportPolicy {
-    ToInternalExportPolicy(final Ipv4Address originatorId, final ClusterIdentifier clusterId) {
+final class ToInternalReflectorClientExportPolicy extends AbstractReflectingExportPolicy {
+
+    ToInternalReflectorClientExportPolicy(final Ipv4Address originatorId, final ClusterIdentifier clusterId) {
         super(originatorId, clusterId);
     }
 
@@ -24,16 +26,16 @@ final class ToInternalExportPolicy extends AbstractReflectingExportPolicy {
     ContainerNode effectiveAttributes(final PeerRole sourceRole, final ContainerNode attributes) {
         switch (sourceRole) {
         case Ebgp:
-            // eBGP -> Non-Client iBGP, propagate
+            // eBGP -> Client iBGP, propagate
             return attributes;
         case Ibgp:
-            // Non-Client iBGP -> Non-Client iBGP, block
-            return null;
+            // Non-Client iBGP -> Client iBGP, reflect
+            return reflectedAttributes(attributes);
         case RrClient:
-            // Client iBGP -> Non-Client iBGP, reflect
+            // Client iBGP -> Client iBGP, reflect
             return reflectedAttributes(attributes);
         case Internal:
-            // Internal iBGP -> Non-Client iBGP, reflect
+            // Internal Client iBGP -> Client iBGP, reflect
             return reflectedFromInternalAttributes(attributes);
         default:
             throw new IllegalArgumentException("Unhandled source role " + sourceRole);

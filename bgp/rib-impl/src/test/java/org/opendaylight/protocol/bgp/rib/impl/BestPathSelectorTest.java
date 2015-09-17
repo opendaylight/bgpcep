@@ -45,7 +45,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableUn
 
 public class BestPathSelectorTest {
 
-    private static final QName extensionQName = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2015-03-05", "attributes");
+    protected static final QName extensionQName = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2015-03-05", "attributes");
     private final QName localPrefQName = QName.create(this.extensionQName, "local-pref");
     private final QName multiExitDiscQName = QName.create(this.extensionQName, "multi-exit-disc");
     private final QName originQName = QName.create(this.extensionQName, "origin");
@@ -58,14 +58,14 @@ public class BestPathSelectorTest {
     private final BestPathSelector selector = new BestPathSelector(20L);
     private DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder;
 
-    private static final QName asNumberQ = QName.create(extensionQName, "as-number");
-    private static final NodeIdentifier segmentsNid = new NodeIdentifier(QName.create(extensionQName, Segments.QNAME.getLocalName()));
+    protected static final QName asNumberQ = QName.create(extensionQName, "as-number");
+    protected static final NodeIdentifier segmentsNid = new NodeIdentifier(QName.create(extensionQName, Segments.QNAME.getLocalName()));
     private static final NodeIdentifier cSegmentsNid = new NodeIdentifier(QName.create(extensionQName, CSegment.QNAME.getLocalName()));
     private static final NodeIdentifier asSetNid = new NodeIdentifier(QName.create(extensionQName, "as-set"));
     private static final NodeIdentifier aSetNid = new NodeIdentifier(QName.create(extensionQName, ASet.QNAME.getLocalName()));
     private static final NodeIdentifier aListNid = new NodeIdentifier(QName.create(extensionQName, AList.QNAME.getLocalName()));
     private static final NodeIdentifier asSeqNid = new NodeIdentifier(QName.create(extensionQName, AsSequence.QNAME.getLocalName()));
-    private static final NodeIdentifier asNid = new NodeIdentifier(QName.create(extensionQName, "as"));
+    protected static final NodeIdentifier asNid = new NodeIdentifier(QName.create(extensionQName, "as"));
 
     static final UnkeyedListEntryNode SET_SEGMENT = Builders.unkeyedListEntryBuilder().withNodeIdentifier(segmentsNid)
         .addChild(Builders.choiceBuilder().withNodeIdentifier(cSegmentsNid)

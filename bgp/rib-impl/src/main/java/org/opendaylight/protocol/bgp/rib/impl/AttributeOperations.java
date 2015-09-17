@@ -208,6 +208,45 @@ final class AttributeOperations {
         return b.build();
     }
 
+    /**
+     * Attributes when reflecting a route from Internal iBGP
+     * @param attributes
+     * @return
+     */
+    ContainerNode reflectedAttributes(final ContainerNode attributes) {
+        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> b = Builders.containerBuilder(attributes);
+
+        // Create a new CLUSTER_LIST builder
+        final ListNodeBuilder<Object, LeafSetEntryNode<Object>> clb = Builders.orderedLeafSetBuilder();
+        clb.withNodeIdentifier(this.clusterListLeaf);
+
+        // if there was a CLUSTER_LIST attribute, add all other entries
+        final Optional<NormalizedNode<?, ?>> maybeClusterList = NormalizedNodes.findNode(attributes, this.clusterListPath);
+        if (maybeClusterList.isPresent()) {
+            final NormalizedNode<?, ?> clusterList = maybeClusterList.get();
+            if (clusterList instanceof LeafSetNode) {
+                for (final LeafSetEntryNode<?> n : ((LeafSetNode<?>)clusterList).getValue()) {
+                    // There's no way we can safely avoid this cast
+                    @SuppressWarnings("unchecked")
+                    final LeafSetEntryNode<Object> child = (LeafSetEntryNode<Object>)n;
+                    clb.addChild(child);
+                }
+            } else {
+                LOG.warn("Ignoring malformed CLUSTER_LIST {}", clusterList);
+            }
+        } else {
+            LOG.debug("Creating fresh CLUSTER_LIST attribute");
+        }
+
+        // Now wrap it in a container and add it to attributes
+        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> cb = Builders.containerBuilder();
+        cb.withNodeIdentifier(this.clusterListContainer);
+        cb.withChild(clb.build());
+        b.withChild(cb.build());
+
+        return b.build();
+    }
+
     // Attributes when reflecting a route
     ContainerNode reflectedAttributes(final ContainerNode attributes, final Ipv4Address originatorId, final ClusterIdentifier clusterId) {
         final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> b = Builders.containerBuilder(attributes);

@@ -35,4 +35,15 @@ abstract class AbstractReflectingExportPolicy extends AbstractExportPolicy {
     @Nonnull protected final ContainerNode reflectedAttributes(@Nonnull final ContainerNode attributes) {
         return AttributeOperations.getInstance(attributes).reflectedAttributes(attributes, originatorId, clusterId);
     }
+
+    /**
+     * Modify attributes so they are updated as per RFC4456 route reflection, but without add ORIGINATOR_ID
+     * and CLUSTER_ID inside CLUSTER_LIST as required https://tools.ietf.org/html/rfc4456#section-8, BUG 4070.
+     *
+     * @param attributes Input attributes, may not be null.
+     * @return Modified (reflected) attributes.
+     */
+    @Nonnull protected final ContainerNode reflectedFromInternalAttributes(@Nonnull final ContainerNode attributes) {
+        return AttributeOperations.getInstance(attributes).reflectedAttributes(attributes);
+    }
 }
