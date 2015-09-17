@@ -19,7 +19,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.CollectionNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
 
@@ -48,7 +47,6 @@ public class ExportPolicyTest {
     public void testIbgpEffectiveAttributes() {
         final ContainerNode clusterIn = createClusterInput();
         final PeerRole peerRole = PeerRole.Ibgp;
-        assertEquals(createInputWithOriginator(), REF_POLICY.effectiveAttributes(peerRole, clusterIn));
         assertEquals(null, INT_POLICY.effectiveAttributes(peerRole, clusterIn));
 
         final ContainerNode asPathIn = createPathInput(null);
@@ -57,10 +55,7 @@ public class ExportPolicyTest {
 
     @Test
     public void testRrClientEffectiveAttributes() {
-        final ContainerNode clusterIn = createClusterInput();
         final PeerRole peerRole = PeerRole.RrClient;
-        assertEquals(createInputWithOriginator(), REF_POLICY.effectiveAttributes(peerRole, clusterIn));
-        assertEquals(createInputWithOriginator(), INT_POLICY.effectiveAttributes(peerRole, clusterIn));
 
         final ContainerNode asPathIn = createPathInput(null);
         assertEquals(createPathInputWithAs(), EXT_POLICY.effectiveAttributes(peerRole, asPathIn));
@@ -81,13 +76,6 @@ public class ExportPolicyTest {
      *     uses originator-id;
      * }
      */
-    private static ContainerNode createInputWithOriginator() {
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> b = Builders.containerBuilder();
-        b.withNodeIdentifier(new NodeIdentifier(QName.cachedReference(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "attribute-container"))));
-        b.withChild(createClusterId());
-        b.withChild(createOriginatorId());
-        return b.build();
-    }
 
     private static ContainerNode createClusterInput() {
         final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> b = Builders.containerBuilder();
@@ -109,17 +97,7 @@ public class ExportPolicyTest {
             .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(clusterQName, CLUSTER.getValue())).withValue(CLUSTER.getValue()).build())
             .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(clusterQName, cluster2.getValue())).withValue(cluster2.getValue()).build())
             .withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(clusterQName, cluster1.getValue())).withValue(cluster1.getValue()).build())
-            .build()).build();
-    }
-
-    private static ContainerNode createOriginatorId() {
-        final QName originatorContQName = QName.cachedReference(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "originator-id"));
-        final QName originatorQName = QName.cachedReference(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "originator"));
-        final NodeIdentifier originatorContNid = new NodeIdentifier(originatorContQName);
-        final NodeIdentifier originatorNid = new NodeIdentifier(originatorQName);
-
-        return Builders.containerBuilder().withNodeIdentifier(originatorContNid).withChild(
-            ImmutableNodes.leafNode(originatorNid, CLUSTER.getValue())).build();
+                .build()).build();
     }
 
     /*
