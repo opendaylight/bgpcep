@@ -97,6 +97,8 @@ final class AdjRibInWriter {
             return "ibgp";
         case RrClient:
             return "rr-client";
+        case Internal:
+            return "internal";
         default:
             throw new IllegalArgumentException("Unhandled role " + role);
         }
