@@ -2,7 +2,7 @@
     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-peer</type>
     <name>example-bgp-peer</name>
     <host xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">$IP</host>
-    <port xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">17900</port>
+    <port xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">$PEER_PORT</port>
     <holdtimer xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">$HOLDTIME</holdtimer>
     <initiate-connection xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">$INITIATE</initiate-connection>
     <rib xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">
