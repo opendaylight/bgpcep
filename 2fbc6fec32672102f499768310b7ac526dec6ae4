@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_53ba84e2",
+        "filename": "rsvp/impl/src/main/java/org/opendaylight/protocol/rsvp/parser/impl/te/AbstractAssociationParser.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-21T07:16:48Z",
+      "side": 1,
+      "message": "wrong modifiers order - should be \"protected final void\". I guess the sonar will yell and produce a technical debt. Check all classes.",
+      "range": {
+        "startLine": 33,
+        "startChar": 4,
+        "endLine": 33,
+        "endChar": 24
+      },
+      "revId": "2fbc6fec32672102f499768310b7ac526dec6ae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_73bf80d1",
+        "filename": "rsvp/impl/src/main/java/org/opendaylight/protocol/rsvp/parser/impl/te/AdminStatusObjectParser.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-21T07:16:48Z",
+      "side": 1,
+      "message": "The final modifier is unnecessary here - the class is final \u003d\u003d all methods are implicitly final. Please, check all classes.",
+      "range": {
+        "startLine": 31,
+        "startChar": 4,
+        "endLine": 31,
+        "endChar": 9
+      },
+      "revId": "2fbc6fec32672102f499768310b7ac526dec6ae4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
