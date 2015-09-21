@@ -13,6 +13,7 @@
         <capability>urn:opendaylight:params:xml:ns:yang:bgp-types?module=bgp-types&amp;revision=2013-09-19</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:linkstate?module=odl-bgp-linkstate-cfg&amp;revision=2015-08-26</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:flowspec?module=odl-bgp-flowspec-cfg&amp;revision=2015-04-23</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:labeled:unicast?module=odl-bgp-labeled-unicast-cfg&amp;revision=2015-05-25</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi?module=odl-bgp-parser-spi-cfg&amp;revision=2013-11-15</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi?module=odl-bgp-rib-spi-cfg&amp;revision=2013-11-15</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl?module=odl-bgp-rib-impl-cfg&amp;revision=2013-04-09</capability>
@@ -39,6 +40,10 @@
                         <type xmlns:bgpspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi">bgpspi:extension</type>
                         <name>bgp-flowspec</name>
                     </extension>
+                    <extension>
+                        <type xmlns:bgpspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi">bgpspi:extension</type>
+                        <name>bgp-labeled-unicast</name>
+                    </extension>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:base-bgp-parser</type>
@@ -64,6 +69,10 @@
                         <type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extension</type>
                         <name>bgp-flowspec</name>
                     </extension>
+                    <extension>
+                        <type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extension</type>
+                        <name>bgp-labeled-unicast</name>
+                    </extension>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:base-bgp-rib</type>
@@ -84,6 +93,10 @@
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:flowspec">prefix:bgp-flowspec</type>
                     <name>bgp-flowspec</name>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:labeled:unicast">prefix:bgp-labeled-unicast</type>
+                    <name>bgp-labeled-unicast</name>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-dispatcher-impl</type>
@@ -140,6 +153,12 @@
                     <afi xmlns:bgp="urn:opendaylight:params:xml:ns:yang:bgp-types">bgp:ipv4-address-family</afi>
                     <safi xmlns:flowspec="urn:opendaylight:params:xml:ns:yang:bgp-flowspec">flowspec:flowspec-subsequent-address-family</safi>
                 </module>
+<module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type-impl</type>
+                    <name>labeled-unicast</name>
+                    <afi xmlns:bgp="urn:opendaylight:params:xml:ns:yang:bgp-types">bgp:ipv4-address-family</afi>
+                    <safi xmlns:labeled-unicast="urn:opendaylight:params:xml:ns:yang:bgp-labeled-unicast">labeled-unicast:labeled-unicast-subsequent-address-family</safi>
+                </module>
             </modules>
 
             <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
@@ -171,6 +190,10 @@
                         <name>bgp-flowspec</name>
                         <provider>/modules/module[type='bgp-flowspec'][name='bgp-flowspec']</provider>
                     </instance>
+                    <instance>
+                        <name>bgp-labeled-unicast</name>
+                        <provider>/modules/module[type='bgp-labeled-unicast'][name='bgp-labeled-unicast']</provider>
+                    </instance>
                 </service>
                 <service>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
@@ -190,6 +213,10 @@
                         <name>flowspec</name>
                         <provider>/modules/module[type='bgp-table-type-impl'][name='flowspec']</provider>
                     </instance>
+<instance>
+                        <name>labeled-unicast</name>
+                        <provider>/modules/module[type='bgp-table-type-impl'][name='labeled-unicast']</provider>
+                    </instance>
                 </service>
                 <service>
                     <type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extension</type>
@@ -204,6 +231,10 @@
                     <instance>
                         <name>bgp-flowspec</name>
                         <provider>/modules/module[type='bgp-flowspec'][name='bgp-flowspec']</provider>
+                    </instance>
+                    <instance>
+                        <name>bgp-labeled-unicast</name>
+                        <provider>/modules/module[type='bgp-labeled-unicast'][name='bgp-labeled-unicast']</provider>
                     </instance>
                 </service>
                 <service>

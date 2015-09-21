@@ -168,6 +168,10 @@
       </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
+          <artifactId>bgp-labeled-unicast</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>${project.groupId}</groupId>
           <artifactId>bgp-inet</artifactId>
       </dependency>
       <dependency>
