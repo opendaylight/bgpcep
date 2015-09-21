@@ -34,6 +34,7 @@
         <module>inet</module>
         <module>linkstate</module>
         <module>flowspec</module>
+        <module>labeled-unicast</module>
         <module>parser-api</module>
         <module>parser-spi</module>
         <module>parser-impl</module>
