@@ -1,0 +1,41 @@
+module odl-bgp-labeled-unicast-cfg {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:bgp:labeled:unicast";
+    prefix "bgplu";
+
+    import config { prefix config; revision-date 2013-04-05; }
+    import odl-bgp-parser-spi-cfg { prefix bgpspi; revision-date 2013-11-15; }
+    import odl-bgp-rib-spi-cfg { prefix ribspi; revision-date 2013-11-15; }
+
+    organization "Cisco Systems, Inc.";
+
+    description
+        "This module contains the base YANG definitions for
+         BGP Labeled Unicast extension.
+
+        Copyright (c)2015 Cisco Systems, Inc. All rights reserved.;
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2015-05-25" {
+        description
+            "Initial revision";
+    }
+
+    identity bgp-labeled-unicast {
+        base config:module-type;
+        config:provided-service bgpspi:extension;
+        config:provided-service ribspi:extension;
+        config:java-name-prefix LabeledUnicast;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case bgp-labeled-unicast {
+            when "/config:modules/config:module/config:type = 'bgp-labeled-unicast'";
+        }
+    }
+}
+
