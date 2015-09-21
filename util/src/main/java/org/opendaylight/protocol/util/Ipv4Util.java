@@ -90,7 +90,7 @@ public final class Ipv4Util {
      * @param prefix
      * @return
      */
-    protected static int getPrefixLengthBytes(final String prefix) {
+    public static int getPrefixLengthBytes(final String prefix) {
         final int bits = Ipv4Util.getPrefixLength(prefix);
         if (bits % Byte.SIZE != 0) {
             return (bits / Byte.SIZE) + 1;
