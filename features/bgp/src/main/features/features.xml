@@ -30,6 +30,7 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-impl</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-flowspec</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-labeled-unicast</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-topology</feature>
         <configfile finalname="etc/opendaylight/karaf/31-bgp.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/config</configfile>
         <configfile finalname="etc/opendaylight/karaf/41-bgp-example.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/config-example</configfile>
@@ -88,6 +89,13 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-flowspec/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-api/{{VERSION}}</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-bgp-labeled-unicast' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-labeled-unicast/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-api/{{VERSION}}</bundle>
     </feature>
 
