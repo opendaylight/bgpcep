@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_07f5a682",
+        "filename": "features/pom.xml",
+        "patchSetId": 11
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-22T06:37:29Z",
+      "side": 1,
+      "message": "indentation",
+      "range": {
+        "startLine": 19,
+        "startChar": 4,
+        "endLine": 19,
+        "endChar": 6
+      },
+      "revId": "9ab236876ead1aa68ec14f525367404f3a9404a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_a7f15297",
+        "filename": "features/rsvp/pom.xml",
+        "patchSetId": 11
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-22T06:37:29Z",
+      "side": 1,
+      "message": "remove tildes",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 5
+      },
+      "revId": "9ab236876ead1aa68ec14f525367404f3a9404a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_672b3aec",
+        "filename": "features/rsvp/src/main/features/features.xml",
+        "patchSetId": 11
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-22T06:37:29Z",
+      "side": 1,
+      "message": "tildes",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 5
+      },
+      "revId": "9ab236876ead1aa68ec14f525367404f3a9404a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_e73e6a29",
+        "filename": "features/rsvp/src/main/features/features.xml",
+        "patchSetId": 11
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-22T06:37:29Z",
+      "side": 1,
+      "message": "repos are defined, but there are no bundles/features used.",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 113
+      },
+      "revId": "9ab236876ead1aa68ec14f525367404f3a9404a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_27354246",
+        "filename": "features/rsvp/src/main/features/features.xml",
+        "patchSetId": 11
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-22T06:37:29Z",
+      "side": 1,
+      "message": "why the rsvp needs pcep-api?",
+      "range": {
+        "startLine": 23,
+        "startChar": 8,
+        "endLine": 23,
+        "endChar": 73
+      },
+      "revId": "9ab236876ead1aa68ec14f525367404f3a9404a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_473abe37",
+        "filename": "features/rsvp/src/main/features/features.xml",
+        "patchSetId": 11
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-22T06:37:29Z",
+      "side": 1,
+      "message": "why the rsvp need tcp-md5 ?",
+      "range": {
+        "startLine": 40,
+        "startChar": 8,
+        "endLine": 40,
+        "endChar": 71
+      },
+      "revId": "9ab236876ead1aa68ec14f525367404f3a9404a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_c7456eb4",
+        "filename": "rsvp/controller-config/pom.xml",
+        "patchSetId": 11
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-22T06:37:29Z",
+      "side": 1,
+      "message": "remove tildes",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 5
+      },
+      "revId": "9ab236876ead1aa68ec14f525367404f3a9404a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
