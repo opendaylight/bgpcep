@@ -177,13 +177,7 @@ public class FSNlriParserTest {
         final ByteBuf buffer = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes1.class, new Attributes1Builder().setMpReachNlri(mp.build()).build()).build(), buffer);
         assertArrayEquals(nlri, ByteArray.readAllBytes(buffer));
-
-        assertEquals("all packets to 10.0.1.0/24", FSNlriParser.stringNlri(flows.get(0)));
-        assertEquals("all packets from 192.0.0.0/8", FSNlriParser.stringNlri(flows.get(1)));
-        assertEquals("all packets where protocol equals to 6 ", FSNlriParser.stringNlri(flows.get(2)));
-        assertEquals("all packets where port is greater than or equal to 137 and is less than or equal to 139 or equals to 8080 ", FSNlriParser.stringNlri(flows.get(3)));
-        assertEquals("all packets where destination port is greater than 4089 or equals to 179 ", FSNlriParser.stringNlri(flows.get(4)));
-        assertEquals("all packets where source port equals to 8080 ", FSNlriParser.stringNlri(flows.get(5)));
+        assertEquals("all packets to 10.0.1.0/24 AND from 192.0.0.0/8 AND where protocol equals to 6 AND where port is greater than or equal to 137 and is less than or equal to 139 or equals to 8080 AND where destination port is greater than 4089 or equals to 179 AND where source port equals to 8080 ", FSNlriParser.stringNlri(flows));
     }
 
     @Test
@@ -253,13 +247,7 @@ public class FSNlriParserTest {
         final ByteBuf buffer = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes2.class, new Attributes2Builder().setMpUnreachNlri(mp.build()).build()).build(), buffer);
         assertArrayEquals(unnlri, ByteArray.readAllBytes(buffer));
-
-        assertEquals("all packets where ICMP type is less than 2 or is less than 3 ", FSNlriParser.stringNlri(flows.get(0)));
-        assertEquals("all packets where ICMP code is less than is greater than 4 or 5 ", FSNlriParser.stringNlri(flows.get(1)));
-        assertEquals("all packets where TCP flags is not 1025 or does match 22193 ", FSNlriParser.stringNlri(flows.get(2)));
-        assertEquals("all packets where packet length is less than is greater than 57005 ", FSNlriParser.stringNlri(flows.get(3)));
-        assertEquals("all packets where DSCP is less than is greater than 42 ", FSNlriParser.stringNlri(flows.get(4)));
-        assertEquals("all packets where fragment does match 'DO NOT' 'IS FIRST' 'IS LAST' 'IS A' ", FSNlriParser.stringNlri(flows.get(5)));
+        assertEquals("all packets where ICMP type is less than 2 or is less than 3 AND where ICMP code is less than is greater than 4 or 5 AND where TCP flags is not 1025 or does match 22193 AND where packet length is less than is greater than 57005 AND where DSCP is less than is greater than 42 AND where fragment does match 'DO NOT' 'IS FIRST' 'IS LAST' 'IS A' ", FSNlriParser.stringNlri(flows));
     }
 
     @Test
