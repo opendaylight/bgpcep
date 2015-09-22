@@ -64,7 +64,6 @@ import org.opendaylight.protocol.rsvp.parser.impl.te.SessionAttributeLspRaObject
 import org.opendaylight.protocol.rsvp.parser.spi.AbstractRSVPExtensionProviderActivator;
 import org.opendaylight.protocol.rsvp.parser.spi.LabelRegistry;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionProviderContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.PathKeyCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.admin.status.object.AdminStatusObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.association.object.AssociationObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.bandwidth.object.bandwidth.object.BasicBandwidthObject;
@@ -78,6 +77,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.detour.object.detour.object.Ipv6DetourObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.exclude.route.object.ExcludeRouteObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.object.ExplicitRouteObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.subobject.type.PathKeyCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.fast.reroute.object.fast.reroute.object.BasicFastRerouteObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.fast.reroute.object.fast.reroute.object.LegacyFastRerouteObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.flow.spec.object.FlowSpecObject;
@@ -243,9 +243,8 @@ public class RSVPActivator extends AbstractRSVPExtensionProviderActivator {
         final RROPathKey128SubobjectParser pathKey128Parser = new RROPathKey128SubobjectParser();
         regs.add(context.registerRROSubobjectParser(RROPathKey32SubobjectParser.TYPE, pathKey32Parser));
         regs.add(context.registerRROSubobjectParser(RROPathKey128SubobjectParser.TYPE, pathKey128Parser));
-        regs.add(context.registerRROSubobjectSerializer(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.subobject.subobject.type.PathKeyCase.class,
-            pathKey32Parser));
+        regs.add(context.registerRROSubobjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
+                .yang.rsvp.rev150820.record.route.subobjects.subobject.type.PathKeyCase.class, pathKey32Parser));
 
         final RROLabelSubobjectParser labelParser = new RROLabelSubobjectParser(labelReg);
         regs.add(context.registerRROSubobjectParser(RROLabelSubobjectParser.TYPE, labelParser));

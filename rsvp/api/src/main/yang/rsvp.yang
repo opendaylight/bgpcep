@@ -370,6 +370,36 @@ module rsvp {
         }
     }
 
+    typedef path-key {
+        type uint16;
+    }
+
+    typedef pce-id {
+        type union {
+            type binary {
+                length 4;
+            }
+            type binary {
+                length 16;
+            }
+        }
+    }
+
+    grouping path-key-subobject {
+        reference "https://tools.ietf.org/html/rfc5520#section-3.1";
+        uses c-subobject;
+
+        leaf pce-id {
+            type pce-id;
+            mandatory true;
+        }
+
+        leaf path-key {
+            type path-key;
+            mandatory true;
+        }
+    }
+
     grouping protection-subobject {
         container protection-subobject {
             leaf secondary {
@@ -445,6 +475,12 @@ module rsvp {
                     uses unnumbered-subobject;
                 }
             }
+
+            case path-key-case {
+                container path-key {
+                    uses path-key-subobject;
+                }
+            }
         }
     }
 
@@ -485,7 +521,7 @@ module rsvp {
         container exclude-route-object {
             uses rsvp-te-object;
             list subobject-container {
-                uses rsvp:exclude-route-subobjects;
+                uses exclude-route-subobjects;
                 ordered-by user;
             }
         }
@@ -610,6 +646,11 @@ module rsvp {
                         list exrs {
                             uses exclude-route-subobjects;
                         }
+                    }
+                }
+                case path-key-case {
+                    container path-key {
+                        uses path-key-subobject;
                     }
                 }
             }

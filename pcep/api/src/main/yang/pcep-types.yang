@@ -50,21 +50,6 @@ module pcep-types {
         type uint16;
     }
 
-    typedef path-key {
-        type uint16;
-    }
-
-    typedef pce-id {
-        type union {
-            type binary {
-                length 4;
-            }
-            type binary {
-                length 16;
-            }
-        }
-    }
-
     grouping vendor-information {
         description "VENDOR-INFORMATION format";
         reference "http://tools.ietf.org/html/draft-ietf-pce-rfc7150bis-00#section-4";
@@ -497,16 +482,7 @@ module pcep-types {
                     mandatory true;
                 }
 
-                uses rsvp:explicit-route-subobjects {
-                    augment "subobject-type" {
-                        case path-key-case {
-                            container path-key {
-                                uses path-key-subobject;
-                            }
-                        }
-                    }
-                }
-
+                uses rsvp:explicit-route-subobjects;
                 ordered-by user;
             }
         }
@@ -536,15 +512,7 @@ module pcep-types {
             uses object;
 
             list subobject {
-                uses rsvp:record-route-subobjects {
-                    augment "subobject-type" {
-                        case path-key-case {
-                            container path-key {
-                                uses path-key-subobject;
-                            }
-                        }
-                    }
-                }
+                uses rsvp:record-route-subobjects;
                 ordered-by user;
             }
         }
@@ -676,20 +644,7 @@ module pcep-types {
         }
     }
 
-    grouping path-key-subobject {
-        reference "https://tools.ietf.org/html/rfc5520#section-3.1";
-        uses rsvp:c-subobject;
 
-        leaf pce-id {
-            type pce-id;
-            mandatory true;
-        }
-
-        leaf path-key {
-            type path-key;
-            mandatory true;
-        }
-    }
 
     grouping path-key-object {
         description "PATH-KEY Object";
@@ -705,7 +660,7 @@ module pcep-types {
                     default false;
                 }
 
-                uses path-key-subobject;
+                uses rsvp:path-key-subobject;
                 ordered-by user;
             }
         }
