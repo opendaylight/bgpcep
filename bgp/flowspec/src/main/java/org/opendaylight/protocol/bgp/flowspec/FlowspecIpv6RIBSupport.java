@@ -19,7 +19,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 
-public class FlowspecIpv6RIBSupport extends AbstractFlowspecRIBSupport {
+public final class FlowspecIpv6RIBSupport extends AbstractFlowspecRIBSupport {
 
     private static final FSIpv6NlriParser FS_PARSER = new FSIpv6NlriParser();
 
