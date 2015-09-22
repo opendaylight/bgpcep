@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.rsvp.parser.impl.subobject.rro;
 
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -15,13 +16,13 @@ import org.opendaylight.protocol.rsvp.parser.spi.RROSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.spi.RROSubobjectSerializer;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PathKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PceId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.subobject.subobject.type.PathKeyCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.subobject.subobject.type.PathKeyCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.subobject.subobject.type.path.key._case.PathKeyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.PathKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.PceId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.list.SubobjectContainer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.list.SubobjectContainerBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.PathKeyCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.PathKeyCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
 
 public class RROPathKey32SubobjectParser implements RROSubobjectParser, RROSubobjectSerializer {
 
@@ -56,11 +57,11 @@ public class RROPathKey32SubobjectParser implements RROSubobjectParser, RROSubob
     public void serializeSubobject(final SubobjectContainer subobject, final ByteBuf buffer) {
         Preconditions.checkArgument(subobject.getSubobjectType() instanceof PathKeyCase, "Unknown subobject instance. Passed %s. Needed PathKey.", subobject.getSubobjectType().getClass());
         final PathKeyCase pkcase = (PathKeyCase) subobject.getSubobjectType();
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.subobject.subobject.type.path.key._case.PathKey pk = pkcase.getPathKey();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.path.key._case.PathKey pk = pkcase.getPathKey();
         final ByteBuf body = Unpooled.buffer();
         Preconditions.checkArgument(pk.getPceId() != null, "PceId is mandatory.");
-        if(pk.getPceId().getBinary().length == 16) {
-            RROPathKey128SubobjectParser.serializeSubobject(subobject,buffer);
+        if (pk.getPceId().getBinary().length == 16) {
+            RROPathKey128SubobjectParser.serializeSubobject(subobject, buffer);
         }
         Preconditions.checkArgument(pk.getPathKey() != null, "PathKey is mandatory.");
         Preconditions.checkArgument(pk.getPceId().getBinary().length == 4, "PathKey 32Bit is mandatory.");
