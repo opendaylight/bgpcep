@@ -124,7 +124,7 @@
 
         <!-- FIXME: remove this once controller migrates its runtime to use the mdsal project -->
         <dependency>
-            <groupId>org.opendaylight.yangtools.model</groupId>
+            <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>yang-ext</artifactId>
             <scope>test</scope>
         </dependency>
