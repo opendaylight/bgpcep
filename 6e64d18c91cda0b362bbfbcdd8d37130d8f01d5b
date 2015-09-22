@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_c7f80e4c",
+        "filename": "bgp/linkstate/pom.xml",
+        "patchSetId": 19
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-22T07:07:57Z",
+      "side": 1,
+      "message": "project version should not be declared here, rather in dependency management",
+      "range": {
+        "startLine": 42,
+        "startChar": 12,
+        "endLine": 42,
+        "endChar": 49
+      },
+      "revId": "6e64d18c91cda0b362bbfbcdd8d37130d8f01d5b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_67957ae3",
+        "filename": "bgp/linkstate/pom.xml",
+        "patchSetId": 19
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-22T07:07:57Z",
+      "side": 1,
+      "message": "project version - see above",
+      "range": {
+        "startLine": 120,
+        "startChar": 12,
+        "endLine": 120,
+        "endChar": 49
+      },
+      "revId": "6e64d18c91cda0b362bbfbcdd8d37130d8f01d5b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_e788aac8",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/LinkstateNlriParser.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-22T07:07:57Z",
+      "side": 1,
+      "message": "} else if {",
+      "range": {
+        "startLine": 426,
+        "startChar": 8,
+        "endLine": 427,
+        "endChar": 14
+      },
+      "revId": "6e64d18c91cda0b362bbfbcdd8d37130d8f01d5b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
