@@ -1,0 +1,47 @@
+module bgp-openconfig-extensions {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions";
+    prefix "odl-oc-ext";
+
+    import bgp-types { prefix bgp-types; revision-date 2015-05-15; }
+
+    organization "Cisco Systems, Inc.";
+    contact "Milos Fabian <milfabia@cisco.com>";
+
+    description
+        "This module contains the custom extensions to the
+        draft-ietf-idr-bgp-model-00 Yang data models.
+
+        Copyright (c)2015 Cisco Systems, Inc. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision 2015-09-30 {
+        description "Initial revision";
+    }
+
+    identity ipv4-flow {
+        base bgp-types:afi-safi-type;
+        description
+          "IPv4 Flow specification (AFI,SAFI = 1,133)";
+        reference "https://tools.ietf.org/html/rfc5575";
+    }
+
+    identity ipv6-flow {
+        base bgp-types:afi-safi-type;
+        description
+          "IPv6 Flow specification (AFI,SAFI = 2,133)";
+        reference "https://tools.ietf.org/html/draft-ietf-idr-flow-spec-v6-06";
+    }
+
+    identity linkstate {
+        base bgp-types:afi-safi-type;
+        description
+          "Link-State (AFI,SAFI = 16388,71)";
+        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03";
+    }
+
+}
