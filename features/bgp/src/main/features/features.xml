@@ -19,6 +19,7 @@
     <repository>mvn:org.opendaylight.tcpmd5/features-tcpmd5/{{VERSION}}/xml/features</repository>
     <repository>mvn:org.opendaylight.mdsal.model/features-mdsal-model/{{VERSION}}/xml/features</repository>
     <repository>mvn:org.opendaylight.bgpcep/features-rsvp/{{VERSION}}/xml/features</repository>
+    <repository>mvn:org.opendaylight.netconf/features-netconf-connector/{{VERSION}}/xml/features</repository>
 
 
     <feature name='odl-bgpcep-bgp-all' version='${project.version}'>
@@ -33,8 +34,21 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-flowspec</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-labeled-unicast</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-topology</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-openconfig</feature>
         <configfile finalname="etc/opendaylight/karaf/31-bgp.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/config</configfile>
         <configfile finalname="etc/opendaylight/karaf/41-bgp-example.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/config-example</configfile>
+        <configfile finalname="etc/opendaylight/karaf/43-bgp-openconfig.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/openconfig-config</configfile>
+    </feature>
+
+    <feature name="odl-bgpcep-bgp-openconfig" version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-bgp-rib-impl</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-flowspec</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-labeled-unicast</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-topology</feature>
+        <feature version='${netconf.version}'>odl-netconf-connector</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-api/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-impl/{{VERSION}}</bundle>
     </feature>
 
     <feature name='odl-bgpcep-bgp-dependencies' version='${project.version}'>
