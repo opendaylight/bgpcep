@@ -12,7 +12,7 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
 
-    <repository>mvn:org.opendaylight.yangtools/features-yangtools/{{VERSION}}/xml/features</repository>
+    <repository>mvn:org.opendaylight.mdsal.model/features-mdsal-model/{{VERSION}}/xml/features</repository>
 
     <feature name='odl-bgpcep-rsvp' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-rsvp-dependencies</feature>
@@ -25,7 +25,7 @@
     <feature name='odl-bgpcep-rsvp-dependencies' version='${project.version}'>
         <!--  concepts -->
         <bundle>mvn:com.google.guava/guava/{{VERSION}}</bundle>
-        <feature version='${yangtools.version}'>odl-yangtools-models</feature>
+        <feature version='${mdsal.binding.base}'>odl-mdsal-models</feature>
         <bundle>mvn:org.opendaylight.bgpcep/concepts/{{VERSION}}</bundle>
         <!-- util -->
         <bundle>mvn:commons-codec/commons-codec/{{VERSION}}</bundle>

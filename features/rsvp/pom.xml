@@ -24,7 +24,7 @@
     <version>0.5.0-SNAPSHOT</version>
 
     <properties>
-        <yangtools.version>0.8.0-SNAPSHOT</yangtools.version>
+        <mdsal.binding.base>0.8.0-SNAPSHOT</mdsal.binding.base>
         <config.version>0.4.0-SNAPSHOT</config.version>
         <protocol-framework.version>0.7.0-SNAPSHOT</protocol-framework.version>
     </properties>
@@ -78,11 +78,12 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>features-protocol-framework</artifactId>
+            <groupId>org.opendaylight.mdsal.model</groupId>
+            <artifactId>features-mdsal-model</artifactId>
+            <version>${mdsal.binding.base}</version>
             <classifier>features</classifier>
             <type>xml</type>
-            <version>${protocol-framework.version}</version>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 </project>
