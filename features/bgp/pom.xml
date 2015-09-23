@@ -30,6 +30,7 @@
         <commons.opendaylight.version>1.6.0-SNAPSHOT</commons.opendaylight.version>
         <protocol-framework.version>0.7.0-SNAPSHOT</protocol-framework.version>
         <tcpmd5.version>1.2.0-SNAPSHOT</tcpmd5.version>
+        <netconf.version>1.0.0-SNAPSHOT</netconf.version>
     </properties>
 
     <dependencyManagement>
@@ -87,6 +88,15 @@
                 <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>features-rsvp</artifactId>
                 <version>${project.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+
+            <!-- NETCONF -->
+            <dependency>
+                <groupId>org.opendaylight.netconf</groupId>
+                <artifactId>netconf-artifacts</artifactId>
+                <version>${netconf.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -151,6 +161,12 @@
         <dependency>
             <groupId>org.opendaylight.tcpmd5</groupId>
             <artifactId>features-tcpmd5</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.netconf</groupId>
+            <artifactId>features-netconf-connector</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
         </dependency>
@@ -259,6 +275,14 @@
       <dependency>
           <groupId>${project.groupId}</groupId>
           <artifactId>bgp-bmp-api</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>bgp-openconfig-api</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>bgp-openconfig-impl</artifactId>
       </dependency>
 
       <dependency>
