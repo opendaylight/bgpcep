@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_a17e15e3",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled/unicast/LabeledUnicastRIBSupport.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-09-24T17:09:00Z",
+      "side": 1,
+      "message": "use NodeIdentifier.create() for constants",
+      "revId": "75dc2405853fc55c5b9a172ffd0ea1bd4a12b9d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_6188fde7",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled/unicast/LabeledUnicastRIBSupport.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-09-24T17:09:00Z",
+      "side": 1,
+      "message": "this looks like a constant",
+      "revId": "75dc2405853fc55c5b9a172ffd0ea1bd4a12b9d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_016d8932",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled/unicast/LabeledUnicastRIBSupport.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-09-24T17:09:00Z",
+      "side": 1,
+      "message": "package visibility?",
+      "revId": "75dc2405853fc55c5b9a172ffd0ea1bd4a12b9d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
