@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "1a76adc5_a52b80ea",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/SyncOptimization.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-24T21:36:46Z",
+      "side": 1,
+      "message": "repetitive code",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 89,
+        "endChar": 97
+      },
+      "revId": "e1c9270fcfe6165a6a99fe0e7652c372e1dc9635",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a76adc5_e5dad816",
         "filename": "pcep/topology-provider/src/test/java/org/opendaylight/bgpcep/pcep/topology/provider/IncrementalSynchronizationProcedureTest.java",
         "patchSetId": 4
