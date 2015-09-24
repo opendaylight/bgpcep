@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "1a76adc5_e58f3874",
+        "filename": "bgp/rib-api/src/main/yang/bgp-rib.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-09-24T18:39:09Z",
+      "side": 1,
+      "message": "Nice catch, yes, it cannot really be exported, as that would allow the user to easily misconfigure peering. Maybe we do need an internal enum.",
+      "parentUuid": "1a76adc5_c1055115",
+      "revId": "2b275d1c7ac78bc987d5f0b5183e7a0092135fc1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a76adc5_45106c4e",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractReflectingExportPolicy.java",
         "patchSetId": 6
