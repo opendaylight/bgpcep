@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_61179d52",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-24T18:20:42Z",
+      "side": 1,
+      "message": "The commit message is somehow confusing to me...I would expect something about the app peer role change, how the behavior changed and motivation behind the change.",
+      "revId": "2b275d1c7ac78bc987d5f0b5183e7a0092135fc1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_c1055115",
+        "filename": "bgp/rib-api/src/main/yang/bgp-rib.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-24T18:20:42Z",
+      "side": 1,
+      "message": "Shouldn\u0027t be be internal role in the regular peer configuration avoided?",
+      "revId": "2b275d1c7ac78bc987d5f0b5183e7a0092135fc1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_45106c4e",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractReflectingExportPolicy.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-24T18:20:42Z",
+      "side": 1,
+      "message": "Is it really a true?",
+      "range": {
+        "startLine": 40,
+        "startChar": 7,
+        "endLine": 40,
+        "endChar": 77
+      },
+      "revId": "2b275d1c7ac78bc987d5f0b5183e7a0092135fc1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_6520089c",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ToReflectorClientExportPolicy.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-24T18:20:42Z",
+      "side": 1,
+      "message": "Client",
+      "range": {
+        "startLine": 38,
+        "startChar": 32,
+        "endLine": 38,
+        "endChar": 42
+      },
+      "revId": "2b275d1c7ac78bc987d5f0b5183e7a0092135fc1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
