@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_8b1453f6",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPPeerModule.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-25T10:53:07Z",
+      "side": 1,
+      "message": "Please, use JmxAttributeValidationException.checkCondition and add junit test too.",
+      "range": {
+        "startLine": 94,
+        "startChar": 12,
+        "endLine": 94,
+        "endChar": 39
+      },
+      "revId": "4c8e28009a09d0963cef58a97beac67fc76fa3f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
