@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_0bbb630f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPPeerModule.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-25T10:04:40Z",
+      "side": 1,
+      "message": "Here, no exceptions should be thrown. Preconditions have to be checked in \"customValidation()\"",
+      "range": {
+        "startLine": 114,
+        "startChar": 12,
+        "endLine": 114,
+        "endChar": 136
+      },
+      "revId": "e3e51efd038bb6075110a2bea1dac437ea2ded5a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
