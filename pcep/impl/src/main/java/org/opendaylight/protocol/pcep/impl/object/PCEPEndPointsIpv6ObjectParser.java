@@ -13,7 +13,6 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.pcep.spi.ObjectParser;
-import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -34,7 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Parser for IPv6 {@link EndpointsObj}
  */
-public class PCEPEndPointsIpv6ObjectParser implements ObjectParser, ObjectSerializer {
+public class PCEPEndPointsIpv6ObjectParser implements ObjectParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(PCEPEndPointsIpv6ObjectParser.class);
 
@@ -62,8 +61,7 @@ public class PCEPEndPointsIpv6ObjectParser implements ObjectParser, ObjectSerial
         return builder.build();
     }
 
-    @Override
-    public void serializeObject(final Object object, final ByteBuf buffer) {
+    public static void serializeObject(final Object object, final ByteBuf buffer) {
         Preconditions.checkArgument(object instanceof EndpointsObj, "Wrong instance of PCEPObject. Passed %s. Needed EndpointsObject.", object.getClass());
         final EndpointsObj ePObj = (EndpointsObj) object;
         final AddressFamily afi = ePObj.getAddressFamily();

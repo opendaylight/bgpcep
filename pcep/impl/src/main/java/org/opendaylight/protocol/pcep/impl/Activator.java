@@ -211,9 +211,9 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
         regs.add(context.registerObjectSerializer(NoPath.class, noPathParser));
 
         final PCEPEndPointsIpv4ObjectParser endpoints4Parser = new PCEPEndPointsIpv4ObjectParser();
+        final PCEPEndPointsIpv6ObjectParser endpoints6Parser = new PCEPEndPointsIpv6ObjectParser();
         regs.add(context.registerObjectParser(PCEPEndPointsIpv4ObjectParser.CLASS, PCEPEndPointsIpv4ObjectParser.TYPE, endpoints4Parser));
-        regs.add(context.registerObjectParser(PCEPEndPointsIpv6ObjectParser.CLASS, PCEPEndPointsIpv6ObjectParser.TYPE,
-            new PCEPEndPointsIpv4ObjectParser()));
+        regs.add(context.registerObjectParser(PCEPEndPointsIpv6ObjectParser.CLASS, PCEPEndPointsIpv6ObjectParser.TYPE, endpoints6Parser));
         regs.add(context.registerObjectSerializer(EndpointsObj.class, endpoints4Parser));
 
         final PCEPBandwidthObjectParser bwParser = new PCEPBandwidthObjectParser();
