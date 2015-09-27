@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_ff725d48",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-27T21:28:01Z",
+      "side": 1,
+      "message": "No suitable error code exists for this use case...just unsent",
+      "range": {
+        "startLine": 153,
+        "startChar": 0,
+        "endLine": 154,
+        "endChar": 85
+      },
+      "revId": "1e392548a196c067b4cb9825295660860b8c202e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_df752133",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-27T21:28:01Z",
+      "side": 1,
+      "message": "Good question, this is not really clear for me too. I think, using next request is correct.",
+      "range": {
+        "startLine": 163,
+        "startChar": 0,
+        "endLine": 164,
+        "endChar": 49
+      },
+      "revId": "1e392548a196c067b4cb9825295660860b8c202e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_1f7cf91f",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/SyncOptimization.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-27T21:28:01Z",
+      "side": 1,
+      "message": "use getStateful1(..)",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 113,
+        "endChar": 97
+      },
+      "revId": "1e392548a196c067b4cb9825295660860b8c202e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_3f79b52f",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/TopologySessionRPCs.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-27T21:28:01Z",
+      "side": 1,
+      "message": "remove \"final\" modifier",
+      "range": {
+        "startLine": 28,
+        "startChar": 57,
+        "endLine": 28,
+        "endChar": 62
+      },
+      "revId": "1e392548a196c067b4cb9825295660860b8c202e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
