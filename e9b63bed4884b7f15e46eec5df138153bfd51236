@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_bfbf05d0",
+        "filename": "bgp/bmp-api/src/main/yang/bmp-message.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-27T20:46:08Z",
+      "side": 1,
+      "message": "is this used somewhere?",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 112,
+        "endChar": 5
+      },
+      "revId": "e9b63bed4884b7f15e46eec5df138153bfd51236",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_dff0c1cb",
+        "filename": "bgp/bmp-api/src/main/yang/bmp-message.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-27T20:46:08Z",
+      "side": 1,
+      "message": "should be like \"errored-pdu\"",
+      "range": {
+        "startLine": 116,
+        "startChar": 17,
+        "endLine": 116,
+        "endChar": 22
+      },
+      "revId": "e9b63bed4884b7f15e46eec5df138153bfd51236",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_ffed7df0",
+        "filename": "bgp/bmp-api/src/main/yang/bmp-message.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-27T20:46:08Z",
+      "side": 1,
+      "message": "should be like \"messages-lost\"",
+      "range": {
+        "startLine": 119,
+        "startChar": 17,
+        "endLine": 119,
+        "endChar": 22
+      },
+      "revId": "e9b63bed4884b7f15e46eec5df138153bfd51236",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_9fba49e0",
+        "filename": "bgp/bmp-api/src/main/yang/bmp-message.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-27T20:46:08Z",
+      "side": 1,
+      "message": "rather choice with cases, and how about Notification (error) message?",
+      "range": {
+        "startLine": 225,
+        "startChar": 0,
+        "endLine": 232,
+        "endChar": 8
+      },
+      "revId": "e9b63bed4884b7f15e46eec5df138153bfd51236",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_1f95d93f",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/BmpActivator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-27T20:46:08Z",
+      "side": 1,
+      "message": "Is it used somewhere?",
+      "range": {
+        "startLine": 81,
+        "startChar": 4,
+        "endLine": 81,
+        "endChar": 56
+      },
+      "revId": "e9b63bed4884b7f15e46eec5df138153bfd51236",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_1fce3984",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpRouterPeerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-27T20:46:08Z",
+      "side": 1,
+      "message": "What we can do with mirror message now? We have to find some use-case for it. So far we can omit those messages.",
+      "range": {
+        "startLine": 185,
+        "startChar": 0,
+        "endLine": 193,
+        "endChar": 5
+      },
+      "revId": "e9b63bed4884b7f15e46eec5df138153bfd51236",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_3fcbf573",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/message/RouteMirroringMessageHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-27T20:46:08Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 3
+      },
+      "revId": "e9b63bed4884b7f15e46eec5df138153bfd51236",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_ff16ddf0",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/tlv/StatType010TlvHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-27T20:46:08Z",
+      "side": 1,
+      "message": "the encoder/decoder code is pretty much same as Type009",
+      "range": {
+        "startLine": 28,
+        "startChar": 13,
+        "endLine": 28,
+        "endChar": 34
+      },
+      "revId": "e9b63bed4884b7f15e46eec5df138153bfd51236",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_9fd32938",
+        "filename": "bgp/bmp-spi/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-27T20:46:08Z",
+      "side": 1,
+      "message": "mdsal",
+      "range": {
+        "startLine": 94,
+        "startChar": 38,
+        "endLine": 94,
+        "endChar": 47
+      },
+      "revId": "e9b63bed4884b7f15e46eec5df138153bfd51236",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_ffc49d60",
+        "filename": "util/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-27T20:46:08Z",
+      "side": 1,
+      "message": "used somewhere?",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 21
+      },
+      "revId": "e9b63bed4884b7f15e46eec5df138153bfd51236",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
