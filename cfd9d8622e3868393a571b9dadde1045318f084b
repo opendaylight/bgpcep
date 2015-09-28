@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_7acf3bb1",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-09-28T08:57:16Z",
+      "side": 1,
+      "message": "Is not required, since we can have a lsp mark as stale (triggered resync Lsp) and sync will still true, but we will it to be removed from stale if lsp is refreshed",
+      "range": {
+        "startLine": 592,
+        "startChar": 7,
+        "endLine": 592,
+        "endChar": 18
+      },
+      "revId": "cfd9d8622e3868393a571b9dadde1045318f084b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
