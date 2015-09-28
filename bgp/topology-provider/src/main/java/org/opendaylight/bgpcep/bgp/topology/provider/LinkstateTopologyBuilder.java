@@ -30,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Ipv4InterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Ipv6InterfaceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.IsisAreaIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeFlagBits;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.TopologyIdentifier;
@@ -60,6 +61,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.SrlgId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IsoNetId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IsoPseudonodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IsoSystemId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.isis.link.attributes.IsisLinkAttributesBuilder;
@@ -117,6 +119,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateRoute> {
+
     private static final class TpHolder {
         private final Set<LinkId> local = new HashSet<>();
         private final Set<LinkId> remote = new HashSet<>();
@@ -610,18 +613,31 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         if (ri instanceof IsisPseudonodeCase) {
             final IsisPseudonode pn = ((IsisPseudonodeCase) ri).getIsisPseudonode();
             final IsoBuilder b = new IsoBuilder();
-            b.setIsoSystemId(new IsoSystemId(UriBuilder.isoId(pn.getIsIsRouterIdentifier().getIsoSystemId())));
+            final String systemId = UriBuilder.isoId(pn.getIsIsRouterIdentifier().getIsoSystemId());
+            b.setIsoSystemId(new IsoSystemId(systemId));
             b.setIsoPseudonodeId(new IsoPseudonodeId(Hex.encodeHexString(new byte[] {pn.getPsn().byteValue()})));
             ab.setIso(b.build());
+            ab.setNet(toIsoNetIds(na.getIsisAreaId(), systemId));
         } else if (ri instanceof IsisNodeCase) {
             final IsisNode in = ((IsisNodeCase) ri).getIsisNode();
-            ab.setIso(new IsoBuilder().setIsoSystemId(new IsoSystemId(UriBuilder.isoId(in.getIsoSystemId()))).build());
+            final String systemId = UriBuilder.isoId(in.getIsoSystemId());
+            ab.setIso(new IsoBuilder().setIsoSystemId(new IsoSystemId(systemId)).build());
+            ab.setNet(toIsoNetIds(na.getIsisAreaId(), systemId));
         }
 
         ab.setTed(tb.build());
 
         return new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IgpNodeAttributes1Builder().setIsisNodeAttributes(
             ab.build()).build();
+    }
+
+    private static List<IsoNetId> toIsoNetIds(final List<IsisAreaIdentifier> areaIds, final String systemId) {
+        return Lists.transform(areaIds, new Function<IsisAreaIdentifier, IsoNetId>() {
+            @Override
+            public IsoNetId apply(final IsisAreaIdentifier input) {
+                return new IsoNetId(UriBuilder.toIsoNetId(input, systemId));
+            }
+        });
     }
 
     private org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpNodeAttributes1 ospfNodeAttributes(
