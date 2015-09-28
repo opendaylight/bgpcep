@@ -8,7 +8,9 @@
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import com.google.common.primitives.UnsignedBytes;
+import java.util.Arrays;
 import org.apache.commons.codec.binary.Hex;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.IsisAreaIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.LinkCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LinkDescriptors;
@@ -26,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 final class UriBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(UriBuilder.class);
+    private static final char HEX_SEPARATOR = '.';
     private final StringBuilder sb;
 
     UriBuilder(final UriBuilder base, final String type) {
@@ -81,7 +84,7 @@ final class UriBuilder {
         while (i < bytes.length) {
             sBuilder.append(Hex.encodeHexString(new byte[] { bytes[i++], bytes[i++] }));
             if (i != bytes.length) {
-                sBuilder.append('.');
+                sBuilder.append(HEX_SEPARATOR);
             }
         }
         return sBuilder.toString();
@@ -139,5 +142,26 @@ final class UriBuilder {
         final String ret = this.sb.toString();
         LOG.trace("New URI {}", ret);
         return ret;
+    }
+
+    /**
+     * Creates string representation of IS-IS Network Entity Title,
+     * based on Area Identifier and System Identifier
+     *
+     * @param areaId IS-IS Area Identifier
+     * @param systemId string representation of ISO SYSTEM-ID
+     * @return ISO NET ID
+     */
+    public static String toIsoNetId(final IsisAreaIdentifier areaId, final String systemId) {
+        final byte[] value = areaId.getValue();
+        final StringBuilder sb = new StringBuilder();
+        //first byte is AFI
+        sb.append(Hex.encodeHexString(Arrays.copyOf(value, 1)));
+        sb.append(HEX_SEPARATOR);
+        sb.append(UriBuilder.isoId(Arrays.copyOfRange(value, 1, value.length)));
+        sb.append(HEX_SEPARATOR);
+        sb.append(systemId);
+
+        return sb.toString();
     }
 }
