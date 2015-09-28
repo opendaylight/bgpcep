@@ -18,6 +18,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.netty.buffer.Unpooled;
 import java.math.BigInteger;
+import java.util.Collections;
 import org.junit.Test;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -31,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.AdministrativeGroup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Identifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Ipv4RouterIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.IsisAreaIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
@@ -116,8 +118,10 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         final IgpNodeAttributes igpNode1 = node1.getAugmentation(Node1.class).getIgpNodeAttributes();
         assertEquals(ROUTER_1_ID, igpNode1.getRouterId().get(0).getIpv4Address().getValue());
         assertEquals("node1", igpNode1.getName().getValue());
-        assertEquals("0000.0102.0304", igpNode1.getAugmentation(IgpNodeAttributes1.class).getIsisNodeAttributes().getIso().getIsoSystemId().getValue());
-        assertEquals(ROUTER_1_ID, igpNode1.getAugmentation(IgpNodeAttributes1.class).getIsisNodeAttributes().getTed().getTeRouterIdIpv4().getValue());
+        final IgpNodeAttributes1 igpNodeAttributes1 = igpNode1.getAugmentation(IgpNodeAttributes1.class);
+        assertEquals("0000.0102.0304", igpNodeAttributes1.getIsisNodeAttributes().getIso().getIsoSystemId().getValue());
+        assertEquals(ROUTER_1_ID, igpNodeAttributes1.getIsisNodeAttributes().getTed().getTeRouterIdIpv4().getValue());
+        assertEquals("47.0004.004d.00c0.0000.0102.0304", igpNodeAttributes1.getIsisNodeAttributes().getNet().get(0).getValue());
         assertNull(igpNode1.getAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpNodeAttributes1.class));
 
         // create link
@@ -208,8 +212,10 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         return createBaseBuilder(protocolId)
             .setObjectType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.NodeCaseBuilder().setNodeDescriptors(new NodeDescriptorsBuilder().setCRouterIdentifier(new IsisNodeCaseBuilder().setIsisNode(new IsisNodeBuilder().setIsoSystemId(new IsoSystemIdentifier(new byte[]{ 0, 0, 1, 2, 3, 4 })).build()).build()).setAsNumber(asNumber).build()).build())
             .setAttributes(new AttributesBuilder()
-                .addAugmentation(Attributes1.class, new Attributes1Builder().setLinkStateAttribute(new NodeAttributesCaseBuilder().setNodeAttributes(new NodeAttributesBuilder().setDynamicHostname(nodeName).setIpv4RouterId(new Ipv4RouterIdentifier(ipv4RouterId)).build()).build()).build()).build())
-            .build();
+                .addAugmentation(Attributes1.class, new Attributes1Builder().setLinkStateAttribute(new NodeAttributesCaseBuilder().setNodeAttributes(new NodeAttributesBuilder()
+                    .setDynamicHostname(nodeName)
+                    .setIpv4RouterId(new Ipv4RouterIdentifier(ipv4RouterId))
+                    .setIsisAreaId(Collections.singletonList(new IsisAreaIdentifier(new byte[]{0x47, 0x00, 0x04, 0x00, 0x004D, 0x00, (byte)0xC0}))).build()).build()).build()).build()).build();
     }
 
     private LinkstateRoute createLinkstatePrefixRoute(final ProtocolId protocolId, final AsNumber asNumber, final String ipv4Prefix, final long igpMetric, final String ospfFwdAddress) {
