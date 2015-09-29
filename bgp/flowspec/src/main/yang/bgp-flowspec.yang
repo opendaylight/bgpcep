@@ -297,6 +297,55 @@ module bgp-flowspec {
         }
     }
 
+    grouping traffic-rate-extended-community {
+        container traffic-rate-extended-community {
+            when "../comm-type = 128 and ../comm-sub-type = 6";
+            leaf informative-as {
+                type bgp-t:short-as-number;
+            }
+            leaf local-administrator {
+                type netc:bandwidth;
+            }
+        }
+    }
+
+    grouping traffic-action-extended-community {
+        container traffic-action-extended-community {
+            when "../comm-type = 128 and ../comm-sub-type = 7";
+            leaf sample {
+                type boolean;
+                default false;
+            }
+            leaf terminal-action {
+                type boolean;
+                default false;
+            }
+        }
+    }
+
+    grouping redirect-extended-community {
+        container redirect-extended-community {
+            when "../comm-type = 128 and ../comm-sub-type = 8";
+            leaf global-administrator {
+                type bgp-t:short-as-number;
+            }
+            leaf local-administrator {
+                type binary {
+                    length "4";
+                }
+            }
+        }
+    }
+
+    grouping traffic-marking-extended-community {
+        container traffic-marking-extended-community {
+            when "../comm-type = 128 and ../comm-sub-type = 9";
+            leaf global-administrator {
+                type dscp;
+            }
+        }
+    }
+
     grouping flowspec-routes {
         container flowspec-routes {
             list flowspec-route {
@@ -312,7 +361,22 @@ module bgp-flowspec {
 
                 uses flowspec-destination-ipv4;
 
-                uses bgp-rib:route;
+                uses bgp-rib:route {
+                    augment "bgp-msg:attributes/bgp-msg:extended-communities/bgp-t:extended-community" {
+                        case traffic-rate-extended-community-case {
+                            uses traffic-rate-extended-community;
+                        }
+                        case traffic-action-extended-community-case {
+                            uses traffic-action-extended-community;
+                        }
+                        case redirect-extended-community-case {
+                            uses redirect-extended-community;
+                        }
+                        case traffic-marking-extended-community-case {
+                            uses traffic-marking-extended-community;
+                        }
+                    }
+                }
             }
         }
     }
@@ -332,7 +396,22 @@ module bgp-flowspec {
 
                 uses flowspec-destination-ipv6;
 
-                uses bgp-rib:route;
+                uses bgp-rib:route {
+                    augment "bgp-msg:attributes/bgp-msg:extended-communities/bgp-t:extended-community" {
+                        case traffic-rate-extended-community-case {
+                            uses traffic-rate-extended-community;
+                        }
+                        case traffic-action-extended-community-case {
+                            uses traffic-action-extended-community;
+                        }
+                        case redirect-extended-community-case {
+                            uses redirect-extended-community;
+                        }
+                        case traffic-marking-extended-community-case {
+                            uses traffic-marking-extended-community;
+                        }
+                    }
+                }
             }
         }
     }
@@ -340,49 +419,16 @@ module bgp-flowspec {
     augment "/bgp-msg:update/bgp-msg:attributes/bgp-msg:extended-communities/bgp-msg:extended-community" {
         reference "https://tools.ietf.org/html/rfc5575#section-7";
         case traffic-rate-extended-community-case {
-            container traffic-rate-extended-community {
-                when "../comm-type = 128 and ../comm-sub-type = 6";
-                leaf informative-as {
-                    type bgp-t:short-as-number;
-                }
-                leaf local-administrator {
-                    type netc:bandwidth;
-                }
-            }
+            uses traffic-rate-extended-community;
         }
         case traffic-action-extended-community-case {
-            container traffic-action-extended-community {
-                when "../comm-type = 128 and ../comm-sub-type = 7";
-                leaf sample {
-                    type boolean;
-                    default false;
-                }
-                leaf terminal-action {
-                    type boolean;
-                    default false;
-                }
-            }
+            uses traffic-action-extended-community;
         }
         case redirect-extended-community-case {
-            container redirect-extended-community {
-                when "../comm-type = 128 and ../comm-sub-type = 8";
-                leaf global-administrator {
-                    type bgp-t:short-as-number;
-                }
-                leaf local-administrator {
-                    type binary {
-                        length "4";
-                    }
-                }
-            }
+            uses redirect-extended-community;
         }
         case traffic-marking-extended-community-case {
-            container traffic-marking-extended-community {
-                when "../comm-type = 128 and ../comm-sub-type = 9";
-                leaf global-administrator {
-                    type dscp;
-                }
-            }
+            uses traffic-marking-extended-community;
         }
     }
 

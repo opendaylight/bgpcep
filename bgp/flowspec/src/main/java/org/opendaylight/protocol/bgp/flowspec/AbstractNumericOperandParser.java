@@ -68,6 +68,9 @@ abstract class AbstractNumericOperandParser<N> extends AbstractOperandParser<Num
     @Override
     protected String toString(final NumericOperand op, final boolean isFirst) {
         final StringBuilder buffer = new StringBuilder();
+        if (op == null) {
+            return buffer.toString();
+        }
         if (!op.isAndBit() && !isFirst) {
             buffer.append("or ");
         }
