@@ -7,17 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
-import java.util.ArrayList;
+import com.google.common.collect.Iterables;
 import java.util.Collection;
-import java.util.List;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.FlowspecSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.Flowspec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.flowspec.ipv6.routes.FlowspecRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
@@ -39,8 +36,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
-import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
-import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
@@ -83,7 +78,6 @@ public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractFlowspecRIBSupport.class);
     private static final QName ROUTE_KEY = QName.cachedReference(QName.create(FlowspecRoute.QNAME, "route-key"));
     private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
-    private final NodeIdentifier nlriRoutesListNid = new NodeIdentifier(Flowspec.QNAME);
     private final ApplyRoute putRoute = new PutRoute();
 
     protected AbstractFlowspecRIBSupport(final Class<? extends Routes> cazeClass, final Class<? extends DataObject> containerClass,
@@ -127,19 +121,9 @@ public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
     private void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
         final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
-            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination.getChild(this.nlriRoutesListNid);
-            if (maybeRoutes.isPresent()) {
-                final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
-                if (routes instanceof UnkeyedListNode) {
-                    final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeIdentifier());
-                    for (final UnkeyedListEntryNode e : ((UnkeyedListNode)routes).getValue()) {
-                        final NodeIdentifierWithPredicates routeKey = new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, ROUTE_KEY, getParser().stringNlri(e));
-                        function.apply(tx, base, routeKey,  e, attributes);
-                    }
-                } else {
-                    LOG.warn("Routes {} are not a map", routes);
-                }
-            }
+            final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeIdentifier());
+            final NodeIdentifierWithPredicates routeKey = new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, ROUTE_KEY, getParser().stringNlri(destination));
+            function.apply(tx, base, routeKey,  destination, attributes);
         }
     }
 
@@ -150,11 +134,9 @@ public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
         mb.setSafi(FlowspecSubsequentAddressFamily.class);
         mb.setCNextHop(hop);
 
-        final List<Flowspec> dests = new ArrayList<>(routes.size());
-        for (final MapEntryNode reachRoute : routes) {
-            dests.add(getParser().extractFlowspec(reachRoute));
-        }
-        mb.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(getParser().createAdvertizedRoutesDestinationType(dests)).build());
+        mb.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
+            getParser().createAdvertizedRoutesDestinationType(
+                getParser().extractFlowspec(Iterables.getOnlyElement(routes)))).build());
         return mb.build();
     }
 
@@ -164,11 +146,9 @@ public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
         mb.setAfi(getAfiClass());
         mb.setSafi(FlowspecSubsequentAddressFamily.class);
 
-        final List<Flowspec> dests = new ArrayList<>(routes.size());
-        for (final MapEntryNode unreachRoute : routes) {
-            dests.add(getParser().extractFlowspec(unreachRoute));
-        }
-        mb.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(getParser().createWidthdrawnDestinationType(dests)).build());
+        mb.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
+            getParser().createWidthdrawnDestinationType(
+                getParser().extractFlowspec(Iterables.getOnlyElement(routes)))).build());
         return mb.build();
     }
 }
