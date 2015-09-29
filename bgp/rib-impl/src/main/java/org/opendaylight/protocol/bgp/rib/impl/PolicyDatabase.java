@@ -25,10 +25,12 @@ final class PolicyDatabase {
         exportPolicies.put(PeerRole.Ebgp, new ToExternalExportPolicy(localAs));
         exportPolicies.put(PeerRole.Ibgp, new ToInternalExportPolicy(bgpId, clusterId));
         exportPolicies.put(PeerRole.RrClient, new ToReflectorClientExportPolicy(bgpId, clusterId));
+        exportPolicies.put(PeerRole.Internal, new ToInternalReflectorClientExportPolicy(bgpId, clusterId));
 
         importPolicies.put(PeerRole.Ebgp, new FromExternalImportPolicy());
         importPolicies.put(PeerRole.Ibgp, new FromInternalImportPolicy(bgpId, clusterId));
         importPolicies.put(PeerRole.RrClient, new FromReflectorClientImportPolicy(bgpId, clusterId));
+        importPolicies.put(PeerRole.Internal, new FromInternalReflectorClientImportPolicy(bgpId, clusterId));
     }
 
     AbstractExportPolicy exportPolicyForRole(final PeerRole peerRole) {

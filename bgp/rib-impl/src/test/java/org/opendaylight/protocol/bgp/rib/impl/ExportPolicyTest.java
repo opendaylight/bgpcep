@@ -32,12 +32,14 @@ public class ExportPolicyTest {
     private static final long LOCAL_AS = 8;
     private static final ToExternalExportPolicy EXT_POLICY = new ToExternalExportPolicy(LOCAL_AS);
     private static final ToInternalExportPolicy INT_POLICY = new ToInternalExportPolicy(IPV4, CLUSTER);
+    private static final ToInternalReflectorClientExportPolicy INTERNAL_POLICY = new ToInternalReflectorClientExportPolicy(IPV4, CLUSTER);
 
     @Test
     public void testEbgpEffectiveAttributes() {
         final ContainerNode clusterIn = createClusterInput();
         final PeerRole peerRole = PeerRole.Ebgp;
         assertEquals(clusterIn, REF_POLICY.effectiveAttributes(peerRole, clusterIn));
+        assertEquals(clusterIn, INTERNAL_POLICY.effectiveAttributes(peerRole, clusterIn));
         assertEquals(clusterIn, INT_POLICY.effectiveAttributes(peerRole, clusterIn));
 
         final ContainerNode asPathIn = createPathInput(null);
@@ -49,6 +51,7 @@ public class ExportPolicyTest {
         final ContainerNode clusterIn = createClusterInput();
         final PeerRole peerRole = PeerRole.Ibgp;
         assertEquals(createInputWithOriginator(), REF_POLICY.effectiveAttributes(peerRole, clusterIn));
+        assertEquals(createInputWithOriginator(), INTERNAL_POLICY.effectiveAttributes(peerRole, clusterIn));
         assertEquals(null, INT_POLICY.effectiveAttributes(peerRole, clusterIn));
 
         final ContainerNode asPathIn = createPathInput(null);
@@ -60,6 +63,7 @@ public class ExportPolicyTest {
         final ContainerNode clusterIn = createClusterInput();
         final PeerRole peerRole = PeerRole.RrClient;
         assertEquals(createInputWithOriginator(), REF_POLICY.effectiveAttributes(peerRole, clusterIn));
+        assertEquals(createInputWithOriginator(), INTERNAL_POLICY.effectiveAttributes(peerRole, clusterIn));
         assertEquals(createInputWithOriginator(), INT_POLICY.effectiveAttributes(peerRole, clusterIn));
 
         final ContainerNode asPathIn = createPathInput(null);
@@ -71,6 +75,7 @@ public class ExportPolicyTest {
         final ContainerNode clusterIn = createClusterInput();
         final PeerRole peerRole = PeerRole.Internal;
         assertEquals(createInternalOutput(), REF_POLICY.effectiveAttributes(peerRole, clusterIn));
+        assertEquals(createInternalOutput(), INTERNAL_POLICY.effectiveAttributes(peerRole, clusterIn));
         assertEquals(createInternalOutput(), INT_POLICY.effectiveAttributes(peerRole, clusterIn));
 
         final ContainerNode asPathIn = createPathInput(null);
