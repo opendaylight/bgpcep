@@ -166,9 +166,9 @@ public final class FSIpv6NlriParser extends AbstractFSNlriParser {
     }
 
     private static Ipv6Prefix parseIpv6Prefix(final ByteBuf nlri) {
-        final int bitLength = nlri.readByte();
-        final int offset = nlri.readByte();
-        nlri.readBytes(offset);
+        final int bitLength = nlri.readUnsignedByte();
+        // in case of ipv6 prefix we don't need to skip offset
+        nlri.readUnsignedByte();
         return Ipv6Util.prefixForBytes(ByteArray.readBytes(nlri, bitLength / Byte.SIZE), bitLength);
     }
 
