@@ -8,8 +8,11 @@
 package org.opendaylight.protocol.bgp.flowspec;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -79,7 +82,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgum
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 
@@ -98,6 +100,9 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
     protected static final int DSCP_VALUE = 11;
     protected static final int FRAGMENT_VALUE = 12;
 
+    @VisibleForTesting
+    static final NodeIdentifier FLOWSPEC_NID = new NodeIdentifier(Flowspec.QNAME);
+    @VisibleForTesting
     protected static final NodeIdentifier FLOWSPEC_TYPE_NID = new NodeIdentifier(FlowspecType.QNAME);
     @VisibleForTesting
     static final NodeIdentifier DEST_PREFIX_NID = new NodeIdentifier(QName.cachedReference(QName.create(DestinationPrefixCase.QNAME, "destination-prefix")));
@@ -149,6 +154,8 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
     protected static final int FIRST_FRAGMENT = 5;
     protected static final int IS_A_FRAGMENT = 6;
     protected static final int DONT_FRAGMENT = 7;
+
+    private static final String FLOW_SEPARATOR = " AND ";
 
     protected abstract void serializeMpReachNlri(final Attributes1 pathAttributes, final ByteBuf byteAggregator);
 
@@ -482,38 +489,49 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
         return fragments;
     }
 
-    public final String stringNlri(final DataContainerNode<?> flowspec) {
-        return stringNlri(extractFlowspec((MapEntryNode) flowspec));
+    public final String stringNlri(final DataContainerNode<?> route) {
+        return stringNlri(extractFlowspec(route));
     }
 
-    public final Flowspec extractFlowspec(final MapEntryNode route) {
-        final FlowspecBuilder fsBuilder = new FlowspecBuilder();
-        final Optional<DataContainerChild<?, ?>> flowspecType = route.getChild(FLOWSPEC_TYPE_NID);
-        if (flowspecType.isPresent()) {
-            final ChoiceNode fsType = (ChoiceNode) flowspecType.get();
-            if (fsType.getChild(PORTS_NID).isPresent()) {
-                fsBuilder.setFlowspecType(new PortCaseBuilder().setPorts(createPorts((UnkeyedListNode) fsType.getChild(PORTS_NID).get())).build());
-            } else if (fsType.getChild(DEST_PORT_NID).isPresent()) {
-                fsBuilder.setFlowspecType(new DestinationPortCaseBuilder().setDestinationPorts(createDestinationPorts((UnkeyedListNode) fsType.getChild(DEST_PORT_NID).get())).build());
-            } else if (fsType.getChild(SOURCE_PORT_NID).isPresent()) {
-                fsBuilder.setFlowspecType(new SourcePortCaseBuilder().setSourcePorts(createSourcePorts((UnkeyedListNode) fsType.getChild(SOURCE_PORT_NID).get())).build());
-            } else if (fsType.getChild(ICMP_TYPE_NID).isPresent()) {
-                fsBuilder.setFlowspecType(new IcmpTypeCaseBuilder().setTypes(createTypes((UnkeyedListNode) fsType.getChild(ICMP_TYPE_NID).get())).build());
-            } else if (fsType.getChild(ICMP_CODE_NID).isPresent()) {
-                fsBuilder.setFlowspecType(new IcmpCodeCaseBuilder().setCodes(createCodes((UnkeyedListNode) fsType.getChild(ICMP_CODE_NID).get())).build());
-            } else if (fsType.getChild(TCP_FLAGS_NID).isPresent()) {
-                fsBuilder.setFlowspecType(new TcpFlagsCaseBuilder().setTcpFlags(createTcpFlags((UnkeyedListNode) fsType.getChild(TCP_FLAGS_NID).get())).build());
-            } else if (fsType.getChild(PACKET_LENGTHS_NID).isPresent()) {
-                fsBuilder.setFlowspecType(new PacketLengthCaseBuilder().setPacketLengths(createPacketLengths((UnkeyedListNode) fsType.getChild(PACKET_LENGTHS_NID).get())).build());
-            } else if (fsType.getChild(DSCP_NID).isPresent()) {
-                fsBuilder.setFlowspecType(new DscpCaseBuilder().setDscps(createDscpsLengths((UnkeyedListNode) fsType.getChild(DSCP_NID).get())).build());
-            } else if (fsType.getChild(FRAGMENT_NID).isPresent()) {
-                fsBuilder.setFlowspecType(new FragmentCaseBuilder().setFragments(createFragments((UnkeyedListNode) fsType.getChild(FRAGMENT_NID).get())).build());
-            } else {
-                extractSpecificFlowspec(fsType, fsBuilder);
+    public final List<Flowspec> extractFlowspec(final DataContainerNode<?> route) {
+        final List<Flowspec> fsList = new ArrayList<>();
+        final Optional<DataContainerChild<? extends PathArgument, ?>> flowspecs = route.getChild(FLOWSPEC_NID);
+        if (flowspecs.isPresent()) {
+            for (final UnkeyedListEntryNode flowspec : ((UnkeyedListNode)flowspecs.get()).getValue()) {
+                final FlowspecBuilder fsBuilder = new FlowspecBuilder();
+                final Optional<DataContainerChild<?, ?>> flowspecType = flowspec.getChild(FLOWSPEC_TYPE_NID);
+                if (flowspecType.isPresent()) {
+                    final ChoiceNode fsType = (ChoiceNode) flowspecType.get();
+                    processFlowspecType(fsType, fsBuilder);
+                }
+                fsList.add(fsBuilder.build());
             }
         }
-        return fsBuilder.build();
+        return fsList;
+    }
+
+    private void processFlowspecType(final ChoiceNode fsType, final FlowspecBuilder fsBuilder) {
+        if (fsType.getChild(PORTS_NID).isPresent()) {
+            fsBuilder.setFlowspecType(new PortCaseBuilder().setPorts(createPorts((UnkeyedListNode) fsType.getChild(PORTS_NID).get())).build());
+        } else if (fsType.getChild(DEST_PORT_NID).isPresent()) {
+            fsBuilder.setFlowspecType(new DestinationPortCaseBuilder().setDestinationPorts(createDestinationPorts((UnkeyedListNode) fsType.getChild(DEST_PORT_NID).get())).build());
+        } else if (fsType.getChild(SOURCE_PORT_NID).isPresent()) {
+            fsBuilder.setFlowspecType(new SourcePortCaseBuilder().setSourcePorts(createSourcePorts((UnkeyedListNode) fsType.getChild(SOURCE_PORT_NID).get())).build());
+        } else if (fsType.getChild(ICMP_TYPE_NID).isPresent()) {
+            fsBuilder.setFlowspecType(new IcmpTypeCaseBuilder().setTypes(createTypes((UnkeyedListNode) fsType.getChild(ICMP_TYPE_NID).get())).build());
+        } else if (fsType.getChild(ICMP_CODE_NID).isPresent()) {
+            fsBuilder.setFlowspecType(new IcmpCodeCaseBuilder().setCodes(createCodes((UnkeyedListNode) fsType.getChild(ICMP_CODE_NID).get())).build());
+        } else if (fsType.getChild(TCP_FLAGS_NID).isPresent()) {
+            fsBuilder.setFlowspecType(new TcpFlagsCaseBuilder().setTcpFlags(createTcpFlags((UnkeyedListNode) fsType.getChild(TCP_FLAGS_NID).get())).build());
+        } else if (fsType.getChild(PACKET_LENGTHS_NID).isPresent()) {
+            fsBuilder.setFlowspecType(new PacketLengthCaseBuilder().setPacketLengths(createPacketLengths((UnkeyedListNode) fsType.getChild(PACKET_LENGTHS_NID).get())).build());
+        } else if (fsType.getChild(DSCP_NID).isPresent()) {
+            fsBuilder.setFlowspecType(new DscpCaseBuilder().setDscps(createDscpsLengths((UnkeyedListNode) fsType.getChild(DSCP_NID).get())).build());
+        } else if (fsType.getChild(FRAGMENT_NID).isPresent()) {
+            fsBuilder.setFlowspecType(new FragmentCaseBuilder().setFragments(createFragments((UnkeyedListNode) fsType.getChild(FRAGMENT_NID).get())).build());
+        } else {
+            extractSpecificFlowspec(fsType, fsBuilder);
+        }
     }
 
     private static List<Ports> createPorts(final UnkeyedListNode portsData) {
@@ -540,11 +558,9 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
 
         for (final UnkeyedListEntryNode node : destinationPortsData.getValue()) {
             final DestinationPortsBuilder destPortsBuilder = new DestinationPortsBuilder();
-            if (node.getNodeType().getLocalName().equals("op")) {
-                final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
-                if (opValue.isPresent()) {
-                    destPortsBuilder.setOp(NumericTwoByteOperandParser.INSTANCE.create((Set<String>) opValue.get().getValue()));
-                }
+            final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
+            if (opValue.isPresent()) {
+                destPortsBuilder.setOp(NumericTwoByteOperandParser.INSTANCE.create((Set<String>) opValue.get().getValue()));
             }
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
             if (valueNode.isPresent()) {
@@ -693,9 +709,21 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
         return new Fragment(data.contains(DO_NOT_VALUE), data.contains(FIRST_VALUE), data.contains(IS_A_VALUE), data.contains(LAST_VALUE));
     }
 
-    @VisibleForTesting
-    final String stringNlri(final Flowspec flow) {
+    final String stringNlri(final List<Flowspec> flows) {
         final StringBuilder buffer = new StringBuilder("all packets ");
+        final Joiner joiner = Joiner.on(FLOW_SEPARATOR);
+        joiner.appendTo(buffer, Iterables.transform(flows, new Function<Flowspec, String>() {
+            @Override
+            public String apply(final Flowspec input) {
+                return encodeFlow(input);
+            }
+        }));
+        return buffer.toString().replace("  ", " ");
+    }
+
+    @VisibleForTesting
+    private String encodeFlow(final Flowspec flow) {
+        final StringBuilder buffer = new StringBuilder();
         final FlowspecType value = flow.getFlowspecType();
         if (value instanceof PortCase) {
             buffer.append("where port ");
