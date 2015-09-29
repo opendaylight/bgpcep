@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_876e7fc8",
+        "filename": "pcep/topology-api/src/main/yang/network-topology-pcep.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-29T07:37:34Z",
+      "side": 1,
+      "message": "I am wondering if one trigger-sync rpc would not be enough.\nWhen node is not synchronized, it will act as a trigger initial sync. Once the node is synchronized, it will act as a trigger re-sync (if \"LSP-ID\" is present in an input, just the particular LSP is re-synchronized, otherwise all LSPs).",
+      "revId": "6893643b682e03f9a1047df1d422616d7ac10643",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_a70e1b33",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-29T07:37:34Z",
+      "side": 1,
+      "message": "The reading operation is really unnecessary, since you are using merge to write a new sync state. And there is already updatePccNode(...) which can be used for such purpose.",
+      "range": {
+        "startLine": 200,
+        "startChar": 0,
+        "endLine": 230,
+        "endChar": 5
+      },
+      "revId": "6893643b682e03f9a1047df1d422616d7ac10643",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
