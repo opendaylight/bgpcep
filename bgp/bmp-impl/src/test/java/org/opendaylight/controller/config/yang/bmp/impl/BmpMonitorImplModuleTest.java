@@ -161,7 +161,7 @@ public class BmpMonitorImplModuleTest extends AbstractConfigTest {
     private List<String> getYangModelsPaths() {
         final List<String> paths = Lists.newArrayList("/META-INF/yang/bgp-rib.yang", "/META-INF/yang/ietf-inet-types.yang",
                 "/META-INF/yang/bgp-message.yang", "/META-INF/yang/bgp-multiprotocol.yang", "/META-INF/yang/bgp-types.yang",
-                "/META-INF/yang/network-concepts.yang", "/META-INF/yang/ieee754.yang",
+                "/META-INF/yang/network-concepts.yang", "/META-INF/yang/ieee754.yang", "/META-INF/yang/yang-ext.yang",
                 "/META-INF/yang/bmp-monitor.yang", "/META-INF/yang/bmp-message.yang", "/META-INF/yang/ietf-yang-types.yang");
         return paths;
     }
