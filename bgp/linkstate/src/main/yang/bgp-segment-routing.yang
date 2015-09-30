@@ -60,7 +60,7 @@ module bgp-segment-routing {
     typedef sid-label {
         reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-02#section-2.3";
         type binary {
-            range 0...255;
+            length "0..255";
         }
     }
 
@@ -87,7 +87,7 @@ module bgp-segment-routing {
         }
         leaf router-id {
             type binary {
-                range 4...16;
+                length "4..16";
             }
             mandatory true;
         }
