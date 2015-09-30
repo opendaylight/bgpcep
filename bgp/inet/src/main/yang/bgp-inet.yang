@@ -59,7 +59,7 @@ module bgp-inet {
     grouping ipv4-routes {
         container ipv4-routes {
             list ipv4-route {
-                uses bgp-mp:ipv4-prefix;
+                uses ipv4-prefix;
 
                 key prefix;
 
@@ -71,7 +71,7 @@ module bgp-inet {
     grouping ipv6-routes {
         container ipv6-routes {
             list ipv6-route {
-                uses bgp-mp:ipv6-prefix;
+                uses ipv6-prefix;
 
                 key prefix;
 

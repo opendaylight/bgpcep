@@ -9,6 +9,7 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
@@ -309,7 +310,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     public List<String> getYangModelsPaths() {
         final List<String> paths = Lists.newArrayList("/META-INF/yang/bgp-rib.yang", "/META-INF/yang/ietf-inet-types.yang",
                 "/META-INF/yang/bgp-message.yang", "/META-INF/yang/bgp-multiprotocol.yang", "/META-INF/yang/bgp-types.yang",
-                "/META-INF/yang/network-concepts.yang", "/META-INF/yang/ieee754.yang");
+                "/META-INF/yang/network-concepts.yang", "/META-INF/yang/ieee754.yang", "/META-INF/yang/yang-ext.yang");
         return paths;
     }
 

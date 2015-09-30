@@ -774,7 +774,6 @@ module rsvp {
             reference "http://tools.ietf.org/html/rfc4872#section-15";
 
             uses rsvp-te-object;
-            uses rsvp-te-object;
             uses explicit-route-subobjects-list;
         }
     }
