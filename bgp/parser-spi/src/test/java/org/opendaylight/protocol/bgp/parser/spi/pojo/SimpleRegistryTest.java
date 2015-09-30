@@ -14,7 +14,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.After;
@@ -151,6 +150,22 @@ public class SimpleRegistryTest {
         assertArrayEquals(mpReachBytes, buffer.array());
         assertEquals(mpReach, nlriReg.parseMpReach(Unpooled.wrappedBuffer(mpReachBytes)));
         verify(this.activator.nlriParser, times(1)).parseNlri(Mockito.any(ByteBuf.class), Mockito.any(MpReachNlriBuilder.class));
+    }
+
+    @Test
+    public void testMpReachWithZeroNextHop() throws BGPParsingException {
+        final NlriRegistry nlriReg = this.ctx.getNlriRegistry();
+        final byte[] mpReachBytes = {
+            0x00, 0x01, 0x01, 0x00, 0x00
+        };
+        final MpReachNlri mpReach = new MpReachNlriBuilder()
+            .setAfi(Ipv4AddressFamily.class)
+            .setSafi(UnicastSubsequentAddressFamily.class)
+            .build();
+        final ByteBuf buffer = Unpooled.buffer(mpReachBytes.length);
+        nlriReg.serializeMpReach(mpReach, buffer);
+        assertArrayEquals(mpReachBytes, buffer.array());
+        assertEquals(mpReach, nlriReg.parseMpReach(Unpooled.wrappedBuffer(mpReachBytes)));
     }
 
     @Test
