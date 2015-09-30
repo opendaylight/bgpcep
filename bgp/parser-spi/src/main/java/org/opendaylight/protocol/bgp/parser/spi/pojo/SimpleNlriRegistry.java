@@ -149,7 +149,9 @@ final class SimpleNlriRegistry implements NlriRegistry {
         final NlriParser parser = this.handlers.get(createKey(builder.getAfi(), builder.getSafi()));
 
         final int nextHopLength = buffer.readUnsignedByte();
-        builder.setCNextHop(NextHopUtil.parseNextHop(buffer.readSlice(nextHopLength)));
+        if (nextHopLength != 0) {
+            builder.setCNextHop(NextHopUtil.parseNextHop(buffer.readSlice(nextHopLength)));
+        }
         buffer.skipBytes(RESERVED);
 
         final ByteBuf nlri = buffer.slice();
