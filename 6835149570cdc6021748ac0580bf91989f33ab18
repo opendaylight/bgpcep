@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_77c42c92",
+        "filename": "rsvp/api/src/main/yang/rsvp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 777,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-30T11:46:26Z",
+      "side": 0,
+      "message": "removed duplicate grouping uses",
+      "range": {
+        "startLine": 777,
+        "startChar": 12,
+        "endLine": 777,
+        "endChar": 32
+      },
+      "revId": "6835149570cdc6021748ac0580bf91989f33ab18",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

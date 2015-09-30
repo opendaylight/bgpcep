@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_37b9d42e",
+        "filename": "bgp/inet/src/main/yang/bgp-inet.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-30T11:46:26Z",
+      "side": 1,
+      "message": "grouping \"ipv4-prefix\" is defined in local yang model, it is not imported from bgp-mp",
+      "range": {
+        "startLine": 62,
+        "startChar": 16,
+        "endLine": 62,
+        "endChar": 33
+      },
+      "revId": "70963d3a7362b1be6f218f3927705cc25a4ef141",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_f7827c51",
+        "filename": "bgp/inet/src/main/yang/bgp-inet.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-30T11:46:26Z",
+      "side": 1,
+      "message": "grouping \"ipv6-prefix\" is defined in local yang model, it is not imported from bgp-mp",
+      "range": {
+        "startLine": 74,
+        "startChar": 16,
+        "endLine": 74,
+        "endChar": 33
+      },
+      "revId": "70963d3a7362b1be6f218f3927705cc25a4ef141",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_979308a3",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-30T11:46:26Z",
+      "side": 1,
+      "message": "binary is restricted by \"length\" statement, not \"range\" statement; lower bound and upper bound are separated by \"..\" not \"...\"",
+      "range": {
+        "startLine": 63,
+        "startChar": 12,
+        "endLine": 63,
+        "endChar": 27
+      },
+      "revId": "70963d3a7362b1be6f218f3927705cc25a4ef141",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_3790f494",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-30T11:46:26Z",
+      "side": 1,
+      "message": "binary is restricted by \"length\" statement, not \"range\" statement; lower bound and upper bound are separated by \"..\" not \"...\"",
+      "range": {
+        "startLine": 90,
+        "startChar": 16,
+        "endLine": 90,
+        "endChar": 31
+      },
+      "revId": "70963d3a7362b1be6f218f3927705cc25a4ef141",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_f7d03c55",
+        "filename": "bgp/parser-api/src/main/yang/bgp-multiprotocol.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-09-30T11:46:26Z",
+      "side": 1,
+      "message": "The augmentation Java interfaces for attributes are generated in different order (the number suffix is different), which is breaking API\u0027s clients. Yang extension \"augment-identifier\" is used to preserve \"correct\" interface name.",
+      "range": {
+        "startLine": 98,
+        "startChar": 8,
+        "endLine": 98,
+        "endChar": 44
+      },
+      "revId": "70963d3a7362b1be6f218f3927705cc25a4ef141",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
