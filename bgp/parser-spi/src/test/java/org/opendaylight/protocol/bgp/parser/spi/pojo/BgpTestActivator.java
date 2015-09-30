@@ -35,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -86,9 +87,11 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerMessageSerializer(Notification.class, this.msgSerializer));
 
         regs.add(context.registerAddressFamily(Ipv4AddressFamily.class, 1));
+        regs.add(context.registerAddressFamily(Ipv6AddressFamily.class, 2));
         regs.add(context.registerSubsequentAddressFamily(UnicastSubsequentAddressFamily.class, 1));
 
         regs.add(context.registerNlriParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, this.nlriParser));
+        regs.add(context.registerNlriParser(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, this.nlriParser));
         regs.add(context.registerNlriSerializer(DataObject.class, this.nlriSerializer));
 
         return regs;
