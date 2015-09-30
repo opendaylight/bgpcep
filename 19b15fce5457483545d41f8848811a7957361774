@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_17661852",
+        "filename": "bgp/parser-spi/src/test/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleRegistryTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-09-30T13:29:27Z",
+      "side": 1,
+      "message": "I also wanted to add test for Ipv6AddressFamily but nlriReg doesn\u0027t know it. ServiceLoaderBGPExtensionProviderContext has probably bug, because I encountered similar problem with it some weeks ago. Or ipv6 registration is missing somewhere.",
+      "range": {
+        "startLine": 162,
+        "startChar": 20,
+        "endLine": 162,
+        "endChar": 37
+      },
+      "revId": "19b15fce5457483545d41f8848811a7957361774",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
