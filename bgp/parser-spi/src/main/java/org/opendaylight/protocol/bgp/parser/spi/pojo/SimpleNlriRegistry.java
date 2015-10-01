@@ -34,6 +34,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 final class SimpleNlriRegistry implements NlriRegistry {
 
     private static final int RESERVED = 1;
+    private static final int NEXT_HOP_LENGTH = 1;
 
     private final ConcurrentMap<BgpTableType, NlriParser> handlers = new ConcurrentHashMap<>();
     private final ConcurrentMap<Class<? extends DataObject>, NlriSerializer> serializers = new ConcurrentHashMap<>();
@@ -121,11 +122,14 @@ final class SimpleNlriRegistry implements NlriRegistry {
         byteAggregator.writeShort(this.afiReg.numberForClass(mpReachNlri.getAfi()));
         byteAggregator.writeByte(this.safiReg.numberForClass(mpReachNlri.getSafi()));
 
-        final ByteBuf nextHopBuffer = Unpooled.buffer();
-        NextHopUtil.serializeNextHop(mpReachNlri.getCNextHop(), nextHopBuffer);
-
-        byteAggregator.writeByte(nextHopBuffer.writerIndex());
-        byteAggregator.writeBytes(nextHopBuffer);
+        if (mpReachNlri.getCNextHop() != null) {
+            final ByteBuf nextHopBuffer = Unpooled.buffer();
+            NextHopUtil.serializeNextHop(mpReachNlri.getCNextHop(), nextHopBuffer);
+            byteAggregator.writeByte(nextHopBuffer.writerIndex());
+            byteAggregator.writeBytes(nextHopBuffer);
+        } else {
+            byteAggregator.writeZero(NEXT_HOP_LENGTH);
+        }
         byteAggregator.writeZero(RESERVED);
     }
 
@@ -149,7 +153,9 @@ final class SimpleNlriRegistry implements NlriRegistry {
         final NlriParser parser = this.handlers.get(createKey(builder.getAfi(), builder.getSafi()));
 
         final int nextHopLength = buffer.readUnsignedByte();
-        builder.setCNextHop(NextHopUtil.parseNextHop(buffer.readSlice(nextHopLength)));
+        if (nextHopLength != 0) {
+            builder.setCNextHop(NextHopUtil.parseNextHop(buffer.readSlice(nextHopLength)));
+        }
         buffer.skipBytes(RESERVED);
 
         final ByteBuf nlri = buffer.slice();
