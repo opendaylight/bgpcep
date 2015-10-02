@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a76adc5_343465dd",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-02T23:55:48Z",
+      "side": 1,
+      "message": "Yeah, good point. The \"put\" operation has to be used - capabilities might be different from previous session.",
+      "parentUuid": "1a76adc5_ec886be9",
+      "revId": "a12169ed2466965f8b59350d67a3fcdb18e605da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a76adc5_ac6a7318",
         "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/TopologyNodeState.java",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2015-10-01T23:52:09Z",
       "side": 1,
       "message": "please add a comment on what this cache does and how",
+      "revId": "a12169ed2466965f8b59350d67a3fcdb18e605da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_5431e1ea",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/TopologyNodeState.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-02T23:55:48Z",
+      "side": 1,
+      "message": "Simplified to pure field variable to keep initial node state (if node was loaded from DS). The initial node state is used later for processing.",
+      "parentUuid": "1a76adc5_ac6a7318",
       "revId": "a12169ed2466965f8b59350d67a3fcdb18e605da",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
