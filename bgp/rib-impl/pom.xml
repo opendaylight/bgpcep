@@ -161,6 +161,10 @@
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>netty-timer-config</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-openconfig-spi</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.osgi</groupId>
