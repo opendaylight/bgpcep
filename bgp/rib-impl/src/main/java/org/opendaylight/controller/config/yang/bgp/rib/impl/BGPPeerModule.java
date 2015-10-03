@@ -25,6 +25,11 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenconfigMapper;
+import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfigurationIdentifier;
+import org.opendaylight.protocol.bgp.openconfig.spi.pojo.BGPPeerInstanceConfiguration;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -127,11 +132,15 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
         getPeerRegistryBackwards().addPeer(getHostWithoutValue(), bgpClientPeer, prefs);
 
+        final BGPPeerModuleTracker moduleTracker = new BGPPeerModuleTracker(r.getOpenConfigProvider());
+        moduleTracker.onInstanceCreate();
+
         final CloseableNoEx peerCloseable = new CloseableNoEx() {
             @Override
             public void close() {
                 bgpClientPeer.close();
                 getPeerRegistryBackwards().removePeer(getHostWithoutValue());
+                moduleTracker.onInstanceClose();
             }
         };
 
@@ -232,6 +241,38 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         }
 
         return null;
+    }
+
+    private final class BGPPeerModuleTracker implements BGPConfigModuleTracker {
+
+        private final BGPOpenconfigMapper<BGPPeerInstanceConfiguration> neighborProvider;
+        private final InstanceConfigurationIdentifier identifier;
+
+        public BGPPeerModuleTracker(final Optional<BGPOpenConfigProvider> openconfigProvider) {
+            if (openconfigProvider.isPresent()) {
+                neighborProvider = openconfigProvider.get().getOpenConfigMapper(BGPPeerInstanceConfiguration.class);
+            } else {
+                neighborProvider = null;
+            }
+            identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
+        }
+
+        @Override
+        public void onInstanceCreate() {
+            if (neighborProvider != null) {
+                neighborProvider.writeConfiguration(new BGPPeerInstanceConfiguration(identifier,
+                        getHostWithoutValue(), getPort(), getHoldtimer(), getPeerRole(), getInitiateConnection(),
+                        getAdvertizedTableDependency(), getAsOrDefault(getRibDependency()), getPassword()));
+            }
+        }
+
+        @Override
+        public void onInstanceClose() {
+            if (neighborProvider != null) {
+                neighborProvider.removeConfiguration(identifier);
+            }
+        }
+
     }
 
 }
