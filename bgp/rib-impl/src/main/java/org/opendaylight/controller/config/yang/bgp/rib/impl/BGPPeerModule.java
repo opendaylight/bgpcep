@@ -17,6 +17,7 @@
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import io.netty.util.concurrent.Future;
@@ -24,6 +25,10 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenconfigMapper;
+import org.opendaylight.protocol.bgp.openconfig.spi.pojo.BGPPeerInstanceConfiguration;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -126,11 +131,15 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
         getPeerRegistryBackwards().addPeer(getHostWithoutValue(), bgpClientPeer, prefs);
 
+        final BGPPeerModuleTracker moduleTracker = new BGPPeerModuleTracker(r.getOpenConfigProvider());
+        moduleTracker.onInstanceCreate();
+
         final CloseableNoEx peerCloseable = new CloseableNoEx() {
             @Override
             public void close() {
                 bgpClientPeer.close();
                 getPeerRegistryBackwards().removePeer(getHostWithoutValue());
+                moduleTracker.onInstanceClose();
             }
         };
 
@@ -232,6 +241,39 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         }
 
         return null;
+    }
+
+    private final class BGPPeerModuleTracker implements BGPConfigModuleTracker {
+
+        private final BGPOpenconfigMapper<BGPPeerInstanceConfiguration> neighborProvider;
+        private final BGPPeerInstanceConfiguration peerConfiguration;
+
+        public BGPPeerModuleTracker(final Optional<BGPOpenConfigProvider> openconfigProvider) {
+            if (openconfigProvider.isPresent()) {
+                neighborProvider = openconfigProvider.get().getOpenConfigMapper(BGPPeerInstanceConfiguration.class);
+                peerConfiguration = new BGPPeerInstanceConfiguration(getIdentifier().getInstanceName(), getHostWithoutValue(), getPort(), getHoldtimer(),
+                        getPeerRole(), getInitiateConnection(), getAdvertizedTableDependency(), getAsOrDefault(getRibDependency()),
+                        getPassword());
+            } else {
+                neighborProvider = null;
+                peerConfiguration = null;
+            }
+        }
+
+        @Override
+        public void onInstanceCreate() {
+            if (neighborProvider != null) {
+                neighborProvider.writeConfiguration(peerConfiguration);
+            }
+        }
+
+        @Override
+        public void onInstanceClose() {
+            if (neighborProvider != null) {
+                neighborProvider.writeConfiguration(peerConfiguration);
+            }
+        }
+
     }
 
 }
