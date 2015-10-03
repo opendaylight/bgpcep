@@ -106,6 +106,7 @@
         <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-spi/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-impl/{{VERSION}}</bundle>
     </feature>
 
