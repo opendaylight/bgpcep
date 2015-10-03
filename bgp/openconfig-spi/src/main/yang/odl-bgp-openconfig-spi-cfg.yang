@@ -1,0 +1,17 @@
+// Contents of "odl-bgp-openconfig-spi-cfg"
+module odl-bgp-openconfig-spi-cfg {
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:bgp-openconfig-spi";
+    prefix "bgp-oc-spi";
+
+    import config { prefix config; revision-date 2013-04-05; }
+
+    revision 2015-09-25 {
+        description "Initial revision";
+    }
+
+    identity bgp-openconfig-provider {
+        base "config:service-type";
+        config:java-class "org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider";
+    }
+
+}

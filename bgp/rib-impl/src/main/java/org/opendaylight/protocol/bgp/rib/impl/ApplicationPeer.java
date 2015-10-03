@@ -19,6 +19,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListen
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
@@ -57,10 +58,11 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     private final YangInstanceIdentifier adjRibsInId;
     private final DOMTransactionChain chain;
     private final DOMTransactionChain writerChain;
+    private final BGPConfigModuleTracker moduleTracker;
 
     private AdjRibInWriter writer;
 
-    public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIBImpl targetRib) {
+    public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIBImpl targetRib, final BGPConfigModuleTracker moduleTracker) {
         this.name = applicationRibId.getValue().toString();
         this.targetRib = Preconditions.checkNotNull(targetRib);
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
@@ -71,6 +73,12 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         this.writer = AdjRibInWriter.create(this.targetRib.getYangRibId(), PeerRole.Internal, this.writerChain);
         // FIXME: set to true, once it's fixed how to skip advertising routes back to AppPeer
         this.writer = this.writer.transform(RouterIds.createPeerId(ipAddress), this.targetRib.getRibSupportContext(), this.targetRib.getLocalTablesKeys(), false);
+        this.moduleTracker = moduleTracker;
+        moduleTracker.onInstanceCreate();
+    }
+
+    public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address bgpPeerId, final RIBImpl targetRibDependency) {
+        this(applicationRibId, bgpPeerId, targetRibDependency, null);
     }
 
     /**
@@ -171,6 +179,9 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         this.writer.cleanTables(this.targetRib.getLocalTablesKeys());
         this.chain.close();
         this.writerChain.close();
+        if (this.moduleTracker != null) {
+            this.moduleTracker.onInstanceClose();
+        }
     }
 
     @Override

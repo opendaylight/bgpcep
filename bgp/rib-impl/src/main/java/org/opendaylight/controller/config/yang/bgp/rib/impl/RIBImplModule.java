@@ -20,6 +20,9 @@ import java.util.Hashtable;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenconfigMapper;
+import org.opendaylight.protocol.bgp.openconfig.spi.pojo.BGPRibInstanceConfiguration;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
@@ -58,9 +61,11 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        RIBImpl rib = new RIBImpl(getRibId(), new AsNumber(getLocalAs()), getBgpRibId(), getClusterId(), getExtensionsDependency(),
+        final AsNumber asNumber = new AsNumber(getLocalAs());
+        final RIBImpl rib = new RIBImpl(getRibId(), asNumber, getBgpRibId(), getClusterId(), getExtensionsDependency(),
             getBgpDispatcherDependency(), getTcpReconnectStrategyDependency(), getCodecTreeFactoryDependency(), getSessionReconnectStrategyDependency(),
-            getDataProviderDependency(), getDomDataProviderDependency(), getLocalTableDependency(), classLoadingStrategy());
+            getDataProviderDependency(), getDomDataProviderDependency(), getLocalTableDependency(), classLoadingStrategy(),
+            new RIBImplModuleTracker(getGlobalWriter()), getOpenconfigProviderDependency());
         registerSchemaContextListener(rib);
         return rib;
     }
@@ -69,8 +74,8 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
         return getExtensionsDependency().getClassLoadingStrategy();
     }
 
-    private void registerSchemaContextListener(RIBImpl rib) {
-        DOMDataBroker domBroker = getDomDataProviderDependency();
+    private void registerSchemaContextListener(final RIBImpl rib) {
+        final DOMDataBroker domBroker = getDomDataProviderDependency();
         if(domBroker instanceof SchemaService) {
             ((SchemaService) domBroker).registerSchemaContextListener(rib);
         } else {
@@ -80,7 +85,41 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
         }
     }
 
-    public void setBundleContext(BundleContext bundleContext) {
+    public void setBundleContext(final BundleContext bundleContext) {
         this.bundleContext = bundleContext;
+    }
+
+    private BGPOpenconfigMapper<BGPRibInstanceConfiguration> getGlobalWriter() {
+        if (getOpenconfigProviderDependency() != null) {
+            return getOpenconfigProviderDependency().getOpenConfigMapper(BGPRibInstanceConfiguration.class);
+        }
+        return null;
+    }
+
+    private final class RIBImplModuleTracker implements BGPConfigModuleTracker {
+
+        private final BGPOpenconfigMapper<BGPRibInstanceConfiguration> globalWriter;
+        private final BGPRibInstanceConfiguration ribInstanceConfiguration;
+
+        public RIBImplModuleTracker(final BGPOpenconfigMapper<BGPRibInstanceConfiguration> globalWriter) {
+            this.globalWriter = globalWriter;
+            this.ribInstanceConfiguration = new BGPRibInstanceConfiguration(RIBImplModule.this.getIdentifier().getInstanceName(), new AsNumber(RIBImplModule.this.getLocalAs()),
+                    RIBImplModule.this.getBgpRibId(), RIBImplModule.this.getClusterId(), RIBImplModule.this.getLocalTableDependency());
+        }
+
+        @Override
+        public void onInstanceCreate() {
+            if (globalWriter != null) {
+                globalWriter.writeConfiguration(ribInstanceConfiguration);
+            }
+        }
+
+        @Override
+        public void onInstanceClose() {
+            if (globalWriter != null) {
+                globalWriter.removeConfiguration(ribInstanceConfiguration);
+            }
+        }
+
     }
 }
