@@ -20,6 +20,8 @@ import java.util.Hashtable;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleListener;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPGlobalWriter;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
@@ -58,9 +60,13 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        RIBImpl rib = new RIBImpl(getRibId(), new AsNumber(getLocalAs()), getBgpRibId(), getClusterId(), getExtensionsDependency(),
+        final AsNumber asNumber = new AsNumber(getLocalAs());
+        final BGPGlobalWriter globalWriter = getGlobalWriter();
+        final String instanceName = getIdentifier().getInstanceName();
+        final RIBImpl rib = new RIBImpl(getRibId(), asNumber, getBgpRibId(), getClusterId(), getExtensionsDependency(),
             getBgpDispatcherDependency(), getTcpReconnectStrategyDependency(), getCodecTreeFactoryDependency(), getSessionReconnectStrategyDependency(),
-            getDataProviderDependency(), getDomDataProviderDependency(), getLocalTableDependency(), classLoadingStrategy());
+            getDataProviderDependency(), getDomDataProviderDependency(), getLocalTableDependency(), classLoadingStrategy(),
+            new RIBImplModuleTracker(getGlobalWriter()));
         registerSchemaContextListener(rib);
         return rib;
     }
@@ -69,8 +75,8 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
         return getExtensionsDependency().getClassLoadingStrategy();
     }
 
-    private void registerSchemaContextListener(RIBImpl rib) {
-        DOMDataBroker domBroker = getDomDataProviderDependency();
+    private void registerSchemaContextListener(final RIBImpl rib) {
+        final DOMDataBroker domBroker = getDomDataProviderDependency();
         if(domBroker instanceof SchemaService) {
             ((SchemaService) domBroker).registerSchemaContextListener(rib);
         } else {
@@ -80,7 +86,39 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
         }
     }
 
-    public void setBundleContext(BundleContext bundleContext) {
+    public void setBundleContext(final BundleContext bundleContext) {
         this.bundleContext = bundleContext;
+    }
+
+    private BGPGlobalWriter getGlobalWriter() {
+        if (getOpenconfigWriterDependency() != null) {
+            return getOpenconfigWriterDependency().getGlobalWriter();
+        }
+        return null;
+    }
+
+    protected final class RIBImplModuleTracker implements BGPConfigModuleListener {
+
+        private final BGPGlobalWriter globalWriter;
+
+        public RIBImplModuleTracker(final BGPGlobalWriter globalWriter) {
+            this.globalWriter = globalWriter;
+        }
+
+        @Override
+        public void onInstanceCreate() {
+            if (globalWriter != null) {
+                globalWriter.writeGlobal(RIBImplModule.this.getIdentifier().getInstanceName(), new AsNumber(RIBImplModule.this.getLocalAs()),
+                        RIBImplModule.this.getBgpRibId(), RIBImplModule.this.getClusterId(), RIBImplModule.this.getLocalTableDependency());
+            }
+        }
+
+        @Override
+        public void onInstanceClose() {
+            if (globalWriter != null) {
+                globalWriter.removeGlobal(RIBImplModule.this.getIdentifier().getInstanceName());
+            }
+        }
+
     }
 }
