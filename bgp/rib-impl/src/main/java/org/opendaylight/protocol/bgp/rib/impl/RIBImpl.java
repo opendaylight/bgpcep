@@ -33,6 +33,8 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataBrokerExtension;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
@@ -101,10 +103,13 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final EffectiveRibInWriter efWriter;
     private final DOMDataBrokerExtension service;
     private final List<LocRibWriter> locRibs = new ArrayList<>();
+    private final BGPConfigModuleTracker configModuleTracker;
+    private final BGPOpenConfigProvider openConfigProvider;
 
     public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final Ipv4Address clusterId, final RIBExtensionConsumerContext extensions,
         final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory, final BindingCodecTreeFactory codecFactory,
-        final ReconnectStrategyFactory sessionStrategyFactory, final DataBroker dps, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables, final GeneratedClassLoadingStrategy classStrategy) {
+        final ReconnectStrategyFactory sessionStrategyFactory, final DataBroker dps, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
+        final GeneratedClassLoadingStrategy classStrategy, final BGPConfigModuleTracker moduleTracker, final BGPOpenConfigProvider openConfigProvider) {
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))));
         this.domChain = domDataBroker.createTransactionChain(this);
         this.localAs = Preconditions.checkNotNull(localAs);
@@ -120,6 +125,8 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.codecsRegistry = CodecsRegistryImpl.create(codecFactory, classStrategy);
         this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, this.codecsRegistry);
         this.yangRibId = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME).nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
+        this.configModuleTracker = moduleTracker;
+        this.openConfigProvider = openConfigProvider;
 
         LOG.debug("Instantiating RIB table {} at {}", ribId, this.yangRibId);
 
@@ -160,6 +167,18 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             this.localTablesKeys.add(key);
             startLocRib(key, pd);
         }
+
+        if (this.configModuleTracker != null) {
+            this.configModuleTracker.onInstanceCreate();
+        }
+    }
+
+    public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final Ipv4Address clusterId, final RIBExtensionConsumerContext extensions,
+            final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory, final BindingCodecTreeFactory codecFactory,
+            final ReconnectStrategyFactory sessionStrategyFactory, final DataBroker dps, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
+            final GeneratedClassLoadingStrategy classStrategy) {
+        this(ribId, localAs, localBgpId, clusterId, extensions, dispatcher, tcpStrategyFactory, codecFactory, sessionStrategyFactory,
+                dps, domDataBroker, localTables, classStrategy, null, null);
     }
 
     private void startLocRib(final TablesKey key, final PolicyDatabase pd) {
@@ -212,6 +231,9 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             } catch (final Exception e) {
                 LOG.warn("Could not close LocalRib reference: {}", locRib, e);
             }
+        }
+        if (this.configModuleTracker != null) {
+            this.configModuleTracker.onInstanceClose();
         }
     }
 
@@ -321,5 +343,10 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     @Override
     public CodecsRegistry getCodecsRegistry() {
         return this.codecsRegistry;
+    }
+
+    @Override
+    public Optional<BGPOpenConfigProvider> getOpenConfigProvider() {
+        return Optional.fromNullable(this.openConfigProvider);
     }
 }
