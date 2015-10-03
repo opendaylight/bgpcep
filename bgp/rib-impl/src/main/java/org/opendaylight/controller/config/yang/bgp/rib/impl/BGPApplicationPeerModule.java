@@ -7,9 +7,15 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import com.google.common.base.Optional;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenconfigMapper;
+import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfigurationIdentifier;
+import org.opendaylight.protocol.bgp.openconfig.spi.pojo.BGPAppPeerInstanceConfiguration;
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRib;
@@ -41,6 +47,36 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
     public java.lang.AutoCloseable createInstance() {
         final YangInstanceIdentifier id = YangInstanceIdentifier.builder().node(ApplicationRib.QNAME).nodeWithKey(ApplicationRib.QNAME, APP_ID_QNAME, getApplicationRibId().getValue()).node(Tables.QNAME).node(Tables.QNAME).build();
         final DOMDataTreeChangeService service = (DOMDataTreeChangeService) getDataBrokerDependency().getSupportedExtensions().get(DOMDataTreeChangeService.class);
-        return service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, id), new ApplicationPeer(getApplicationRibId(), getBgpPeerId(), (RIBImpl) getTargetRibDependency()));
+        return service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, id), new ApplicationPeer(getApplicationRibId(), getBgpPeerId(), (RIBImpl) getTargetRibDependency(), new AppPeerModuleTracker(getTargetRibDependency().getOpenConfigProvider())));
+    }
+
+    private final class AppPeerModuleTracker implements BGPConfigModuleTracker {
+
+        private final BGPOpenconfigMapper<BGPAppPeerInstanceConfiguration> appProvider;
+        private final InstanceConfigurationIdentifier identifier;
+
+        public AppPeerModuleTracker(final Optional<BGPOpenConfigProvider> openConfigProvider) {
+            if (openConfigProvider.isPresent()) {
+                appProvider = openConfigProvider.get().getOpenConfigMapper(BGPAppPeerInstanceConfiguration.class);
+            } else {
+                appProvider = null;
+            }
+            identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
+        }
+
+        @Override
+        public void onInstanceCreate() {
+            if (appProvider != null) {
+                appProvider.writeConfiguration(new BGPAppPeerInstanceConfiguration(identifier, getApplicationRibId().getValue(), getBgpPeerId()));
+            }
+        }
+
+        @Override
+        public void onInstanceClose() {
+            if (appProvider != null) {
+                appProvider.removeConfiguration(identifier);
+            }
+        }
+
     }
 }
