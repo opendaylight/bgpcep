@@ -19,6 +19,7 @@ module odl-bgp-rib-impl-cfg {
     import odl-tcpmd5-cfg { prefix tcpmd5; revision-date 2014-04-27; }
     import odl-tcpmd5-netty-cfg { prefix tcpmd5n; revision-date 2014-04-27; }
     import rpc-context { prefix rpcx; revision-date 2013-06-17; }
+    import odl-bgp-openconfig-spi-cfg { prefix bgp-oc-spi; revision-date 2015-09-25; }
 
     organization "Cisco Systems, Inc.";
 
@@ -657,6 +658,15 @@ module odl-bgp-rib-impl-cfg {
                     refine type {
                         mandatory true;
                         config:required-identity sal:dom-async-data-broker;
+                    }
+                }
+            }
+
+            container openconfig-provider {
+                uses config:service-ref {
+                    refine type {
+                        mandatory false;
+                        config:required-identity bgp-oc-spi:bgp-openconfig-provider;
                     }
                 }
             }
