@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_4ac5ba59",
+        "filename": "bgp/flowspec/src/main/yang/bgp-flowspec.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-10-04T07:45:03Z",
+      "side": 1,
+      "message": "check linkstate",
+      "range": {
+        "startLine": 400,
+        "startChar": 29,
+        "endLine": 400,
+        "endChar": 36
+      },
+      "revId": "b96e9eef2efd6ff9ee5ed727cdd56952d98c361f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
