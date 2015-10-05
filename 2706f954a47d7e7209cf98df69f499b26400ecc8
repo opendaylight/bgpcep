@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_896c3f9e",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/UriBuilder.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2015-10-05T14:16:02Z",
+      "side": 1,
+      "message": "value.length \u003d\u003d 1 is allowed,\nbut in that case this block would yield two consecutive dots, which is not allowed.",
+      "range": {
+        "startLine": 160,
+        "startChar": 8,
+        "endLine": 162,
+        "endChar": 33
+      },
+      "revId": "2706f954a47d7e7209cf98df69f499b26400ecc8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
