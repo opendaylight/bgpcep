@@ -158,8 +158,11 @@ final class UriBuilder {
         //first byte is AFI
         sb.append(Hex.encodeHexString(Arrays.copyOf(value, 1)));
         sb.append(HEX_SEPARATOR);
-        sb.append(UriBuilder.isoId(Arrays.copyOfRange(value, 1, value.length)));
-        sb.append(HEX_SEPARATOR);
+        //ISIS area identifier might have length == 1
+        if (value.length > 1) {
+            sb.append(UriBuilder.isoId(Arrays.copyOfRange(value, 1, value.length)));
+            sb.append(HEX_SEPARATOR);
+        }
         sb.append(systemId);
 
         return sb.toString();
