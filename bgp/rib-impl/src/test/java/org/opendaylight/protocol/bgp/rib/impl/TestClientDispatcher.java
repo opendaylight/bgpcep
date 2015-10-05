@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Optional;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
@@ -31,6 +32,7 @@ public class TestClientDispatcher {
             @Override
             protected void customizeBootstrap(final Bootstrap b) {
                 b.localAddress(locaAddress);
+                b.option(ChannelOption.SO_REUSEADDR, true);
             }
         };
         this.hf = new BGPHandlerFactory(messageRegistry);
