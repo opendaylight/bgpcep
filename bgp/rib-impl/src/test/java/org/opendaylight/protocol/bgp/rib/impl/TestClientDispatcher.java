@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Optional;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.concurrent.Future;
@@ -74,6 +75,7 @@ public class TestClientDispatcher extends AbstractDispatcher<BGPSessionImpl, BGP
     @Override
     protected void customizeBootstrap(Bootstrap b) {
         b.localAddress(this.localAddress);
+        b.option(ChannelOption.SO_REUSEADDR, true);
         super.customizeBootstrap(b);
     }
 
