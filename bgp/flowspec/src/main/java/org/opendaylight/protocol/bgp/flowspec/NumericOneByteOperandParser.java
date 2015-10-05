@@ -33,7 +33,7 @@ public final class NumericOneByteOperandParser extends AbstractNumericOperandPar
      * @param nlriByteBuf where the operands will be serialized
      */
     @Override
-    public final <T extends NumericOneByteValue> void serialize(final List<T> list, final ByteBuf nlriByteBuf) {
+    public <T extends NumericOneByteValue> void serialize(final List<T> list, final ByteBuf nlriByteBuf) {
         for (final T operand : list) {
             super.serialize(operand.getOp(), 1, nlriByteBuf);
             Util.writeShortest(operand.getValue(), nlriByteBuf);
@@ -42,7 +42,7 @@ public final class NumericOneByteOperandParser extends AbstractNumericOperandPar
 
     // TODO: duplicate code with NumericTwoByteValue
     @Override
-    public final<T extends NumericOneByteValue> String toString(final List<T> list) {
+    public <T extends NumericOneByteValue> String toString(final List<T> list) {
         final StringBuilder buffer = new StringBuilder();
         boolean isFirst = true;
         for (final T item : list) {

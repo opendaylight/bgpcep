@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.impl.subobject;
 
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
-
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -30,7 +29,7 @@ public class RROPathKey128SubobjectParser implements RROSubobjectParser {
 
     private static final int PK_F_LENGTH = 2;
 
-    private static final int PCE128_ID_F_LENGTH = 16;
+    protected static final int PCE128_ID_F_LENGTH = 16;
 
     private static final int PK_F_OFFSET = 0;
     private static final int PCE_ID_F_OFFSET = PK_F_OFFSET + PK_F_LENGTH;
