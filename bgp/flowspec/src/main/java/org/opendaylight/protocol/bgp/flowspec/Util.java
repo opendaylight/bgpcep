@@ -27,7 +27,7 @@ public final class Util {
      * @param value integer to be written
      * @param buffer ByteBuf where the value will be written
      */
-    protected static final void writeShortest(final int value, final ByteBuf buffer) {
+    protected static void writeShortest(final int value, final ByteBuf buffer) {
         if (value <= Values.UNSIGNED_BYTE_MAX_VALUE) {
             buffer.writeByte(UnsignedBytes.checkedCast(value));
         } else if (value <= Values.UNSIGNED_SHORT_MAX_VALUE) {
