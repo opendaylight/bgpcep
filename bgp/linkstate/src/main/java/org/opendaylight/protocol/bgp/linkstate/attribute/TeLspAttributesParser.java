@@ -53,11 +53,16 @@ import org.slf4j.LoggerFactory;
 final class TeLspAttributesParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(TeLspAttributesParser.class);
-    private static final int MAGIC_NUMBER = 99;  // TODO: TBD BY IANA
+    // TODO: TBD BY IANA
+    private static final int MAGIC_NUMBER = 99;
+
+    private TeLspAttributesParser() {
+        throw new UnsupportedOperationException();
+    }
 
     public static LinkStateAttribute parseTeLspAttributes(final RSVPTeObjectRegistry registry, final ByteBuf attributes) throws BGPParsingException {
 
-        TeLspAttributesBuilder builder = new TeLspAttributesBuilder();
+        final TeLspAttributesBuilder builder = new TeLspAttributesBuilder();
         LOG.trace("Initiated parsing TE LSP Objects.");
         while (attributes.isReadable()) {
             final int length = attributes.readUnsignedShort();
@@ -66,7 +71,8 @@ final class TeLspAttributesParser {
             final ByteBuf value = attributes.readSlice(length);
             try {
                 addObject(builder, registry.parseRSPVTe(classNum, cType, value));
-            } catch (RSVPParsingException e) {
+            } catch (final RSVPParsingException e) {
+                LOG.debug("Parsering TE LSP Object error. class number: {} cType: {} value: {}", classNum, cType, value, e);
                 throw new BGPParsingException(e.getMessage());
             }
         }

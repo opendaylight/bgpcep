@@ -10,7 +10,7 @@ package org.opendaylight.protocol.rsvp.parser.impl.subobject.rro;
 
 import io.netty.buffer.ByteBuf;
 
-class RROSubobjectUtil {
+final class RROSubobjectUtil {
     private static final int HEADER_SIZE = 2;
 
     private RROSubobjectUtil() {
