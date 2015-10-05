@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.impl.subobject;
 
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
-
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -62,12 +61,12 @@ public class RROPathKey32SubobjectParser implements RROSubobjectParser, RROSubob
             .subobject.type.path.key._case.PathKey pk = pkcase.getPathKey();
         final ByteBuf body = Unpooled.buffer();
         Preconditions.checkArgument(pk.getPceId() != null, "PceId is mandatory.");
-        if(pk.getPceId().getBinary().length == 16) {
+        if(pk.getPceId().getBinary().length == RROPathKey128SubobjectParser.PCE128_ID_F_LENGTH) {
             RROPathKey128SubobjectParser.serializeSubobject(subobject,buffer);
         }
         Preconditions.checkArgument(pk.getPathKey() != null, "PathKey is mandatory.");
         writeUnsignedShort(pk.getPathKey().getValue(), body);
-        Preconditions.checkArgument(pk.getPceId().getBinary().length == 4, "PceId 32 Bit required.");
+        Preconditions.checkArgument(pk.getPceId().getBinary().length == PCE_ID_F_LENGTH, "PceId 32 Bit required.");
         body.writeBytes(pk.getPceId().getBinary());
         RROSubobjectUtil.formatSubobject(TYPE, body, buffer);
     }

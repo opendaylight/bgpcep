@@ -37,7 +37,7 @@ public final class AttributesObjectParser extends AbstractRSVPObjectParser {
     protected static final int TLV_HEADER_SIZE = 4;
     private static final Logger LOG = LoggerFactory.getLogger(AttributesObjectParser.class);
 
-    protected static final List<FlagContainer> parseFlag(final ByteBuf byteBuf) {
+    protected static List<FlagContainer> parseFlag(final ByteBuf byteBuf) {
         final List<FlagContainer> flagList = new ArrayList<>();
         while (byteBuf.isReadable()) {
             final byte[] value = ByteArray.readBytes(byteBuf, FLAG_TLV_SIZE);
@@ -47,13 +47,13 @@ public final class AttributesObjectParser extends AbstractRSVPObjectParser {
         return flagList;
     }
 
-    protected static final void serializeFlag(final List<FlagContainer> flagList, final ByteBuf bufferAux) {
-        for (FlagContainer flagContainer : flagList) {
+    protected static void serializeFlag(final List<FlagContainer> flagList, final ByteBuf bufferAux) {
+        for (final FlagContainer flagContainer : flagList) {
             bufferAux.writeBytes(flagContainer.getFlags());
         }
     }
 
-    protected static final void serializeTLV(final int tlvType, final int lenght, final ByteBuf value, final ByteBuf auxBuffer) {
+    protected static void serializeTLV(final int tlvType, final int lenght, final ByteBuf value, final ByteBuf auxBuffer) {
         auxBuffer.writeShort(tlvType);
         auxBuffer.writeShort(lenght);
         auxBuffer.writeBytes(value);
@@ -63,7 +63,7 @@ public final class AttributesObjectParser extends AbstractRSVPObjectParser {
     protected RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException {
         final LspAttributesObjectBuilder builder = new LspAttributesObjectBuilder();
 
-        List<SubobjectContainer> subObjectList = new ArrayList<>();
+        final List<SubobjectContainer> subObjectList = new ArrayList<>();
         while (byteBuf.isReadable()) {
             final int type = byteBuf.readUnsignedShort();
             final int length = byteBuf.readUnsignedShort();
@@ -87,7 +87,7 @@ public final class AttributesObjectParser extends AbstractRSVPObjectParser {
 
         final ByteBuf bufferAux = Unpooled.buffer();
         int lenght = 0;
-        for (SubobjectContainer subObject : lspAttributesObject.getSubobjectContainer()) {
+        for (final SubobjectContainer subObject : lspAttributesObject.getSubobjectContainer()) {
             final LspSubobject lspSubonject = subObject.getLspSubobject();
             if (lspSubonject instanceof FlagsTlv) {
                 final ByteBuf flagTLVValue = Unpooled.buffer();

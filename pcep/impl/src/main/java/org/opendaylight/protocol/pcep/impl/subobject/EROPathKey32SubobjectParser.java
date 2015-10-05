@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.impl.subobject;
 
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
-
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -62,12 +61,12 @@ public class EROPathKey32SubobjectParser implements EROSubobjectParser, EROSubob
             .subobjects.subobject.type.path.key._case.PathKey pk = ((PathKeyCase) subobject.getSubobjectType()).getPathKey();
         final ByteBuf body = Unpooled.buffer();
         Preconditions.checkArgument(pk.getPceId() != null, "PceId is mandatory.");
-        if(pk.getPceId().getBinary().length == 16) {
+        if(pk.getPceId().getBinary().length == EROPathKey128SubobjectParser.PCE128_ID_F_LENGTH) {
             EROPathKey128SubobjectParser.serializeSubobject(subobject,buffer);
         }
         Preconditions.checkArgument(pk.getPathKey() != null, "PathKey is mandatory.");
         writeUnsignedShort(pk.getPathKey().getValue(), body);
-        Preconditions.checkArgument(pk.getPceId().getBinary().length == 4, "PceId 32 Bit required.");
+        Preconditions.checkArgument(pk.getPceId().getBinary().length == PCE_ID_F_LENGTH, "PceId 32 Bit required.");
         body.writeBytes(pk.getPceId().getBinary());
         EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
     }
