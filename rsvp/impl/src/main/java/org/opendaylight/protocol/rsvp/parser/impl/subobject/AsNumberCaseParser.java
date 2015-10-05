@@ -9,7 +9,6 @@
 package org.opendaylight.protocol.rsvp.parser.impl.subobject;
 
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeShort;
-
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -20,7 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.AsNumberCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.as.number._case.AsNumberBuilder;
 
-public class AsNumberCaseParser {
+public final class AsNumberCaseParser {
     private static final int CONTENT_LENGTH = 2;
 
     private AsNumberCaseParser() {
