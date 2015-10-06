@@ -121,7 +121,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         final IgpNodeAttributes1 igpNodeAttributes1 = igpNode1.getAugmentation(IgpNodeAttributes1.class);
         assertEquals("0000.0102.0304", igpNodeAttributes1.getIsisNodeAttributes().getIso().getIsoSystemId().getValue());
         assertEquals(ROUTER_1_ID, igpNodeAttributes1.getIsisNodeAttributes().getTed().getTeRouterIdIpv4().getValue());
-        assertEquals("47.0004.004d.00c0.0000.0102.0304", igpNodeAttributes1.getIsisNodeAttributes().getNet().get(0).getValue());
+        assertEquals("47.0000.0000.0000.0000.0102.0304", igpNodeAttributes1.getIsisNodeAttributes().getNet().get(0).getValue());
         assertNull(igpNode1.getAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpNodeAttributes1.class));
 
         // create link
@@ -215,7 +215,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                 .addAugmentation(Attributes1.class, new Attributes1Builder().setLinkStateAttribute(new NodeAttributesCaseBuilder().setNodeAttributes(new NodeAttributesBuilder()
                     .setDynamicHostname(nodeName)
                     .setIpv4RouterId(new Ipv4RouterIdentifier(ipv4RouterId))
-                    .setIsisAreaId(Collections.singletonList(new IsisAreaIdentifier(new byte[]{0x47, 0x00, 0x04, 0x00, 0x004D, 0x00, (byte)0xC0}))).build()).build()).build()).build()).build();
+                    .setIsisAreaId(Collections.singletonList(new IsisAreaIdentifier(new byte[]{0x47}))).build()).build()).build()).build()).build();
     }
 
     private LinkstateRoute createLinkstatePrefixRoute(final ProtocolId protocolId, final AsNumber asNumber, final String ipv4Prefix, final long igpMetric, final String ospfFwdAddress) {
