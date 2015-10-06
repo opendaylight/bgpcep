@@ -31,7 +31,7 @@ public class XROPathKey128SubobjectParser implements XROSubobjectParser {
 
     public static final int TYPE = 65;
 
-    private static final int PCE128_ID_F_LENGTH = 16;
+    protected static final int PCE128_ID_F_LENGTH = 16;
 
     private static final int CONTENT128_LENGTH = 2 + PCE128_ID_F_LENGTH;
 
