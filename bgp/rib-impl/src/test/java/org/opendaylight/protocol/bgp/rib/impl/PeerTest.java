@@ -138,10 +138,11 @@ public class PeerTest extends AbstractRIBTestSetup {
             assertNotNull(testingPeer.getBgpSessionState());
         }
 
-        ub.setNlri(null);
+        final List<Ipv4Prefix> prefs2 = Lists.newArrayList(new Ipv4Prefix("8.0.1.0/28"), new Ipv4Prefix("8.0.1.16/28"));
+        ub.setNlri(new NlriBuilder().setNlri(prefs2).build());
         ub.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setWithdrawnRoutes(prefs).build());
         this.classic.onMessage(this.session, ub.build());
-        assertEquals(0, this.routes.size());
+        assertEquals(2, this.routes.size());
         this.classic.onMessage(this.session, new KeepaliveBuilder().build());
         this.classic.onMessage(this.session, new UpdateBuilder().setAttributes(
             new AttributesBuilder().addAugmentation(

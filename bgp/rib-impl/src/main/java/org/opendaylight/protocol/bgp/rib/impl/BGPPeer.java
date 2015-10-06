@@ -122,7 +122,6 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
         }
         if (mpReach != null) {
             this.ribWriter.updateRoutes(mpReach, nextHopToAttribute(attrs, mpReach));
-            return;
         }
         MpUnreachNlri mpUnreach = null;
         if (message.getWithdrawnRoutes() != null) {
