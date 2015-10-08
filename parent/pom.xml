@@ -19,14 +19,14 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>odlparent</artifactId>
-        <version>1.5.2-SNAPSHOT</version>
+        <version>1.5.2-Lithium-SR2</version>
         <relativePath></relativePath>
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>bgpcep-parent</artifactId>
     <name>BGPCEP common parent</name>
-    <version>0.4.2-SNAPSHOT</version>
+    <version>0.4.2-Lithium-SR2</version>
     <packaging>pom</packaging>
 
     <licenses>
@@ -45,17 +45,17 @@
         <maven.info.reports.version>2.7</maven.info.reports.version>
 
         <!-- YANG tools artifacts -->
-        <yangtools.version>0.7.2-SNAPSHOT</yangtools.version>
+        <yangtools.version>0.7.2-Lithium-SR2</yangtools.version>
 
         <!-- Controller artifacts -->
-        <controller.config.version>0.3.2-SNAPSHOT</controller.config.version>
-        <controller.framework.version>0.6.2-SNAPSHOT</controller.framework.version>
-        <controller.mdsal.version>1.2.2-SNAPSHOT</controller.mdsal.version>
+        <controller.config.version>0.3.2-Lithium-SR2</controller.config.version>
+        <controller.framework.version>0.6.2-Lithium-SR2</controller.framework.version>
+        <controller.mdsal.version>1.2.2-Lithium-SR2</controller.mdsal.version>
 
         <!-- TCP-MD5 artifacts -->
-        <tcpmd5.version>1.1.2-SNAPSHOT</tcpmd5.version>
+        <tcpmd5.version>1.1.2-Lithium-SR2</tcpmd5.version>
 
-        <bgpcep.version>0.4.2-SNAPSHOT</bgpcep.version>
+        <bgpcep.version>0.4.2-Lithium-SR2</bgpcep.version>
     </properties>
 
     <dependencyManagement>
