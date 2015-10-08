@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_a841ec3a",
+        "filename": "rsvp/impl/src/main/java/org/opendaylight/protocol/rsvp/parser/impl/subobject/AsNumberCaseParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-08T09:14:01Z",
+      "side": 0,
+      "message": "A blank line between static and non-static imports should be preserved. Check your IDE\u0027s import ordering settings.",
+      "revId": "d4d01b81d0c50d5498fd8a3d605b6d2926718443",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
