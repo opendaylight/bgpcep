@@ -73,8 +73,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     @Override
     public synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress address, final BGPPeerRegistry listener, final ReconnectStrategy strategy) {
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(listener);
-        final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer
-            (BGPDispatcherImpl.this.hf.getDecoders(), snf, BGPDispatcherImpl.this.hf.getEncoders());
+        final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.hf, snf);
 
         final Bootstrap b = new Bootstrap();
         final BGPProtocolSessionPromise p = new BGPProtocolSessionPromise(this.executor, address, strategy, b);
@@ -104,7 +103,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
 
         final Bootstrap b = new Bootstrap();
         final BGPReconnectPromise p = new BGPReconnectPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE, address,
-            connectStrategyFactory, b, BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.hf.getDecoders(), snf, BGPDispatcherImpl.this.hf.getEncoders()));
+            connectStrategyFactory, b, BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.hf, snf));
         b.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE);
         this.customizeBootstrap(b);
         setWorkerGroup(b);
@@ -118,8 +117,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     @Override
     public ChannelFuture createServer(final BGPPeerRegistry registry, final InetSocketAddress address) {
         final BGPServerSessionNegotiatorFactory snf = new BGPServerSessionNegotiatorFactory(registry);
-        final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer
-            (BGPDispatcherImpl.this.hf.getDecoders(), snf, BGPDispatcherImpl.this.hf.getEncoders());
+        final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.hf, snf);
         final ServerBootstrap b = new ServerBootstrap();
         b.childHandler(BGPChannel.createChannelInitializer(initializer, new DefaultPromise(BGPDispatcherImpl.this.executor)));
         b.option(ChannelOption.SO_BACKLOG, Integer.valueOf(SOCKET_BACKLOG_SIZE));
@@ -186,13 +184,13 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         }
 
         public static <S extends BGPSession, T extends BGPSessionNegotiatorFactory> ChannelPipelineInitializer
-            createChannelPipelineInitializer(final ChannelHandler[] channelDecoder, final T snf, final ChannelHandler[] channelEncoder) {
+            createChannelPipelineInitializer(final BGPHandlerFactory hf, final T snf) {
             return new ChannelPipelineInitializer<S>() {
                 @Override
                 public void initializeChannel(final SocketChannel ch, final Promise<S> promise) {
-                    ch.pipeline().addLast(channelDecoder);
+                    ch.pipeline().addLast(hf.getDecoders());
                     ch.pipeline().addLast(NEGOTIATOR, snf.getSessionNegotiator(ch, promise));
-                    ch.pipeline().addLast(channelEncoder);
+                    ch.pipeline().addLast(hf.getEncoders());
                 }
             };
         }
