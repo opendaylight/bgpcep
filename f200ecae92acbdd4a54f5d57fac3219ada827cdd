@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_e1b93a2f",
+        "filename": "pcep/topology-api/src/main/yang/network-topology-pcep.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-09T10:47:27Z",
+      "side": 1,
+      "message": "not sure if this will work...\nuses lsp-id {\n  refine name {\n    mandatory false;\n  }\n}",
+      "range": {
+        "startLine": 283,
+        "startChar": 0,
+        "endLine": 289,
+        "endChar": 9
+      },
+      "revId": "f200ecae92acbdd4a54f5d57fac3219ada827cdd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
