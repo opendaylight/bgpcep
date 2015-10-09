@@ -26,10 +26,12 @@ import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
 import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
 import org.opendaylight.controller.config.spi.Module;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
+import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev140815.DataChangeCounter;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -47,6 +49,8 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
     @Mock
     private CloseableDataBroker dataBorker;
     @Mock
+    private BindingTransactionChain chain;
+    @Mock
     private WriteTransaction wTx;
     @Mock
     private ListenerRegistration<DataChangeListener> registration;
@@ -56,11 +60,14 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
         Mockito.doNothing().when(this.registration).close();
         Mockito.doReturn(null).when(this.wTx).submit();
         Mockito.doNothing().when(this.wTx).put(Mockito.any(LogicalDatastoreType.class), Mockito.<InstanceIdentifier<DataChangeCounter>>any(), Mockito.any(DataChangeCounter.class));
-        Mockito.doReturn(registration).when(this.dataBorker).registerDataChangeListener(Mockito.any(LogicalDatastoreType.class), Mockito.<InstanceIdentifier<?>>any(), Mockito.any(DataChangeListener.class), Mockito.any(DataBroker.DataChangeScope.class));
+        Mockito.doReturn(this.registration).when(this.dataBorker).registerDataChangeListener(Mockito.any(LogicalDatastoreType.class), Mockito.<InstanceIdentifier<?>>any(), Mockito.any(DataChangeListener.class), Mockito.any(DataBroker.DataChangeScope.class));
         Mockito.doNothing().when(this.wTx).delete(Mockito.any(LogicalDatastoreType.class), Mockito.<InstanceIdentifier<?>>any());
+        Mockito.doReturn(this.chain).when(this.dataBorker).createTransactionChain(Mockito.any(TransactionChainListener.class));
+        Mockito.doReturn(this.wTx).when(this.chain).newWriteOnlyTransaction();
         Mockito.doReturn(this.wTx).when(this.dataBorker).newWriteOnlyTransaction();
+        Mockito.doNothing().when(this.chain).close();
         Mockito.doNothing().when(this.dataBorker).close();
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new DataChangeCounterImplModuleFactory(), new MockDataBrokerModuleFct()));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.mockedContext, new DataChangeCounterImplModuleFactory(), new MockDataBrokerModuleFct()));
     }
 
     @Test
@@ -73,7 +80,7 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
     @Test
     public void testReusingOldInstance() throws Exception {
         createInstance(TOPOLOGY_NAME);
-        final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
@@ -83,7 +90,7 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
     @Test
     public void testReconfigureBean() throws Exception {
         createInstance(TOPOLOGY_NAME);
-        final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         final DataChangeCounterImplModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME),
                 DataChangeCounterImplModuleMXBean.class);
         mxBean.setTopologyName(NEW_TOPOLOGY_NAME);
@@ -91,14 +98,14 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
         assertBeanCount(1, FACTORY_NAME);
         assertStatus(status, 0, 1, 1);
 
-        final ConfigTransactionJMXClient transaction2 = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction2 = this.configRegistryClient.createTransaction();
         final DataChangeCounterImplModuleMXBean mxBean2 = transaction2.newMXBeanProxy(transaction2.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME),
                 DataChangeCounterImplModuleMXBean.class);
         Assert.assertEquals(NEW_TOPOLOGY_NAME, mxBean2.getTopologyName());
     }
 
     private CommitStatus createInstance(final String topologyName) throws Exception {
-        final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         final ObjectName on = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final ObjectName dbOn = transaction.createModule(MockDataBrokerModuleFct.INSTANCE_NAME, DATA_BROKER_INSTANCE_NAME);
         final DataChangeCounterImplModuleMXBean mxBean = transaction.newMXBeanProxy(on, DataChangeCounterImplModuleMXBean.class);
@@ -135,7 +142,7 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
 
         @Override
         public Set<Class<? extends AbstractServiceInterface>> getImplementedServiceIntefaces() {
-            java.util.Set<Class<? extends org.opendaylight.controller.config.api.annotations.AbstractServiceInterface>> serviceIfcs2 = new java.util.HashSet<Class<? extends org.opendaylight.controller.config.api.annotations.AbstractServiceInterface>>();
+            final java.util.Set<Class<? extends org.opendaylight.controller.config.api.annotations.AbstractServiceInterface>> serviceIfcs2 = new java.util.HashSet<Class<? extends org.opendaylight.controller.config.api.annotations.AbstractServiceInterface>>();
             return java.util.Collections.unmodifiableSet(serviceIfcs2);
         }
 
