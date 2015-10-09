@@ -1,0 +1,147 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_3e918d52",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-09T06:41:48Z",
+      "side": 1,
+      "message": "Expand commit message - i.e. list the changes.\nThe commit message should start with bugzilla bug number (see some other commits)",
+      "revId": "5334d925022014fa22952012b1cdb90092c4f7fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_fec31555",
+        "filename": "bgp/bmp-api/src/main/yang/bmp-message.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-09T06:41:48Z",
+      "side": 1,
+      "message": "Should not be the Notification message included too?",
+      "revId": "5334d925022014fa22952012b1cdb90092c4f7fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_3ed98d83",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpRouterPeerImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-09T06:41:48Z",
+      "side": 1,
+      "message": "Conform input parameter name to it\u0027s type.",
+      "range": {
+        "startLine": 190,
+        "startChar": 59,
+        "endLine": 190,
+        "endChar": 71
+      },
+      "revId": "5334d925022014fa22952012b1cdb90092c4f7fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_be8cbd36",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/message/RouteMirroringMessageHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-09T06:41:48Z",
+      "side": 1,
+      "message": "Please, add JUnit test for the message.",
+      "revId": "5334d925022014fa22952012b1cdb90092c4f7fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_3ef50dcb",
+        "filename": "bgp/bmp-impl/src/test/java/org/opendaylight/protocol/bmp/impl/app/BmpMonitorImplTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-09T06:41:48Z",
+      "side": 1,
+      "message": "Why is the code commented out?",
+      "range": {
+        "startLine": 285,
+        "startChar": 0,
+        "endLine": 286,
+        "endChar": 114
+      },
+      "revId": "5334d925022014fa22952012b1cdb90092c4f7fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_7ee145fd",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/ByteBufWriteUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-09T06:41:48Z",
+      "side": 1,
+      "message": "AFI_",
+      "range": {
+        "startLine": 42,
+        "startChar": 28,
+        "endLine": 42,
+        "endChar": 41
+      },
+      "revId": "5334d925022014fa22952012b1cdb90092c4f7fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_9ebb01e5",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/ByteBufWriteUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-09T06:41:48Z",
+      "side": 1,
+      "message": "SAFI_",
+      "range": {
+        "startLine": 44,
+        "startChar": 28,
+        "endLine": 44,
+        "endChar": 51
+      },
+      "revId": "5334d925022014fa22952012b1cdb90092c4f7fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
