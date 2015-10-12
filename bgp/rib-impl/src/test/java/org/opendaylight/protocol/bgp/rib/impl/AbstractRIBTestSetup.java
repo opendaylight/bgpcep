@@ -214,6 +214,7 @@ public class AbstractRIBTestSetup {
             final DataTreeCandidateNode child = Mockito.mock(DataTreeCandidateNode.class);
             Mockito.doReturn(createIdentifier(target, p)).when(child).getIdentifier();
             Mockito.doReturn(Optional.of(b.build())).when(child).getDataAfter();
+            Mockito.doReturn(type).when(child).getModificationType();
             children.add(child);
         }
         Mockito.doReturn(children).when(rootNode).getChildNodes();
