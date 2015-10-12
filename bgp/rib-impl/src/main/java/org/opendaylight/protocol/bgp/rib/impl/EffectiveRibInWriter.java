@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
 @NotThreadSafe
 final class EffectiveRibInWriter implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(EffectiveRibInWriter.class);
-    private static final NodeIdentifier TABLE_ROUTES = new NodeIdentifier(Routes.QNAME);
+    protected static final NodeIdentifier TABLE_ROUTES = new NodeIdentifier(Routes.QNAME);
     private static final NodeIdentifier ADJRIBIN_NID = new NodeIdentifier(AdjRibIn.QNAME);
     private static final NodeIdentifier TABLES_NID = new NodeIdentifier(Tables.QNAME);
 
