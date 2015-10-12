@@ -16,6 +16,24 @@
       "revId": "b60d7f60fc335f4a339a2d911837d824f3bc762c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_f0aa5e18",
+        "filename": "bgp/openconfig-api/src/main/java/org/opendaylight/yang/gen/v1/http/openconfig/net/yang/bgp/policy/rev150515/BgpNextHopTypeBuilder.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-12T12:37:01Z",
+      "side": 1,
+      "message": "Done + junit tests added",
+      "parentUuid": "1a76adc5_4b37f2ff",
+      "revId": "b60d7f60fc335f4a339a2d911837d824f3bc762c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
