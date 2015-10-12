@@ -105,13 +105,14 @@ public class PeerTest extends AbstractRIBTestSetup {
     public void testAppPeer() {
         final Ipv4Prefix first = new Ipv4Prefix("127.0.0.2/32");
         final Ipv4Prefix second = new Ipv4Prefix("127.0.0.1/32");
+        final Ipv4Prefix third = new Ipv4Prefix("127.0.0.3/32");
         this.peer = new ApplicationPeer(new ApplicationRibId("t"), new Ipv4Address("127.0.0.1"), getRib());
         final YangInstanceIdentifier base = getRib().getYangRibId().node(LocRib.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(KEY));
-        this.peer.onDataTreeChanged(ipv4Input(base, ModificationType.WRITE, first, second));
-        assertEquals(2, this.routes.size());
-
-        this.peer.onDataTreeChanged(ipv4Input(base, ModificationType.DELETE, new Ipv4Prefix("127.0.0.3/32")));
+        this.peer.onDataTreeChanged(ipv4Input(base, ModificationType.WRITE, first, second, third));
         assertEquals(3, this.routes.size());
+
+        this.peer.onDataTreeChanged(ipv4Input(base, ModificationType.DELETE, third));
+        assertEquals(2, this.routes.size());
     }
 
     @Test
