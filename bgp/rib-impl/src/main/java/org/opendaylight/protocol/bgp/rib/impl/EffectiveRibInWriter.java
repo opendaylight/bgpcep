@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Verify;
 import java.util.Collection;
@@ -31,7 +32,10 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
+import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
@@ -140,10 +144,18 @@ final class EffectiveRibInWriter implements AutoCloseable {
                     }
                     break;
                 case WRITE:
-                    tx.put(LogicalDatastoreType.OPERATIONAL, childPath, child.getDataAfter().get());
-                    // Routes are special, as they may end up being filtered. The previous put conveniently
-                    // ensured that we have them in at target, so a subsequent delete will not fail :)
                     if (TABLE_ROUTES.equals(child.getIdentifier())) {
+                        final Optional<NormalizedNode<?, ?>> childDataBefore = child.getDataBefore();
+                        if (childDataBefore.isPresent()) {
+                            final NormalizedNode<?, ?> routes = childDataBefore.get();
+                            if (routes instanceof ChoiceNode) {
+                                if (!((ChoiceNode) childDataBefore.get()).getValue().isEmpty()) {
+                                    tx.put(LogicalDatastoreType.OPERATIONAL, childPath, routes);
+                                }
+                            }
+                        }
+                        // Routes are special, as they may end up being filtered. The previous put conveniently
+                        // ensured that we have them in at target, so a subsequent delete will not fail :)
                         for (final DataTreeCandidateNode route : ribSupport.changedRoutes(child)) {
                             processRoute(tx, ribSupport, policy, childPath, route);
                         }
@@ -176,7 +188,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
             final YangInstanceIdentifier tablePath = effectiveTablePath(peerKey, tableKey);
 
             // Create an empty table
-            ribSupport.clearTable(tx,tablePath);
+            ribSupport.clearTable(tx, tablePath);
 
             processTableChildren(tx, ribSupport.getRibSupport(), peerKey, tablePath, table.getChildNodes());
         }
