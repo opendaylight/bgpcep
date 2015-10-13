@@ -53,9 +53,6 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableLe
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableUnkeyedListEntryNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableUnkeyedListNodeBuilder;
 
-/**
- * Created by cgasparini on 17.6.2015.
- */
 public class LinkstateRIBSupportTest {
 
     private static final Ipv4Address ipv4 = new Ipv4Address("42.42.42.42");
