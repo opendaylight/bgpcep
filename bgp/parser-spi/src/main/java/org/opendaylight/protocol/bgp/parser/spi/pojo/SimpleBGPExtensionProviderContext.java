@@ -18,6 +18,8 @@ import org.opendaylight.protocol.bgp.parser.spi.CapabilityParser;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.NextHopParser;
+import org.opendaylight.protocol.bgp.parser.spi.NextHopSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterParser;
@@ -26,6 +28,7 @@ import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
@@ -105,7 +108,7 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
 
     @Override
     public AutoCloseable registerNlriSerializer(final Class<? extends DataObject> nlriClass, final NlriSerializer serializer) {
-        return this.getNlriRegistry().registerNlriSerializer(nlriClass,serializer);
+        return this.getNlriRegistry().registerNlriSerializer(nlriClass, serializer);
     }
 
     @Override
@@ -116,6 +119,16 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
     @Override
     public AutoCloseable registerParameterSerializer(final Class<? extends BgpParameters> paramClass, final ParameterSerializer serializer) {
         return this.getParameterRegistry().registerParameterSerializer(paramClass, serializer);
+    }
+
+    @Override
+    public void registerNextHopParser(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi, final NextHopParser parser) {
+        this.getNextHopRegistry().registerNextHopParser(afi, safi, parser);
+    }
+
+    @Override
+    public void registerNextHopSerializer(final Class<? extends CNextHop> nextHopClass, final NextHopSerializer serializer) {
+        this.getNextHopRegistry().registerNextHopSerializer(nextHopClass, serializer);
     }
 
     @Override
