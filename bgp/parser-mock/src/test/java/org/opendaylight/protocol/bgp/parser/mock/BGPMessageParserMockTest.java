@@ -66,7 +66,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.AListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequence;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequenceBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -155,8 +154,8 @@ public class BGPMessageParserMockTest {
         final List<Segments> asPath = Lists.newArrayList();
         asPath.add(new SegmentsBuilder().setCSegment(
             new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
-        final CNextHop nextHop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(
-            new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1")).setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build()).build();
+        final Ipv6NextHopCaseBuilder nextHop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(
+            new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1")).setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build());
 
         final Ipv6Prefix pref1 = new Ipv6Prefix("2001:db8:1:2::/64");
         final Ipv6Prefix pref2 = new Ipv6Prefix("2001:db8:1:1::/64");
@@ -169,7 +168,7 @@ public class BGPMessageParserMockTest {
         final MpReachNlriBuilder mpReachBuilder = new MpReachNlriBuilder();
         mpReachBuilder.setAfi(Ipv6AddressFamily.class);
         mpReachBuilder.setSafi(UnicastSubsequentAddressFamily.class);
-        mpReachBuilder.setCNextHop(nextHop);
+        mpReachBuilder.setCNextHop(nextHop.build());
         mpReachBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
             new DestinationIpv6CaseBuilder().setDestinationIpv6(
                 new DestinationIpv6Builder().setIpv6Prefixes(Lists.newArrayList(

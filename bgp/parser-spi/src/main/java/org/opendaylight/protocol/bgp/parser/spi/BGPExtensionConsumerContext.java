@@ -25,4 +25,6 @@ public interface BGPExtensionConsumerContext {
     ParameterRegistry getParameterRegistry();
 
     SubsequentAddressFamilyRegistry getSubsequentAddressFamilyRegistry();
+
+    NextHopRegistry getNextHopRegistry();
 }
