@@ -13,7 +13,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import org.opendaylight.bgp.concepts.NextHopUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
@@ -40,10 +39,12 @@ final class SimpleNlriRegistry implements NlriRegistry {
     private final ConcurrentMap<Class<? extends DataObject>, NlriSerializer> serializers = new ConcurrentHashMap<>();
     private final SubsequentAddressFamilyRegistry safiReg;
     private final AddressFamilyRegistry afiReg;
+    private final SimpleNextHopRegistry nextHopReg;
 
-    public SimpleNlriRegistry(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
+    public SimpleNlriRegistry(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg, final SimpleNextHopRegistry nextHopReg) {
         this.afiReg = Preconditions.checkNotNull(afiReg);
         this.safiReg = Preconditions.checkNotNull(safiReg);
+        this.nextHopReg = nextHopReg;
     }
 
     private static BgpTableType createKey(final Class<? extends AddressFamily> afi,
@@ -124,7 +125,7 @@ final class SimpleNlriRegistry implements NlriRegistry {
 
         if (mpReachNlri.getCNextHop() != null) {
             final ByteBuf nextHopBuffer = Unpooled.buffer();
-            NextHopUtil.serializeNextHop(mpReachNlri.getCNextHop(), nextHopBuffer);
+            nextHopReg.serializeNextHop(mpReachNlri.getCNextHop(), nextHopBuffer);
             byteAggregator.writeByte(nextHopBuffer.writerIndex());
             byteAggregator.writeBytes(nextHopBuffer);
         } else {
@@ -154,7 +155,7 @@ final class SimpleNlriRegistry implements NlriRegistry {
 
         final int nextHopLength = buffer.readUnsignedByte();
         if (nextHopLength != 0) {
-            builder.setCNextHop(NextHopUtil.parseNextHop(buffer.readSlice(nextHopLength)));
+            builder.setCNextHop(nextHopReg.parseNextHop(builder.getAfi(), builder.getSafi(), buffer.readSlice(nextHopLength)));
         }
         buffer.skipBytes(RESERVED);
 

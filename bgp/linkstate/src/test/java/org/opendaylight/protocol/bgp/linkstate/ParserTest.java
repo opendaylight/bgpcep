@@ -26,8 +26,10 @@ import java.util.List;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.linkstate.attribute.next.hop.LinkstateIpv4NextHopParser;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
@@ -59,6 +61,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.reach.nlri.c.next.hop.LinkstateIpv4NextHopCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.reach.nlri.c.next.hop.LinkstateIpv4NextHopCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.reach.nlri.c.next.hop.linkstate.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
@@ -87,9 +92,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Metric;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
@@ -110,7 +112,14 @@ public class ParserTest {
 
     @Before
     public void setUp() throws Exception {
-        updateParser = new BGPUpdateMessageParser(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry());
+        final BGPExtensionProviderContext ctx = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
+        final LinkstateIpv4NextHopParser linkstateLinkstateIpv4NextHopParser = new LinkstateIpv4NextHopParser();
+
+        ctx.registerNextHopParser(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,
+            linkstateLinkstateIpv4NextHopParser);
+        ctx.registerNextHopSerializer(LinkstateIpv4NextHopCase.class, linkstateLinkstateIpv4NextHopParser);
+
+        updateParser = new BGPUpdateMessageParser(ctx.getAttributeRegistry());
         for (int i = 1; i <= COUNTER; i++) {
             final String name = "/up" + i + ".bin";
             try (final InputStream is = ParserTest.class.getResourceAsStream(name)){
@@ -329,7 +338,7 @@ public class ParserTest {
 
         assertNull(message.getWithdrawnRoutes());
 
-        final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
+        final LinkstateIpv4NextHopCase nextHop = new LinkstateIpv4NextHopCaseBuilder().setIpv4NextHop(
             new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("25.25.25.1")).build()).build();
 
         final LocalNodeDescriptorsBuilder ndBuilder = new LocalNodeDescriptorsBuilder().setAsNumber(new AsNumber((long) 100)).setDomainId(
@@ -525,7 +534,7 @@ public class ParserTest {
 
         // attributes
 
-        final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
+        final LinkstateIpv4NextHopCase nextHop = new LinkstateIpv4NextHopCaseBuilder().setIpv4NextHop(
             new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("25.25.25.1")).build()).build();
 
         final CLinkstateDestinationBuilder clBuilder = new CLinkstateDestinationBuilder();
