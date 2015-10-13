@@ -25,10 +25,13 @@ import org.opendaylight.protocol.bgp.parser.spi.CapabilityParser;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.NextHopParser;
+import org.opendaylight.protocol.bgp.parser.spi.NextHopSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterParser;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterSerializer;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
@@ -37,6 +40,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
@@ -70,6 +78,9 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
     @Mock
     protected NlriSerializer nlriSerializer;
 
+    protected NextHopSerializer nextHopSerializer;
+    protected NextHopParser nextHopParser;
+
     @Override
     protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
         initMock();
@@ -93,6 +104,28 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerNlriParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, this.nlriParser));
         regs.add(context.registerNlriParser(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, this.nlriParser));
         regs.add(context.registerNlriSerializer(DataObject.class, this.nlriSerializer));
+
+        this.nextHopSerializer = new NextHopSerializer() {
+            @Override
+            public void serializeNextHop(final CNextHop cNextHop, final ByteBuf byteAggregator) {
+                final byte[] mpReachBytes = {
+                    0x7f, 0x00, 0x00, 0x01
+                };
+                byteAggregator.writeBytes(mpReachBytes);
+            }
+        };
+
+        this.nextHopParser = new NextHopParser() {
+            @Override
+            public CNextHop parseNextHop(final ByteBuf buffer) throws BGPParsingException {
+                return new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("127.0.0.1")).build()).build();
+            }
+        };
+
+        context.registerNextHopSerializer(Ipv4NextHopCase.class, this.nextHopSerializer);
+        context.registerNextHopSerializer(Ipv6NextHopCase.class, this.nextHopSerializer);
+        context.registerNextHopParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, this.nextHopParser);
+        context.registerNextHopParser(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, this.nextHopParser);
 
         return regs;
     }
