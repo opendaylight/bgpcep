@@ -385,6 +385,20 @@ module bgp-linkstate {
         }
     }
 
+    augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-reach-nlri/bgp-mp:c-next-hop" {
+        case linkstate-ipv6-next-hop-case {
+            container ipv6-next-hop {
+                reference "http://tools.ietf.org/html/rfc4760#section-3";
+                leaf global {
+                    type inet:ipv6-address;
+                }
+                leaf link-local {
+                    type inet:ipv6-address;
+                }
+            }
+        }
+    }
+
     augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
         case destination-linkstate-case {
             container destination-linkstate {

@@ -201,6 +201,8 @@ module bgp-types {
                         type inet:ipv6-address;
                     }
                     leaf link-local {
+                        description "This model is obsolete and please use linkstate-ipv6-nexthop-case";
+                        status obsolete;
                         type inet:ipv6-address;
                     }
                 }
