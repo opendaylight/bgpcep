@@ -11,6 +11,7 @@ import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
@@ -36,7 +37,12 @@ public interface BGPExtensionProviderContext extends BGPExtensionConsumerContext
 
     AutoCloseable registerMessageSerializer(Class<? extends Notification> messageClass, MessageSerializer serializer);
 
+    @Deprecated
     AutoCloseable registerNlriParser(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi, NlriParser parser);
+
+    AutoCloseable registerNlriParser(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily>
+        safi, NlriParser parser, final NextHopParserSerializer nextHopHandler, final Class<? extends CNextHop> cNextHopClass,
+                                     final Class<? extends CNextHop>... cNextHopClassList);
 
     AutoCloseable registerNlriSerializer(Class<? extends DataObject> nlriClass, NlriSerializer serializer);
 

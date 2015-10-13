@@ -87,6 +87,9 @@ module bgp-labeled-unicast {
         }
     }
 
+    augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-reach-nlri/bgp-mp:c-next-hop" {
+    }
+
     augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
         case destination-labeled-unicast-case {
             container destination-labeled-unicast {
