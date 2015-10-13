@@ -51,12 +51,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.c.next.hop.Ipv4NextHopCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.c.next.hop.Ipv6NextHopCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHop;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,7 +146,40 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
     private static Attributes nextHopToAttribute(final Attributes attrs, final MpReachNlri mpReach) {
         if (attrs.getCNextHop() == null && mpReach.getCNextHop() != null) {
             final AttributesBuilder attributesBuilder = new AttributesBuilder(attrs);
-            attributesBuilder.setCNextHop(mpReach.getCNextHop());
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update
+                .attributes.mp.reach.nlri.CNextHop cNextHop = mpReach.getCNextHop();
+
+            // Implemented for UnicastFamily, What about others AFI --SAFI ??
+            if (cNextHop instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol
+                .rev130919.update.attributes.mp.reach.nlri.c.next.hop.Ipv4NextHopCase) {
+                final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919
+                    .update.attributes.mp.reach.nlri.c.next.hop.ipv4.next.hop._case.Ipv4NextHop nextHop =
+                    ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919
+                        .update.attributes.mp.reach.nlri.c.next.hop.Ipv4NextHopCase) cNextHop).getIpv4NextHop();
+
+                attributesBuilder.setCNextHop(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+                    .bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCaseBuilder().setIpv4NextHop(new
+                    org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c
+                        .next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder().setGlobal(nextHop.getGlobal()).build()).build());
+            } else if (cNextHop instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol
+                .rev130919.update.attributes.mp.reach.nlri.c.next.hop.Ipv6NextHopCase) {
+                final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919
+                    .update.attributes.mp.reach.nlri.c.next.hop.ipv6.next.hop._case.Ipv6NextHop nextHop =
+                    ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919
+                        .update.attributes.mp.reach.nlri.c.next.hop.Ipv6NextHopCase) cNextHop).getIpv6NextHop();
+
+                final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c
+                    .next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder nhBuilder = new org.opendaylight.yang.gen.v1.urn
+                    .opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder().setGlobal(nextHop.getGlobal());
+
+                if (nextHop.getLinkLocal() != null) {
+                    nhBuilder.setLinkLocal(nextHop.getLinkLocal());
+                }
+
+                attributesBuilder.setCNextHop(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+                    .bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCaseBuilder().setIpv6NextHop(nhBuilder.build()).build());
+            }
+
             return attributesBuilder.build();
         }
         return attrs;
@@ -154,13 +196,29 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
         for (final Ipv4Prefix p : message.getNlri().getNlri()) {
             prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
         }
+
+        //Why UnicastSubsequentAddressFamily?
         final MpReachNlriBuilder b = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
             UnicastSubsequentAddressFamily.class).setAdvertizedRoutes(
                 new AdvertizedRoutesBuilder().setDestinationType(
                     new DestinationIpv4CaseBuilder().setDestinationIpv4(
                         new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build());
         if (message.getAttributes() != null) {
-            b.setCNextHop(message.getAttributes().getCNextHop());
+            final CNextHop cNextHop = message.getAttributes().getCNextHop();
+            if (cNextHop instanceof Ipv6NextHopCase) {
+                //Since we support only Ipv4 (parser/serializer) for path attributes, does this make sense?
+                Ipv6NextHop ipv6NextHop = ((Ipv6NextHopCase)cNextHop).getIpv6NextHop();
+                final Ipv6NextHopBuilder ipv6NhBuilder = new Ipv6NextHopBuilder().setGlobal(ipv6NextHop.getGlobal());
+                if(ipv6NextHop.getLinkLocal() != null ) {
+                    ipv6NhBuilder.setLinkLocal(ipv6NextHop.getLinkLocal());
+                }
+                b.setCNextHop(new Ipv6NextHopCaseBuilder().setIpv6NextHop(ipv6NhBuilder.build()).build());
+            } else if (cNextHop instanceof Ipv4NextHopCase) {
+                Ipv4NextHop ipv4NextHop = ((Ipv4NextHopCase)cNextHop).getIpv4NextHop();
+                b.setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal
+                    (ipv4NextHop.getGlobal()).build()).build());
+            }
+
         }
         return b.build();
     }

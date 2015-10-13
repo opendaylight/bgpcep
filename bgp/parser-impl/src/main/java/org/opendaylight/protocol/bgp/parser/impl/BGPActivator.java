@@ -37,6 +37,8 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.NextHopAttribute
 import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginatorIdAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.WithdrawnRoutesSerializer;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.next.hop.Ipv4NextHopParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.next.hop.Ipv6NextHopParser;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
@@ -65,6 +67,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.c.next.hop.Ipv4NextHopCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.c.next.hop.Ipv6NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
@@ -98,6 +102,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         this.registerCapabilityParsers(regs, context);
         this.registerAttributeParsers(regs, context);
         this.registerMessageParsers(regs, context);
+        this.registerNextHopParsers(context);
         return regs;
     }
 
@@ -201,5 +206,15 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         final BGPKeepAliveMessageParser kamp = new BGPKeepAliveMessageParser();
         regs.add(context.registerMessageParser(BGPKeepAliveMessageParser.TYPE, kamp));
         regs.add(context.registerMessageSerializer(Keepalive.class, kamp));
+    }
+
+    private void registerNextHopParsers(final BGPExtensionProviderContext context) {
+        final Ipv4NextHopParser ipv4NextHopParser = new Ipv4NextHopParser();
+        context.registerNextHopParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, ipv4NextHopParser);
+        context.registerNextHopSerializer(Ipv4NextHopCase.class, ipv4NextHopParser);
+
+        final Ipv6NextHopParser ipv6NextHopParser = new Ipv6NextHopParser();
+        context.registerNextHopParser(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, ipv6NextHopParser);
+        context.registerNextHopSerializer(Ipv6NextHopCase.class,ipv6NextHopParser);
     }
 }

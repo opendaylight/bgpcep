@@ -9,12 +9,16 @@ package org.opendaylight.protocol.bgp.flowspec;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.protocol.bgp.flowspec.nex.thop.FlowspecIpv4NextHopParser;
+import org.opendaylight.protocol.bgp.flowspec.nex.thop.FlowspecIpv6NextHopParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.ExtendedCommunitiesAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.FlowspecIpv6Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.routes.FlowspecRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.c.next.hop.FlowspecIpv4NextHopCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.c.next.hop.FlowspecIpv6NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.ExtendedCommunities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
@@ -39,6 +43,13 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         final ExtendedCommunitiesAttributeParser extendedCommunitiesAttributeParser = new FSExtendedCommunitiesAttributeParser(context.getReferenceCache());
         regs.add(context.registerAttributeSerializer(ExtendedCommunities.class, extendedCommunitiesAttributeParser));
         regs.add(context.registerAttributeParser(ExtendedCommunitiesAttributeParser.TYPE, extendedCommunitiesAttributeParser));
+
+        FlowspecIpv4NextHopParser flowspecIpv4NextHopParser = new FlowspecIpv4NextHopParser();
+        context.registerNextHopParser(Ipv4AddressFamily.class, FlowspecSubsequentAddressFamily.class, flowspecIpv4NextHopParser);
+        context.registerNextHopSerializer(FlowspecIpv4NextHopCase.class, flowspecIpv4NextHopParser);
+        FlowspecIpv6NextHopParser flowspecIpv6NextHopParser = new FlowspecIpv6NextHopParser();
+        context.registerNextHopParser(Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class, flowspecIpv6NextHopParser);
+        context.registerNextHopSerializer(FlowspecIpv6NextHopCase.class, flowspecIpv6NextHopParser);
 
         return regs;
     }

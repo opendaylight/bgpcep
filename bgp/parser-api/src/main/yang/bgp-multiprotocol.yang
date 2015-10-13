@@ -100,7 +100,27 @@ module bgp-multiprotocol {
             reference "http://tools.ietf.org/html/rfc4760#section-3";
 
             uses bgp-table-type;
-            uses bgp-t:next-hop;
+            choice c-next-hop {
+                case ipv4-next-hop-case {
+                    container ipv4-next-hop {
+                        reference "http://tools.ietf.org/html/rfc4271#section-5.1.3";
+                        leaf global {
+                            type inet:ipv4-address;
+                        }
+                    }
+                }
+                case ipv6-next-hop-case {
+                    container ipv6-next-hop {
+                        reference "http://tools.ietf.org/html/rfc4760#section-3";
+                        leaf global {
+                            type inet:ipv6-address;
+                        }
+                        leaf link-local {
+                            type inet:ipv6-address;
+                        }
+                    }
+                }
+            }
 
             container advertized-routes {
                 uses destination;

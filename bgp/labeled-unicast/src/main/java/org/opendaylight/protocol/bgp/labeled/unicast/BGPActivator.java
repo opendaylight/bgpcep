@@ -9,6 +9,8 @@ package org.opendaylight.protocol.bgp.labeled.unicast;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.protocol.bgp.labeled.unicast.next.hop.LabeledUnicastIpv4NextHopParser;
+import org.opendaylight.protocol.bgp.labeled.unicast.next.hop.LabeledUnicastIpv6NextHopParser;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.LabeledUnicastSubsequentAddressFamily;
@@ -32,6 +34,10 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
         regs.add(context.registerNlriSerializer(LabeledUnicastRoutes.class, luNlriParser));
 
+        final LabeledUnicastIpv4NextHopParser ipv4NextHopParser = new LabeledUnicastIpv4NextHopParser();
+        final LabeledUnicastIpv6NextHopParser ipv6NextHopParser = new LabeledUnicastIpv6NextHopParser();
+        context.registerNextHopParser(Ipv4AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class, ipv4NextHopParser);
+        context.registerNextHopParser(Ipv6AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class, ipv6NextHopParser);
         return regs;
     }
 

@@ -7,25 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.junit.Assert.assertEquals;
-import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
-import org.opendaylight.yangtools.yang.common.QName;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeWithValue;
-import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
-import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.CollectionNodeBuilder;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
-
 public class ExportPolicyTest {
 
-    private static final Ipv4Address IPV4 = new Ipv4Address("1.2.3.4");
+   /* private static final Ipv4Address IPV4 = new Ipv4Address("1.2.3.4");
     private static final ClusterIdentifier CLUSTER = new ClusterIdentifier(IPV4);
 
     private static final ToReflectorClientExportPolicy REF_POLICY = new ToReflectorClientExportPolicy(IPV4, CLUSTER);
@@ -96,7 +80,7 @@ public class ExportPolicyTest {
      *     }
      *     uses originator-id;
      * }
-     */
+
     private static ContainerNode createInputWithOriginator() {
         final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> b = Builders.containerBuilder();
         b.withNodeIdentifier(new NodeIdentifier(QName.cachedReference(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "attribute-container"))));
@@ -174,9 +158,8 @@ public class ExportPolicyTest {
             ImmutableNodes.leafNode(originatorNid, CLUSTER.getValue())).build();
     }
 
-    /*
-     * AsPath
-     */
+
+
     private static ContainerNode createPathInputWithAs() {
         return createPathInput(createSequenceWithLocalAs());
     }
@@ -198,5 +181,5 @@ public class ExportPolicyTest {
             .addChild(Builders.orderedLeafSetBuilder().withNodeIdentifier(BestPathSelectorTest.SEQ_LEAFLIST_NID)
                 .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(BestPathSelectorTest.AS_NUMBER_Q, LOCAL_AS)).withValue(LOCAL_AS).build())
                 .build()).build();
-    }
+    }*/
 }

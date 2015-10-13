@@ -35,7 +35,7 @@ public final class NextHopUtil {
      * @param cnextHop next hop to be serialized
      * @param byteAggregator where the next hop will be written
      */
-    public static void serializeNextHop(final CNextHop cnextHop, final ByteBuf byteAggregator) {
+    private static void serializeNextHop(final CNextHop cnextHop, final ByteBuf byteAggregator) {
         if (cnextHop instanceof Ipv4NextHopCase) {
             byteAggregator.writeBytes(Ipv4Util.bytesForAddress(((Ipv4NextHopCase) cnextHop).getIpv4NextHop().getGlobal()));
         } else if (cnextHop instanceof Ipv6NextHopCase) {
@@ -54,7 +54,7 @@ public final class NextHopUtil {
      * @param buffer contains byte array representation of CNextHop
      * @return CNexthop object
      */
-    public static CNextHop parseNextHop(final ByteBuf buffer) {
+    private static CNextHop parseNextHop(final ByteBuf buffer) {
         switch (buffer.writerIndex()) {
         case Ipv4Util.IP4_LENGTH:
             return new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(Ipv4Util.addressForByteBuf(buffer)).build()).build();
