@@ -13,10 +13,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import org.opendaylight.bgp.concepts.NextHopUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
@@ -29,15 +29,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class SimpleNlriRegistry implements NlriRegistry {
 
     private static final int RESERVED = 1;
     private static final int NEXT_HOP_LENGHT = 1;
+    private static final Logger LOG = LoggerFactory.getLogger(SimpleNlriRegistry.class);
 
     private final ConcurrentMap<BgpTableType, NlriParser> handlers = new ConcurrentHashMap<>();
     private final ConcurrentMap<Class<? extends DataObject>, NlriSerializer> serializers = new ConcurrentHashMap<>();
+    private final ConcurrentMap<BgpTableType, NextHopParserSerializer> nextHopParsers = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Class<? extends CNextHop>, NextHopParserSerializer> nextHopSerializers = new ConcurrentHashMap<>();
     private final SubsequentAddressFamilyRegistry safiReg;
     private final AddressFamilyRegistry afiReg;
 
@@ -53,11 +59,13 @@ final class SimpleNlriRegistry implements NlriRegistry {
         return new BgpTableTypeImpl(afi, safi);
     }
 
-    synchronized AutoCloseable registerNlriSerializer(final Class<? extends DataObject> nlriClass, final NlriSerializer serializer){
+    synchronized AutoCloseable registerNlriSerializer(final Class<? extends DataObject> nlriClass, final
+        NlriSerializer serializer){
         final NlriSerializer prev = this.serializers.get(nlriClass);
         Preconditions.checkState(prev == null, "Serializer already bound to class " + prev);
 
         this.serializers.put(nlriClass, serializer);
+
         final Object lock = this;
         return new AbstractRegistration() {
             @Override
@@ -70,18 +78,31 @@ final class SimpleNlriRegistry implements NlriRegistry {
     }
 
     synchronized AutoCloseable registerNlriParser(final Class<? extends AddressFamily> afi,
-            final Class<? extends SubsequentAddressFamily> safi, final NlriParser parser) {
+                                                         final Class<? extends SubsequentAddressFamily> safi, final NlriParser parser,
+                                                         final NextHopParserSerializer nextHopSerializer, final Class<? extends CNextHop> cNextHopClass,
+                                                         final Class<? extends CNextHop>... cNextHopClassList) {
         final BgpTableType key = createKey(afi, safi);
         final NlriParser prev = this.handlers.get(key);
         Preconditions.checkState(prev == null, "AFI/SAFI is already bound to parser " + prev);
 
         this.handlers.put(key, parser);
+        this.nextHopParsers.put(key,nextHopSerializer);
+        this.nextHopSerializers.put(cNextHopClass,nextHopSerializer);
+        for (Class<? extends CNextHop> cNextHop : cNextHopClassList) {
+            this.nextHopSerializers.put(cNextHop,nextHopSerializer);
+        }
+
         final Object lock = this;
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
                 synchronized (lock) {
                     SimpleNlriRegistry.this.handlers.remove(key);
+                    SimpleNlriRegistry.this.nextHopParsers.remove(key);
+                    SimpleNlriRegistry.this.nextHopSerializers.remove(cNextHopClass);
+                    for (Class<? extends CNextHop> cNextHop : cNextHopClassList) {
+                        SimpleNlriRegistry.this.nextHopSerializers.remove(cNextHop);
+                    }
                 }
             }
         };
@@ -119,14 +140,21 @@ final class SimpleNlriRegistry implements NlriRegistry {
 
     @Override
     public void serializeMpReach(final MpReachNlri mpReachNlri, final ByteBuf byteAggregator) {
-        byteAggregator.writeShort(this.afiReg.numberForClass(mpReachNlri.getAfi()));
-        byteAggregator.writeByte(this.safiReg.numberForClass(mpReachNlri.getSafi()));
+        final Class<? extends AddressFamily> afi = mpReachNlri.getAfi();
+        final Class<? extends SubsequentAddressFamily> safi = mpReachNlri.getSafi();
+        byteAggregator.writeShort(this.afiReg.numberForClass(afi));
+        byteAggregator.writeByte(this.safiReg.numberForClass(safi));
 
         if (mpReachNlri.getCNextHop() != null) {
-            final ByteBuf nextHopBuffer = Unpooled.buffer();
-            NextHopUtil.serializeNextHop(mpReachNlri.getCNextHop(), nextHopBuffer);
-            byteAggregator.writeByte(nextHopBuffer.writerIndex());
-            byteAggregator.writeBytes(nextHopBuffer);
+            final NextHopParserSerializer nextHopSerializer = this.nextHopSerializers.get(mpReachNlri.getCNextHop().getImplementedInterface());
+            if (nextHopSerializer != null) {
+                final ByteBuf nextHopBuffer = Unpooled.buffer();
+                nextHopSerializer.serializeNextHop(mpReachNlri.getCNextHop(), nextHopBuffer);
+                byteAggregator.writeByte(nextHopBuffer.writerIndex());
+                byteAggregator.writeBytes(nextHopBuffer);
+            } else {
+                LOG.warn("NexHop Parser/Serializer for AFI/SAFI ({},{}) not bound",afi,safi);
+            }
         } else {
             byteAggregator.writeZero(NEXT_HOP_LENGHT);
         }
@@ -147,14 +175,22 @@ final class SimpleNlriRegistry implements NlriRegistry {
     @Override
     public MpReachNlri parseMpReach(final ByteBuf buffer) throws BGPParsingException {
         final MpReachNlriBuilder builder = new MpReachNlriBuilder();
-        builder.setAfi(getAfi(buffer));
-        builder.setSafi(getSafi(buffer));
+        final Class<? extends AddressFamily> afi = getAfi(buffer);
+        final Class<? extends SubsequentAddressFamily> safi = getSafi(buffer);
+        builder.setAfi(afi);
+        builder.setSafi(safi);
 
-        final NlriParser parser = this.handlers.get(createKey(builder.getAfi(), builder.getSafi()));
+        final BgpTableType key = createKey(builder.getAfi(), builder.getSafi());
+        final NlriParser parser = this.handlers.get(key);
 
         final int nextHopLength = buffer.readUnsignedByte();
         if (nextHopLength != 0) {
-            builder.setCNextHop(NextHopUtil.parseNextHop(buffer.readSlice(nextHopLength)));
+            final NextHopParserSerializer nextHopParser = this.nextHopParsers.get(key);
+            if (nextHopParser != null) {
+                builder.setCNextHop(nextHopParser.parseNextHop(buffer.readSlice(nextHopLength)));
+            } else {
+                LOG.warn("NexHop Parser/Serializer for AFI/SAFI ({},{}) not bound",afi,safi);
+            }
         }
         buffer.skipBytes(RESERVED);
 
