@@ -245,10 +245,10 @@ public class BGPParserTest {
      * Tests IPv6 NEXT_HOP, NLRI, ORIGIN.IGP, MULTI_EXIT_DISC, ORIGINATOR-ID, CLUSTER_LIST.
      *
      * ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff <- marker
-     * 00 80 <- length (128) - including header
+     * 00 70 <- length (112) - including header
      * 02 <- message type
      * 00 00 <- withdrawn routes length
-     * 00 69 <- total path attribute length (105)
+     * 00 59 <- total path attribute length (89)
      * 40 <- attribute flags
      * 01 <- attribute type code (origin)
      * 01 <- attribute length
@@ -278,12 +278,11 @@ public class BGPParserTest {
      * 05 06 07 08 <- value
      * 80 <- attribute flags
      * 0e <- attribute type code (mp reach nlri)
-     * 40 <- attribute length
+     * 30 <- attribute length
      * 00 02 <- AFI (Ipv6)
      * 01 <- SAFI (Unicast)
      * 20 <- length of next hop
-     * 20 01 0d b8 00 00 00 00 00 00 00 00 00 00 00 01 <- global
-     * fe 80 00 00 00 00 00 00 c0 01 0b ff fe 7e 00 <- link local
+     * 10 01 0d b8 00 00 00 00 00 00 00 00 00 00 00 01 <- global
      * 00 <- reserved
      *
      * //NLRI
@@ -319,7 +318,7 @@ public class BGPParserTest {
         asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
 
         final Ipv6NextHopCase nextHop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(
-            new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1")).setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build()).build();
+            new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1")).build()).build();
 
         final List<ClusterIdentifier> clusters = Lists.newArrayList(new ClusterIdentifier(new Ipv4Address("1.2.3.4")),
             new ClusterIdentifier(new Ipv4Address("5.6.7.8")));
