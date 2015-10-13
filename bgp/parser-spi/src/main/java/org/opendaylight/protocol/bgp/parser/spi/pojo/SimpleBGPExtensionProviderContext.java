@@ -18,6 +18,7 @@ import org.opendaylight.protocol.bgp.parser.spi.CapabilityParser;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterParser;
@@ -26,6 +27,7 @@ import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
@@ -97,15 +99,26 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
         return this.getMessageRegistry().registerMessageSerializer(messageClass, serializer);
     }
 
+    /**
+     * Each extension requires a specific NextHop handler. Therefore this method has been deprecated  for
+     * the method which enforce user to register it.
+     */
+    @Deprecated
+    @Override
+    public AutoCloseable registerNlriParser(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi, NlriParser parser) {
+        return this.getNlriRegistry().registerNlriParser(afi, safi, parser, null, null);
+    }
+
     @Override
     public AutoCloseable registerNlriParser(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi,
-            final NlriParser parser) {
-        return this.getNlriRegistry().registerNlriParser(afi, safi, parser);
+            final NlriParser parser, final NextHopParserSerializer nextHopParserSerializer, final Class<? extends
+        CNextHop> cNextHopClass, final Class<? extends CNextHop>... cNextHopClassList) {
+        return this.getNlriRegistry().registerNlriParser(afi, safi, parser, nextHopParserSerializer, cNextHopClass);
     }
 
     @Override
     public AutoCloseable registerNlriSerializer(final Class<? extends DataObject> nlriClass, final NlriSerializer serializer) {
-        return this.getNlriRegistry().registerNlriSerializer(nlriClass,serializer);
+        return this.getNlriRegistry().registerNlriSerializer(nlriClass, serializer);
     }
 
     @Override
