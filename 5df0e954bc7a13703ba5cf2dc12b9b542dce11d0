@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_18f3cd0b",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-15T13:56:20Z",
+      "side": 1,
+      "message": "some better name",
+      "range": {
+        "startLine": 45,
+        "startChar": 12,
+        "endLine": 45,
+        "endChar": 28
+      },
+      "revId": "5df0e954bc7a13703ba5cf2dc12b9b542dce11d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_58e95519",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-15T13:56:20Z",
+      "side": 1,
+      "message": "is it necessary to define new type?",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 5
+      },
+      "revId": "5df0e954bc7a13703ba5cf2dc12b9b542dce11d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_5882b553",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-15T13:56:20Z",
+      "side": 1,
+      "message": "still not enough, you can do it better...avoid using binary",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 5
+      },
+      "revId": "5df0e954bc7a13703ba5cf2dc12b9b542dce11d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
