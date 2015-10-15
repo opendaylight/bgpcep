@@ -12,122 +12,133 @@ import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrLanAdjId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrLanAdjIdBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.AdjacencyFlags;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.AdjacencySegmentIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.SidLabel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.Weight;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.AdjSidTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.Weight;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.Flags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.IsisAdjFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.IsisAdjFlagsCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.OspfAdjFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.OspfAdjFlagsCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.SidLabelIndex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class SrLinkAttributesParser {
-    private static final Logger LOG = LoggerFactory.getLogger(SrLinkAttributesParser.class);
 
     private static final int ISO_SYSTEM_ID_SIZE = 6;
 
     /* Adj-SID flags */
     private static final int ADDRESS_FAMILY_FLAG = 0;
     private static final int BACKUP_FLAG = 1;
-    private static final int VALUE_FLAG = 2;
-    private static final int LOCAL_FLAG = 3;
     private static final int SET_FLAG = 4;
     private static final int FLAGS_SIZE = 8;
-    private static final int SID_TYPE = 1;
 
     private SrLinkAttributesParser() {
         throw new UnsupportedOperationException();
     }
 
-    public static AdjacencySegmentIdentifier parseAdjacencySegmentIdentifier(final ByteBuf buffer) {
-        final AdjacencyFlags adjFlags;
+    public static AdjSidTlv parseAdjacencySegmentIdentifier(final ByteBuf buffer, final ProtocolId protocol) {
+        final Flags adjFlags;
         final Weight weight;
-        final SidLabel sidValue;
+        final SidLabelIndex sidValue;
         if (buffer.isReadable()) {
             final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
-            adjFlags = new AdjacencyFlags(flags.get(ADDRESS_FAMILY_FLAG), flags.get(BACKUP_FLAG), flags.get(LOCAL_FLAG), flags.get(SET_FLAG), flags.get(VALUE_FLAG));
+            adjFlags = parseFlags(flags, protocol);
             weight = new Weight(buffer.readUnsignedByte());
-            sidValue = parseSidSubTlv(buffer);
+            sidValue = SidLabelIndexParser.parseSidSubTlv(buffer);
         } else {
             adjFlags = null;
             weight = null;
             sidValue = null;
         }
-        return new AdjacencySegmentIdentifier() {
+        return new AdjSidTlv() {
+            @Override
+            public Flags getFlags() {
+                return adjFlags;
+            }
             @Override
             public Class<? extends DataContainer> getImplementedInterface() {
-                return AdjacencySegmentIdentifier.class;
+                return AdjSidTlv.class;
             }
             @Override
             public Weight getWeight() {
                 return weight;
             }
             @Override
-            public SidLabel getSid() {
+            public SidLabelIndex getSidLabelIndex() {
                 return sidValue;
-            }
-            @Override
-            public AdjacencyFlags getFlags() {
-                return adjFlags;
             }
         };
     }
 
-    public static ByteBuf serializeAdjacencySegmentIdentifier(final AdjacencySegmentIdentifier srAdjId) {
-        final ByteBuf value = Unpooled.buffer();
-        final AdjacencyFlags srAdjIdFlags = srAdjId.getFlags();
-        final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(ADDRESS_FAMILY_FLAG, srAdjIdFlags.isAddressFamily());
-        flags.set(BACKUP_FLAG, srAdjIdFlags.isBackup());
-        flags.set(VALUE_FLAG, srAdjIdFlags.isValue());
-        flags.set(LOCAL_FLAG, srAdjIdFlags.isLocal());
-        flags.set(SET_FLAG, srAdjIdFlags.isSetFlag());
-        flags.toByteBuf(value);
-        value.writeByte(srAdjId.getWeight().getValue());
-        TlvUtil.writeSrTLV(SID_TYPE, Unpooled.wrappedBuffer(srAdjId.getSid().getValue()), value);
-        return value;
-    }
-
-    public static SrLanAdjId parseLanAdjacencySegmentIdentifier(final ByteBuf buffer) {
+    public static SrLanAdjId parseLanAdjacencySegmentIdentifier(final ByteBuf buffer, final ProtocolId protocol) {
         if (!buffer.isReadable()) {
             return new SrLanAdjIdBuilder().build();
         }
         final SrLanAdjIdBuilder srLanAdjIdBuilder = new SrLanAdjIdBuilder();
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
-        srLanAdjIdBuilder.setFlags(new AdjacencyFlags(flags.get(ADDRESS_FAMILY_FLAG), flags.get(BACKUP_FLAG), flags.get(LOCAL_FLAG), flags.get(SET_FLAG), flags.get(VALUE_FLAG)));
+        srLanAdjIdBuilder.setFlags(parseFlags(flags, protocol));
         srLanAdjIdBuilder.setWeight(new Weight(buffer.readUnsignedByte()));
         srLanAdjIdBuilder.setIsoSystemId(new IsoSystemIdentifier(ByteArray.readBytes(buffer, ISO_SYSTEM_ID_SIZE)));
-        srLanAdjIdBuilder.setSid(new SidLabel(parseSidSubTlv(buffer)));
+        srLanAdjIdBuilder.setSidLabelIndex(SidLabelIndexParser.parseSidSubTlv(buffer));
         return srLanAdjIdBuilder.build();
     }
 
-    private static SidLabel parseSidSubTlv(final ByteBuf buffer) {
-        final SidLabel sidValue;
-        final int type = buffer.readUnsignedByte();
-        final int length = buffer.readUnsignedByte();
-        sidValue = new SidLabel(ByteArray.readAllBytes(buffer.readSlice(length)));
-        if (type != SID_TYPE) {
-            LOG.warn("Unexpected type in SID/label Sub-TLV, expected {}, actual {}, ignoring it", SID_TYPE, type);
-            return null;
+    private static Flags parseFlags(final BitArray flags, final ProtocolId protocol) {
+        if (protocol.equals(ProtocolId.IsisLevel1) || protocol.equals(ProtocolId.IsisLevel2)) {
+            return new IsisAdjFlagsCaseBuilder()
+                .setAddressFamily(flags.get(ADDRESS_FAMILY_FLAG))
+                .setBackup(flags.get(BACKUP_FLAG))
+                .setSet(flags.get(SET_FLAG)).build();
         }
-        return sidValue;
+        if (protocol.equals(ProtocolId.Ospf)) {
+            return new OspfAdjFlagsCaseBuilder()
+                .setBackup(flags.get(BACKUP_FLAG))
+                .setSet(flags.get(SET_FLAG)).build();
+        }
+        return null;
+        // TODO implement local and value elsewhere
+        // srLanAdjIdBuilder.setFlags(new AdjacencyFlags(bitFlags.get(ADDRESS_FAMILY_FLAG), bitFlags.get(BACKUP_FLAG), bitFlags.get(LOCAL_FLAG), bitFlags.get(SET_FLAG), bitFlags.get(VALUE_FLAG)));
+    }
+
+    public static ByteBuf serializeAdjacencySegmentIdentifier(final AdjSidTlv adjSid) {
+        final ByteBuf value = Unpooled.buffer();
+        final Flags srAdjIdFlags = adjSid.getFlags();
+        final BitArray flags = serializeAdjFlags(srAdjIdFlags);
+        flags.toByteBuf(value);
+        value.writeByte(adjSid.getWeight().getValue());
+        TlvUtil.writeTLV(SidLabelIndexParser.SID_TYPE, SidLabelIndexParser.serializeSidValue(adjSid.getSidLabelIndex()), value);
+        return value;
     }
 
     public static ByteBuf serializeLanAdjacencySegmentIdentifier(final SrLanAdjId srLanAdjId) {
         final ByteBuf value = Unpooled.buffer();
-        final AdjacencyFlags srAdjIdFlags = srLanAdjId.getFlags();
-        final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(ADDRESS_FAMILY_FLAG, srAdjIdFlags.isAddressFamily());
-        flags.set(BACKUP_FLAG, srAdjIdFlags.isBackup());
-        flags.set(VALUE_FLAG, srAdjIdFlags.isValue());
-        flags.set(LOCAL_FLAG, srAdjIdFlags.isLocal());
-        flags.set(SET_FLAG, srAdjIdFlags.isSetFlag());
+        final Flags lanAdjFlags = srLanAdjId.getFlags();
+        final BitArray flags = serializeAdjFlags(lanAdjFlags);
         flags.toByteBuf(value);
         value.writeByte(srLanAdjId.getWeight().getValue());
         value.writeBytes(srLanAdjId.getIsoSystemId().getValue());
-        TlvUtil.writeSrTLV(SID_TYPE, Unpooled.wrappedBuffer(srLanAdjId.getSid().getValue()), value);
+        TlvUtil.writeTLV(SidLabelIndexParser.SID_TYPE, SidLabelIndexParser.serializeSidValue(srLanAdjId.getSidLabelIndex()), value);
         return value;
     }
+
+    private static BitArray serializeAdjFlags(final Flags flags) {
+        // TODO set value and local
+        final BitArray bitFlags = new BitArray(FLAGS_SIZE);
+        if (flags instanceof OspfAdjFlagsCase) {
+            final OspfAdjFlagsCase ospfFlags = (OspfAdjFlagsCase) flags;
+            bitFlags.set(BACKUP_FLAG, ospfFlags.isBackup());
+            bitFlags.set(SET_FLAG, ospfFlags.isSet());
+        } else if (flags instanceof IsisAdjFlagsCase) {
+            final IsisAdjFlagsCase isisFlags = (IsisAdjFlagsCase) flags;
+            bitFlags.set(ADDRESS_FAMILY_FLAG, isisFlags.isAddressFamily());
+            bitFlags.set(BACKUP_FLAG, isisFlags.isBackup());
+            bitFlags.set(SET_FLAG, isisFlags.isSet());
+        }
+        return bitFlags;
+    }
+
 }
