@@ -11,6 +11,7 @@ module bgp-linkstate {
     import network-concepts { prefix netc; revision-date 2013-11-25; }
     import rsvp { prefix rsvp; revision-date 2015-08-20; }
     import bgp-segment-routing { prefix bgp-sr; revision-date 2015-02-06; }
+    import bgp-segment-routing-ext { prefix bgp-sr-ext; revision-date 2015-10-14; }
     import bgp-epe { prefix bgp-epe; revision-date 2015-06-22; }
     import bmp-monitor { prefix bmp-mon; revision-date 2015-05-12; }
 
@@ -625,6 +626,7 @@ module bgp-linkstate {
         }
         container sr-prefix {
             uses bgp-sr:prefix-sid;
+            uses bgp-sr-ext:prefix-sid-tlv;
         }
     }
 
