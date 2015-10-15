@@ -1,0 +1,280 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_f5f4d288",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-15T11:46:07Z",
+      "side": 1,
+      "message": "the output will be really unreadable\ndefine choice with cases:\n-local label\n-ipv6 address\n-index",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 5
+      },
+      "revId": "c0ff4236555005b092596d4f92f2f95386ef79a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_f59ff24e",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-15T11:46:07Z",
+      "side": 1,
+      "message": "rather use booleans - more human readable",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 13
+      },
+      "revId": "c0ff4236555005b092596d4f92f2f95386ef79a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_55b6fedd",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-15T11:46:07Z",
+      "side": 1,
+      "message": "not user friendly name of type",
+      "range": {
+        "startLine": 75,
+        "startChar": 17,
+        "endLine": 75,
+        "endChar": 33
+      },
+      "revId": "c0ff4236555005b092596d4f92f2f95386ef79a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_d5c98e5b",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-15T11:46:07Z",
+      "side": 1,
+      "message": "enumeration is not extensible, in fact there are two types defined in OSPF/ISIS extensions...consider using identities",
+      "range": {
+        "startLine": 84,
+        "startChar": 12,
+        "endLine": 84,
+        "endChar": 27
+      },
+      "revId": "c0ff4236555005b092596d4f92f2f95386ef79a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_95f1c697",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-15T11:46:07Z",
+      "side": 1,
+      "message": "do not have to modeled",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 103,
+        "endChar": 17
+      },
+      "revId": "c0ff4236555005b092596d4f92f2f95386ef79a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_b5ee4ab3",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-15T11:46:07Z",
+      "side": 1,
+      "message": "do not have to be modeled",
+      "range": {
+        "startLine": 118,
+        "startChar": 0,
+        "endLine": 123,
+        "endChar": 17
+      },
+      "revId": "c0ff4236555005b092596d4f92f2f95386ef79a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_552b5eeb",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-15T11:46:07Z",
+      "side": 1,
+      "message": "not really subtlv",
+      "range": {
+        "startLine": 148,
+        "startChar": 23,
+        "endLine": 148,
+        "endChar": 29
+      },
+      "revId": "c0ff4236555005b092596d4f92f2f95386ef79a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_353a5a37",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-15T11:46:07Z",
+      "side": 1,
+      "message": "rather booleans",
+      "range": {
+        "startLine": 171,
+        "startChar": 0,
+        "endLine": 182,
+        "endChar": 17
+      },
+      "revId": "c0ff4236555005b092596d4f92f2f95386ef79a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_1535d645",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-15T11:46:07Z",
+      "side": 1,
+      "message": "do not need to be modeled",
+      "range": {
+        "startLine": 183,
+        "startChar": 0,
+        "endLine": 188,
+        "endChar": 17
+      },
+      "revId": "c0ff4236555005b092596d4f92f2f95386ef79a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_d53e6e29",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-15T11:46:07Z",
+      "side": 1,
+      "message": "no need to be modeled, set/get by the context",
+      "range": {
+        "startLine": 206,
+        "startChar": 0,
+        "endLine": 211,
+        "endChar": 17
+      },
+      "revId": "c0ff4236555005b092596d4f92f2f95386ef79a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_35149af4",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-15T11:46:07Z",
+      "side": 1,
+      "message": "I would prefer the boolean - it is more user friendly",
+      "range": {
+        "startLine": 380,
+        "startChar": 0,
+        "endLine": 384,
+        "endChar": 13
+      },
+      "revId": "c0ff4236555005b092596d4f92f2f95386ef79a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_b5edeaf1",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-15T11:46:07Z",
+      "side": 1,
+      "message": "not really user friendly name of the type",
+      "range": {
+        "startLine": 387,
+        "startChar": 17,
+        "endLine": 387,
+        "endChar": 33
+      },
+      "revId": "c0ff4236555005b092596d4f92f2f95386ef79a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
