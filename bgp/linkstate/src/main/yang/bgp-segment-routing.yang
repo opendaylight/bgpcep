@@ -220,6 +220,7 @@ module bgp-segment-routing {
 
     grouping prefix-sid {
         reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-02#section-2.1";
+        status "deprecated";
         leaf flags {
             type bits {
                 bit readvertisement {
