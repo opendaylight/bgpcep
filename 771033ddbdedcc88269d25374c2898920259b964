@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_d5cd0e88",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-15T10:42:52Z",
+      "side": 0,
+      "message": "If nextHop Attributes only support Ipv4, it doesn\u0027t make sense\npass mpReach next hop to attibute next hop? what happens when its Ipv6?",
+      "range": {
+        "startLine": 140,
+        "startChar": 12,
+        "endLine": 140,
+        "endChar": 63
+      },
+      "revId": "771033ddbdedcc88269d25374c2898920259b964",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

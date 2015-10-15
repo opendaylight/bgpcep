@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_b5b5ea32",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/bgp/concepts/NextHopUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-15T10:42:52Z",
+      "side": 1,
+      "message": "this class will be deleted",
+      "range": {
+        "startLine": 28,
+        "startChar": 3,
+        "endLine": 70,
+        "endChar": 1
+      },
+      "revId": "95f0cff470703ba8e258eff3281287d901420848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_55827e53",
+        "filename": "bgp/concepts/src/test/java/org/opendaylight/bgp/concepts/NextHopUtilTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-15T10:42:52Z",
+      "side": 1,
+      "message": "this will be deleted",
+      "range": {
+        "startLine": 1,
+        "startChar": 1,
+        "endLine": 103,
+        "endChar": 1
+      },
+      "revId": "95f0cff470703ba8e258eff3281287d901420848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_157cf671",
+        "filename": "bgp/flowspec/src/main/yang/bgp-flowspec.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-15T10:42:52Z",
+      "side": 1,
+      "message": "TODO Check if support Ipv4, Ipv6(Global \u0026 LinkLocal)",
+      "range": {
+        "startLine": 274,
+        "startChar": 0,
+        "endLine": 293,
+        "endChar": 9
+      },
+      "revId": "95f0cff470703ba8e258eff3281287d901420848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_3581fa4a",
+        "filename": "bgp/labeled-unicast/src/main/yang/bgp-labeled-unicast.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-15T10:42:52Z",
+      "side": 1,
+      "message": "TODO Check if support Ipv4, Ipv6(Global \u0026 LinkLocal)",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 5
+      },
+      "revId": "95f0cff470703ba8e258eff3281287d901420848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_d5950e89",
+        "filename": "bgp/linkstate/src/main/yang/bgp-linkstate.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-15T10:42:52Z",
+      "side": 1,
+      "message": "TODO Check if support Ipv4, Ipv6(Global \u0026 LinkLocal)??",
+      "range": {
+        "startLine": 388,
+        "startChar": 0,
+        "endLine": 397,
+        "endChar": 5
+      },
+      "revId": "95f0cff470703ba8e258eff3281287d901420848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_958f8675",
+        "filename": "bgp/parser-api/src/main/yang/bgp-multiprotocol.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-15T10:42:52Z",
+      "side": 1,
+      "message": "I think is better to keep it independent from the one used in \nPath-\u003eAttributes.\nAnd I would rename ipv4-next-hop-case for unicast-ipv4-next-hop-case, same for ipv6.\n\nproblem will be that it will broke clients app, but I think this is necessary and for keep a constant for other extension as flowspec, linstate, labeled..",
+      "range": {
+        "startLine": 102,
+        "startChar": 1,
+        "endLine": 123,
+        "endChar": 13
+      },
+      "revId": "95f0cff470703ba8e258eff3281287d901420848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_75bf82d1",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/NextHopAttributeParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-15T10:42:52Z",
+      "side": 1,
+      "message": "We should remove Ipv6 from yang model?",
+      "range": {
+        "startLine": 36,
+        "startChar": 63,
+        "endLine": 36,
+        "endChar": 77
+      },
+      "revId": "95f0cff470703ba8e258eff3281287d901420848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_35b9fae9",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-15T10:42:52Z",
+      "side": 1,
+      "message": "// Implemented for UnicastFamily, What about others AFI --SAFI ??",
+      "range": {
+        "startLine": 152,
+        "startChar": 12,
+        "endLine": 152,
+        "endChar": 77
+      },
+      "revId": "95f0cff470703ba8e258eff3281287d901420848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_95c78664",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-15T10:42:52Z",
+      "side": 1,
+      "message": "//Since we support only Ipv4 (parser/serializer) for path attributes, does this make sense?",
+      "range": {
+        "startLine": 209,
+        "startChar": 16,
+        "endLine": 209,
+        "endChar": 107
+      },
+      "revId": "95f0cff470703ba8e258eff3281287d901420848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
