@@ -48,9 +48,9 @@ import org.slf4j.LoggerFactory;
 public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BGPDispatcherImpl.class);
     private static final int SOCKET_BACKLOG_SIZE = 128;
-    private final MD5ServerChannelFactory<?> scf;
-    private final MD5ChannelFactory<?> cf;
-    private final BGPHandlerFactory hf;
+    private final MD5ServerChannelFactory<?> serverChannelFactory;
+    private final MD5ChannelFactory<?> channelFactory;
+    private final BGPHandlerFactory handlerFactory;
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
     private final EventExecutor executor;
@@ -64,26 +64,26 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         this.bossGroup = Preconditions.checkNotNull(bossGroup);
         this.workerGroup = Preconditions.checkNotNull(workerGroup);
         this.executor = Preconditions.checkNotNull(GlobalEventExecutor.INSTANCE);
-        this.hf = new BGPHandlerFactory(messageRegistry);
-        this.cf = cf;
-        this.scf = scf;
+        this.handlerFactory = new BGPHandlerFactory(messageRegistry);
+        this.channelFactory = cf;
+        this.serverChannelFactory = scf;
         this.keys = null;
     }
 
     @Override
     public synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress address, final BGPPeerRegistry listener, final ReconnectStrategy strategy) {
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(listener);
-        final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.hf, snf);
+        final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.handlerFactory, snf);
 
-        final Bootstrap b = new Bootstrap();
-        final BGPProtocolSessionPromise p = new BGPProtocolSessionPromise(this.executor, address, strategy, b);
-        b.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE);
-        b.handler(BGPChannel.createChannelInitializer(initializer, p));
-        this.customizeBootstrap(b);
-        setWorkerGroup(b);
-        p.connect();
+        final Bootstrap bootstrap = new Bootstrap();
+        final BGPProtocolSessionPromise sessionPromise = new BGPProtocolSessionPromise(this.executor, address, strategy, bootstrap);
+        bootstrap.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE);
+        bootstrap.handler(BGPChannel.createChannelInitializer(initializer, sessionPromise));
+        this.customizeBootstrap(bootstrap);
+        setWorkerGroup(bootstrap);
+        sessionPromise.connect();
         LOG.debug("Client created.");
-        return p;
+        return sessionPromise;
     }
 
     @Override
@@ -101,78 +101,78 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(peerRegistry);
         this.keys = keys;
 
-        final Bootstrap b = new Bootstrap();
-        final BGPReconnectPromise p = new BGPReconnectPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE, address,
-            connectStrategyFactory, b, BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.hf, snf));
-        b.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE);
-        this.customizeBootstrap(b);
-        setWorkerGroup(b);
-        p.connect();
+        final Bootstrap bootstrap = new Bootstrap();
+        final BGPReconnectPromise reconnectPromise = new BGPReconnectPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE, address,
+            connectStrategyFactory, bootstrap, BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.handlerFactory, snf));
+        bootstrap.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE);
+        this.customizeBootstrap(bootstrap);
+        setWorkerGroup(bootstrap);
+        reconnectPromise.connect();
 
         this.keys = null;
 
-        return p;
+        return reconnectPromise;
     }
 
     @Override
     public ChannelFuture createServer(final BGPPeerRegistry registry, final InetSocketAddress address) {
         final BGPServerSessionNegotiatorFactory snf = new BGPServerSessionNegotiatorFactory(registry);
-        final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.hf, snf);
-        final ServerBootstrap b = new ServerBootstrap();
-        b.childHandler(BGPChannel.createChannelInitializer(initializer, new DefaultPromise(BGPDispatcherImpl.this.executor)));
-        b.option(ChannelOption.SO_BACKLOG, Integer.valueOf(SOCKET_BACKLOG_SIZE));
-        b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
-        this.customizeBootstrap(b);
+        final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.handlerFactory, snf);
+        final ServerBootstrap serverBootstrap = new ServerBootstrap();
+        serverBootstrap.childHandler(BGPChannel.createChannelInitializer(initializer, new DefaultPromise(BGPDispatcherImpl.this.executor)));
+        serverBootstrap.option(ChannelOption.SO_BACKLOG, Integer.valueOf(SOCKET_BACKLOG_SIZE));
+        serverBootstrap.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
+        this.customizeBootstrap(serverBootstrap);
 
-        final ChannelFuture f = b.bind(address);
-        LOG.debug("Initiated server {} at {}.", f, address);
-        return f;
+        final ChannelFuture channelFuture = serverBootstrap.bind(address);
+        LOG.debug("Initiated server {} at {}.", channelFuture, address);
+        return channelFuture;
     }
 
-    protected void customizeBootstrap(final Bootstrap b) {
+    protected void customizeBootstrap(final Bootstrap bootstrap) {
         if (this.keys != null && !this.keys.isEmpty()) {
-            if (this.cf == null) {
+            if (this.channelFactory == null) {
                 throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
             }
-            b.channelFactory(this.cf);
-            b.option(MD5ChannelOption.TCP_MD5SIG, this.keys);
+            bootstrap.channelFactory(this.channelFactory);
+            bootstrap.option(MD5ChannelOption.TCP_MD5SIG, this.keys);
         }
 
         // Make sure we are doing round-robin processing
-        b.option(ChannelOption.MAX_MESSAGES_PER_READ, 1);
+        bootstrap.option(ChannelOption.MAX_MESSAGES_PER_READ, 1);
     }
 
-    private void customizeBootstrap(final ServerBootstrap b) {
+    private void customizeBootstrap(final ServerBootstrap serverBootstrap) {
         if (this.keys != null && !this.keys.isEmpty()) {
-            if (this.scf == null) {
+            if (this.serverChannelFactory == null) {
                 throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
             }
-            b.channelFactory(this.scf);
-            b.option(MD5ChannelOption.TCP_MD5SIG, this.keys);
+            serverBootstrap.channelFactory(this.serverChannelFactory);
+            serverBootstrap.option(MD5ChannelOption.TCP_MD5SIG, this.keys);
         }
 
         // Make sure we are doing round-robin processing
-        b.option(ChannelOption.MAX_MESSAGES_PER_READ, 1);
+        serverBootstrap.option(ChannelOption.MAX_MESSAGES_PER_READ, 1);
 
-        if (b.group() == null) {
-            b.group(this.bossGroup, this.workerGroup);
+        if (serverBootstrap.group() == null) {
+            serverBootstrap.group(this.bossGroup, this.workerGroup);
         }
 
         try {
-            b.channel(NioServerSocketChannel.class);
+            serverBootstrap.channel(NioServerSocketChannel.class);
         } catch (final IllegalStateException e) {
-            LOG.trace("Not overriding channelFactory on bootstrap {}", b, e);
+            LOG.trace("Not overriding channelFactory on bootstrap {}", serverBootstrap, e);
         }
     }
 
-    private void setWorkerGroup(final Bootstrap b) {
-        if (b.group() == null) {
-            b.group(this.workerGroup);
+    private void setWorkerGroup(final Bootstrap bootstrap) {
+        if (bootstrap.group() == null) {
+            bootstrap.group(this.workerGroup);
         }
         try {
-            b.channel(NioSocketChannel.class);
+            bootstrap.channel(NioSocketChannel.class);
         } catch (final IllegalStateException e) {
-            LOG.trace("Not overriding channelFactory on bootstrap {}", b, e);
+            LOG.trace("Not overriding channelFactory on bootstrap {}", bootstrap, e);
         }
     }
 
@@ -187,10 +187,10 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
             createChannelPipelineInitializer(final BGPHandlerFactory hf, final T snf) {
             return new ChannelPipelineInitializer<S>() {
                 @Override
-                public void initializeChannel(final SocketChannel ch, final Promise<S> promise) {
-                    ch.pipeline().addLast(hf.getDecoders());
-                    ch.pipeline().addLast(NEGOTIATOR, snf.getSessionNegotiator(ch, promise));
-                    ch.pipeline().addLast(hf.getEncoders());
+                public void initializeChannel(final SocketChannel channel, final Promise<S> promise) {
+                    channel.pipeline().addLast(hf.getDecoders());
+                    channel.pipeline().addLast(NEGOTIATOR, snf.getSessionNegotiator(channel, promise));
+                    channel.pipeline().addLast(hf.getEncoders());
                 }
             };
         }
@@ -198,8 +198,8 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         public static <S extends BGPSession> ChannelHandler createChannelInitializer(final ChannelPipelineInitializer initializer, final Promise<S> promise) {
             return new ChannelInitializer<SocketChannel>() {
                 @Override
-                protected void initChannel(final SocketChannel ch) {
-                    initializer.initializeChannel(ch, promise);
+                protected void initChannel(final SocketChannel channel) {
+                    initializer.initializeChannel(channel, promise);
                 }
             };
         }

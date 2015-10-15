@@ -27,31 +27,31 @@ import org.slf4j.LoggerFactory;
 public class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultPromise<S> {
     private static final Logger LOG = LoggerFactory.getLogger(BGPProtocolSessionPromise.class);
     private final ReconnectStrategy strategy;
-    private final Bootstrap b;
+    private final Bootstrap bootstrap;
 
     private InetSocketAddress address;
     @GuardedBy("this")
     private Future<?> pending;
 
-    public BGPProtocolSessionPromise(EventExecutor executor, InetSocketAddress address, ReconnectStrategy strategy, Bootstrap b) {
+    public BGPProtocolSessionPromise(EventExecutor executor, InetSocketAddress address, ReconnectStrategy strategy, Bootstrap bootstrap) {
         super(executor);
         this.strategy = Preconditions.checkNotNull(strategy);
         this.address = Preconditions.checkNotNull(address);
-        this.b = Preconditions.checkNotNull(b);
+        this.bootstrap = Preconditions.checkNotNull(bootstrap);
     }
 
     public synchronized void connect() {
         final BGPProtocolSessionPromise lock = this;
 
         try {
-            int e = this.strategy.getConnectTimeout();
-            LOG.debug("Promise {} attempting connect for {}ms", lock, Integer.valueOf(e));
+            int timeout = this.strategy.getConnectTimeout();
+            LOG.debug("Promise {} attempting connect for {}ms", lock, Integer.valueOf(timeout));
             if (this.address.isUnresolved()) {
                 this.address = new InetSocketAddress(this.address.getHostName(), this.address.getPort());
             }
 
-            this.b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, e);
-            final ChannelFuture connectFuture = this.b.connect(this.address);
+            this.bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, timeout);
+            final ChannelFuture connectFuture = this.bootstrap.connect(this.address);
             connectFuture.addListener(new BGPProtocolSessionPromise.BootstrapConnectListener(lock));
             this.pending = connectFuture;
         } catch (Exception e) {
@@ -86,23 +86,23 @@ public class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultProm
         }
 
         @Override
-        public void operationComplete(final ChannelFuture cf) throws Exception {
+        public void operationComplete(final ChannelFuture channelFuture) throws Exception {
             synchronized (this.lock) {
                 BGPProtocolSessionPromise.LOG.debug("Promise {} connection resolved", this.lock);
-                Preconditions.checkState(BGPProtocolSessionPromise.this.pending.equals(cf));
+                Preconditions.checkState(BGPProtocolSessionPromise.this.pending.equals(channelFuture));
                 if (BGPProtocolSessionPromise.this.isCancelled()) {
-                    if (cf.isSuccess()) {
+                    if (channelFuture.isSuccess()) {
                         BGPProtocolSessionPromise.LOG.debug("Closing channel for cancelled promise {}", this.lock);
-                        cf.channel().close();
+                        channelFuture.channel().close();
                     }
 
-                } else if (cf.isSuccess()) {
+                } else if (channelFuture.isSuccess()) {
                     BGPProtocolSessionPromise.LOG.debug("Promise {} connection successful", this.lock);
                 } else {
-                    BGPProtocolSessionPromise.LOG.debug("Attempt to connect to {} failed", BGPProtocolSessionPromise.this.address, cf.cause());
-                    final Future rf = BGPProtocolSessionPromise.this.strategy.scheduleReconnect(cf.cause());
-                    rf.addListener(new BGPProtocolSessionPromise.BootstrapConnectListener.ReconnectingStrategyListener());
-                    BGPProtocolSessionPromise.this.pending = rf;
+                    BGPProtocolSessionPromise.LOG.debug("Attempt to connect to {} failed", BGPProtocolSessionPromise.this.address, channelFuture.cause());
+                    final Future reconnectFuture = BGPProtocolSessionPromise.this.strategy.scheduleReconnect(channelFuture.cause());
+                    reconnectFuture.addListener(new BGPProtocolSessionPromise.BootstrapConnectListener.ReconnectingStrategyListener());
+                    BGPProtocolSessionPromise.this.pending = reconnectFuture;
                 }
             }
         }
@@ -112,14 +112,14 @@ public class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultProm
             }
 
             @Override
-            public void operationComplete(final Future<Void> sf) {
+            public void operationComplete(final Future<Void> sessionFuture) {
                 synchronized (BootstrapConnectListener.this.lock) {
-                    Preconditions.checkState(BGPProtocolSessionPromise.this.pending.equals(sf));
+                    Preconditions.checkState(BGPProtocolSessionPromise.this.pending.equals(sessionFuture));
                     if (!BGPProtocolSessionPromise.this.isCancelled()) {
-                        if (sf.isSuccess()) {
+                        if (sessionFuture.isSuccess()) {
                             BGPProtocolSessionPromise.this.connect();
                         } else {
-                            BGPProtocolSessionPromise.this.setFailure(sf.cause());
+                            BGPProtocolSessionPromise.this.setFailure(sessionFuture.cause());
                         }
                     }
 
