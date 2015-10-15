@@ -43,52 +43,52 @@ abstract class AbstractNumericOperandParser<N> extends AbstractOperandParser<Num
     protected abstract <T extends N> String toString(final List<T> list);
 
     @Override
-    protected final NumericOperand create(final Set<String> opValues) {
-        return new NumericOperand(opValues.contains(AND_BIT_VALUE), opValues.contains(END_OF_LIST_VALUE), opValues.contains(EQUALS_VALUE), opValues.contains(GREATER_THAN_VALUE), opValues.contains(LESS_THAN_VALUE));
+    protected final NumericOperand create(final Set<String> operandValues) {
+        return new NumericOperand(operandValues.contains(AND_BIT_VALUE), operandValues.contains(END_OF_LIST_VALUE), operandValues.contains(EQUALS_VALUE), operandValues.contains(GREATER_THAN_VALUE), operandValues.contains(LESS_THAN_VALUE));
     }
 
     @Override
-    public final void serialize(final NumericOperand op, final int length, final ByteBuf buffer) {
-        final BitArray bs = new BitArray(OPERAND_LENGTH);
-        bs.set(END_OF_LIST, op.isEndOfList());
-        bs.set(AND_BIT, op.isAndBit());
-        bs.set(LESS_THAN, op.isLessThan());
-        bs.set(GREATER_THAN, op.isGreaterThan());
-        bs.set(EQUAL, op.isEquals());
-        final byte len = (byte) (Integer.numberOfTrailingZeros(length) << LENGTH_SHIFT);
-        buffer.writeByte(bs.toByte() | len);
+    public final void serialize(final NumericOperand operand, final int length, final ByteBuf buffer) {
+        final BitArray operandValues = new BitArray(OPERAND_LENGTH);
+        operandValues.set(END_OF_LIST, operand.isEndOfList());
+        operandValues.set(AND_BIT, operand.isAndBit());
+        operandValues.set(LESS_THAN, operand.isLessThan());
+        operandValues.set(GREATER_THAN, operand.isGreaterThan());
+        operandValues.set(EQUAL, operand.isEquals());
+        final byte byteLength = (byte) (Integer.numberOfTrailingZeros(length) << LENGTH_SHIFT);
+        buffer.writeByte(operandValues.toByte() | byteLength);
     }
 
     @Override
-    protected final NumericOperand parse(final byte op) {
-        final BitArray bs = BitArray.valueOf(op);
-        return new NumericOperand(bs.get(AND_BIT), bs.get(END_OF_LIST), bs.get(EQUAL), bs.get(GREATER_THAN), bs.get(LESS_THAN));
+    protected final NumericOperand parse(final byte operand) {
+        final BitArray operandValues = BitArray.valueOf(operand);
+        return new NumericOperand(operandValues.get(AND_BIT), operandValues.get(END_OF_LIST), operandValues.get(EQUAL), operandValues.get(GREATER_THAN), operandValues.get(LESS_THAN));
     }
 
     @Override
-    protected String toString(final NumericOperand op, final boolean isFirst) {
+    protected String toString(final NumericOperand operand, final boolean isFirst) {
         final StringBuilder buffer = new StringBuilder();
-        if (!op.isAndBit() && !isFirst) {
+        if (operand.isAndBit()) {
+            buffer.append("and ");
+        } else if (!isFirst) {
             buffer.append("or ");
         }
-        if (op.isAndBit()) {
-            buffer.append("and ");
-        }
-        if (op.isLessThan() && op.isEquals()) {
-            buffer.append("is less than or equal to ");
-            return buffer.toString();
-        } else if (op.isGreaterThan() && op.isEquals()) {
-            buffer.append("is greater than or equal to ");
-            return buffer.toString();
-        }
-        if (op.isEquals()) {
-            buffer.append("equals to ");
-        }
-        if (op.isLessThan()) {
+        if (operand.isLessThan()) {
             buffer.append("is less than ");
+            if (operand.isEquals()) {
+                buffer.append("or equals to ");
+            }
+            return buffer.toString();
         }
-        if (op.isGreaterThan()) {
+        if (operand.isGreaterThan()) {
             buffer.append("is greater than ");
+            if (operand.isEquals()) {
+                buffer.append("or equals to ");
+            }
+            return buffer.toString();
+        }
+        if (operand.isEquals()) {
+            buffer.append("equals to ");
         }
         return buffer.toString();
     }
