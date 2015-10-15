@@ -105,10 +105,10 @@ public class FSIpv4NlriParserTest {
 
     private static final byte[] UNREACHED_NLRI = new byte[] { 0x1B,
         07, 4, 2, (byte) 0x84, 3,
-        0x08, 06, 04, (byte) 0x80, 05,
+        0x08, 4, 04, (byte) 0x80, 05,
         0x09, 0x12, 04, 01, (byte) 0x91, 0x56, (byte) 0xb1,
-        0x0a, (byte) 0x96, (byte) 0xde, (byte) 0xad,
-        0x0b, (byte) 0x86, 0x2a,
+        0x0a, (byte) 0x94, (byte) 0xde, (byte) 0xad,
+        0x0b, (byte) 0x82, 0x2a,
         0x0c, (byte) 0x81, (byte) 0x0e};
 
     private static final FSIpv4NlriParser FS_PARSER = new FSIpv4NlriParser();
@@ -173,7 +173,7 @@ public class FSIpv4NlriParserTest {
         assertEquals("all packets to 10.0.1.0/32", FS_PARSER.stringNlri(flows.get(0)));
         assertEquals("all packets from 1.2.3.4/32", FS_PARSER.stringNlri(flows.get(1)));
         assertEquals("all packets where IP protocol equals to 6 ", FS_PARSER.stringNlri(flows.get(2)));
-        assertEquals("all packets where port is greater than or equal to 137 and is less than or equal to 139 or equals to 8080 ", FS_PARSER.stringNlri(flows.get(3)));
+        assertEquals("all packets where port is greater than or equals to 137 and is less than or equals to 139 or equals to 8080 ", FS_PARSER.stringNlri(flows.get(3)));
         assertEquals("all packets where destination port is greater than 4089 or equals to 179 ", FS_PARSER.stringNlri(flows.get(4)));
         assertEquals("all packets where source port equals to 8080 ", FS_PARSER.stringNlri(flows.get(5)));
     }
@@ -191,7 +191,7 @@ public class FSIpv4NlriParserTest {
         builder.setFlowspecType(icmpType);
         fs.add(builder.build());
 
-        final List<Codes> codes = Lists.newArrayList(new CodesBuilder().setOp(new NumericOperand(false, false, false, true, true)).setValue((short) 4).build(),
+        final List<Codes> codes = Lists.newArrayList(new CodesBuilder().setOp(new NumericOperand(false, false, false, false, true)).setValue((short) 4).build(),
             new CodesBuilder().setOp(new NumericOperand(false, true, false, false, false)).setValue((short) 5).build());
         final IcmpCodeCase icmpCode = new IcmpCodeCaseBuilder().setCodes(codes).build();
         builder.setFlowspecType(icmpCode);
@@ -203,12 +203,12 @@ public class FSIpv4NlriParserTest {
         builder.setFlowspecType(tcp);
         fs.add(builder.build());
 
-        final List<PacketLengths> packets = Lists.newArrayList(new PacketLengthsBuilder().setOp(new NumericOperand(false, true, false, true, true)).setValue(57005).build());
+        final List<PacketLengths> packets = Lists.newArrayList(new PacketLengthsBuilder().setOp(new NumericOperand(false, true, false, false, true)).setValue(57005).build());
         final PacketLengthCase packet = new PacketLengthCaseBuilder().setPacketLengths(packets).build();
         builder.setFlowspecType(packet);
         fs.add(builder.build());
 
-        final List<Dscps> dscps = Lists.newArrayList(new DscpsBuilder().setOp(new NumericOperand(false, true, false, true, true)).setValue(new Dscp((short) 42)).build());
+        final List<Dscps> dscps = Lists.newArrayList(new DscpsBuilder().setOp(new NumericOperand(false, true, false, true, false)).setValue(new Dscp((short) 42)).build());
         final DscpCase dscp = new DscpCaseBuilder().setDscps(dscps).build();
         builder.setFlowspecType(dscp);
         fs.add(builder.build());
@@ -247,10 +247,10 @@ public class FSIpv4NlriParserTest {
         assertArrayEquals(UNREACHED_NLRI, ByteArray.readAllBytes(buffer));
 
         assertEquals("all packets where ICMP type is less than 2 or is less than 3 ", FS_PARSER.stringNlri(flows.get(0)));
-        assertEquals("all packets where ICMP code is less than is greater than 4 or 5 ", FS_PARSER.stringNlri(flows.get(1)));
+        assertEquals("all packets where ICMP code is less than 4 or 5 ", FS_PARSER.stringNlri(flows.get(1)));
         assertEquals("all packets where TCP flags is not 1025 or does match 22193 ", FS_PARSER.stringNlri(flows.get(2)));
-        assertEquals("all packets where packet length is less than is greater than 57005 ", FS_PARSER.stringNlri(flows.get(3)));
-        assertEquals("all packets where DSCP is less than is greater than 42 ", FS_PARSER.stringNlri(flows.get(4)));
+        assertEquals("all packets where packet length is less than 57005 ", FS_PARSER.stringNlri(flows.get(3)));
+        assertEquals("all packets where DSCP is greater than 42 ", FS_PARSER.stringNlri(flows.get(4)));
         assertEquals("all packets where fragment does match 'IS FIRST' 'IS LAST' 'IS A' ", FS_PARSER.stringNlri(flows.get(5)));
     }
 
