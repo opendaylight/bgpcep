@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_b5baca08",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-15T09:30:27Z",
+      "side": 1,
+      "message": "I will rather focus on a curing of the root problem - the application peer. I would say using put operation to remove a route from a Adj-Rib-In is a misuse. We should keep the contracts and code consistency - a regular peer removes a route using the delete operation.",
+      "range": {
+        "startLine": 146,
+        "startChar": 0,
+        "endLine": 155,
+        "endChar": 25
+      },
+      "revId": "b6d2e78489bb27dc0fb4c876af48c24ba53516de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
