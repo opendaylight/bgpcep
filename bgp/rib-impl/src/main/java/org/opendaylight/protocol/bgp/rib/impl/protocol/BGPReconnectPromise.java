@@ -32,30 +32,30 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
 
     private final InetSocketAddress address;
     private final ReconnectStrategyFactory strategyFactory;
-    private final Bootstrap b;
+    private final Bootstrap bootstrap;
     private final ChannelPipelineInitializer initializer;
     private final EventExecutor executor;
     private Future<S> pending;
 
     public BGPReconnectPromise(final EventExecutor executor, final InetSocketAddress address,
-                               final ReconnectStrategyFactory connectStrategyFactory, final Bootstrap b,
+                               final ReconnectStrategyFactory connectStrategyFactory, final Bootstrap bootstrap,
                                final ChannelPipelineInitializer initializer) {
         super(executor);
         this.executor = executor;
-        this.b = b;
+        this.bootstrap = bootstrap;
         this.initializer = Preconditions.checkNotNull(initializer);
         this.address = Preconditions.checkNotNull(address);
         this.strategyFactory = Preconditions.checkNotNull(connectStrategyFactory);
     }
 
     public synchronized void connect() {
-        final ReconnectStrategy cs = this.strategyFactory.createReconnectStrategy();
+        final ReconnectStrategy reconnectStrategy = this.strategyFactory.createReconnectStrategy();
 
         // Set up a client with pre-configured bootstrap, but add a closed channel handler into the pipeline to support reconnect attempts
-        pending = createClient(this.address, cs, b, new ChannelPipelineInitializer<S>() {
+        this.pending = connectSessionPromise(this.address, reconnectStrategy, this.bootstrap, new ChannelPipelineInitializer<S>() {
             @Override
             public void initializeChannel(final SocketChannel channel, final Promise<S> promise) {
-                initializer.initializeChannel(channel, promise);
+                BGPReconnectPromise.this.initializer.initializeChannel(channel, promise);
                 // add closed channel handler
                 // This handler has to be added as last channel handler and the channel inactive event has to be caught by it
                 // Handlers in front of it can react to channelInactive event, but have to forward the event or the reconnect will not work
@@ -64,9 +64,9 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
             }
         });
 
-        pending.addListener(new GenericFutureListener<Future<Object>>() {
+        this.pending.addListener(new GenericFutureListener<Future<Object>>() {
             @Override
-            public void operationComplete(Future<Object> future) throws Exception {
+            public void operationComplete(final Future<Object> future) throws Exception {
                 if (!future.isSuccess()) {
                     BGPReconnectPromise.this.setFailure(future.cause());
                 }
@@ -74,38 +74,37 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
         });
     }
 
-    public Future<S> createClient(final InetSocketAddress address, final ReconnectStrategy strategy, final Bootstrap bootstrap,
+    public Future<S> connectSessionPromise(final InetSocketAddress address, final ReconnectStrategy strategy, final Bootstrap bootstrap,
                                   final ChannelPipelineInitializer initializer) {
-        final BGPProtocolSessionPromise p = new BGPProtocolSessionPromise(this.executor, address, strategy, bootstrap);
+        final BGPProtocolSessionPromise sessionPromise = new BGPProtocolSessionPromise(this.executor, address, strategy, bootstrap);
         final ChannelHandler chInit = new ChannelInitializer<SocketChannel>() {
             @Override
-            protected void initChannel(SocketChannel ch) {
-                initializer.initializeChannel(ch, p);
+            protected void initChannel(final SocketChannel channel) {
+                initializer.initializeChannel(channel, sessionPromise);
             }
         };
 
         bootstrap.handler(chInit);
-        p.connect();
+        sessionPromise.connect();
         LOG.debug("Client created.");
-        return p;
+        return sessionPromise;
     }
 
     /**
      * @return true if initial connection was established successfully, false if initial connection failed due to e.g. Connection refused, Negotiation failed
      */
     private boolean isInitialConnectFinished() {
-        Preconditions.checkNotNull(pending);
-        return pending.isDone() && pending.isSuccess();
+        Preconditions.checkNotNull(this.pending);
+        return this.pending.isDone() && this.pending.isSuccess();
     }
 
     @Override
     public synchronized boolean cancel(final boolean mayInterruptIfRunning) {
         if (super.cancel(mayInterruptIfRunning)) {
-            Preconditions.checkNotNull(pending);
+            Preconditions.checkNotNull(this.pending);
             this.pending.cancel(mayInterruptIfRunning);
             return true;
         }
-
         return false;
     }
 
@@ -123,16 +122,16 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
         @Override
         public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
             // This is the ultimate channel inactive handler, not forwarding
-            if (promise.isCancelled()) {
+            if (this.promise.isCancelled()) {
                 return;
             }
 
-            if (!promise.isInitialConnectFinished()) {
-                LOG.debug("Connection to {} was dropped during negotiation, reattempting", promise.address);
+            if (!this.promise.isInitialConnectFinished()) {
+                LOG.debug("Connection to {} was dropped during negotiation, reattempting", this.promise.address);
             }
 
-            LOG.debug("Reconnecting after connection to {} was dropped", promise.address);
-            promise.connect();
+            LOG.debug("Reconnecting after connection to {} was dropped", this.promise.address);
+            this.promise.connect();
         }
     }
 }
