@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fad0f9df_4c03d373",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/bgp/concepts/NextHopUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-16T11:37:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fad0f9df_b5b5ea32",
+      "range": {
+        "startLine": 28,
+        "startChar": 3,
+        "endLine": 70,
+        "endChar": 1
+      },
+      "revId": "95f0cff470703ba8e258eff3281287d901420848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fad0f9df_55827e53",
         "filename": "bgp/concepts/src/test/java/org/opendaylight/bgp/concepts/NextHopUtilTest.java",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2015-10-15T10:42:52Z",
       "side": 1,
       "message": "this will be deleted",
+      "range": {
+        "startLine": 1,
+        "startChar": 1,
+        "endLine": 103,
+        "endChar": 1
+      },
+      "revId": "95f0cff470703ba8e258eff3281287d901420848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_ecf7278b",
+        "filename": "bgp/concepts/src/test/java/org/opendaylight/bgp/concepts/NextHopUtilTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-16T11:37:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fad0f9df_55827e53",
       "range": {
         "startLine": 1,
         "startChar": 1,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fad0f9df_2cb0cfdc",
+        "filename": "bgp/flowspec/src/main/yang/bgp-flowspec.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-16T11:37:24Z",
+      "side": 1,
+      "message": "Based on rfc5575 not, but based on https://tools.ietf.org/html/draft-ietf-idr-flow-spec-v6-06 yes.",
+      "parentUuid": "fad0f9df_157cf671",
+      "range": {
+        "startLine": 274,
+        "startChar": 0,
+        "endLine": 293,
+        "endChar": 9
+      },
+      "revId": "95f0cff470703ba8e258eff3281287d901420848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fad0f9df_3581fa4a",
         "filename": "bgp/labeled-unicast/src/main/yang/bgp-labeled-unicast.yang",
         "patchSetId": 1
@@ -94,6 +166,53 @@
     },
     {
       "key": {
+        "uuid": "fad0f9df_2cfe8f6c",
+        "filename": "bgp/labeled-unicast/src/main/yang/bgp-labeled-unicast.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-16T11:37:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fad0f9df_3581fa4a",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 5
+      },
+      "revId": "95f0cff470703ba8e258eff3281287d901420848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_4cd673c7",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateRIBSupport.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-16T11:37:24Z",
+      "side": 1,
+      "message": "what about others AFI/SAFI?",
+      "range": {
+        "startLine": 187,
+        "startChar": 19,
+        "endLine": 187,
+        "endChar": 57
+      },
+      "revId": "95f0cff470703ba8e258eff3281287d901420848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fad0f9df_d5950e89",
         "filename": "bgp/linkstate/src/main/yang/bgp-linkstate.yang",
         "patchSetId": 1
@@ -105,6 +224,30 @@
       "writtenOn": "2015-10-15T10:42:52Z",
       "side": 1,
       "message": "TODO Check if support Ipv4, Ipv6(Global \u0026 LinkLocal)??",
+      "range": {
+        "startLine": 388,
+        "startChar": 0,
+        "endLine": 397,
+        "endChar": 5
+      },
+      "revId": "95f0cff470703ba8e258eff3281287d901420848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_cc4a63ac",
+        "filename": "bgp/linkstate/src/main/yang/bgp-linkstate.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-16T11:37:24Z",
+      "side": 1,
+      "message": "this represents LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class\n\nWhat about \nLinkstateAddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class\n\nLinkstateRoutes.class, ..",
+      "parentUuid": "fad0f9df_d5950e89",
       "range": {
         "startLine": 388,
         "startChar": 0,
