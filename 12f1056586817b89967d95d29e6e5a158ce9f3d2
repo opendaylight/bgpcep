@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_67e9101a",
+        "filename": "bgp/linkstate/src/main/yang/bgp-linkstate.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-16T12:20:10Z",
+      "side": 1,
+      "message": "this represents LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class\n\nWhat about \nLinkstateAddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class\n\nLinkstateRoutes.class, .",
+      "range": {
+        "startLine": 389,
+        "startChar": 0,
+        "endLine": 406,
+        "endChar": 9
+      },
+      "revId": "12f1056586817b89967d95d29e6e5a158ce9f3d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_47f88ce5",
+        "filename": "bgp/parser-api/src/main/yang/bgp-multiprotocol.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-16T12:20:10Z",
+      "side": 1,
+      "message": "I think is better to keep it independent from the one used in \nPath-\u003eAttributes.\nAnd I would rename ipv4-next-hop-case for unicast-ipv4-next-hop-case, same for ipv6.\n\nproblem will be that it will broke clients app, but I think this is necessary and for keep a constant for other extension as flowspec, linstate, labeled..",
+      "range": {
+        "startLine": 104,
+        "startChar": 15,
+        "endLine": 122,
+        "endChar": 17
+      },
+      "revId": "12f1056586817b89967d95d29e6e5a158ce9f3d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_e74ae026",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/NextHopAttributeParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-16T12:20:10Z",
+      "side": 1,
+      "message": "the model contains Ipv4 and Ipv6. But we only parse/serialize Ipv4, Should RibSupport only support Ipv4 only in any extension too or we are missing Ipv6 parser serializer here?",
+      "range": {
+        "startLine": 35,
+        "startChar": 62,
+        "endLine": 35,
+        "endChar": 81
+      },
+      "revId": "12f1056586817b89967d95d29e6e5a158ce9f3d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_0748442c",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-16T12:20:10Z",
+      "side": 1,
+      "message": "// Implemented for UnicastFamily, What about others AFI --SAFI ??",
+      "range": {
+        "startLine": 152,
+        "startChar": 11,
+        "endLine": 152,
+        "endChar": 77
+      },
+      "revId": "12f1056586817b89967d95d29e6e5a158ce9f3d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_a754d8ca",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-16T12:20:10Z",
+      "side": 1,
+      "message": "/Since we support only Ipv4 (parser/serializer) for path attributes, does this make sense?",
+      "range": {
+        "startLine": 211,
+        "startChar": 16,
+        "endLine": 211,
+        "endChar": 107
+      },
+      "revId": "12f1056586817b89967d95d29e6e5a158ce9f3d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
