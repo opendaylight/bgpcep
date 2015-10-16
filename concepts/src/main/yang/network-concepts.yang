@@ -61,5 +61,12 @@ module network-concepts {
         reference "https://tools.ietf.org/html/rfc7311#section-3";
         type uint64;
     }
+
+    typedef local-label {
+        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-00#section-2.3.4.2";
+        type uint32 {
+            range "0..1048575";
+        }
+    }
 }
 
