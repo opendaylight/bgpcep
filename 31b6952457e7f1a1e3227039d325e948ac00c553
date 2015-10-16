@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_ec716778",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-16T08:04:54Z",
+      "side": 1,
+      "message": "is it really a TLV?",
+      "range": {
+        "startLine": 52,
+        "startChar": 13,
+        "endLine": 52,
+        "endChar": 26
+      },
+      "revId": "31b6952457e7f1a1e3227039d325e948ac00c553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_8c63fbb0",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-16T08:04:54Z",
+      "side": 1,
+      "message": "label has a length of 20bits",
+      "range": {
+        "startLine": 57,
+        "startChar": 25,
+        "endLine": 57,
+        "endChar": 31
+      },
+      "revId": "31b6952457e7f1a1e3227039d325e948ac00c553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
