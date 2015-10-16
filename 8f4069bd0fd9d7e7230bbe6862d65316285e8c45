@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_e76740e9",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-16T12:04:28Z",
+      "side": 1,
+      "message": "the same for is-is",
+      "range": {
+        "startLine": 95,
+        "startChar": 0,
+        "endLine": 100,
+        "endChar": 9
+      },
+      "revId": "8f4069bd0fd9d7e7230bbe6862d65316285e8c45",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_276ea8ca",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-16T12:04:28Z",
+      "side": 1,
+      "message": "the same for ospf",
+      "range": {
+        "startLine": 150,
+        "startChar": 0,
+        "endLine": 155,
+        "endChar": 9
+      },
+      "revId": "8f4069bd0fd9d7e7230bbe6862d65316285e8c45",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_87799495",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-16T12:04:28Z",
+      "side": 1,
+      "message": "can we use something better here?",
+      "range": {
+        "startLine": 244,
+        "startChar": 0,
+        "endLine": 246,
+        "endChar": 13
+      },
+      "revId": "8f4069bd0fd9d7e7230bbe6862d65316285e8c45",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
