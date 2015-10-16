@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_acc7df63",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ApplicationPeer.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-16T08:51:17Z",
+      "side": 1,
+      "message": "We do until we arrive to Specific routes level, so we can apply delete too when we remove specific route as we do for remove whole routes. Should I put some comments here?",
+      "range": {
+        "startLine": 137,
+        "startChar": 21,
+        "endLine": 137,
+        "endChar": 102
+      },
+      "revId": "8ba7205195de8dc3251e6f1c3ea04f9e94b4139f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
