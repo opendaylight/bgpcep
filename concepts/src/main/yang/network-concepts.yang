@@ -61,5 +61,12 @@ module network-concepts {
         reference "https://tools.ietf.org/html/rfc7311#section-3";
         type uint64;
     }
+
+    typedef mpls-label {
+        reference "https://tools.ietf.org/html/rfc3032#section-2.1";
+        type uint32 {
+            range "0..1048575";
+        }
+    }
 }
 
