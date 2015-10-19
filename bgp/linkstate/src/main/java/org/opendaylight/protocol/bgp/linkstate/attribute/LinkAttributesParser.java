@@ -27,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Ipv6RouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkProtectionType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.MplsProtocolMask;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.PeerSetSidBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.PeerSidBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrAdjIdBuilder;
@@ -86,9 +87,10 @@ public final class LinkAttributesParser {
      * Parse Link Attributes.
      *
      * @param attributes key is the tlv type and value is the value of the tlv
+     * @param protocol for more types of parsing
      * @return {@link LinkStateAttribute}
      */
-    static LinkStateAttribute parseLinkAttributes(final Multimap<Integer, ByteBuf> attributes) {
+    static LinkStateAttribute parseLinkAttributes(final Multimap<Integer, ByteBuf> attributes, final ProtocolId protocol) {
         final LinkAttributesBuilder builder = new LinkAttributesBuilder();
         for (final Entry<Integer, ByteBuf> entry : attributes.entries()) {
             LOG.trace("Link attribute TLV {}", entry.getKey());
@@ -155,19 +157,19 @@ public final class LinkAttributesParser {
                 LOG.debug("Parsed Link Name : {}", builder.getLinkName());
                 break;
             case SR_ADJ_ID:
-                builder.setSrAdjId(new SrAdjIdBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value)).build());
+                builder.setSrAdjId(new SrAdjIdBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value, protocol)).build());
                 LOG.debug("Parsed Adjacency Segment Identifier :{}", builder.getSrAdjId());
                 break;
             case SR_LAN_ADJ_ID:
-                builder.setSrLanAdjId(SrLinkAttributesParser.parseLanAdjacencySegmentIdentifier(value));
+                builder.setSrLanAdjId(SrLinkAttributesParser.parseLanAdjacencySegmentIdentifier(value, protocol));
                 LOG.debug("Parsed Adjacency Segment Identifier :{}", builder.getSrLanAdjId());
                 break;
             case PEER_SID_CODE:
-                builder.setPeerSid(new PeerSidBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value)).build());
+                builder.setPeerSid(new PeerSidBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value, protocol)).build());
                 LOG.debug("Parsed Peer Segment Identifier :{}", builder.getPeerSid());
                 break;
             case PEER_SET_SID_CODE:
-                builder.setPeerSetSid(new PeerSetSidBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value)).build());
+                builder.setPeerSetSid(new PeerSetSidBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value, protocol)).build());
                 LOG.debug("Parsed Peer Set Sid :{}", builder.getPeerSetSid());
                 break;
             default:
