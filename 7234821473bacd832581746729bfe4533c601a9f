@@ -1,0 +1,153 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_2d3c462f",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/NextHopAttributeParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-19T17:00:32Z",
+      "side": 1,
+      "message": "keep it utilized, can be used in IPv4 next-hop parser/serializer",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 68
+      },
+      "revId": "7234821473bacd832581746729bfe4533c601a9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_2d23e606",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/next/hop/Ipv6NextHopParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-19T17:00:32Z",
+      "side": 1,
+      "message": "basically, ipv6 unicast/labeled-unicast/flowspec...has next hop including just one ipv6 address. Two Ipv6 addresses is special case for the linkstate.",
+      "range": {
+        "startLine": 23,
+        "startChar": 19,
+        "endLine": 23,
+        "endChar": 36
+      },
+      "revId": "7234821473bacd832581746729bfe4533c601a9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_2d6a061b",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleNextHopRegistry.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-19T17:00:32Z",
+      "side": 1,
+      "message": "add some log if the parser was not found in the regsitry",
+      "revId": "7234821473bacd832581746729bfe4533c601a9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_cd76da06",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleNextHopRegistry.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-19T17:00:32Z",
+      "side": 1,
+      "message": "use utilized parser",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 9
+      },
+      "revId": "7234821473bacd832581746729bfe4533c601a9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_0d6dc232",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleNextHopRegistry.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-19T17:00:32Z",
+      "side": 1,
+      "message": "the same condition three times",
+      "range": {
+        "startLine": 49,
+        "startChar": 12,
+        "endLine": 49,
+        "endChar": 33
+      },
+      "revId": "7234821473bacd832581746729bfe4533c601a9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_ed739e13",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleNextHopRegistry.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-19T17:00:32Z",
+      "side": 1,
+      "message": "first, we should fall back and try 3 existing serializers",
+      "revId": "7234821473bacd832581746729bfe4533c601a9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_4d83cacc",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleNextHopRegistry.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-19T17:00:32Z",
+      "side": 1,
+      "message": "add some logging here",
+      "range": {
+        "startLine": 62,
+        "startChar": 12,
+        "endLine": 62,
+        "endChar": 18
+      },
+      "revId": "7234821473bacd832581746729bfe4533c601a9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
