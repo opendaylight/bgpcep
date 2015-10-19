@@ -34,7 +34,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.node.attributes._case.NodeAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.state.SrAlgorithm;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.state.SrCapabilities;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.state.SrSidLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +61,6 @@ public final class NodeAttributesParser {
     private static final int ISIS_AREA_IDENTIFIER = 1027;
 
     /* Segment routing TLVs */
-    private static final int SID_LABEL_BINDING = 1033;
     private static final int SR_CAPABILITIES = 1034;
     private static final int SR_ALGORITHMS = 1035;
 
@@ -70,6 +68,7 @@ public final class NodeAttributesParser {
      * Parse Node Attributes.
      *
      * @param attributes key is the tlv type and value is the value of the tlv
+     * @param protocol for different types of attributes and parsing methods
      * @return {@link LinkStateAttribute}
      */
     static LinkStateAttribute parseNodeAttributes(final Multimap<Integer, ByteBuf> attributes) {
@@ -113,11 +112,6 @@ public final class NodeAttributesParser {
                 final Ipv6RouterIdentifier ip6 = new Ipv6RouterIdentifier(Ipv6Util.addressForByteBuf(value));
                 builder.setIpv6RouterId(ip6);
                 LOG.debug("Parsed IPv6 Router Identifier {}", ip6);
-                break;
-            case SID_LABEL_BINDING:
-                final SrSidLabel label = SrNodeAttributesParser.parseSidLabelBinding(value);
-                builder.setSrSidLabel(label);
-                LOG.debug("Parsed SID Label Binding {}", label);
                 break;
             case SR_CAPABILITIES:
                 final SrCapabilities caps = SrNodeAttributesParser.parseSrCapabilities(value);
@@ -166,11 +160,6 @@ public final class NodeAttributesParser {
         }
         if (nodeAttributes.getIpv6RouterId() != null) {
             TlvUtil.writeTLV(TlvUtil.LOCAL_IPV6_ROUTER_ID, Ipv6Util.byteBufForAddress(nodeAttributes.getIpv6RouterId()), byteAggregator);
-        }
-        if (nodeAttributes.getSrSidLabel() != null) {
-            final ByteBuf sidBuffer = Unpooled.buffer();
-            SrNodeAttributesParser.serializeSidLabelBinding(nodeAttributes.getSrSidLabel(), sidBuffer);
-            TlvUtil.writeTLV(SID_LABEL_BINDING, sidBuffer, byteAggregator);
         }
         if (nodeAttributes.getSrCapabilities() != null) {
             final ByteBuf capBuffer = Unpooled.buffer();
