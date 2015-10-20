@@ -8,11 +8,11 @@ module bgp {
   prefix "bgp";
 
   // import some basic inet types
-  import ietf-inet-types { prefix inet; }
-  import bgp-multiprotocol { prefix bgp-mp; }
-  import routing-policy { prefix rpol; }
-  import bgp-types { prefix bgp-types; }
-  import bgp-operational { prefix bgp-op; }
+  import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+  import bgp-multiprotocol { prefix bgp-mp; revision-date 2015-05-15; }
+  import routing-policy { prefix rpol; revision-date 2015-05-15; }
+  import bgp-types { prefix bgp-types; revision-date 2015-05-15; }
+  import bgp-operational { prefix bgp-op; revision-date 2015-05-15; }
 
   // meta
   organization

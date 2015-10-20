@@ -9,9 +9,9 @@ module bgp-operational {
   prefix "bgp-op";
 
   // import some basic inet types
-  import ietf-inet-types { prefix inet; }
-  import ietf-yang-types { prefix yang; }
-  import bgp-types { prefix bgp-types; }
+  import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+  import ietf-yang-types { prefix yang; revision-date 2010-09-24; }
+  import bgp-types { prefix bgp-types; revision-date 2015-05-15; }
 
   // meta
 

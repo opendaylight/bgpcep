@@ -5,7 +5,7 @@ module bgp-types {
 
     prefix "bgp-types";
 
-    import ietf-inet-types { prefix inet; }
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
 
     // meta
     organization

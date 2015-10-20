@@ -8,7 +8,7 @@ module policy-types {
   prefix "ptypes";
 
   // import some basic types
-  import ietf-yang-types { prefix yang; }
+  import ietf-yang-types { prefix yang; revision-date 2010-09-24; }
 
 
   // meta

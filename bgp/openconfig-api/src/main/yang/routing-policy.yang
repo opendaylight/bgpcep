@@ -8,8 +8,8 @@ module routing-policy {
   prefix "rpol";
 
   // import some basic types
-  import ietf-inet-types { prefix inet; }
-  import policy-types {prefix pt; }
+  import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+  import policy-types {prefix pt; revision-date 2015-05-15; }
 
 
   // meta

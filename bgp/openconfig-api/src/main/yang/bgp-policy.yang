@@ -8,10 +8,10 @@ module bgp-policy {
   prefix "bgp-pol";
 
   // import some basic types
-  import ietf-inet-types { prefix inet; }
-  import routing-policy {prefix rpol; }
-  import policy-types { prefix pt; }
-  import bgp-types { prefix bgp-types; }
+  import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+  import routing-policy {prefix rpol; revision-date 2015-05-15; }
+  import policy-types { prefix pt; revision-date 2015-05-15; }
+  import bgp-types { prefix bgp-types; revision-date 2015-05-15; }
 
 
 
