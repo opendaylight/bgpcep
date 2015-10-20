@@ -8,13 +8,20 @@
 package org.opendaylight.protocol.bgp.linkstate.attribute.sr;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.opendaylight.protocol.bgp.linkstate.attribute.PrefixAttributesParser;
+import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrPrefixBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.Algorithm;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.PrefixSid.Flags;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev150206.SidLabel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.Algorithm;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.prefix.sid.tlv.Flags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.prefix.sid.tlv.flags.IsisPrefixFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.prefix.sid.tlv.flags.IsisPrefixFlagsCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.prefix.sid.tlv.flags.OspfPrefixFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.prefix.sid.tlv.flags.OspfPrefixFlagsCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.SidLabelIndex;
 
 public final class SrPrefixAttributesParser {
 
@@ -27,31 +34,75 @@ public final class SrPrefixAttributesParser {
     /* Flags */
     private static final int RE_ADVERTISEMENT = 0;
     private static final int NODE_SID = 1;
+    private static final int NO_PHP_OSPF = 1;
     private static final int NO_PHP = 2;
+    private static final int MAPPING_SERVER = 2;
     private static final int EXPLICIT_NULL = 3;
     private static final int VALUE = 4;
     private static final int LOCAL = 5;
 
-    public static SrPrefix parseSrPrefix(final ByteBuf buffer) {
-        final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
+    private static final int RESERVED_PREFIX = 2;
+
+    public static SrPrefix parseSrPrefix(final ByteBuf buffer, final ProtocolId protocol) {
         final SrPrefixBuilder builder = new SrPrefixBuilder();
-        builder.setFlags(new Flags(flags.get(EXPLICIT_NULL), flags.get(LOCAL), flags.get(NO_PHP), flags.get(NODE_SID), flags.get(RE_ADVERTISEMENT), flags.get(VALUE)));
+        final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
+        builder.setFlags(parsePrefixFlags(flags, protocol));
         builder.setAlgorithm(Algorithm.forValue(buffer.readUnsignedByte()));
-        builder.setSid(new SidLabel(ByteArray.readAllBytes(buffer)));
+        buffer.skipBytes(RESERVED_PREFIX);
+        final int sidLength = SidLabelIndexParser.getLength(flags, VALUE, LOCAL);
+        builder.setSidLabelIndex(SidLabelIndexParser.parseSidLabelIndex(sidLength, buffer));
         return builder.build();
     }
 
-    public static void serializeSrPrefix(final SrPrefix srPrefix, final ByteBuf buffer) {
-        final Flags flags = srPrefix.getFlags();
-        final BitArray bs = new BitArray(FLAGS_SIZE);
-        bs.set(RE_ADVERTISEMENT, flags.isReadvertisement());
-        bs.set(NODE_SID, flags.isNodeSid());
-        bs.set(NO_PHP, flags.isNoPhp());
-        bs.set(EXPLICIT_NULL, flags.isExplicitNull());
-        bs.set(VALUE, flags.isValue());
-        bs.set(LOCAL, flags.isLocal());
-        bs.toByteBuf(buffer);
-        buffer.writeByte(srPrefix.getAlgorithm().getIntValue());
-        buffer.writeBytes(srPrefix.getSid().getValue());
+    private static Flags parsePrefixFlags(final BitArray flags, final ProtocolId protocol) {
+        if (protocol.equals(ProtocolId.IsisLevel1) || protocol.equals(ProtocolId.IsisLevel2)) {
+            return new IsisPrefixFlagsCaseBuilder()
+                .setReadvertisement(flags.get(RE_ADVERTISEMENT))
+                .setNodeSid(flags.get(NODE_SID))
+                .setNoPhp(flags.get(NO_PHP))
+                .setExplicitNull(flags.get(EXPLICIT_NULL)).build();
+        }
+        if (protocol.equals(ProtocolId.Ospf)) {
+            return new OspfPrefixFlagsCaseBuilder()
+                .setExplicitNull(flags.get(EXPLICIT_NULL))
+                .setMappingServer(flags.get(MAPPING_SERVER))
+                .setNoPhp(flags.get(NO_PHP_OSPF)).build();
+        }
+        return null;
     }
+
+    public static void serializeSrPrefix(final SrPrefix srPrefix, final ByteBuf aggregator) {
+        ByteBuf buffer = Unpooled.EMPTY_BUFFER;
+        buffer = serializePrefixAttributes(srPrefix.getFlags(), srPrefix.getAlgorithm(), srPrefix.getSidLabelIndex());
+        TlvUtil.writeTLV(PrefixAttributesParser.PREFIX_SID, buffer, aggregator);
+    }
+
+    public static ByteBuf serializePrefixAttributes(final Flags flags, final Algorithm algorithm, final SidLabelIndex sidLabelIndex) {
+        final ByteBuf buffer = Unpooled.EMPTY_BUFFER;
+        final BitArray bs = serializePrefixFlags(flags, sidLabelIndex);
+        bs.toByteBuf(buffer);
+        buffer.writeByte(algorithm.getIntValue());
+        buffer.writeZero(RESERVED_PREFIX);
+        buffer.writeBytes(SidLabelIndexParser.serializeSidValue(sidLabelIndex));
+        return buffer;
+    }
+
+    private static BitArray serializePrefixFlags(final Flags flags, final SidLabelIndex sidValue) {
+        final BitArray bitFlags = new BitArray(FLAGS_SIZE);
+        SidLabelIndexParser.setFlags(sidValue, bitFlags, VALUE, LOCAL);
+        if (flags instanceof OspfPrefixFlagsCase) {
+            final OspfPrefixFlagsCase ospfFlags = (OspfPrefixFlagsCase) flags;
+            bitFlags.set(NO_PHP_OSPF, ospfFlags.isNoPhp());
+            bitFlags.set(MAPPING_SERVER, ospfFlags.isMappingServer());
+            bitFlags.set(EXPLICIT_NULL, ospfFlags.isExplicitNull());
+        } else if (flags instanceof IsisPrefixFlagsCase) {
+            final IsisPrefixFlagsCase isisFlags = (IsisPrefixFlagsCase) flags;
+            bitFlags.set(RE_ADVERTISEMENT, isisFlags.isReadvertisement());
+            bitFlags.set(NODE_SID, isisFlags.isNodeSid());
+            bitFlags.set(NO_PHP, isisFlags.isNoPhp());
+            bitFlags.set(EXPLICIT_NULL, isisFlags.isExplicitNull());
+        }
+        return bitFlags;
+    }
+
 }

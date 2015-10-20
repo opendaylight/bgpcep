@@ -15,6 +15,8 @@ import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+import org.opendaylight.protocol.bgp.linkstate.attribute.sr.BindingSidLabelParser;
+import org.opendaylight.protocol.bgp.linkstate.attribute.sr.RangeTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.attribute.sr.SrPrefixAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
@@ -24,6 +26,7 @@ import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ExtendedRouteTag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.IgpBits.UpDown;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.RouteTag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.LinkStateAttribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.PrefixAttributesCase;
@@ -31,7 +34,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.prefix.attributes._case.PrefixAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.prefix.attributes._case.PrefixAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.IgpBitsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrBindingSidLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrPrefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrRange;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IgpMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +65,9 @@ public final class PrefixAttributesParser {
     private static final int PREFIX_OPAQUE = 1157;
 
     /* Segment routing TLV */
-    private static final int PREFIX_SID = 1158;
+    public static final int PREFIX_SID = 1158;
+    public static final int RANGE = 1159;
+    public static final int BINDING_SID = 1060;
 
     /**
      * Parse prefix attributes.
@@ -68,7 +75,7 @@ public final class PrefixAttributesParser {
      * @param attributes key is the tlv type and value are the value bytes of the tlv
      * @return {@link LinkStateAttribute}
      */
-    static LinkStateAttribute parsePrefixAttributes(final Multimap<Integer, ByteBuf> attributes) {
+    static LinkStateAttribute parsePrefixAttributes(final Multimap<Integer, ByteBuf> attributes, final ProtocolId protocol) {
         final PrefixAttributesBuilder builder = new PrefixAttributesBuilder();
         final List<RouteTag> routeTags = new ArrayList<>();
         final List<ExtendedRouteTag> exRouteTags = new ArrayList<>();
@@ -105,9 +112,19 @@ public final class PrefixAttributesParser {
                 }
                 break;
             case PREFIX_SID:
-                final SrPrefix prefix = SrPrefixAttributesParser.parseSrPrefix(value);
+                final SrPrefix prefix = SrPrefixAttributesParser.parseSrPrefix(value, protocol);
                 builder.setSrPrefix(prefix);
                 LOG.debug("Parsed SR Prefix: {}", prefix);
+                break;
+            case RANGE:
+                final SrRange range = RangeTlvParser.parseSrRange(value, protocol);
+                builder.setSrRange(range);
+                LOG.debug("Parsed SR Range: {}", range);
+                break;
+            case BINDING_SID:
+                final SrBindingSidLabel label = BindingSidLabelParser.parseBindingSidLabel(value, protocol);
+                builder.setSrBindingSidLabel(label);
+                LOG.debug("Parsed SR Binding SID {}", label);
                 break;
             default:
                 LOG.warn("TLV {} is not a valid prefix attribute, ignoring it", key);
@@ -168,7 +185,16 @@ public final class PrefixAttributesParser {
             SrPrefixAttributesParser.serializeSrPrefix(prefixAtrributes.getSrPrefix(), b);
             TlvUtil.writeTLV(PREFIX_SID, b, byteAggregator);
         }
-
+        if (prefixAtrributes.getSrBindingSidLabel() != null) {
+            final ByteBuf sidBuffer = Unpooled.buffer();
+            BindingSidLabelParser.serializeBindingSidLabel(prefixAtrributes.getSrBindingSidLabel(), sidBuffer);
+            TlvUtil.writeTLV(BINDING_SID, sidBuffer, byteAggregator);
+        }
+        if (prefixAtrributes.getSrRange() != null) {
+            final ByteBuf sidBuffer = Unpooled.buffer();
+            RangeTlvParser.serializeSrRange(prefixAtrributes.getSrRange(), sidBuffer);
+            TlvUtil.writeTLV(RANGE, sidBuffer, byteAggregator);
+        }
     }
 
     private static void serializeRouteTags(final List<RouteTag> routeTags, final ByteBuf byteAggregator) {
