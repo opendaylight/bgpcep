@@ -1,0 +1,141 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_60e7b0e5",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/BGPActivator.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-20T19:49:54Z",
+      "side": 1,
+      "message": "VPN case will be different - https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.4\n\nI think this case was never ever used/tested (it is not even advertized as a ODL BGP capability). You can fix it in a following (separate) commit.",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 45
+      },
+      "revId": "db4c4dc7830524c8a8b2e318169f8ed635b873c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_a004b87e",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/next/hop/LinkstateNextHopParser.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-20T19:49:54Z",
+      "side": 1,
+      "message": "add junit test",
+      "revId": "db4c4dc7830524c8a8b2e318169f8ed635b873c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_c009bc96",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/next/hop/LinkstateNextHopParser.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-20T19:49:54Z",
+      "side": 1,
+      "message": "there is also a case with global ipv6 only",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 97
+      },
+      "revId": "db4c4dc7830524c8a8b2e318169f8ed635b873c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_e09e4063",
+        "filename": "bgp/linkstate/src/main/yang/bgp-linkstate.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-20T19:49:54Z",
+      "side": 1,
+      "message": "all other places where next-hop is used need to be augmented too",
+      "revId": "db4c4dc7830524c8a8b2e318169f8ed635b873c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_e0f16096",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/next/hop/Ipv4NextHopParserSerializer.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-20T19:49:54Z",
+      "side": 1,
+      "message": "add junit test",
+      "revId": "db4c4dc7830524c8a8b2e318169f8ed635b873c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_00efc4b1",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/next/hop/Ipv6NextHopParserSerializer.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-20T19:49:54Z",
+      "side": 1,
+      "message": "add junit test",
+      "revId": "db4c4dc7830524c8a8b2e318169f8ed635b873c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_40794c2e",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/BGPExtensionProviderContext.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-20T19:49:54Z",
+      "side": 1,
+      "message": "preserve old form of the register method too and deprecate it",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 91
+      },
+      "revId": "db4c4dc7830524c8a8b2e318169f8ed635b873c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
