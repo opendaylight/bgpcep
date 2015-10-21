@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "fad0f9df_6699086e",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ApplicationPeer.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-21T10:50:33Z",
+      "side": 1,
+      "message": "Not really much to do with the condition.",
+      "parentUuid": "fad0f9df_c068dcf7",
+      "range": {
+        "startLine": 137,
+        "startChar": 21,
+        "endLine": 137,
+        "endChar": 102
+      },
+      "revId": "8ba7205195de8dc3251e6f1c3ea04f9e94b4139f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fad0f9df_20b0c88a",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
         "patchSetId": 5
@@ -60,6 +84,30 @@
       "writtenOn": "2015-10-20T21:25:53Z",
       "side": 1,
       "message": "protected",
+      "range": {
+        "startLine": 58,
+        "startChar": 4,
+        "endLine": 58,
+        "endChar": 10
+      },
+      "revId": "8ba7205195de8dc3251e6f1c3ea04f9e94b4139f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_c631d4a3",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-10-21T10:50:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fad0f9df_20b0c88a",
       "range": {
         "startLine": 58,
         "startChar": 4,
