@@ -247,7 +247,11 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
     @Override
     public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
-        LOG.error("Broken chain in RIB {} transaction {}", getInstanceIdentifier(), transaction.getIdentifier(), cause);
+        Object transactionIdentifier = null;
+        if (transaction != null) {
+            transactionIdentifier = transaction.getIdentifier();
+        }
+        LOG.error("Broken chain in RIB {} transaction {}", getInstanceIdentifier(), transactionIdentifier, cause);
     }
 
     @Override
