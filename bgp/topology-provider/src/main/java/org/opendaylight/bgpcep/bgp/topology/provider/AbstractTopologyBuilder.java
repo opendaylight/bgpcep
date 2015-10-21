@@ -172,7 +172,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
     @Override
     public final void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
         // TODO: restart?
-        LOG.error("Topology builder for {} failed in transaction {}", getInstanceIdentifier(), transaction.getIdentifier(), cause);
+        LOG.error("Topology builder for {} failed in transaction {}", getInstanceIdentifier(), transaction != null ? transaction.getIdentifier() : null, cause);
     }
 
     @Override
