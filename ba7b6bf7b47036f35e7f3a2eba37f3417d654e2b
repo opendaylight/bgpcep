@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_f4728248",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-21T22:12:21Z",
+      "side": 1,
+      "message": "Please, move the mpls-label type definition into some common yang data model (reachable for both bgp and pcep modules)\nthe same type is used here, in labeled-unicast and might be used in pcep-sr.\nAlso add some utility methods for parsing/serializing",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 21
+      },
+      "revId": "ba7b6bf7b47036f35e7f3a2eba37f3417d654e2b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
