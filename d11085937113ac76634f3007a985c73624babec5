@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_74ec52c8",
+        "filename": "bgp/flowspec/src/main/yang/bgp-flowspec.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-21T22:59:26Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 274,
+        "startChar": 0,
+        "endLine": 275,
+        "endChar": 5
+      },
+      "revId": "d11085937113ac76634f3007a985c73624babec5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_14d146fb",
+        "filename": "bgp/labeled-unicast/src/main/yang/bgp-labeled-unicast.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-21T22:59:26Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 5
+      },
+      "revId": "d11085937113ac76634f3007a985c73624babec5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_b4095a97",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/BGPActivator.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-21T22:59:26Z",
+      "side": 1,
+      "message": "we can make this working in next release...",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 45
+      },
+      "revId": "d11085937113ac76634f3007a985c73624babec5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_54e7cee4",
+        "filename": "bgp/linkstate/src/main/yang/bgp-linkstate.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-21T22:59:26Z",
+      "side": 1,
+      "message": "the same augmentation for \"update/attributes/c-next-hop\"",
+      "range": {
+        "startLine": 389,
+        "startChar": 0,
+        "endLine": 399,
+        "endChar": 9
+      },
+      "revId": "d11085937113ac76634f3007a985c73624babec5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_34ceca5b",
+        "filename": "bgp/linkstate/src/test/java/org/opendaylight/protocol/bgp/linkstate/attribute/next/hop/LinkstateNextHopParserTest.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-21T22:59:26Z",
+      "side": 1,
+      "message": "use or remove",
+      "range": {
+        "startLine": 122,
+        "startChar": 0,
+        "endLine": 140,
+        "endChar": 7
+      },
+      "revId": "d11085937113ac76634f3007a985c73624babec5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_14caa64f",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/BGPExtensionProviderContext.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-21T22:59:26Z",
+      "side": 1,
+      "message": "add some advices for users of depreacted APIs",
+      "range": {
+        "startLine": 40,
+        "startChar": 5,
+        "endLine": 40,
+        "endChar": 15
+      },
+      "revId": "d11085937113ac76634f3007a985c73624babec5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_34c7aa47",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleBGPExtensionProviderContext.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-21T22:59:26Z",
+      "side": 1,
+      "message": "add some instructions",
+      "range": {
+        "startLine": 102,
+        "startChar": 5,
+        "endLine": 102,
+        "endChar": 15
+      },
+      "revId": "d11085937113ac76634f3007a985c73624babec5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
