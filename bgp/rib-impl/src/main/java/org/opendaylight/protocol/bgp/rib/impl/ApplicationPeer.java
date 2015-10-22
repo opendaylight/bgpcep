@@ -28,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.slf4j.Logger;
@@ -89,15 +90,75 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
             Verify.verify(lastArg instanceof NodeIdentifierWithPredicates, "Unexpected type %s in path %s", lastArg.getClass(), path);
             final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) lastArg;
             for (final DataTreeCandidateNode child : tc.getRootNode().getChildNodes()) {
-                final YangInstanceIdentifier tableId = this.adjRibsInId.node(tableKey).node(child.getIdentifier());
-                if (child.getDataAfter().isPresent()) {
-                    LOG.trace("App peer -> AdjRibsIn path : {}", tableId);
-                    LOG.trace("App peer -> AdjRibsIn data : {}", child.getDataAfter().get());
-                    tx.put(LogicalDatastoreType.OPERATIONAL, tableId, child.getDataAfter().get());
+                final PathArgument childIdentifier = child.getIdentifier();
+                final YangInstanceIdentifier tableId = this.adjRibsInId.node(tableKey).node(childIdentifier);
+                switch (child.getModificationType()) {
+                case DELETE:
+                    LOG.trace("App peer -> AdjRibsIn path delete: {}", childIdentifier);
+                    tx.delete(LogicalDatastoreType.OPERATIONAL, tableId);
+                    break;
+                case UNMODIFIED:
+                    // No-op
+                    break;
+                case SUBTREE_MODIFIED:
+                    if (EffectiveRibInWriter.TABLE_ROUTES.equals(childIdentifier)) {
+                        processRoutesTable(child, tableId, tx, tableId);
+                        break;
+                    }
+                case WRITE:
+                    if (child.getDataAfter().isPresent()) {
+                        final NormalizedNode<?,?> dataAfter = child.getDataAfter().get();
+                        LOG.trace("App peer -> AdjRibsIn path : {}", tableId);
+                        LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
+                        tx.put(LogicalDatastoreType.OPERATIONAL, tableId, dataAfter);
+                    }
+                    break;
+                default:
+                    break;
                 }
             }
         }
         tx.submit();
+    }
+
+    /**
+     * Applies modification under table routes based on modification type instead of only put. BUG 4438
+     * @param node
+     * @param identifier
+     * @param tx
+     * @param routeTableIdentifier
+     */
+    private void processRoutesTable(final DataTreeCandidateNode node, final YangInstanceIdentifier identifier,
+        final DOMDataWriteTransaction tx, final YangInstanceIdentifier routeTableIdentifier) {
+        for (final DataTreeCandidateNode child : node.getChildNodes()) {
+            final YangInstanceIdentifier childIdentifier = identifier.node(child.getIdentifier());
+            switch (child.getModificationType()) {
+            case DELETE:
+                LOG.trace("App peer -> AdjRibsIn path delete: {}", childIdentifier);
+                tx.delete(LogicalDatastoreType.OPERATIONAL, childIdentifier);
+                break;
+            case UNMODIFIED:
+                // No-op
+                break;
+            case SUBTREE_MODIFIED:
+                //For be ables to use DELETE when we remove specific routes as we do when we remove the whole routes,
+                // we need to go deeper three levels
+                if (!routeTableIdentifier.equals(childIdentifier.getParent().getParent().getParent())) {
+                    processRoutesTable(child, childIdentifier, tx, routeTableIdentifier);
+                    break;
+                }
+            case WRITE:
+                if (child.getDataAfter().isPresent()) {
+                    final NormalizedNode<?,?> dataAfter = child.getDataAfter().get();
+                    LOG.trace("App peer -> AdjRibsIn path : {}", childIdentifier);
+                    LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
+                    tx.put(LogicalDatastoreType.OPERATIONAL, childIdentifier, dataAfter);
+                }
+                break;
+            default:
+                break;
+            }
+        }
     }
 
     @Override
