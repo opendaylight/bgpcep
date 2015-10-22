@@ -16,6 +16,29 @@
       "revId": "ef798c159301512b9339b6ec87d602d55008d994",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_95d3f037",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/BGPActivator.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-22T18:46:59Z",
+      "side": 1,
+      "message": "so far keep it as it is...let\u0027s open a linkstate vpn support enhancement in bugzilla targeted for the Boron",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 45
+      },
+      "revId": "ef798c159301512b9339b6ec87d602d55008d994",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
