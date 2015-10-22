@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_b56394b0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-22T18:38:11Z",
+      "side": 1,
+      "message": "update a commit message, describe changes etc.., also the \"VPN SAFI support\" is not accurate",
+      "revId": "ef798c159301512b9339b6ec87d602d55008d994",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
