@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_550fc8e1",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-22T18:43:32Z",
+      "side": 1,
+      "message": "transaction !\u003d null ? transaction.getIdentifier() : null",
+      "range": {
+        "startLine": 254,
+        "startChar": 84,
+        "endLine": 254,
+        "endChar": 105
+      },
+      "revId": "877c69b40158a3667f8e84131c9fc98569160860",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
