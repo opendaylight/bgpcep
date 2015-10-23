@@ -29,6 +29,7 @@ public abstract class AbstractVendorSpecificTlvParser implements TlvParser, TlvS
     protected static final int ENTERPRISE_NUM_LENGTH = 4;
 
     @Override
+    @Deprecated
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
         Preconditions.checkArgument(tlv instanceof VsTlv, "Vendor Specific Tlv is mandatory.");
         final VsTlv vsTlv = (VsTlv) tlv;
@@ -42,6 +43,7 @@ public abstract class AbstractVendorSpecificTlvParser implements TlvParser, TlvS
     }
 
     @Override
+    @Deprecated
     public VsTlv parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
         if (buffer == null) {
             return null;
@@ -62,9 +64,12 @@ public abstract class AbstractVendorSpecificTlvParser implements TlvParser, TlvS
         return vsTlvBuider.build();
     }
 
+    @Deprecated
     protected abstract void serializeVendorPayload(final VendorPayload payload, final ByteBuf buffer);
 
+    @Deprecated
     protected abstract long getEnterpriseNumber();
 
+    @Deprecated
     protected abstract VendorPayload parseVendorPayload(final ByteBuf payloadBytes) throws PCEPDeserializerException;
 }
