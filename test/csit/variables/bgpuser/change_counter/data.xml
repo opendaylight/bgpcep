@@ -1,0 +1,9 @@
+<module xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgpcep:data:change:counter">prefix:data-change-counter-impl</type>
+    <name>data-change-counter-singleton</name>
+    <data-provider xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgpcep:data:change:counter">
+        <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-async-data-broker</type>
+        <name>pingpong-binding-data-broker</name>
+    </data-provider>
+    <topology-name xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgpcep:data:change:counter">$TOPOLOGY_NAME</topology-name>
+</module>
