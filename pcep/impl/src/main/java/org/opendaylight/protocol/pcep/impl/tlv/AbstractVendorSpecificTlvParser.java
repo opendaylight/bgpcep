@@ -22,6 +22,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vs.tlv.VsTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vs.tlv.vs.tlv.VendorPayload;
 
+/**
+ * Vs-tlv model has been deprecated, vendor-information-tlv should be used instead.
+ * Therefore parsers/serializers wont be need it any more and this class is slated
+ * for removal in a future release.
+ */
+@Deprecated
 public abstract class AbstractVendorSpecificTlvParser implements TlvParser, TlvSerializer {
 
     public static final int TYPE = 27;
