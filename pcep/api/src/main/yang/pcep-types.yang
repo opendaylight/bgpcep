@@ -158,6 +158,9 @@ module pcep-types {
     grouping vs-tlv {
         description "Vendor-specific TLV.";
         container vs-tlv {
+                status obsolete;
+                description "This model is obsolete, please use vendor-information-tlvs instead";
+
                 uses tlv;
 
                 leaf enterprise-number {
