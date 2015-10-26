@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
@@ -54,7 +55,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
     private final EventExecutor executor;
-    private KeyMapping keys;
+    private Optional<KeyMapping> keys;
 
     public BGPDispatcherImpl(final MessageRegistry messageRegistry, final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
         this(messageRegistry, bossGroup, workerGroup, null, null);
@@ -67,7 +68,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         this.handlerFactory = new BGPHandlerFactory(messageRegistry);
         this.channelFactory = cf;
         this.serverChannelFactory = scf;
-        this.keys = null;
+        this.keys = Optional.absent();
     }
 
     @Override
@@ -75,15 +76,35 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(listener);
         final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.handlerFactory, snf);
 
-        final Bootstrap bootstrap = new Bootstrap();
+        final Bootstrap bootstrap = createClientBootStrap();
         final BGPProtocolSessionPromise sessionPromise = new BGPProtocolSessionPromise(this.executor, address, strategy, bootstrap);
-        bootstrap.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE);
         bootstrap.handler(BGPChannel.createChannelInitializer(initializer, sessionPromise));
-        this.customizeBootstrap(bootstrap);
-        setWorkerGroup(bootstrap);
         sessionPromise.connect();
         LOG.debug("Client created.");
         return sessionPromise;
+    }
+
+    protected Bootstrap createClientBootStrap() {
+        final Bootstrap bootstrap = new Bootstrap();
+        if (this.keys.isPresent()) {
+            if (this.channelFactory == null) {
+                throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
+            }
+            bootstrap.channelFactory(this.channelFactory);
+            bootstrap.option(MD5ChannelOption.TCP_MD5SIG, this.keys.get());
+        } else {
+            bootstrap.channel(NioSocketChannel.class);
+        }
+
+        // Make sure we are doing round-robin processing
+        bootstrap.option(ChannelOption.MAX_MESSAGES_PER_READ, 1);
+        bootstrap.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE);
+
+        if (bootstrap.group() == null) {
+            bootstrap.group(this.workerGroup);
+        }
+
+        return bootstrap;
     }
 
     @Override
@@ -97,20 +118,14 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
 
     @Override
     public synchronized Future<Void> createReconnectingClient(final InetSocketAddress address, final BGPPeerRegistry peerRegistry,
-        final ReconnectStrategyFactory connectStrategyFactory, final KeyMapping keys) {
+        final ReconnectStrategyFactory connectStrategyFactory, final Optional<KeyMapping> keys) {
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(peerRegistry);
         this.keys = keys;
-
-        final Bootstrap bootstrap = new Bootstrap();
+        final Bootstrap bootstrap = createClientBootStrap();
         final BGPReconnectPromise reconnectPromise = new BGPReconnectPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE, address,
             connectStrategyFactory, bootstrap, BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.handlerFactory, snf));
-        bootstrap.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE);
-        this.customizeBootstrap(bootstrap);
-        setWorkerGroup(bootstrap);
         reconnectPromise.connect();
-
         this.keys = null;
-
         return reconnectPromise;
     }
 
@@ -118,37 +133,25 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     public ChannelFuture createServer(final BGPPeerRegistry registry, final InetSocketAddress address) {
         final BGPServerSessionNegotiatorFactory snf = new BGPServerSessionNegotiatorFactory(registry);
         final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.handlerFactory, snf);
-        final ServerBootstrap serverBootstrap = new ServerBootstrap();
-        serverBootstrap.childHandler(BGPChannel.createChannelInitializer(initializer, new DefaultPromise(BGPDispatcherImpl.this.executor)));
-        serverBootstrap.option(ChannelOption.SO_BACKLOG, Integer.valueOf(SOCKET_BACKLOG_SIZE));
-        serverBootstrap.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
-        this.customizeBootstrap(serverBootstrap);
-
+        final ServerBootstrap serverBootstrap = createServerBootstrap(initializer);
         final ChannelFuture channelFuture = serverBootstrap.bind(address);
         LOG.debug("Initiated server {} at {}.", channelFuture, address);
         return channelFuture;
     }
 
-    protected void customizeBootstrap(final Bootstrap bootstrap) {
-        if (this.keys != null && !this.keys.isEmpty()) {
-            if (this.channelFactory == null) {
-                throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
-            }
-            bootstrap.channelFactory(this.channelFactory);
-            bootstrap.option(MD5ChannelOption.TCP_MD5SIG, this.keys);
-        }
-
-        // Make sure we are doing round-robin processing
-        bootstrap.option(ChannelOption.MAX_MESSAGES_PER_READ, 1);
-    }
-
-    private void customizeBootstrap(final ServerBootstrap serverBootstrap) {
-        if (this.keys != null && !this.keys.isEmpty()) {
+    private ServerBootstrap createServerBootstrap(final ChannelPipelineInitializer initializer) {
+        final ServerBootstrap serverBootstrap = new ServerBootstrap();
+        serverBootstrap.childHandler(BGPChannel.createChannelInitializer(initializer, new DefaultPromise(BGPDispatcherImpl.this.executor)));
+        serverBootstrap.option(ChannelOption.SO_BACKLOG, Integer.valueOf(SOCKET_BACKLOG_SIZE));
+        serverBootstrap.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
+        if (this.keys.isPresent()) {
             if (this.serverChannelFactory == null) {
                 throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
             }
             serverBootstrap.channelFactory(this.serverChannelFactory);
-            serverBootstrap.option(MD5ChannelOption.TCP_MD5SIG, this.keys);
+            serverBootstrap.option(MD5ChannelOption.TCP_MD5SIG, this.keys.get());
+        } else {
+            serverBootstrap.channel(NioServerSocketChannel.class);
         }
 
         // Make sure we are doing round-robin processing
@@ -157,23 +160,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         if (serverBootstrap.group() == null) {
             serverBootstrap.group(this.bossGroup, this.workerGroup);
         }
-
-        try {
-            serverBootstrap.channel(NioServerSocketChannel.class);
-        } catch (final IllegalStateException e) {
-            LOG.trace("Not overriding channelFactory on bootstrap {}", serverBootstrap, e);
-        }
-    }
-
-    private void setWorkerGroup(final Bootstrap bootstrap) {
-        if (bootstrap.group() == null) {
-            bootstrap.group(this.workerGroup);
-        }
-        try {
-            bootstrap.channel(NioSocketChannel.class);
-        } catch (final IllegalStateException e) {
-            LOG.trace("Not overriding channelFactory on bootstrap {}", bootstrap, e);
-        }
+        return serverBootstrap;
     }
 
     private static final class BGPChannel {
