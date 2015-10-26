@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_3bdb12ef",
+        "filename": "bgp/openconfig-spi/src/main/java/org/opendaylight/protocol/bgp/openconfig/spi/BGPOpenconfigMapper.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-10-26T09:55:23Z",
+      "side": 1,
+      "message": "missing description: is this synchronous, can it fail, how does it react to null?",
+      "revId": "3f5c194b2026e25a62c0884c4b196ad9054c2079",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_fbe4aaad",
+        "filename": "bgp/openconfig-spi/src/main/java/org/opendaylight/protocol/bgp/openconfig/spi/InstanceConfiguration.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-10-26T09:55:23Z",
+      "side": 1,
+      "message": "Looks like an Identifier/Identifiable case",
+      "revId": "3f5c194b2026e25a62c0884c4b196ad9054c2079",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_1be2ce9f",
+        "filename": "bgp/openconfig-spi/src/main/java/org/opendaylight/protocol/bgp/openconfig/spi/pojo/BGPAppPeerInstanceConfiguration.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-10-26T09:55:23Z",
+      "side": 1,
+      "message": "missing javadoc, is this meant to be a base class for subclassing? hashCode/equals semantics?",
+      "revId": "3f5c194b2026e25a62c0884c4b196ad9054c2079",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_bbee228a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPApplicationPeerModule.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-10-26T09:55:23Z",
+      "side": 1,
+      "message": "static? does it need to be an inner class?",
+      "revId": "3f5c194b2026e25a62c0884c4b196ad9054c2079",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_dbf3e671",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/spi/RIB.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-10-26T09:55:23Z",
+      "side": 1,
+      "message": "missing javadoc",
+      "revId": "3f5c194b2026e25a62c0884c4b196ad9054c2079",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
