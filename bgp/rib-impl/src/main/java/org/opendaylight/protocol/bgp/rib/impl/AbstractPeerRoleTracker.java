@@ -32,10 +32,11 @@ abstract class AbstractPeerRoleTracker {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPeerRoleTracker.class);
 
     public void onDataTreeChanged(final DataTreeCandidateNode change, final YangInstanceIdentifier peerPath) {
-        LOG.debug("Data Changed for Peer role {} path {}", change, peerPath);
-
         // Check for removal
         final Optional<NormalizedNode<?, ?>> maybePeerRole = change.getDataAfter();
+        LOG.debug("Data Changed for Peer role {} path {}, dataBefore {}, dataAfter {}", change.getIdentifier(),
+            peerPath , change.getDataBefore(), maybePeerRole);
+
         final PeerRole role;
         if (maybePeerRole.isPresent()) {
             final LeafNode<?> peerRoleLeaf = (LeafNode<?>) maybePeerRole.get();
