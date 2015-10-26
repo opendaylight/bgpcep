@@ -149,12 +149,12 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             // filter out any change outside EffRibsIn
             final DataTreeCandidateNode ribIn = rootNode.getModifiedChild(EFFRIBIN_NID);
             if (ribIn == null) {
-                LOG.debug("Skipping change {}", tc.getRootNode());
+                LOG.debug("Skipping change {}", rootNode.getIdentifier());
                 continue;
             }
             final DataTreeCandidateNode table = ribIn.getModifiedChild(TABLES_NID).getModifiedChild(this.tableKey);
             if (table == null) {
-                LOG.debug("Skipping change {}", tc.getRootNode());
+                LOG.debug("Skipping change {}", rootNode.getIdentifier());
                 continue;
             }
             final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(rootPath);
