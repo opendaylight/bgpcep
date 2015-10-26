@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fad0f9df_6c7c7e73",
+        "filename": "bgp/openconfig-spi/src/main/java/org/opendaylight/protocol/bgp/openconfig/spi/BGPOpenconfigMapper.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-26T16:05:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fad0f9df_3bdb12ef",
+      "revId": "3f5c194b2026e25a62c0884c4b196ad9054c2079",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fad0f9df_fbe4aaad",
         "filename": "bgp/openconfig-spi/src/main/java/org/opendaylight/protocol/bgp/openconfig/spi/InstanceConfiguration.java",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2015-10-26T09:55:23Z",
       "side": 1,
       "message": "Looks like an Identifier/Identifiable case",
+      "revId": "3f5c194b2026e25a62c0884c4b196ad9054c2079",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_8c81a24c",
+        "filename": "bgp/openconfig-spi/src/main/java/org/opendaylight/protocol/bgp/openconfig/spi/InstanceConfiguration.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-26T16:05:11Z",
+      "side": 1,
+      "message": "right, an identifier class added",
+      "parentUuid": "fad0f9df_fbe4aaad",
       "revId": "3f5c194b2026e25a62c0884c4b196ad9054c2079",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fad0f9df_4cdada79",
+        "filename": "bgp/openconfig-spi/src/main/java/org/opendaylight/protocol/bgp/openconfig/spi/pojo/BGPAppPeerInstanceConfiguration.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-26T16:05:11Z",
+      "side": 1,
+      "message": "Added javadoc, marked as non-extensible; implementations of \"InstanceConfiguration\" are pure POJOs for holding and passing of a configuration module instance state. In the implementation, on write, the POJO is translated into BGP OpneConfig DTO and stored in DS.",
+      "parentUuid": "fad0f9df_1be2ce9f",
+      "revId": "3f5c194b2026e25a62c0884c4b196ad9054c2079",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fad0f9df_bbee228a",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPApplicationPeerModule.java",
         "patchSetId": 6
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "fad0f9df_ac37c6af",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPApplicationPeerModule.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-26T16:05:11Z",
+      "side": 1,
+      "message": "Nested class is not static because it an access to parent class functions is needed. For sure, it is possible to do it in a static or a non-inner class way. I think it is not necessary to expose the implementation and the class is closely related to configuration module.",
+      "parentUuid": "fad0f9df_bbee228a",
+      "revId": "3f5c194b2026e25a62c0884c4b196ad9054c2079",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fad0f9df_dbf3e671",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/spi/RIB.java",
         "patchSetId": 6
@@ -81,6 +153,24 @@
       "writtenOn": "2015-10-26T09:55:23Z",
       "side": 1,
       "message": "missing javadoc",
+      "revId": "3f5c194b2026e25a62c0884c4b196ad9054c2079",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_cc3c8a96",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/spi/RIB.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-26T16:05:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fad0f9df_dbf3e671",
       "revId": "3f5c194b2026e25a62c0884c4b196ad9054c2079",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
