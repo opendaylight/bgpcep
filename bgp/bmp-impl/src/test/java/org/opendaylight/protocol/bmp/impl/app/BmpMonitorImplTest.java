@@ -347,6 +347,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             }
         });
         b.localAddress(CLIENT_LOCAL);
+        b.option(ChannelOption.SO_REUSEADDR, true);
         return b.connect(CLIENT_REMOTE).sync();
     }
 
