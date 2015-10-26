@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.pcep.impl;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
@@ -210,7 +211,7 @@ public class PCEPDispatcherImplTest {
         keys.put(CLIENT1_ADDRESS.getAddress(), new String("CLIENT1_ADDRESS").getBytes() );
         keys.put(CLIENT2_ADDRESS.getAddress(), new String("CLIENT2_ADDRESS").getBytes() );
 
-        final ChannelFuture futureChannel = this.disp2Spy.createServer(new InetSocketAddress("0.0.0.0", PORT), keys,
+        final ChannelFuture futureChannel = this.disp2Spy.createServer(new InetSocketAddress("0.0.0.0", PORT), Optional.fromNullable(keys),
             new PCEPSessionListenerFactory() {
                 @Override
                 public PCEPSessionListener getSessionListener() {

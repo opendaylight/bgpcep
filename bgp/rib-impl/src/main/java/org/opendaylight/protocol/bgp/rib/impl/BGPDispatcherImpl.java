@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
@@ -54,7 +55,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
     private final EventExecutor executor;
-    private KeyMapping keys;
+    private Optional<KeyMapping> keys;
 
     public BGPDispatcherImpl(final MessageRegistry messageRegistry, final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
         this(messageRegistry, bossGroup, workerGroup, null, null);
@@ -67,7 +68,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         this.handlerFactory = new BGPHandlerFactory(messageRegistry);
         this.channelFactory = cf;
         this.serverChannelFactory = scf;
-        this.keys = null;
+        this.keys = Optional.absent();
     }
 
     @Override
@@ -97,7 +98,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
 
     @Override
     public synchronized Future<Void> createReconnectingClient(final InetSocketAddress address, final BGPPeerRegistry peerRegistry,
-        final ReconnectStrategyFactory connectStrategyFactory, final KeyMapping keys) {
+        final ReconnectStrategyFactory connectStrategyFactory, final Optional<KeyMapping> keys) {
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(peerRegistry);
         this.keys = keys;
 
@@ -130,12 +131,12 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     }
 
     protected void customizeBootstrap(final Bootstrap bootstrap) {
-        if (this.keys != null && !this.keys.isEmpty()) {
+        if (this.keys.isPresent()) {
             if (this.channelFactory == null) {
                 throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
             }
             bootstrap.channelFactory(this.channelFactory);
-            bootstrap.option(MD5ChannelOption.TCP_MD5SIG, this.keys);
+            bootstrap.option(MD5ChannelOption.TCP_MD5SIG, this.keys.get());
         }
 
         // Make sure we are doing round-robin processing
@@ -143,12 +144,14 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     }
 
     private void customizeBootstrap(final ServerBootstrap serverBootstrap) {
-        if (this.keys != null && !this.keys.isEmpty()) {
+        if (this.keys.isPresent()) {
             if (this.serverChannelFactory == null) {
                 throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
             }
             serverBootstrap.channelFactory(this.serverChannelFactory);
-            serverBootstrap.option(MD5ChannelOption.TCP_MD5SIG, this.keys);
+            serverBootstrap.option(MD5ChannelOption.TCP_MD5SIG, this.keys.get());
+        } else {
+            serverBootstrap.channel(NioServerSocketChannel.class);
         }
 
         // Make sure we are doing round-robin processing
@@ -156,12 +159,6 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
 
         if (serverBootstrap.group() == null) {
             serverBootstrap.group(this.bossGroup, this.workerGroup);
-        }
-
-        try {
-            serverBootstrap.channel(NioServerSocketChannel.class);
-        } catch (final IllegalStateException e) {
-            LOG.trace("Not overriding channelFactory on bootstrap {}", serverBootstrap, e);
         }
     }
 
