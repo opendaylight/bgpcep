@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad0f9df_9bb55ecf",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 13
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-26T08:47:46Z",
+      "side": 1,
+      "message": "comparing uint8 vs 1 byte vs 8 bits - waht\u0027s the advantage of uint8?",
+      "range": {
+        "startLine": 47,
+        "startChar": 17,
+        "endLine": 47,
+        "endChar": 22
+      },
+      "revId": "a018a7798ff072af9c44415b69a6ad79812da051",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fad0f9df_fbc34a36",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing-ext.yang",
+        "patchSetId": 13
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-26T08:47:46Z",
+      "side": 1,
+      "message": "move the mpls label definition into the concepts",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 17
+      },
+      "revId": "a018a7798ff072af9c44415b69a6ad79812da051",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
