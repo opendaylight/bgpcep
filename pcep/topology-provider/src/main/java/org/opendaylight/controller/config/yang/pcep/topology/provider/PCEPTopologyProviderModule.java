@@ -57,7 +57,7 @@ public final class PCEPTopologyProviderModule extends
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
-    private KeyMapping contructKeys() {
+    private Optional<KeyMapping> contructKeys() {
         final KeyMapping ret = new KeyMapping();
         if (getClient() != null) {
             for (final Client c : getClient()) {
@@ -71,7 +71,7 @@ public final class PCEPTopologyProviderModule extends
                 }
             }
         }
-        return ret;
+        return Optional.fromNullable(ret);
     }
 
 
@@ -91,8 +91,8 @@ public final class PCEPTopologyProviderModule extends
         JmxAttributeValidationException.checkNotNull(getListenPort(), IS_NOT_SET, listenPortJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getStatefulPlugin(), IS_NOT_SET, statefulPluginJmxAttribute);
 
-        final KeyMapping keys = contructKeys();
-        if (!keys.isEmpty()) {
+        final Optional<KeyMapping> keys = contructKeys();
+        if (keys.isPresent()) {
             /*
              *  This is a nasty hack, but we don't have another clean solution. We cannot allow
              *  password being set if the injected dispatcher does not have the optional
@@ -125,10 +125,9 @@ public final class PCEPTopologyProviderModule extends
         final InstanceIdentifier<Topology> topology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
                 new TopologyKey(getTopologyId())).build();
         final InetSocketAddress address = new InetSocketAddress(listenAddress(), getListenPort().getValue());
-        final KeyMapping keys = contructKeys();
 
         try {
-            return PCEPTopologyProvider.create(getDispatcherDependency(), address, keys.isEmpty() ? null : keys, getSchedulerDependency(),
+            return PCEPTopologyProvider.create(getDispatcherDependency(), address, contructKeys(), getSchedulerDependency(),
                     getDataProviderDependency(), getRpcRegistryDependency(), topology, getStatefulPluginDependency(),
                     Optional.of(getRootRuntimeBeanRegistratorWrapper()));
         } catch (InterruptedException | ExecutionException | TransactionCommitFailedException | ReadFailedException e) {

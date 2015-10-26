@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -47,7 +48,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     private final EventLoopGroup workerGroup;
     private final EventExecutor executor;
     private final MD5ServerChannelFactory<?> scf;
-    private KeyMapping keys;
+    private Optional<KeyMapping> keys;
 
     /**
      * Creates an instance of PCEPDispatcherImpl, gets the default selector and opens it.
@@ -87,11 +88,11 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     @Override
     public synchronized ChannelFuture createServer(final InetSocketAddress address,
                                                    final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
-        return createServer(address, null, listenerFactory, peerProposal);
+        return createServer(address, Optional.<KeyMapping>absent(), listenerFactory, peerProposal);
     }
 
     @Override
-    public synchronized ChannelFuture createServer(final InetSocketAddress address, final KeyMapping keys,
+    public synchronized ChannelFuture createServer(final InetSocketAddress address, final Optional<KeyMapping> keys,
                                                    final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
         this.keys = keys;
 
@@ -118,12 +119,6 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
             b.group(this.bossGroup, this.workerGroup);
         }
 
-        try {
-            b.channel(NioServerSocketChannel.class);
-        } catch (final IllegalStateException e) {
-            LOG.trace("Not overriding channelFactory on bootstrap {}", b, e);
-        }
-
         final ChannelFuture f = b.bind(address);
         LOG.debug("Initiated server {} at {}.", f, address);
 
@@ -132,14 +127,16 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     }
 
     protected void customizeBootstrap(final ServerBootstrap b) {
-        if (this.keys != null && !this.keys.isEmpty()) {
+        if (this.keys.isPresent()) {
             if (this.scf == null) {
                 throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
             }
 
-            LOG.debug("Adding MD5 keys {} to bootstrap {}", this.keys, b);
+            LOG.debug("Adding MD5 keys {} to bootstrap {}", this.keys.get(), b);
             b.channelFactory(this.scf);
-            b.option(MD5ChannelOption.TCP_MD5SIG, this.keys);
+            b.option(MD5ChannelOption.TCP_MD5SIG, this.keys.get());
+        } else {
+            b.channel(NioServerSocketChannel.class);
         }
 
         // Make sure we are doing round-robin processing
