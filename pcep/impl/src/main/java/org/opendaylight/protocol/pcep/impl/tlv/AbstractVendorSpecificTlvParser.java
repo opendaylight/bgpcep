@@ -22,6 +22,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vs.tlv.VsTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vs.tlv.vs.tlv.VendorPayload;
 
+/**
+ * Vs-tlv model has been deprecated, vendor-information-tlv should be used instead.
+ * Therefore parsers/serializers wont be need it any more and this class is slated
+ * for removal in a future release.
+ */
+@Deprecated
 public abstract class AbstractVendorSpecificTlvParser implements TlvParser, TlvSerializer {
 
     public static final int TYPE = 27;
@@ -29,7 +35,6 @@ public abstract class AbstractVendorSpecificTlvParser implements TlvParser, TlvS
     protected static final int ENTERPRISE_NUM_LENGTH = 4;
 
     @Override
-    @Deprecated
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
         Preconditions.checkArgument(tlv instanceof VsTlv, "Vendor Specific Tlv is mandatory.");
         final VsTlv vsTlv = (VsTlv) tlv;
@@ -43,7 +48,6 @@ public abstract class AbstractVendorSpecificTlvParser implements TlvParser, TlvS
     }
 
     @Override
-    @Deprecated
     public VsTlv parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
         if (buffer == null) {
             return null;
@@ -64,12 +68,9 @@ public abstract class AbstractVendorSpecificTlvParser implements TlvParser, TlvS
         return vsTlvBuider.build();
     }
 
-    @Deprecated
     protected abstract void serializeVendorPayload(final VendorPayload payload, final ByteBuf buffer);
 
-    @Deprecated
     protected abstract long getEnterpriseNumber();
 
-    @Deprecated
     protected abstract VendorPayload parseVendorPayload(final ByteBuf payloadBytes) throws PCEPDeserializerException;
 }
