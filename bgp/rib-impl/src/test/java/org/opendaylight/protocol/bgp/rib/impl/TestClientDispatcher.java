@@ -12,6 +12,7 @@ import com.google.common.base.Optional;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
@@ -30,9 +31,19 @@ public class TestClientDispatcher {
                                    final InetSocketAddress locaAddress) {
         this.disp = new BGPDispatcherImpl(messageRegistry, bossGroup, workerGroup) {
             @Override
-            protected void customizeBootstrap(final Bootstrap b) {
-                b.localAddress(locaAddress);
-                b.option(ChannelOption.SO_REUSEADDR, true);
+            protected Bootstrap createClientBootStrap() {
+                final Bootstrap bootstrap = new Bootstrap();
+                bootstrap.channel(NioSocketChannel.class);
+                // Make sure we are doing round-robin processing
+                bootstrap.option(ChannelOption.MAX_MESSAGES_PER_READ, 1);
+                bootstrap.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE);
+
+                if (bootstrap.group() == null) {
+                    bootstrap.group(workerGroup);
+                }
+                bootstrap.localAddress(locaAddress);
+                bootstrap.option(ChannelOption.SO_REUSEADDR, true);
+                return bootstrap;
             }
         };
         this.hf = new BGPHandlerFactory(messageRegistry);
