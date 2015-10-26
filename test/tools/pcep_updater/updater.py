@@ -51,7 +51,7 @@ import AuthStandalone
 
 def str2bool(text):
     """Utility converter, based on http://stackoverflow.com/a/19227287"""
-    return text.lower() in ("yes", "true", "t", "1")
+    return text.lower() in ("yes", "true", "y", "t", "1")
 
 
 # Note: JSON data contains '"', so using "'" to quote Pythons strings.
