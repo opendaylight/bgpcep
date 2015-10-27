@@ -1,6 +1,6 @@
 <module xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-peer</type>
-    <name>example-bgp-peer</name>
+    <name>$NAME</name>
     <host xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">$IP</host>
     <port xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">$PEER_PORT</port>
     <holdtimer xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">$HOLDTIME</holdtimer>

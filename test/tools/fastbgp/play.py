@@ -29,26 +29,26 @@ def parse_arguments():
     """Use argparse to get arguments, return args object."""
     parser = argparse.ArgumentParser()
     # TODO: Should we use --argument-names-with-spaces?
-    str_help = 'Autonomous System number use in the stream (current default as in ODL: 64496).'
-    parser.add_argument('--asnumber', default=64496, type=int, help=str_help)
+    str_help = "Autonomous System number use in the stream (current default as in ODL: 64496)."
+    parser.add_argument("--asnumber", default=64496, type=int, help=str_help)
     # FIXME: We are acting as iBGP peer, we should mirror AS number from peer's open message.
-    str_help = 'Amount of IP prefixes to generate. Negative number means "practically infinite".'
-    parser.add_argument('--amount', default='1', type=int, help=str_help)
-    str_help = 'The first IPv4 prefix to announce, given as numeric IPv4 address.'
-    parser.add_argument('--firstprefix', default='8.0.1.0', type=ipaddr.IPv4Address, help=str_help)
-    str_help = 'If present, this tool will be listening for connection, instead of initiating it.'
-    parser.add_argument('--listen', action='store_true', help=str_help)
-    str_help = 'Numeric IP Address to bind to and derive BGP ID from. Default value only suitable for listening.'
-    parser.add_argument('--myip', default='0.0.0.0', type=ipaddr.IPv4Address, help=str_help)
-    str_help = 'TCP port to bind to when listening or initiating connection. Default only suitable for initiating.'
-    parser.add_argument('--myport', default='0', type=int, help=str_help)
-    str_help = 'The IP of the next hop to be placed into the update messages.'
-    parser.add_argument('--nexthop', default='192.0.2.1', type=ipaddr.IPv4Address, dest="nexthop", help=str_help)
-    str_help = 'Numeric IP Address to try to connect to. Currently no effect in listening mode.'
-    parser.add_argument('--peerip', default='127.0.0.2', type=ipaddr.IPv4Address, help=str_help)
-    str_help = 'TCP port to try to connect to. No effect in listening mode.'
-    parser.add_argument('--peerport', default='179', type=int, help=str_help)
-    # TODO: The step between IP previxes is currently hardcoded to 16. Should we make it configurable?
+    str_help = "Amount of IP prefixes to generate. Negative number is taken as overflown positive."
+    parser.add_argument("--amount", default="1", type=int, help=str_help)
+    str_help = "The first IPv4 prefix to announce, given as numeric IPv4 address."
+    parser.add_argument("--firstprefix", default="8.0.1.0", type=ipaddr.IPv4Address, help=str_help)
+    str_help = "If present, this tool will be listening for connection, instead of initiating it."
+    parser.add_argument("--listen", action="store_true", help=str_help)
+    str_help = "Numeric IP Address to bind to and derive BGP ID from. Default value only suitable for listening."
+    parser.add_argument("--myip", default="0.0.0.0", type=ipaddr.IPv4Address, help=str_help)
+    str_help = "TCP port to bind to when listening or initiating connection. Default only suitable for initiating."
+    parser.add_argument("--myport", default="0", type=int, help=str_help)
+    str_help = "The IP of the next hop to be placed into the update messages."
+    parser.add_argument("--nexthop", default="192.0.2.1", type=ipaddr.IPv4Address, dest="nexthop", help=str_help)
+    str_help = "Numeric IP Address to try to connect to. Currently no effect in listening mode."
+    parser.add_argument("--peerip", default="127.0.0.2", type=ipaddr.IPv4Address, help=str_help)
+    str_help = "TCP port to try to connect to. No effect in listening mode."
+    parser.add_argument("--peerport", default="179", type=int, help=str_help)
+    # TODO: The step between IP prefixes is currently hardcoded to 16. Should we make it configurable?
     # Yes, the argument list above is sorted alphabetically.
     arguments = parser.parse_args()
     # TODO: Are sanity checks (such as asnumber>=0) required?
@@ -73,7 +73,7 @@ def establish_connection(arguments):
         talking_socket.bind((str(arguments.myip), arguments.myport))  # bind to force specified address and port
         talking_socket.connect((str(arguments.peerip), arguments.peerport))  # socket does not spead ipaddr, hence str()
         bgp_socket = talking_socket
-    print 'Connected to ODL.'
+    print "Connected to ODL."
     return bgp_socket
 
 
@@ -105,7 +105,7 @@ class MessageError(ValueError):
         message = binascii.hexlify(self.msg)
         if message == "":
             message = "(empty message)"
-        return self.text + ': ' + message
+        return self.text + ": " + message
 
 
 def read_open_message(bgp_socket):
@@ -223,7 +223,7 @@ class TimeTracker(object):
         self.report_timedelta = 1.0  # In seconds. TODO: Configurable?
         """Upper bound for being stuck in the same state, we should at least report something before continuing."""
         # Negotiate the hold timer by taking the smaller of the 2 values (mine and the peer's).
-        hold_timedelta = 240  # Not an attribute of self yet.
+        hold_timedelta = 180  # Not an attribute of self yet.
         # TODO: Make the default value configurable, default value could mirror what peer said.
         peer_hold_timedelta = get_short_int_from_message(msg_in, offset=22)
         if hold_timedelta > peer_hold_timedelta:
@@ -358,7 +358,7 @@ class WriteTracker(object):
     def send_message_chunk_is_whole(self):
         """Perform actions related to sending (chunk of) message, return whether message was completed."""
         # We assume there is a msg_out to send and socket is writable.
-        # print 'going to send', repr(self.msg_out)
+        # print "going to send", repr(self.msg_out)
         self.timer.snapshot()
         bytes_sent = self.socket.send(self.msg_out)
         self.msg_out = self.msg_out[bytes_sent:]  # Forget the part of message that was sent.
@@ -444,7 +444,7 @@ class StateTracker(object):
             self.reader.wait_for_read()
             return
         # We can neither read nor write.
-        print 'Input and output both blocked for', self.timer.report_timedelta, 'seconds.'
+        print "Input and output both blocked for", self.timer.report_timedelta, "seconds."
         # FIXME: Are we sure select has been really waiting the whole period?
         return
 
