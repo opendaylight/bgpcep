@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dad5f5cf_5737e4b0",
+        "filename": "bgp/openconfig-spi/src/main/java/org/opendaylight/protocol/bgp/openconfig/spi/InstanceConfigurationIdentifier.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-10-27T18:22:16Z",
+      "side": 1,
+      "message": "1L, so we have proper versioning",
+      "revId": "36af0274e287e6bad66eb1f94f7d53aaab8886ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dad5f5cf_773c6894",
+        "filename": "bgp/openconfig-spi/src/main/java/org/opendaylight/protocol/bgp/openconfig/spi/InstanceConfigurationIdentifier.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-10-27T18:22:16Z",
+      "side": 1,
+      "message": "can it really be null?",
+      "revId": "36af0274e287e6bad66eb1f94f7d53aaab8886ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dad5f5cf_97bd4c05",
+        "filename": "bgp/openconfig-spi/src/main/java/org/opendaylight/protocol/bgp/openconfig/spi/InstanceConfigurationIdentifier.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-10-27T18:22:16Z",
+      "side": 1,
+      "message": "java.util.Objects.hashCode()",
+      "revId": "36af0274e287e6bad66eb1f94f7d53aaab8886ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dad5f5cf_b7bad008",
+        "filename": "bgp/openconfig-spi/src/main/java/org/opendaylight/protocol/bgp/openconfig/spi/InstanceConfigurationIdentifier.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-10-27T18:22:16Z",
+      "side": 1,
+      "message": "final class: null check and class comparison should be done via an instanceof check",
+      "revId": "36af0274e287e6bad66eb1f94f7d53aaab8886ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dad5f5cf_f7c0587e",
+        "filename": "bgp/openconfig-spi/src/main/java/org/opendaylight/protocol/bgp/openconfig/spi/InstanceConfigurationIdentifier.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-10-27T18:22:16Z",
+      "side": 1,
+      "message": "please use java.util.Objects.equals()",
+      "revId": "36af0274e287e6bad66eb1f94f7d53aaab8886ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dad5f5cf_d74af426",
+        "filename": "bgp/openconfig-spi/src/main/java/org/opendaylight/protocol/bgp/openconfig/spi/pojo/AbstractInstanceConfiguration.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-10-27T18:22:16Z",
+      "side": 1,
+      "message": "I guess this is not allowed to be null. also the constructor should be protected",
+      "revId": "36af0274e287e6bad66eb1f94f7d53aaab8886ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
