@@ -22,6 +22,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public class SegmentRoutingActivator extends AbstractPCEPExtensionProviderActivator {
 
+    private final boolean ianaSrSubobjectsType;
+
+    public SegmentRoutingActivator() {
+        this.ianaSrSubobjectsType = false;
+    }
+
+    public SegmentRoutingActivator(final boolean ianaSrSubobjectsType) {
+        this.ianaSrSubobjectsType = ianaSrSubobjectsType;
+    }
+
     @Override
     protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
         final List<AutoCloseable> regs = Lists.newArrayList();
@@ -34,8 +44,8 @@ public class SegmentRoutingActivator extends AbstractPCEPExtensionProviderActiva
         regs.add(context.registerTlvSerializer(SrPceCapability.class, new SrPceCapabilityTlvParser()));
 
         /* Subobjects */
-        final SrEroSubobjectParser srEroSubobjectParser = new SrEroSubobjectParser();
-        regs.add(context.registerEROSubobjectParser(SrEroSubobjectParser.TYPE, srEroSubobjectParser));
+        final SrEroSubobjectParser srEroSubobjectParser = new SrEroSubobjectParser(this.ianaSrSubobjectsType);
+        regs.add(context.registerEROSubobjectParser(srEroSubobjectParser.getCodePoint(), srEroSubobjectParser));
         regs.add(context.registerEROSubobjectSerializer(
                 org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.network.topology.topology.node.path.computation.client.reported.lsp.path.ero.subobject.subobject.type.SrEroType.class,
                 srEroSubobjectParser));
@@ -56,8 +66,8 @@ public class SegmentRoutingActivator extends AbstractPCEPExtensionProviderActiva
                 srEroSubobjectParser));
         regs.add(context.registerEROSubobjectSerializer(SrEroType.class, srEroSubobjectParser));
 
-        final SrRroSubobjectParser srRroSubobjectParser = new SrRroSubobjectParser();
-        regs.add(context.registerRROSubobjectParser(SrRroSubobjectParser.TYPE, srRroSubobjectParser));
+        final SrRroSubobjectParser srRroSubobjectParser = new SrRroSubobjectParser(this.ianaSrSubobjectsType);
+        regs.add(context.registerRROSubobjectParser(srRroSubobjectParser.getCodePoint(), srRroSubobjectParser));
         regs.add(context.registerRROSubobjectSerializer(
                 org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.network.topology.topology.node.path.computation.client.reported.lsp.path.rro.subobject.subobject.type.SrRroType.class,
                 srRroSubobjectParser));
