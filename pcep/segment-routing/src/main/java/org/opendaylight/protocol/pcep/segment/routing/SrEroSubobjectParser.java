@@ -8,9 +8,7 @@
 package org.opendaylight.protocol.pcep.segment.routing;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectUtil;
@@ -22,7 +20,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public class SrEroSubobjectParser extends AbstractSrSubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
 
-    public static final int TYPE = 5;
+    private static final int LEGACY_TYPE = 5;
+    private static final int PROPOSED_TYPE = 36;
+
+    private int type;
+
+    SrEroSubobjectParser(final boolean isIanaAssignedType) {
+        this.type = (isIanaAssignedType) ? PROPOSED_TYPE : LEGACY_TYPE;
+    }
 
     @Override
     public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
@@ -32,7 +37,7 @@ public class SrEroSubobjectParser extends AbstractSrSubobjectParser implements E
 
         final SrSubobject srSubobject = (SrSubobject) subobject.getSubobjectType();
         final ByteBuf body = serializeSubobject(srSubobject);
-        EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
+        EROSubobjectUtil.formatSubobject(type, subobject.isLoose(), body, buffer);
     }
 
     @Override
@@ -42,5 +47,9 @@ public class SrEroSubobjectParser extends AbstractSrSubobjectParser implements E
         subobjectBuilder.setLoose(loose);
         subobjectBuilder.setSubobjectType(srEroSubobjectBuilder.build());
         return subobjectBuilder.build();
+    }
+
+    public int getCodePoint() {
+        return this.type;
     }
 }

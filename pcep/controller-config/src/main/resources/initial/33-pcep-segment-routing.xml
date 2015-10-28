@@ -20,6 +20,9 @@
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:sr:cfg">prefix:pcep-parser-segment-routing</type>
                     <name>pcep-parser-segment-routing</name>
+                    <!-- Proposed code point for SR-ERO/RRO subobject by draft (=36) https://tools.ietf.org/html/draft-ietf-pce-segment-routing-06.
+                     to preserve (TYPE = 5/6) assigned type set the value to false or remove (false by default) or set true to use proposed ones
+                    <iana-sr-subobjects-type>false</iana-sr-subobjects-type>-->
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:sr:cfg">prefix:pcep-segment-routing-capability</type>

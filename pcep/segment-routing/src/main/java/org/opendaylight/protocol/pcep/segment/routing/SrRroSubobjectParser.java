@@ -23,8 +23,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public class SrRroSubobjectParser extends AbstractSrSubobjectParser implements RROSubobjectParser, RROSubobjectSerializer {
 
-    public static final int TYPE = 6;
+    private static final int LEGACY_TYPE = 6;
+    private static final int PROPOSED_TYPE = 36;
 
+    private int type;
+
+    SrRroSubobjectParser(final boolean isIanaAssignedType) {
+        this.type = (isIanaAssignedType) ? PROPOSED_TYPE : LEGACY_TYPE;
+    }
     @Override
     public void serializeSubobject(Subobject subobject, ByteBuf buffer) {
         Preconditions.checkArgument(subobject.getSubobjectType() instanceof SrSubobject,
@@ -32,7 +38,7 @@ public class SrRroSubobjectParser extends AbstractSrSubobjectParser implements R
                         .getClass());
         final SrSubobject srSubobject = (SrSubobject) subobject.getSubobjectType();
         final ByteBuf body = serializeSubobject(srSubobject);
-        RROSubobjectUtil.formatSubobject(TYPE, body, buffer);
+        RROSubobjectUtil.formatSubobject(type, body, buffer);
     }
 
     @Override
@@ -41,5 +47,9 @@ public class SrRroSubobjectParser extends AbstractSrSubobjectParser implements R
         final SubobjectBuilder subobjectBuilder = new SubobjectBuilder();
         subobjectBuilder.setSubobjectType(srRroSubobjectBuilder.build());
         return subobjectBuilder.build();
+    }
+
+    public int getCodePoint() {
+        return this.type;
     }
 }

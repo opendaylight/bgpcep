@@ -26,7 +26,7 @@ public class SegmentRoutingPCEPParserModule extends org.opendaylight.controller.
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        return new SegmentRoutingActivator();
+        return new SegmentRoutingActivator(getIanaSrSubobjectsType());
     }
 
 }

@@ -38,6 +38,12 @@ module odl-pcep-segment-routing-cfg {
     augment "/config:modules/config:module/config:configuration" {
         case pcep-parser-segment-routing {
             when "/config:modules/config:module/config:type = 'pcep-parser-segment-routing'";
+            leaf iana-sr-subobjects-type {
+                description "If false (default) SR-ERO type (=5) and SR-RRO type (=6) is used,
+                    else proposed type (36) is used for parsing/serialization";
+                type boolean;
+                default false;
+            }
         }
     }
 
