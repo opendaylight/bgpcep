@@ -54,6 +54,8 @@ public final class NodeAttributesParser {
     private static final int ATTACHED_BIT = 1;
     private static final int EXTERNAL_BIT = 2;
     private static final int ABBR_BIT = 3;
+    private static final int ROUTER_BIT = 4;
+    private static final int V6_BIT = 5;
 
     /* Node Attribute TLVs */
     private static final int NODE_FLAG_BITS = 1024;
@@ -86,7 +88,8 @@ public final class NodeAttributesParser {
                 break;
             case NODE_FLAG_BITS:
                 final BitArray flags = BitArray.valueOf(value, FLAGS_SIZE);
-                builder.setNodeFlags(new NodeFlagBits(flags.get(OVERLOAD_BIT), flags.get(ATTACHED_BIT), flags.get(EXTERNAL_BIT), flags.get(ABBR_BIT)));
+                builder.setNodeFlags(new NodeFlagBits(flags.get(OVERLOAD_BIT), flags.get(ATTACHED_BIT), flags.get
+                    (EXTERNAL_BIT), flags.get(ABBR_BIT), flags.get(ROUTER_BIT), flags.get(V6_BIT)));
                 LOG.debug("Parsed Overload bit: {}, attached bit: {}, external bit: {}, area border router: {}.",
                     flags.get(OVERLOAD_BIT), flags.get(ATTACHED_BIT), flags.get(EXTERNAL_BIT), flags.get(ABBR_BIT));
                 break;
@@ -203,6 +206,8 @@ public final class NodeAttributesParser {
             flags.set(ATTACHED_BIT, nodeFlagBits.isAttached());
             flags.set(EXTERNAL_BIT, nodeFlagBits.isExternal());
             flags.set(ABBR_BIT, nodeFlagBits.isAbr());
+            flags.set(ROUTER_BIT, nodeFlagBits.isRouter());
+            flags.set(V6_BIT, nodeFlagBits.isV6());
             flags.toByteBuf(nodeFlagBuf);
             TlvUtil.writeTLV(NODE_FLAG_BITS, nodeFlagBuf, byteAggregator);
         }

@@ -416,6 +416,12 @@ module bgp-linkstate {
             bit abr {
                 position 3;
             }
+            bit router {
+                position 4;
+            }
+            bit v6 {
+                position 5;
+            }
         }
     }
 
