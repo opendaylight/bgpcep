@@ -63,6 +63,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.sid.label.index.SidCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.AssociationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.association.object.AssociationObject;
@@ -83,27 +84,40 @@ public class LinkstateAttributeParserTest {
         0x00, (byte) 0x08, (byte) 0xc7, 0x01,  // Lenght, Class, Ctype
         0x00, 0x01, 0x00, 0x02,
         0x01, 0x02, 0x03, 0x04,};
+
     private static final byte[] LINK_ATTR = {0x04, 0x04, 0, 0x04, 0x2a, 0x2a, 0x2a, 0x2a, 0x04, 0x06, 0, 0x04, 0x2b, 0x2b, 0x2b, 0x2b,
         0x04, 0x40, 0, 0x04, 0, 0, 0, 0, 0x04, 0x41, 0, 0x04, 0x49, (byte) 0x98, (byte) 0x96, (byte) 0x80, 0x04, 0x42, 0, 0x04,
         0x46, 0x43, 0x50, 0, 0x04, 0x43, 0, 0x20, 0x46, 0x43, 0x50, 0, 0x46, 0x43, 0x50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x04, 0x44, 0, 0x08, 0, 0, 0, 0, 0, 0, 0, 0, 0x04, 0x45, 0, 0x02, 0, 0x08, 0x04, 0x46, 0, 0x01,
         (byte) 0xc0, 0x04, 0x47, 0, 0x03, 0, 0, 0x0a, 0x04, 0x48, 0, 0x08, 0x12, 0x34, 0x56, 0x78, 0x10, 0x30, 0x50, 0x70, 0x04, 0x4a,
         0, 0x05, 0x31, 0x32, 0x4b, 0x2d, 0x32,
-        0x04, 0x0c, 0, 0x08, (byte)0x80, 0x05, 0x01, 0x04, 0x0a, 0x0b, 0x0c, 0x0d,
-        0x04, 0x0d, 0, 0x08, (byte)0x80, 0x05, 0x01, 0x04, 0x0a, 0x0b, 0x0c, 0x0e,
+        0x04, 0x4b, 0, 0x07, (byte)-80, 10, 0, 0, (byte)0xff, (byte)0xff, (byte)0xf0, // sr-adj
+        0x04, 0x4c, 0, 0x0d, (byte)-80, 10, 0, 0, 1, 2, 3, 4, 5, 6, (byte)0xff, (byte)0xff, (byte)0xf0, // sr-lan-adj
+        0x04, 0x0c, 0, 0x08, (byte)0x80, 0x05, 0, 0, 0x0a, 0x0b, 0x0c, 0x0d, // peer-sid
+        0x04, 0x0d, 0, 0x08, (byte)0x80, 0x05, 0, 0, 0x0a, 0x0b, 0x0c, 0x0e, // peer-set-sid
         0x04, (byte) 0x88, 0, 0x01, 0x0a };
 
     private static final byte[] NODE_ATTR = { 0x01, 0x07, 0, 0x04, 0, 0x2a, 0, 0x2b, 0x04, 0, 0, 0x01, (byte) 0xbc, 0x04, 0x02, 0,
         0x05, 0x31, 0x32, 0x4b, 0x2d, 0x32, 0x04, 0x03, 0, 0x01, 0x72, 0x04, 0x03, 0, 0x01, 0x73, 0x04, 0x04, 0, 0x04,
-        0x29, 0x29, 0x29, 0x29, 0x04, (byte) 0x88, 0, 0x01, 0x0a };
+        0x29, 0x29, 0x29, 0x29, 0x04, (byte) 0x88, 0, 0x01, 0x0a,
+        4, 0x0a, 0, 0x0c, (byte)0xe0, 0, 1, 2, 3, 4, (byte)0x89, 0, 3, 1, 2, 0, // sr-caps
+        4, 0x0b, 0, 2, 0, 1 // sr-algorythms
+        };
 
     private static final byte[] NODE_ATTR_S = { 0x01, 0x07, 0, 0x04, 0, 0x2a, 0, 0x2b, 0x04, 0, 0, 0x01, (byte) 0xb0, 0x04, 0x02, 0,
-        0x05, 0x31, 0x32, 0x4b, 0x2d, 0x32, 0x04, 0x03, 0, 0x01, 0x73, 0x04, 0x03, 0, 0x01, 0x72, 0x04, 0x04, 0, 0x04,
-        0x29, 0x29, 0x29, 0x29};
+        0x05, 0x31, 0x32, 0x4b, 0x2d, 0x32, 0x04, 0x03, 0, 0x01, 0x72, 0x04, 0x03, 0, 0x01, 0x73, 0x04, 0x04, 0, 0x04,
+        0x29, 0x29, 0x29, 0x29,
+        4, 0x0a, 0, 0x0c, (byte)0xe0, 0, 1, 2, 3, 4, (byte)0x89, 0, 3, 1, 2, 0, // sr-caps
+        4, 0x0b, 0, 2, 0, 1 // sr-algorythms
+        };
 
     private static final byte[] P4_ATTR = { 0x04, (byte) 0x80, 0, 0x01, (byte) 0x80, 0x04, (byte) 0x81, 0, 0x08, 0x12, 0x34, 0x56, 0x78,
         0x10, 0x30, 0x50, 0x70, 0x04, (byte) 0x82, 0, 0x08, 0x12, 0x34, 0x56, 0x78, 0x10, 0x30, 0x50, 0x70,
-        0x04, (byte) 0x83, 0, 0x04, 0, 0, 0, 0x0a, 0x04, (byte) 0x84, 0, 0x04, 0x0a, 0x19, 0x02, 0x1b, 0x04, (byte) 0x88, 0, 0x01, 0x0a };
+        0x04, (byte) 0x83, 0, 0x04, 0, 0, 0, 0x0a, 0x04, (byte) 0x84, 0, 0x04, 0x0a, 0x19, 0x02, 0x1b,
+        4, (byte)0x86, 0,8, (byte)0xf0, 0, 0,0, 1,2,3,4, // prefix-sid tlv
+        4, (byte)0x87, 0,0x0c, (byte)0x80, 0, 0, 5, 4, (byte)0x89, 0, 4, 1,2,3,4, // range tlv
+        4, (byte)0x88, 0, 4, 1, (byte)0xf0, 0, 0 // binding sid tlv
+        };
 
     private RSVPExtensionProviderContext context;
     private RSVPActivator rsvpActivator;
@@ -111,10 +125,10 @@ public class LinkstateAttributeParserTest {
 
     @Before
     public final void setUp() {
-        context = new SimpleRSVPExtensionProviderContext();
-        rsvpActivator = new RSVPActivator();
-        rsvpActivator.start(context);
-        parser = new LinkstateAttributeParser(false,context.getRsvpRegistry());
+        this.context = new SimpleRSVPExtensionProviderContext();
+        this.rsvpActivator = new RSVPActivator();
+        this.rsvpActivator.start(this.context);
+        this.parser = new LinkstateAttributeParser(false,this.context.getRsvpRegistry());
     }
     private static AttributesBuilder createBuilder(final ObjectType type) {
         return new AttributesBuilder().addAugmentation(
@@ -192,13 +206,11 @@ public class LinkstateAttributeParserTest {
         assertEquals(2, ls.getSharedRiskLinkGroups().size());
         assertEquals(305419896, ls.getSharedRiskLinkGroups().get(0).getValue().intValue());
         assertEquals("12K-2", ls.getLinkName());
-        assertTrue(ls.getPeerSid().getFlags().isAddressFamily());
-        assertFalse(ls.getPeerSid().getFlags().isBackup());
-        assertTrue(ls.getPeerSetSid().getFlags().isAddressFamily());
-        assertFalse(ls.getPeerSetSid().getFlags().isBackup());
-        assertArrayEquals(new byte[] {10, 11, 12, 13}, ls.getPeerSid().getSid().getValue());
+        assertEquals((byte) 0x80, ls.getPeerSid().getFlags()[0]);
+        assertEquals((byte) 0x80, ls.getPeerSetSid().getFlags()[0]);
+        assertEquals(new Long(168496141L), ((SidCase) ls.getPeerSid().getSidLabelIndex()).getSid());
         assertEquals(new Short("5"), ls.getPeerSid().getWeight().getValue());
-        assertArrayEquals(new byte[] {10, 11, 12, 14}, ls.getPeerSetSid().getSid().getValue());
+        assertEquals(new Long(168496142L), ((SidCase) ls.getPeerSetSid().getSidLabelIndex()).getSid());
         assertEquals(new Short("5"), ls.getPeerSetSid().getWeight().getValue());
 
         //serialization
@@ -248,6 +260,9 @@ public class LinkstateAttributeParserTest {
         final PrefixAttributes ls = ((PrefixAttributesCase) attrs.getLinkStateAttribute()).getPrefixAttributes();
         assertNotNull(ls);
 
+        assertNotNull(ls.getSrRange());
+        assertEquals(1, ls.getSrRange().getSubTlvs().size());
+        assertNotNull(ls.getSrBindingSidLabel());
         assertTrue(ls.getIgpBits().getUpDown().isUpDown());
         assertEquals(2, ls.getRouteTags().size());
         assertArrayEquals(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }, ls.getRouteTags().get(0).getValue());
@@ -262,7 +277,7 @@ public class LinkstateAttributeParserTest {
         this.parser.serializeAttribute(builder.build(), buff);
         buff.skipBytes(3);
         // there is unresolved TLV at the end, that needs to be cut off
-        assertArrayEquals(ByteArray.subByte(P4_ATTR, 0, P4_ATTR.length -5), ByteArray.getAllBytes(buff));
+        assertArrayEquals(P4_ATTR, ByteArray.getAllBytes(buff));
     }
 
     @Test
@@ -281,7 +296,7 @@ public class LinkstateAttributeParserTest {
         assertEquals(new Long("4"), tSpec.getMinimumPolicedUnit());
         assertEquals(new Long("5"), tSpec.getMaximumPacketSize());
 
-        AssociationObject associationObject = teLspAttributes.getAssociationObject();
+        final AssociationObject associationObject = teLspAttributes.getAssociationObject();
         assertEquals(AssociationType.Recovery, associationObject.getAssociationType());
         final IpAddress ipv4 = new IpAddress(Ipv4Util.addressForByteBuf(Unpooled.copiedBuffer(new byte[]{0x01, 0x02, 0x03, 0x04})));
         assertEquals(ipv4, associationObject.getIpAddress());
