@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dad5f5cf_c5547a23",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/MplsLabelUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-28T14:07:17Z",
+      "side": 1,
+      "message": "-missing javadocs\n-I would expect MplsLabel\u003c-\u003eByteBuf encoding/decoding too\n-missing case for a bottom-bit flag\n-missing junit tests",
+      "revId": "45f06c152e9373ca9cfcf7aa85830cae3b78a775",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
