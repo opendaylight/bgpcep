@@ -9,6 +9,7 @@ module bgp-labeled-unicast {
     import bgp-rib { prefix bgp-rib; revision-date 2013-09-25; }
     import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
     import bmp-monitor { prefix bmp-mon; revision-date 2015-05-12; }
+    import network-concepts { prefix netc; revision-date 2013-11-25; }
 
     organization "Cisco Systems, Inc.";
     contact "GE QU <gequ@cisco.com>";
@@ -35,20 +36,12 @@ module bgp-labeled-unicast {
         base bgp-t:subsequent-address-family;
     }
 
-    typedef label-value {
-        description
-            "The 20-bit Label value.";
-        type int32 {
-            range "0..1048575";
-        }
-    }
-
     grouping label {
         reference "https://tools.ietf.org/html/rfc3032#section-2.1";
         description
             "The lable stack entry.";
         leaf label-value {
-            type label-value;
+            type netc:mpls-label;
         }
     }
 
