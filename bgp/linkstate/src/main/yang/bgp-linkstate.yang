@@ -10,7 +10,7 @@ module bgp-linkstate {
     import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
     import network-concepts { prefix netc; revision-date 2013-11-25; }
     import rsvp { prefix rsvp; revision-date 2015-08-20; }
-    import bgp-segment-routing { prefix bgp-sr; revision-date 2015-02-06; }
+    import bgp-segment-routing-ext { prefix bgp-sr-ext; revision-date 2015-10-14; }
     import bgp-epe { prefix bgp-epe; revision-date 2015-06-22; }
     import bmp-monitor { prefix bmp-mon; revision-date 2015-05-12; }
 
@@ -462,14 +462,11 @@ module bgp-linkstate {
         leaf ipv6-router-id {
             type ipv6-router-identifier;
         }
-        container sr-sid-label {
-            uses bgp-sr:sid-label-binding;
-        }
         container sr-capabilities {
-            uses bgp-sr:sr-capabilities;
+            uses bgp-sr-ext:sr-capabilities-tlv;
         }
         container sr-algorithm {
-            uses bgp-sr:sr-algorithm;
+            uses bgp-sr-ext:sr-algorithms-tlv;
         }
     }
 
@@ -571,20 +568,20 @@ module bgp-linkstate {
             type administrative-group;
         }
         container sr-adj-id {
-            uses bgp-sr:adjacency-segment-identifier;
+            uses bgp-sr-ext:adj-sid-tlv;
         }
         container sr-lan-adj-id {
-            uses bgp-sr:lan-adjacency-segment-identifier;
+            uses bgp-sr-ext:lan-adj-sid-tlv;
         }
         container peer-sid {
             description "The SID representing the peer of the BGP session.";
             reference "https://tools.ietf.org/html/draft-ietf-idr-bgpls-segment-routing-epe-00#section-4.3";
-            uses bgp-sr:adjacency-segment-identifier;
+            uses bgp-sr-ext:adj-sid-tlv;
         }
         container peer-set-sid {
             description "The SID representing the group the peer is part of.";
             reference "https://tools.ietf.org/html/draft-ietf-idr-bgpls-segment-routing-epe-00#section-4.3";
-            uses bgp-sr:adjacency-segment-identifier;
+            uses bgp-sr-ext:adj-sid-tlv;
         }
     }
 
@@ -630,7 +627,13 @@ module bgp-linkstate {
             type inet:ip-address;
         }
         container sr-prefix {
-            uses bgp-sr:prefix-sid;
+            uses bgp-sr-ext:prefix-sid-tlv;
+        }
+        container sr-range {
+            uses bgp-sr-ext:range-tlv;
+        }
+        container sr-binding-sid-label {
+            uses bgp-sr-ext:binding-sid-tlv;
         }
     }
 
