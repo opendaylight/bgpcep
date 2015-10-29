@@ -149,11 +149,17 @@
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type-impl</type>
-                    <name>flowspec</name>
+                    <name>ipv4-flowspec</name>
                     <afi xmlns:bgp="urn:opendaylight:params:xml:ns:yang:bgp-types">bgp:ipv4-address-family</afi>
                     <safi xmlns:flowspec="urn:opendaylight:params:xml:ns:yang:bgp-flowspec">flowspec:flowspec-subsequent-address-family</safi>
                 </module>
-<module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type-impl</type>
+                    <name>ipv6-flowspec</name>
+                    <afi xmlns:bgp="urn:opendaylight:params:xml:ns:yang:bgp-types">bgp:ipv6-address-family</afi>
+                    <safi xmlns:flowspec="urn:opendaylight:params:xml:ns:yang:bgp-flowspec">flowspec:flowspec-subsequent-address-family</safi>
+                </module>
+                <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type-impl</type>
                     <name>labeled-unicast</name>
                     <afi xmlns:bgp="urn:opendaylight:params:xml:ns:yang:bgp-types">bgp:ipv4-address-family</afi>
@@ -210,10 +216,14 @@
                         <provider>/modules/module[type='bgp-table-type-impl'][name='linkstate']</provider>
                     </instance>
                     <instance>
-                        <name>flowspec</name>
-                        <provider>/modules/module[type='bgp-table-type-impl'][name='flowspec']</provider>
+                        <name>ipv4-flowspec</name>
+                        <provider>/modules/module[type='bgp-table-type-impl'][name='ipv4-flowspec']</provider>
                     </instance>
-<instance>
+                    <instance>
+                        <name>ipv6-flowspec</name>
+                        <provider>/modules/module[type='bgp-table-type-impl'][name='ipv6-flowspec']</provider>
+                    </instance>
+                    <instance>
                         <name>labeled-unicast</name>
                         <provider>/modules/module[type='bgp-table-type-impl'][name='labeled-unicast']</provider>
                     </instance>

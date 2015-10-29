@@ -97,7 +97,11 @@
                     </advertized-table>
                     <advertized-table>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
-                        <name>flowspec</name>
+                        <name>ipv4-flowspec</name>
+                    </advertized-table>
+                    <advertized-table>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+                        <name>ipv6-flowspec</name>
                     </advertized-table>
                     <advertized-table>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
@@ -128,7 +132,11 @@
                     </local-table>
                     <local-table>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
-                        <name>flowspec</name>
+                        <name>ipv4-flowspec</name>
+                    </local-table>
+                    <local-table>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+                        <name>ipv6-flowspec</name>
                     </local-table>
                     <local-table>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
