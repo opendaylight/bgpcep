@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dad5f5cf_3dd1dacd",
+        "filename": "pcep/ietf-stateful07/src/main/yang/odl-pcep-ietf-stateful07.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-10-29T17:11:00Z",
+      "side": 1,
+      "message": "add a reference here",
+      "revId": "f490a99cd0ec23cf7249d50a5a5808cd9076aea4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
