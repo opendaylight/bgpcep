@@ -21,7 +21,6 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.LabelValue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.labeled.unicast.LabelStack;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.labeled.unicast.LabelStackBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.labeled.unicast.destination.CLabeledUnicastDestination;
@@ -41,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public class LUNlriParser implements NlriParser, NlriSerializer {
@@ -83,7 +83,7 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
             // Serialize the label stack entries
             int i = 1;
             for (final LabelStack labelStackEntry : labelStack) {
-                int labelValue = labelStackEntry.getLabelValue().getValue() << LABEL_VALUE_OFFSET;
+                int labelValue = labelStackEntry.getLabelValue().getValue().intValue() << LABEL_VALUE_OFFSET;
                 if (i++ == stackSize) {
                     //mark last label stack entry with bottom-bit
                     labelValue |= BOTTOM_LABEL_BIT;
@@ -161,7 +161,7 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
             final int label = nlri.readUnsignedMedium();
             bottomBit = label & BOTTOM_LABEL_BIT;
             final LabelStackBuilder labelStack = new LabelStackBuilder();
-            labelStack.setLabelValue(new LabelValue(label >> LABEL_VALUE_OFFSET));
+            labelStack.setLabelValue(new MplsLabel((long) label >> LABEL_VALUE_OFFSET));
             labels.add(labelStack.build());
         } while (bottomBit != 1);
         return labels;
