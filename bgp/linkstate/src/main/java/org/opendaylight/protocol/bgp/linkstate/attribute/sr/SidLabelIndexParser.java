@@ -12,6 +12,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Map;
 import org.opendaylight.protocol.util.Ipv6Util;
+import org.opendaylight.protocol.util.MplsLabelUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.SidLabelIndex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.sid.label.index.Ipv6AddressCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.sid.label.index.Ipv6AddressCaseBuilder;
@@ -19,7 +20,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.sid.label.index.LocalLabelCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.sid.label.index.SidCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.sid.label.index.SidCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,13 +51,12 @@ public final class SidLabelIndexParser {
     }
 
     static final int SID_TYPE = 1161;
-    private static final int OFFSET = 4;
 
     static ByteBuf serializeSidValue(final SidLabelIndex tlv) {
         if (tlv instanceof Ipv6AddressCase) {
             return Ipv6Util.byteBufForAddress(((Ipv6AddressCase) tlv).getIpv6Address());
         } else if (tlv instanceof LocalLabelCase) {
-            return Unpooled.copyMedium(((LocalLabelCase) tlv).getLocalLabel().getValue().intValue() << OFFSET);
+            return MplsLabelUtil.byteBufForMplsLabel(((LocalLabelCase) tlv).getLocalLabel());
         } else if (tlv instanceof SidCase) {
             return Unpooled.copyInt(((SidCase) tlv).getSid().intValue());
         }
@@ -77,7 +76,7 @@ public final class SidLabelIndexParser {
     static SidLabelIndex parseSidLabelIndex(final Size length, final ByteBuf buffer) {
         switch (length) {
         case LABEL:
-            return new LocalLabelCaseBuilder().setLocalLabel(new MplsLabel((long) buffer.readUnsignedMedium() >> OFFSET)).build();
+            return new LocalLabelCaseBuilder().setLocalLabel(MplsLabelUtil.mplsLabelForByteBuf(buffer)).build();
         case SID:
             return new SidCaseBuilder().setSid(buffer.readUnsignedInt()).build();
         case IPV6_ADD:
