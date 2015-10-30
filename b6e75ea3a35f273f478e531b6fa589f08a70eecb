@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "dad5f5cf_692b2031",
+        "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/openconfig/BgpOpenConfigImplModule.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-30T14:46:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dad5f5cf_50404556",
+      "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dad5f5cf_1022bdb9",
         "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/openconfig/BgpOpenConfigImplModuleFactory.java",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2015-10-29T22:14:37Z",
       "side": 1,
       "message": "import this",
+      "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dad5f5cf_09205448",
+        "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/openconfig/BgpOpenConfigImplModuleFactory.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-30T14:46:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dad5f5cf_1022bdb9",
       "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "dad5f5cf_291d1810",
+        "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/BGPConfigHolderImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-30T14:46:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dad5f5cf_d02bd592",
+      "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dad5f5cf_7018e984",
         "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/BGPOpenConfig.java",
         "patchSetId": 6
@@ -64,6 +118,24 @@
       "writtenOn": "2015-10-29T22:14:37Z",
       "side": 1,
       "message": "use a builder for constaint",
+      "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dad5f5cf_c919ec23",
+        "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/BGPOpenConfig.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-30T14:46:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dad5f5cf_7018e984",
       "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "dad5f5cf_49ddfc41",
+        "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/BGPOpenConfig.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-30T14:46:56Z",
+      "side": 1,
+      "message": "binding-aware offers only DELETE, SUBTREE_MODIFIED and WRITE",
+      "parentUuid": "dad5f5cf_901d4d76",
+      "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dad5f5cf_30126163",
         "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/BGPOpenConfig.java",
         "patchSetId": 6
@@ -98,6 +188,24 @@
       "writtenOn": "2015-10-29T22:14:37Z",
       "side": 1,
       "message": "unneeded throws?",
+      "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dad5f5cf_09e7f413",
+        "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/BGPOpenConfig.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-30T14:46:56Z",
+      "side": 1,
+      "message": "not needed - removed",
+      "parentUuid": "dad5f5cf_30126163",
       "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "dad5f5cf_69e24005",
+        "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/BGPOpenConfig.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-30T14:46:56Z",
+      "side": 1,
+      "message": "not needed - removed",
+      "parentUuid": "dad5f5cf_5017e551",
+      "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dad5f5cf_b005f115",
         "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/moduleconfig/BGPAppPeerProvider.java",
         "patchSetId": 6
@@ -132,6 +258,24 @@
       "writtenOn": "2015-10-29T22:14:37Z",
       "side": 1,
       "message": "what is being @GuardedBy this synchronized method?",
+      "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dad5f5cf_892be4ea",
+        "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/moduleconfig/BGPAppPeerProvider.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-30T14:46:56Z",
+      "side": 1,
+      "message": "in fact no need to be synchronized, not invoked asynchronously.",
+      "parentUuid": "dad5f5cf_b005f115",
       "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "dad5f5cf_a98d8833",
+        "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/moduleconfig/BGPAppPeerProvider.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-30T14:46:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dad5f5cf_f00b7929",
+      "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dad5f5cf_d002f50a",
         "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/moduleconfig/BGPConfigModuleProvider.java",
         "patchSetId": 6
@@ -166,6 +328,24 @@
       "writtenOn": "2015-10-29T22:14:37Z",
       "side": 1,
       "message": "what happens if the transaction fails?",
+      "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dad5f5cf_69400057",
+        "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/moduleconfig/BGPConfigModuleProvider.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-30T14:46:56Z",
+      "side": 1,
+      "message": "since there is no option for transaction chaining and a proper commit order is required, hence commit submission should be treated in blocking way, this throws exception - caught by a client code.",
+      "parentUuid": "dad5f5cf_d002f50a",
       "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -189,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "dad5f5cf_49b65c8c",
+        "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/moduleconfig/BGPConfigModuleProvider.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-30T14:46:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dad5f5cf_73ff9302",
+      "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dad5f5cf_f312a357",
         "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/moduleconfig/BGPOpenConfigListener.java",
         "patchSetId": 6
@@ -200,6 +398,24 @@
       "writtenOn": "2015-10-29T22:14:37Z",
       "side": 1,
       "message": "checkNotNull() is not needed here",
+      "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dad5f5cf_2922f8b9",
+        "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/moduleconfig/BGPOpenConfigListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-30T14:46:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dad5f5cf_f312a357",
       "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -223,6 +439,24 @@
     },
     {
       "key": {
+        "uuid": "dad5f5cf_84266bb9",
+        "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/moduleconfig/BGPOpenConfigListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-30T14:46:56Z",
+      "side": 1,
+      "message": "No option for transaction chain, need to preserve an order of changes",
+      "parentUuid": "dad5f5cf_1310874d",
+      "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dad5f5cf_d3199f7a",
         "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/moduleconfig/BGPOpenConfigListener.java",
         "patchSetId": 6
@@ -234,6 +468,24 @@
       "writtenOn": "2015-10-29T22:14:37Z",
       "side": 1,
       "message": "used only once",
+      "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dad5f5cf_8918c485",
+        "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/moduleconfig/BGPOpenConfigListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-30T14:46:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dad5f5cf_d3199f7a",
       "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -257,6 +509,24 @@
     },
     {
       "key": {
+        "uuid": "dad5f5cf_a91d8875",
+        "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/moduleconfig/BGPOpenConfigListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-30T14:46:56Z",
+      "side": 1,
+      "message": "binding-aware",
+      "parentUuid": "dad5f5cf_b31c1b6c",
+      "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dad5f5cf_7326b3bc",
         "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/moduleconfig/BGPOpenConfigListener.java",
         "patchSetId": 6
@@ -268,6 +538,24 @@
       "writtenOn": "2015-10-29T22:14:37Z",
       "side": 1,
       "message": "else LOG.warn() ?",
+      "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dad5f5cf_29099831",
+        "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/moduleconfig/BGPOpenConfigListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-30T14:46:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dad5f5cf_7326b3bc",
       "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -291,6 +579,24 @@
     },
     {
       "key": {
+        "uuid": "dad5f5cf_446e43cb",
+        "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/moduleconfig/BGPPeerProvider.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-30T14:46:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dad5f5cf_33202b9b",
+      "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dad5f5cf_5325afa9",
         "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/moduleconfig/BGPPeerProvider.java",
         "patchSetId": 6
@@ -308,6 +614,24 @@
     },
     {
       "key": {
+        "uuid": "dad5f5cf_e45e5712",
+        "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/moduleconfig/BGPPeerProvider.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-30T14:46:56Z",
+      "side": 1,
+      "message": "set iBGP as default, log info",
+      "parentUuid": "dad5f5cf_5325afa9",
+      "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dad5f5cf_f33943d9",
         "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/moduleconfig/BGPRibImplProvider.java",
         "patchSetId": 6
@@ -319,6 +643,24 @@
       "writtenOn": "2015-10-29T22:14:37Z",
       "side": 1,
       "message": "why is this synchronized?",
+      "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dad5f5cf_a4a04ff5",
+        "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/moduleconfig/BGPRibImplProvider.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-30T14:46:56Z",
+      "side": 1,
+      "message": "no need to synchronize, removed",
+      "parentUuid": "dad5f5cf_f33943d9",
       "revId": "b6e75ea3a35f273f478e531b6fa589f08a70eecb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
