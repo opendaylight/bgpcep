@@ -29,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RangeTlvParser {
+public final class RangeTlvParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(RangeTlvParser.class);
 
