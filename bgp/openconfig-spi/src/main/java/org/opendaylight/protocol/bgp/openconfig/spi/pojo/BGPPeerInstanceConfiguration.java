@@ -32,10 +32,10 @@ public final class BGPPeerInstanceConfiguration extends AbstractInstanceConfigur
     private final boolean active;
     private final List<BgpTableType> advertizedTables;
     private final AsNumber asNumber;
-    private final Rfc2385Key password;
+    private final Optional<Rfc2385Key> password;
 
     public BGPPeerInstanceConfiguration(final InstanceConfigurationIdentifier identifier, final IpAddress host, final PortNumber port, final short holdTimer, final PeerRole peerRole,
-            final boolean active, final List<BgpTableType> advertizedTables, final AsNumber asNumber, final Rfc2385Key password) {
+            final boolean active, final List<BgpTableType> advertizedTables, final AsNumber asNumber, final Optional<Rfc2385Key> password) {
         super(identifier);
         this.host = Preconditions.checkNotNull(host);
         this.port = Preconditions.checkNotNull(port);
@@ -44,7 +44,7 @@ public final class BGPPeerInstanceConfiguration extends AbstractInstanceConfigur
         this.active = Preconditions.checkNotNull(active);
         this.advertizedTables = Preconditions.checkNotNull(advertizedTables);
         this.asNumber = Preconditions.checkNotNull(asNumber);
-        this.password = password;
+        this.password = Preconditions.checkNotNull(password);
     }
 
     public IpAddress getHost() {
@@ -76,7 +76,7 @@ public final class BGPPeerInstanceConfiguration extends AbstractInstanceConfigur
     }
 
     public Optional<Rfc2385Key> getPassword() {
-        return Optional.fromNullable(password);
+        return password;
     }
 
 }

@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import com.google.common.base.Charsets;
@@ -166,7 +168,7 @@ public final class Main {
     }
 
     private static KeyMapping getKeyMapping(final InetAddress inetAddress, final String password) {
-        if (password != null) {
+        if (!isNullOrEmpty(password)) {
             final KeyMapping keyMapping = new KeyMapping();
             keyMapping.put(inetAddress, password.getBytes(Charsets.US_ASCII));
             return keyMapping;

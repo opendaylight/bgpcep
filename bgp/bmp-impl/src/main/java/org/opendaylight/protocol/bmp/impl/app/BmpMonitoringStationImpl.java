@@ -87,10 +87,11 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
                     final String s = mr.getAddress().getIpv4Address().getValue();
                     final InetAddress addr = InetAddresses.forString(s);
                     KeyMapping ret = null;
-                    final Rfc2385Key passwords = mr.getPassword();
-                    if (passwords != null) {
+                    final Rfc2385Key rfc2385KeyPassword = mr.getPassword();
+                    String password;
+                    if (rfc2385KeyPassword != null && !(password = rfc2385KeyPassword.getValue()).isEmpty()) {
                         ret = new KeyMapping();
-                        ret.put(addr, passwords.getValue().getBytes(Charsets.US_ASCII));
+                        ret.put(addr, password.getBytes(Charsets.US_ASCII));
                     }
                     try {
                         clientChannels.add(dispatcher.createClient(

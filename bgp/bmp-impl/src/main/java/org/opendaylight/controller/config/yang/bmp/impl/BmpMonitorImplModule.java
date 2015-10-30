@@ -21,6 +21,7 @@ import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.tcpmd5.api.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.MonitorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.tcpmd5.cfg.rev140427.Rfc2385Key;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextProvider;
 import org.osgi.framework.BundleContext;
@@ -60,9 +61,11 @@ public class BmpMonitorImplModule extends org.opendaylight.controller.config.yan
                     LOG.warn("Monitored router {} does not have an address skipping it", mr);
                     continue;
                 }
-                if (mr.getPassword() != null) {
+                final Rfc2385Key rfc2385KeyPassword = mr.getPassword();
+                String password;
+                if (rfc2385KeyPassword != null && !(password = rfc2385KeyPassword.getValue()).isEmpty()) {
                     final String s = getAddressString(mr.getAddress());
-                    ret.put(InetAddresses.forString(s), mr.getPassword().getValue().getBytes(Charsets.US_ASCII));
+                    ret.put(InetAddresses.forString(s), password.getBytes(Charsets.US_ASCII));
                 }
             }
         }
