@@ -50,6 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.GracefulRestartCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.tcpmd5.cfg.rev140427.Rfc2385Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +77,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         JmxAttributeValidationException.checkNotNull(getHost(), "value is not set.", hostJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getPort(), "value is not set.", portJmxAttribute);
 
-        if (getPassword() != null) {
+        if (getOptionaPassword(getPassword()).isPresent()) {
             /*
              *  This is a nasty hack, but we don't have another clean solution. We cannot allow
              *  password being set if the injected dispatcher does not have the optional
@@ -118,7 +119,6 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
         final List<BgpParameters> tlvs = getTlvs(r);
         final AsNumber remoteAs = getAsOrDefault(r);
-        final String password = getPasswordOrNull();
         final BGPSessionPreferences prefs = new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), remoteAs, tlvs);
         final BGPPeer bgpClientPeer;
 
@@ -146,7 +146,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
         // Initiate connection
         if(getInitiateConnection()) {
-            final Future<Void> cf = initiateConnection(createAddress(), password, getPeerRegistryBackwards());
+            final Future<Void> cf = initiateConnection(createAddress(), getOptionaPassword(getPassword()), getPeerRegistryBackwards());
             return new CloseableNoEx() {
                 @Override
                 public void close() {
@@ -162,16 +162,6 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
     private interface CloseableNoEx extends AutoCloseable {
         @Override
         void close();
-    }
-
-    private String getPasswordOrNull() {
-        final String password;
-        if (getPassword() != null) {
-            password = getPassword().getValue();
-        } else {
-            password = null;
-        }
-        return password;
     }
 
     private AsNumber getAsOrDefault(final RIB r) {
@@ -216,11 +206,11 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         return new IpAddress(host.getIpv6Address());
     }
 
-    private io.netty.util.concurrent.Future<Void> initiateConnection(final InetSocketAddress address, final String password, final BGPPeerRegistry registry) {
+    private io.netty.util.concurrent.Future<Void> initiateConnection(final InetSocketAddress address, final Optional<Rfc2385Key> password, final BGPPeerRegistry registry) {
         KeyMapping keys = null;
-        if (password != null) {
+        if (password.isPresent()) {
             keys = new KeyMapping();
-            keys.put(address.getAddress(), password.getBytes(Charsets.US_ASCII));
+            keys.put(address.getAddress(), password.get().getValue().getBytes(Charsets.US_ASCII));
         }
 
         final RIB rib = getRibDependency();
@@ -262,7 +252,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
             if (neighborProvider != null) {
                 neighborProvider.writeConfiguration(new BGPPeerInstanceConfiguration(identifier,
                         getHostWithoutValue(), getPort(), getHoldtimer(), getPeerRole(), getInitiateConnection(),
-                        getAdvertizedTableDependency(), getAsOrDefault(getRibDependency()), getPassword()));
+                        getAdvertizedTableDependency(), getAsOrDefault(getRibDependency()), getOptionaPassword(getPassword())));
             }
         }
 
@@ -273,6 +263,10 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
             }
         }
 
+    }
+
+    private Optional<Rfc2385Key> getOptionaPassword(Rfc2385Key password) {
+        return password != null && ! password.getValue().isEmpty() ? Optional.fromNullable(password) : Optional.<Rfc2385Key>absent();
     }
 
 }

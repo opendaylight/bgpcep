@@ -69,9 +69,11 @@ public final class PCEPTopologyProviderModule extends
                     LOG.warn("Client {} does not have an address skipping it", c);
                     continue;
                 }
-                if (c.getPassword() != null) {
+                final Rfc2385Key rfc2385KeyPassword = c.getPassword();
+                String password;
+                if (rfc2385KeyPassword != null && !(password = rfc2385KeyPassword.getValue()).isEmpty()) {
                     final String s = getAddressString(c.getAddress());
-                    ret.put(InetAddresses.forString(s), c.getPassword().getValue().getBytes(Charsets.US_ASCII));
+                    ret.put(InetAddresses.forString(s), password.getBytes(Charsets.US_ASCII));
                 }
             }
         }
