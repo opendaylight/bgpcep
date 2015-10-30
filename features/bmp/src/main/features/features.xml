@@ -23,6 +23,7 @@
         <feature version='${controller.mdsal.version}'>odl-mdsal-broker</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-dependencies</feature>
         <feature version='${config.version}'>odl-config-netty</feature>
+        <feature version='${protocol-framework.version}'>odl-protocol-framework</feature>
         <bundle>mvn:io.netty/netty-codec/${netty.version}</bundle>
         <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
