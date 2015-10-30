@@ -121,7 +121,7 @@ module bmp-monitor {
             }
             container post-policy-rib {
                 uses rib:rib;
-            },
+            }
             container mirrors {
                 leaf information {
                     type bmp-msg:mirror-information-code;
