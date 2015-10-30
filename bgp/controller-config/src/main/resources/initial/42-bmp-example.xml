@@ -19,19 +19,6 @@
         <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
             <modules xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
                 <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:protocol:framework">prefix:timed-reconnect-strategy-factory</type>
-                    <name>example-reconnect-strategy-factory</name>
-                    <min-sleep>30000</min-sleep>
-                    <max-sleep>720000</max-sleep>
-                    <sleep-factor>1.00</sleep-factor>
-                    <connect-time>5000</connect-time>
-                    <timed-reconnect-executor>
-                        <type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-event-executor</type>
-                        <name>global-event-executor</name>
-                    </timed-reconnect-executor>
-                </module>
-
-                <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bmp:impl">prefix:bmp-monitor-impl</type>
                     <name>example-bmp-monitor</name>
                     <!--<binding-address>0.0.0.0</binding-address>-->
@@ -46,10 +33,6 @@
                         <password>changeme</password>
                     </monitored-router>
                     -->
-                    <session-reconnect-strategy>
-                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:protocol:framework">prefix:reconnect-strategy-factory</type>
-                        <name>example-reconnect-strategy-factory</name>
-                    </session-reconnect-strategy>
                     <extensions>
                         <type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extensions</type>
                         <name>global-rib-extensions</name>

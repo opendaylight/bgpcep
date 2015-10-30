@@ -13,6 +13,7 @@
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bmp:impl?module=odl-bmp-impl-cfg&amp;revision=2015-05-18</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi?module=odl-bgp-parser-spi-cfg&amp;revision=2013-11-15</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:netty?module=netty&amp;revision=2013-11-19</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:protocol:framework?module=protocol-framework&amp;revision=2014-03-13</capability>
     </required-capabilities>
     <configuration>
         <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
@@ -35,6 +36,18 @@
                     </bgp-extensions>
                 </module>
                 <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:protocol:framework">prefix:timed-reconnect-strategy-factory</type>
+                    <name>example-reconnect-strategy-factory</name>
+                    <min-sleep>30000</min-sleep>
+                    <max-sleep>720000</max-sleep>
+                    <sleep-factor>1.00</sleep-factor>
+                    <connect-time>5000</connect-time>
+                    <timed-reconnect-executor>
+                        <type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-event-executor</type>
+                        <name>global-event-executor</name>
+                    </timed-reconnect-executor>
+                </module>
+                <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bmp:impl">prefix:bmp-dispatcher-impl</type>
                     <name>global-bmp-dispatcher</name>
                     <bmp-extensions>
@@ -49,6 +62,10 @@
                         <type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-threadgroup</type>
                         <name>global-worker-group</name>
                     </worker-group>
+                    <bmp-reconnect-strategy-factory>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:protocol:framework">prefix:reconnect-strategy-factory</type>
+                        <name>example-reconnect-strategy-factory</name>
+                    </bmp-reconnect-strategy-factory>
 
                     <!--
                          Uncomment this block to enable TCP MD5 Signature support
@@ -87,6 +104,13 @@
                     <instance>
                         <name>global-bmp-dispatcher</name>
                         <provider>/modules/module[type='bmp-dispatcher-impl'][name='global-bmp-dispatcher']</provider>
+                    </instance>
+                </service>
+                <service>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:protocol:framework">prefix:reconnect-strategy-factory</type>
+                    <instance>
+                        <name>example-reconnect-strategy-factory</name>
+                        <provider>/config/modules/module[name='timed-reconnect-strategy-factory']/instance[name='example-reconnect-strategy-factory']</provider>
                     </instance>
                 </service>
             </services>
