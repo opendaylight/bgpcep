@@ -31,6 +31,7 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.tcpmd5.api.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.tcpmd5.cfg.rev140427.Rfc2385Key;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
@@ -69,9 +70,11 @@ public final class PCEPTopologyProviderModule extends
                     LOG.warn("Client {} does not have an address skipping it", c);
                     continue;
                 }
-                if (c.getPassword() != null) {
+                final Rfc2385Key rfc2385KeyPassword = c.getPassword();
+                String password;
+                if (rfc2385KeyPassword != null && !(password = rfc2385KeyPassword.getValue()).isEmpty()) {
                     final String s = getAddressString(c.getAddress());
-                    ret.put(InetAddresses.forString(s), c.getPassword().getValue().getBytes(Charsets.US_ASCII));
+                    ret.put(InetAddresses.forString(s), password.getBytes(Charsets.US_ASCII));
                 }
             }
         }

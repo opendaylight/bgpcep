@@ -166,7 +166,7 @@ public final class Main {
     }
 
     private static KeyMapping getKeyMapping(final InetAddress inetAddress, final String password) {
-        if (password != null) {
+        if (password != null && !password.isEmpty()) {
             final KeyMapping keyMapping = new KeyMapping();
             keyMapping.put(inetAddress, password.getBytes(Charsets.US_ASCII));
             return keyMapping;
