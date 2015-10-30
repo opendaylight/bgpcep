@@ -82,57 +82,61 @@ public final class PrefixAttributesParser {
             final int key = entry.getKey();
             final ByteBuf value = entry.getValue();
             LOG.trace("Prefix attribute TLV {}", key);
-            switch (key) {
-            case IGP_FLAGS:
-                final BitArray flags = BitArray.valueOf(value, FLAGS_SIZE);
-                final boolean upDownBit = flags.get(UP_DOWN_BIT);
-                builder.setIgpBits(new IgpBitsBuilder().setUpDown(new UpDown(upDownBit)).build());
-                LOG.debug("Parsed IGP flag (up/down bit) : {}", upDownBit);
-                break;
-            case ROUTE_TAG:
-                parseRouteTags(routeTags, value);
-                break;
-            case EXTENDED_ROUTE_TAG:
-                parseExtendedRouteTags(exRouteTags, value);
-                break;
-            case PREFIX_METRIC:
-                final IgpMetric metric = new IgpMetric(value.readUnsignedInt());
-                builder.setPrefixMetric(metric);
-                LOG.debug("Parsed Metric: {}", metric);
-                break;
-            case FORWARDING_ADDRESS:
-                final IpAddress fwdAddress = parseForwardingAddress(value);
-                builder.setOspfForwardingAddress(fwdAddress);
-                LOG.debug("Parsed FWD Address: {}", fwdAddress);
-                break;
-            case PREFIX_OPAQUE:
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Parsed Opaque value: {}, not preserving it", ByteBufUtil.hexDump(value));
-                }
-                break;
-            case PREFIX_SID:
-                final SrPrefix prefix = SrPrefixAttributesParser.parseSrPrefix(value);
-                builder.setSrPrefix(prefix);
-                LOG.debug("Parsed SR Prefix: {}", prefix);
-                break;
-            case RANGE:
-                final SrRange range = RangeTlvParser.parseSrRange(value);
-                builder.setSrRange(range);
-                LOG.debug("Parsed SR Range: {}", range);
-                break;
-            case BINDING_SID:
-                final SrBindingSidLabel label = BindingSidLabelParser.parseBindingSidLabel(value);
-                builder.setSrBindingSidLabel(label);
-                LOG.debug("Parsed SR Binding SID {}", label);
-                break;
-            default:
-                LOG.warn("TLV {} is not a valid prefix attribute, ignoring it", key);
-            }
+            parseAttribute(key, value, builder, routeTags, exRouteTags);
         }
         LOG.trace("Finished parsing Prefix Attributes.");
         builder.setRouteTags(routeTags);
         builder.setExtendedTags(exRouteTags);
         return new PrefixAttributesCaseBuilder().setPrefixAttributes(builder.build()).build();
+    }
+
+    private static void parseAttribute(final int key, final ByteBuf value, final PrefixAttributesBuilder builder, final List<RouteTag> routeTags, final List<ExtendedRouteTag> exRouteTags) {
+        switch (key) {
+        case IGP_FLAGS:
+            final BitArray flags = BitArray.valueOf(value, FLAGS_SIZE);
+            final boolean upDownBit = flags.get(UP_DOWN_BIT);
+            builder.setIgpBits(new IgpBitsBuilder().setUpDown(new UpDown(upDownBit)).build());
+            LOG.debug("Parsed IGP flag (up/down bit) : {}", upDownBit);
+            break;
+        case ROUTE_TAG:
+            parseRouteTags(routeTags, value);
+            break;
+        case EXTENDED_ROUTE_TAG:
+            parseExtendedRouteTags(exRouteTags, value);
+            break;
+        case PREFIX_METRIC:
+            final IgpMetric metric = new IgpMetric(value.readUnsignedInt());
+            builder.setPrefixMetric(metric);
+            LOG.debug("Parsed Metric: {}", metric);
+            break;
+        case FORWARDING_ADDRESS:
+            final IpAddress fwdAddress = parseForwardingAddress(value);
+            builder.setOspfForwardingAddress(fwdAddress);
+            LOG.debug("Parsed FWD Address: {}", fwdAddress);
+            break;
+        case PREFIX_OPAQUE:
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Parsed Opaque value: {}, not preserving it", ByteBufUtil.hexDump(value));
+            }
+            break;
+        case PREFIX_SID:
+            final SrPrefix prefix = SrPrefixAttributesParser.parseSrPrefix(value);
+            builder.setSrPrefix(prefix);
+            LOG.debug("Parsed SR Prefix: {}", prefix);
+            break;
+        case RANGE:
+            final SrRange range = RangeTlvParser.parseSrRange(value);
+            builder.setSrRange(range);
+            LOG.debug("Parsed SR Range: {}", range);
+            break;
+        case BINDING_SID:
+            final SrBindingSidLabel label = BindingSidLabelParser.parseBindingSidLabel(value);
+            builder.setSrBindingSidLabel(label);
+            LOG.debug("Parsed SR Binding SID {}", label);
+            break;
+        default:
+            LOG.warn("TLV {} is not a valid prefix attribute, ignoring it", key);
+        }
     }
 
     private static void parseRouteTags(final List<RouteTag> routeTags, final ByteBuf value) {

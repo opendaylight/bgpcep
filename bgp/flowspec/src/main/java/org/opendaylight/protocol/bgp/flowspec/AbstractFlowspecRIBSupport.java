@@ -40,8 +40,6 @@ import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
 
@@ -75,7 +73,6 @@ public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
         }
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractFlowspecRIBSupport.class);
     private static final QName ROUTE_KEY = QName.cachedReference(QName.create(FlowspecRoute.QNAME, "route-key"));
     private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
     private final ApplyRoute putRoute = new PutRoute();

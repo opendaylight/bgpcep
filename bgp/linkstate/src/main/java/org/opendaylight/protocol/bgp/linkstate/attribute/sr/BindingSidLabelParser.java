@@ -49,7 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BindingSidLabelParser {
+public final class BindingSidLabelParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(BindingSidLabelParser.class);
 
@@ -89,68 +89,72 @@ public class BindingSidLabelParser {
             final int length = buffer.readUnsignedShort();
             final ByteBuf slice = buffer.readSlice(length);
             final BindingSubTlvsBuilder builder = new BindingSubTlvsBuilder();
-            switch (type) {
-            case SidLabelIndexParser.SID_TYPE:
-                final SidLabelIndex sid = SidLabelIndexParser.parseSidLabelIndex(Size.forValue(slice.readableBytes()), slice);
-                builder.setBindingSubTlv(new SidLabelCaseBuilder()
-                    .setSidLabelIndex(sid).build());
-                break;
-            case PrefixAttributesParser.PREFIX_SID:
-                final SrPrefix prefix = SrPrefixAttributesParser.parseSrPrefix(slice);
-                builder.setBindingSubTlv(new PrefixSidCaseBuilder()
-                    .setAlgorithm(prefix.getAlgorithm())
-                    .setFlags(prefix.getFlags())
-                    .setSidLabelIndex(prefix.getSidLabelIndex()).build());
-                break;
-            case ERO_METRIC:
-                builder.setBindingSubTlv(new EroMetricCaseBuilder()
-                    .setEroMetric(new TeMetric(slice.readUnsignedInt())).build());
-                break;
-            case ERO_IPV4:
-                final Ipv4EroCase ipv4Ero = parseIpv4EroCase(slice);
-                builder.setBindingSubTlv(new Ipv4EroCaseBuilder()
-                    .setAddress(ipv4Ero.getAddress())
-                    .setLoose(ipv4Ero.isLoose()).build());
-                break;
-            case BACKUP_ERO_IPV4:
-                final Ipv4EroCase ipv4Backup = parseIpv4EroCase(slice);
-                builder.setBindingSubTlv(new Ipv4EroBackupCaseBuilder()
-                    .setAddress(ipv4Backup.getAddress())
-                    .setLoose(ipv4Backup.isLoose()).build());
-                break;
-            case ERO_IPV6:
-                final Ipv6EroCase ipv6ero = parseIpv6EroCase(slice);
-                builder.setBindingSubTlv(new Ipv6EroCaseBuilder()
-                    .setAddress(ipv6ero.getAddress())
-                    .setLoose(ipv6ero.isLoose()).build());
-                break;
-            case BACKUP_ERO_IPV6:
-                final Ipv6EroCase ipv6backup = parseIpv6EroCase(slice);
-                builder.setBindingSubTlv(new Ipv6EroBackupCaseBuilder()
-                    .setAddress(ipv6backup.getAddress())
-                    .setLoose(ipv6backup.isLoose()).build());
-                break;
-            case UNNUMBERED_ERO:
-                final UnnumberedInterfaceIdEroCase unnumbered = parseUnnumberedEroCase(slice);
-                builder.setBindingSubTlv(new UnnumberedInterfaceIdEroCaseBuilder()
-                    .setLoose(unnumbered.isLoose())
-                    .setRouterId(unnumbered.getRouterId())
-                    .setInterfaceId(unnumbered.getInterfaceId()).build());
-                break;
-            case BACKUP_UNNUMBERED_ERO:
-                final UnnumberedInterfaceIdEroCase unnumberedBackup = parseUnnumberedEroCase(slice);
-                builder.setBindingSubTlv(new UnnumberedInterfaceIdBackupEroCaseBuilder()
-                    .setLoose(unnumberedBackup.isLoose())
-                    .setRouterId(unnumberedBackup.getRouterId())
-                    .setInterfaceId(unnumberedBackup.getInterfaceId()).build());
-                break;
-            default:
-                LOG.info("Unknown binding sub Tlv type {}", type);
-                break;
-            }
+            parseSubTlv(type, slice, builder);
             subTlvs.add(builder.build());
         }
         return subTlvs;
+    }
+
+    private static void parseSubTlv(final int type, final ByteBuf slice, final BindingSubTlvsBuilder builder) {
+        switch (type) {
+        case SidLabelIndexParser.SID_TYPE:
+            final SidLabelIndex sid = SidLabelIndexParser.parseSidLabelIndex(Size.forValue(slice.readableBytes()), slice);
+            builder.setBindingSubTlv(new SidLabelCaseBuilder()
+                .setSidLabelIndex(sid).build());
+            break;
+        case PrefixAttributesParser.PREFIX_SID:
+            final SrPrefix prefix = SrPrefixAttributesParser.parseSrPrefix(slice);
+            builder.setBindingSubTlv(new PrefixSidCaseBuilder()
+                .setAlgorithm(prefix.getAlgorithm())
+                .setFlags(prefix.getFlags())
+                .setSidLabelIndex(prefix.getSidLabelIndex()).build());
+            break;
+        case ERO_METRIC:
+            builder.setBindingSubTlv(new EroMetricCaseBuilder()
+                .setEroMetric(new TeMetric(slice.readUnsignedInt())).build());
+            break;
+        case ERO_IPV4:
+            final Ipv4EroCase ipv4Ero = parseIpv4EroCase(slice);
+            builder.setBindingSubTlv(new Ipv4EroCaseBuilder()
+                .setAddress(ipv4Ero.getAddress())
+                .setLoose(ipv4Ero.isLoose()).build());
+            break;
+        case BACKUP_ERO_IPV4:
+            final Ipv4EroCase ipv4Backup = parseIpv4EroCase(slice);
+            builder.setBindingSubTlv(new Ipv4EroBackupCaseBuilder()
+                .setAddress(ipv4Backup.getAddress())
+                .setLoose(ipv4Backup.isLoose()).build());
+            break;
+        case ERO_IPV6:
+            final Ipv6EroCase ipv6ero = parseIpv6EroCase(slice);
+            builder.setBindingSubTlv(new Ipv6EroCaseBuilder()
+                .setAddress(ipv6ero.getAddress())
+                .setLoose(ipv6ero.isLoose()).build());
+            break;
+        case BACKUP_ERO_IPV6:
+            final Ipv6EroCase ipv6backup = parseIpv6EroCase(slice);
+            builder.setBindingSubTlv(new Ipv6EroBackupCaseBuilder()
+                .setAddress(ipv6backup.getAddress())
+                .setLoose(ipv6backup.isLoose()).build());
+            break;
+        case UNNUMBERED_ERO:
+            final UnnumberedInterfaceIdEroCase unnumbered = parseUnnumberedEroCase(slice);
+            builder.setBindingSubTlv(new UnnumberedInterfaceIdEroCaseBuilder()
+                .setLoose(unnumbered.isLoose())
+                .setRouterId(unnumbered.getRouterId())
+                .setInterfaceId(unnumbered.getInterfaceId()).build());
+            break;
+        case BACKUP_UNNUMBERED_ERO:
+            final UnnumberedInterfaceIdEroCase unnumberedBackup = parseUnnumberedEroCase(slice);
+            builder.setBindingSubTlv(new UnnumberedInterfaceIdBackupEroCaseBuilder()
+                .setLoose(unnumberedBackup.isLoose())
+                .setRouterId(unnumberedBackup.getRouterId())
+                .setInterfaceId(unnumberedBackup.getInterfaceId()).build());
+            break;
+        default:
+            LOG.info("Unknown binding sub Tlv type {}", type);
+            break;
+        }
     }
 
     private static Ipv4EroCase parseIpv4EroCase(final ByteBuf buffer) {
