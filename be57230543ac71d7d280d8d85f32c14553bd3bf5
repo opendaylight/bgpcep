@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dad5f5cf_440c0395",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/MplsLabelUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-10-30T15:53:49Z",
+      "side": 1,
+      "message": "Seems to be too many functions visible for user, do we really need all of them?\nI guess we need 2 or 3 public methods:\nMplsLabel (need to set bottom-bit or not) -\u003e ByteBuf\nByteBuf -\u003e MplsLabel",
+      "revId": "be57230543ac71d7d280d8d85f32c14553bd3bf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
