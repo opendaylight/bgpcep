@@ -155,8 +155,7 @@ def get_short_int_from_message(message, offset=16):
 
 
 class MessageError(ValueError):
-    """Value error with logging optimized for hexlified messages.
-    """
+    """Value error with logging optimized for hexlified messages."""
 
     def __init__(self, text, message, *args):
         """Initialisation.
@@ -214,8 +213,7 @@ def read_open_message(bgp_socket):
 
 
 class MessageGenerator(object):
-    """Class which generates messages, holds states and configuration values.
-    """
+    """Class which generates messages, holds states and configuration values."""
 
     # TODO: Define bgp marker as a class (constant) variable.
     def __init__(self, args):
@@ -249,9 +247,6 @@ class MessageGenerator(object):
         self.prefix_count_to_del_default = args.withdraw
         if self.prefix_count_to_del_default < 0:
             self.prefix_count_to_del_default = 0
-        if not self.single_update_default and not self.prefix_count_to_del_default:
-            self.prefix_count_to_del_default = 1
-            # we need some content for the 2nd UPDATE in the iteration
         if self.prefix_count_to_add_default <= self.prefix_count_to_del_default:
             # total number of prefixes must grow to avoid infinite test loop
             self.prefix_count_to_add_default = self.prefix_count_to_del_default + 1
@@ -287,9 +282,17 @@ class MessageGenerator(object):
         self.phase2_updates_sent = 0
         self.updates_sent = 0
 
-        # Needed for the MessageGenerator performance optimization
         self.log_info = args.loglevel <= logging.INFO
         self.log_debug = args.loglevel <= logging.DEBUG
+        """
+        Flags needed for the MessageGenerator performance optimization.
+        Calling logger methods each iteration even with proper log level set
+        slows down significantly the MessageGenerator performance.
+        Measured total generation time (1M updates, dry run, error log level):
+        - logging based on basic logger features: 36,2s
+        - logging based on advanced logger features (lazy logging): 21,2s
+        - conditional calling of logger methods enclosed inside condition: 8,6s
+        """
 
         logging.info("Generator initialisation")
         logging.info("  Target total number of prefixes to be introduced: " +
@@ -1075,6 +1078,7 @@ class ReadTracker(object):
                 # TODO: Should we do validation and exit on anything
                 # besides update or keepalive?
                 # Prepare state for reading another message.
+                logging.debug("Message received: 0x%s", binascii.b2a_hex(self.msg_in))
                 self.msg_in = ""
                 self.reading_header = True
                 self.bytes_to_read = self.header_length
@@ -1107,8 +1111,7 @@ class ReadTracker(object):
 
 
 class WriteTracker(object):
-    """Class tracking enqueueing messages and sending chunks of them.
-    """
+    """Class tracking enqueueing messages and sending chunks of them."""
 
     def __init__(self, bgp_socket, generator, timer):
         """The writter initialisation.
