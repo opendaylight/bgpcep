@@ -95,6 +95,7 @@
         <feature version='${project.version}'>odl-bgpcep-pcep-impl</feature>
         <feature version='${project.version}'>odl-bgpcep-pcep-topology</feature>
         <bundle>mvn:org.opendaylight.bgpcep/pcep-ietf-stateful07/{{VERSION}}</bundle>
+        <configfile finalname="etc/opendaylight/karaf/34-pcep-stateful07.xml">mvn:org.opendaylight.bgpcep/pcep-controller-config/{{VERSION}}/xml/config-pcep-stateful07</configfile>
     </feature>
 
     <feature name='odl-bgpcep-pcep-topology-provider' version='${project.version}'>
