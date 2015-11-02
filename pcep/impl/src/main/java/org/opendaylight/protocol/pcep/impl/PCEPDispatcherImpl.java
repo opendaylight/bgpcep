@@ -109,7 +109,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
         final ChannelFuture f = b.bind(address);
         LOG.debug("Initiated server {} at {}.", f, address);
 
-        this.keys = null;
+        this.keys = Optional.absent();
         return f;
     }
 
@@ -149,6 +149,16 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
 
     @Override
     public void close() {
+        try {
+            // Shut down all event loops to terminate all threads.
+            this.bossGroup.shutdownGracefully();
+            this.workerGroup.shutdownGracefully();
+            // Wait until all threads are terminated.
+            this.bossGroup.terminationFuture().sync();
+            this.workerGroup.terminationFuture().sync();
+        } catch (final InterruptedException e) {
+            LOG.warn("Failed to properly close dispatcher.", e);
+        }
     }
 
     protected interface ChannelPipelineInitializer {

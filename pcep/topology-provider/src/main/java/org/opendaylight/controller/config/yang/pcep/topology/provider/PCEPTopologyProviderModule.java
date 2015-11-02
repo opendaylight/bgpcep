@@ -133,13 +133,16 @@ public final class PCEPTopologyProviderModule extends
                 new TopologyKey(getTopologyId())).build();
         final InetSocketAddress address = new InetSocketAddress(listenAddress(), getListenPort().getValue());
 
+        PCEPTopologyProvider topologyProvider = null;
         try {
-            return PCEPTopologyProvider.create(getDispatcherDependency(), address, contructKeys(), getSchedulerDependency(),
-                    getDataProviderDependency(), getRpcRegistryDependency(), topology, getStatefulPluginDependency(),
-                    Optional.of(getRootRuntimeBeanRegistratorWrapper()));
+            topologyProvider = PCEPTopologyProvider.create(getDispatcherDependency(), address, contructKeys(),
+                getSchedulerDependency(), getDataProviderDependency(), getRpcRegistryDependency(), topology, getStatefulPluginDependency(),
+                Optional.of(getRootRuntimeBeanRegistratorWrapper()));
         } catch (InterruptedException | ExecutionException | TransactionCommitFailedException | ReadFailedException e) {
             LOG.error("Failed to instantiate topology provider at {}", address, e);
             throw new IllegalStateException("Failed to instantiate provider", e);
         }
+
+        return topologyProvider;
     }
 }

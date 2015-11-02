@@ -11,7 +11,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Assert;
+import java.net.UnknownHostException;
+import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.KeepaliveMessage;
@@ -20,13 +21,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 public class PCEPTestingToolTest {
 
     @Test
-    public void testSessionEstablishment() {
-        try {
-            Main.main(new String[]{"-a", "127.0.0.3:12345", "-ka", "10", "-d", "0", "--stateful", "--active", "--instant"});
-            PCCMock.main(new String[0]);
-        } catch (final Exception e) {
-            Assert.fail();
-        }
+    public void testSessionEstablishment() throws InterruptedException, ExecutionException, UnknownHostException {
+        Main.main(new String[]{"-a", "127.0.0.3:12345", "-ka", "10", "-d", "0", "--stateful", "--active", "--instant"});
+        PCCMock.main(new String[0]);
     }
 
     @Test

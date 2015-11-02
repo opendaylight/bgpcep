@@ -21,6 +21,7 @@ import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
 import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
+import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,12 +125,19 @@ public final class Main {
         caps.add(new PCEPStatefulCapability(stateful, active, instant, false, false, false, false));
         final PCEPSessionProposalFactory spf = new BasePCEPSessionProposalFactory(deadTimerValue, keepAliveValue, caps);
 
-        try (final StatefulActivator activator07 = new StatefulActivator()) {
-            activator07.start(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance());
+        final StatefulActivator activator07 = createActivator();
+        activator07.start(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance());
+        final PCEPDispatcherImpl dispatcher = createDispatcher(spf);
+        dispatcher.createServer(address, new TestingSessionListenerFactory(), null).get();
+    }
 
-            try (final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(spf, MAX_UNKNOWN_MESSAGES), new NioEventLoopGroup(), new NioEventLoopGroup())) {
-                dispatcher.createServer(address, new TestingSessionListenerFactory(), null).get();
-            }
-        }
+    private static StatefulActivator createActivator() {
+        return new StatefulActivator();
+    }
+
+    private static PCEPDispatcherImpl createDispatcher(final PCEPSessionProposalFactory spf) {
+        final MessageRegistry registry = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry();
+        final DefaultPCEPSessionNegotiatorFactory sessionFactory = new DefaultPCEPSessionNegotiatorFactory(spf, MAX_UNKNOWN_MESSAGES);
+        return new PCEPDispatcherImpl(registry, sessionFactory, new NioEventLoopGroup(), new NioEventLoopGroup());
     }
 }
