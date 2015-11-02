@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Ipv6RouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.IsisAreaIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeFlagBits;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.TopologyIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.LinkStateAttribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.NodeAttributesCase;
@@ -70,9 +71,10 @@ public final class NodeAttributesParser {
      * Parse Node Attributes.
      *
      * @param attributes key is the tlv type and value is the value of the tlv
+     * @param protocolId to differentiate parsing methods
      * @return {@link LinkStateAttribute}
      */
-    static LinkStateAttribute parseNodeAttributes(final Multimap<Integer, ByteBuf> attributes) {
+    static LinkStateAttribute parseNodeAttributes(final Multimap<Integer, ByteBuf> attributes, final ProtocolId protocolId) {
         final List<TopologyIdentifier> topologyMembership = new ArrayList<>();
         final List<IsisAreaIdentifier> areaMembership = new ArrayList<>();
         final NodeAttributesBuilder builder = new NodeAttributesBuilder();
@@ -116,7 +118,7 @@ public final class NodeAttributesParser {
                 LOG.debug("Parsed IPv6 Router Identifier {}", ip6);
                 break;
             case SR_CAPABILITIES:
-                final SrCapabilities caps = SrNodeAttributesParser.parseSrCapabilities(value);
+                final SrCapabilities caps = SrNodeAttributesParser.parseSrCapabilities(value, protocolId);
                 builder.setSrCapabilities(caps);
                 LOG.debug("Parsed SR Capabilities {}", caps);
                 break;

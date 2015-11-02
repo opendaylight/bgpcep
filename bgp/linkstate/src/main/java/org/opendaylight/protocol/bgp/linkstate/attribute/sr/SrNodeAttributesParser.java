@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.state.SrAlgorithm;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.state.SrAlgorithmBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.state.SrCapabilities;
@@ -33,16 +34,26 @@ public final class SrNodeAttributesParser {
 
     private static final int RESERVERED = 1;
 
-    public static SrCapabilities parseSrCapabilities(final ByteBuf buffer) {
+    public static SrCapabilities parseSrCapabilities(final ByteBuf buffer, final ProtocolId protocol) {
         final SrCapabilitiesBuilder builder = new SrCapabilitiesBuilder();
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
-        builder.setMplsIpv4(flags.get(MPLS_IPV4));
-        builder.setMplsIpv6(flags.get(MPLS_IPV6));
-        builder.setSrIpv6(flags.get(SR_IPV6));
+        setFlags(flags, protocol, builder);
         buffer.skipBytes(RESERVERED);
         builder.setRangeSize((long)buffer.readUnsignedMedium());
         builder.setSidLabelIndex(SidLabelIndexParser.parseSidSubTlv(buffer));
         return builder.build();
+    }
+
+    private static void setFlags(final BitArray flags, final ProtocolId protocol, final SrCapabilitiesBuilder builder) {
+        if (protocol.equals(ProtocolId.IsisLevel1) || protocol.equals(ProtocolId.IsisLevel2)) {
+            builder.setMplsIpv4(flags.get(MPLS_IPV4));
+            builder.setMplsIpv6(flags.get(MPLS_IPV6));
+            builder.setSrIpv6(flags.get(SR_IPV6));
+        } else {
+            builder.setMplsIpv4(Boolean.FALSE);
+            builder.setMplsIpv6(Boolean.FALSE);
+            builder.setSrIpv6(Boolean.FALSE);
+        }
     }
 
     public static void serializeSrCapabilities(final SrCapabilities caps, final ByteBuf buffer) {
