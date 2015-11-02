@@ -65,6 +65,11 @@
                                     <classifier>config-segment</classifier>
                                 </artifact>
                                 <artifact>
+                                    <file>${project.build.directory}/classes/initial/34-pcep-stateful07.xml</file>
+                                    <type>xml</type>
+                                    <classifier>config-pcep-stateful07</classifier>
+                                </artifact>
+                                <artifact>
                                     <file>${project.build.directory}/classes/initial/39-pcep-provider.xml</file>
                                     <type>xml</type>
                                     <classifier>config-provider</classifier>

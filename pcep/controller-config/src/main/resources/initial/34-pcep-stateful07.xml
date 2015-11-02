@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
+  ~
+  ~ This program and the accompanying materials are made available under the
+  ~ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+  ~ and is available at http://www.eclipse.org/legal/epl-v10.html
+  -->
+
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+<snapshot>
+    <required-capabilities>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:netty?module=netty&amp;revision=2013-11-19</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:impl?module=odl-pcep-impl-cfg&amp;revision=2013-06-27</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:spi?module=odl-pcep-spi-cfg&amp;revision=2013-11-15</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg?module=odl-pcep-ietf-stateful07-cfg&amp;revision=2015-07-14</capability>
+    </required-capabilities>
+
+    <configuration>
+        <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+            <modules xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">prefix:pcep-extensions-impl</type>
+                    <name>global-pcep-extensions</name>
+                    <!-- This block is draft-ietf-pce-stateful-pce-07 + draft-ietf-pce-inititated-pce-00 -->
+                    <extension>
+                        <type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
+                        <name>pcep-parser-ietf-stateful07</name>
+                    </extension>
+                    <extension>
+                        <type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
+                        <name>pcep-parser-ietf-initiated00</name>
+                    </extension>
+                    <extension>
+                        <type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
+                        <name>pcep-parser-sync-optimizations</name>
+                    </extension>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg">prefix:pcep-parser-ietf-stateful07</type>
+                    <name>pcep-parser-ietf-stateful07</name>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg">prefix:pcep-parser-ietf-initiated00</type>
+                    <name>pcep-parser-ietf-initiated00</name>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg">prefix:pcep-parser-sync-optimizations</type>
+                    <name>pcep-parser-sync-optimizations</name>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg">prefix:stateful-capability</type>
+                    <name>stateful-capability</name>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-session-proposal-factory-impl</type>
+                    <name>global-pcep-session-proposal-factory</name>
+                    <capability>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep">prefix:pcep-capability</type>
+                        <name>stateful-capability</name>
+                    </capability>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-dispatcher-impl</type>
+                    <name>global-pcep-dispatcher</name>
+                    <pcep-extensions>
+                        <type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extensions</type>
+                        <name>global-pcep-extensions</name>
+                    </pcep-extensions>
+                    <pcep-session-proposal-factory>
+                        <type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep">pcep:pcep-session-proposal-factory</type>
+                        <name>global-pcep-session-proposal-factory</name>
+                    </pcep-session-proposal-factory>
+                    <boss-group>
+                        <type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-threadgroup</type>
+                        <name>global-boss-group</name>
+                    </boss-group>
+                    <worker-group>
+                        <type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-threadgroup</type>
+                        <name>global-worker-group</name>
+                    </worker-group>
+
+                    <!--
+                         Uncomment this block to enable TCP MD5 Signature support
+
+                    <md5-channel-factory>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:tcpmd5:netty:cfg">prefix:md5-channel-factory</type>
+                        <name>md5-client-channel-factory</name>
+                    </md5-channel-factory>
+
+                    <md5-server-channel-factory>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:tcpmd5:netty:cfg">prefix:md5-server-channel-factory</type>
+                        <name>md5-server-channel-factory</name>
+                    </md5-server-channel-factory>
+                    -->
+
+                    <!--
+                        Uncomment this block to enable PCEPS TLS communication. Change example values as needed.
+                    <tls>
+                       <keystore>configuration/ctl.jks</keystore>
+                       <keystore-type>JKS</keystore-type>
+                       <keystore-path-type>PATH</keystore-path-type>
+                       <keystore-password>opendaylight</keystore-password>
+                       <truststore>configuration/truststore.jks</truststore>
+                       <truststore-type>JKS</truststore-type>
+                       <truststore-path-type>PATH</truststore-path-type>
+                       <truststore-password>opendaylight</truststore-password>
+                       <certificate-password>opendaylight</certificate-password>
+                     </tls>
+                     -->
+                </module>
+            </modules>
+            <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+                <service>
+                    <type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
+                    <instance>
+                        <name>pcep-parser-ietf-initiated00</name>
+                        <provider>/config/modules/module[name='pcep-parser-ietf-initiated00']/instance[name='pcep-parser-ietf-initiated00']</provider>
+                    </instance>
+                    <instance>
+                        <name>pcep-parser-ietf-stateful07</name>
+                        <provider>/config/modules/module[name='pcep-parser-ietf-stateful07']/instance[name='pcep-parser-ietf-stateful07']</provider>
+                    </instance>
+                    <instance>
+                        <name>pcep-parser-sync-optimizations</name>
+                        <provider>/config/modules/module[name='pcep-parser-sync-optimizations']/instance[name='pcep-parser-sync-optimizations']</provider>
+                    </instance>
+                </service>
+                <service>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep">prefix:pcep-capability</type>
+                    <instance>
+                        <name>stateful-capability</name>
+                        <provider>/config/modules/module[name='stateful-capability']/instance[name='stateful-capability']</provider>
+                    </instance>
+                </service>
+                <service>
+                    <type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep">pcep:pcep-dispatcher</type>
+                    <instance>
+                        <name>global-pcep-dispatcher</name>
+                        <provider>/config/modules/module[name='pcep-dispatcher-impl']/instance[name='global-pcep-dispatcher']</provider>
+                    </instance>
+                </service>
+                <service>
+                    <type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep">pcep:pcep-session-proposal-factory</type>
+                    <instance>
+                        <name>global-pcep-session-proposal-factory</name>
+                        <provider>/config/modules/module[name='pcep-session-proposal-factory-impl']/instance[name='global-pcep-session-proposal-factory']</provider>
+                    </instance>
+                </service>
+            </services>
+        </data>
+    </configuration>
+</snapshot>
