@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bada0100_a4c37a37",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled/unicast/LUNlriParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-11-02T23:10:04Z",
+      "side": 1,
+      "message": "can we simplify this code somehow?",
+      "range": {
+        "startLine": 152,
+        "startChar": 0,
+        "endLine": 166,
+        "endChar": 5
+      },
+      "revId": "2a6cf36f9cd32176f4db9465c50fc8d89c635c6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
