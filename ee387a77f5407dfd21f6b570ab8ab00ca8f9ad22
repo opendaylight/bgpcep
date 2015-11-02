@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bada0100_a4da9a15",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-11-02T23:15:09Z",
+      "side": 1,
+      "message": "system-id is related to the IS-IS protocol only...https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-00#section-2.2.2\nfor OSPF Neighbor-ID should be used.\nMoreover both types differs in a length (it is not really clear in the BGP-LS SR draft)?",
+      "range": {
+        "startLine": 131,
+        "startChar": 13,
+        "endLine": 131,
+        "endChar": 26
+      },
+      "revId": "ee387a77f5407dfd21f6b570ab8ab00ca8f9ad22",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
