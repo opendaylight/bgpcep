@@ -16,7 +16,7 @@ import org.opendaylight.protocol.bgp.parser.spi.NextHopParserSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCase;
 
-final public class Ipv6NextHopParserSerializer implements NextHopParserSerializer {
+public final class Ipv6NextHopParserSerializer implements NextHopParserSerializer {
     @Override
     public CNextHop parseNextHop(final ByteBuf buffer) throws BGPParsingException {
         return NextHopUtil.parseNextHop(buffer);

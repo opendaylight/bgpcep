@@ -17,7 +17,7 @@ import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
 
-final public class Ipv4NextHopParserSerializer implements NextHopParserSerializer {
+public final class Ipv4NextHopParserSerializer implements NextHopParserSerializer {
     @Override
     public CNextHop parseNextHop(final ByteBuf buffer) throws BGPParsingException {
         Preconditions.checkArgument(buffer.readableBytes() == Ipv4Util.IP4_LENGTH, "Length of byte array for NEXT_HOP should be %s, but is %s", buffer.readableBytes(), Ipv4Util.IP4_LENGTH);

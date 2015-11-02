@@ -78,7 +78,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
         LOG.info("Connecting to monitored routers completed.");
     }
 
-    private final void connectMonitoredRouters(final BmpDispatcher dispatcher, final List<MonitoredRouter> mrs) {
+    private void connectMonitoredRouters(final BmpDispatcher dispatcher, final List<MonitoredRouter> mrs) {
         if (mrs != null) {
             for (final MonitoredRouter mr : mrs) {
                 if (mr.getActive()) {
@@ -94,10 +94,10 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
                         ret.put(addr, password.getBytes(Charsets.US_ASCII));
                     }
                     try {
-                        clientChannels.add(dispatcher.createClient(
+                        this.clientChannels.add(dispatcher.createClient(
                             Ipv4Util.toInetSocketAddress(mr.getAddress(), mr.getPort()),
-                            sessionManager, Optional.<KeyMapping>fromNullable(ret)).sync().channel());
-                    } catch (InterruptedException ex) {
+                            this.sessionManager, Optional.<KeyMapping>fromNullable(ret)).sync().channel());
+                    } catch (final InterruptedException ex) {
                         LOG.error("failed to connect bmp client {}", mr);
                     }
                     ret.remove(addr);
@@ -140,7 +140,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
                         new NodeIdentifier(BmpMonitor.QNAME))
                         .addChild(ImmutableNodes.mapNodeBuilder(Monitor.QNAME)
                                 .addChild(ImmutableNodes.mapEntryBuilder(Monitor.QNAME, MONITOR_ID_QNAME, this.monitorId.getValue())
-                                        .addChild(ImmutableNodes.leafNode(MONITOR_ID_QNAME, monitorId.getValue()))
+                                        .addChild(ImmutableNodes.leafNode(MONITOR_ID_QNAME, this.monitorId.getValue()))
                                         .addChild(ImmutableNodes.mapNodeBuilder(Router.QNAME).build())
                                         .build()).build())
                         .build());
@@ -160,7 +160,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
             }
         }).await();
 
-        for (Channel ch : BmpMonitoringStationImpl.this.clientChannels) {
+        for (final Channel ch : BmpMonitoringStationImpl.this.clientChannels) {
             ch.close().await();
         }
 
