@@ -42,14 +42,6 @@ module bgp-segment-routing {
         type uint8;
     }
 
-    grouping general-flags {
-        leaf flags {
-            type binary {
-                length "1";
-            }
-        }
-    }
-
     grouping sid-label-index {
         reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-00#section-2.3.4.2";
         choice sid-label-index {
@@ -96,9 +88,34 @@ module bgp-segment-routing {
         }
     }
 
+    grouping ospf-adj-flags {
+        reference "https://tools.ietf.org/html/draft-ietf-ospf-segment-routing-extensions-05#section-7.1";
+        leaf backup {
+            type boolean;
+        }
+        leaf set {
+            type boolean;
+        }
+    }
+
+    grouping adj-flags {
+        choice flags {
+            case ospf-adj-flags-case {
+                uses ospf-adj-flags;
+            }
+            case isis-adj-flags-case {
+                reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-05#section-2.2.1";
+                uses ospf-adj-flags;
+                leaf address-family {
+                    type boolean;
+                }
+            }
+        }
+    }
+
     grouping adj-sid-tlv {
         reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-00#section-2.2.1";
-        uses general-flags;
+        uses adj-flags;
         leaf weight {
             type weight;
         }
@@ -107,7 +124,7 @@ module bgp-segment-routing {
 
     grouping lan-adj-sid-tlv {
         reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-00#section-2.2.2";
-        uses general-flags;
+        uses adj-flags;
         leaf weight {
             type weight;
         }
@@ -117,9 +134,36 @@ module bgp-segment-routing {
         uses sid-label-index;
     }
 
+    grouping prefix-flags {
+        leaf no-php {
+            type boolean;
+        }
+        leaf explicit-null {
+            type boolean;
+        }
+    }
+
     grouping prefix-sid-tlv {
         reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-00#section-2.3.1";
-        uses general-flags;
+        choice flags {
+            case isis-prefix-flags-case {
+                reference "https://tools.ietf.org/html/draft-ietf-ospf-segment-routing-extensions-05#section-5";
+                uses prefix-flags;
+                leaf readvertisement {
+                    type boolean;
+                }
+                leaf node-sid {
+                    type boolean;
+                }
+            }
+            case ospf-prefix-flags-case {
+                reference "https://tools.ietf.org/html/draft-ietf-ospf-segment-routing-extensions-05#section-5";
+                uses prefix-flags;
+                leaf mapping-server {
+                    type boolean;
+                }
+            }
+        }
         leaf algorithm {
             type algorithm;
         }
@@ -193,12 +237,45 @@ module bgp-segment-routing {
         }
     }
 
+    grouping isis-binding-flags {
+        reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-05#section-2.4";
+        leaf address-family {
+            type boolean;
+        }
+        leaf mirror-context {
+            type boolean;
+        }
+        leaf spread-tlv {
+            type boolean;
+        }
+        leaf leaked-from-level-2 {
+            type boolean;
+        }
+        leaf attached-flag {
+            type boolean;
+        }
+    }
+
+    grouping ospf-binding-flags {
+        reference "https://tools.ietf.org/html/draft-ietf-ospf-segment-routing-extensions-05#section-6";
+        leaf mirroring {
+            type boolean;
+        }
+    }
+
     grouping binding-sid-tlv {
         reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-00#section-2.3.3";
         leaf weight {
             type weight;
         }
-        uses general-flags;
+        choice flags {
+            case isis-binding-flags-case {
+                uses isis-binding-flags;
+            }
+            case ospf-binding-flags-case {
+                uses ospf-binding-flags;
+            }
+        }
         list binding-sub-tlvs {
             uses binding-sub-tlvs;
         }

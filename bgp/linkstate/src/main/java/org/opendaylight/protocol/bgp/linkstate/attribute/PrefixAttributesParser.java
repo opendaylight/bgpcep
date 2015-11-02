@@ -26,6 +26,7 @@ import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ExtendedRouteTag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.IgpBits.UpDown;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.RouteTag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.LinkStateAttribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.PrefixAttributesCase;
@@ -72,9 +73,10 @@ public final class PrefixAttributesParser {
      * Parse prefix attributes.
      *
      * @param attributes key is the tlv type and value are the value bytes of the tlv
+     * @param protocolId to differentiate parsing methods
      * @return {@link LinkStateAttribute}
      */
-    static LinkStateAttribute parsePrefixAttributes(final Multimap<Integer, ByteBuf> attributes) {
+    static LinkStateAttribute parsePrefixAttributes(final Multimap<Integer, ByteBuf> attributes, final ProtocolId protocolId) {
         final PrefixAttributesBuilder builder = new PrefixAttributesBuilder();
         final List<RouteTag> routeTags = new ArrayList<>();
         final List<ExtendedRouteTag> exRouteTags = new ArrayList<>();
@@ -82,7 +84,7 @@ public final class PrefixAttributesParser {
             final int key = entry.getKey();
             final ByteBuf value = entry.getValue();
             LOG.trace("Prefix attribute TLV {}", key);
-            parseAttribute(key, value, builder, routeTags, exRouteTags);
+            parseAttribute(key, value, protocolId, builder, routeTags, exRouteTags);
         }
         LOG.trace("Finished parsing Prefix Attributes.");
         builder.setRouteTags(routeTags);
@@ -90,7 +92,7 @@ public final class PrefixAttributesParser {
         return new PrefixAttributesCaseBuilder().setPrefixAttributes(builder.build()).build();
     }
 
-    private static void parseAttribute(final int key, final ByteBuf value, final PrefixAttributesBuilder builder, final List<RouteTag> routeTags, final List<ExtendedRouteTag> exRouteTags) {
+    private static void parseAttribute(final int key, final ByteBuf value, final ProtocolId protocolId, final PrefixAttributesBuilder builder, final List<RouteTag> routeTags, final List<ExtendedRouteTag> exRouteTags) {
         switch (key) {
         case IGP_FLAGS:
             final BitArray flags = BitArray.valueOf(value, FLAGS_SIZE);
@@ -120,17 +122,17 @@ public final class PrefixAttributesParser {
             }
             break;
         case PREFIX_SID:
-            final SrPrefix prefix = SrPrefixAttributesParser.parseSrPrefix(value);
+            final SrPrefix prefix = SrPrefixAttributesParser.parseSrPrefix(value, protocolId);
             builder.setSrPrefix(prefix);
             LOG.debug("Parsed SR Prefix: {}", prefix);
             break;
         case RANGE:
-            final SrRange range = RangeTlvParser.parseSrRange(value);
+            final SrRange range = RangeTlvParser.parseSrRange(value, protocolId);
             builder.setSrRange(range);
             LOG.debug("Parsed SR Range: {}", range);
             break;
         case BINDING_SID:
-            final SrBindingSidLabel label = BindingSidLabelParser.parseBindingSidLabel(value);
+            final SrBindingSidLabel label = BindingSidLabelParser.parseBindingSidLabel(value, protocolId);
             builder.setSrBindingSidLabel(label);
             LOG.debug("Parsed SR Binding SID {}", label);
             break;
