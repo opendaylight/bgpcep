@@ -19,12 +19,18 @@ import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrBindingSidLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrBindingSidLabelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.Weight;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sid.tlv.BindingSubTlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sid.tlv.BindingSubTlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sid.tlv.Flags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sid.tlv.flags.IsisBindingFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sid.tlv.flags.IsisBindingFlagsCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sid.tlv.flags.OspfBindingFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sid.tlv.flags.OspfBindingFlagsCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.BindingSubTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.EroMetricCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sub.tlvs.binding.sub.tlv.EroMetricCaseBuilder;
@@ -59,6 +65,12 @@ public final class BindingSidLabelParser {
 
     /* Flags */
     private static final int FLAGS_SIZE = 8;
+    private static final int AFI = 0;
+    private static final int MIRROR_CONTEXT = 1;
+    private static final int MIRROR_CONTEXT_OSPF = 0;
+    private static final int SPREAD_TLV = 2;
+    private static final int LEAKED = 3;
+    private static final int ATTACHED = 4;
     private static final int LOOSE = 0;
 
     /* SID Label Tlv types */
@@ -73,29 +85,45 @@ public final class BindingSidLabelParser {
     private static final int RESERVED_BINDING_SID = 2;
     private static final int RESERVED_ERO = 3;
 
-    public static SrBindingSidLabel parseBindingSidLabel(final ByteBuf buffer) {
+    public static SrBindingSidLabel parseBindingSidLabel(final ByteBuf buffer, final ProtocolId protocolId) {
         final SrBindingSidLabelBuilder bindingSid = new SrBindingSidLabelBuilder();
         bindingSid.setWeight(new Weight(buffer.readUnsignedByte()));
-        bindingSid.setFlags(new byte[] { (byte) buffer.readUnsignedByte() });
+        final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
+        bindingSid.setFlags(parseBindingSidFlags(flags, protocolId));
         buffer.skipBytes(RESERVED_BINDING_SID);
-        bindingSid.setBindingSubTlvs(parseBindingSubTlvs(buffer));
+        bindingSid.setBindingSubTlvs(parseBindingSubTlvs(buffer, protocolId));
         return bindingSid.build();
     }
 
-    private static List<BindingSubTlvs> parseBindingSubTlvs(final ByteBuf buffer) {
+    private static Flags parseBindingSidFlags(final BitArray flags, final ProtocolId protocol) {
+        if (protocol.equals(ProtocolId.IsisLevel1) || protocol.equals(ProtocolId.IsisLevel2)) {
+            return new IsisBindingFlagsCaseBuilder()
+                .setAddressFamily(flags.get(AFI))
+                .setMirrorContext(flags.get(MIRROR_CONTEXT))
+                .setSpreadTlv(flags.get(SPREAD_TLV))
+                .setLeakedFromLevel2(flags.get(LEAKED))
+                .setAttachedFlag(flags.get(ATTACHED)).build();
+        } else if (protocol.equals(ProtocolId.Ospf)) {
+            return new OspfBindingFlagsCaseBuilder()
+            .setMirroring(flags.get(MIRROR_CONTEXT_OSPF)).build();
+        }
+        return null;
+    }
+
+    private static List<BindingSubTlvs> parseBindingSubTlvs(final ByteBuf buffer, final ProtocolId protocolId) {
         final List<BindingSubTlvs> subTlvs = new ArrayList<BindingSubTlvs>();
         while (buffer.isReadable()) {
             final int type = buffer.readUnsignedShort();
             final int length = buffer.readUnsignedShort();
             final ByteBuf slice = buffer.readSlice(length);
             final BindingSubTlvsBuilder builder = new BindingSubTlvsBuilder();
-            parseSubTlv(type, slice, builder);
+            parseSubTlv(type, slice, builder, protocolId);
             subTlvs.add(builder.build());
         }
         return subTlvs;
     }
 
-    private static void parseSubTlv(final int type, final ByteBuf slice, final BindingSubTlvsBuilder builder) {
+    private static void parseSubTlv(final int type, final ByteBuf slice, final BindingSubTlvsBuilder builder, final ProtocolId protocolId) {
         switch (type) {
         case SidLabelIndexParser.SID_TYPE:
             final SidLabelIndex sid = SidLabelIndexParser.parseSidLabelIndex(Size.forValue(slice.readableBytes()), slice);
@@ -103,7 +131,7 @@ public final class BindingSidLabelParser {
                 .setSidLabelIndex(sid).build());
             break;
         case PrefixAttributesParser.PREFIX_SID:
-            final SrPrefix prefix = SrPrefixAttributesParser.parseSrPrefix(slice);
+            final SrPrefix prefix = SrPrefixAttributesParser.parseSrPrefix(slice, protocolId);
             builder.setBindingSubTlv(new PrefixSidCaseBuilder()
                 .setAlgorithm(prefix.getAlgorithm())
                 .setFlags(prefix.getFlags())
@@ -189,11 +217,28 @@ public final class BindingSidLabelParser {
         serializeBindingSidAttributes(bindingSid.getWeight(), bindingSid.getFlags(), bindingSid.getBindingSubTlvs(), aggregator);
     }
 
-    public static void serializeBindingSidAttributes(final Weight weight, final byte[] flags, final List<BindingSubTlvs> bindingSubTlvs, final ByteBuf aggregator) {
+    public static void serializeBindingSidAttributes(final Weight weight, final Flags flags, final List<BindingSubTlvs> bindingSubTlvs, final ByteBuf aggregator) {
         aggregator.writeByte(weight.getValue());
-        aggregator.writeBytes(flags);
+        final BitArray bitFlags = serializeBindingSidFlags(flags);
+        bitFlags.toByteBuf(aggregator);
         aggregator.writeZero(RESERVED_BINDING_SID);
         serializeBindingSubTlvs(bindingSubTlvs, aggregator);
+    }
+
+    private static BitArray serializeBindingSidFlags(final Flags flags) {
+        final BitArray bitFlags = new BitArray(FLAGS_SIZE);
+        if (flags instanceof IsisBindingFlagsCase) {
+            final IsisBindingFlagsCase isisFlags = (IsisBindingFlagsCase) flags;
+            bitFlags.set(AFI, isisFlags.isAddressFamily());
+            bitFlags.set(MIRROR_CONTEXT, isisFlags.isMirrorContext());
+            bitFlags.set(SPREAD_TLV, isisFlags.isSpreadTlv());
+            bitFlags.set(LEAKED, isisFlags.isLeakedFromLevel2());
+            bitFlags.set(ATTACHED, isisFlags.isAttachedFlag());
+        } else if (flags instanceof OspfBindingFlagsCase) {
+            final OspfBindingFlagsCase ospfFlags = (OspfBindingFlagsCase) flags;
+            bitFlags.set(MIRROR_CONTEXT_OSPF, ospfFlags.isMirroring());
+        }
+        return bitFlags;
     }
 
     private static void serializeBindingSubTlvs(final List<BindingSubTlvs> bindingSubTlvs, final ByteBuf aggregator) {

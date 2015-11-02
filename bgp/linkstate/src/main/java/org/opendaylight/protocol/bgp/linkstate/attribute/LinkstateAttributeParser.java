@@ -19,6 +19,7 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPTeObjectRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Attributes1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.ObjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.CLinkstateDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.LinkCase;
@@ -81,22 +82,24 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) throws BGPParsingException {
-        final ObjectType nlriType = getNlriType(builder);
-        if (nlriType == null) {
+        final CLinkstateDestination lsDestination = getNlriType(builder);
+        if (lsDestination == null) {
             LOG.warn("No Linkstate NLRI found, not parsing Linkstate attribute");
             return;
         }
-        final Attributes1 a = new Attributes1Builder().setLinkStateAttribute(parseLinkState(nlriType, buffer)).build();
+        final ObjectType nlriType = lsDestination.getObjectType();
+        final ProtocolId protocolId = lsDestination.getProtocolId();
+        final Attributes1 a = new Attributes1Builder().setLinkStateAttribute(parseLinkState(nlriType, protocolId, buffer)).build();
         builder.addAugmentation(Attributes1.class, a);
     }
 
-    private ObjectType getNlriType(final AttributesBuilder pab) {
+    private CLinkstateDestination getNlriType(final AttributesBuilder pab) {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1 mpr = pab.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1.class);
         if (mpr != null && mpr.getMpReachNlri() != null) {
             final DestinationType dt = mpr.getMpReachNlri().getAdvertizedRoutes().getDestinationType();
             if (dt instanceof DestinationLinkstateCase) {
                 for (final CLinkstateDestination d : ((DestinationLinkstateCase) dt).getDestinationLinkstate().getCLinkstateDestination()) {
-                    return d.getObjectType();
+                    return d;
                 }
             }
         }
@@ -105,21 +108,21 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
             final DestinationType dt = mpu.getMpUnreachNlri().getWithdrawnRoutes().getDestinationType();
             if (dt instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase) {
                 for (final CLinkstateDestination d : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase) dt).getDestinationLinkstate().getCLinkstateDestination()) {
-                    return d.getObjectType();
+                    return d;
                 }
             }
         }
         return null;
     }
 
-    private LinkStateAttribute parseLinkState(final ObjectType nlri, final ByteBuf buffer) throws BGPParsingException {
+    private LinkStateAttribute parseLinkState(final ObjectType nlri, final ProtocolId protocolId, final ByteBuf buffer) throws BGPParsingException {
 
         if (nlri instanceof PrefixCase) {
-            return PrefixAttributesParser.parsePrefixAttributes(getAttributesMap(buffer));
+            return PrefixAttributesParser.parsePrefixAttributes(getAttributesMap(buffer), protocolId);
         } else if (nlri instanceof LinkCase) {
-            return LinkAttributesParser.parseLinkAttributes(getAttributesMap(buffer));
+            return LinkAttributesParser.parseLinkAttributes(getAttributesMap(buffer), protocolId);
         } else if (nlri instanceof NodeCase) {
-            return NodeAttributesParser.parseNodeAttributes(getAttributesMap(buffer));
+            return NodeAttributesParser.parseNodeAttributes(getAttributesMap(buffer), protocolId);
         } else if (nlri instanceof TeLspCase) {
             return TeLspAttributesParser.parseTeLspAttributes(this.rsvpTeObjectRegistry, getAttributesMap(buffer)
                 .entries().iterator().next().getValue());

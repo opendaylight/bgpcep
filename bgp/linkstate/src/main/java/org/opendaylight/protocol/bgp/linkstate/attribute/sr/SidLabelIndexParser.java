@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Map;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.protocol.util.MplsLabelUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.SidLabelIndex;
@@ -83,6 +84,19 @@ public final class SidLabelIndexParser {
             return new Ipv6AddressCaseBuilder().setIpv6Address(Ipv6Util.addressForByteBuf(buffer)).build();
         default:
             return null;
+        }
+    }
+
+    static void setFlags(final SidLabelIndex tlv, final BitArray flags, final int value, final int local) {
+        if (tlv instanceof LocalLabelCase) {
+            flags.set(value, Boolean.TRUE);
+            flags.set(local, Boolean.TRUE);
+        } else if (tlv instanceof SidCase) {
+            flags.set(value, Boolean.FALSE);
+            flags.set(local, Boolean.FALSE);
+        } else if (tlv instanceof Ipv6AddressCase) {
+            flags.set(value, Boolean.TRUE);
+            flags.set(local, Boolean.FALSE);
         }
     }
 
