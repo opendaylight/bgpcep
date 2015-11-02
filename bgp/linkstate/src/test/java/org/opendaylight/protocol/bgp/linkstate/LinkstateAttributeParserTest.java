@@ -38,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkProtectionType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.ObjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.CLinkstateDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.LinkCaseBuilder;
@@ -63,6 +64,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.IsisAdjFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.IsisAdjFlagsCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.sid.label.index.SidCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.AssociationType;
@@ -138,7 +141,7 @@ public class LinkstateAttributeParserTest {
                     new AdvertizedRoutesBuilder().setDestinationType(
                         new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
                             new DestinationLinkstateBuilder().setCLinkstateDestination(
-                                Lists.newArrayList(new CLinkstateDestinationBuilder().setObjectType(type).build())).build()).build()).build()).build()).build());
+                                Lists.newArrayList(new CLinkstateDestinationBuilder().setObjectType(type).setProtocolId(ProtocolId.IsisLevel1).build())).build()).build()).build()).build()).build());
     }
 
     private static AttributesBuilder createUnreachBuilder(final ObjectType type) {
@@ -149,7 +152,7 @@ public class LinkstateAttributeParserTest {
                     new WithdrawnRoutesBuilder().setDestinationType(
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder().setDestinationLinkstate(
                             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder().setCLinkstateDestination(
-                                Lists.newArrayList(new CLinkstateDestinationBuilder().setObjectType(type).build())).build()).build()).build()).build()).build());
+                                Lists.newArrayList(new CLinkstateDestinationBuilder().setObjectType(type).setProtocolId(ProtocolId.IsisLevel1).build())).build()).build()).build()).build()).build());
     }
 
     @Test
@@ -206,8 +209,9 @@ public class LinkstateAttributeParserTest {
         assertEquals(2, ls.getSharedRiskLinkGroups().size());
         assertEquals(305419896, ls.getSharedRiskLinkGroups().get(0).getValue().intValue());
         assertEquals("12K-2", ls.getLinkName());
-        assertEquals((byte) 0x80, ls.getPeerSid().getFlags()[0]);
-        assertEquals((byte) 0x80, ls.getPeerSetSid().getFlags()[0]);
+        final IsisAdjFlagsCase flags = new IsisAdjFlagsCaseBuilder().setAddressFamily(Boolean.TRUE).setBackup(Boolean.FALSE).setSet(Boolean.FALSE).build();
+        assertEquals(flags, ls.getPeerSid().getFlags());
+        assertEquals(flags, ls.getPeerSetSid().getFlags());
         assertEquals(new Long(168496141L), ((SidCase) ls.getPeerSid().getSidLabelIndex()).getSid());
         assertEquals(new Short("5"), ls.getPeerSid().getWeight().getValue());
         assertEquals(new Long(168496142L), ((SidCase) ls.getPeerSetSid().getSidLabelIndex()).getSid());

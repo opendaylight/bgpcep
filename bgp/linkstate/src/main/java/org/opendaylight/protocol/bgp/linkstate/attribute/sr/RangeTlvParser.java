@@ -15,6 +15,7 @@ import org.opendaylight.protocol.bgp.linkstate.attribute.PrefixAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.attribute.sr.SidLabelIndexParser.Size;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrRange;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrRangeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.range.sub.tlvs.RangeSubTlv;
@@ -43,17 +44,17 @@ public final class RangeTlvParser {
 
     private static final int RESERVED = 1;
 
-    public static SrRange parseSrRange(final ByteBuf buffer) {
+    public static SrRange parseSrRange(final ByteBuf buffer, final ProtocolId protocolId) {
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         final SrRangeBuilder range = new SrRangeBuilder();
         range.setInterArea(flags.get(INNER_AREA));
         buffer.skipBytes(RESERVED);
         range.setRangeSize(buffer.readUnsignedShort());
-        range.setSubTlvs(parseRangeSubTlvs(buffer));
+        range.setSubTlvs(parseRangeSubTlvs(buffer, protocolId));
         return range.build();
     }
 
-    private static List<SubTlvs> parseRangeSubTlvs(final ByteBuf buffer) {
+    private static List<SubTlvs> parseRangeSubTlvs(final ByteBuf buffer, final ProtocolId protocolId) {
         final List<SubTlvs> subTlvs = new ArrayList<>();
         while (buffer.isReadable()) {
             final SubTlvsBuilder subTlv = new SubTlvsBuilder();
@@ -62,10 +63,10 @@ public final class RangeTlvParser {
             final int length = buffer.readUnsignedShort();
             switch (type) {
             case PrefixAttributesParser.PREFIX_SID:
-                subTlvCase = new PrefixSidTlvCaseBuilder(SrPrefixAttributesParser.parseSrPrefix(buffer.readSlice(length))).build();
+                subTlvCase = new PrefixSidTlvCaseBuilder(SrPrefixAttributesParser.parseSrPrefix(buffer.readSlice(length), protocolId)).build();
                 break;
             case PrefixAttributesParser.BINDING_SID:
-                subTlvCase = new BindingSidTlvCaseBuilder(BindingSidLabelParser.parseBindingSidLabel(buffer.readSlice(length))).build();
+                subTlvCase = new BindingSidTlvCaseBuilder(BindingSidLabelParser.parseBindingSidLabel(buffer.readSlice(length), protocolId)).build();
                 break;
             case SidLabelIndexParser.SID_TYPE:
                 subTlvCase = new SidLabelTlvCaseBuilder().setSidLabelIndex(SidLabelIndexParser.parseSidLabelIndex(Size.forValue(length), buffer.readSlice(length))).build();
