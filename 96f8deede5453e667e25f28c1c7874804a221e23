@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bada0100_9f579f26",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled/unicast/LUNlriParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-11-03T12:34:35Z",
+      "side": 1,
+      "message": "\"getBottomBit(...)\" does not need to do a reading operation (just a lookup), so we can avoid a buffer copying. May be it will make more sense if the function returns boolean?",
+      "range": {
+        "startLine": 161,
+        "startChar": 12,
+        "endLine": 161,
+        "endChar": 65
+      },
+      "revId": "96f8deede5453e667e25f28c1c7874804a221e23",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
