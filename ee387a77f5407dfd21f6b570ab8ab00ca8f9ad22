@@ -22,6 +22,30 @@
       "revId": "ee387a77f5407dfd21f6b570ab8ab00ca8f9ad22",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bada0100_3f2553ab",
+        "filename": "bgp/linkstate/src/main/yang/bgp-segment-routing.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2015-11-03T07:34:48Z",
+      "side": 1,
+      "message": "I understood that they are of the same length, although I noticed that they have different lengths in extension specifications. I am not sure right now. We could guess and when someone reports bug, we will know ;)",
+      "parentUuid": "bada0100_a4da9a15",
+      "range": {
+        "startLine": 131,
+        "startChar": 13,
+        "endLine": 131,
+        "endChar": 26
+      },
+      "revId": "ee387a77f5407dfd21f6b570ab8ab00ca8f9ad22",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
