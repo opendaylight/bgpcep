@@ -177,37 +177,41 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
                 LOG.trace("Restlength {}", restLength);
                 rest = nlri.readSlice(restLength);
             }
+            setObjectType(nlri, builder, type, localDescriptor, rest);
 
-            switch (type) {
-            case Link:
-                parseLink(builder, rest, (LocalNodeDescriptors) localDescriptor);
-                break;
-            case Ipv4Prefix:
-                builder.setObjectType(new PrefixCaseBuilder()
-                    .setAdvertisingNodeDescriptors((AdvertisingNodeDescriptors) localDescriptor)
-                    .setPrefixDescriptors(PrefixNlriParser.parsePrefixDescriptors(rest, true)).build());
-                break;
-            case Ipv6Prefix:
-                builder.setObjectType(new PrefixCaseBuilder()
-                    .setAdvertisingNodeDescriptors((AdvertisingNodeDescriptors) localDescriptor)
-                    .setPrefixDescriptors(PrefixNlriParser.parsePrefixDescriptors(rest, false)).build());
-                break;
-            case Node:
-                // node nlri is already parsed as it contains only the common fields for node and link nlri
-                builder.setObjectType(new NodeCaseBuilder().setNodeDescriptors((NodeDescriptors) localDescriptor).build());
-                break;
-            case Ipv4TeLsp:
-                builder.setObjectType(parseIpv4TeLsp(nlri));
-                break;
-            case Ipv6TeLsp:
-                builder.setObjectType(parseIpv6TeLsp(nlri));
-                break;
-            default:
-                break;
-            }
             dests.add(builder.build());
         }
         return dests;
+    }
+
+    private static void setObjectType(final ByteBuf nlri, final CLinkstateDestinationBuilder builder, final NlriType type, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier localDescriptor, final ByteBuf rest) throws BGPParsingException {
+        switch (type) {
+        case Link:
+            parseLink(builder, rest, (LocalNodeDescriptors) localDescriptor);
+            break;
+        case Ipv4Prefix:
+            builder.setObjectType(new PrefixCaseBuilder()
+                .setAdvertisingNodeDescriptors((AdvertisingNodeDescriptors) localDescriptor)
+                .setPrefixDescriptors(PrefixNlriParser.parsePrefixDescriptors(rest, true)).build());
+            break;
+        case Ipv6Prefix:
+            builder.setObjectType(new PrefixCaseBuilder()
+                .setAdvertisingNodeDescriptors((AdvertisingNodeDescriptors) localDescriptor)
+                .setPrefixDescriptors(PrefixNlriParser.parsePrefixDescriptors(rest, false)).build());
+            break;
+        case Node:
+            // node nlri is already parsed as it contains only the common fields for node and link nlri
+            builder.setObjectType(new NodeCaseBuilder().setNodeDescriptors((NodeDescriptors) localDescriptor).build());
+            break;
+        case Ipv4TeLsp:
+            builder.setObjectType(parseIpv4TeLsp(nlri));
+            break;
+        case Ipv6TeLsp:
+            builder.setObjectType(parseIpv6TeLsp(nlri));
+            break;
+        default:
+            break;
+        }
     }
 
     private static TeLspCase parseIpv6TeLsp(final ByteBuf nlri) {
