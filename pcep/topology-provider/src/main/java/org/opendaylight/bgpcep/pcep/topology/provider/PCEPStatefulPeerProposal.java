@@ -32,7 +32,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PCEPStatefulPeerProposal {
+public final class PCEPStatefulPeerProposal {
 
     private static final Logger LOG = LoggerFactory.getLogger(PCEPStatefulPeerProposal.class);
 
@@ -53,7 +53,7 @@ public class PCEPStatefulPeerProposal {
         if (isSynOptimizationEnabled(openTlvsBuilder)) {
             final ListenableFuture<Optional<LspDbVersion>> future = this.dataBroker.newReadOnlyTransaction().read(
                     LogicalDatastoreType.OPERATIONAL,
-                    topologyId.child(Node.class, new NodeKey(nodeId)).augmentation(Node1.class)
+                    this.topologyId.child(Node.class, new NodeKey(nodeId)).augmentation(Node1.class)
                             .child(PathComputationClient.class).augmentation(PathComputationClient1.class)
                             .child(LspDbVersion.class));
             Futures.addCallback(future, new FutureCallback<Optional<LspDbVersion>>() {
@@ -67,7 +67,7 @@ public class PCEPStatefulPeerProposal {
 
                 @Override
                 public void onFailure(final Throwable t) {
-                    LOG.warn("Failed to read toplogy {}.", InstanceIdentifier.keyOf(topologyId), t);
+                    LOG.warn("Failed to read toplogy {}.", InstanceIdentifier.keyOf(PCEPStatefulPeerProposal.this.topologyId), t);
                 }
             });
         }

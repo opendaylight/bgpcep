@@ -69,6 +69,8 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContaine
 
 public final class BmpRouterPeerImpl implements BmpRouterPeer {
 
+    private static final String TIMESTAMP_SEC = "timestamp-sec";
+
     private static final QName PEER_ID_QNAME = QName.cachedReference(QName.create(Peer.QNAME, "peer-id"));
     private static final QName PEER_TYPE_QNAME = QName.cachedReference(QName.create(Peer.QNAME, "type"));
     private static final QName PEER_ADDRESS_QNAME = QName.cachedReference(QName.create(Peer.QNAME, "address"));
@@ -79,10 +81,10 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     private static final QName PEER_LOCAL_PORT_QNAME = QName.cachedReference(QName.create(PeerSession.QNAME, "local-port"));
     private static final QName PEER_REMOTE_PORT_QNAME = QName.cachedReference(QName.create(PeerSession.QNAME, "remote-port"));
     private static final QName PEER_STATUS_QNAME = QName.cachedReference(QName.create(PeerSession.QNAME, "status"));
-    private static final QName PEER_UP_TIMESTAMP_QNAME = QName.cachedReference(QName.create(PeerSession.QNAME, "timestamp-sec"));
-    private static final QName PEER_STATS_TIMESTAMP_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "timestamp-sec"));
+    private static final QName PEER_UP_TIMESTAMP_QNAME = QName.cachedReference(QName.create(PeerSession.QNAME, TIMESTAMP_SEC));
+    private static final QName PEER_STATS_TIMESTAMP_QNAME = QName.cachedReference(QName.create(Stats.QNAME, TIMESTAMP_SEC));
     private static final QName PEER_MIRROR_INFORMATION_QNAME = QName.cachedReference(QName.create(Mirrors.QNAME, "information"));
-    private static final QName PEER_MIRROR_TIMESTAMP_QNAME = QName.cachedReference(QName.create(Mirrors.QNAME, "timestamp-sec"));
+    private static final QName PEER_MIRROR_TIMESTAMP_QNAME = QName.cachedReference(QName.create(Mirrors.QNAME, TIMESTAMP_SEC));
 
     private static final QName STAT0_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "rejected-prefixes"));
     private static final QName STAT1_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "duplicate-prefix-advertisements"));
@@ -94,13 +96,10 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     private static final QName STAT7_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "adj-ribs-in-routes"));
     private static final QName STAT8_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "loc-rib-routes"));
     private static final QName STAT9_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "per-afi-safi-adj-rib-in-routes"));
-    private static final QName STAT9_AF_QNAME = QName.cachedReference(QName.create(STAT9_QNAME, "afi-safi"));
     private static final QName AF_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "afi-safi"));
-    private static final QName STAT9_COUNT_QNAME = QName.cachedReference(QName.create(STAT9_AF_QNAME, "count"));
     private static final QName COUNT_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "count"));
     private static final QName STAT10_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "per-afi-safi-loc-rib-routes"));
     private static final QName STAT11_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "updates-treated-as-withdraw"));
-    private static final QName STAT12_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "prefixes-treated-as-withdraw"));
     private static final QName STAT13_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "duplicate-updates"));
 
     private static final InstanceIdentifier<SentOpen> SENT_OPEN_IID = InstanceIdentifier.builder(BmpMonitor.class)
