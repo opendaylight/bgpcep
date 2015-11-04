@@ -71,10 +71,9 @@ public final class PCEPTopologyProviderModule extends
                     continue;
                 }
                 final Rfc2385Key rfc2385KeyPassword = c.getPassword();
-                String password;
-                if (rfc2385KeyPassword != null && !(password = rfc2385KeyPassword.getValue()).isEmpty()) {
+                if (rfc2385KeyPassword != null && !rfc2385KeyPassword.getValue().isEmpty()) {
                     final String s = getAddressString(c.getAddress());
-                    ret.put(InetAddresses.forString(s), password.getBytes(Charsets.US_ASCII));
+                    ret.put(InetAddresses.forString(s), rfc2385KeyPassword.getValue().getBytes(Charsets.US_ASCII));
                 }
             }
         }

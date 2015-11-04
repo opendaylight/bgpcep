@@ -57,8 +57,8 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
     private final RouterSessionManager sessionManager;
     private final Channel channel;
     private final MonitorId monitorId;
-    private final List<MonitoredRouter> mrs;
-    private final CopyOnWriteArrayList<Channel> clientChannels;
+    private final List<MonitoredRouter> monitoredRouters;
+    private final List<Channel> clientChannels;
 
     private BmpMonitoringStationImpl(final DOMDataBroker domDataBroker, final YangInstanceIdentifier yangMonitorId,
             final Channel channel, final RouterSessionManager sessionManager, final MonitorId monitorId,
@@ -68,19 +68,19 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
         this.channel = Preconditions.checkNotNull(channel);
         this.sessionManager = Preconditions.checkNotNull(sessionManager);
         this.monitorId = monitorId;
-        this.mrs = mrs;
+        this.monitoredRouters = mrs;
         this.clientChannels = new CopyOnWriteArrayList<Channel>();
 
         createEmptyMonitor();
         LOG.info("BMP Monitoring station {} started", this.monitorId.getValue());
 
-        connectMonitoredRouters(dispatcher, mrs);
+        connectMonitoredRouters(dispatcher);
         LOG.info("Connecting to monitored routers completed.");
     }
 
-    private void connectMonitoredRouters(final BmpDispatcher dispatcher, final List<MonitoredRouter> mrs) {
-        if (mrs != null) {
-            for (final MonitoredRouter mr : mrs) {
+    private void connectMonitoredRouters(final BmpDispatcher dispatcher) {
+        if (this.monitoredRouters != null) {
+            for (final MonitoredRouter mr : this.monitoredRouters) {
                 if (mr.getActive()) {
                     Preconditions.checkNotNull(mr.getAddress());
                     Preconditions.checkNotNull(mr.getPort());
@@ -88,10 +88,9 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
                     final InetAddress addr = InetAddresses.forString(s);
                     KeyMapping ret = null;
                     final Rfc2385Key rfc2385KeyPassword = mr.getPassword();
-                    String password;
-                    if (rfc2385KeyPassword != null && !(password = rfc2385KeyPassword.getValue()).isEmpty()) {
+                    if (rfc2385KeyPassword != null && !rfc2385KeyPassword.getValue().isEmpty()) {
                         ret = new KeyMapping();
-                        ret.put(addr, password.getBytes(Charsets.US_ASCII));
+                        ret.put(addr, rfc2385KeyPassword.getValue().getBytes(Charsets.US_ASCII));
                     }
                     try {
                         this.clientChannels.add(dispatcher.createClient(

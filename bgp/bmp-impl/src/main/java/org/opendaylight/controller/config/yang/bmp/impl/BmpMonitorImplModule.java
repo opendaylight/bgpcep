@@ -62,10 +62,9 @@ public class BmpMonitorImplModule extends org.opendaylight.controller.config.yan
                     continue;
                 }
                 final Rfc2385Key rfc2385KeyPassword = mr.getPassword();
-                String password;
-                if (rfc2385KeyPassword != null && !(password = rfc2385KeyPassword.getValue()).isEmpty()) {
+                if (rfc2385KeyPassword != null && !rfc2385KeyPassword.getValue().isEmpty()) {
                     final String s = getAddressString(mr.getAddress());
-                    ret.put(InetAddresses.forString(s), password.getBytes(Charsets.US_ASCII));
+                    ret.put(InetAddresses.forString(s), rfc2385KeyPassword.getValue().getBytes(Charsets.US_ASCII));
                 }
             }
         }
