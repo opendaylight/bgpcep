@@ -53,11 +53,11 @@ public final class TablesUtil {
      */
     public static NodeIdentifierWithPredicates toYangTablesKey(final QName nodeName, final Class<? extends AddressFamily> afi,
             final Class<? extends SubsequentAddressFamily> safi) {
-        final QName AFI_QNAME = QName.cachedReference(QName.create(nodeName, "afi"));
-        final QName SAFI_QNAME = QName.cachedReference(QName.create(nodeName, "safi"));
+        final QName afiQname = QName.cachedReference(QName.create(nodeName, "afi"));
+        final QName safiQname = QName.cachedReference(QName.create(nodeName, "safi"));
         final ImmutableMap<QName, Object> keyValues = ImmutableMap.<QName, Object>of(
-                        AFI_QNAME, BindingReflections.findQName(afi),
-                        SAFI_QNAME, BindingReflections.findQName(safi));
+                        afiQname, BindingReflections.findQName(afi),
+                        safiQname, BindingReflections.findQName(safi));
         return new NodeIdentifierWithPredicates(nodeName, keyValues);
     }
 
