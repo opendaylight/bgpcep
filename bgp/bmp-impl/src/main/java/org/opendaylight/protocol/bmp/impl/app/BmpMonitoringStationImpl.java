@@ -57,8 +57,8 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
     private final RouterSessionManager sessionManager;
     private final Channel channel;
     private final MonitorId monitorId;
-    private final List<MonitoredRouter> mrs;
-    private final CopyOnWriteArrayList<Channel> clientChannels;
+    private final List<MonitoredRouter> monitoredRouters;
+    private final List<Channel> clientChannels;
 
     private BmpMonitoringStationImpl(final DOMDataBroker domDataBroker, final YangInstanceIdentifier yangMonitorId,
             final Channel channel, final RouterSessionManager sessionManager, final MonitorId monitorId,
@@ -68,7 +68,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
         this.channel = Preconditions.checkNotNull(channel);
         this.sessionManager = Preconditions.checkNotNull(sessionManager);
         this.monitorId = monitorId;
-        this.mrs = mrs;
+        this.monitoredRouters = mrs;
         this.clientChannels = new CopyOnWriteArrayList<Channel>();
 
         createEmptyMonitor();
@@ -88,10 +88,9 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
                     final InetAddress addr = InetAddresses.forString(s);
                     KeyMapping ret = null;
                     final Rfc2385Key rfc2385KeyPassword = mr.getPassword();
-                    String password;
-                    if (rfc2385KeyPassword != null && !(password = rfc2385KeyPassword.getValue()).isEmpty()) {
+                    if (rfc2385KeyPassword != null && !rfc2385KeyPassword.getValue().isEmpty()) {
                         ret = new KeyMapping();
-                        ret.put(addr, password.getBytes(Charsets.US_ASCII));
+                        ret.put(addr, rfc2385KeyPassword.getValue().getBytes(Charsets.US_ASCII));
                     }
                     try {
                         this.clientChannels.add(dispatcher.createClient(
