@@ -9,7 +9,6 @@
 package org.opendaylight.protocol.bmp.impl.app;
 
 import static org.opendaylight.protocol.bmp.impl.app.TablesUtil.BMP_TABLES_QNAME;
-
 import com.google.common.base.Preconditions;
 import java.util.HashSet;
 import java.util.Set;
@@ -94,13 +93,10 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     private static final QName STAT7_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "adj-ribs-in-routes"));
     private static final QName STAT8_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "loc-rib-routes"));
     private static final QName STAT9_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "per-afi-safi-adj-rib-in-routes"));
-    private static final QName STAT9_AF_QNAME = QName.cachedReference(QName.create(STAT9_QNAME, "afi-safi"));
     private static final QName AF_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "afi-safi"));
-    private static final QName STAT9_COUNT_QNAME = QName.cachedReference(QName.create(STAT9_AF_QNAME, "count"));
     private static final QName COUNT_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "count"));
     private static final QName STAT10_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "per-afi-safi-loc-rib-routes"));
     private static final QName STAT11_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "updates-treated-as-withdraw"));
-    private static final QName STAT12_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "prefixes-treated-as-withdraw"));
     private static final QName STAT13_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "duplicate-updates"));
 
     private static final InstanceIdentifier<SentOpen> SENT_OPEN_IID = InstanceIdentifier.builder(BmpMonitor.class)

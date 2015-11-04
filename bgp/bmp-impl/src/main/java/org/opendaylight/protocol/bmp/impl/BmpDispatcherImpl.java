@@ -46,8 +46,8 @@ public class BmpDispatcherImpl implements BmpDispatcher {
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
     private final BmpSessionFactory sessionFactory;
-    private final Optional<MD5ServerChannelFactory<?>> scf;
-    private final Optional<MD5ChannelFactory<?>> cf;
+    private final Optional<MD5ServerChannelFactory<?>> md5ServerChFactory;
+    private final Optional<MD5ChannelFactory<?>> md5ChannelFactory;
     private final ReconnectStrategy strategy;
 
     public BmpDispatcherImpl(final EventLoopGroup bossGroup, final EventLoopGroup workerGroup,
@@ -64,8 +64,8 @@ public class BmpDispatcherImpl implements BmpDispatcher {
         this.workerGroup = Preconditions.checkNotNull(workerGroup);
         this.hf = new BmpHandlerFactory(Preconditions.checkNotNull(registry));
         this.sessionFactory = Preconditions.checkNotNull(sessionFactory);
-        this.scf = Preconditions.checkNotNull(scf);
-        this.cf  = Preconditions.checkNotNull(cf);
+        this.md5ServerChFactory = Preconditions.checkNotNull(scf);
+        this.md5ChannelFactory  = Preconditions.checkNotNull(cf);
         this.strategy = Preconditions.checkNotNull(brsf).createReconnectStrategy();
     }
 
@@ -95,9 +95,9 @@ public class BmpDispatcherImpl implements BmpDispatcher {
             }
         });
 
-        ChannelFuture cf = b.connect(address);
-        cf.addListener(new BmpDispatcherImpl.BootstrapListener());
-        return cf;
+        ChannelFuture channelPromise = b.connect(address);
+        channelPromise.addListener(new BmpDispatcherImpl.BootstrapListener());
+        return channelPromise;
     }
 
     @Override
@@ -118,8 +118,8 @@ public class BmpDispatcherImpl implements BmpDispatcher {
         b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
 
         if (keys.isPresent()) {
-            Preconditions.checkState(this.scf.isPresent(), "No server channel factory instance available,  cannot use key mapping.");
-            b.channelFactory(this.scf.get());
+            Preconditions.checkState(this.md5ServerChFactory.isPresent(), "No server channel factory instance available,  cannot use key mapping.");
+            b.channelFactory(this.md5ServerChFactory.get());
             final KeyMapping key = keys.get();
             b.option(MD5ChannelOption.TCP_MD5SIG, key);
             LOG.debug("Adding MD5 keys {} to boostrap {}", key, b);
