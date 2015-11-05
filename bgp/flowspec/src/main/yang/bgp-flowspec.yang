@@ -299,7 +299,6 @@ module bgp-flowspec {
 
     grouping traffic-rate-extended-community {
         container traffic-rate-extended-community {
-            when "../comm-type = 128 and ../comm-sub-type = 6";
             leaf informative-as {
                 type bgp-t:short-as-number;
             }
@@ -311,7 +310,6 @@ module bgp-flowspec {
 
     grouping traffic-action-extended-community {
         container traffic-action-extended-community {
-            when "../comm-type = 128 and ../comm-sub-type = 7";
             leaf sample {
                 type boolean;
                 default false;
@@ -325,7 +323,6 @@ module bgp-flowspec {
 
     grouping redirect-extended-community {
         container redirect-extended-community {
-            when "../comm-type = 128 and ../comm-sub-type = 8";
             leaf global-administrator {
                 type bgp-t:short-as-number;
             }
@@ -339,7 +336,6 @@ module bgp-flowspec {
 
     grouping traffic-marking-extended-community {
         container traffic-marking-extended-community {
-            when "../comm-type = 128 and ../comm-sub-type = 9";
             leaf global-administrator {
                 type dscp;
             }
