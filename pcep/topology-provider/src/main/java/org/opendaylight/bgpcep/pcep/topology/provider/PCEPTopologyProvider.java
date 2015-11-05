@@ -78,7 +78,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
     public void close() throws InterruptedException {
         LOG.debug("Closing server channel {}", this.channel);
 
-        this.channel.close().addListener(new ChannelFutureListener() {
+        this.channel.close().sync().addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(final ChannelFuture f) {
                 LOG.debug("Server channel {} closed", f.channel());
@@ -99,6 +99,6 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
                     LOG.error("Failed to shutdown session manager", e);
                 }
             }
-        }).await();
+        });
     }
 }

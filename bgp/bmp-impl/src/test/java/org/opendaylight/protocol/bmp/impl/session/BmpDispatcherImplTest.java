@@ -98,9 +98,11 @@ public class BmpDispatcherImplTest {
 
     @Test
     public void testCreateServer() throws Exception {
-        final Channel serverChannel = this.dispatcher.createServer(SERVER, this.mockedListenerFactory, Optional.<KeyMapping>absent()).await().channel();
+        final Channel serverChannel = this.dispatcher.createServer(SERVER, this.mockedListenerFactory, Optional
+            .<KeyMapping>absent()).sync().channel();
         Assert.assertTrue(serverChannel.isActive());
-        final Channel clientChannel = this.dispatcher.createClient(CLIENT_REMOTE, this.mockedListenerFactory, Optional.<KeyMapping>absent()).await().channel();
+        final Channel clientChannel = this.dispatcher.createClient(CLIENT_REMOTE, this.mockedListenerFactory,
+            Optional.<KeyMapping>absent()).sync().channel();
         Assert.assertTrue(clientChannel.isActive());
         Thread.sleep(500);
         Mockito.verify(this.mockedSession, Mockito.times(2)).handlerAdded(Mockito.any(ChannelHandlerContext.class));
