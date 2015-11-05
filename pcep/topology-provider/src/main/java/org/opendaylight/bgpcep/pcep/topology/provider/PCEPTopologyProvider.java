@@ -50,7 +50,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
         this.network = Preconditions.checkNotNull(network);
     }
 
-    public static PCEPTopologyProvider create(final PCEPDispatcher dispatcher, final InetSocketAddress address, final KeyMapping keys,
+    public static PCEPTopologyProvider create(final PCEPDispatcher dispatcher, final InetSocketAddress address, final Optional<KeyMapping> keys,
             final InstructionScheduler scheduler, final DataBroker dataBroker, final RpcProviderRegistry rpcRegistry,
             final InstanceIdentifier<Topology> topology, final TopologySessionListenerFactory listenerFactory,
             final Optional<PCEPTopologyProviderRuntimeRegistrator> runtimeRootRegistrator) throws InterruptedException,

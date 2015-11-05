@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
+import com.google.common.base.Optional;
 import io.netty.channel.ChannelFuture;
 import java.net.InetSocketAddress;
 import org.opendaylight.tcpmd5.api.KeyMapping;
@@ -21,5 +22,6 @@ public interface BGPServerDispatcher {
     /**
      * Create new BGP server to accept incoming bgp connections (bound to provided socket address).
      */
-    ChannelFuture createServer(BGPPeerRegistry peerRegistry, InetSocketAddress address, BGPSessionValidator sessionValidator, KeyMapping keys);
+    ChannelFuture createServer(BGPPeerRegistry peerRegistry, InetSocketAddress address, BGPSessionValidator
+        sessionValidator, Optional<KeyMapping> keys);
 }
