@@ -125,7 +125,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         final BGPReconnectPromise reconnectPromise = new BGPReconnectPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE, address,
             connectStrategyFactory, bootstrap, BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.handlerFactory, snf));
         reconnectPromise.connect();
-        this.keys = null;
+        this.keys = Optional.absent();
         return reconnectPromise;
     }
 
