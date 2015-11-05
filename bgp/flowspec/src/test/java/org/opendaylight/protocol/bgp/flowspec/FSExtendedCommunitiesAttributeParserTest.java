@@ -11,6 +11,8 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import com.google.common.collect.Lists;
+import com.google.common.primitives.Bytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
@@ -33,7 +35,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.update.attributes.extended.communities.extended.community.TrafficRateExtendedCommunityCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.ExtendedCommunities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.ExtendedCommunitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ShortAsNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 
 public class FSExtendedCommunitiesAttributeParserTest {
@@ -88,18 +92,41 @@ public class FSExtendedCommunitiesAttributeParserTest {
         assertEquals(expected3.getTrafficMarkingExtendedCommunity().getGlobalAdministrator(),
                 result3.getTrafficMarkingExtendedCommunity().getGlobalAdministrator());
 
-        final ByteBuf serializedBuffer = Unpooled.buffer();
-        parser.serializeAttribute(pa.build(), serializedBuffer);
-        assertArrayEquals(new byte[]{ (byte)192, 16, 32, (byte)128, 6, 0, 72, 0, 1, 2, 3,
-            (byte)128, 7, 0, 0, 0, 0, 0, 3,
-            (byte)128, 8, 0, 35, 4, 2, 8, 7,
-            (byte)128, 9, 0, 0, 0, 0, 0, 63 }, ByteArray.readAllBytes(serializedBuffer));
-
         try {
             parser.parseAttribute(Unpooled.copiedBuffer(new byte[] { 11, 11, 21, 45, 5, 4, 3, 1 }), pa);
             fail("Exception should have occured.");
         } catch (final BGPDocumentedException e) {
             assertEquals("Could not parse Extended Community type: 11", e.getMessage());
         }
+    }
+
+    @Test
+    public void testFsExtendedCommunitesSerializer() {
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.routes.flowspec.routes.flowspec.route.attributes.extended.communities.extended.community.TrafficRateExtendedCommunityCase trafficRate =
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.routes.flowspec.routes.flowspec.route.attributes.extended.communities.extended.community.TrafficRateExtendedCommunityCaseBuilder().setTrafficRateExtendedCommunity(
+                new TrafficRateExtendedCommunityBuilder().setInformativeAs(new ShortAsNumber(72L))
+                    .setLocalAdministrator(new Bandwidth(new byte[] { 0, 1, 2, 3 })).build()).build();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.routes.flowspec.routes.flowspec.route.attributes.extended.communities.extended.community.TrafficActionExtendedCommunityCase trafficAction = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.routes.flowspec.routes.flowspec.route.attributes.extended.communities.extended.community.TrafficActionExtendedCommunityCaseBuilder().setTrafficActionExtendedCommunity(
+                new TrafficActionExtendedCommunityBuilder().setSample(true).setTerminalAction(true).build()).build();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.routes.flowspec.routes.flowspec.route.attributes.extended.communities.extended.community.RedirectExtendedCommunityCase redirect = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.routes.flowspec.routes.flowspec.route.attributes.extended.communities.extended.community.RedirectExtendedCommunityCaseBuilder().setRedirectExtendedCommunity(
+                new RedirectExtendedCommunityBuilder().setGlobalAdministrator(new ShortAsNumber(35L)).setLocalAdministrator(
+                        new byte[] { 4, 2, 8, 7 }).build()).build();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.routes.flowspec.routes.flowspec.route.attributes.extended.communities.extended.community.TrafficMarkingExtendedCommunityCase trafficMarking = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150114.flowspec.routes.flowspec.routes.flowspec.route.attributes.extended.communities.extended.community.TrafficMarkingExtendedCommunityCaseBuilder().setTrafficMarkingExtendedCommunity(
+                new TrafficMarkingExtendedCommunityBuilder().setGlobalAdministrator(new Dscp((short) 63)).build()).build();
+        final AttributesBuilder attrBuilder = new AttributesBuilder();
+        attrBuilder.setExtendedCommunities(Lists.newArrayList(
+                createExtendedCommunities(128, 6, trafficRate),
+                createExtendedCommunities(128, 7, trafficAction),
+                createExtendedCommunities(128, 8, redirect),
+                createExtendedCommunities(128, 9, trafficMarking)));
+
+        final FSExtendedCommunitiesAttributeParser parser = new FSExtendedCommunitiesAttributeParser(this.ref);
+        final ByteBuf serializedBuffer = Unpooled.buffer();
+        parser.serializeAttribute(attrBuilder.build(), serializedBuffer);
+        assertArrayEquals(Bytes.concat(new byte[]{ (byte)192, 16, 32}, communitiesBytes), ByteArray.readAllBytes(serializedBuffer));
+    }
+
+    private static ExtendedCommunities createExtendedCommunities(final int type, final int subtype, final ExtendedCommunity ec) {
+        return new ExtendedCommunitiesBuilder().setCommSubType((short) subtype).setCommType((short) type).setExtendedCommunity(ec).build();
     }
 }
