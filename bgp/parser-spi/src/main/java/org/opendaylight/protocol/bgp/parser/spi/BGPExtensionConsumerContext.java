@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityRegistry;
+
 /**
  * A single instance of a collection of extensions for use by consumers. This provides access to the various BGP-related
  * registries. The registries are read-only and are populated by extension producers.
@@ -25,4 +27,6 @@ public interface BGPExtensionConsumerContext {
     ParameterRegistry getParameterRegistry();
 
     SubsequentAddressFamilyRegistry getSubsequentAddressFamilyRegistry();
+
+    ExtendedCommunityRegistry getExtendedCommunityReistry();
 }

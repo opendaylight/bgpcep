@@ -102,18 +102,33 @@ module bgp-types {
         }
     }
 
+    grouping route-ipv4-extended-community {
+        reference "http://tools.ietf.org/html/rfc4360";
+        leaf global-administrator {
+            type inet:ipv4-address;
+        }
+        leaf local-administrator {
+            type uint16;
+        }
+    }
+
     grouping extended-community {
         leaf comm-type {
+            status deprecated;
             type uint8;
         }
         leaf comm-sub-type {
+            status deprecated;
             type uint8;
+        }
+        leaf transitive {
+            type boolean;
         }
         choice extended-community {
             case as-specific-extended-community-case {
                 container as-specific-extended-community {
-                    when "../comm-type = 0 and ../comm-sub-type = 0 or ../comm-type = 40 and ../comm-sub-type = 0";
                     leaf transitive {
+                        status deprecated;
                         type boolean;
                     }
                     leaf global-administrator {
@@ -128,8 +143,8 @@ module bgp-types {
             }
             case inet4-specific-extended-community-case {
                 container inet4-specific-extended-community {
-                    when "../comm-type = 1 and ../comm-sub-type = 0 or ../comm-type = 41 and ../comm-sub-type = 0";
                     leaf transitive {
+                        status deprecated;
                         type boolean;
                     }
                     leaf global-administrator {
@@ -144,8 +159,8 @@ module bgp-types {
             }
             case opaque-extended-community-case {
                 container opaque-extended-community {
-                    when "../comm-type = 3 and ../comm-sub-type = 0 or ../comm-type = 43 and ../comm-sub-type = 0";
                     leaf transitive {
+                        status deprecated;
                         type boolean;
                     }
                     leaf value {
@@ -157,7 +172,6 @@ module bgp-types {
             }
             case route-target-extended-community-case {
                 container route-target-extended-community {
-                    when "../comm-type = 1 and ../comm-sub-type = 2 or ../comm-type = 2 and ../comm-sub-type = 2 or ../comm-type = 3 and ../comm-sub-type = 2";
                     leaf global-administrator {
                         type short-as-number;
                     }
@@ -170,7 +184,6 @@ module bgp-types {
             }
             case route-origin-extended-community-case {
                 container route-origin-extended-community {
-                    when "../comm-type = 1 and ../comm-sub-type = 3 or ../comm-type = 2 and ../comm-sub-type = 3 or ../comm-type = 3 and ../comm-sub-type = 3";
                     leaf global-administrator {
                         type short-as-number;
                     }
@@ -179,6 +192,18 @@ module bgp-types {
                             length "4";
                         }
                     }
+                }
+            }
+            case route-target-ipv4-case {
+                container route-target-ipv4 {
+                    reference "http://tools.ietf.org/html/rfc4360#section-4";
+                    uses route-ipv4-extended-community;
+                }
+            }
+            case route-origin-ipv4-case {
+                container route-origin-ipv4 {
+                    reference "http://tools.ietf.org/html/rfc4360#section-5";
+                    uses route-ipv4-extended-community;
                 }
             }
         }

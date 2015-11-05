@@ -23,10 +23,13 @@ import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterParser;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
+import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -105,7 +108,7 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
      */
     @Deprecated
     @Override
-    public AutoCloseable registerNlriParser(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi, NlriParser parser) {
+    public AutoCloseable registerNlriParser(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi, final NlriParser parser) {
         return this.getNlriRegistry().registerNlriParser(afi, safi, parser, null, null);
     }
 
@@ -148,8 +151,19 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
     public final synchronized void setMaximumCachedObjects(final int maximumCachedObjects) {
         Preconditions.checkArgument(maximumCachedObjects >= 0);
 
-        Cache<Object, Object> newCache = CacheBuilder.newBuilder().maximumSize(maximumCachedObjects).build();
+        final Cache<Object, Object> newCache = CacheBuilder.newBuilder().maximumSize(maximumCachedObjects).build();
         newCache.putAll(this.cacheRef.get().asMap());
         this.cacheRef.set(newCache);
+    }
+
+    @Override
+    public AutoCloseable registerExtendedCommunitySerializer(final Class<? extends ExtendedCommunity> extendedCommunityClass,
+            final ExtendedCommunitySerializer serializer) {
+        return this.getExtendedCommunityReistry().registerExtendedCommunitySerializer(extendedCommunityClass, serializer);
+    }
+
+    @Override
+    public AutoCloseable registerExtendedCommunityParser(final int type, final int subtype, final ExtendedCommunityParser parser) {
+        return this.getExtendedCommunityReistry().registerExtendedCommunityParser(type, subtype, parser);
     }
 }
