@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
@@ -39,7 +40,7 @@ public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEP
     private final MD5ServerChannelFactory<?> scf;
     private final MD5ChannelFactory<?> cf;
     private final PCEPHandlerFactory hf;
-    private KeyMapping keys;
+    private Optional<KeyMapping> keys;
 
     /**
      * Creates an instance of PCEPDispatcherImpl, gets the default selector and opens it.
@@ -88,27 +89,27 @@ public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEP
 
     @Override
     protected void customizeBootstrap(final Bootstrap b) {
-        if (this.keys != null && !this.keys.isEmpty()) {
+        if (this.keys.isPresent()) {
             if (this.cf == null) {
                 throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
             }
 
             LOG.debug("Adding MD5 keys {} to boostrap {}", this.keys, b);
             b.channelFactory(this.cf);
-            b.option(MD5ChannelOption.TCP_MD5SIG, this.keys);
+            b.option(MD5ChannelOption.TCP_MD5SIG, this.keys.get());
         }
     }
 
     @Override
     protected void customizeBootstrap(final ServerBootstrap b) {
-        if (this.keys != null && !this.keys.isEmpty()) {
+        if (this.keys.isPresent()) {
             if (this.scf == null) {
                 throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
             }
 
             LOG.debug("Adding MD5 keys {} to boostrap {}", this.keys, b);
             b.channelFactory(this.scf);
-            b.option(MD5ChannelOption.TCP_MD5SIG, this.keys);
+            b.option(MD5ChannelOption.TCP_MD5SIG, this.keys.get());
         }
 
         // Make sure we are doing round-robin processing
@@ -118,7 +119,7 @@ public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEP
     @Override
     public synchronized ChannelFuture createServer(final InetSocketAddress address, final KeyMapping keys,
         final SessionListenerFactory<PCEPSessionListener> listenerFactory) {
-        this.keys = keys;
+        this.keys = keys == null || keys.isEmpty() ? Optional.<KeyMapping>absent() : Optional.of(keys);
         final ChannelFuture ret = super.createServer(address, new PipelineInitializer<PCEPSessionImpl>() {
             @Override
             public void initializeChannel(final SocketChannel ch, final Promise<PCEPSessionImpl> promise) {
@@ -128,7 +129,7 @@ public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEP
             }
         });
 
-        this.keys = null;
+        this.keys = Optional.absent();
         return ret;
     }
 }

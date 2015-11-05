@@ -12,6 +12,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -164,13 +165,13 @@ public final class Main {
         return new InetSocketAddress(hostAndPort.getHostText(), hostAndPort.getPort());
     }
 
-    private static KeyMapping getKeyMapping(final InetAddress inetAddress, final String password) {
-        if (password != null) {
-            final KeyMapping keyMapping = new KeyMapping();
-            keyMapping.put(inetAddress, password.getBytes(Charsets.US_ASCII));
-            return keyMapping;
+    private static Optional<KeyMapping> getKeyMapping(final InetAddress inetAddress, final String password) {
+        if (password == null) {
+            return Optional.absent();
         }
-        return null;
+        final KeyMapping keyMapping = new KeyMapping();
+        keyMapping.put(inetAddress, password.getBytes(Charsets.US_ASCII));
+        return Optional.of(keyMapping);
     }
 
     private static Open getOpenMessage(final short keepalive, final short deadtimer) {
