@@ -135,11 +135,6 @@ public class BmpDispatcherImpl implements BmpDispatcher {
 
     @Override
     public void close() {
-        try {
-            this.workerGroup.shutdownGracefully();
-        } finally {
-            this.bossGroup.shutdownGracefully();
-        }
     }
 
     private class BootstrapListener implements ChannelFutureListener {

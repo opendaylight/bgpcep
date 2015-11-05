@@ -109,11 +109,6 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
 
     @Override
     public void close() {
-        try {
-            this.workerGroup.shutdownGracefully();
-        } finally {
-            this.bossGroup.shutdownGracefully();
-        }
     }
 
     @Override
