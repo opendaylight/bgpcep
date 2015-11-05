@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock;
 
+import com.google.common.base.Optional;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -38,7 +39,7 @@ public final class PCCDispatcher extends PCEPDispatcherImpl {
     private InetSocketAddress localAddress;
     private final PCEPHandlerFactory factory;
     private final MD5ChannelFactory<?> cf;
-    private KeyMapping keys;
+    private Optional<KeyMapping> keys;
 
     public PCCDispatcher(final MessageRegistry registry,
             final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> negotiatorFactory) {
@@ -49,13 +50,13 @@ public final class PCCDispatcher extends PCEPDispatcherImpl {
 
     @Override
     protected void customizeBootstrap(final Bootstrap b) {
-        if (this.keys != null && !this.keys.isEmpty()) {
+        if (this.keys.isPresent()) {
             if (this.cf == null) {
                 throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
             }
 
             b.channelFactory(this.cf);
-            b.option(MD5ChannelOption.TCP_MD5SIG, this.keys);
+            b.option(MD5ChannelOption.TCP_MD5SIG, this.keys.get());
         }
         if (this.localAddress != null) {
             b.localAddress(this.localAddress);
@@ -64,7 +65,7 @@ public final class PCCDispatcher extends PCEPDispatcherImpl {
 
     public synchronized void createClient(final InetSocketAddress localAddress, final InetSocketAddress remoteAddress,
             final ReconnectStrategyFactory strategyFactory, final SessionListenerFactory<PCEPSessionListener> listenerFactory,
-            final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> negotiatorFactory, final KeyMapping keys) {
+            final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> negotiatorFactory, final Optional<KeyMapping> keys) {
         this.localAddress = localAddress;
         this.keys = keys;
         super.createReconnectingClient(remoteAddress, strategyFactory, new PipelineInitializer<PCEPSessionImpl>() {
@@ -77,7 +78,7 @@ public final class PCCDispatcher extends PCEPDispatcherImpl {
             }
         });
         this.localAddress = null;
-        this.keys = null;
+        this.keys = Optional.absent();
     }
 
     private static final class DeafultKeyAccessFactory {

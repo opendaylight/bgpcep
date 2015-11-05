@@ -17,6 +17,8 @@
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.google.common.net.InetAddresses;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
@@ -209,17 +211,15 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
     }
 
     private io.netty.util.concurrent.Future<Void> initiateConnection(final InetSocketAddress address, final String password, final AsNumber remoteAs, final BGPPeerRegistry registry) {
-        final KeyMapping keys;
-        if (password != null) {
-            keys = new KeyMapping();
-            keys.put(address.getAddress(), password.getBytes(Charsets.US_ASCII));
-        } else {
-            keys = null;
+        KeyMapping keymap = null;
+        if (!Strings.isNullOrEmpty(password)) {
+            keymap = new KeyMapping();
+            keymap.put(address.getAddress(), password.getBytes(Charsets.US_ASCII));
         }
 
         final RIB rib = getRibDependency();
         return rib.getDispatcher().createReconnectingClient(address, remoteAs, registry, rib.getTcpStrategyFactory(),
-            rib.getSessionStrategyFactory(), keys);
+            rib.getSessionStrategyFactory(), Optional.fromNullable(keymap));
     }
 
     private BGPPeerRegistry getPeerRegistryBackwards() {
