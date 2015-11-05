@@ -109,7 +109,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
         final ChannelFuture f = b.bind(address);
         LOG.debug("Initiated server {} at {}.", f, address);
 
-        this.keys = null;
+        this.keys = Optional.absent();
         return f;
     }
 
