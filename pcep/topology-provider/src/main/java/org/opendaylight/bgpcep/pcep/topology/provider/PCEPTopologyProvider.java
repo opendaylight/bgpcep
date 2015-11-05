@@ -11,7 +11,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
@@ -76,29 +75,27 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
 
     @Override
     public void close() throws InterruptedException {
-        LOG.debug("Closing server channel {}", this.channel);
+        try {
+            final ChannelFuture futureClose = this.channel.close().sync();
+            LOG.debug("Server channel {} closed", futureClose.channel());
+        } catch (InterruptedException e) {
+            LOG.error("Failed to close channel", this.channel);
+        }
 
-        this.channel.close().addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(final ChannelFuture f) {
-                LOG.debug("Server channel {} closed", f.channel());
-
-                try {
-                    PCEPTopologyProvider.this.network.close();
-                } catch (final Exception e) {
-                    LOG.error("Failed to unregister network-level RPCs", e);
-                }
-                try {
-                    PCEPTopologyProvider.this.element.close();
-                } catch (final Exception e) {
-                    LOG.error("Failed to unregister element-level RPCs", e);
-                }
-                try {
-                    PCEPTopologyProvider.this.manager.close();
-                } catch (final Exception e) {
-                    LOG.error("Failed to shutdown session manager", e);
-                }
-            }
-        }).await();
+        try {
+            PCEPTopologyProvider.this.network.close();
+        } catch (final Exception e) {
+            LOG.error("Failed to unregister network-level RPCs", e);
+        }
+        try {
+            PCEPTopologyProvider.this.element.close();
+        } catch (final Exception e) {
+            LOG.error("Failed to unregister element-level RPCs", e);
+        }
+        try {
+            PCEPTopologyProvider.this.manager.close();
+        } catch (final Exception e) {
+            LOG.error("Failed to shutdown session manager", e);
+        }
     }
 }
