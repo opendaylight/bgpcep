@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
+import com.google.common.base.Optional;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
@@ -38,5 +39,5 @@ public interface BGPDispatcher extends BGPServerDispatcher {
 
     Future<Void> createReconnectingClient(InetSocketAddress address, AsNumber remoteAs,
                                           BGPPeerRegistry peerRegistry, ReconnectStrategyFactory connectStrategyFactory,
-            ReconnectStrategyFactory reestablishStrategyFactory, KeyMapping keys);
+            ReconnectStrategyFactory reestablishStrategyFactory, Optional<KeyMapping> keys);
 }

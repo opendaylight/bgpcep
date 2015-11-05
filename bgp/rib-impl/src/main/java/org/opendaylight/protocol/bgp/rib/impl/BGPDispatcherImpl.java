@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.base.Optional;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -37,7 +38,7 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
     private final MD5ServerChannelFactory<?> scf;
     private final MD5ChannelFactory<?> cf;
     private final BGPHandlerFactory hf;
-    private KeyMapping keys;
+    private Optional<KeyMapping> keys;
     private static final String NEGOTIATOR = "negotiator";
 
     public BGPDispatcherImpl(final MessageRegistry messageRegistry, final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
@@ -70,7 +71,7 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
         final AsNumber remoteAs, final BGPPeerRegistry listener, final ReconnectStrategyFactory connectStrategyFactory,
         final ReconnectStrategyFactory reestablishStrategyFactory) {
         return this.createReconnectingClient(address, remoteAs, listener, connectStrategyFactory, reestablishStrategyFactory,
-            null);
+            Optional.<KeyMapping>absent());
     }
 
     @Override
@@ -80,7 +81,7 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
     @Override
     public synchronized Future<Void> createReconnectingClient(final InetSocketAddress address,
         final AsNumber remoteAs, final BGPPeerRegistry peerRegistry, final ReconnectStrategyFactory connectStrategyFactory,
-        final ReconnectStrategyFactory reestablishStrategyFactory, final KeyMapping keys) {
+        final ReconnectStrategyFactory reestablishStrategyFactory, final Optional<KeyMapping> keys) {
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(remoteAs, peerRegistry);
 
         this.keys = keys;
@@ -92,18 +93,19 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
                 ch.pipeline().addLast(BGPDispatcherImpl.this.hf.getEncoders());
             }
         });
-        this.keys = null;
+        this.keys = Optional.absent();
 
         return ret;
     }
 
     @Override
     public ChannelFuture createServer(final BGPPeerRegistry registry, final InetSocketAddress address, final BGPSessionValidator sessionValidator) {
-        return this.createServer(registry, address, sessionValidator, null);
+        return this.createServer(registry, address, sessionValidator, Optional.<KeyMapping>absent());
     }
 
     @Override
-    public ChannelFuture createServer(final BGPPeerRegistry registry, final InetSocketAddress address, final BGPSessionValidator sessionValidator, final KeyMapping keys) {
+    public ChannelFuture createServer(final BGPPeerRegistry registry, final InetSocketAddress address,
+                                      final BGPSessionValidator sessionValidator, final Optional<KeyMapping> keys) {
         final BGPServerSessionNegotiatorFactory snf = new BGPServerSessionNegotiatorFactory(sessionValidator, registry);
 
         this.keys = keys;
@@ -115,19 +117,19 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
                 ch.pipeline().addLast(BGPDispatcherImpl.this.hf.getEncoders());
             }
         });
-        this.keys = null;
+        this.keys = Optional.absent();
 
         return ret;
     }
 
     @Override
     protected void customizeBootstrap(final Bootstrap b) {
-        if (this.keys != null && !this.keys.isEmpty()) {
+        if (this.keys.isPresent()) {
             if (this.cf == null) {
                 throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
             }
             b.channelFactory(this.cf);
-            b.option(MD5ChannelOption.TCP_MD5SIG, this.keys);
+            b.option(MD5ChannelOption.TCP_MD5SIG, this.keys.get());
         }
 
         // Make sure we are doing round-robin processing
@@ -136,12 +138,12 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 
     @Override
     protected void customizeBootstrap(final ServerBootstrap b) {
-        if (this.keys != null && !this.keys.isEmpty()) {
+        if (this.keys.isPresent()) {
             if (this.scf == null) {
                 throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
             }
             b.channelFactory(this.scf);
-            b.option(MD5ChannelOption.TCP_MD5SIG, this.keys);
+            b.option(MD5ChannelOption.TCP_MD5SIG, this.keys.get());
         }
 
         // Make sure we are doing round-robin processing
