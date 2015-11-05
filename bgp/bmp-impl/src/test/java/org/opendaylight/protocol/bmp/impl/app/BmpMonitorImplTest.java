@@ -319,7 +319,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             final List<Peer> peersAfterDown = getBmpData(routerIId).get().getPeer();
             assertTrue(peersAfterDown.isEmpty());
 
-            channel.close().await();
+            channel.close().sync();
             Thread.sleep(500);
             final Monitor monitorAfterClose = getBmpData(monitorIId).get();
             assertTrue(monitorAfterClose.getRouter().isEmpty());

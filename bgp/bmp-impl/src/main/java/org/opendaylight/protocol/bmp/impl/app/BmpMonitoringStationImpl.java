@@ -158,10 +158,10 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
             public void operationComplete(final ChannelFuture channelFuture) throws Exception {
                 BmpMonitoringStationImpl.this.sessionManager.close();
             }
-        }).await();
+        }).sync();
 
         for (final Channel ch : BmpMonitoringStationImpl.this.clientChannels) {
-            ch.close().await();
+            ch.close().sync();
         }
 
         final DOMDataWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
