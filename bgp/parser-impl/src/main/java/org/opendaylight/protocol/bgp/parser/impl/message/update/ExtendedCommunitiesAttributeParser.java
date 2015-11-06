@@ -199,10 +199,18 @@ public class ExtendedCommunitiesAttributeParser implements AttributeParser,Attri
         }
         final ByteBuf extendedCommunitiesBuffer = Unpooled.buffer();
         for (final ExtendedCommunities extendedCommunities : communitiesList) {
-            serializeHeader(extendedCommunities, extendedCommunitiesBuffer);
-            serializeExtendedCommunity(extendedCommunities, extendedCommunitiesBuffer);
+            final ByteBuf ecBuffer = Unpooled.buffer(EXTENDED_COMMUNITY_LENGTH);
+            serializeExtendedCommunity(extendedCommunities, ecBuffer);
+            //check if extended community value was serialized
+            if (ecBuffer.readableBytes() >= EXTENDED_COMMUNITY_LENGTH) {
+                serializeHeader(extendedCommunities, extendedCommunitiesBuffer);
+                extendedCommunitiesBuffer.writeBytes(ecBuffer);
+            }
         }
-        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL | AttributeUtil.TRANSITIVE, TYPE, extendedCommunitiesBuffer, byteAggregator);
+        //check if some extended communities were serialized
+        if (extendedCommunitiesBuffer.readableBytes() > 0) {
+            AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL | AttributeUtil.TRANSITIVE, TYPE, extendedCommunitiesBuffer, byteAggregator);
+        }
     }
 
     protected void serializeHeader(final ExtendedCommunities extendedCommunities, final ByteBuf extendedCommunitiesBuffer) {

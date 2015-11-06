@@ -131,8 +131,6 @@ public class FSExtendedCommunitiesAttributeParser extends ExtendedCommunitiesAtt
             final TrafficMarkingExtendedCommunity trafficMarking = ((TrafficMarkingExtendedCommunityCase) ex).getTrafficMarkingExtendedCommunity();
             buffer.writeZero(RESERVED);
             ByteBufWriteUtil.writeUnsignedByte(trafficMarking.getGlobalAdministrator().getValue().shortValue(), buffer);
-        } else {
-            super.serializeExtendedCommunity(exCommunities, buffer);
         }
     }
 }
