@@ -242,7 +242,13 @@
           <type>xml</type>
           <classifier>config-example</classifier>
       </dependency>
-       <dependency>
+      <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>bgp-controller-config</artifactId>
+          <type>xml</type>
+          <classifier>openconfig-config</classifier>
+      </dependency>
+      <dependency>
           <groupId>${project.groupId}</groupId>
           <artifactId>data-change-counter-controller-config</artifactId>
           <type>xml</type>
