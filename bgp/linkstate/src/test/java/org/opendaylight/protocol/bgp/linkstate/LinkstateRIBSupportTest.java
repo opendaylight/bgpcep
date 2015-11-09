@@ -151,7 +151,12 @@ public class LinkstateRIBSupportTest {
         final ImmutableLeafNodeBuilder<byte[]> isoSystemID = new ImmutableLeafNodeBuilder<>();
         isoSystemID.withNodeIdentifier(NodeNlriParser.ISO_SYSTEM_NID);
         isoSystemID.withValue(new byte[]{0, 0, 0, 0, 0, (byte) 0x39});
-        isisNode.addChild(isoSystemID.build());
+
+        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> isisRouter = Builders.containerBuilder();
+        isisRouter.withNodeIdentifier(NodeNlriParser.ISIS_ROUTER_NID);
+        isisRouter.addChild(isoSystemID.build());
+
+        isisNode.addChild(isisRouter.build());
         isisNode.addChild(Builders.leafBuilder().withNodeIdentifier(NodeNlriParser.PSN_NID).withValue((short) 5).build());
         crouterId.addChild(isisNode.build());
 
