@@ -171,6 +171,11 @@ public class IPAddressesAndPrefixesTest {
         assertTrue(prefs.isEmpty());
     }
 
+    @Test
+    public void testFullFormOfIpv6() {
+        assertEquals("0:0:0:0:0:0:0:1", Ipv6Util.getFullForm(new Ipv6Address("::1")));
+    }
+
     @Test(expected=UnsupportedOperationException.class)
     public void testIpv4UtilPrivateConstructor() throws Throwable {
         final Constructor<Ipv4Util> c = Ipv4Util.class.getDeclaredConstructor();

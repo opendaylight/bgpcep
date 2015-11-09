@@ -7,9 +7,11 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
+import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 
 /**
@@ -63,7 +65,11 @@ public class StrictBgpPeerRegistryModule extends org.opendaylight.controller.con
 
         @Override
         public void removePeer(final IpAddress ip) {
-            this.global.removePeer(ip);
+            if (ip.getIpv6Address() != null) {
+                this.global.removePeer(new IpAddress(new Ipv6Address(Ipv6Util.getFullForm(ip.getIpv6Address()))));
+            } else {
+                this.global.removePeer(ip);
+            }
         }
 
         @Override
@@ -73,7 +79,11 @@ public class StrictBgpPeerRegistryModule extends org.opendaylight.controller.con
 
         @Override
         public void addPeer(final IpAddress ip, final ReusableBGPPeer peer, final BGPSessionPreferences preferences) {
-            this.global.addPeer(ip, peer, preferences);
+            if (ip.getIpv6Address() != null) {
+                this.global.addPeer(new IpAddress(new Ipv6Address(Ipv6Util.getFullForm(ip.getIpv6Address()))), peer, preferences);
+            } else {
+                this.global.addPeer(ip, peer, preferences);
+            }
         }
 
         @Override
