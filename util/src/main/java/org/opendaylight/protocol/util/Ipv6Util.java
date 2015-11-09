@@ -50,10 +50,20 @@ public final class Ipv6Util {
     }
 
     /**
+     * Creates uncompressed IP Address
+     *
+     * @param ip to be uncompressed
+     * @return Ipv6Address with same, but uncompressed, value
+     */
+    public static String getFullForm(final Ipv6Address ip) {
+        return InetAddresses.forString(ip.getValue()).getHostAddress();
+    }
+
+    /**
      * Reads from ByteBuf buffer and converts bytes to Ipv6Address.
      *
      * @param buffer containing Ipv6 address, starting at reader index
-     * @return Ipv4Address
+     * @return Ipv6Address
      */
     public static Ipv6Address addressForByteBuf(final ByteBuf buffer) {
         return new Ipv6Address(InetAddresses.toAddrString(getAddress((ByteArray.readBytes(buffer, IPV6_LENGTH)))));
@@ -96,7 +106,7 @@ public final class Ipv6Util {
     }
 
     /**
-     * Converts Ipv4Prefix to byte array. Prefix length at the beginning.
+     * Converts Ipv6Prefix to byte array. Prefix length at the beginning.
      * Prefix bytes are trimmed from the end to match prefix length.
      *
      * @param prefix Ipv6Prefix to be converted
