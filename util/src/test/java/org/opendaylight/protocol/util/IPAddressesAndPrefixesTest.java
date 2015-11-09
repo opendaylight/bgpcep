@@ -13,7 +13,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -169,6 +168,11 @@ public class IPAddressesAndPrefixesTest {
 
         prefs = Ipv6Util.prefixListForBytes(new byte[] {});
         assertTrue(prefs.isEmpty());
+    }
+
+    @Test
+    public void testFullFormOfIpv6() {
+        assertEquals(new Ipv6Address("0:0:0:0:0:0:0:1"), Ipv6Util.getFullForm(new Ipv6Address("::1")));
     }
 
     @Test(expected=UnsupportedOperationException.class)
