@@ -162,7 +162,7 @@ public class LinkstateNlriParserTest {
         assertEquals(new DomainIdentifier(0x28282828L), nodeD.getDomainId());
         assertEquals(new IsisPseudonodeCaseBuilder().setIsisPseudonode(
             new IsisPseudonodeBuilder().setPsn((short) 5).setIsIsRouterIdentifier(
-               new IsIsRouterIdentifierBuilder().setIsoSystemId(new IsoSystemIdentifier(new byte[] { 0, 0, 0, 0, 0, (byte) 0x39 })).build()).build()).build(), nodeD.getCRouterIdentifier());
+                new IsIsRouterIdentifierBuilder().setIsoSystemId(new IsoSystemIdentifier(new byte[]{0, 0, 0, 0, 0, (byte) 0x39})).build()).build()).build(), nodeD.getCRouterIdentifier());
 
         final ByteBuf buffer = Unpooled.buffer();
         LinkstateNlriParser.serializeNlri(this.dest, buffer);
@@ -211,8 +211,13 @@ public class LinkstateNlriParserTest {
 
         final ImmutableLeafNodeBuilder<byte[]> isoSystemID = new ImmutableLeafNodeBuilder<>();
         isoSystemID.withNodeIdentifier(NodeNlriParser.ISO_SYSTEM_NID);
-        isoSystemID.withValue(new byte[] { 0, 0, 0, 0, 0, (byte) 0x39 });
-        isisNode.addChild(isoSystemID.build());
+        isoSystemID.withValue(new byte[]{0, 0, 0, 0, 0, (byte) 0x39});
+
+        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> isisPseudoRouter = Builders.containerBuilder();
+        isisPseudoRouter.withNodeIdentifier(NodeNlriParser.ISIS_ROUTER_NID);
+        isisPseudoRouter.addChild(isoSystemID.build());
+
+        isisNode.addChild(isisPseudoRouter.build());
         isisNode.addChild(Builders.leafBuilder().withNodeIdentifier(NodeNlriParser.PSN_NID).withValue((short) 5).build());
         crouterId.addChild(isisNode.build());
 
@@ -300,9 +305,13 @@ public class LinkstateNlriParserTest {
 
         final ImmutableLeafNodeBuilder<byte[]> isoSystemID = new ImmutableLeafNodeBuilder<>();
         isoSystemID.withNodeIdentifier(NodeNlriParser.ISO_SYSTEM_NID);
-        isoSystemID.withValue(new byte[] { 0, 0, 0, 0, 0, (byte) 0x42 });
+        isoSystemID.withValue(new byte[]{0, 0, 0, 0, 0, (byte) 0x42});
 
-        isisNode.addChild(isoSystemID.build());
+        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> isisRouter = Builders.containerBuilder();
+        isisRouter.withNodeIdentifier(NodeNlriParser.ISIS_ROUTER_NID);
+        isisRouter.addChild(isoSystemID.build());
+
+        isisNode.addChild(isisRouter.build());
         crouterId.addChild(isisNode.build());
         localNodeDescriptors.addChild(crouterId.build());
 
@@ -451,9 +460,13 @@ public class LinkstateNlriParserTest {
 
         final ImmutableLeafNodeBuilder<byte[]> isoSystemID = new ImmutableLeafNodeBuilder<>();
         isoSystemID.withNodeIdentifier(NodeNlriParser.ISO_SYSTEM_NID);
-        isoSystemID.withValue(new byte[] { 0, 0, 0, 0, 0, (byte) 0x42 });
+        isoSystemID.withValue(new byte[]{0, 0, 0, 0, 0, (byte) 0x42});
 
-        isisNode.addChild(isoSystemID.build());
+        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> isisRouter = Builders.containerBuilder();
+        isisRouter.withNodeIdentifier(NodeNlriParser.ISIS_ROUTER_NID);
+        isisRouter.addChild(isoSystemID.build());
+
+        isisNode.addChild(isisRouter.build());
         crouterId.addChild(isisNode.build());
         advertisingNodeDescriptors.addChild(crouterId.build());
 
