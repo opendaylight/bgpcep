@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dabed58f_490501c1",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/StrictBgpPeerRegistryModule.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-11-09T21:04:17Z",
+      "side": 1,
+      "message": "changing the code here may lead to another bug - peer won\u0027t get removed from registry.",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 13
+      },
+      "revId": "29e0d9aff726d2418c18d3e07e55bd4df2299338",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dabed58f_a9683d88",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/Ipv6Util.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-11-09T21:04:17Z",
+      "side": 1,
+      "message": "return InetAddresses.forString(ip.getValue()).getHostAddress();",
+      "range": {
+        "startLine": 59,
+        "startChar": 8,
+        "endLine": 59,
+        "endChar": 97
+      },
+      "revId": "29e0d9aff726d2418c18d3e07e55bd4df2299338",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
