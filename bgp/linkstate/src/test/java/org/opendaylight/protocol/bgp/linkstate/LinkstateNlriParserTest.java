@@ -211,8 +211,13 @@ public class LinkstateNlriParserTest {
 
         final ImmutableLeafNodeBuilder<byte[]> isoSystemID = new ImmutableLeafNodeBuilder<>();
         isoSystemID.withNodeIdentifier(NodeNlriParser.ISO_SYSTEM_NID);
-        isoSystemID.withValue(new byte[] { 0, 0, 0, 0, 0, (byte) 0x39 });
-        isisNode.addChild(isoSystemID.build());
+        isoSystemID.withValue(new byte[]{0, 0, 0, 0, 0, (byte) 0x39});
+
+        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> isisPseudoRouter = Builders.containerBuilder();
+        isisPseudoRouter.withNodeIdentifier(NodeNlriParser.ISIS_ROUTER_NID);
+        isisPseudoRouter.addChild(isoSystemID.build());
+
+        isisNode.addChild(isisPseudoRouter.build());
         isisNode.addChild(Builders.leafBuilder().withNodeIdentifier(NodeNlriParser.PSN_NID).withValue((short) 5).build());
         crouterId.addChild(isisNode.build());
 
