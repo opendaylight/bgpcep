@@ -109,6 +109,8 @@ public final class NodeNlriParser {
     @VisibleForTesting
     public static final NodeIdentifier ISO_SYSTEM_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "iso-system-id")));
     @VisibleForTesting
+    public static final NodeIdentifier ISIS_ROUTER_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "is-is-router-identifier")));
+    @VisibleForTesting
     public static final NodeIdentifier PSN_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "psn")));
     @VisibleForTesting
     public static final NodeIdentifier OSPF_ROUTER_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "ospf-router-id")));
@@ -252,12 +254,15 @@ public final class NodeNlriParser {
     }
 
     private static IsisPseudonodeCase serializeIsisPseudoNode(final ContainerNode pseudoIsisNode) {
-        final IsisPseudonodeCaseBuilder builder = new IsisPseudonodeCaseBuilder();
-        final IsisPseudonodeBuilder nodeBuilder = new IsisPseudonodeBuilder();
         final IsIsRouterIdentifierBuilder isisRouterId = new IsIsRouterIdentifierBuilder();
-        if (pseudoIsisNode.getChild(ISO_SYSTEM_NID).isPresent()) {
-            isisRouterId.setIsoSystemId(new IsoSystemIdentifier((byte[]) pseudoIsisNode.getChild(ISO_SYSTEM_NID).get().getValue()));
+        if (pseudoIsisNode.getChild(ISIS_ROUTER_NID).isPresent()) {
+            final ContainerNode isisRouterNid = (ContainerNode) pseudoIsisNode.getChild(ISIS_ROUTER_NID).get();
+            if (isisRouterNid.getChild(ISO_SYSTEM_NID).isPresent()) {
+                isisRouterId.setIsoSystemId(new IsoSystemIdentifier((byte[]) isisRouterNid.getChild(ISO_SYSTEM_NID).get().getValue()));
+            }
         }
+
+        final IsisPseudonodeBuilder nodeBuilder = new IsisPseudonodeBuilder();
         nodeBuilder.setIsIsRouterIdentifier(isisRouterId.build());
 
         if (pseudoIsisNode.getChild(PSN_NID).isPresent()) {
@@ -265,8 +270,8 @@ public final class NodeNlriParser {
         } else {
             nodeBuilder.setPsn((short) 0);
         }
-        builder.setIsisPseudonode(nodeBuilder.build());
-        return builder.build();
+
+        return new IsisPseudonodeCaseBuilder().setIsisPseudonode(nodeBuilder.build()).build();
     }
 
     private static OspfNodeCase serializeOspfNode(final ContainerNode ospf) {
