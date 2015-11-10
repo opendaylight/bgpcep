@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bab3e1c7_c85d6f4a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/StrictBgpPeerRegistryModule.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-11-10T08:30:39Z",
+      "side": 1,
+      "message": "-a repetitive code\n-see my comment in previous patchset",
+      "range": {
+        "startLine": 82,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 13
+      },
+      "revId": "6f89b2338e0a7dffc0f4d76d7a39d6aecd28b77b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
