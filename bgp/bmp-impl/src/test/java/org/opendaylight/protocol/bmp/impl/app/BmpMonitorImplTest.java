@@ -14,7 +14,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
@@ -25,7 +24,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.util.concurrent.GlobalEventExecutor;;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetSocketAddress;
 import java.util.List;
 import javassist.ClassPool;
@@ -294,7 +293,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             assertEquals(tlvs.getPerAfiSafiLocRibTlv().getCount().toString(), peerStats.getPerAfiSafiLocRibRoutes().getAfiSafi().get(0).getCount().toString());
 
             // route mirror message test
-            RouteMirroringMessage routeMirrorMsg = TestUtil.createRouteMirrorMsg(PEER1);
+            final RouteMirroringMessage routeMirrorMsg = TestUtil.createRouteMirrorMsg(PEER1);
             channel.writeAndFlush(routeMirrorMsg);
             Thread.sleep(500);
             final Mirrors routeMirrors = getBmpData(peerIId.child(Mirrors.class)).get();
@@ -324,7 +323,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             final Monitor monitorAfterClose = getBmpData(monitorIId).get();
             assertTrue(monitorAfterClose.getRouter().isEmpty());
         } catch (final Exception e) {
-            StringBuffer ex = new StringBuffer();
+            final StringBuffer ex = new StringBuffer();
             ex.append(e.getMessage() + "\n");
             for (final StackTraceElement element: e.getStackTrace()) {
                 ex.append(element.toString() + "\n");
