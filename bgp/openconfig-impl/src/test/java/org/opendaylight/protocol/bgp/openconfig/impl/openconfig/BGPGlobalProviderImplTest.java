@@ -49,17 +49,17 @@ public class BGPGlobalProviderImplTest {
         final BGPConfigStateStore stateHolders = Mockito.mock(BGPConfigStateStore.class);
         final BGPConfigHolder<Global> configHolder = Mockito.mock(BGPConfigHolder.class);
         Mockito.doReturn(configHolder).when(stateHolders).getBGPConfigHolder(Mockito.any(Class.class));
-        globalProvider = new BGPGlobalProviderImpl(txChain, stateHolders);
+        this.globalProvider = new BGPGlobalProviderImpl(txChain, stateHolders);
     }
 
     @Test
     public void testCreateModuleKey() {
-        assertEquals(new ModuleKey("instanceName", RibImpl.class), globalProvider.createModuleKey("instanceName"));
+        assertEquals(new ModuleKey("instanceName", RibImpl.class), this.globalProvider.createModuleKey("instanceName"));
     }
 
     @Test
     public void testApply() {
-        final Global global = globalProvider.apply(new BGPRibInstanceConfiguration(new InstanceConfigurationIdentifier("instanceName"), new AsNumber(1L),
+        final Global global = this.globalProvider.apply(new BGPRibInstanceConfiguration(new InstanceConfigurationIdentifier("instanceName"), new AsNumber(1L),
                 new Ipv4Address("1.2.3.4"), null,
                 Lists.<BgpTableType>newArrayList(new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class))));
         final Global expectedGlobal = new GlobalBuilder()
@@ -72,17 +72,19 @@ public class BGPGlobalProviderImplTest {
 
     @Test
     public void testGetInstanceIdentifierString() {
-        assertEquals(InstanceIdentifier.builder(Bgp.class).child(Global.class).build(), globalProvider.getInstanceIdentifier(null));
+        assertEquals(InstanceIdentifier.builder(Bgp.class).child(Global.class).build(), this.globalProvider.getInstanceIdentifier(null));
     }
 
     @Test
     public void testKeyForConfigurationGlobal() {
-        assertEquals(GlobalIdentifier.GLOBAL_IDENTIFIER, globalProvider.keyForConfiguration(new GlobalBuilder().build()));
+        final GlobalIdentifier globalId = (GlobalIdentifier) this.globalProvider.keyForConfiguration(new GlobalBuilder().build());
+        assertEquals(GlobalIdentifier.GLOBAL_IDENTIFIER, globalId);
+        assertEquals("GLOBAL", globalId.getName());
     }
 
     @Test
     public void testGetInstanceConfigurationType() {
-        assertEquals(BGPRibInstanceConfiguration.class, globalProvider.getInstanceConfigurationType());
+        assertEquals(BGPRibInstanceConfiguration.class, this.globalProvider.getInstanceConfigurationType());
     }
 
 }
