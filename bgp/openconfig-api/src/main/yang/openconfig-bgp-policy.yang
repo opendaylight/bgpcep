@@ -1,4 +1,4 @@
-module bgp-policy {
+module openconfig-bgp-policy {
 
   yang-version "1";
 
@@ -8,11 +8,11 @@ module bgp-policy {
   prefix "bgp-pol";
 
   // import some basic types
-  import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
-  import routing-policy {prefix rpol; revision-date 2015-05-15; }
-  import policy-types { prefix pt; revision-date 2015-05-15; }
-  import bgp-types { prefix bgp-types; revision-date 2015-05-15; }
-
+  import ietf-inet-types { prefix inet; }
+  import openconfig-routing-policy {prefix rpol; }
+  import openconfig-policy-types { prefix pt; }
+  import openconfig-bgp-types { prefix bgp-types; }
+  import openconfig-extensions { prefix oc-ext; }
 
 
   // meta
@@ -28,10 +28,18 @@ module bgp-policy {
     It augments the base routing-policy module with BGP-specific
     options for conditions and actions.";
 
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2015-10-09" {
+    description
+      "Initial OpenConfig public release";
+    reference "1.1.0";
+  }
+
   revision "2015-05-15" {
     description
       "Updated model to augment base routing-policy module";
-    reference "TBD";
+    reference "Pre-release";
   }
 
   // extension statements
@@ -129,7 +137,7 @@ module bgp-policy {
           path "/rpol:routing-policy/rpol:defined-sets/" +
             "bgp-pol:bgp-defined-sets/bgp-pol:community-sets/" +
             "bgp-pol:community-set/bgp-pol:community-set-name";
-          //require-instance true;
+          require-instance true;
         }
         description
           "References a defined community set";
@@ -152,7 +160,7 @@ module bgp-policy {
             "bgp-pol:bgp-defined-sets/bgp-pol:ext-community-sets/" +
             "bgp-pol:ext-community-set/" +
             "bgp-pol:ext-community-set-name";
-          //require-instance true;
+          require-instance true;
         }
         description "References a defined extended community set";
       }
@@ -173,7 +181,7 @@ module bgp-policy {
           path "/rpol:routing-policy/rpol:defined-sets/" +
             "bgp-pol:bgp-defined-sets/bgp-pol:as-path-sets/" +
             "bgp-pol:as-path-set/bgp-pol:as-path-set-name";
-          //require-instance true;
+          require-instance true;
         }
         description "References a defined AS path set";
       }
@@ -205,6 +213,15 @@ module bgp-policy {
       description
         "List of next hop addresses to check for in the route
         update";
+    }
+
+    leaf-list afi-safi-in {
+      type identityref {
+        base "bgp-types:afi-safi-type";
+      }
+      description
+        "List of address families which the NLRI may be
+        within";
     }
 
     leaf local-pref-eq {
@@ -423,7 +440,7 @@ module bgp-policy {
                   "bgp-pol:bgp-defined-sets/" +
                   "bgp-pol:community-sets/bgp-pol:community-set/" +
                   "bgp-pol:community-set-name";
-                //require-instance true;
+                require-instance true;
               }
               description
                 "References a defined community set by name";
@@ -472,7 +489,7 @@ module bgp-policy {
                   "bgp-pol:ext-community-sets/" +
                   "bgp-pol:ext-community-set/" +
                   "bgp-pol:ext-community-set-name";
-                //require-instance true;
+                require-instance true;
               }
               description
                 "References a defined extended community set by

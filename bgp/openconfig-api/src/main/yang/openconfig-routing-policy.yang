@@ -1,4 +1,4 @@
-module routing-policy {
+module openconfig-routing-policy {
 
   yang-version "1";
 
@@ -8,9 +8,9 @@ module routing-policy {
   prefix "rpol";
 
   // import some basic types
-  import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
-  import policy-types {prefix pt; revision-date 2015-05-15; }
-
+  import ietf-inet-types { prefix inet; }
+  import openconfig-policy-types { prefix pt; }
+  import openconfig-extensions { prefix oc-ext; }
 
   // meta
   organization
@@ -76,12 +76,19 @@ module routing-policy {
     the remaining conditions (using a modified route if the
     subroutine performed any changes to the route).";
 
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2015-10-09" {
+    description
+      "Initial OpenConfig public release";
+    reference "1.1.0";
+  }
+
   revision "2015-05-15" {
     description
       "Initial revision";
-    reference "TBD";
+    reference "Pre-release";
   }
-
 
   // typedef statements
 
@@ -101,6 +108,121 @@ module routing-policy {
 
   // grouping statements
 
+  grouping prefix-set {
+    description
+      "Data definition for a list of IPv4 or IPv6 prefixes which
+      are matched as part of a policy";
+
+    list prefix-set {
+      key prefix-set-name;
+      description
+        "List of the defined prefix sets";
+
+      leaf prefix-set-name {
+        type string;
+        description
+          "name / label of the prefix set -- this is used to
+          reference the set in match conditions";
+      }
+
+      list prefix {
+        key "ip-prefix masklength-range";
+        description
+          "List of prefix expressions that are part of the set";
+
+        leaf ip-prefix {
+          type inet:ip-prefix;
+          mandatory true;
+          description
+            "The prefix member in CIDR notation -- while the
+            prefix may be either IPv4 or IPv6, most
+            implementations require all members of the prefix set
+            to be the same address family.  Mixing address types in
+            the same prefix set is likely to cause an error.";
+        }
+
+        leaf masklength-range {
+          type string {
+            pattern '^([0-9]+\.\.[0-9]+)|exact$';
+          }
+          description
+            "Defines a range for the masklength, or 'exact' if
+            the prefix has an exact length.
+
+            Example: 10.3.192.0/21 through 10.3.192.0/24 would be
+            expressed as prefix: 10.3.192.0/21,
+            masklength-range: 21..24.
+
+            Example: 10.3.192.0/21 would be expressed as
+            prefix: 10.3.192.0/21,
+            masklength-range: exact";
+        }
+      }
+    }
+  }
+
+  grouping neighbor-set {
+    description
+      "Data definition for a list of IPv4 or IPv6 neighbors which can
+      be matched in a routing policy";
+
+    list neighbor-set {
+      key neighbor-set-name;
+      description
+          "Definitions for neighbor sets";
+
+      leaf neighbor-set-name {
+        type string;
+        description
+            "name / label of the neighbor set -- this is used to
+            reference the set in match conditions";
+      }
+
+      list neighbor {
+        key "address";
+        description
+            "list of addresses that are part of the neighbor set";
+
+        leaf address {
+          type inet:ip-address;
+          description
+              "IP address of the neighbor set member";
+        }
+      }
+    }
+  }
+
+  grouping tag-set {
+    description
+      "Data definitions for a list of tags which can be matched
+      in policies";
+
+    list tag-set {
+      key tag-set-name;
+      description
+        "Definitions for tag sets";
+
+      leaf tag-set-name {
+        type string;
+        description
+          "name / label of the tag set -- this is used to reference
+          the set in match conditions";
+      }
+
+      list tag {
+        key "value";
+        description
+          "list of tags that are part of the tag set";
+
+        leaf value {
+          type pt:tag-type;
+          description
+            "Value of the tag set member";
+        }
+      }
+    }
+  }
+
   grouping generic-defined-sets {
     description
       "Data definitions for pre-defined sets of attributes used in
@@ -112,112 +234,21 @@ module routing-policy {
       description
         "Enclosing container for defined prefix sets for matching";
 
-      list prefix-set {
-        key prefix-set-name;
-        description
-          "List of the defined prefix sets";
-
-        leaf prefix-set-name {
-          type string;
-          description
-            "name / label of the prefix set -- this is used to
-            reference the set in match conditions";
-        }
-
-        list prefix {
-          key "ip-prefix masklength-range";
-          description
-            "List of prefix expressions that are part of the set";
-
-          leaf ip-prefix {
-            type inet:ip-prefix;
-            mandatory true;
-            description
-              "The prefix member in CIDR notation -- while the
-              prefix may be either IPv4 or IPv6, most
-              implementations require all members of the prefix set
-              to be the same address family.  Mixing address types in
-              the same prefix set is likely to cause an error.";
-          }
-
-          leaf masklength-range {
-            type string {
-              pattern '^([0-9]+\.\.[0-9]+)|exact$';
-            }
-            description
-              "Defines a range for the masklength, or 'exact' if
-              the prefix has an exact length.
-
-              Example: 10.3.192.0/21 through 10.3.192.0/24 would be
-              expressed as prefix: 10.3.192.0/21,
-              masklength-range: 21..24.
-
-              Example: 10.3.192.0/21 would be expressed as
-              prefix: 10.3.192.0/21,
-              masklength-range: exact";
-          }
-        }
-      }
+      uses prefix-set;
     }
 
     container neighbor-sets {
       description
         "Enclosing container for defined neighbor sets for matching";
 
-      list neighbor-set {
-        key neighbor-set-name;
-        description
-            "Definitions for neighbor sets";
-
-        leaf neighbor-set-name {
-          type string;
-          description
-              "name / label of the neighbor set -- this is used to
-              reference the set in match conditions";
-        }
-
-        list neighbor {
-          key "address";
-          description
-              "list of addresses that are part of the neighbor set";
-
-          leaf address {
-            type inet:ip-address;
-            description
-                "IP address of the neighbor set member";
-          }
-        }
-      }
+      uses neighbor-set;
     }
 
     container tag-sets {
       description
         "Enclosing container for defined tag sets for matching";
 
-      list tag-set {
-        key tag-set-name;
-        description
-          "Definitions for tag sets";
-
-        leaf tag-set-name {
-          type string;
-          description
-            "name / label of the tag set -- this is used to reference
-            the set in match conditions";
-        }
-
-        list tag {
-          key "value";
-          description
-            "list of tags that are part of the tag set";
-
-          leaf value {
-            type pt:tag-type;
-            description
-              "Value of the tag set member";
-          }
-        }
-      }
+      uses tag-set;
     }
   }
 
@@ -390,103 +421,109 @@ module routing-policy {
     }
   }
 
-  container routing-policy {
+  grouping routing-policy-top {
     description
-      "top-level container for all routing policy configuration";
+      "Top level container for OpenConfig routing policy";
 
-    container defined-sets {
+    container routing-policy {
       description
-          "Predefined sets of attributes used in policy match
-          statements";
+        "top-level container for all routing policy configuration";
 
-      uses generic-defined-sets;
-      // uses bgp-defined-sets;
-      // don't see a need for IGP-specific defined sets at this point
-      // e.g., for OSPF, IS-IS, etc.
-    }
-
-    container policy-definitions {
-      description
-        "Enclosing container for the list of top-level policy
-        definitions";
-
-      list policy-definition {
-
-        key name;
+      container defined-sets {
         description
-          "List of top-level policy definitions, keyed by unique
-          name.  These policy definitions are expected to be
-          referenced (by name) in policy chains specified in import/
-          export configuration statements.";
+            "Predefined sets of attributes used in policy match
+            statements";
 
+        uses generic-defined-sets;
+        // uses bgp-defined-sets;
+        // don't see a need for IGP-specific defined sets at this
+        // point e.g., for OSPF, IS-IS, etc.
+      }
 
-        leaf name {
-          type string;
+      container policy-definitions {
+        description
+          "Enclosing container for the list of top-level policy
+          definitions";
+
+        list policy-definition {
+
+          key name;
           description
-              "Name of the top-level policy definition -- this name
-                is used in references to the current policy";
-        }
+            "List of top-level policy definitions, keyed by unique
+            name.  These policy definitions are expected to be
+            referenced (by name) in policy chains specified in import
+            or export configuration statements.";
 
-        container statements {
-          description
-            "Enclosing container for policy statements";
 
-          list statement {
-            key name;
-            // TODO: names of policy statements within a policy defn
-            // should be optional, however, YANG requires a unique id
-            // for lists; not sure that a compound key works either;
-            // need to investigate further.
-            ordered-by user;
+          leaf name {
+            type string;
             description
-              "Policy statements group conditions and actions within
-              a policy definition.  They are evaluated in the order
-              specified (see the description of policy evaluation
-              at the top of this module.";
+                "Name of the top-level policy definition -- this name
+                  is used in references to the current policy";
+          }
 
-            leaf name {
-              type string;
-              description "name of the policy statement";
-            }
+          container statements {
+            description
+              "Enclosing container for policy statements";
 
-            container conditions {
+            list statement {
+              key name;
+              // TODO: names of policy statements within a policy
+              // definition should be optional, however, YANG
+              // requires a unique id for lists; not sure that a
+              // compound key works either -- need to investigate
+              // further.
+              ordered-by user;
+              description
+                "Policy statements group conditions and actions
+                within a policy definition.  They are evaluated in
+                the order specified (see the description of policy
+                evaluation at the top of this module.";
 
-              description "Condition statements for this
-                policy statement";
-
-              leaf call-policy {
-                type leafref {
-                  path "/rpol:routing-policy/" +
-                    "rpol:policy-definitions/" +
-                    "rpol:policy-definition/rpol:name";
-                  //TODO: require-instance should be added when it's
-                  //supported in YANG 1.1
-                  //require-instance true;
-                }
-                description
-                  "Applies the statements from the specified policy
-                  definition and then returns control the current
-                  policy statement. Note that the called policy may
-                  itself call other policies (subject to
-                  implementation limitations). This is intended to
-                  provide a policy 'subroutine' capability.  The
-                  called policy should contain an explicit or a
-                  default route disposition that returns an effective
-                  true (accept-route) or false (reject-route),
-                  otherwise the behavior may be ambiguous and
-                  implementation dependent";
+              leaf name {
+                type string;
+                description "name of the policy statement";
               }
-              uses generic-conditions;
-              uses igp-conditions;
-            }
 
-            container actions {
+              container conditions {
 
-              description "Action statements for this policy
-                    statement";
+                description "Condition statements for this
+                  policy statement";
 
-              uses generic-actions;
-              uses igp-actions;
+                leaf call-policy {
+                  type leafref {
+                    path "/rpol:routing-policy/" +
+                      "rpol:policy-definitions/" +
+                      "rpol:policy-definition/rpol:name";
+                    //TODO: require-instance should be added when
+                    //it is supported in YANG 1.1
+                    //require-instance true;
+                  }
+                  description
+                    "Applies the statements from the specified policy
+                    definition and then returns control the current
+                    policy statement. Note that the called policy may
+                    itself call other policies (subject to
+                    implementation limitations). This is intended to
+                    provide a policy 'subroutine' capability.  The
+                    called policy should contain an explicit or a
+                    default route disposition that returns an
+                    effective true (accept-route) or false
+                    (reject-route), otherwise the behavior may be
+                    ambiguous and implementation dependent";
+                }
+                uses generic-conditions;
+                uses igp-conditions;
+              }
+
+              container actions {
+
+                description "Action statements for this policy
+                      statement";
+
+                uses generic-actions;
+                uses igp-actions;
+              }
             }
           }
         }
@@ -586,4 +623,7 @@ module routing-policy {
       }
     }
   }
+
+  uses routing-policy-top;
+
 }

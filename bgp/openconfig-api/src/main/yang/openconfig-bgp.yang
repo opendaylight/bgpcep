@@ -1,4 +1,4 @@
-module bgp {
+module openconfig-bgp {
 
   yang-version "1";
 
@@ -8,12 +8,12 @@ module bgp {
   prefix "bgp";
 
   // import some basic inet types
-  import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
-  import bgp-multiprotocol { prefix bgp-mp; revision-date 2015-05-15; }
-  import routing-policy { prefix rpol; revision-date 2015-05-15; }
-  import bgp-types { prefix bgp-types; revision-date 2015-05-15; }
-  import bgp-operational { prefix bgp-op; revision-date 2015-05-15; }
-  import yang-ext { prefix ext; revision-date 2013-07-09; }
+  import ietf-inet-types { prefix inet; }
+  import openconfig-bgp-multiprotocol { prefix bgp-mp; }
+  import openconfig-routing-policy { prefix rpol; }
+  import openconfig-bgp-types { prefix bgp-types; }
+  import openconfig-bgp-operational { prefix bgp-op; }
+  import openconfig-extensions { prefix oc-ext; }
 
   // meta
   organization
@@ -48,10 +48,18 @@ module bgp {
           +-> [ optional pointer to peer-group ]
           +-> AFI / SAFI [ per-AFI overrides ]";
 
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2015-10-09" {
+    description
+      "Initial OpenConfig public release";
+    reference "1.1.0";
+  }
+
   revision "2015-05-15" {
       description
-        "";
-      reference "TBD";
+        "Refactored BGP module";
+      reference "Pre-release";
   }
 
   grouping bgp-global_config {
@@ -417,7 +425,7 @@ module bgp {
       type leafref {
         // we are at /bgp/neighbors/neighbor/
         path "/bgp/peer-groups/peer-group/peer-group-name";
-        //require-instance true;
+        require-instance true;
       }
       description
         "The peer-group with which this neighbor is associated";
@@ -576,7 +584,9 @@ module bgp {
         uniquely identified by peer IPv[46] address";
 
       leaf neighbor-address {
-        type inet:ip-address;
+        type leafref {
+          path "../config/neighbor-address";
+        }
         description
           "Reference to the address of the BGP neighbor used as
           a key in the neighbor list";
@@ -596,7 +606,9 @@ module bgp {
         uniquely identified by peer-group name";
 
     leaf peer-group-name {
-        type string;
+      type leafref {
+        path "../config/peer-group-name";
+      }
       description
         "Reference to the name of the BGP peer-group used as a
         key in the peer-group list";
@@ -809,7 +821,6 @@ module bgp {
     description
       "Augmentation to allow association of a neighbor with a
       peer-group";
-    ext:augment-identifier config-1;
     uses bgp-neighbor-peer-group_config;
   }
 
@@ -817,7 +828,6 @@ module bgp {
     description
       "Augmentation to reflect the association of a neighbor with a
       peer-group";
-    ext:augment-identifier state-1;
     uses bgp-neighbor-peer-group_config;
   }
 
@@ -864,7 +874,6 @@ module bgp {
   }
 
   augment /bgp/neighbors/neighbor/config {
-    ext:augment-identifier config-2;
     description
       "Augmentation adding the neighbor address to the
       neighbor configuration container";
@@ -872,7 +881,6 @@ module bgp {
   }
 
   augment /bgp/neighbors/neighbor/state {
-    ext:augment-identifier state-2;
     description
       "Augmentation adding the neighbor address to the
       neighbor state container";
@@ -880,7 +888,6 @@ module bgp {
   }
 
   augment /bgp/peer-groups/peer-group/config {
-    ext:augment-identifier config-3;
     description
       "Augmentation adding the peer-group name to the
       peer-group configuration container";
@@ -888,7 +895,6 @@ module bgp {
   }
 
   augment /bgp/peer-groups/peer-group/state {
-    ext:augment-identifier state-3;
     description
       "Augmentation adding the peer-group name to the
       peer-group state container";
@@ -995,32 +1001,41 @@ module bgp {
     uses bgp-op:bgp-neighbor-afi-safi-graceful-restart_state;
   }
 
-  // ************************************************************
+  grouping bgp-top {
+    description
+      "Top-level grouping for the BGP model data";
+
+    container bgp {
+      presence "Container for BGP protocol hierarchy";
+      description
+        "Top-level configuration and state for the BGP router";
+
+      container global {
+        description
+          "Global configuration for the BGP router";
+          uses bgp-global-base;
+          uses rpol:apply-policy-group;
+      }
+
+      container neighbors {
+        description
+          "Configuration for BGP neighbors";
+        uses bgp-neighbors;
+      }
+
+      container peer-groups {
+        description
+          "Configuration for BGP peer-groups";
+        uses bgp-peer-group;
+      }
+    }
+  }
+
+   // ************************************************************
   // *              module structure containers                 *
   // ************************************************************
 
-  container bgp {
-    presence "Container for BGP protocol hierarchy";
-    description
-      "Top-level configuration and state for the BGP router";
+  uses bgp-top;
 
-    container global {
-      description
-        "Global configuration for the BGP router";
-        uses bgp-global-base;
-        uses rpol:apply-policy-group;
-    }
-
-    container neighbors {
-      description
-        "Configuration for BGP neighbors";
-      uses bgp-neighbors;
-    }
-
-    container peer-groups {
-      description
-        "Configuration for BGP peer-groups";
-      uses bgp-peer-group;
-    }
-  }
 }
+

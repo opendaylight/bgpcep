@@ -1,4 +1,4 @@
-module bgp-operational {
+module openconfig-bgp-operational {
 
   yang-version "1";
 
@@ -9,9 +9,10 @@ module bgp-operational {
   prefix "bgp-op";
 
   // import some basic inet types
-  import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
-  import ietf-yang-types { prefix yang; revision-date 2010-09-24; }
-  import bgp-types { prefix bgp-types; revision-date 2015-05-15; }
+  import ietf-inet-types { prefix inet; }
+  import ietf-yang-types { prefix yang; }
+  import openconfig-bgp-types { prefix bgp-types; }
+  import openconfig-extensions { prefix oc-ext; }
 
   // meta
 
@@ -27,11 +28,18 @@ module bgp-operational {
     configuration, focusing on operational data (i.e., state
     variables) related to BGP operations";
 
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2015-10-09" {
+    description
+      "Initial OpenConfig public release";
+    reference "1.1.0";
+  }
 
   revision "2015-05-15" {
     description
       "Initial revision";
-    reference "TBD";
+    reference "Pre-release";
   }
 
   // extension statements

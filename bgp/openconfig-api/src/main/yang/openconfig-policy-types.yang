@@ -1,4 +1,4 @@
-module policy-types {
+module openconfig-policy-types {
 
   yang-version "1";
 
@@ -8,8 +8,8 @@ module policy-types {
   prefix "ptypes";
 
   // import some basic types
-  import ietf-yang-types { prefix yang; revision-date 2010-09-24; }
-
+  import ietf-yang-types { prefix yang; }
+  import openconfig-extensions { prefix oc-ext; }
 
   // meta
   organization
@@ -24,10 +24,18 @@ module policy-types {
     policy.  It can be imported by modules that contain protocol-
     specific policy conditions and actions.";
 
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2015-10-09" {
+    description
+      "Initial OpenConfig public release";
+    reference "1.1.0";
+  }
+
   revision "2015-05-15" {
     description
       "Initial revision";
-    reference "TBD";
+    reference "Pre-release";
   }
 
   // identity statements
@@ -118,7 +126,7 @@ module policy-types {
   typedef tag-type {
     type union {
       type uint32;
-      type string;
+      type yang:hex-string;
     }
     description "type for expressing route tags on a local system,
     including IS-IS and OSPF; may be expressed as either decimal or
