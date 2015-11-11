@@ -40,7 +40,7 @@ public final class ClusterIdAttributeParser implements AttributeParser, Attribut
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
         Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
         final ClusterId cid = ((Attributes) attribute).getClusterId();
-        if (cid == null) {
+        if (cid == null || cid.getCluster().isEmpty()) {
             return;
         }
         final ByteBuf clusterIdBuffer = Unpooled.buffer();
