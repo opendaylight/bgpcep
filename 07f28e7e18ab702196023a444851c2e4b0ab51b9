@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ab8dda7_ad1cc9c2",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/Ipv6Util.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-11-11T01:33:33Z",
+      "side": 1,
+      "message": "return IpAddress or Ipv6Address",
+      "range": {
+        "startLine": 58,
+        "startChar": 18,
+        "endLine": 58,
+        "endChar": 24
+      },
+      "revId": "07f28e7e18ab702196023a444851c2e4b0ab51b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
