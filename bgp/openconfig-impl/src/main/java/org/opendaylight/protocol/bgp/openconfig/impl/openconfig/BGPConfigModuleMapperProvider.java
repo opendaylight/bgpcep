@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.openconfig.impl.openconfig;
 
 import static org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil.APPLICATION_PEER_GROUP_NAME;
 import static org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil.BGP_IID;
-
 import com.google.common.base.Preconditions;
 import java.util.Collections;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
@@ -25,12 +24,12 @@ import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigStateStore;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenconfigMapper;
 import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfiguration;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.BgpBuilder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.NeighborsBuilder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.PeerGroupsBuilder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.peer.group.PeerGroup;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.peer.group.PeerGroupBuilder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.peer.group.PeerGroupKey;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroup;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroupBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroupKey;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.BgpBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.NeighborsBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.PeerGroupsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -9,7 +9,6 @@
 package org.opendaylight.protocol.bgp.openconfig.impl.openconfig;
 
 import static org.junit.Assert.assertEquals;
-
 import com.google.common.collect.Lists;
 import java.util.Collections;
 import org.junit.Before;
@@ -22,12 +21,12 @@ import org.opendaylight.protocol.bgp.openconfig.impl.util.GlobalIdentifier;
 import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfigurationIdentifier;
 import org.opendaylight.protocol.bgp.openconfig.spi.pojo.BGPRibInstanceConfiguration;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev150515.bgp.common.afi.safi.list.AfiSafiBuilder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.Bgp;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.Global;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.GlobalBuilder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.global.base.AfiSafisBuilder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.global.base.ConfigBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.AfiSafisBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.ConfigBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.GlobalBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
@@ -72,7 +71,7 @@ public class BGPGlobalProviderImplTest {
 
     @Test
     public void testGetInstanceIdentifierString() {
-        assertEquals(InstanceIdentifier.builder(Bgp.class).child(Global.class).build(), globalProvider.getInstanceIdentifier(null));
+        assertEquals(InstanceIdentifier.create(Bgp.class).child(Global.class), globalProvider.getInstanceIdentifier(null));
     }
 
     @Test

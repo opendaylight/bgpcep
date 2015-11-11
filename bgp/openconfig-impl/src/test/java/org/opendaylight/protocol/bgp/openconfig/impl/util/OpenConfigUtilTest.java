@@ -11,7 +11,6 @@ package org.opendaylight.protocol.bgp.openconfig.impl.util;
 import static org.junit.Assert.assertEquals;
 import static org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil.getModuleName;
 import static org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil.toAfiSafi;
-
 import com.google.common.collect.Lists;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -20,9 +19,9 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev150515.bgp.common.afi.safi.list.AfiSafi;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev150515.bgp.common.afi.safi.list.AfiSafiBuilder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev150515.Ipv4Unicast;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
@@ -40,13 +39,13 @@ public class OpenConfigUtilTest {
     @Test
     public void testToAfiSafi() {
         assertEquals(toAfiSafi(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)).get(),
-                new AfiSafiBuilder().setAfiSafiName(Ipv4Unicast.class).build());
+                new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build());
     }
 
     @Test
     public void testToAfiSafis() {
         final List<AfiSafi> afiSafis = OpenConfigUtil.toAfiSafis(Lists.<BgpTableType>newArrayList(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)));
-        Assert.assertEquals(Collections.singletonList(new AfiSafiBuilder().setAfiSafiName(Ipv4Unicast.class).build()), afiSafis);
+        Assert.assertEquals(Collections.singletonList(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build()), afiSafis);
     }
 
     @Test(expected=UnsupportedOperationException.class)
