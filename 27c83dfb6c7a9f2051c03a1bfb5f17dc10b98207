@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9ab8dda7_56635a1a",
+        "filename": "bgp/flowspec/src/main/yang/bgp-flowspec.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-11-11T23:10:18Z",
+      "side": 1,
+      "message": "good point...renamed to \"redirect-as4...\"",
+      "parentUuid": "9ab8dda7_5037e2b0",
+      "range": {
+        "startLine": 348,
+        "startChar": 13,
+        "endLine": 348,
+        "endChar": 43
+      },
+      "revId": "27c83dfb6c7a9f2051c03a1bfb5f17dc10b98207",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9ab8dda7_30cfceb2",
         "filename": "bgp/flowspec/src/main/yang/bgp-flowspec.yang",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "9ab8dda7_96a9d226",
+        "filename": "bgp/flowspec/src/main/yang/bgp-flowspec.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-11-11T23:10:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9ab8dda7_30cfceb2",
+      "range": {
+        "startLine": 350,
+        "startChar": 0,
+        "endLine": 355,
+        "endChar": 13
+      },
+      "revId": "27c83dfb6c7a9f2051c03a1bfb5f17dc10b98207",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9ab8dda7_4d18ad84",
         "filename": "bgp/flowspec/src/main/yang/bgp-flowspec.yang",
         "patchSetId": 1
@@ -59,6 +107,30 @@
       "writtenOn": "2015-11-11T07:34:11Z",
       "side": 1,
       "message": "aren\u0027t you missing \"redirect-as-extended-community-case\" here?",
+      "range": {
+        "startLine": 462,
+        "startChar": 8,
+        "endLine": 462,
+        "endChar": 9
+      },
+      "revId": "27c83dfb6c7a9f2051c03a1bfb5f17dc10b98207",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ab8dda7_f6acce37",
+        "filename": "bgp/flowspec/src/main/yang/bgp-flowspec.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-11-11T23:10:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9ab8dda7_4d18ad84",
       "range": {
         "startLine": 462,
         "startChar": 8,
