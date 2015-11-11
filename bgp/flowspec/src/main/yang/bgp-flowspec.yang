@@ -361,6 +361,18 @@ module bgp-flowspec {
         }
     }
 
+    grouping redirect-ip-nh-extended-community {
+        reference "https://tools.ietf.org/html/draft-ietf-idr-flowspec-redirect-ip-02";
+        container redirect-ip-nh-extended-community {
+            leaf next-hop-address {
+                type inet:ip-address;
+            }
+            leaf copy {
+                type boolean;
+            }
+        }
+    }
+
     grouping flowspec-routes {
         container flowspec-routes {
             list flowspec-route {
@@ -395,6 +407,9 @@ module bgp-flowspec {
                         }
                         case redirect-as4-extended-community-case {
                             uses redirect-as4-extended-community;
+                        }
+                        case redirect-ip-nh-extended-community-case {
+                            uses redirect-ip-nh-extended-community;
                         }
                     }
                 }
@@ -437,6 +452,9 @@ module bgp-flowspec {
                         case redirect-as4-extended-community-case {
                             uses redirect-as4-extended-community;
                         }
+                        case redirect-ip-nh-extended-community-case {
+                            uses redirect-ip-nh-extended-community;
+                        }
                     }
                 }
             }
@@ -462,6 +480,9 @@ module bgp-flowspec {
         }
         case redirect-as4-extended-community-case {
             uses redirect-as4-extended-community;
+        }
+        case redirect-ip-nh-extended-community-case {
+            uses redirect-ip-nh-extended-community;
         }
     }
 
