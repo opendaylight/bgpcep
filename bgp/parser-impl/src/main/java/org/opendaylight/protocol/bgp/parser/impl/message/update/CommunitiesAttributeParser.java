@@ -81,9 +81,8 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
         Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
-        final Attributes pathAttributes = (Attributes) attribute;
-        final List<Communities> communities = pathAttributes.getCommunities();
-        if (communities == null) {
+        final List<Communities> communities = ((Attributes) attribute).getCommunities();
+        if (communities == null || communities.isEmpty()) {
             return;
         }
         final ByteBuf communitiesBuffer = Unpooled.buffer();
