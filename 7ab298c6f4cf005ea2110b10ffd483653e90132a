@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ab8dda7_50d04253",
+        "filename": "bgp/concepts/src/main/yang/bgp-types.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-11-11T09:33:28Z",
+      "side": 1,
+      "message": "Why not local-administrator? Then it could be used under \nredirect-ipv4-extended-community model too.",
+      "range": {
+        "startLine": 110,
+        "startChar": 13,
+        "endLine": 110,
+        "endChar": 28
+      },
+      "revId": "7ab298c6f4cf005ea2110b10ffd483653e90132a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
