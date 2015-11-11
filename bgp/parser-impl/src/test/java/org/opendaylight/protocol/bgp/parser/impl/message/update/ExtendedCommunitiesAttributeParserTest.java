@@ -11,6 +11,8 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 import com.google.common.primitives.Bytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,6 +62,23 @@ public class ExtendedCommunitiesAttributeParserTest {
         final ByteBuf output = Unpooled.buffer(INPUT.length);
         handler.serializeAttribute(attBuilder.build(), output);
         Assert.assertArrayEquals(Bytes.concat(new byte[] {(byte)192, 16, 8}, INPUT), ByteArray.readAllBytes(output));
+    }
+
+    @Test
+    public void testEmptyListExtendedCommunityAttributeParser() throws BGPDocumentedException, BGPParsingException {
+        final List<ExtendedCommunities> extendedCommunitiesList = new ArrayList<>();
+        final AttributesBuilder attBuilder = new AttributesBuilder().setExtendedCommunities(extendedCommunitiesList);
+        final ByteBuf output = Unpooled.buffer();
+
+        handler.serializeAttribute(attBuilder.build(), output);
+        Assert.assertEquals(output, output);
+    }
+
+    @Test
+    public void testEmptyExtendedCommunityAttributeParser() throws BGPDocumentedException, BGPParsingException {
+        final ByteBuf output = Unpooled.buffer();
+        handler.serializeAttribute(new AttributesBuilder().build(), output);
+        Assert.assertEquals( Unpooled.buffer(), output);
     }
 
     @Test
