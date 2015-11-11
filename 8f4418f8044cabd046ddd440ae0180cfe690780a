@@ -22,6 +22,30 @@
       "revId": "8f4418f8044cabd046ddd440ae0180cfe690780a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ab8dda7_b63096e9",
+        "filename": "bgp/openconfig-api/src/main/yang/openconfig-bgp.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-11-11T16:45:53Z",
+      "side": 0,
+      "message": "They define an unmovable name, I think it should be fine either way.",
+      "parentUuid": "9ab8dda7_bbd71fed",
+      "range": {
+        "startLine": 812,
+        "startChar": 8,
+        "endLine": 812,
+        "endChar": 26
+      },
+      "revId": "8f4418f8044cabd046ddd440ae0180cfe690780a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
