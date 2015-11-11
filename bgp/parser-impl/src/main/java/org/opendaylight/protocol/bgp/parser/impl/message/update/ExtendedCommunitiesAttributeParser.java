@@ -50,7 +50,7 @@ public final class ExtendedCommunitiesAttributeParser implements AttributeParser
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
         Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
         final List<ExtendedCommunities> communitiesList = ((Attributes) attribute).getExtendedCommunities();
-        if (communitiesList == null) {
+        if (communitiesList == null || communitiesList.isEmpty()) {
             return;
         }
         final ByteBuf extendedCommunitiesBuffer = Unpooled.buffer();
