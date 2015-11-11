@@ -1,0 +1,70 @@
+/*
+ * Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
+package org.opendaylight.protocol.bgp.parser.impl.message.update;
+
+import com.google.common.collect.Lists;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import java.util.List;
+import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.ClusterIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
+
+public class ClusterIdAttributeParserTest extends TestCase {
+    ClusterIdAttributeParser parser;
+    @Before public void setUp() {
+        this.parser = new ClusterIdAttributeParser();
+    }
+
+    private static final byte[] clusterIdBytes = {(byte) 0x80, (byte) 0x0A, (byte) 0x08,
+        (byte) 0xC0, (byte) 0xA8, (byte) 0x1, (byte) 0x1,
+        (byte) 0xC0, (byte) 0xA8, (byte) 0x1, (byte) 0x2};
+
+    public void testParserAttribute() throws Exception {
+        final List<ClusterIdentifier> list = Lists.newArrayList();
+        final Ipv4Address ip1 = new Ipv4Address("192.168.1.1");
+        final Ipv4Address ip2 = new Ipv4Address("192.168.1.2");
+        list.add(new ClusterIdentifier(ip1));
+        list.add(new ClusterIdentifier(ip2));
+        final Attributes clusterId = new AttributesBuilder().setClusterId(new ClusterIdBuilder().setCluster
+            (list).build()).build();
+
+
+        final ByteBuf output = Unpooled.buffer();
+        this.parser.serializeAttribute(clusterId,output);
+
+        Assert.assertArrayEquals(clusterIdBytes, ByteArray.getAllBytes(output));
+
+        AttributesBuilder clusterIdOutput = new AttributesBuilder();
+        this.parser.parseAttribute(Unpooled.wrappedBuffer(ByteArray.cutBytes(clusterIdBytes, 3)),clusterIdOutput);
+        Assert.assertEquals(clusterId,clusterIdOutput.build());
+    }
+
+    public void testParseEmptyListAttribute() {
+        final List<ClusterIdentifier> list = Lists.newArrayList();
+        final Attributes clusterId = new AttributesBuilder().setClusterId(new ClusterIdBuilder().setCluster
+            (list).build()).build();
+        final ByteBuf output = Unpooled.buffer();
+        this.parser.serializeAttribute(clusterId, output);
+        Assert.assertEquals(output, output);
+    }
+
+    public void testParseEmptyAttribute() {
+        final Attributes clusterId = new AttributesBuilder().setClusterId(new ClusterIdBuilder().build()).build();
+        final ByteBuf output = Unpooled.buffer();
+        this.parser.serializeAttribute(clusterId,output);
+        Assert.assertEquals(output, output);
+    }
+}
