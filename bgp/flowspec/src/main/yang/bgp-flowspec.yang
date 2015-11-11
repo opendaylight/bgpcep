@@ -334,6 +334,25 @@ module bgp-flowspec {
         }
     }
 
+    grouping redirect-ipv4-extended-community {
+        reference "http://tools.ietf.org/html/rfc7674";
+        container redirect-ipv4 {
+            uses bgp-t:route-ipv4-extended-community;
+        }
+    }
+
+    grouping redirect-as4-extended-community {
+        reference "http://tools.ietf.org/html/rfc7674";
+        container redirect-as4 {
+            leaf global-administrator {
+                type inet:as-number;
+            }
+            leaf local-administrator {
+                type uint16;
+            }
+        }
+    }
+
     grouping traffic-marking-extended-community {
         container traffic-marking-extended-community {
             leaf global-administrator {
@@ -371,6 +390,12 @@ module bgp-flowspec {
                         case traffic-marking-extended-community-case {
                             uses traffic-marking-extended-community;
                         }
+                        case redirect-ipv4-extended-community-case {
+                            uses redirect-ipv4-extended-community;
+                        }
+                        case redirect-as4-extended-community-case {
+                            uses redirect-as4-extended-community;
+                        }
                     }
                 }
             }
@@ -406,6 +431,12 @@ module bgp-flowspec {
                         case traffic-marking-extended-community-case {
                             uses traffic-marking-extended-community;
                         }
+                        case redirect-ipv4-extended-community-case {
+                            uses redirect-ipv4-extended-community;
+                        }
+                        case redirect-as4-extended-community-case {
+                            uses redirect-as4-extended-community;
+                        }
                     }
                 }
             }
@@ -425,6 +456,12 @@ module bgp-flowspec {
         }
         case traffic-marking-extended-community-case {
             uses traffic-marking-extended-community;
+        }
+        case redirect-ipv4-extended-community-case {
+            uses redirect-ipv4-extended-community;
+        }
+        case redirect-as4-extended-community-case {
+            uses redirect-as4-extended-community;
         }
     }
 
