@@ -7,10 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
+import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
+
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -53,6 +57,11 @@ public interface BGPExtensionProviderContext extends BGPExtensionConsumerContext
     AutoCloseable registerParameterParser(int parameterType, ParameterParser parser);
 
     AutoCloseable registerParameterSerializer(Class<? extends BgpParameters> paramClass, ParameterSerializer serializer);
+
+    AutoCloseable registerExtendedCommunitySerializer(final Class<? extends ExtendedCommunity> extendedCommunityClass,
+            final ExtendedCommunitySerializer serializer);
+
+    AutoCloseable registerExtendedCommunityParser(final int type, final int subtype, final ExtendedCommunityParser parser);
 
     /**
      * Get the context-wide cache for a particular object type.
