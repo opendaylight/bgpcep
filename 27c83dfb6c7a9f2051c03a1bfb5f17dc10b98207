@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "9ab8dda7_5037e2b0",
+        "filename": "bgp/flowspec/src/main/yang/bgp-flowspec.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-11-11T08:58:43Z",
+      "side": 1,
+      "message": "since we have 2 AS type, (redirect-extended-community represents 2-AS). Not sure redirect-as-extended-community\nis clear that represents 4-octet AS without review the models. maybe some more intuitive name? best would be change name of redirect-extended-community but it will complicate things.",
+      "range": {
+        "startLine": 348,
+        "startChar": 13,
+        "endLine": 348,
+        "endChar": 43
+      },
+      "revId": "27c83dfb6c7a9f2051c03a1bfb5f17dc10b98207",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ab8dda7_30cfceb2",
+        "filename": "bgp/flowspec/src/main/yang/bgp-flowspec.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-11-11T08:58:43Z",
+      "side": 1,
+      "message": "use route-ipv4-extended-community; ?",
+      "range": {
+        "startLine": 350,
+        "startChar": 0,
+        "endLine": 355,
+        "endChar": 13
+      },
+      "revId": "27c83dfb6c7a9f2051c03a1bfb5f17dc10b98207",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9ab8dda7_4d18ad84",
         "filename": "bgp/flowspec/src/main/yang/bgp-flowspec.yang",
         "patchSetId": 1
