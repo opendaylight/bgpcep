@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ab8dda7_fb9fd74e",
+        "filename": "bgp/openconfig-api/src/main/yang/bgp-openconfig.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2015-11-11T14:52:07Z",
+      "side": 1,
+      "message": "\"Upstream OpenConfig models have already taken this into account and have a proper openconfig- prefix.\"\nhttps://lists.opendaylight.org/pipermail/release/2015-November/004462.html",
+      "range": {
+        "startLine": 1,
+        "startChar": 7,
+        "endLine": 1,
+        "endChar": 21
+      },
+      "revId": "0ef52db94dc69dac4f320ba1686dfa94da3c5af9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ab8dda7_9bac9b8e",
+        "filename": "bgp/openconfig-api/src/main/yang/bgp-openconfig.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2015-11-11T14:52:07Z",
+      "side": 1,
+      "message": "Value is probably standardized already.",
+      "range": {
+        "startLine": 6,
+        "startChar": 1,
+        "endLine": 6,
+        "endChar": 11
+      },
+      "revId": "0ef52db94dc69dac4f320ba1686dfa94da3c5af9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
