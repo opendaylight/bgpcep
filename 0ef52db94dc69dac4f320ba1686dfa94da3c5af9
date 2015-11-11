@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "9ab8dda7_5bb623de",
+        "filename": "bgp/openconfig-api/src/main/yang/bgp-openconfig.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2015-11-11T14:53:50Z",
+      "side": 1,
+      "message": "Base this on https://github.com/openconfig/public/blob/master/release/models/bgp/openconfig-bgp.yang",
+      "revId": "0ef52db94dc69dac4f320ba1686dfa94da3c5af9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9ab8dda7_fb9fd74e",
         "filename": "bgp/openconfig-api/src/main/yang/bgp-openconfig.yang",
         "patchSetId": 1
