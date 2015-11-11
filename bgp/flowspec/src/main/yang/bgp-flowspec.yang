@@ -364,6 +364,17 @@ module bgp-flowspec {
         }
     }
 
+    grouping redirect-ip-nh-extended-community {
+        container redirect-ip-nh-extended-community {
+            leaf next-hop-address {
+                type inet:ip-address;
+            }
+            leaf copy {
+                type boolean;
+            }
+        }
+    }
+
     grouping flowspec-routes {
         container flowspec-routes {
             list flowspec-route {
@@ -398,6 +409,9 @@ module bgp-flowspec {
                         }
                         case redirect-as-extended-community-case {
                             uses redirect-as-extended-community;
+                        }
+                        case redirect-ip-nh-extended-community-case {
+                            uses redirect-ip-nh-extended-community;
                         }
                     }
                 }
@@ -440,6 +454,9 @@ module bgp-flowspec {
                         case redirect-as-extended-community-case {
                             uses redirect-as-extended-community;
                         }
+                        case redirect-ip-nh-extended-community-case {
+                            uses redirect-ip-nh-extended-community;
+                        }
                     }
                 }
             }
@@ -465,6 +482,9 @@ module bgp-flowspec {
         }
         case redirect-as-extended-community-case {
             uses redirect-as-extended-community;
+        }
+        case redirect-ip-nh-extended-community-case {
+            uses redirect-ip-nh-extended-community;
         }
     }
 
