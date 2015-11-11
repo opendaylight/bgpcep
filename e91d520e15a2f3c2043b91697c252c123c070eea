@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ab8dda7_fbf4b788",
+        "filename": "bgp/openconfig-api/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2015-11-11T15:12:58Z",
+      "side": 1,
+      "message": "Does this compensate for the missing revision-date in imports inside the new models?",
+      "range": {
+        "startLine": 41,
+        "startChar": 39,
+        "endLine": 41,
+        "endChar": 48
+      },
+      "revId": "e91d520e15a2f3c2043b91697c252c123c070eea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ab8dda7_9bda5b16",
+        "filename": "bgp/openconfig-api/src/main/yang/openconfig-bgp-types.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2015-11-11T15:12:58Z",
+      "side": 1,
+      "message": "4 spaces",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 1
+      },
+      "revId": "e91d520e15a2f3c2043b91697c252c123c070eea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ab8dda7_7b09a794",
+        "filename": "bgp/openconfig-api/src/main/yang/openconfig-types.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2015-11-11T15:12:58Z",
+      "side": 1,
+      "message": "4 spaces",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 1
+      },
+      "revId": "e91d520e15a2f3c2043b91697c252c123c070eea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

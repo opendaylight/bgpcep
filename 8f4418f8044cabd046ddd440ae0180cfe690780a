@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ab8dda7_bbd71fed",
+        "filename": "bgp/openconfig-api/src/main/yang/openconfig-bgp.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2015-11-11T15:12:58Z",
+      "side": 0,
+      "message": "Were these important for our Java code?",
+      "range": {
+        "startLine": 812,
+        "startChar": 8,
+        "endLine": 812,
+        "endChar": 26
+      },
+      "revId": "8f4418f8044cabd046ddd440ae0180cfe690780a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
