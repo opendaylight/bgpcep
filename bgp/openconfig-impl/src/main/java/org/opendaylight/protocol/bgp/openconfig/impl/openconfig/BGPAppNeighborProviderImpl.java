@@ -12,11 +12,11 @@ import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigStateStore;
 import org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil;
 import org.opendaylight.protocol.bgp.openconfig.spi.pojo.BGPAppPeerInstanceConfiguration;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.Config1;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.Config1Builder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.neighbors.Neighbor;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.neighbors.NeighborBuilder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.neighbors.NeighborKey;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.Config2;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.Config2Builder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.BgpApplicationPeer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.ModuleKey;
@@ -48,8 +48,8 @@ final class BGPAppNeighborProviderImpl extends AbstractBGPNeighborProvider<BGPAp
             .setNeighborAddress(ipAddress)
             .setKey(new NeighborKey(ipAddress))
             .setConfig(
-                    new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.neighbor.group.ConfigBuilder()
-                    .addAugmentation(Config1.class, new Config1Builder().setPeerGroup(OpenConfigUtil.APPLICATION_PEER_GROUP_NAME).build())
+                    new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ConfigBuilder()
+                    .addAugmentation(Config2.class, new Config2Builder().setPeerGroup(OpenConfigUtil.APPLICATION_PEER_GROUP_NAME).build())
                     .build())
             .build();
     }

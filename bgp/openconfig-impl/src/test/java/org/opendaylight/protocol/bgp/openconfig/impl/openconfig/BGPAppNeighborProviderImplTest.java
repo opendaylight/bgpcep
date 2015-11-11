@@ -9,7 +9,6 @@
 package org.opendaylight.protocol.bgp.openconfig.impl.openconfig;
 
 import static org.junit.Assert.assertEquals;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -18,12 +17,12 @@ import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigHolder;
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigStateStore;
 import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfigurationIdentifier;
 import org.opendaylight.protocol.bgp.openconfig.spi.pojo.BGPAppPeerInstanceConfiguration;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.Config1;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.Config1Builder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.neighbor.group.ConfigBuilder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.neighbors.Neighbor;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.neighbors.NeighborBuilder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev150515.bgp.neighbors.NeighborKey;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.Config2;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.Config2Builder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ConfigBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.BgpApplicationPeer;
@@ -59,7 +58,7 @@ public class BGPAppNeighborProviderImplTest {
         final Neighbor expectedNeighbor = new NeighborBuilder()
             .setNeighborAddress(new IpAddress(new Ipv4Address("1.2.3.4")))
             .setKey(new NeighborKey(new IpAddress(new Ipv4Address("1.2.3.4"))))
-            .setConfig(new ConfigBuilder().addAugmentation(Config1.class, new Config1Builder().setPeerGroup("application-peers").build()).build())
+            .setConfig(new ConfigBuilder().addAugmentation(Config2.class, new Config2Builder().setPeerGroup("application-peers").build()).build())
             .build();
         assertEquals(expectedNeighbor, neighbor);
     }
