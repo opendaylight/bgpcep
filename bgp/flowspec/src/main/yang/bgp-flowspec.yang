@@ -341,6 +341,17 @@ module bgp-flowspec {
         }
     }
 
+    grouping redirect-ipv6-extended-community {
+        container redirect-ipv6 {
+            leaf global-administrator {
+                type inet:ipv6-address;
+            }
+            leaf local-administrator {
+                type uint16;
+            }
+        }
+    }
+
     grouping redirect-as4-extended-community {
         reference "http://tools.ietf.org/html/rfc7674";
         container redirect-as4 {
@@ -405,6 +416,9 @@ module bgp-flowspec {
                         case redirect-ipv4-extended-community-case {
                             uses redirect-ipv4-extended-community;
                         }
+                        case redirect-ipv6-extended-community-case {
+                            uses redirect-ipv6-extended-community;
+                        }
                         case redirect-as4-extended-community-case {
                             uses redirect-as4-extended-community;
                         }
@@ -449,6 +463,9 @@ module bgp-flowspec {
                         case redirect-ipv4-extended-community-case {
                             uses redirect-ipv4-extended-community;
                         }
+                        case redirect-ipv6-extended-community-case {
+                            uses redirect-ipv6-extended-community;
+                        }
                         case redirect-as4-extended-community-case {
                             uses redirect-as4-extended-community;
                         }
@@ -477,6 +494,9 @@ module bgp-flowspec {
         }
         case redirect-ipv4-extended-community-case {
             uses redirect-ipv4-extended-community;
+        }
+        case redirect-ipv6-extended-community-case {
+            uses redirect-ipv6-extended-community;
         }
         case redirect-as4-extended-community-case {
             uses redirect-as4-extended-community;
