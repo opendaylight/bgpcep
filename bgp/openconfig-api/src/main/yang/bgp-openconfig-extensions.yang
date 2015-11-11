@@ -3,7 +3,7 @@ module bgp-openconfig-extensions {
     namespace "urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions";
     prefix "odl-oc-ext";
 
-    import bgp-types { prefix bgp-types; revision-date 2015-05-15; }
+    import openconfig-bgp-types { prefix bgp-types; revision-date 2015-10-09; }
 
     organization "Cisco Systems, Inc.";
     contact "Milos Fabian <milfabia@cisco.com>";
