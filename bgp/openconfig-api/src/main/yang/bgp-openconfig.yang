@@ -1,11 +1,11 @@
-module bgp {
+module bgp-openconfig {
 
   yang-version "1";
 
   // namespace
-  namespace "http://openconfig.net/yang/bgp";
+  namespace "http://openconfig.net/yang/bgp-openconfig";
 
-  prefix "bgp";
+  prefix "bgp-ocf";
 
   // import some basic inet types
   import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
