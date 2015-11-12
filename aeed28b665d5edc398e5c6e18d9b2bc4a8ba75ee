@@ -70,6 +70,30 @@
       "revId": "aeed28b665d5edc398e5c6e18d9b2bc4a8ba75ee",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7aade967_2c73f7b2",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AttributeOperations.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2015-11-12T18:00:24Z",
+      "side": 1,
+      "message": "my bad, I failed to see Builders.containerBuilder(attributes). You are correct, thanks",
+      "parentUuid": "7aade967_4974259c",
+      "range": {
+        "startLine": 194,
+        "startChar": 19,
+        "endLine": 194,
+        "endChar": 23
+      },
+      "revId": "aeed28b665d5edc398e5c6e18d9b2bc4a8ba75ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
