@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7aade967_26031675",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AttributeOperations.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-11-12T10:55:28Z",
+      "side": 1,
+      "message": "why null? Since we are not prepending local cluster-id here, we do not need to manipulate with cluster-id attribute.",
+      "range": {
+        "startLine": 194,
+        "startChar": 19,
+        "endLine": 194,
+        "endChar": 23
+      },
+      "revId": "aeed28b665d5edc398e5c6e18d9b2bc4a8ba75ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
