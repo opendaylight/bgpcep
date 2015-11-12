@@ -35,6 +35,7 @@ import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
+import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.tcpmd5.api.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -202,8 +203,10 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         Preconditions.checkArgument(host.getIpv4Address() != null || host.getIpv6Address() != null, "Unexpected host %s", host);
         if(host.getIpv4Address() != null) {
             return new IpAddress(host.getIpv4Address());
+        } else if(host.getIpv6Address() != null){
+            return new IpAddress(Ipv6Util.getFullForm(host.getIpv6Address()));
         }
-        return new IpAddress(host.getIpv6Address());
+	throw new IllegalArgumentException("Unexpected host " + host);
     }
 
     private io.netty.util.concurrent.Future<Void> initiateConnection(final InetSocketAddress address, final Optional<Rfc2385Key> password, final BGPPeerRegistry registry) {
