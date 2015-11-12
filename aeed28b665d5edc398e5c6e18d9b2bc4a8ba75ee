@@ -46,6 +46,30 @@
       "revId": "aeed28b665d5edc398e5c6e18d9b2bc4a8ba75ee",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7aade967_4974259c",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AttributeOperations.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-11-12T13:47:19Z",
+      "side": 1,
+      "message": "yeah, but this function \"reflectedAttributes\" should return container including all reflected attributes. In fact, cluster-id attribute, do not have to be modified here.",
+      "parentUuid": "7aade967_2640f655",
+      "range": {
+        "startLine": 194,
+        "startChar": 19,
+        "endLine": 194,
+        "endChar": 23
+      },
+      "revId": "aeed28b665d5edc398e5c6e18d9b2bc4a8ba75ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
