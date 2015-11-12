@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7aade967_ac736714",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/ClusterIdAttributeParser.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-11-12T20:49:06Z",
+      "side": 1,
+      "message": "please do not use assignments in if statements -- they are not readable:\n\nif (cid \u003d\u003d null) {\n    return;\n}\n\nfinal List\u003c...\u003e cluster \u003d cid.getCluster();\nif (cluster \u003d\u003d null || cluster.isEmpty()) {\n    return;\n}",
+      "revId": "99ddb03708aab2aa44a3d4afc1b42f5600bc43a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
