@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7aade967_e6365ee7",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPPeerModule.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-11-12T08:53:17Z",
+      "side": 1,
+      "message": "no need to create a new Ipv6Address object, Ipv6Util.getFullForm(...) returns Ipv6Address",
+      "range": {
+        "startLine": 209,
+        "startChar": 33,
+        "endLine": 209,
+        "endChar": 48
+      },
+      "revId": "d8846b16a9977af4b735d8ef101468bb9d817545",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
