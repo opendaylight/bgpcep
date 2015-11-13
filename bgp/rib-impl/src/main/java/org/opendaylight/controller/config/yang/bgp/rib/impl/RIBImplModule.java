@@ -17,6 +17,7 @@
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import java.util.Hashtable;
+import java.util.List;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
@@ -26,6 +27,8 @@ import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfigurationIdentif
 import org.opendaylight.protocol.bgp.openconfig.spi.pojo.BGPRibInstanceConfiguration;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
 import org.osgi.framework.BundleContext;
@@ -110,8 +113,13 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
         @Override
         public void onInstanceCreate() {
             if (globalWriter != null) {
-                globalWriter.writeConfiguration(new BGPRibInstanceConfiguration(identifier,
-                        new AsNumber(getLocalAs()), getBgpRibId(), getClusterId(), getLocalTableDependency()));
+                final List<BgpTableType> tableDependency = getLocalTableDependency();
+                final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber as = Rev130715Uitl.getASNumber(getLocalAs());
+                final Ipv4Address bgpRibId = Rev130715Uitl.getIpv4Address(getBgpRibId());
+                final Ipv4Address clusterId = Rev130715Uitl.getIpv4Address(getClusterId());
+
+                final BGPRibInstanceConfiguration bgpRibConfig = new BGPRibInstanceConfiguration(identifier, as, bgpRibId, clusterId, tableDependency);
+                globalWriter.writeConfiguration(bgpRibConfig);
             }
         }
 
@@ -123,4 +131,6 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
         }
 
     }
+
+
 }

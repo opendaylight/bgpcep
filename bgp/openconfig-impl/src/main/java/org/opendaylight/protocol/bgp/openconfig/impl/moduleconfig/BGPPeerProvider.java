@@ -26,7 +26,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.n
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.PeerType;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.BgpPeer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.BgpTableType;
@@ -129,8 +129,8 @@ final class BGPPeerProvider {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.modules.module.configuration.BgpPeer bgpPeer =
                 (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.modules.module.configuration.BgpPeer) oldBgpPeer.getConfiguration();
         final BgpPeerBuilder bgpPeerBuilder = toBgpPeerConfig(neighbor, tableTypes, bgpPeer.getRib());
-        bgpPeerBuilder.setPeerRegistry(((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.modules.module.configuration.BgpPeer)oldBgpPeer.getConfiguration()).getPeerRegistry());
-        bgpPeerBuilder.setPort(((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.modules.module.configuration.BgpPeer)oldBgpPeer.getConfiguration()).getPort());
+        bgpPeerBuilder.setPeerRegistry(((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.modules.module.configuration.BgpPeer) oldBgpPeer.getConfiguration()).getPeerRegistry());
+        bgpPeerBuilder.setPort(((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.modules.module.configuration.BgpPeer) oldBgpPeer.getConfiguration()).getPort());
 
         final ModuleBuilder mBuilder = new ModuleBuilder(oldBgpPeer);
         mBuilder.setConfiguration(bgpPeerBuilder.build());
@@ -150,7 +150,15 @@ final class BGPPeerProvider {
         final BgpPeerBuilder bgpPeerBuilder = new BgpPeerBuilder();
         bgpPeerBuilder.setAdvertizedTable(tableTypes);
         bgpPeerBuilder.setRib(rib);
-        bgpPeerBuilder.setHost(neighbor.getNeighborAddress());
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress ipAdress = null;
+        if (neighbor.getNeighborAddress().getIpv4Address() != null) {
+            ipAdress = new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress(new org.opendaylight.yang
+                .gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address(neighbor.getNeighborAddress().getIpv4Address().getValue()));
+        } else {
+            ipAdress = new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress(new org.opendaylight.yang
+                .gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address(neighbor.getNeighborAddress().getIpv6Address().getValue()));
+        }
+        bgpPeerBuilder.setHost(ipAdress);
         final Timers timers = neighbor.getTimers();
         if (timers != null && timers.getConfig() != null && timers.getConfig().getHoldTime() != null) {
             bgpPeerBuilder.setHoldtimer(neighbor.getTimers().getConfig().getHoldTime().shortValue());
