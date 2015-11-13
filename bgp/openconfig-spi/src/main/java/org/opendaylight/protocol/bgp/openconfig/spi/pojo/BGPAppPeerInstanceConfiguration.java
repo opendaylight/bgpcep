@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.openconfig.spi.pojo;
 
 import com.google.common.base.Preconditions;
 import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfigurationIdentifier;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 
 /**
  * POJO for holding BGP Application Peer module instance configuration

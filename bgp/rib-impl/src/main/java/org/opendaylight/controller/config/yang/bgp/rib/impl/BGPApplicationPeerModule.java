@@ -67,7 +67,8 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
         @Override
         public void onInstanceCreate() {
             if (appProvider != null) {
-                appProvider.writeConfiguration(new BGPAppPeerInstanceConfiguration(identifier, getApplicationRibId().getValue(), getBgpPeerId()));
+                appProvider.writeConfiguration(new BGPAppPeerInstanceConfiguration(identifier, getApplicationRibId().getValue(),
+                    Rev130715Uitl.getIpv4Address(getBgpPeerId())));
             }
         }
 
