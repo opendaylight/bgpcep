@@ -4,7 +4,7 @@ module rsvp {
         prefix "rsvp";
 
     import iana { prefix iana; revision-date 2013-08-16; }
-    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import ieee754 { prefix ieee754; revision-date 2013-08-19; }
     import network-concepts { prefix netc; revision-date 2013-11-25; }
 

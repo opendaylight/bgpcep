@@ -3,7 +3,7 @@ module odl-pcep-ietf-stateful07 {
     namespace "urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful";
     prefix "stateful";
 
-    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import network-topology-pcep { prefix topo; revision-date 2013-10-24; }
     import pcep-types { prefix pcep; revision-date 2013-10-05; }

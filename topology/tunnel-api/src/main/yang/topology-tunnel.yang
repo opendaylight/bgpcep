@@ -3,7 +3,7 @@ module topology-tunnel {
     namespace "urn:opendaylight:params:xml:ns:yang:topology:tunnel";
     prefix "tt";
 
-    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
 
     organization "Cisco Systems, Inc.";

@@ -12,7 +12,7 @@ package org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev15100
 import com.google.common.primitives.UnsignedInts;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 
 /**
  * The purpose of generated class in src/main/java for Union types is to create new instances of unions from a string representation.
