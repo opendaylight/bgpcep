@@ -4,7 +4,7 @@ module bgp-segment-routing {
     prefix "bgp-sr";
 
     import network-concepts { prefix netc; revision-date 2013-11-25; }
-    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
 
     organization "Cisco Systems, Inc.";
     contact "Iveta Halanova <ihalanov@cisco.com>";

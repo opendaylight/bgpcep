@@ -4,7 +4,7 @@ module network-topology-pcep {
     namespace "urn:opendaylight:params:xml:ns:yang:topology:pcep";
     prefix "pn";
 
-    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import odl-network-topology { prefix ont; revision-date 2014-01-13; }
     import pcep-types { prefix pcep; revision-date 2013-10-05; }

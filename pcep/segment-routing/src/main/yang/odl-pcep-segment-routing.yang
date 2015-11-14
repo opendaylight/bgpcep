@@ -7,7 +7,7 @@ module odl-pcep-segment-routing {
     import pcep-message { prefix msg; revision-date 2013-10-07; }
     import odl-pcep-ietf-stateful07 { prefix stateful; revision-date 2013-12-22; }
     import odl-pcep-ietf-initiated00 { prefix crabbe; revision-date 2013-11-26; }
-    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import network-topology-pcep { prefix pn; revision-date 2013-10-24; }
 

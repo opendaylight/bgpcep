@@ -19,7 +19,7 @@ import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.protocol.bmp.impl.app.BmpMonitoringStationImpl;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.tcpmd5.api.KeyMapping;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.MonitorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.tcpmd5.cfg.rev140427.Rfc2385Key;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;

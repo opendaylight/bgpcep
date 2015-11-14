@@ -3,7 +3,7 @@ module bgp-types {
     namespace "urn:opendaylight:params:xml:ns:yang:bgp-types";
     prefix "bgp-t";
 
-    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
 
     organization "Cisco Systems, Inc.";
     contact "Dana Kutenicsova <dkutenic@cisco.com>";
