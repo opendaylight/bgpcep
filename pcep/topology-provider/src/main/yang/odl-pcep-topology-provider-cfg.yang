@@ -7,7 +7,7 @@ module odl-pcep-topology-provider-cfg {
     import config { prefix config; revision-date 2013-04-05; }
     import odl-programming-spi-cfg { prefix pgmspi; revision-date 2013-11-15; }
     import odl-topology-api-cfg { prefix topo; revision-date 2013-11-15; }
-    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import odl-pcep-api-cfg { prefix pcep; revision-date 2013-04-09; }
     import opendaylight-md-sal-binding { prefix mdsal; revision-date 2013-10-28; }

@@ -60,7 +60,7 @@
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.opendaylight.mdsal.model</groupId>
-            <artifactId>ietf-inet-types</artifactId>
+            <artifactId>ietf-inet-types-2013-07-15</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

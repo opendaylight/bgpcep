@@ -4,7 +4,7 @@ module pcep-service {
 	prefix "pcep-svc";
 
 	import pcep-types { prefix pcep; revision-date 2013-10-05; }
-	import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+	import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
 
 	organization "Cisco Systems, Inc.";
 	contact "Robert Varga <rovarga@cisco.com>";

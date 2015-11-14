@@ -279,7 +279,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
     }
 
     public List<String> getYangModelsPaths() {
-        final List<String> paths = Lists.newArrayList("/META-INF/yang/ietf-inet-types.yang", "/META-INF/yang/programming.yang");
+        final List<String> paths = Lists.newArrayList("/META-INF/yang/ietf-inet-types@2013-07-15.yang", "/META-INF/yang/programming.yang");
         return paths;
     }
 
