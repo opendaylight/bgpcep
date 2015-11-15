@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7aade967_06928f57",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/Rev130715Uitl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2015-11-15T10:12:52Z",
+      "side": 1,
+      "message": "This is a noticeable improvement, it should be mentioned in commit message, perhaps even implied in its first line.",
+      "revId": "59f61a95734d63ecd2013a3f86c1f1bc80cf4fcb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
