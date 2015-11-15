@@ -57,7 +57,7 @@ public class ASNumberTest {
 
     @Test
     public void testToString() {
-        assertEquals("AsNumber [_value=4294967295]", this.asn1.toString());
+        assertEquals("AsNumber [_value=429496295]", this.asn1.toString());
         assertEquals("AsNumber [_value=200]", this.asn3.toString());
     }
 }
