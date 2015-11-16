@@ -44,6 +44,7 @@ import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgrou
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.PortNumber;
 
 public class BGPPeerAcceptorModuleTest extends AbstractConfigTest {
@@ -70,7 +71,7 @@ public class BGPPeerAcceptorModuleTest extends AbstractConfigTest {
     @Test
     public void testCreateBeanDefaultAddress() throws InstanceAlreadyExistsException, ConflictingVersionException, ValidationException {
         try {
-            final CommitStatus status = createRegistryInstance(Optional.<String>absent(), Optional.<Integer>absent(), true, true);
+            final CommitStatus status = createRegistryInstance(Optional.<IpAddress>absent(), Optional.<Integer>absent(), true, true);
             assertBeanCount(1, FACTORY_NAME);
             assertStatus(status, 3, 0, 0);
             verify(dispatcher).createServer(any(BGPPeerRegistry.class), any(InetSocketAddress.class));
@@ -85,20 +86,20 @@ public class BGPPeerAcceptorModuleTest extends AbstractConfigTest {
 
     @Test
     public void testCreateBean() throws Exception {
-        final CommitStatus status = createRegistryInstance(Optional.of("127.0.0.1"), Optional.of(1790), true, true);
+        final IpAddress ipAdress = new IpAddress(new Ipv4Address("127.0.0.1"));
+        final CommitStatus status = createRegistryInstance(Optional.of(ipAdress), Optional.of(1790), true, true);
         assertBeanCount(1, FACTORY_NAME);
         assertStatus(status, 3, 0, 0);
         verify(dispatcher).createServer(any(BGPPeerRegistry.class), any(InetSocketAddress.class));
     }
 
-    private CommitStatus createRegistryInstance(final Optional<String> address, final Optional<Integer> port, final boolean addRegistry, final boolean addDispatcher ) throws InstanceAlreadyExistsException, ValidationException, ConflictingVersionException {
+    private CommitStatus createRegistryInstance(final Optional<IpAddress> address, final Optional<Integer> port, final boolean addRegistry, final boolean addDispatcher ) throws InstanceAlreadyExistsException, ValidationException, ConflictingVersionException {
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         final ObjectName module = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final BGPPeerAcceptorModuleMXBean proxy = transaction.newMXBeanProxy(module, BGPPeerAcceptorModuleMXBean.class);
 
-        // FIXME JMX crashes if union was not created via artificial constructor - Bug:1276
         if(address.isPresent()) {
-            proxy.setBindingAddress(new IpAddress(address.get().toCharArray()));
+            proxy.setBindingAddress(address.get());
         }
         if(port.isPresent()) {
             proxy.setBindingPort(new PortNumber(port.get()));

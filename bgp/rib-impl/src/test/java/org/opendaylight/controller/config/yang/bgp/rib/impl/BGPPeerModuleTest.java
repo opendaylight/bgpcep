@@ -26,6 +26,7 @@ import org.opendaylight.controller.config.yang.tcpmd5.netty.cfg.MD5ClientChannel
 import org.opendaylight.controller.config.yang.tcpmd5.netty.cfg.MD5ClientChannelFactoryModuleMXBean;
 import org.opendaylight.tcpmd5.jni.NativeTestSupport;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
@@ -38,7 +39,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
     private static final String INSTANCE_NAME = "bgp-peer-module-impl";
     private static final String FACTORY_NAME = BGPPeerModuleFactory.NAME;
 
-    private static final String HOST = "127.0.0.1";
+    private static final IpAddress HOST = new IpAddress(new Ipv4Address("127.0.0.1"));
     private static final PortNumber portNumber = new PortNumber(1);
 
     @Override
@@ -146,17 +147,13 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         assertStatus(status, 0, 1, 15);
     }
 
-    private ObjectName createBgpPeerInstance(final ConfigTransactionJMXClient transaction, final String host,
+    private ObjectName createBgpPeerInstance(final ConfigTransactionJMXClient transaction, final IpAddress host,
             final PortNumber port, final boolean md5, final boolean internalPeerRole) throws Exception {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final BGPPeerModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, BGPPeerModuleMXBean.class);
 
         mxBean.setPeerRegistry(createPeerRegistry(transaction));
-
-        // FIXME JMX crashes if union was not created via artificial constructor - Bug:1276
-        // annotated for JMX as value
-        // IpAddress host1 = new IpAddress(new Ipv4Address(host));
-        mxBean.setHost(host == null ? null : new IpAddress(host.toCharArray()));
+        mxBean.setHost(host);
         mxBean.setPort(port);
         mxBean.setAdvertizedTable(Collections.<ObjectName>emptyList());
         {
@@ -207,7 +204,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         return createBgpPeerInstance(HOST, portNumber, md5);
     }
 
-    private CommitStatus createBgpPeerInstance(final String host, final PortNumber port, final boolean md5) throws Exception {
+    private CommitStatus createBgpPeerInstance(final IpAddress host, final PortNumber port, final boolean md5) throws Exception {
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         createBgpPeerInstance(transaction, host, port, md5, false);
         return transaction.commit();
