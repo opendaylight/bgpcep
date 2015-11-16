@@ -171,9 +171,17 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
      * @return MpUnreachNlri with prefixes from the withdrawn routes field
      */
     private static MpUnreachNlri prefixesToMpUnreach(final Update message) {
+        final boolean nlriAnnouncedList = message.getNlri() != null;
         final List<Ipv4Prefixes> prefixes = new ArrayList<>();
         for (final Ipv4Prefix p : message.getWithdrawnRoutes().getWithdrawnRoutes()) {
-            prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
+            boolean nlriAnounced = false;
+            if(nlriAnnouncedList) {
+                nlriAnounced = message.getNlri().getNlri().contains(p);
+            }
+
+            if(!nlriAnounced) {
+                prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
+            }
         }
         return new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setWithdrawnRoutes(
                 new WithdrawnRoutesBuilder().setDestinationType(
@@ -194,7 +202,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
 
             // not particularly nice
             if (session instanceof BGPSessionImpl) {
-                AdjRibOutListener.create(peerId, key, this.rib.getYangRibId(), ((RIBImpl)this.rib).getService(), this.rib.getRibSupportContext(), ((BGPSessionImpl) session).getLimiter());
+                AdjRibOutListener.create(peerId, key, this.rib.getYangRibId(), ((RIBImpl) this.rib).getService(), this.rib.getRibSupportContext(), ((BGPSessionImpl) session).getLimiter());
             }
         }
         this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, false);
