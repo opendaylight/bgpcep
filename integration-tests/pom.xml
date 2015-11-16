@@ -122,13 +122,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- FIXME: remove this once controller migrates its runtime to use the mdsal project -->
-        <dependency>
-            <groupId>org.opendaylight.mdsal.model</groupId>
-            <artifactId>yang-ext</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.opendaylight.netconf</groupId>
             <artifactId>ietf-netconf-monitoring</artifactId>
