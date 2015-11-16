@@ -73,7 +73,7 @@ module odl-pcep-ietf-stateful07 {
     }
 
     grouping path-binding-tlv {
-        reference "TODO:";
+        reference "https://tools.ietf.org/html/draft-sivabalan-pce-binding-label-sid-00#section-3";
         container path-binding {
             uses pcep:tlv;
             leaf binding-type {
