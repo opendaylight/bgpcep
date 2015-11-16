@@ -43,6 +43,10 @@ public final class ClusterIdAttributeParser implements AttributeParser, Attribut
         if (cid == null) {
             return;
         }
+        final List<ClusterIdentifier> cluster = cid.getCluster();
+        if (cluster == null  || cluster.isEmpty()) {
+            return;
+        }
         final ByteBuf clusterIdBuffer = Unpooled.buffer();
         for (final ClusterIdentifier clusterIdentifier : cid.getCluster()) {
             clusterIdBuffer.writeBytes(Ipv4Util.bytesForAddress(clusterIdentifier));

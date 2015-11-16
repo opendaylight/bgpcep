@@ -209,89 +209,81 @@ final class AttributeOperations {
     }
 
     /**
-     * Attributes when reflecting a route from Internal iBGP
+     * Attributes when reflecting a route from Internal iBGP (Application Peer)
      * @param attributes
      * @return
      */
     ContainerNode reflectedAttributes(final ContainerNode attributes) {
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> b = Builders.containerBuilder(attributes);
+        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> attributesContainer = Builders.containerBuilder(attributes);
 
-        // Create a new CLUSTER_LIST builder
-        final ListNodeBuilder<Object, LeafSetEntryNode<Object>> clb = Builders.orderedLeafSetBuilder();
-        clb.withNodeIdentifier(this.clusterListLeaf);
-
-        // if there was a CLUSTER_LIST attribute, add all other entries
+        // if there was a CLUSTER_LIST attribute, add it
         final Optional<NormalizedNode<?, ?>> maybeClusterList = NormalizedNodes.findNode(attributes, this.clusterListPath);
         if (maybeClusterList.isPresent()) {
-            final NormalizedNode<?, ?> clusterList = maybeClusterList.get();
-            if (clusterList instanceof LeafSetNode) {
-                for (final LeafSetEntryNode<?> n : ((LeafSetNode<?>)clusterList).getValue()) {
-                    // There's no way we can safely avoid this cast
-                    @SuppressWarnings("unchecked")
-                    final LeafSetEntryNode<Object> child = (LeafSetEntryNode<Object>)n;
-                    clb.addChild(child);
-                }
-            } else {
-                LOG.warn("Ignoring malformed CLUSTER_LIST {}", clusterList);
-            }
-        } else {
-            LOG.debug("Creating fresh CLUSTER_LIST attribute");
+            // Create a new CLUSTER_LIST builder
+            final ListNodeBuilder<Object, LeafSetEntryNode<Object>> clusterBuilder = Builders.orderedLeafSetBuilder();
+            clusterBuilder.withNodeIdentifier(this.clusterListLeaf);
+            AttributeOperations.addOtherClusterEntries(maybeClusterList, clusterBuilder);
+            // Now wrap it in a container and add it to attributes
+            final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> clusterListCont= Builders.containerBuilder();
+            clusterListCont.withNodeIdentifier(this.clusterListContainer);
+            clusterListCont.withChild(clusterBuilder.build());
+            attributesContainer.withChild(clusterListCont.build());
         }
 
-        // Now wrap it in a container and add it to attributes
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> cb = Builders.containerBuilder();
-        cb.withNodeIdentifier(this.clusterListContainer);
-        cb.withChild(clb.build());
-        b.withChild(cb.build());
-
-        return b.build();
+        return attributesContainer.build();
     }
 
     // Attributes when reflecting a route
     ContainerNode reflectedAttributes(final ContainerNode attributes, final Ipv4Address originatorId, final ClusterIdentifier clusterId) {
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> b = Builders.containerBuilder(attributes);
+        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> attributesContainer = Builders.containerBuilder(attributes);
 
         // Create a new CLUSTER_LIST builder
-        final ListNodeBuilder<Object, LeafSetEntryNode<Object>> clb = Builders.orderedLeafSetBuilder();
-        clb.withNodeIdentifier(this.clusterListLeaf);
+        final ListNodeBuilder<Object, LeafSetEntryNode<Object>> clusterBuilder = Builders.orderedLeafSetBuilder();
+        clusterBuilder.withNodeIdentifier(this.clusterListLeaf);
 
         // prepend local CLUSTER_ID
-        clb.withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(this.clusterQname, clusterId.getValue())).withValue(clusterId.getValue()).build());
+        clusterBuilder.withChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(this.clusterQname, clusterId.getValue())).
+            withValue(clusterId.getValue()).build());
 
         // if there was a CLUSTER_LIST attribute, add all other entries
         final Optional<NormalizedNode<?, ?>> maybeClusterList = NormalizedNodes.findNode(attributes, this.clusterListPath);
         if (maybeClusterList.isPresent()) {
-            final NormalizedNode<?, ?> clusterList = maybeClusterList.get();
-            if (clusterList instanceof LeafSetNode) {
-                for (final LeafSetEntryNode<?> n : ((LeafSetNode<?>)clusterList).getValue()) {
-                    // There's no way we can safely avoid this cast
-                    @SuppressWarnings("unchecked")
-                    final LeafSetEntryNode<Object> child = (LeafSetEntryNode<Object>)n;
-                    clb.addChild(child);
-                }
-            } else {
-                LOG.warn("Ignoring malformed CLUSTER_LIST {}", clusterList);
-            }
+            AttributeOperations.addOtherClusterEntries(maybeClusterList, clusterBuilder);
         } else {
             LOG.debug("Creating fresh CLUSTER_LIST attribute");
         }
 
         // Now wrap it in a container and add it to attributes
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> cb = Builders.containerBuilder();
-        cb.withNodeIdentifier(this.clusterListContainer);
-        cb.withChild(clb.build());
-        b.withChild(cb.build());
+        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> clusterListCont = Builders.containerBuilder();
+        clusterListCont.withNodeIdentifier(this.clusterListContainer);
+        clusterListCont.withChild(clusterBuilder.build());
+        attributesContainer.withChild(clusterListCont.build());
 
         // add ORIGINATOR_ID if not present
         final Optional<NormalizedNode<?, ?>> maybeOriginatorId = NormalizedNodes.findNode(attributes, this.originatorIdPath);
         if (!maybeOriginatorId.isPresent()) {
-            final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> oib = Builders.containerBuilder();
-            oib.withNodeIdentifier(this.originatorIdContainer);
-            oib.withChild(ImmutableNodes.leafNode(this.originatorIdLeaf, originatorId.getValue()));
-            b.withChild(oib.build());
+            final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> originatorIDBuilder = Builders.containerBuilder();
+            originatorIDBuilder.withNodeIdentifier(this.originatorIdContainer);
+            originatorIDBuilder.withChild(ImmutableNodes.leafNode(this.originatorIdLeaf, originatorId.getValue()));
+            attributesContainer.withChild(originatorIDBuilder.build());
         }
 
-        return b.build();
+        return attributesContainer.build();
+    }
+
+    private static void addOtherClusterEntries(final Optional<NormalizedNode<?, ?>> maybeClusterList, final ListNodeBuilder<Object,
+        LeafSetEntryNode<Object>> clb) {
+        final NormalizedNode<?, ?> clusterList = maybeClusterList.get();
+        if (clusterList instanceof LeafSetNode) {
+            for (final LeafSetEntryNode<?> n : ((LeafSetNode<?>) clusterList).getValue()) {
+                // There's no way we can safely avoid this cast
+                @SuppressWarnings("unchecked")
+                final LeafSetEntryNode<Object> child = (LeafSetEntryNode<Object>) n;
+                clb.addChild(child);
+            }
+        } else {
+            LOG.warn("Ignoring malformed CLUSTER_LIST {}", clusterList);
+        }
     }
 
     private boolean isTransitiveAttribute(final DataContainerChild<? extends PathArgument, ?> child) {
