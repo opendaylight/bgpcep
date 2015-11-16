@@ -75,7 +75,11 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
     @Override
     protected void customValidation() {
-        JmxAttributeValidationException.checkNotNull(getHost(), "value is not set.", hostJmxAttribute);
+        final IpAddress host = getHost();
+        JmxAttributeValidationException.checkNotNull(host, "value is not set.", hostJmxAttribute);
+        JmxAttributeValidationException.checkCondition(host.getIpv4Address() != null || host.getIpv6Address() != null,
+            "Unexpected host %s", hostJmxAttribute);
+
         JmxAttributeValidationException.checkNotNull(getPort(), "value is not set.", portJmxAttribute);
 
         if (getOptionaPassword(getPassword()).isPresent()) {
@@ -122,16 +126,16 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         final AsNumber remoteAs = getAsOrDefault(r);
         final BGPSessionPreferences prefs = new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), remoteAs, tlvs);
         final BGPPeer bgpClientPeer;
-
+        final IpAddress host = getNormalizedHost();
         if (getPeerRole() != null) {
-            bgpClientPeer = new BGPPeer(peerName(getHostWithoutValue()), r, getPeerRole());
+            bgpClientPeer = new BGPPeer(peerName(host), r, getPeerRole());
         } else {
-            bgpClientPeer = new BGPPeer(peerName(getHostWithoutValue()), r, PeerRole.Ibgp);
+            bgpClientPeer = new BGPPeer(peerName(host), r, PeerRole.Ibgp);
         }
 
         bgpClientPeer.registerRootRuntimeBean(getRootRuntimeBeanRegistratorWrapper());
 
-        getPeerRegistryBackwards().addPeer(getHostWithoutValue(), bgpClientPeer, prefs);
+        getPeerRegistryBackwards().addPeer(getNormalizedHost(), bgpClientPeer, prefs);
 
         final BGPPeerModuleTracker moduleTracker = new BGPPeerModuleTracker(r.getOpenConfigProvider());
         moduleTracker.onInstanceCreate();
@@ -140,7 +144,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
             @Override
             public void close() {
                 bgpClientPeer.close();
-                getPeerRegistryBackwards().removePeer(getHostWithoutValue());
+                getPeerRegistryBackwards().removePeer(host);
                 moduleTracker.onInstanceClose();
             }
         };
@@ -196,17 +200,12 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         return tlvs;
     }
 
-    public IpAddress getHostWithoutValue() {
-        // FIXME we need to remove field "value" from IpAddress since equals does not work as expected when value being present
-        // Remove after this bug is fixed https://bugs.opendaylight.org/show_bug.cgi?id=1276
-        final IpAddress host = super.getHost();
-        Preconditions.checkArgument(host.getIpv4Address() != null || host.getIpv6Address() != null, "Unexpected host %s", host);
-        if(host.getIpv4Address() != null) {
-            return new IpAddress(host.getIpv4Address());
-        } else if(host.getIpv6Address() != null){
+    public IpAddress getNormalizedHost() {
+        final IpAddress host = getHost();
+        if(host.getIpv6Address() != null){
             return new IpAddress(Ipv6Util.getFullForm(host.getIpv6Address()));
         }
-        throw new IllegalArgumentException("Unexpected host " + host);
+        return host;
     }
 
     private io.netty.util.concurrent.Future<Void> initiateConnection(final InetSocketAddress address, final Optional<Rfc2385Key> password, final BGPPeerRegistry registry) {
