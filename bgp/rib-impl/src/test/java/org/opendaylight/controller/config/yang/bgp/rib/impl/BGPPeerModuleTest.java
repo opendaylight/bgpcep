@@ -10,6 +10,7 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
+
 import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.opendaylight.controller.config.yang.tcpmd5.netty.cfg.MD5ClientChannel
 import org.opendaylight.controller.config.yang.tcpmd5.netty.cfg.MD5ClientChannelFactoryModuleMXBean;
 import org.opendaylight.tcpmd5.jni.NativeTestSupport;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
@@ -152,11 +154,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         final BGPPeerModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, BGPPeerModuleMXBean.class);
 
         mxBean.setPeerRegistry(createPeerRegistry(transaction));
-
-        // FIXME JMX crashes if union was not created via artificial constructor - Bug:1276
-        // annotated for JMX as value
-        // IpAddress host1 = new IpAddress(new Ipv4Address(host));
-        mxBean.setHost(host == null ? null : new IpAddress(host.toCharArray()));
+        mxBean.setHost(host == null ? null : new IpAddress(new Ipv4Address(host)));
         mxBean.setPort(port);
         mxBean.setAdvertizedTable(Collections.<ObjectName>emptyList());
         {
