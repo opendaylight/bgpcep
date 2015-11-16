@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7aade967_f7afdf29",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPPeerModule.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-11-16T16:01:08Z",
+      "side": 0,
+      "message": "we need to keep this due to \"normalization\" of an IPv6 address.",
+      "range": {
+        "startLine": 207,
+        "startChar": 33,
+        "endLine": 207,
+        "endChar": 76
+      },
+      "revId": "e360530c9cfe031bb9deeb11e334e45477c1943f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
