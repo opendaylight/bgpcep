@@ -115,7 +115,8 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
         // update AdjRibs
         final Attributes attrs = message.getAttributes();
         MpReachNlri mpReach = null;
-        if (message.getNlri() != null) {
+        final boolean isAnyNlriAnnounced = message.getNlri() != null;
+        if (isAnyNlriAnnounced) {
             mpReach = prefixesToMpReach(message);
         } else if (attrs != null && attrs.getAugmentation(Attributes1.class) != null) {
             mpReach = attrs.getAugmentation(Attributes1.class).getMpReachNlri();
@@ -125,7 +126,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
         }
         MpUnreachNlri mpUnreach = null;
         if (message.getWithdrawnRoutes() != null) {
-            mpUnreach = prefixesToMpUnreach(message);
+            mpUnreach = prefixesToMpUnreach(message, isAnyNlriAnnounced);
         } else if (attrs != null && attrs.getAugmentation(Attributes2.class) != null) {
             mpUnreach = attrs.getAugmentation(Attributes2.class).getMpUnreachNlri();
         }
@@ -169,12 +170,20 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
      * Create MPUnreach for the prefixes to be handled in the same way as linkstate routes
      *
      * @param message Update message containing withdrawn routes
+     * @param isAnyNlriAnnounced
      * @return MpUnreachNlri with prefixes from the withdrawn routes field
      */
-    private static MpUnreachNlri prefixesToMpUnreach(final Update message) {
+    private static MpUnreachNlri prefixesToMpUnreach(final Update message, final boolean isAnyNlriAnnounced) {
         final List<Ipv4Prefixes> prefixes = new ArrayList<>();
         for (final Ipv4Prefix p : message.getWithdrawnRoutes().getWithdrawnRoutes()) {
-            prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
+            boolean nlriAnounced = false;
+            if(isAnyNlriAnnounced) {
+                nlriAnounced = message.getNlri().getNlri().contains(p);
+            }
+
+            if(!nlriAnounced) {
+                prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
+            }
         }
         return new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setWithdrawnRoutes(
                 new WithdrawnRoutesBuilder().setDestinationType(

@@ -123,17 +123,17 @@ public class PeerTest extends AbstractRIBTestSetup {
         this.classic.onSessionUp(this.session);
         Assert.assertArrayEquals(new byte[] {1, 1, 1, 1}, this.classic.getRawIdentifier());
         assertEquals("BGPPeer{name=testPeer, tables=[TablesKey [_afi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily, _safi=class org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily]]}", this.classic.toString());
-        final List<Ipv4Prefix> prefs = Lists.newArrayList(new Ipv4Prefix("127.0.0.1/32"), new Ipv4Prefix("2.2.2.2/24"));
+        final List<Ipv4Prefix> prefs = Lists.newArrayList(new Ipv4Prefix("8.0.1.0/28"), new Ipv4Prefix("127.0.0.1/32"), new Ipv4Prefix("2.2.2.2/24"));
         final UpdateBuilder ub = new UpdateBuilder();
         ub.setNlri(new NlriBuilder().setNlri(prefs).build());
         ub.setAttributes(new AttributesBuilder().build());
         this.classic.onMessage(this.session, ub.build());
-        assertEquals(2, this.routes.size());
+        assertEquals(3, this.routes.size());
 
         //create new peer so that it gets advertized routes from RIB
         try (final BGPPeer testingPeer = new BGPPeer("testingPeer", getRib())) {
             testingPeer.onSessionUp(this.session);
-            assertEquals(2, this.routes.size());
+            assertEquals(3, this.routes.size());
             assertEquals(1, testingPeer.getBgpPeerState().getSessionEstablishedCount().intValue());
             assertEquals(1, testingPeer.getBgpPeerState().getRouteTable().size());
             assertNotNull(testingPeer.getBgpSessionState());
