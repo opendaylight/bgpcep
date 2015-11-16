@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7aade967_b2dad515",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/AbstractNumericByteOperandParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-11-16T17:59:49Z",
+      "side": 1,
+      "message": "final",
+      "revId": "f91ed1c0b4f47e7418925d11edd95c864c8974f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
