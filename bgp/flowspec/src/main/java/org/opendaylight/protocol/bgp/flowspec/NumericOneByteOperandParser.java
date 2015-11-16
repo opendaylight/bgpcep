@@ -10,11 +10,12 @@ package org.opendaylight.protocol.bgp.flowspec;
 import io.netty.buffer.ByteBuf;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.NumericOneByteValue;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.NumericOperand;
 
 /**
  * Parser class for NumericOneByteValues.
  */
-public final class NumericOneByteOperandParser extends AbstractNumericOperandParser<NumericOneByteValue> {
+public final class NumericOneByteOperandParser extends AbstractNumericByteOperandParser<NumericOneByteValue, Short> {
 
     public static final NumericOneByteOperandParser INSTANCE;
 
@@ -29,7 +30,7 @@ public final class NumericOneByteOperandParser extends AbstractNumericOperandPar
     /**
      * Serializes Flowspec component type that has maximum of 1B sized value field and numeric operand.
      *
-     * @param list of operands to be serialized
+     * @param list        of operands to be serialized
      * @param nlriByteBuf where the operands will be serialized
      */
     @Override
@@ -40,19 +41,13 @@ public final class NumericOneByteOperandParser extends AbstractNumericOperandPar
         }
     }
 
-    // TODO: duplicate code with NumericTwoByteValue
     @Override
-    public <T extends NumericOneByteValue> String toString(final List<T> list) {
-        final StringBuilder buffer = new StringBuilder();
-        boolean isFirst = true;
-        for (final T item : list) {
-            buffer.append(super.toString(item.getOp(), isFirst));
-            buffer.append(item.getValue());
-            buffer.append(' ');
-            if (isFirst) {
-                isFirst = false;
-            }
-        }
-        return buffer.toString();
+    protected <T extends NumericOneByteValue> Short getValue(final T item) {
+        return item.getValue();
+    }
+
+    @Override
+    <T extends NumericOneByteValue> NumericOperand getOp(final T item) {
+        return item.getOp();
     }
 }
