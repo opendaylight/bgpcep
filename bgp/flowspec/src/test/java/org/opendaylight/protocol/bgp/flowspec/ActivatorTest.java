@@ -19,7 +19,9 @@ public class ActivatorTest {
 
     @Test
     public void testActivator() throws Exception {
-        final BGPActivator act = new BGPActivator();
+        final SimpleFlowspecExtensionProviderContext fs_context = new SimpleFlowspecExtensionProviderContext();
+        final FlowspecActivator activator = new FlowspecActivator(fs_context);
+        final BGPActivator act = new BGPActivator(fs_context, activator);
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         assertNull(context.getSubsequentAddressFamilyRegistry().classForFamily(133));
         act.start(context);
