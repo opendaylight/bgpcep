@@ -21,11 +21,8 @@ import java.util.Set;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
-import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.BitmaskOperand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.Dscp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.Fragment;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.NumericOperand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.Flowspec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.FlowspecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.FlowspecType;
@@ -82,23 +79,11 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgum
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 
-public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer {
-
-    // component types values
-    protected static final int DESTINATION_PREFIX_VALUE = 1;
-    protected static final int SOURCE_PREFIX_VALUE = 2;
-    protected static final int PORT_VALUE = 4;
-    protected static final int DESTINATION_PORT_VALUE = 5;
-    protected static final int SOURCE_PORT_VALUE = 6;
-    protected static final int ICMP_TYPE_VALUE = 7;
-    protected static final int ICMP_CODE_VALUE = 8;
-    protected static final int TCP_FLAGS_VALUE = 9;
-    protected static final int PACKET_LENGTH_VALUE = 10;
-    protected static final int DSCP_VALUE = 11;
-    protected static final int FRAGMENT_VALUE = 12;
+public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSerializer {
 
     @VisibleForTesting
     static final NodeIdentifier FLOWSPEC_NID = new NodeIdentifier(Flowspec.QNAME);
@@ -134,6 +119,8 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
     protected static final int NLRI_LENGTH = 1;
     protected static final int NLRI_LENGTH_EXTENDED = 2;
 
+    protected SimpleFlowspecTypeRegistry flowspecTypeRegistry;
+
     /**
      * Add this constant to length value to achieve all ones in the leftmost nibble.
      */
@@ -150,32 +137,19 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
     @VisibleForTesting
     static final String IS_A_VALUE = "is-a";
 
-    protected static final int LAST_FRAGMENT = 4;
-    protected static final int FIRST_FRAGMENT = 5;
-    protected static final int IS_A_FRAGMENT = 6;
-    protected static final int DONT_FRAGMENT = 7;
-
     private static final String FLOW_SEPARATOR = " AND ";
 
     protected abstract void serializeMpReachNlri(final Attributes1 pathAttributes, final ByteBuf byteAggregator);
 
     protected abstract void serializeMpUnreachNlri(final Attributes2 pathAttributes, final ByteBuf byteAggregator);
 
-    protected abstract void serializeSpecificFSType(final FlowspecType fsType, final ByteBuf nlriByteBuf);
-
-    protected abstract byte serializeFragment(final Fragment fragment);
-
-    protected abstract Fragment parseFragment(final byte fragment);
-
-    protected abstract void setSpecificFlowspecType(final FlowspecBuilder builder, final short type, final ByteBuf nlri);
-
     public abstract void extractSpecificFlowspec(final ChoiceNode fsType, final FlowspecBuilder fsBuilder);
 
-    abstract DestinationType createWidthdrawnDestinationType(final List<Flowspec> dst);
+    protected abstract void stringSpecificFSNlriType(final FlowspecType value, final StringBuilder buffer);
+
+    abstract DestinationType createWithdrawnDestinationType(final List<Flowspec> dst);
 
     abstract DestinationType createAdvertizedRoutesDestinationType(final List<Flowspec> dst);
-
-    protected abstract void stringSpecificFSNlriType(final FlowspecType value, final StringBuilder buffer);
 
     @Override
     public final void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
@@ -194,7 +168,7 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
         }
         final List<Flowspec> dst = parseNlri(nlri);
 
-        builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(createWidthdrawnDestinationType(dst)).build());
+        builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(createWithdrawnDestinationType(dst)).build());
     }
 
     @Override
@@ -215,7 +189,7 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
     public final void serializeNlri(final List<Flowspec> flows, final ByteBuf buffer) {
         final ByteBuf nlriByteBuf = Unpooled.buffer();
         for (final Flowspec flow : flows) {
-            serializeFlowspec(flow, nlriByteBuf);
+            this.flowspecTypeRegistry.serializeFlowspecType(flow.getFlowspecType(), nlriByteBuf);
         }
         Preconditions.checkState(nlriByteBuf.readableBytes() <= MAX_NLRI_LENGTH, "Maximum length of Flowspec NLRI reached.");
         if (nlriByteBuf.readableBytes() <= MAX_NLRI_LENGTH_ONE_BYTE) {
@@ -226,271 +200,8 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
         buffer.writeBytes(nlriByteBuf);
     }
 
-    protected static final void serializeTcpFlags(final List<TcpFlags> flags, final ByteBuf nlriByteBuf) {
-        for (final TcpFlags flag : flags) {
-            final ByteBuf flagsBuf = Unpooled.buffer();
-            Util.writeShortest(flag.getValue(), flagsBuf);
-            BitmaskOperandParser.INSTANCE.serialize(flag.getOp(), flagsBuf.readableBytes(), nlriByteBuf);
-            nlriByteBuf.writeBytes(flagsBuf);
-        }
-    }
-
-    protected static final void serializeDscps(final List<Dscps> dscps, final ByteBuf nlriByteBuf) {
-        for (final Dscps dscp : dscps) {
-            NumericOneByteOperandParser.INSTANCE.serialize(dscp.getOp(), 1, nlriByteBuf);
-            Util.writeShortest(dscp.getValue().getValue(), nlriByteBuf);
-        }
-    }
-
-    protected final void serializeFragments(final List<Fragments> fragments, final ByteBuf nlriByteBuf) {
-        for (final Fragments fragment : fragments) {
-            BitmaskOperandParser.INSTANCE.serialize(fragment.getOp(), 1, nlriByteBuf);
-            nlriByteBuf.writeByte(serializeFragment(fragment.getValue()));
-        }
-    }
-
-    protected final void serializeFlowspec(final Flowspec flow, final ByteBuf nlriByteBuf) {
-        final FlowspecType fsType = flow.getFlowspecType();
-        if (fsType instanceof PortCase) {
-            nlriByteBuf.writeByte(PORT_VALUE);
-            NumericTwoByteOperandParser.INSTANCE.serialize(((PortCase) fsType).getPorts(), nlriByteBuf);
-        } else if (fsType instanceof DestinationPortCase) {
-            nlriByteBuf.writeByte(DESTINATION_PORT_VALUE);
-            NumericTwoByteOperandParser.INSTANCE.serialize(((DestinationPortCase) fsType).getDestinationPorts(), nlriByteBuf);
-        } else if (fsType instanceof SourcePortCase) {
-            nlriByteBuf.writeByte(SOURCE_PORT_VALUE);
-            NumericTwoByteOperandParser.INSTANCE.serialize(((SourcePortCase) fsType).getSourcePorts(), nlriByteBuf);
-        } else if (fsType instanceof IcmpTypeCase) {
-            nlriByteBuf.writeByte(ICMP_TYPE_VALUE);
-            NumericOneByteOperandParser.INSTANCE.serialize(((IcmpTypeCase) fsType).getTypes(), nlriByteBuf);
-        } else if (fsType instanceof IcmpCodeCase) {
-            nlriByteBuf.writeByte(ICMP_CODE_VALUE);
-            NumericOneByteOperandParser.INSTANCE.serialize(((IcmpCodeCase) fsType).getCodes(), nlriByteBuf);
-        } else if (fsType instanceof TcpFlagsCase) {
-            nlriByteBuf.writeByte(TCP_FLAGS_VALUE);
-            serializeTcpFlags(((TcpFlagsCase) fsType).getTcpFlags(), nlriByteBuf);
-        } else if (fsType instanceof PacketLengthCase) {
-            nlriByteBuf.writeByte(PACKET_LENGTH_VALUE);
-            NumericTwoByteOperandParser.INSTANCE.serialize(((PacketLengthCase) fsType).getPacketLengths(), nlriByteBuf);
-        } else if (fsType instanceof DscpCase) {
-            nlriByteBuf.writeByte(DSCP_VALUE);
-            serializeDscps(((DscpCase) fsType).getDscps(), nlriByteBuf);
-        } else {
-            serializeSpecificFSType(fsType, nlriByteBuf);
-        }
-    }
-
-    /**
-     * Parses Flowspec NLRI into list of Flowspec.
-     *
-     * @param nlri byte representation of NLRI which will be parsed
-     * @return list of Flowspec
-     */
-    public final List<Flowspec> parseNlri(final ByteBuf nlri) throws BGPParsingException {
-        if (!nlri.isReadable()) {
-            return null;
-        }
-        final List<Flowspec> fss = new ArrayList<>();
-
-        // length field can be one or two bytes (if needed)
-        // check the length of nlri to see how many bytes we can skip
-        final int length = nlri.readableBytes();
-        nlri.skipBytes(length > MAX_NLRI_LENGTH_ONE_BYTE ? NLRI_LENGTH_EXTENDED : NLRI_LENGTH);
-
-        while (nlri.isReadable()) {
-            final FlowspecBuilder builder = new FlowspecBuilder();
-            final short type = nlri.readUnsignedByte();
-            setFlowspecType(builder, type, nlri);
-            fss.add(builder.build());
-        }
-        return fss;
-    }
-
-    protected final void setFlowspecType(final FlowspecBuilder builder, final short type, final ByteBuf nlri) {
-        switch (type) {
-        case PORT_VALUE:
-            builder.setFlowspecType(new PortCaseBuilder().setPorts(parsePort(nlri)).build());
-            break;
-        case DESTINATION_PORT_VALUE:
-            builder.setFlowspecType(new DestinationPortCaseBuilder().setDestinationPorts(parseDestinationPort(nlri)).build());
-            break;
-        case SOURCE_PORT_VALUE:
-            builder.setFlowspecType(new SourcePortCaseBuilder().setSourcePorts(parseSourcePort(nlri)).build());
-            break;
-        case ICMP_TYPE_VALUE:
-            builder.setFlowspecType(new IcmpTypeCaseBuilder().setTypes(parseIcmpType(nlri)).build());
-            break;
-        case ICMP_CODE_VALUE:
-            builder.setFlowspecType(new IcmpCodeCaseBuilder().setCodes(parseIcmpCode(nlri)).build());
-            break;
-        case TCP_FLAGS_VALUE:
-            builder.setFlowspecType(new TcpFlagsCaseBuilder().setTcpFlags(parseTcpFlags(nlri)).build());
-            break;
-        case PACKET_LENGTH_VALUE:
-            builder.setFlowspecType(new PacketLengthCaseBuilder().setPacketLengths(parsePacketLength(nlri)).build());
-            break;
-        case DSCP_VALUE:
-            builder.setFlowspecType(new DscpCaseBuilder().setDscps(parseDscp(nlri)).build());
-            break;
-        default:
-            setSpecificFlowspecType(builder, type, nlri);
-            break;
-        }
-    }
-
-    private static List<Ports> parsePort(final ByteBuf nlri) {
-        final List<Ports> ports = new ArrayList<>();
-        boolean end = false;
-        // we can do this as all fields will be rewritten in the cycle
-        final PortsBuilder builder = new PortsBuilder();
-        while (!end) {
-            final byte b = nlri.readByte();
-            final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
-            builder.setOp(op);
-            final short length = AbstractOperandParser.parseLength(b);
-            builder.setValue(ByteArray.bytesToInt(ByteArray.readBytes(nlri, length)));
-            end = op.isEndOfList();
-            ports.add(builder.build());
-        }
-        return ports;
-    }
-
-    private static List<DestinationPorts> parseDestinationPort(final ByteBuf nlri) {
-        final List<DestinationPorts> ports = new ArrayList<>();
-        boolean end = false;
-        // we can do this as all fields will be rewritten in the cycle
-        final DestinationPortsBuilder builder = new DestinationPortsBuilder();
-        while (!end) {
-            final byte b = nlri.readByte();
-            final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
-            builder.setOp(op);
-            final short length = AbstractOperandParser.parseLength(b);
-            builder.setValue(ByteArray.bytesToInt(ByteArray.readBytes(nlri, length)));
-            end = op.isEndOfList();
-            ports.add(builder.build());
-        }
-        return ports;
-    }
-
-    private static List<SourcePorts> parseSourcePort(final ByteBuf nlri) {
-        final List<SourcePorts> ports = new ArrayList<>();
-        boolean end = false;
-        // we can do this as all fields will be rewritten in the cycle
-        final SourcePortsBuilder builder = new SourcePortsBuilder();
-        while (!end) {
-            final byte b = nlri.readByte();
-            final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
-            builder.setOp(op);
-            final short length = AbstractOperandParser.parseLength(b);
-            builder.setValue(ByteArray.bytesToInt(ByteArray.readBytes(nlri, length)));
-            end = op.isEndOfList();
-            ports.add(builder.build());
-        }
-        return ports;
-    }
-
-    private static List<Types> parseIcmpType(final ByteBuf nlri) {
-        final List<Types> types = new ArrayList<>();
-        boolean end = false;
-        // we can do this as all fields will be rewritten in the cycle
-        final TypesBuilder builder = new TypesBuilder();
-        while (!end) {
-            final byte b = nlri.readByte();
-            final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
-            builder.setOp(op);
-            builder.setValue(nlri.readUnsignedByte());
-            end = op.isEndOfList();
-            types.add(builder.build());
-        }
-        return types;
-    }
-
-    private static List<Codes> parseIcmpCode(final ByteBuf nlri) {
-        final List<Codes> codes = new ArrayList<>();
-        boolean end = false;
-        // we can do this as all fields will be rewritten in the cycle
-        final CodesBuilder builder = new CodesBuilder();
-        while (!end) {
-            final byte b = nlri.readByte();
-            final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
-            builder.setOp(op);
-            builder.setValue(nlri.readUnsignedByte());
-            end = op.isEndOfList();
-            codes.add(builder.build());
-        }
-        return codes;
-    }
-
-    private static List<TcpFlags> parseTcpFlags(final ByteBuf nlri) {
-        final List<TcpFlags> flags = new ArrayList<>();
-        boolean end = false;
-        // we can do this as all fields will be rewritten in the cycle
-        final TcpFlagsBuilder builder = new TcpFlagsBuilder();
-        while (!end) {
-            final byte b = nlri.readByte();
-            final BitmaskOperand op = BitmaskOperandParser.INSTANCE.parse(b);
-            builder.setOp(op);
-            final short length = AbstractOperandParser.parseLength(b);
-            builder.setValue(ByteArray.bytesToInt(ByteArray.readBytes(nlri, length)));
-            end = op.isEndOfList();
-            flags.add(builder.build());
-        }
-        return flags;
-    }
-
-    private static List<PacketLengths> parsePacketLength(final ByteBuf nlri) {
-        final List<PacketLengths> plengths = new ArrayList<>();
-        boolean end = false;
-        // we can do this as all fields will be rewritten in the cycle
-        final PacketLengthsBuilder builder = new PacketLengthsBuilder();
-        while (!end) {
-            final byte b = nlri.readByte();
-            // RFC does not specify which operand to use
-            final NumericOperand op = NumericTwoByteOperandParser.INSTANCE.parse(b);
-            builder.setOp(op);
-            final short length = AbstractOperandParser.parseLength(b);
-            builder.setValue(ByteArray.bytesToInt(ByteArray.readBytes(nlri, length)));
-            end = op.isEndOfList();
-            plengths.add(builder.build());
-        }
-        return plengths;
-    }
-
-    private static List<Dscps> parseDscp(final ByteBuf nlri) {
-        final List<Dscps> dscps = new ArrayList<>();
-        boolean end = false;
-        // we can do this as all fields will be rewritten in the cycle
-        final DscpsBuilder builder = new DscpsBuilder();
-        while (!end) {
-            final byte b = nlri.readByte();
-            // RFC does not specify operator
-            final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
-            builder.setOp(op);
-            builder.setValue(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.Dscp(nlri.readUnsignedByte()));
-            end = op.isEndOfList();
-            dscps.add(builder.build());
-        }
-        return dscps;
-    }
-
-    protected final List<Fragments> parseFragment(final ByteBuf nlri) {
-        final List<Fragments> fragments = new ArrayList<>();
-        boolean end = false;
-        // we can do this as all fields will be rewritten in the cycle
-        final FragmentsBuilder builder = new FragmentsBuilder();
-        while (!end) {
-            final byte b = nlri.readByte();
-            final BitmaskOperand op = BitmaskOperandParser.INSTANCE.parse(b);
-            builder.setOp(op);
-            builder.setValue(parseFragment(nlri.readByte()));
-            end = op.isEndOfList();
-            fragments.add(builder.build());
-        }
-        return fragments;
-    }
-
-    public final String stringNlri(final DataContainerNode<?> route) {
-        return stringNlri(extractFlowspec(route));
+    public final String stringNlri(final DataContainerNode<?> flowspec) {
+        return stringNlri(extractFlowspec((MapEntryNode) flowspec));
     }
 
     public final List<Flowspec> extractFlowspec(final DataContainerNode<?> route) {
@@ -558,9 +269,11 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
 
         for (final UnkeyedListEntryNode node : destinationPortsData.getValue()) {
             final DestinationPortsBuilder destPortsBuilder = new DestinationPortsBuilder();
-            final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
-            if (opValue.isPresent()) {
-                destPortsBuilder.setOp(NumericTwoByteOperandParser.INSTANCE.create((Set<String>) opValue.get().getValue()));
+            if (node.getNodeType().getLocalName().equals("op")) {
+                final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
+                if (opValue.isPresent()) {
+                    destPortsBuilder.setOp(NumericTwoByteOperandParser.INSTANCE.create((Set<String>) opValue.get().getValue()));
+                }
             }
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
             if (valueNode.isPresent()) {
@@ -722,7 +435,7 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
     }
 
     @VisibleForTesting
-    private String encodeFlow(final Flowspec flow) {
+    final String encodeFlow(final Flowspec flow) {
         final StringBuilder buffer = new StringBuilder();
         final FlowspecType value = flow.getFlowspecType();
         if (value instanceof PortCase) {
@@ -812,4 +525,30 @@ public abstract class AbstractFSNlriParser implements NlriParser, NlriSerializer
         }
         return buffer.toString();
     }
+
+    /**
+     * Parses Flowspec NLRI into list of Flowspec.
+     *
+     * @param nlri byte representation of NLRI which will be parsed
+     * @return list of Flowspec
+     */
+    public final List<Flowspec> parseNlri(final ByteBuf nlri) throws BGPParsingException {
+        if (!nlri.isReadable()) {
+            return null;
+        }
+        final List<Flowspec> fss = new ArrayList<>();
+
+        // length field can be one or two bytes (if needed)
+        // check the length of nlri to see how many bytes we can skip
+        final int length = nlri.readableBytes();
+        nlri.skipBytes(length > MAX_NLRI_LENGTH_ONE_BYTE ? NLRI_LENGTH_EXTENDED : NLRI_LENGTH);
+
+        while (nlri.isReadable()) {
+            final FlowspecBuilder builder = new FlowspecBuilder();
+            builder.setFlowspecType(this.flowspecTypeRegistry.parseFlowspecType(nlri));
+            fss.add(builder.build());
+        }
+        return fss;
+    }
+
 }
