@@ -21,9 +21,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 
 public final class FlowspecIpv6RIBSupport extends AbstractFlowspecRIBSupport {
 
-    private static final FSIpv6NlriParser FS_PARSER = new FSIpv6NlriParser();
-
-    private static final FlowspecIpv6RIBSupport SINGLETON = new FlowspecIpv6RIBSupport();
+    private SimpleFlowspecIpv6NlriParser FS_PARSER;
 
     private final NodeIdentifier destinationNid = new NodeIdentifier(DestinationFlowspec.QNAME);
     private final NodeIdentifier routeNid = new NodeIdentifier(FlowspecRoute.QNAME);
@@ -33,12 +31,13 @@ public final class FlowspecIpv6RIBSupport extends AbstractFlowspecRIBSupport {
             .withNodeIdentifier(new NodeIdentifier(FlowspecIpv6Routes.QNAME))
             .addChild(ImmutableNodes.mapNodeBuilder(FlowspecRoute.QNAME).build()).build()).build();
 
-    private FlowspecIpv6RIBSupport() {
+    public FlowspecIpv6RIBSupport(SimpleFlowspecExtensionProviderContext context) {
         super(FlowspecIpv6RoutesCase.class, FlowspecIpv6Routes.class, FlowspecRoute.class);
+        FS_PARSER = new SimpleFlowspecIpv6NlriParser(context.getFlowspecIpv6TypeRegistry());
     }
 
-    static FlowspecIpv6RIBSupport getInstance() {
-        return SINGLETON;
+    static FlowspecIpv6RIBSupport getInstance(SimpleFlowspecExtensionProviderContext context) {
+        return new FlowspecIpv6RIBSupport(context);
     }
 
     @Override
@@ -57,7 +56,7 @@ public final class FlowspecIpv6RIBSupport extends AbstractFlowspecRIBSupport {
     }
 
     @Override
-    protected AbstractFSNlriParser getParser() {
+    protected AbstractFlowspecNlriParser getParser() {
         return FS_PARSER;
     }
 

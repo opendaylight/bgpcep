@@ -8,7 +8,9 @@
 package org.opendaylight.controller.config.yang.bgp.flowspec;
 
 import org.opendaylight.protocol.bgp.flowspec.BGPActivator;
+import org.opendaylight.protocol.bgp.flowspec.FlowspecActivator;
 import org.opendaylight.protocol.bgp.flowspec.RIBActivator;
+import org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
@@ -31,8 +33,10 @@ public class FlowspecModule extends org.opendaylight.controller.config.yang.bgp.
     @Override
     public java.lang.AutoCloseable createInstance() {
         final class FlowspecExtension implements AutoCloseable, BGPExtensionProviderActivator, RIBExtensionProviderActivator {
-            private final BGPExtensionProviderActivator bgpact = new BGPActivator();
-            private final RIBExtensionProviderActivator ribact = new RIBActivator();
+            private final SimpleFlowspecExtensionProviderContext flowspecContext = new SimpleFlowspecExtensionProviderContext();
+            private final FlowspecActivator fsActivator = new FlowspecActivator(flowspecContext);
+            private final BGPActivator bgpact = new BGPActivator(flowspecContext, fsActivator);
+            private final RIBExtensionProviderActivator ribact = new RIBActivator(flowspecContext);
 
             @Override
             public void close() {
@@ -62,6 +66,7 @@ public class FlowspecModule extends org.opendaylight.controller.config.yang.bgp.
             @Override
             public void stop() {
                 this.bgpact.stop();
+                this.fsActivator.close();
             }
         }
         return new FlowspecExtension();
