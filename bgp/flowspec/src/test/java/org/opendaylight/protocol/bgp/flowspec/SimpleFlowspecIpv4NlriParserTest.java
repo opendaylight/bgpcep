@@ -69,10 +69,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.ipv4.flowspec.flowspec.type.SourcePrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.ipv4.flowspec.flowspec.type.protocol.ip._case.ProtocolIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.ipv4.flowspec.flowspec.type.protocol.ip._case.ProtocolIpsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.ipv6.flowspec.flowspec.type.FlowLabelCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.ipv6.flowspec.flowspec.type.FlowLabelCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.ipv6.flowspec.flowspec.type.flow.label._case.FlowLabel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.ipv6.flowspec.flowspec.type.flow.label._case.FlowLabelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.routes.flowspec.routes.FlowspecRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCaseBuilder;
@@ -92,7 +88,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
 
-public class FSIpv4NlriParserTest {
+public class SimpleFlowspecIpv4NlriParserTest {
 
     private static final byte[] REACHED_NLRI = new byte[] { 0x21,
         01, 0x20, 0x0a, 00, 01, 00,
@@ -110,7 +106,9 @@ public class FSIpv4NlriParserTest {
         0x0b, (byte) 0x82, 0x2a,
         0x0c, (byte) 0x81, (byte) 0x0e};
 
-    private static final FSIpv4NlriParser FS_PARSER = new FSIpv4NlriParser();
+    private final SimpleFlowspecExtensionProviderContext flowspecContext = new SimpleFlowspecExtensionProviderContext();
+    private final FlowspecActivator fsa = new FlowspecActivator(flowspecContext);
+    private final SimpleFlowspecIpv4NlriParser FS_PARSER = new SimpleFlowspecIpv4NlriParser(flowspecContext.getFlowspecIpv4TypeRegistry());
 
     @Test
     public void testParseMpReachNlri() throws BGPParsingException {
@@ -150,7 +148,7 @@ public class FSIpv4NlriParserTest {
 
         mp.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(new DestinationFlowspecCaseBuilder().setDestinationFlowspec(new DestinationFlowspecBuilder().setFlowspec(fs).build()).build()).build());
 
-        final FSIpv4NlriParser parser = new FSIpv4NlriParser();
+        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(flowspecContext.getFlowspecIpv4TypeRegistry());
 
         final MpReachNlriBuilder result = new MpReachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
@@ -212,16 +210,11 @@ public class FSIpv4NlriParserTest {
         builder.setFlowspecType(fragment);
         fs.add(builder.build());
 
-        final List<FlowLabel> labels = Lists.newArrayList(new FlowLabelBuilder().setOp(new NumericOperand(false, true, true, false, false)).setValue(new Long(16777222L)).build());
-        final FlowLabelCase label = new FlowLabelCaseBuilder().setFlowLabel(labels).build();
-        builder.setFlowspecType(label);
-        fs.add(builder.build());
-
         mp.setAfi(Ipv4AddressFamily.class).setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecCaseBuilder().setDestinationFlowspec(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.flowspec._case.DestinationFlowspecBuilder().setFlowspec(fs).build()).build()).build());
 
-        final FSIpv4NlriParser parser = new FSIpv4NlriParser();
+        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(flowspecContext.getFlowspecIpv4TypeRegistry());
 
         final MpUnreachNlriBuilder result = new MpUnreachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
@@ -237,10 +230,14 @@ public class FSIpv4NlriParserTest {
         assertEquals(fragment, flows.get(5).getFlowspecType());
 
         final ByteBuf buffer = Unpooled.buffer();
+        parser.serializeNlri(flows, buffer);
+        assertArrayEquals(UNREACHED_NLRI, ByteArray.readAllBytes(buffer));
+
         parser.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes2.class, new Attributes2Builder().setMpUnreachNlri(mp.build()).build()).build(), buffer);
         assertArrayEquals(UNREACHED_NLRI, ByteArray.readAllBytes(buffer));
 
         assertEquals("all packets where ICMP type is less than 2 or is less than 3 AND where ICMP code is less than 4 or 5 AND where TCP flags is not 1025 or does match 22193 AND where packet length is less than 57005 AND where DSCP is greater than 42 AND where fragment does match 'IS FIRST' 'IS LAST' 'IS A' ", FS_PARSER.stringNlri(flows));
+
     }
 
     @Test
@@ -248,12 +245,12 @@ public class FSIpv4NlriParserTest {
         final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry = Builders.mapEntryBuilder();
         entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
-            .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+            .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
-                .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+                .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
                 .withChild(Builders.choiceBuilder()
-                    .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_TYPE_NID)
-                    .withChild(Builders.leafBuilder().withNodeIdentifier(AbstractFSNlriParser.DEST_PREFIX_NID).withValue("127.0.0.5/32").build()).build()).build()).build());
+                    .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_TYPE_NID)
+                    .withChild(Builders.leafBuilder().withNodeIdentifier(AbstractFlowspecNlriParser.DEST_PREFIX_NID).withValue("127.0.0.5/32").build()).build()).build()).build());
 
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
         expectedFS.setFlowspecType(new DestinationPrefixCaseBuilder().setDestinationPrefix(new Ipv4Prefix("127.0.0.5/32")).build());
@@ -267,12 +264,12 @@ public class FSIpv4NlriParserTest {
         final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry = Builders.mapEntryBuilder();
         entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
-            .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+            .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
-                .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+                .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
                 .withChild(Builders.choiceBuilder()
-                    .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_TYPE_NID)
-                    .withChild(Builders.leafBuilder().withNodeIdentifier(AbstractFSNlriParser.SOURCE_PREFIX_NID).withValue("127.0.0.6/32").build()).build()).build()).build());
+                    .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_TYPE_NID)
+                    .withChild(Builders.leafBuilder().withNodeIdentifier(AbstractFlowspecNlriParser.SOURCE_PREFIX_NID).withValue("127.0.0.6/32").build()).build()).build()).build());
 
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
         expectedFS.setFlowspecType(new SourcePrefixCaseBuilder().setSourcePrefix(new Ipv4Prefix("127.0.0.6/32")).build());
@@ -286,21 +283,21 @@ public class FSIpv4NlriParserTest {
         final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry = Builders.mapEntryBuilder();
         entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
-            .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+            .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
-                .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+                .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
                 .withChild(Builders.choiceBuilder()
-                    .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_TYPE_NID)
-                    .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FSIpv4NlriParser.PROTOCOL_IP_NID)
-                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.PROTOCOL_IP_NID)
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.END_OF_LIST_VALUE, AbstractOperandParser.AND_BIT_VALUE)).build())
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue((short) 100).build()).build())
-                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.PROTOCOL_IP_NID)
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE)).build())
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue((short) 200).build()).build())
-                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.PROTOCOL_IP_NID)
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.END_OF_LIST_VALUE, AbstractOperandParser.AND_BIT_VALUE, AbstractNumericOperandParser.EQUALS_VALUE)).build())
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue((short) 240).build()).build())
+                    .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_TYPE_NID)
+                    .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.PROTOCOL_IP_NID)
+                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.PROTOCOL_IP_NID)
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.END_OF_LIST_VALUE, AbstractOperandParser.AND_BIT_VALUE)).build())
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.VALUE_NID).withValue((short) 100).build()).build())
+                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.PROTOCOL_IP_NID)
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE)).build())
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.VALUE_NID).withValue((short) 200).build()).build())
+                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.PROTOCOL_IP_NID)
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.END_OF_LIST_VALUE, AbstractOperandParser.AND_BIT_VALUE, AbstractNumericOperandParser.EQUALS_VALUE)).build())
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.VALUE_NID).withValue((short) 240).build()).build())
                         .build()).build()).build()).build());
 
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
@@ -318,15 +315,15 @@ public class FSIpv4NlriParserTest {
         final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry = Builders.mapEntryBuilder();
         entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
-            .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+            .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
-                .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+                .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
                 .withChild(Builders.choiceBuilder()
-                    .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_TYPE_NID)
-                    .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FSIpv4NlriParser.PORTS_NID)
-                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.PROTOCOL_IP_NID)
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.END_OF_LIST_VALUE, AbstractOperandParser.AND_BIT_VALUE, AbstractNumericOperandParser.LESS_THAN_VALUE)).build())
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue(100).build()).build())
+                    .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_TYPE_NID)
+                    .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.PORTS_NID)
+                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.PROTOCOL_IP_NID)
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.END_OF_LIST_VALUE, AbstractOperandParser.AND_BIT_VALUE, AbstractNumericOperandParser.LESS_THAN_VALUE)).build())
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.VALUE_NID).withValue(100).build()).build())
                 .build()).build()).build()).build());
 
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
@@ -341,15 +338,15 @@ public class FSIpv4NlriParserTest {
         final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry = Builders.mapEntryBuilder();
         entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
-            .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+            .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
-                .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+                .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
                 .withChild(Builders.choiceBuilder()
-                    .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_TYPE_NID)
-                    .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FSIpv4NlriParser.DEST_PORT_NID)
-                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID)
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.END_OF_LIST_VALUE, AbstractNumericOperandParser.EQUALS_VALUE)).build())
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue(1024).build()).build())
+                    .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_TYPE_NID)
+                    .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.DEST_PORT_NID)
+                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.OP_NID)
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.END_OF_LIST_VALUE, AbstractNumericOperandParser.EQUALS_VALUE)).build())
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.VALUE_NID).withValue(1024).build()).build())
                 .build()).build()).build()).build());
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
         expectedFS.setFlowspecType(new DestinationPortCaseBuilder().setDestinationPorts(Lists.<DestinationPorts>newArrayList(new DestinationPortsBuilder().setValue(1024).setOp(new NumericOperand(false, true, true, false, false)).build())).build());
@@ -363,15 +360,15 @@ public class FSIpv4NlriParserTest {
         final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry = Builders.mapEntryBuilder();
         entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
-            .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+            .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
-                .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+                .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
                 .withChild(Builders.choiceBuilder()
-                    .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_TYPE_NID)
-                    .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FSIpv4NlriParser.SOURCE_PORT_NID)
-                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID)
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE, AbstractOperandParser.END_OF_LIST_VALUE, AbstractNumericOperandParser.EQUALS_VALUE, AbstractNumericOperandParser.GREATER_THAN_VALUE, AbstractNumericOperandParser.LESS_THAN_VALUE)).build())
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue(8080).build()).build())
+                    .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_TYPE_NID)
+                    .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.SOURCE_PORT_NID)
+                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.OP_NID)
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE, AbstractOperandParser.END_OF_LIST_VALUE, AbstractNumericOperandParser.EQUALS_VALUE, AbstractNumericOperandParser.GREATER_THAN_VALUE, AbstractNumericOperandParser.LESS_THAN_VALUE)).build())
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.VALUE_NID).withValue(8080).build()).build())
                 .build()).build()).build()).build());
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
         expectedFS.setFlowspecType(new SourcePortCaseBuilder().setSourcePorts(Lists.<SourcePorts>newArrayList(new SourcePortsBuilder().setValue(8080).setOp(new NumericOperand(true, true, true, true, true)).build())).build());
@@ -385,15 +382,15 @@ public class FSIpv4NlriParserTest {
         final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry = Builders.mapEntryBuilder();
         entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
-            .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+            .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
-                .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+                .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
                 .withChild(Builders.choiceBuilder()
-                    .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_TYPE_NID)
-                    .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FSIpv4NlriParser.ICMP_TYPE_NID)
-                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID)
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE, AbstractOperandParser.END_OF_LIST_VALUE, AbstractNumericOperandParser.EQUALS_VALUE, AbstractNumericOperandParser.GREATER_THAN_VALUE, AbstractNumericOperandParser.LESS_THAN_VALUE)).build())
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue((short) 22).build()).build())
+                    .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_TYPE_NID)
+                    .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.ICMP_TYPE_NID)
+                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.OP_NID)
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE, AbstractOperandParser.END_OF_LIST_VALUE, AbstractNumericOperandParser.EQUALS_VALUE, AbstractNumericOperandParser.GREATER_THAN_VALUE, AbstractNumericOperandParser.LESS_THAN_VALUE)).build())
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.VALUE_NID).withValue((short) 22).build()).build())
                 .build()).build()).build()).build());
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
         expectedFS.setFlowspecType(new IcmpTypeCaseBuilder().setTypes(Lists.<Types>newArrayList(new TypesBuilder().setValue((short) 22).setOp(new NumericOperand(true, true, true, true, true)).build())).build());
@@ -407,15 +404,15 @@ public class FSIpv4NlriParserTest {
         final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry = Builders.mapEntryBuilder();
         entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
-            .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+            .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
-                .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+                .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
                 .withChild(Builders.choiceBuilder()
-                    .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_TYPE_NID)
-                    .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FSIpv4NlriParser.ICMP_CODE_NID)
-                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID)
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet()).build())
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue((short) 23).build()).build())
+                    .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_TYPE_NID)
+                    .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.ICMP_CODE_NID)
+                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.OP_NID)
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet()).build())
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.VALUE_NID).withValue((short) 23).build()).build())
                 .build()).build()).build()).build());
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
         expectedFS.setFlowspecType(new IcmpCodeCaseBuilder().setCodes(Lists.<Codes>newArrayList(new CodesBuilder().setValue((short) 23).setOp(new NumericOperand(false, false, false, false, false)).build())).build());
@@ -429,15 +426,15 @@ public class FSIpv4NlriParserTest {
         final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry = Builders.mapEntryBuilder();
         entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
-            .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+            .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
-                .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+                .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
                 .withChild(Builders.choiceBuilder()
-                    .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_TYPE_NID)
-                    .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FSIpv4NlriParser.TCP_FLAGS_NID)
-                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID)
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE, AbstractOperandParser.END_OF_LIST_VALUE)).build())
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue(99).build()).build())
+                    .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_TYPE_NID)
+                    .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.TCP_FLAGS_NID)
+                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.OP_NID)
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE, AbstractOperandParser.END_OF_LIST_VALUE)).build())
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.VALUE_NID).withValue(99).build()).build())
                 .build()).build()).build()).build());
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
         expectedFS.setFlowspecType(new TcpFlagsCaseBuilder().setTcpFlags(Lists.<TcpFlags>newArrayList(new TcpFlagsBuilder().setValue(99).setOp(new BitmaskOperand(true, true, false, false)).build())).build());
@@ -451,15 +448,15 @@ public class FSIpv4NlriParserTest {
         final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry = Builders.mapEntryBuilder();
         entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
-            .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+            .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
-                .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+                .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
                 .withChild(Builders.choiceBuilder()
-                    .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_TYPE_NID)
-                    .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FSIpv4NlriParser.PACKET_LENGTHS_NID)
-                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID)
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE, AbstractNumericOperandParser.GREATER_THAN_VALUE)).build())
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue(101).build()).build())
+                    .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_TYPE_NID)
+                    .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.PACKET_LENGTHS_NID)
+                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.OP_NID)
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE, AbstractNumericOperandParser.GREATER_THAN_VALUE)).build())
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.VALUE_NID).withValue(101).build()).build())
                .build()).build()).build()).build());
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
         expectedFS.setFlowspecType(new PacketLengthCaseBuilder().setPacketLengths(Lists.<PacketLengths>newArrayList(new PacketLengthsBuilder().setValue(101).setOp(new NumericOperand(true, false, false, true, false)).build())).build());
@@ -473,15 +470,15 @@ public class FSIpv4NlriParserTest {
         final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry = Builders.mapEntryBuilder();
         entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
-            .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+            .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
-                .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+                .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
                 .withChild(Builders.choiceBuilder()
-                    .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_TYPE_NID)
-                    .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FSIpv4NlriParser.DSCP_NID)
-                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID)
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE, AbstractOperandParser.END_OF_LIST_VALUE, AbstractNumericOperandParser.GREATER_THAN_VALUE)).build())
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue((short)15).build()).build())
+                    .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_TYPE_NID)
+                    .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.DSCP_NID)
+                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.OP_NID)
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE, AbstractOperandParser.END_OF_LIST_VALUE, AbstractNumericOperandParser.GREATER_THAN_VALUE)).build())
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.VALUE_NID).withValue((short)15).build()).build())
                .build()).build()).build()).build());
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
         expectedFS.setFlowspecType(new DscpCaseBuilder().setDscps(Lists.<Dscps>newArrayList(new DscpsBuilder().setValue(new Dscp((short)15)).setOp(new NumericOperand(true, true, false, true, false)).build())).build());
@@ -495,15 +492,15 @@ public class FSIpv4NlriParserTest {
         final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry = Builders.mapEntryBuilder();
         entry.withNodeIdentifier(new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(Builders.unkeyedListBuilder()
-            .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+            .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
             .withChild(Builders.unkeyedListEntryBuilder()
-                .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_NID)
+                .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
                 .withChild(Builders.choiceBuilder()
-                    .withNodeIdentifier(AbstractFSNlriParser.FLOWSPEC_TYPE_NID)
-                    .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FSIpv4NlriParser.FRAGMENT_NID)
-                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID)
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE, AbstractOperandParser.END_OF_LIST_VALUE, BitmaskOperandParser.MATCH_VALUE, BitmaskOperandParser.NOT_VALUE)).build())
-                                .withChild(Builders.leafBuilder().withNodeIdentifier(FSIpv4NlriParser.VALUE_NID).withValue(Sets.newHashSet(FSIpv4NlriParser.DO_NOT_VALUE, FSIpv4NlriParser.FIRST_VALUE, FSIpv4NlriParser.IS_A_VALUE, FSIpv4NlriParser.LAST_VALUE)).build()).build())
+                    .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_TYPE_NID)
+                    .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.FRAGMENT_NID)
+                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.OP_NID)
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.OP_NID).withValue(Sets.<String>newHashSet(AbstractOperandParser.AND_BIT_VALUE, AbstractOperandParser.END_OF_LIST_VALUE, BitmaskOperandParser.MATCH_VALUE, BitmaskOperandParser.NOT_VALUE)).build())
+                                .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.VALUE_NID).withValue(Sets.newHashSet(SimpleFlowspecIpv4NlriParser.DO_NOT_VALUE, SimpleFlowspecIpv4NlriParser.FIRST_VALUE, SimpleFlowspecIpv4NlriParser.IS_A_VALUE, SimpleFlowspecIpv4NlriParser.LAST_VALUE)).build()).build())
                 .build()).build()).build()).build());
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
         expectedFS.setFlowspecType(new FragmentCaseBuilder().setFragments(Lists.<Fragments>newArrayList(new FragmentsBuilder().setValue(new Fragment(true, true, true, true)).setOp(new BitmaskOperand(true, true, true, true)).build())).build());

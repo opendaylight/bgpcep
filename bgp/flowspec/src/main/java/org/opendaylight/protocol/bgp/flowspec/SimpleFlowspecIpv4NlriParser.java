@@ -13,16 +13,11 @@ import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.opendaylight.protocol.util.BitArray;
-import org.opendaylight.protocol.util.Ipv4Util;
+import org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecTypeRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.Fragment;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.NumericOperand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.Flowspec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.FlowspecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.FlowspecType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.flowspec.type.FragmentCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.flowspec.type.FragmentCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.ipv4.flowspec.flowspec.type.DestinationPrefixCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.ipv4.flowspec.flowspec.type.DestinationPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.ipv4.flowspec.flowspec.type.ProtocolIpCase;
@@ -32,8 +27,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.ipv4.flowspec.flowspec.type.protocol.ip._case.ProtocolIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.ipv4.flowspec.flowspec.type.protocol.ip._case.ProtocolIpsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.flowspec._case.DestinationFlowspecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.DestinationType;
@@ -46,58 +39,19 @@ import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 
-public final class FSIpv4NlriParser extends AbstractFSNlriParser {
-
-    private static final int IP_PROTOCOL_VALUE = 3;
+public final class SimpleFlowspecIpv4NlriParser extends AbstractFlowspecNlriParser {
 
     @VisibleForTesting
     static final NodeIdentifier PROTOCOL_IP_NID = new NodeIdentifier(ProtocolIps.QNAME);
 
-    @Override
-    protected void serializeMpReachNlri(final Attributes1 pathAttributes, final ByteBuf byteAggregator) {
-        if (pathAttributes == null) {
-            return;
-        }
-        final AdvertizedRoutes routes = (pathAttributes.getMpReachNlri()).getAdvertizedRoutes();
-        if (routes != null && routes.getDestinationType() instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCase) {
-            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCase flowspecCase = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCase) routes.getDestinationType();
-            serializeNlri(flowspecCase.getDestinationFlowspec().getFlowspec(), byteAggregator);
-        }
+    public SimpleFlowspecIpv4NlriParser(SimpleFlowspecTypeRegistry flowspecTypeRegistry) {
+        this.flowspecTypeRegistry = flowspecTypeRegistry;
     }
 
     @Override
-    protected void serializeMpUnreachNlri(final Attributes2 pathAttributes, final ByteBuf byteAggregator) {
-        if (pathAttributes == null) {
-            return;
-        }
-        final MpUnreachNlri mpUnreachNlri = pathAttributes.getMpUnreachNlri();
-        if (mpUnreachNlri.getWithdrawnRoutes() != null && mpUnreachNlri.getWithdrawnRoutes().getDestinationType() instanceof DestinationFlowspecCase) {
-            final DestinationFlowspecCase flowspecCase = (DestinationFlowspecCase) mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
-            serializeNlri(flowspecCase.getDestinationFlowspec().getFlowspec(), byteAggregator);
-        }
-    }
-
-    @Override
-    protected void serializeSpecificFSType(final FlowspecType value, final ByteBuf nlriByteBuf) {
-        if (value instanceof DestinationPrefixCase) {
-            nlriByteBuf.writeByte(DESTINATION_PREFIX_VALUE);
-            nlriByteBuf.writeBytes(Ipv4Util.bytesForPrefixBegin(((DestinationPrefixCase) value).getDestinationPrefix()));
-        } else if (value instanceof SourcePrefixCase) {
-            nlriByteBuf.writeByte(SOURCE_PREFIX_VALUE);
-            nlriByteBuf.writeBytes(Ipv4Util.bytesForPrefixBegin(((SourcePrefixCase) value).getSourcePrefix()));
-        } else if (value instanceof ProtocolIpCase) {
-            nlriByteBuf.writeByte(IP_PROTOCOL_VALUE);
-            NumericOneByteOperandParser.INSTANCE.serialize(((ProtocolIpCase) value).getProtocolIps(), nlriByteBuf);
-        } else if (value instanceof FragmentCase) {
-            nlriByteBuf.writeByte(FRAGMENT_VALUE);
-            serializeFragments(((FragmentCase) value).getFragments(), nlriByteBuf);
-        }
-    }
-
-    @Override
-    DestinationType createWidthdrawnDestinationType(final List<Flowspec> dst) {
-        return new DestinationFlowspecCaseBuilder().setDestinationFlowspec(
-            new DestinationFlowspecBuilder().setFlowspec(
+    DestinationType createWithdrawnDestinationType(final List<Flowspec> dst) {
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecCaseBuilder().setDestinationFlowspec(
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.flowspec._case.DestinationFlowspecBuilder().setFlowspec(
                 dst).build()).build();
     }
 
@@ -109,55 +63,15 @@ public final class FSIpv4NlriParser extends AbstractFSNlriParser {
     }
 
     @Override
-    protected void setSpecificFlowspecType(final FlowspecBuilder builder, final short type, final ByteBuf nlri) {
-        switch (type) {
-        case DESTINATION_PREFIX_VALUE:
-            builder.setFlowspecType(new DestinationPrefixCaseBuilder().setDestinationPrefix(Ipv4Util.prefixForByteBuf(nlri)).build());
-            break;
-        case SOURCE_PREFIX_VALUE:
-            builder.setFlowspecType(new SourcePrefixCaseBuilder().setSourcePrefix(Ipv4Util.prefixForByteBuf(nlri)).build());
-            break;
-        case IP_PROTOCOL_VALUE:
-            builder.setFlowspecType(new ProtocolIpCaseBuilder().setProtocolIps(parseProtocolIp(nlri)).build());
-            break;
-        case FRAGMENT_VALUE:
-            builder.setFlowspecType(new FragmentCaseBuilder().setFragments(parseFragment(nlri)).build());
-            break;
-        default:
-            break;
+    protected void serializeMpReachNlri(final Attributes1 pathAttributes, final ByteBuf byteAggregator) {
+        if (pathAttributes == null) {
+            return;
         }
-    }
-
-    private static List<ProtocolIps> parseProtocolIp(final ByteBuf nlri) {
-        final List<ProtocolIps> ips = new ArrayList<>();
-        boolean end = false;
-        // we can do this as all fields will be rewritten in the cycle
-        final ProtocolIpsBuilder builder = new ProtocolIpsBuilder();
-        while (!end) {
-            final byte b = nlri.readByte();
-            final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
-            builder.setOp(op);
-            builder.setValue(nlri.readUnsignedByte());
-            end = op.isEndOfList();
-            ips.add(builder.build());
+        final AdvertizedRoutes routes = (pathAttributes.getMpReachNlri()).getAdvertizedRoutes();
+        if (routes != null && routes.getDestinationType() instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCase) {
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCase flowspecCase = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCase) routes.getDestinationType();
+            serializeNlri(flowspecCase.getDestinationFlowspec().getFlowspec(), byteAggregator);
         }
-        return ips;
-    }
-
-    @Override
-    protected Fragment parseFragment(final byte fragment) {
-        final BitArray bs = BitArray.valueOf(fragment);
-        return new Fragment(bs.get(DONT_FRAGMENT), bs.get(FIRST_FRAGMENT), bs.get(IS_A_FRAGMENT), bs.get(LAST_FRAGMENT));
-    }
-
-    @Override
-    protected byte serializeFragment(final Fragment fragment) {
-        final BitArray bs = new BitArray(Byte.SIZE);
-        bs.set(DONT_FRAGMENT, fragment.isDoNot());
-        bs.set(FIRST_FRAGMENT, fragment.isFirst());
-        bs.set(IS_A_FRAGMENT, fragment.isIsA());
-        bs.set(LAST_FRAGMENT, fragment.isLast());
-        return bs.toByte();
     }
 
     @Override
@@ -206,4 +120,15 @@ public final class FSIpv4NlriParser extends AbstractFSNlriParser {
         }
     }
 
+    @Override
+    protected void serializeMpUnreachNlri(final Attributes2 pathAttributes, final ByteBuf byteAggregator) {
+        if (pathAttributes == null) {
+            return;
+        }
+        final MpUnreachNlri mpUnreachNlri = pathAttributes.getMpUnreachNlri();
+        if (mpUnreachNlri.getWithdrawnRoutes() != null && mpUnreachNlri.getWithdrawnRoutes().getDestinationType() instanceof DestinationFlowspecCase) {
+            final DestinationFlowspecCase flowspecCase = (DestinationFlowspecCase) mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
+            serializeNlri(flowspecCase.getDestinationFlowspec().getFlowspec(), byteAggregator);
+        }
+    }
 }

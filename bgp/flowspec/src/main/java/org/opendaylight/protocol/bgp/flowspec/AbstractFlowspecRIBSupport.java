@@ -84,7 +84,7 @@ public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
 
     protected abstract NodeIdentifier routeIdentifier();
 
-    protected abstract AbstractFSNlriParser getParser();
+    protected abstract AbstractFlowspecNlriParser getParser();
 
     protected abstract Class<? extends AddressFamily> getAfiClass();
 
@@ -144,7 +144,7 @@ public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
         mb.setSafi(FlowspecSubsequentAddressFamily.class);
 
         mb.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
-            getParser().createWidthdrawnDestinationType(
+            getParser().createWithdrawnDestinationType(
                 getParser().extractFlowspec(Iterables.getOnlyElement(routes)))).build());
         return mb.build();
     }
