@@ -15,12 +15,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 
-public class RIBActivator extends AbstractRIBExtensionProviderActivator {
+public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
+
+    private final SimpleFlowspecExtensionProviderContext fs_context;
+
+    public RIBActivator(SimpleFlowspecExtensionProviderContext context) {
+        super();
+        this.fs_context = context;
+    }
+
     @Override
     protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
         final List<AutoCloseable> regs = new ArrayList<>();
-        regs.add(context.registerRIBSupport(Ipv4AddressFamily.class, FlowspecSubsequentAddressFamily.class, FlowspecIpv4RIBSupport.getInstance()));
-        regs.add(context.registerRIBSupport(Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class, FlowspecIpv6RIBSupport.getInstance()));
+        regs.add(context.registerRIBSupport(Ipv4AddressFamily.class, FlowspecSubsequentAddressFamily.class, FlowspecIpv4RIBSupport.getInstance(fs_context)));
+        regs.add(context.registerRIBSupport(Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class, FlowspecIpv6RIBSupport.getInstance(fs_context)));
         return regs;
     }
 }
