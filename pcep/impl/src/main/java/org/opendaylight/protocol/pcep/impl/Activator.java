@@ -310,8 +310,8 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
         regs.add(context.registerEROSubobjectSerializer(UnnumberedCase.class, unnumberedParser));
 
         final EROPathKey32SubobjectParser pathKeyParser =  new EROPathKey32SubobjectParser();
-        regs.add(context.registerEROSubobjectParser(EROPathKey32SubobjectParser.TYPE, pathKeyParser));
-        regs.add(context.registerEROSubobjectParser(EROPathKey128SubobjectParser.TYPE, new EROPathKey128SubobjectParser()));
+        regs.add(context.registerEROSubobjectParser(EROPathKey32SubobjectParser.TYPE_32, pathKeyParser));
+        regs.add(context.registerEROSubobjectParser(EROPathKey128SubobjectParser.TYPE_128, new EROPathKey128SubobjectParser()));
         regs.add(context.registerEROSubobjectSerializer(PathKeyCase.class, pathKeyParser));
 
         final EROLabelSubobjectParser labelParser = new EROLabelSubobjectParser(labelReg);
