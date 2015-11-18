@@ -59,4 +59,6 @@ public interface BGPSessionListener extends EventListener {
      * @param notification Protocol message
      */
     void onMessage(BGPSession session, Notification notification);
+
+    void releaseConnection();
 }

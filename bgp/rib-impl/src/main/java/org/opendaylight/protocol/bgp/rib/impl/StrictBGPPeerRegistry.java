@@ -31,7 +31,6 @@ import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.As4CapabilityHandler;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -60,14 +59,14 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     public static final StrictBGPPeerRegistry GLOBAL = new StrictBGPPeerRegistry();
 
     @GuardedBy("this")
-    private final Map<IpAddress, ReusableBGPPeer> peers = Maps.newHashMap();
+    private final Map<IpAddress, BGPSessionListener> peers = Maps.newHashMap();
     @GuardedBy("this")
     private final Map<IpAddress, BGPSessionId> sessionIds = Maps.newHashMap();
     @GuardedBy("this")
     private final Map<IpAddress, BGPSessionPreferences> peerPreferences = Maps.newHashMap();
 
     @Override
-    public synchronized void addPeer(final IpAddress ip, final ReusableBGPPeer peer, final BGPSessionPreferences preferences) {
+    public synchronized void addPeer(final IpAddress ip, final BGPSessionListener peer, final BGPSessionPreferences preferences) {
         Preconditions.checkNotNull(ip);
         Preconditions.checkArgument(!this.peers.containsKey(ip), "Peer for %s already present", ip);
         this.peers.put(ip, Preconditions.checkNotNull(peer));

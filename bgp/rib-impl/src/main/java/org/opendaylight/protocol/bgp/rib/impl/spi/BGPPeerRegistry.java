@@ -24,10 +24,10 @@ public interface BGPPeerRegistry extends AutoCloseable {
      * Add configured peer, its IP address and preferences. To be used when a BGP session is established.
      *
      * @param ip address of remote peer
-     * @param peer configured peer as ReusableBGPPeer
+     * @param peer configured peer as BGPSessionListener
      * @param prefs session preferences for configured peer
      */
-    void addPeer(IpAddress ip, ReusableBGPPeer peer, BGPSessionPreferences prefs);
+    void addPeer(IpAddress ip, BGPSessionListener peer, BGPSessionPreferences prefs);
 
     /**
      * Remove configured peer from registry.

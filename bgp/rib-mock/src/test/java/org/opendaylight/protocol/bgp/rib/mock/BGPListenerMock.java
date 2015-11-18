@@ -37,6 +37,10 @@ public final class BGPListenerMock implements BGPSessionListener {
     }
 
     @Override
+    public void releaseConnection() {
+    }
+
+    @Override
     public void onSessionUp(final BGPSession session) {
         this.connected = true;
     }

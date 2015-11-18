@@ -42,6 +42,11 @@ public class SpeakerSessionListener implements BGPSessionListener {
     }
 
     @Override
+    public void releaseConnection() {
+
+    }
+
+    @Override
     public synchronized void onSessionUp(final BGPSession session) {
         LOG.debug("Session up.");
         this.up = true;
