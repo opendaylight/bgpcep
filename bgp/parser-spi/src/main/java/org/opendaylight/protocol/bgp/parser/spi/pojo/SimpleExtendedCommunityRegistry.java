@@ -36,7 +36,7 @@ final class SimpleExtendedCommunityRegistry implements ExtendedCommunityRegistry
     private final HandlerRegistry<DataContainer, ExtendedCommunityParser, ExtendedCommunitySerializer> handlers = new HandlerRegistry<>();
 
     private static int createKey(final int type, final int subtype) {
-        return (type << UNSIGNED_BYTE_MAX_VALUE) | subtype;
+        return (type << Byte.SIZE) | subtype;
     }
 
     @Override
