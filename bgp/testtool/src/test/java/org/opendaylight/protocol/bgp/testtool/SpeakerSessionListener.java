@@ -46,6 +46,11 @@ public class SpeakerSessionListener implements BGPSessionListener {
     }
 
     @Override
+    public void releaseConnection() {
+
+    }
+
+    @Override
     public boolean isSessionActive() {
         return true;
     }

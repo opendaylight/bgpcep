@@ -21,7 +21,6 @@ import org.mockito.Mockito;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -42,7 +41,7 @@ public class StrictBGPPeerRegistryTest {
     private static final IpAddress REMOTE_IP = new IpAddress(FROM);
     private static final Ipv4Address TO = new Ipv4Address("255.255.255.255");
 
-    private final ReusableBGPPeer peer1 = getMockSession();
+    private final BGPSessionListener peer1 = getMockSession();
     private final Open classicOpen = createOpen(TO, LOCAL_AS);
     private StrictBGPPeerRegistry peerRegistry;
     private BGPSessionPreferences mockPreferences;
@@ -61,8 +60,8 @@ public class StrictBGPPeerRegistryTest {
         this.mockPreferences =  new BGPSessionPreferences(LOCAL_AS, 1, new Ipv4Address("0.0.0.1"), LOCAL_AS, Collections.<BgpParameters> emptyList());
     }
 
-    private static ReusableBGPPeer getMockSession() {
-        final ReusableBGPPeer mock = Mockito.mock(ReusableBGPPeer.class);
+    private static BGPSessionListener getMockSession() {
+        final BGPSessionListener mock = Mockito.mock(BGPSessionListener.class);
         Mockito.doNothing().when(mock).releaseConnection();
         return mock;
     }
@@ -103,7 +102,7 @@ public class StrictBGPPeerRegistryTest {
         final IpAddress remoteIp2 = new IpAddress(to2);
 
         this.peerRegistry.addPeer(REMOTE_IP, this.peer1, this.mockPreferences);
-        final ReusableBGPPeer session2 = getMockSession();
+        final BGPSessionListener session2 = getMockSession();
         this.peerRegistry.addPeer(remoteIp2, session2, this.mockPreferences);
 
         final BGPSessionListener returnedSession1 = this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, this.classicOpen);
