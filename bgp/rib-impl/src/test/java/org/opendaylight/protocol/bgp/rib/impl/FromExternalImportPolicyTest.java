@@ -27,9 +27,6 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableLe
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableLeafSetNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableUnkeyedListNodeBuilder;
 
-/**
- * Created by cgasparini on 10.6.2015.
- */
 public class FromExternalImportPolicyTest {
 
     private static final QName DATA_QNAME = QName.cachedReference(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "attributes"));

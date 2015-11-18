@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.testtool;
 
-import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
+import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Testing BGP Listener.
  */
-public class TestingListener implements ReusableBGPPeer {
+public class TestingListener implements BGPSessionListener {
     private static final Logger LOG = LoggerFactory.getLogger(TestingListener.class);
 
     @Override

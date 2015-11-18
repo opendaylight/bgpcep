@@ -9,8 +9,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.collect.Lists;
 import java.util.List;
-import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
+import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Listener for the client.
  */
-public class SimpleSessionListener implements ReusableBGPPeer {
+public class SimpleSessionListener implements BGPSessionListener {
 
     private final List<Notification> listMsg = Lists.newArrayList();
 

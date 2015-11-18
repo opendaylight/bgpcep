@@ -31,8 +31,8 @@ import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionStatistics;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
-import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
+import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
@@ -65,7 +65,7 @@ import org.slf4j.LoggerFactory;
  * Class representing a peer. We have a single instance for each peer, which provides translation from BGP events into
  * RIB actions.
  */
-public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRuntimeMXBean, TransactionChainListener {
+public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeerRuntimeMXBean, TransactionChainListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeer.class);
 
