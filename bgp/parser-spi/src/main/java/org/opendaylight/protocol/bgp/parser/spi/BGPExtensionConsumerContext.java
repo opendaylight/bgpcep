@@ -28,5 +28,5 @@ public interface BGPExtensionConsumerContext {
 
     SubsequentAddressFamilyRegistry getSubsequentAddressFamilyRegistry();
 
-    ExtendedCommunityRegistry getExtendedCommunityReistry();
+    ExtendedCommunityRegistry getExtendedCommunityRegistry();
 }

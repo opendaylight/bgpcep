@@ -61,8 +61,8 @@ public class FSExtendedCommunitiesTest {
     public void setUp() throws Exception {
         this.act = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
-        act.start(context);
-        registry = context.getExtendedCommunityReistry();
+        this.act.start(context);
+        this.registry = context.getExtendedCommunityRegistry();
     }
 
     @After
@@ -77,7 +77,7 @@ public class FSExtendedCommunitiesTest {
                     .setLocalAdministrator(new Bandwidth(new byte[] { 0, 1, 2, 3 })).build()).build();
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(trafficRate).setTransitive(true).build();
 
-        final ExtendedCommunities parsed = registry.parseExtendedCommunity(Unpooled.copiedBuffer(TRAFFIC_RATE));
+        final ExtendedCommunities parsed = this.registry.parseExtendedCommunity(Unpooled.copiedBuffer(TRAFFIC_RATE));
         Assert.assertEquals(expected, parsed);
     }
 
@@ -89,7 +89,7 @@ public class FSExtendedCommunitiesTest {
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(trafficRate).setTransitive(true).build();
 
         final ByteBuf output = Unpooled.buffer(TRAFFIC_RATE.length);
-        registry.serializeExtendedCommunity(expected, output);
+        this.registry.serializeExtendedCommunity(expected, output);
         Assert.assertArrayEquals(TRAFFIC_RATE, output.array());
     }
 
@@ -99,7 +99,7 @@ public class FSExtendedCommunitiesTest {
                 new TrafficActionExtendedCommunityBuilder().setSample(true).setTerminalAction(true).build()).build();
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(trafficAction).setTransitive(true).build();
 
-        final ExtendedCommunities parsed = registry.parseExtendedCommunity(Unpooled.copiedBuffer(TRAFFIC_ACTION));
+        final ExtendedCommunities parsed = this.registry.parseExtendedCommunity(Unpooled.copiedBuffer(TRAFFIC_ACTION));
         Assert.assertEquals(expected, parsed);
     }
 
@@ -110,7 +110,7 @@ public class FSExtendedCommunitiesTest {
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(trafficAction).setTransitive(true).build();
 
         final ByteBuf output = Unpooled.buffer(TRAFFIC_ACTION.length);
-        registry.serializeExtendedCommunity(expected, output);
+        this.registry.serializeExtendedCommunity(expected, output);
         Assert.assertArrayEquals(TRAFFIC_ACTION, output.array());
     }
 
@@ -120,7 +120,7 @@ public class FSExtendedCommunitiesTest {
                 new TrafficMarkingExtendedCommunityBuilder().setGlobalAdministrator(new Dscp((short) 63)).build()).build();
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(trafficMarking).setTransitive(true).build();
 
-        final ExtendedCommunities parsed = registry.parseExtendedCommunity(Unpooled.copiedBuffer(TRAFFIC_MARKING));
+        final ExtendedCommunities parsed = this.registry.parseExtendedCommunity(Unpooled.copiedBuffer(TRAFFIC_MARKING));
         Assert.assertEquals(expected, parsed);
     }
 
@@ -131,7 +131,7 @@ public class FSExtendedCommunitiesTest {
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(trafficMarking).setTransitive(true).build();
 
         final ByteBuf output = Unpooled.buffer(TRAFFIC_MARKING.length);
-        registry.serializeExtendedCommunity(expected, output);
+        this.registry.serializeExtendedCommunity(expected, output);
         Assert.assertArrayEquals(TRAFFIC_MARKING, output.array());
     }
 
@@ -142,7 +142,7 @@ public class FSExtendedCommunitiesTest {
                         new byte[] { 4, 2, 8, 7 }).build()).build();
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect).setTransitive(true).build();
 
-        final ExtendedCommunities parsed = registry.parseExtendedCommunity(Unpooled.copiedBuffer(REDIRECT_AS_2BYTES));
+        final ExtendedCommunities parsed = this.registry.parseExtendedCommunity(Unpooled.copiedBuffer(REDIRECT_AS_2BYTES));
         Assert.assertEquals(expected, parsed);
     }
 
@@ -154,7 +154,7 @@ public class FSExtendedCommunitiesTest {
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect).setTransitive(true).build();
 
         final ByteBuf output = Unpooled.buffer(REDIRECT_AS_2BYTES.length);
-        registry.serializeExtendedCommunity(expected, output);
+        this.registry.serializeExtendedCommunity(expected, output);
         Assert.assertArrayEquals(REDIRECT_AS_2BYTES, output.array());
     }
 
