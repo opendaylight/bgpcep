@@ -43,8 +43,8 @@ public class ExtendedCommunitiesAttributeParserTest {
 
     @Before
     public void setUp() {
-        final ExtendedCommunityRegistry exReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getExtendedCommunityReistry();
-        handler = new ExtendedCommunitiesAttributeParser(exReg);
+        final ExtendedCommunityRegistry exReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getExtendedCommunityRegistry();
+        this.handler = new ExtendedCommunitiesAttributeParser(exReg);
     }
 
     @Test
@@ -55,12 +55,12 @@ public class ExtendedCommunitiesAttributeParserTest {
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setTransitive(false).setExtendedCommunity(routeOrigin).build();
         final AttributesBuilder attBuilder = new AttributesBuilder();
 
-        handler.parseAttribute(Unpooled.copiedBuffer(INPUT), attBuilder);
+        this.handler.parseAttribute(Unpooled.copiedBuffer(INPUT), attBuilder);
         final ExtendedCommunities parsed = attBuilder.getExtendedCommunities().get(0);
         Assert.assertEquals(expected, parsed);
 
         final ByteBuf output = Unpooled.buffer(INPUT.length);
-        handler.serializeAttribute(attBuilder.build(), output);
+        this.handler.serializeAttribute(attBuilder.build(), output);
         Assert.assertArrayEquals(Bytes.concat(new byte[] {(byte)192, 16, 8}, INPUT), ByteArray.readAllBytes(output));
     }
 
@@ -70,21 +70,21 @@ public class ExtendedCommunitiesAttributeParserTest {
         final AttributesBuilder attBuilder = new AttributesBuilder().setExtendedCommunities(extendedCommunitiesList);
         final ByteBuf output = Unpooled.buffer();
 
-        handler.serializeAttribute(attBuilder.build(), output);
+        this.handler.serializeAttribute(attBuilder.build(), output);
         Assert.assertEquals(output, output);
     }
 
     @Test
     public void testEmptyExtendedCommunityAttributeParser() throws BGPDocumentedException, BGPParsingException {
         final ByteBuf output = Unpooled.buffer();
-        handler.serializeAttribute(new AttributesBuilder().build(), output);
+        this.handler.serializeAttribute(new AttributesBuilder().build(), output);
         Assert.assertEquals( Unpooled.buffer(), output);
     }
 
     @Test
     public void testExtendedCommunityAttributeParserUnknown() throws BGPDocumentedException, BGPParsingException {
         final AttributesBuilder attBuilder = new AttributesBuilder();
-        handler.parseAttribute(Unpooled.copiedBuffer(UNKOWN), attBuilder);
+        this.handler.parseAttribute(Unpooled.copiedBuffer(UNKOWN), attBuilder);
         Assert.assertTrue(attBuilder.getExtendedCommunities().isEmpty());
     }
 
