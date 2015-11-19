@@ -13,6 +13,7 @@ import static org.junit.Assert.assertEquals;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import java.math.BigDecimal;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -39,8 +40,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev150930.Ipv4Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev150930.Ipv6Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.BgpPeer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.ModuleKey;
@@ -49,6 +52,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controll
 public class BGPNeighborProviderImplTest {
 
     private BGPNeighborProviderImpl neighborProvider;
+    private static final String PASSWORD = "Ug1Yp4Ssw0Rd";
+    private static final IpAddress IP = new IpAddress(new Ipv4Address("1.2.3.4"));
+    private static final PortNumber PORT = new PortNumber(123);
+    private static final short TIMER = (short) 10;
+    private static final AsNumber AS = new AsNumber(10L);
 
     @SuppressWarnings("unchecked")
     @Before
@@ -57,35 +65,72 @@ public class BGPNeighborProviderImplTest {
         final BGPConfigStateStore stateHolders = Mockito.mock(BGPConfigStateStore.class);
         final BGPConfigHolder<Neighbor> configHolder = Mockito.mock(BGPConfigHolder.class);
         Mockito.doReturn(configHolder).when(stateHolders).getBGPConfigHolder(Mockito.any(Class.class));
-        neighborProvider = new BGPNeighborProviderImpl(txChain, stateHolders);
+        this.neighborProvider = new BGPNeighborProviderImpl(txChain, stateHolders);
     }
 
     @Test
     public void testCreateModuleKey() {
-        assertEquals(new ModuleKey("instanceName", BgpPeer.class), neighborProvider.createModuleKey("instanceName"));
+        assertEquals(new ModuleKey("instanceName", BgpPeer.class), this.neighborProvider.createModuleKey("instanceName"));
     }
 
     @Test
     public void testGetInstanceConfigurationType() {
-        assertEquals(BGPPeerInstanceConfiguration.class, neighborProvider.getInstanceConfigurationType());
+        assertEquals(BGPPeerInstanceConfiguration.class, this.neighborProvider.getInstanceConfigurationType());
     }
 
     @Test
     public void testApply() {
-        final Neighbor neighbor = neighborProvider.apply(new BGPPeerInstanceConfiguration(new InstanceConfigurationIdentifier("instanceName"),
-                new IpAddress(new Ipv4Address("1.2.3.4")), new PortNumber(123), (short) 10, PeerRole.RrClient, false,
-                Lists.<BgpTableType>newArrayList(new BgpTableTypeImpl(Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class)),
-                new AsNumber(10L), Optional.<Rfc2385Key>absent()));
-        final Neighbor expectedNeighbor = new NeighborBuilder()
-            .setAfiSafis(new AfiSafisBuilder().setAfiSafi(Lists.<AfiSafi>newArrayList(new AfiSafiBuilder().setAfiSafiName(Ipv6Flow.class).build())).build())
-            .setNeighborAddress(new IpAddress(new Ipv4Address("1.2.3.4")))
-            .setKey(new NeighborKey(new IpAddress(new Ipv4Address("1.2.3.4"))))
-            .setConfig(new ConfigBuilder().setPeerAs(new AsNumber(10L)).setPeerType(PeerType.INTERNAL).build())
-            .setRouteReflector(new RouteReflectorBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.route.reflector.ConfigBuilder().setRouteReflectorClient(true).build()).build())
-            .setTimers(new TimersBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers.ConfigBuilder().setHoldTime(BigDecimal.valueOf(10)).build()).build())
-            .setTransport(new TransportBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.transport.ConfigBuilder().setPassiveMode(true).build()).build())
-            .build();
+        final boolean active = false;
+        final PeerRole role = PeerRole.RrClient;
+        final Neighbor neighbor = this.neighborProvider.apply(createConfiguration(new InstanceConfigurationIdentifier("instanceName"),
+            IP, PORT, TIMER, role, active,
+            Lists.<BgpTableType>newArrayList(new BgpTableTypeImpl(Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class)),
+            AS, Optional.<Rfc2385Key>absent()));
+        final Neighbor expectedNeighbor = createNeighbor(Lists.<AfiSafi>newArrayList(new AfiSafiBuilder().setAfiSafiName(Ipv6Flow.class).build()),
+            IP, null, AS, PeerType.INTERNAL, role, TIMER, !active);
         assertEquals(expectedNeighbor, neighbor);
     }
 
+    @Test
+    public void testApply2() {
+        final boolean active = false;
+        final PeerRole role = PeerRole.Ebgp;
+        final Neighbor neighbor = this.neighborProvider.apply(createConfiguration(new InstanceConfigurationIdentifier("instanceName"),
+            IP, PORT, TIMER, role, active,
+            Lists.<BgpTableType>newArrayList(new BgpTableTypeImpl(Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class)),
+            AS, Optional.of(new Rfc2385Key(PASSWORD)) ));
+        final Neighbor expectedNeighbor = createNeighbor(Lists.<AfiSafi>newArrayList(new AfiSafiBuilder().setAfiSafiName(Ipv6Flow.class).build()),
+            IP, PASSWORD, AS, PeerType.EXTERNAL, role, TIMER, !active);
+        assertEquals(expectedNeighbor, neighbor);
+    }
+
+    @Test
+    public void testApply3() {
+        final boolean active = true;
+        final PeerRole role = PeerRole.Internal;
+        final Neighbor neighbor = this.neighborProvider.apply(createConfiguration(new InstanceConfigurationIdentifier("instanceName"),
+            IP, PORT, TIMER, role, active,
+            Lists.<BgpTableType>newArrayList(new BgpTableTypeImpl(Ipv4AddressFamily.class, FlowspecSubsequentAddressFamily.class)),
+            AS, Optional.of(new Rfc2385Key(PASSWORD)) ));
+        final Neighbor expectedNeighbor = createNeighbor(Lists.<AfiSafi>newArrayList(new AfiSafiBuilder().setAfiSafiName(Ipv4Flow.class).build()),
+            IP, PASSWORD, AS, null, role, TIMER, !active);
+        assertEquals(expectedNeighbor, neighbor);
+    }
+
+    private BGPPeerInstanceConfiguration createConfiguration(final InstanceConfigurationIdentifier confId, final IpAddress ip, final PortNumber port,
+        final short holdTimer, final PeerRole role, final boolean active, final List<BgpTableType> advertized, final AsNumber as, final Optional<Rfc2385Key> passwd) {
+        return new BGPPeerInstanceConfiguration(confId, ip, port, holdTimer, role, active, advertized, as, passwd);
+    }
+
+    private Neighbor createNeighbor(final List<AfiSafi> families, final IpAddress ip, final String passwd, final AsNumber as, final PeerType peerType, final PeerRole role, final short timer, final boolean passive) {
+        return new NeighborBuilder()
+        .setAfiSafis(new AfiSafisBuilder().setAfiSafi(families).build())
+        .setNeighborAddress(ip)
+        .setKey(new NeighborKey(ip))
+        .setConfig(new ConfigBuilder().setAuthPassword(passwd).setPeerAs(as).setPeerType(peerType).build())
+        .setRouteReflector(new RouteReflectorBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.route.reflector.ConfigBuilder().setRouteReflectorClient(role == PeerRole.RrClient).build()).build())
+        .setTimers(new TimersBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers.ConfigBuilder().setHoldTime(BigDecimal.valueOf(timer)).build()).build())
+        .setTransport(new TransportBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.transport.ConfigBuilder().setPassiveMode(passive).build()).build())
+        .build();
+    }
 }
