@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.flowspec;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.bgp.flowspec.extended.communities.RedirectAsTwoOctetEcHandler;
+import org.opendaylight.protocol.bgp.flowspec.extended.communities.RedirectIpv6EcHandler;
 import org.opendaylight.protocol.bgp.flowspec.extended.communities.TrafficActionEcHandler;
 import org.opendaylight.protocol.bgp.flowspec.extended.communities.TrafficMarkingEcHandler;
 import org.opendaylight.protocol.bgp.flowspec.extended.communities.TrafficRateEcHandler;
@@ -21,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.FlowspecIpv6Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.routes.FlowspecRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.routes.flowspec.routes.flowspec.route.attributes.extended.communities.extended.community.RedirectExtendedCommunityCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.routes.flowspec.routes.flowspec.route.attributes.extended.communities.extended.community.RedirectIpv6ExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.routes.flowspec.routes.flowspec.route.attributes.extended.communities.extended.community.TrafficActionExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.routes.flowspec.routes.flowspec.route.attributes.extended.communities.extended.community.TrafficMarkingExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.routes.flowspec.routes.flowspec.route.attributes.extended.communities.extended.community.TrafficRateExtendedCommunityCase;
@@ -69,6 +71,11 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerExtendedCommunityParser(trafficRateEcHandler.getType(true), trafficRateEcHandler.getSubType(), trafficRateEcHandler));
         regs.add(context.registerExtendedCommunitySerializer(TrafficRateExtendedCommunityCase.class, trafficRateEcHandler));
         regs.add(context.registerExtendedCommunitySerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.flowspec.ipv6.routes.flowspec.route.attributes.extended.communities.extended.community.TrafficRateExtendedCommunityCase.class, trafficRateEcHandler));
+
+        final RedirectIpv6EcHandler redirectIpv6EcHandler = new RedirectIpv6EcHandler();
+        regs.add(context.registerExtendedCommunityParser(redirectIpv6EcHandler.getType(true), redirectIpv6EcHandler.getSubType(), redirectIpv6EcHandler));
+        regs.add(context.registerExtendedCommunitySerializer(RedirectIpv6ExtendedCommunityCase.class, redirectIpv6EcHandler));
+        regs.add(context.registerExtendedCommunitySerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.flowspec.ipv6.routes.flowspec.route.attributes.extended.communities.extended.community.RedirectIpv6ExtendedCommunityCase.class, redirectIpv6EcHandler));
 
         return regs;
     }
