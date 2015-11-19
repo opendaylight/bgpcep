@@ -47,7 +47,11 @@ public final class RangeTlvParser {
     public static SrRange parseSrRange(final ByteBuf buffer, final ProtocolId protocolId) {
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         final SrRangeBuilder range = new SrRangeBuilder();
-        range.setInterArea(flags.get(INNER_AREA));
+        if (protocolId.equals(ProtocolId.Ospf)) {
+            range.setInterArea(flags.get(INNER_AREA));
+        } else {
+            range.setInterArea(Boolean.FALSE);
+        }
         buffer.skipBytes(RESERVED);
         range.setRangeSize(buffer.readUnsignedShort());
         range.setSubTlvs(parseRangeSubTlvs(buffer, protocolId));
