@@ -55,7 +55,7 @@ class SimpleBGPExtensionConsumerContext implements BGPExtensionConsumerContext {
     }
 
     @Override
-    public SimpleExtendedCommunityRegistry getExtendedCommunityReistry() {
+    public SimpleExtendedCommunityRegistry getExtendedCommunityRegistry() {
         return this.ecReg;
     }
 }

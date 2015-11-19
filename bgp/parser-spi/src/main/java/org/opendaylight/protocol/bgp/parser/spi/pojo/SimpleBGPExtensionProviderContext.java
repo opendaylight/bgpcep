@@ -159,11 +159,11 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
     @Override
     public AutoCloseable registerExtendedCommunitySerializer(final Class<? extends ExtendedCommunity> extendedCommunityClass,
             final ExtendedCommunitySerializer serializer) {
-        return this.getExtendedCommunityReistry().registerExtendedCommunitySerializer(extendedCommunityClass, serializer);
+        return this.getExtendedCommunityRegistry().registerExtendedCommunitySerializer(extendedCommunityClass, serializer);
     }
 
     @Override
     public AutoCloseable registerExtendedCommunityParser(final int type, final int subtype, final ExtendedCommunityParser parser) {
-        return this.getExtendedCommunityReistry().registerExtendedCommunityParser(type, subtype, parser);
+        return this.getExtendedCommunityRegistry().registerExtendedCommunityParser(type, subtype, parser);
     }
 }
