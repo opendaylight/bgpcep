@@ -118,7 +118,7 @@ public class LinkstateAttributeParserTest {
         0x10, 0x30, 0x50, 0x70, 0x04, (byte) 0x82, 0, 0x08, 0x12, 0x34, 0x56, 0x78, 0x10, 0x30, 0x50, 0x70,
         0x04, (byte) 0x83, 0, 0x04, 0, 0, 0, 0x0a, 0x04, (byte) 0x84, 0, 0x04, 0x0a, 0x19, 0x02, 0x1b,
         4, (byte)0x86, 0,8, (byte)0xf0, 0, 0,0, 1,2,3,4, // prefix-sid tlv
-        4, (byte)0x87, 0,0x0c, (byte)0x80, 0, 0, 5, 4, (byte)0x89, 0, 4, 1,2,3,4, // range tlv
+        4, (byte)0x87, 0,0x0c, 0, 0, 0, 5, 4, (byte)0x89, 0, 4, 1,2,3,4, // range tlv
         4, (byte)0x88, 0, 4, 1, (byte)0xf0, 0, 0 // binding sid tlv
         };
 
@@ -264,6 +264,7 @@ public class LinkstateAttributeParserTest {
         assertNotNull(ls);
 
         assertNotNull(ls.getSrRange());
+        assertFalse(ls.getSrRange().isInterArea());
         assertEquals(1, ls.getSrRange().getSubTlvs().size());
         assertNotNull(ls.getSrBindingSidLabel());
         assertTrue(ls.getIgpBits().getUpDown().isUpDown());

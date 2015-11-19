@@ -141,6 +141,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
         Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
+        // add ProtocolId into Attributes1 augmentation?
         final Attributes1 pathAttributes1 = ((Attributes) attribute).getAugmentation(Attributes1.class);
         if (pathAttributes1 == null) {
             return;
