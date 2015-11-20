@@ -68,22 +68,21 @@ final class BGPRibImplProvider {
 
     public void onGlobalModified(final Global modifiedGlobal, final DataBroker dataBroker) {
         final ModuleKey moduleKey = globalState.getModuleKey(GlobalIdentifier.GLOBAL_IDENTIFIER);
-        if (moduleKey != null) {
+        if (moduleKey != null && globalState.addOrUpdate(moduleKey, GlobalIdentifier.GLOBAL_IDENTIFIER, modifiedGlobal)) {
             //update existing RIB configuration
-            if (globalState.addOrUpdate(moduleKey, GlobalIdentifier.GLOBAL_IDENTIFIER, modifiedGlobal)) {
-                final ReadOnlyTransaction rTx = dataBroker.newReadOnlyTransaction();
-                try {
-                    final Optional<Module> maybeModule = configModuleWriter.readModuleConfiguration(moduleKey, rTx).get();
-                    if (maybeModule.isPresent()) {
-                        final ListenableFuture<List<LocalTable>> localTablesFuture = new TableTypesFunction<LocalTable>(rTx, configModuleWriter, LOCAL_TABLE_FUNCTION).apply(modifiedGlobal.getAfiSafis().getAfiSafi());
-                        final Module newModule = toRibImplConfigModule(modifiedGlobal, maybeModule.get(), localTablesFuture.get());
-                        configModuleWriter.putModuleConfiguration(newModule, dataBroker.newWriteOnlyTransaction());
-                    }
-                } catch (final Exception e) {
-                    LOG.error("Failed to update a configuration module: {}", moduleKey, e);
-                    throw new IllegalStateException(e);
+            final ReadOnlyTransaction rTx = dataBroker.newReadOnlyTransaction();
+            try {
+                final Optional<Module> maybeModule = configModuleWriter.readModuleConfiguration(moduleKey, rTx).get();
+                if (maybeModule.isPresent()) {
+                    final ListenableFuture<List<LocalTable>> localTablesFuture = new TableTypesFunction<LocalTable>(rTx, configModuleWriter, LOCAL_TABLE_FUNCTION).apply(modifiedGlobal.getAfiSafis().getAfiSafi());
+                    final Module newModule = toRibImplConfigModule(modifiedGlobal, maybeModule.get(), localTablesFuture.get());
+                    configModuleWriter.putModuleConfiguration(newModule, dataBroker.newWriteOnlyTransaction());
                 }
+            } catch (final Exception e) {
+                LOG.error("Failed to update a configuration module: {}", moduleKey, e);
+                throw new IllegalStateException(e);
             }
+
         }
     }
 
