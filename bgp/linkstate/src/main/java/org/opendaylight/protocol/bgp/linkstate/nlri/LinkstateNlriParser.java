@@ -118,7 +118,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     }
 
     private static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier parseLink(final CLinkstateDestinationBuilder builder, final ByteBuf buffer, final LocalNodeDescriptors localDescriptors)
-            throws BGPParsingException {
+        throws BGPParsingException {
         final int type = buffer.readUnsignedShort();
         final int length = buffer.readUnsignedShort();
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier remote = null;
@@ -166,7 +166,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
             // if we are dealing with linkstate nodes/links, parse local node descriptor
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier localDescriptor = null;
             ByteBuf rest = null;
-            if(!type.equals(NlriType.Ipv4TeLsp) && !type.equals(NlriType.Ipv6TeLsp)) {
+            if (!type.equals(NlriType.Ipv4TeLsp) && !type.equals(NlriType.Ipv6TeLsp)) {
                 final int localtype = nlri.readUnsignedShort();
                 final int locallength = nlri.readUnsignedShort();
                 if (localtype == LOCAL_NODE_DESCRIPTORS_TYPE) {
@@ -374,7 +374,64 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
 
     public static CLinkstateDestination extractLinkstateDestination(final DataContainerNode<? extends PathArgument> linkstate) {
         final CLinkstateDestinationBuilder builder = new CLinkstateDestinationBuilder();
+        serializeCommonParts(builder, linkstate);
 
+        final ChoiceNode objectType = (ChoiceNode) linkstate.getChild(OBJECT_TYPE_NID).get();
+        if (!builder.getProtocolId().equals(ProtocolId.RsvpTe)) {
+            if (objectType.getChild(ADVERTISING_NODE_DESCRIPTORS_NID).isPresent()) {
+                serializeAdvertisedNodeDescriptor(builder, objectType);
+            } else if (objectType.getChild(LOCAL_NODE_DESCRIPTORS_NID).isPresent()) {
+                serializeLocalNodeDescriptor(builder, objectType);
+            } else if (objectType.getChild(NODE_DESCRIPTORS_NID).isPresent()) {
+                serializeNodeDescriptor(builder, objectType);
+            } else {
+                LOG.warn("Unknown Object Type.");
+            }
+        } else if (objectType.getChild(TE_LSP_NID).isPresent()) {
+            builder.setObjectType(TeLspNlriParser.serializeTeLsp((ContainerNode) objectType.getChild(TE_LSP_NID).get()));
+        }
+        return builder.build();
+    }
+
+    private static void serializeNodeDescriptor(final CLinkstateDestinationBuilder builder, final ChoiceNode objectType) {
+        final NodeCaseBuilder nodeBuilder = new NodeCaseBuilder();
+        // node descriptors
+        nodeBuilder.setNodeDescriptors(NodeNlriParser.serializeNodeDescriptors((ContainerNode) objectType.getChild(NODE_DESCRIPTORS_NID).get()));
+        builder.setObjectType(nodeBuilder.build());
+    }
+
+    private static void serializeLocalNodeDescriptor(final CLinkstateDestinationBuilder builder, final ChoiceNode objectType) {
+        // link local node descriptors
+        final LinkCaseBuilder linkBuilder = new LinkCaseBuilder();
+
+        linkBuilder.setLocalNodeDescriptors(NodeNlriParser.serializeLocalNodeDescriptors((ContainerNode) objectType.getChild(LOCAL_NODE_DESCRIPTORS_NID).get()));
+        // link remote node descriptors
+        if (objectType.getChild(REMOTE_NODE_DESCRIPTORS_NID).isPresent()) {
+            linkBuilder.setRemoteNodeDescriptors(NodeNlriParser.serializeRemoteNodeDescriptors((ContainerNode) objectType.getChild(REMOTE_NODE_DESCRIPTORS_NID).get()));
+        }
+        // link descriptors
+        final Optional<DataContainerChild<? extends PathArgument, ?>> linkDescriptors = objectType.getChild(LINK_DESCRIPTORS_NID);
+        if (linkDescriptors.isPresent()) {
+            linkBuilder.setLinkDescriptors(LinkNlriParser.serializeLinkDescriptors((ContainerNode) linkDescriptors.get()));
+        }
+        builder.setObjectType(linkBuilder.build());
+    }
+
+    private static void serializeAdvertisedNodeDescriptor(final CLinkstateDestinationBuilder builder, final ChoiceNode objectType) {
+        // prefix node descriptors
+        final PrefixCaseBuilder prefixBuilder = new PrefixCaseBuilder();
+        prefixBuilder.setAdvertisingNodeDescriptors(NodeNlriParser.serializeAdvNodeDescriptors((ContainerNode) objectType.getChild(
+            ADVERTISING_NODE_DESCRIPTORS_NID).get()));
+
+        // prefix descriptors
+        final Optional<DataContainerChild<? extends PathArgument, ?>> prefixDescriptors = objectType.getChild(PREFIX_DESCRIPTORS_NID);
+        if (prefixDescriptors.isPresent()) {
+            prefixBuilder.setPrefixDescriptors(PrefixNlriParser.serializePrefixDescriptors((ContainerNode) prefixDescriptors.get()));
+        }
+        builder.setObjectType(prefixBuilder.build());
+    }
+
+    private static void serializeCommonParts(final CLinkstateDestinationBuilder builder, final DataContainerNode<? extends PathArgument> linkstate) {
         // serialize common parts
         final Optional<DataContainerChild<? extends PathArgument, ?>> distinguisher = linkstate.getChild(DISTINGUISHER_NID);
         if (distinguisher.isPresent()) {
@@ -389,47 +446,5 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
         if (identifier.isPresent()) {
             builder.setIdentifier(new Identifier((BigInteger) identifier.get().getValue()));
         }
-
-        final ChoiceNode objectType = (ChoiceNode) linkstate.getChild(OBJECT_TYPE_NID).get();
-        if (!builder.getProtocolId().equals(ProtocolId.RsvpTe)) {
-            if (objectType.getChild(ADVERTISING_NODE_DESCRIPTORS_NID).isPresent()) {
-                // prefix node descriptors
-                final PrefixCaseBuilder prefixBuilder = new PrefixCaseBuilder();
-                prefixBuilder.setAdvertisingNodeDescriptors(NodeNlriParser.serializeAdvNodeDescriptors((ContainerNode) objectType.getChild(
-                    ADVERTISING_NODE_DESCRIPTORS_NID).get()));
-
-                // prefix descriptors
-                final Optional<DataContainerChild<? extends PathArgument, ?>> prefixDescriptors = objectType.getChild(PREFIX_DESCRIPTORS_NID);
-                if (prefixDescriptors.isPresent()) {
-                    prefixBuilder.setPrefixDescriptors(PrefixNlriParser.serializePrefixDescriptors((ContainerNode) prefixDescriptors.get()));
-                }
-                builder.setObjectType(prefixBuilder.build());
-            } else if (objectType.getChild(LOCAL_NODE_DESCRIPTORS_NID).isPresent()) {
-                // link local node descriptors
-                final LinkCaseBuilder linkBuilder = new LinkCaseBuilder();
-
-                linkBuilder.setLocalNodeDescriptors(NodeNlriParser.serializeLocalNodeDescriptors((ContainerNode) objectType.getChild(LOCAL_NODE_DESCRIPTORS_NID).get()));
-                // link remote node descriptors
-                if (objectType.getChild(REMOTE_NODE_DESCRIPTORS_NID).isPresent()) {
-                    linkBuilder.setRemoteNodeDescriptors(NodeNlriParser.serializeRemoteNodeDescriptors((ContainerNode) objectType.getChild(REMOTE_NODE_DESCRIPTORS_NID).get()));
-                }
-                // link descriptors
-                final Optional<DataContainerChild<? extends PathArgument, ?>> linkDescriptors = objectType.getChild(LINK_DESCRIPTORS_NID);
-                if (linkDescriptors.isPresent()) {
-                    linkBuilder.setLinkDescriptors(LinkNlriParser.serializeLinkDescriptors((ContainerNode) linkDescriptors.get()));
-                }
-                builder.setObjectType(linkBuilder.build());
-            } else if (objectType.getChild(NODE_DESCRIPTORS_NID).isPresent()) {
-                final NodeCaseBuilder nodeBuilder = new NodeCaseBuilder();
-                // node descriptors
-                nodeBuilder.setNodeDescriptors(NodeNlriParser.serializeNodeDescriptors((ContainerNode) objectType.getChild(NODE_DESCRIPTORS_NID).get()));
-                builder.setObjectType(nodeBuilder.build());
-            } else {
-                LOG.warn("Unknown Object Type.");
-            }
-        } else if (objectType.getChild(TE_LSP_NID).isPresent()) {
-            builder.setObjectType(TeLspNlriParser.serializeTeLsp((ContainerNode) objectType.getChild(TE_LSP_NID).get()));
-        }
-        return builder.build();
     }
 }
