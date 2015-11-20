@@ -140,36 +140,46 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     @Override
     public synchronized ListenableFuture<OperationResult> triggerSync(final TriggerSyncArgs input) {
         if (isTriggeredInitialSynchro() && !isSynchronized()) {
-            LOG.trace("Trigger Initial Synchronization {}", input);
-            final PcupdMessageBuilder pcupdMessageBuilder = new PcupdMessageBuilder(MESSAGE_HEADER);
-            final SrpIdNumber srpIdNumber = createUpdateMessageSync(pcupdMessageBuilder);
-            final Message msg = new PcupdBuilder().setPcupdMessage(pcupdMessageBuilder.build()).build();
-            // Send the message
-            return sendMessage(msg, srpIdNumber, null);
+            return triggerSynchronization(input);
         } else if (isSynchronized() && isTriggeredReSyncEnabled()) {
             Preconditions.checkArgument(input != null && input.getNode() != null, MISSING_XML_TAG);
             if (input.getName() == null) {
-                LOG.trace("Trigger Resynchronization {}", input);
-                markAllLspAsStale();
-                updatePccState(PccSyncState.PcepTriggeredResync);
-                final PcupdMessageBuilder pcupdMessageBuilder = new PcupdMessageBuilder(MESSAGE_HEADER);
-                final SrpIdNumber srpIdNumber = createUpdateMessageSync(pcupdMessageBuilder);
-                final Message msg = new PcupdBuilder().setPcupdMessage(pcupdMessageBuilder.build()).build();
-                // Send the message
-                return sendMessage(msg, srpIdNumber, null);
+                return triggerResyncronization(input);
             } else {
-                LOG.trace("Trigger Lsp Resynchronization {}", input);
-
-                // Make sure the LSP exists
-                final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
-                final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
-                if (f == null) {
-                    return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
-                }
-                return Futures.transform(f, new ResyncLspFunction(input));
+                return triggerLspSyncronization(input);
             }
         }
         return OperationResults.UNSENT.future();
+    }
+
+    private ListenableFuture<OperationResult> triggerLspSyncronization(final TriggerSyncArgs input) {
+        LOG.trace("Trigger Lsp Resynchronization {}", input);
+
+        // Make sure the LSP exists
+        final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
+        final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
+        if (f == null) {
+            return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
+        }
+        return Futures.transform(f, new ResyncLspFunction(input));
+    }
+
+    private ListenableFuture<OperationResult> triggerResyncronization(final TriggerSyncArgs input) {
+        LOG.trace("Trigger Resynchronization {}", input);
+        markAllLspAsStale();
+        updatePccState(PccSyncState.PcepTriggeredResync);
+        final PcupdMessageBuilder pcupdMessageBuilder = new PcupdMessageBuilder(MESSAGE_HEADER);
+        final SrpIdNumber srpIdNumber = createUpdateMessageSync(pcupdMessageBuilder);
+        final Message msg = new PcupdBuilder().setPcupdMessage(pcupdMessageBuilder.build()).build();
+        return sendMessage(msg, srpIdNumber, null);
+    }
+
+    private ListenableFuture<OperationResult> triggerSynchronization(final TriggerSyncArgs input) {
+        LOG.trace("Trigger Initial Synchronization {}", input);
+        final PcupdMessageBuilder pcupdMessageBuilder = new PcupdMessageBuilder(MESSAGE_HEADER);
+        final SrpIdNumber srpIdNumber = createUpdateMessageSync(pcupdMessageBuilder);
+        final Message msg = new PcupdBuilder().setPcupdMessage(pcupdMessageBuilder.build()).build();
+        return sendMessage(msg, srpIdNumber, null);
     }
 
     private SrpIdNumber createUpdateMessageSync(final PcupdMessageBuilder pcupdMessageBuilder) {
