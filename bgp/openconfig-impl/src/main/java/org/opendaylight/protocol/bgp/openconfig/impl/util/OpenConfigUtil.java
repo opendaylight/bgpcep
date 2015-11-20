@@ -82,6 +82,7 @@ public final class OpenConfigUtil {
     }
 
     public static String getModuleName(final String provider) {
-        return provider.substring(provider.lastIndexOf("=") + 2, provider.length() - 2);
+        final char equal = '=';
+        return provider.substring(provider.lastIndexOf(equal) + 2, provider.length() - 2);
     }
 }
