@@ -62,9 +62,6 @@ final class EffectiveRibInWriter implements AutoCloseable {
     private static final NodeIdentifier ADJRIBIN_NID = new NodeIdentifier(AdjRibIn.QNAME);
     private static final NodeIdentifier TABLES_NID = new NodeIdentifier(Tables.QNAME);
 
-    /**
-     * Maintains {@link TableRouteListener} instances.
-     */
     private final class AdjInTracker implements AutoCloseable, DOMDataTreeChangeListener {
         private final RIBSupportContextRegistry registry;
         private final YangInstanceIdentifier ribId;
@@ -140,28 +137,38 @@ final class EffectiveRibInWriter implements AutoCloseable {
                     // No-op
                     break;
                 case SUBTREE_MODIFIED:
-                    if (TABLE_ROUTES.equals(childIdentifier)) {
-                        for (final DataTreeCandidateNode route : ribSupport.changedRoutes(child)) {
-                            processRoute(tx, ribSupport, policy, childPath, route);
-                        }
-                    } else {
-                        tx.put(LogicalDatastoreType.OPERATIONAL, childPath, childDataAfter.get());
-                    }
+                    processModifiedRouteTables(child, childIdentifier,tx, ribSupport, policy, childPath, childDataAfter);
                     break;
                 case APPEARED:
                 case WRITE:
-                    tx.put(LogicalDatastoreType.OPERATIONAL, childPath, childDataAfter.get());
-                    // Routes are special, as they may end up being filtered. The previous put conveniently
-                    // ensured that we have them in at target, so a subsequent delete will not fail :)
-                    if (TABLE_ROUTES.equals(childIdentifier)) {
-                        for (final DataTreeCandidateNode route : ribSupport.changedRoutes(child)) {
-                            processRoute(tx, ribSupport, policy, childPath, route);
-                        }
-                    }
+                    writeRouteTables(child, childIdentifier,tx, ribSupport, policy, childPath, childDataAfter);
+
                     break;
                 default:
                     LOG.warn("Ignoring unhandled child {}", child);
                     break;
+                }
+            }
+        }
+
+        private void processModifiedRouteTables(final DataTreeCandidateNode child, final PathArgument childIdentifier, final DOMDataWriteTransaction tx,
+            final RIBSupport ribSupport, final AbstractImportPolicy policy, final YangInstanceIdentifier childPath, final Optional<NormalizedNode<?, ?>> childDataAfter) {
+            if (TABLE_ROUTES.equals(childIdentifier)) {
+                for (final DataTreeCandidateNode route : ribSupport.changedRoutes(child)) {
+                    processRoute(tx, ribSupport, policy, childPath, route);
+                }
+            } else {
+                tx.put(LogicalDatastoreType.OPERATIONAL, childPath, childDataAfter.get());
+            }
+        }
+
+        private void writeRouteTables(final DataTreeCandidateNode child, final PathArgument childIdentifier, final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final AbstractImportPolicy policy, final YangInstanceIdentifier childPath, final Optional<NormalizedNode<?, ?>> childDataAfter) {
+            tx.put(LogicalDatastoreType.OPERATIONAL, childPath, childDataAfter.get());
+            // Routes are special, as they may end up being filtered. The previous put conveniently
+            // ensured that we have them in at target, so a subsequent delete will not fail :)
+            if (TABLE_ROUTES.equals(childIdentifier)) {
+                for (final DataTreeCandidateNode route : ribSupport.changedRoutes(child)) {
+                    processRoute(tx, ribSupport, policy, childPath, route);
                 }
             }
         }
@@ -193,7 +200,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
         }
 
         @Override
-        public void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
+        public void onDataTreeChanged(@Nonnull final Collection<DataTreeCandidate> changes) {
             LOG.trace("Data changed called to effective RIB. Change : {}", changes);
 
             // we have a lot of transactions created for 'nothing' because a lot of changes
