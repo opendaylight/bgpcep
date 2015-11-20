@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -47,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.Nlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
@@ -172,91 +174,13 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         });
     }
 
-    synchronized void initTables(final byte[] remoteBgpId) {
-    }
-
     @Override
     public synchronized void updateTables(final Peer peer, final Update message) {
         final AdjRIBsTransactionImpl trans = new AdjRIBsTransactionImpl(this.ribOuts, this.comparator, this.chain.newWriteOnlyTransaction());
 
         if (!EOR.equals(message)) {
-            final WithdrawnRoutes wr = message.getWithdrawnRoutes();
-            if (wr != null) {
-                final AdjRIBsIn<?, ?> ari = this.tables.get(IPV4_UNICAST_TABLE);
-                if (ari != null) {
-                    /*
-                     * create MPUnreach for the routes to be handled in the same way as linkstate routes
-                     */
-                    ari.removeRoutes(
-                        trans,
-                        peer,
-                        new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setWithdrawnRoutes(
-                            new WithdrawnRoutesBuilder().setDestinationType(
-                                new DestinationIpv4CaseBuilder().setDestinationIpv4(
-                                    new DestinationIpv4Builder().setIpv4Prefixes(wr.getWithdrawnRoutes()).build()).build()).build()).build());
-                } else {
-                    LOG.debug("Not removing objects from unhandled IPv4 Unicast");
-                }
-            }
-
-            final PathAttributes attrs = message.getPathAttributes();
-            if (attrs != null) {
-                final PathAttributes2 mpu = attrs.getAugmentation(PathAttributes2.class);
-                if (mpu != null) {
-                    final MpUnreachNlri nlri = mpu.getMpUnreachNlri();
-                    final AdjRIBsIn<?, ?> ari = this.tables.get(new TablesKey(nlri.getAfi(), nlri.getSafi()));
-                    // EOR messages do not contain withdrawn routes
-                    if (nlri.getWithdrawnRoutes() != null) {
-                        if (ari != null) {
-                            ari.removeRoutes(trans, peer, nlri);
-                        } else {
-                            LOG.debug("Not removing objects from unhandled NLRI {}", nlri);
-                        }
-                    } else {
-                        ari.markUptodate(trans, peer);
-                    }
-                }
-            }
-
-            final Nlri ar = message.getNlri();
-            if (ar != null) {
-                final AdjRIBsIn<?, ?> ari = this.tables.get(IPV4_UNICAST_TABLE);
-                if (ari != null) {
-                    /*
-                     * create MPReach for the routes to be handled in the same way as linkstate routes
-                     */
-                    final MpReachNlriBuilder b = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
-                        UnicastSubsequentAddressFamily.class).setAdvertizedRoutes(
-                            new AdvertizedRoutesBuilder().setDestinationType(
-                                new DestinationIpv4CaseBuilder().setDestinationIpv4(
-                                    new DestinationIpv4Builder().setIpv4Prefixes(ar.getNlri()).build()).build()).build());
-                    if (attrs != null) {
-                        b.setCNextHop(attrs.getCNextHop());
-                    }
-
-                    ari.addRoutes(trans, peer, b.build(), attrs);
-                } else {
-                    LOG.debug("Not adding objects from unhandled IPv4 Unicast");
-                }
-            }
-
-            if (attrs != null) {
-                final PathAttributes1 mpr = attrs.getAugmentation(PathAttributes1.class);
-                if (mpr != null) {
-                    final MpReachNlri nlri = mpr.getMpReachNlri();
-
-                    final AdjRIBsIn<?, ?> ari = this.tables.get(new TablesKey(nlri.getAfi(), nlri.getSafi()));
-                    if (ari != null) {
-                        if (message.equals(ari.endOfRib())) {
-                            ari.markUptodate(trans, peer);
-                        } else {
-                            ari.addRoutes(trans, peer, nlri, attrs);
-                        }
-                    } else {
-                        LOG.debug("Not adding objects from unhandled NLRI {}", nlri);
-                    }
-                }
-            }
+            updateTablesMpReach(message, trans, peer);
+            updateTablesMpUnreach(message, trans, peer);
         } else {
             final AdjRIBsIn<?, ?> ari = this.tables.get(IPV4_UNICAST_TABLE);
             if (ari != null) {
@@ -277,6 +201,103 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
                 LOG.error("Failed to commit RIB modification", t);
             }
         });
+    }
+
+    private void updateTablesMpUnreach(final Update message, final AdjRIBsTransactionImpl trans, final Peer peer) {
+        final WithdrawnRoutes withdrawnRoutes = message.getWithdrawnRoutes();
+        if (withdrawnRoutes != null) {
+            final AdjRIBsIn<?, ?> ari = this.tables.get(IPV4_UNICAST_TABLE);
+            if (ari == null) {
+                LOG.debug("Not removing objects from unhandled IPv4 Unicast");
+                return;
+            }
+            final MpUnreachNlri mpUnreach = prefixesToMpUnreach(withdrawnRoutes);
+            ari.removeRoutes(trans, peer, mpUnreach);
+            return;
+        }
+        final PathAttributes attributes = message.getPathAttributes();
+        if (attributes != null) {
+            final PathAttributes2 mpu = attributes.getAugmentation(PathAttributes2.class);
+            if (mpu != null) {
+                final MpUnreachNlri nlri = mpu.getMpUnreachNlri();
+                final AdjRIBsIn<?, ?> ari = this.tables.get(new TablesKey(nlri.getAfi(), nlri.getSafi()));
+                if (ari == null) {
+                    LOG.debug("Not removing objects from unhandled NLRI {}", nlri);
+                    return;
+                }
+                // EOR messages do not contain withdrawn routes
+                if (nlri.getWithdrawnRoutes() != null) {
+                    ari.removeRoutes(trans, peer, nlri);
+                } else {
+                    ari.markUptodate(trans, peer);
+                }
+            }
+        }
+    }
+
+    /***
+     * create MPUnreach for the routes to be handled in the same way as linkstate routes
+     * @param withdrawnRoutes
+     * @return
+     */
+    private MpUnreachNlri prefixesToMpUnreach(final WithdrawnRoutes withdrawnRoutes) {
+        return new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setWithdrawnRoutes(
+            new WithdrawnRoutesBuilder().setDestinationType(
+                new DestinationIpv4CaseBuilder().setDestinationIpv4(
+                    new DestinationIpv4Builder().setIpv4Prefixes(withdrawnRoutes.getWithdrawnRoutes()).build()).build()).build()).build();
+    }
+
+    private void updateTablesMpReach(final Update message, final AdjRIBsTransactionImpl trans, final Peer peer) {
+        final PathAttributes attributes = message.getPathAttributes();
+        final Nlri nlri = message.getNlri();
+        if (nlri != null) {
+            final AdjRIBsIn<?, ?> ari = this.tables.get(IPV4_UNICAST_TABLE);
+            if (ari == null) {
+                LOG.debug("Not adding objects from unhandled IPv4 Unicast");
+                return;
+            }
+            MpReachNlri mpReachNlri = prefixesToMpReach(nlri, attributes);
+            ari.addRoutes(trans, peer, mpReachNlri, nextHopToAttribute(mpReachNlri, attributes));
+        } else if (attributes != null) {
+            final PathAttributes1 mpr = attributes.getAugmentation(PathAttributes1.class);
+            if (mpr != null) {
+                final MpReachNlri mpReachNlri = mpr.getMpReachNlri();
+                final AdjRIBsIn<?, ?> ari = this.tables.get(new TablesKey(mpReachNlri.getAfi(), mpReachNlri.getSafi()));
+                if (ari == null) {
+                    LOG.debug("Not adding objects from unhandled NLRI {}", mpReachNlri);
+                    return;
+                }
+                if (message.equals(ari.endOfRib())) {
+                    ari.markUptodate(trans, peer);
+                } else {
+                    ari.addRoutes(trans, peer, mpReachNlri, nextHopToAttribute(mpReachNlri, attributes));
+                }
+            }
+        }
+    }
+
+    private PathAttributes nextHopToAttribute(final MpReachNlri mpReach, final PathAttributes attributes) {
+        if (attributes.getCNextHop() == null && mpReach.getCNextHop() != null) {
+            final PathAttributesBuilder attributesBuilder = new PathAttributesBuilder(attributes);
+            attributesBuilder.setCNextHop(mpReach.getCNextHop());
+            return attributesBuilder.build();
+        }
+        return attributes;
+    }
+
+    /***
+     * create MPReach for the routes to be handled in the same way as linkstate routes
+     */
+    private MpReachNlri prefixesToMpReach(@Nonnull final Nlri nlri, final PathAttributes attributes) {
+        final MpReachNlriBuilder b = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
+            UnicastSubsequentAddressFamily.class).setAdvertizedRoutes(
+            new AdvertizedRoutesBuilder().setDestinationType(
+                new DestinationIpv4CaseBuilder().setDestinationIpv4(
+                    new DestinationIpv4Builder().setIpv4Prefixes(nlri.getNlri()).build()).build()).build());
+        if (attributes != null) {
+            b.setCNextHop(attributes.getCNextHop());
+        }
+        return b.build();
     }
 
     @Override
