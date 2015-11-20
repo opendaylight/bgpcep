@@ -11,6 +11,8 @@ import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableCollection;
 import java.util.Collection;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -34,16 +36,21 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.LeafSetEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.LeafSetNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableChoiceNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableContainerNodeBuilder;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableLeafSetEntryNodeBuilder;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableLeafSetNodeBuilder;
 
 public class AbstractRIBSupportTest {
-
     private final ContainerNode ipv4p = ImmutableContainerNodeBuilder.create().withNodeIdentifier(new NodeIdentifier(Ipv4Prefixes.QNAME)).build();
     private final ContainerNode destination = ImmutableContainerNodeBuilder.create().withNodeIdentifier(new NodeIdentifier(DestinationIpv4.QNAME)).addChild(this.ipv4p).build();
     private final ChoiceNode choiceNode = ImmutableChoiceNodeBuilder.create().withNodeIdentifier(new NodeIdentifier(DestinationType.QNAME)).addChild(this.destination).build();
-
     static ContainerNode dest;
 
     private final RIBSupport testSupport = new AbstractRIBSupport(Ipv4RoutesCase.class, Ipv4Routes.class, Ipv4Route.class) {
@@ -106,7 +113,22 @@ public class AbstractRIBSupportTest {
 
     @Test
     public void testChangedRoutes() {
-        // TODO:
+        final QName TEST_QNAME = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet:test", "2015-03-05", "test");
+        final YangInstanceIdentifier writePath = YangInstanceIdentifier.of(TEST_QNAME);
+
+        final YangInstanceIdentifier.NodeWithValue nodeIdentifier = new YangInstanceIdentifier.NodeWithValue(Ipv4Route.QNAME, "route");
+        final LeafSetEntryNode<Object> routeEntry = ImmutableLeafSetEntryNodeBuilder.create().withNodeIdentifier(nodeIdentifier).withValue("route").build();
+        final LeafSetNode<Object> route = ImmutableLeafSetNodeBuilder.create().withNodeIdentifier(new NodeIdentifier(Ipv4Route.QNAME)).withChild(routeEntry).build();
+        ContainerNode routes = ImmutableContainerNodeBuilder.create().withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(Ipv4Routes.QNAME))
+            .withChild(route).build();
+
+        final ContainerNode routesContainer = ImmutableContainerNodeBuilder.create().addChild(routes).
+            withNodeIdentifier(new NodeIdentifier(TEST_QNAME)).build();
+        final DataTreeCandidate candidate = DataTreeCandidates.fromNormalizedNode(writePath, routesContainer);
+        final Collection<DataTreeCandidateNode> output = this.testSupport.changedRoutes(candidate.getRootNode());
+
+        Assert.assertFalse(output.isEmpty());
+        assertEquals(nodeIdentifier.toString(), output.iterator().next().getIdentifier().toString());
     }
 
 
