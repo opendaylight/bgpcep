@@ -114,9 +114,9 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
         public void onInstanceCreate() {
             if (globalWriter != null) {
                 final List<BgpTableType> tableDependency = getLocalTableDependency();
-                final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber as = Rev130715Uitl.getASNumber(getLocalAs());
-                final Ipv4Address bgpRibId = Rev130715Uitl.getIpv4Address(getBgpRibId());
-                final Ipv4Address clusterId = Rev130715Uitl.getIpv4Address(getClusterId());
+                final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber as = Rev130715Util.getASNumber(getLocalAs());
+                final Ipv4Address bgpRibId = Rev130715Util.getIpv4Address(getBgpRibId());
+                final Ipv4Address clusterId = Rev130715Util.getIpv4Address(getClusterId());
 
                 final BGPRibInstanceConfiguration bgpRibConfig = new BGPRibInstanceConfiguration(identifier, as, bgpRibId, clusterId, tableDependency);
                 globalWriter.writeConfiguration(bgpRibConfig);

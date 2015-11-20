@@ -29,12 +29,18 @@ public class PCEPStatefulCapabilityModule extends org.opendaylight.controller.co
 
     @Override
     protected void customValidation() {
-        if ((getActive() || getTriggeredInitialSync() || getTriggeredResync() || getDeltaLspSyncCapability() || getIncludeDbVersion()) && !getStateful()) {
+        final Boolean deltaLspSyncCap = getDeltaLspSyncCapability();
+        final Boolean triggerInityalSync = getTriggeredInitialSync();
+        if (isStateful() && !getStateful()) {
             setStateful(true);
         }
-        if ((getTriggeredInitialSync() || getDeltaLspSyncCapability()) && !getIncludeDbVersion()) {
+        if ((triggerInityalSync || deltaLspSyncCap) && !getIncludeDbVersion()) {
             setIncludeDbVersion(true);
         }
+    }
+
+    private boolean isStateful() {
+        return (getActive() || getTriggeredInitialSync() ||  getDeltaLspSyncCapability() || getTriggeredResync() || getIncludeDbVersion());
     }
 
     @Override

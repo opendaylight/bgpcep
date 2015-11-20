@@ -13,7 +13,11 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 
-public  final class Rev130715Uitl {
+public  final class Rev130715Util {
+    private Rev130715Util() {
+
+    }
+
     public static Ipv4Address getIpv4Address(final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address ipv4) {
         if(ipv4 == null) {
             return null;
