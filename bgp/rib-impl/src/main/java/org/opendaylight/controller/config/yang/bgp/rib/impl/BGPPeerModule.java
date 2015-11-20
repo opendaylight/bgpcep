@@ -252,9 +252,9 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         @Override
         public void onInstanceCreate() {
             if (neighborProvider != null) {
-                neighborProvider.writeConfiguration(new BGPPeerInstanceConfiguration(identifier, Rev130715Uitl.getIpvAddress(getNormalizedHost()),
-                    Rev130715Uitl.getPort(getPort().getValue()), getHoldtimer(), getPeerRole(), getInitiateConnection(),
-                        getAdvertizedTableDependency(), Rev130715Uitl.getASNumber(getAsOrDefault(getRibDependency()).getValue()),
+                neighborProvider.writeConfiguration(new BGPPeerInstanceConfiguration(identifier, Rev130715Util.getIpvAddress(getNormalizedHost()),
+                    Rev130715Util.getPort(getPort().getValue()), getHoldtimer(), getPeerRole(), getInitiateConnection(),
+                        getAdvertizedTableDependency(), Rev130715Util.getASNumber(getAsOrDefault(getRibDependency()).getValue()),
                         getOptionaPassword(getPassword())));
             }
         }

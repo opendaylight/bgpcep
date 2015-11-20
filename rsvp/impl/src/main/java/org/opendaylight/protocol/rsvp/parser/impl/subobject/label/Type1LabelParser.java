@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.rsvp.parser.impl.subobject.Label;
+package org.opendaylight.protocol.rsvp.parser.impl.subobject.label;
 
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
