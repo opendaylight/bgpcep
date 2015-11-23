@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7aade967_a4e4ba0d",
+        "filename": "bgp/openconfig-impl/src/test/java/org/opendaylight/controller/config/yang/bgp/openconfig/BgpOpenConfigImplModuleTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-11-23T19:52:16Z",
+      "side": 1,
+      "message": "can we do it less complicated?",
+      "revId": "f52d68c968b1a66140ccda7ba793d47c65519c83",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
