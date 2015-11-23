@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7aade967_84209e4a",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/LinkstateAttributeParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-11-23T19:39:54Z",
+      "side": 1,
+      "message": "I think it is unnecessary, it is up to user to provide a correct input.",
+      "revId": "694e8c5ce30e780ef5079a1efe64562fe53fc75d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
