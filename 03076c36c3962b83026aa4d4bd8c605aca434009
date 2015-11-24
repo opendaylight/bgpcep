@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7aade967_a75fd971",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/registry/FlowspecTypeRegistry.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-11-24T20:45:16Z",
+      "side": 1,
+      "message": "what if the serializer is not found?",
+      "range": {
+        "startLine": 25,
+        "startChar": 37,
+        "endLine": 25,
+        "endChar": 47
+      },
+      "revId": "03076c36c3962b83026aa4d4bd8c605aca434009",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7aade967_4754e553",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/registry/FlowspecTypeRegistry.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-11-24T20:45:16Z",
+      "side": 1,
+      "message": "what if parser for such type is not found?",
+      "range": {
+        "startLine": 31,
+        "startChar": 33,
+        "endLine": 31,
+        "endChar": 39
+      },
+      "revId": "03076c36c3962b83026aa4d4bd8c605aca434009",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
