@@ -87,10 +87,14 @@ def parse_arguments():
     parser.add_argument("--debug", dest="loglevel", action="store_const",
                         const=logging.DEBUG, default=logging.INFO,
                         help=str_help)
+    str_help = "Log file name"
+    parser.add_argument("--logfile", default="bgp_peer.log", help=str_help)
     str_help = "Trailing part of the csv result files for plotting purposes"
     parser.add_argument("--results", default="bgp.csv", type=str, help=str_help)
     str_help = "Minimum number of updates to reach to include result into csv."
     parser.add_argument("--threshold", default="1000", type=int, help=str_help)
+    str_help = "RFC 4760 Multiprotocol Extensions for BGP-4 supported"
+    parser.add_argument("--rfc4760", default="yes", type=str, help=str_help)
     arguments = parser.parse_args()
     # TODO: Are sanity checks (such as asnumber>=0) required?
     return arguments
@@ -109,9 +113,9 @@ def establish_connection(arguments):
         :return: socket.
     """
     if arguments.listen:
-        stdout_logger.info("Connecting in the listening mode.")
-        stdout_logger.debug("Local IP address: " + str(arguments.myip))
-        stdout_logger.debug("Local port: " + str(arguments.myport))
+        logger.info("Connecting in the listening mode.")
+        logger.debug("Local IP address: " + str(arguments.myip))
+        logger.debug("Local port: " + str(arguments.myport))
         listening_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         listening_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         # bind need single tuple as argument
@@ -121,11 +125,11 @@ def establish_connection(arguments):
         # TODO: Verify client IP is cotroller IP.
         listening_socket.close()
     else:
-        stdout_logger.info("Connecting in the talking mode.")
-        stdout_logger.debug("Local IP address: " + str(arguments.myip))
-        stdout_logger.debug("Local port: " + str(arguments.myport))
-        stdout_logger.debug("Remote IP address: " + str(arguments.peerip))
-        stdout_logger.debug("Remote port: " + str(arguments.peerport))
+        logger.info("Connecting in the talking mode.")
+        logger.debug("Local IP address: " + str(arguments.myip))
+        logger.debug("Local port: " + str(arguments.myport))
+        logger.debug("Remote IP address: " + str(arguments.peerip))
+        logger.debug("Remote port: " + str(arguments.peerport))
         talking_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         talking_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         # bind to force specified address and port
@@ -133,7 +137,7 @@ def establish_connection(arguments):
         # socket does not spead ipaddr, hence str()
         talking_socket.connect((str(arguments.peerip), arguments.peerport))
         bgp_socket = talking_socket
-    stdout_logger.info("Connected to ODL.")
+    logger.info("Connected to ODL.")
     return bgp_socket
 
 
@@ -152,6 +156,27 @@ def get_short_int_from_message(message, offset=16):
     low_byte_int = ord(message[offset + 1])
     short_int = high_byte_int * 256 + low_byte_int
     return short_int
+
+
+def get_prefix_list_from_hex(prefixes_hex):
+    """Get decoded list of prefixes (rfc4271#section-4.3)
+
+    Arguments:
+        :prefixes_hex: list of prefixes to be decoded in hex
+    Returns:
+        :return: list of prefixes in the form of ip address (X.X.X.X/X)
+    """
+    prefix_list = []
+    offset = 0
+    while offset < len(prefixes_hex):
+        prefix_bit_len_hex = prefixes_hex[offset]
+        prefix_bit_len = int(binascii.b2a_hex(prefix_bit_len_hex), 16)
+        prefix_len = ((prefix_bit_len - 1) / 8) + 1
+        prefix_hex = prefixes_hex[offset + 1: offset + 1 + prefix_len]
+        prefix = ".".join(str(i) for i in struct.unpack("BBBB", prefix_hex))
+        offset += 1 + prefix_len
+        prefix_list.append(prefix + "/" + str(prefix_bit_len))
+    return prefix_list
 
 
 class MessageError(ValueError):
@@ -196,19 +221,18 @@ def read_open_message(bgp_socket):
     # Some validation.
     if len(msg_in) < 37:
         # 37 is minimal length of open message with 4-byte AS number.
-        stdout_logger.error("Got something else than open with 4-byte AS number: " +
-                            binascii.hexlify(msg_in))
-        raise MessageError("Got something else than open with 4-byte AS number",
-                           msg_in)
+        logger.error("Got something else than open with 4-byte AS number: " +
+                     binascii.hexlify(msg_in))
+        raise MessageError("Got something else than open with 4-byte AS number", msg_in)
     # TODO: We could check BGP marker, but it is defined only later;
     # decide what to do.
     reported_length = get_short_int_from_message(msg_in)
     if len(msg_in) != reported_length:
-        stdout_logger.error("Message length is not " + str(reported_length) +
-                            " as stated in " + binascii.hexlify(msg_in))
+        logger.error("Message length is not " + str(reported_length) +
+                     " as stated in " + binascii.hexlify(msg_in))
         raise MessageError("Message length is not " + reported_length +
                            " as stated in ", msg_in)
-    stdout_logger.info("Open message received.")
+    logger.info("Open message received.")
     return msg_in
 
 
@@ -254,6 +278,7 @@ class MessageGenerator(object):
         self.remaining_prefixes_threshold = self.total_prefix_amount - args.prefill
         self.results_file_name_default = args.results
         self.performance_threshold_default = args.threshold
+        self.rfc4760 = args.rfc4760 == "yes"
         # Default values used for randomized part
         s1_slots = ((self.total_prefix_amount -
                      self.remaining_prefixes_threshold - 1) /
@@ -294,38 +319,38 @@ class MessageGenerator(object):
         - conditional calling of logger methods enclosed inside condition: 8,6s
         """
 
-        stdout_logger.info("Generator initialisation")
-        stdout_logger.info("  Target total number of prefixes to be introduced: " +
-                           str(self.total_prefix_amount))
-        stdout_logger.info("  Prefix base: " + str(self.prefix_base_default) + "/" +
-                           str(self.prefix_length_default))
-        stdout_logger.info("  My Autonomous System number: " +
-                           str(self.my_autonomous_system_default))
-        stdout_logger.info("  My Hold Time: " + str(self.hold_time_default))
-        stdout_logger.info("  My BGP Identifier: " + str(self.bgp_identifier_default))
-        stdout_logger.info("  Next Hop: " + str(self.next_hop_default))
-        stdout_logger.info("  Prefix count to be inserted at once: " +
-                           str(self.prefix_count_to_add_default))
-        stdout_logger.info("  Prefix count to be withdrawn at once: " +
-                           str(self.prefix_count_to_del_default))
-        stdout_logger.info("  Fast pre-fill up to " +
-                           str(self.total_prefix_amount -
-                               self.remaining_prefixes_threshold) + " prefixes")
-        stdout_logger.info("  Remaining number of prefixes to be processed " +
-                           "in parallel with withdrawals: " +
-                           str(self.remaining_prefixes_threshold))
-        stdout_logger.debug("  Prefix index range used after pre-fill procedure [" +
-                            str(self.randomize_lowest_default) + ", " +
-                            str(self.randomize_highest_default) + "]")
+        logger.info("Generator initialisation")
+        logger.info("  Target total number of prefixes to be introduced: " +
+                    str(self.total_prefix_amount))
+        logger.info("  Prefix base: " + str(self.prefix_base_default) + "/" +
+                    str(self.prefix_length_default))
+        logger.info("  My Autonomous System number: " +
+                    str(self.my_autonomous_system_default))
+        logger.info("  My Hold Time: " + str(self.hold_time_default))
+        logger.info("  My BGP Identifier: " + str(self.bgp_identifier_default))
+        logger.info("  Next Hop: " + str(self.next_hop_default))
+        logger.info("  Prefix count to be inserted at once: " +
+                    str(self.prefix_count_to_add_default))
+        logger.info("  Prefix count to be withdrawn at once: " +
+                    str(self.prefix_count_to_del_default))
+        logger.info("  Fast pre-fill up to " +
+                    str(self.total_prefix_amount -
+                        self.remaining_prefixes_threshold) + " prefixes")
+        logger.info("  Remaining number of prefixes to be processed " +
+                    "in parallel with withdrawals: " +
+                    str(self.remaining_prefixes_threshold))
+        logger.debug("  Prefix index range used after pre-fill procedure [" +
+                     str(self.randomize_lowest_default) + ", " +
+                     str(self.randomize_highest_default) + "]")
         if self.single_update_default:
-            stdout_logger.info("  Common single UPDATE will be generated " +
-                               "for both NLRI & WITHDRAWN lists")
+            logger.info("  Common single UPDATE will be generated " +
+                        "for both NLRI & WITHDRAWN lists")
         else:
-            stdout_logger.info("  Two separate UPDATEs will be generated " +
-                               "for each NLRI & WITHDRAWN lists")
+            logger.info("  Two separate UPDATEs will be generated " +
+                        "for each NLRI & WITHDRAWN lists")
         if self.randomize_updates_default:
-            stdout_logger.info("  Generation of UPDATE messages will be randomized")
-        stdout_logger.info("  Let\"s go ...\n")
+            logger.info("  Generation of UPDATE messages will be randomized")
+        logger.info("  Let\'s go ...\n")
 
         # TODO: Notification for hold timer expiration can be handy.
 
@@ -361,17 +386,17 @@ class MessageGenerator(object):
             totals2 = None
             performance2 = None
 
-        stdout_logger.info("#" * 10 + " Final results " + "#" * 10)
-        stdout_logger.info("Number of iterations: " + str(self.iteration))
-        stdout_logger.info("Number of UPDATE messages sent in the pre-fill phase: " +
-                           str(self.phase1_updates_sent))
-        stdout_logger.info("The pre-fill phase duration: " +
-                           str(self.phase1_stop_time - self.phase1_start_time) + "s")
-        stdout_logger.info("Number of UPDATE messages sent in the 2nd test phase: " +
-                           str(self.phase2_updates_sent))
-        stdout_logger.info("The 2nd test phase duration: " +
-                           str(self.phase2_stop_time - self.phase2_start_time) + "s")
-        stdout_logger.info("Threshold for performance reporting: " + str(threshold))
+        logger.info("#" * 10 + " Final results " + "#" * 10)
+        logger.info("Number of iterations: " + str(self.iteration))
+        logger.info("Number of UPDATE messages sent in the pre-fill phase: " +
+                    str(self.phase1_updates_sent))
+        logger.info("The pre-fill phase duration: " +
+                    str(self.phase1_stop_time - self.phase1_start_time) + "s")
+        logger.info("Number of UPDATE messages sent in the 2nd test phase: " +
+                    str(self.phase2_updates_sent))
+        logger.info("The 2nd test phase duration: " +
+                    str(self.phase2_stop_time - self.phase2_start_time) + "s")
+        logger.info("Threshold for performance reporting: " + str(threshold))
 
         # making labels
         phase1_label = ("pre-fill " + str(self.prefix_count_to_add_default) +
@@ -415,10 +440,10 @@ class MessageGenerator(object):
             second_line = second_line[:-2]
             f.write(first_line + "\n")
             f.write(second_line + "\n")
-            stdout_logger.info("Message generator performance results stored in " +
-                               file_name + ':')
-            stdout_logger.info("  " + first_line)
-            stdout_logger.info("  " + second_line)
+            logger.info("Message generator performance results stored in " +
+                        file_name + ":")
+            logger.info("  " + first_line)
+            logger.info("  " + second_line)
         finally:
             f.close()
 
@@ -490,11 +515,11 @@ class MessageGenerator(object):
             indexes.append(prefix_index)
             prefixes.append(prefix_base + prefix_index * prefix_gap)
         if self.log_debug:
-            stdout_logger.debug("  Prefix slot index: " + str(slot_index))
-            stdout_logger.debug("  Prefix slot size: " + str(slot_size))
-            stdout_logger.debug("  Prefix count: " + str(prefix_count))
-            stdout_logger.debug("  Prefix indexes: " + str(indexes))
-            stdout_logger.debug("  Prefix list: " + str(prefixes))
+            logger.debug("  Prefix slot index: " + str(slot_index))
+            logger.debug("  Prefix slot size: " + str(slot_size))
+            logger.debug("  Prefix count: " + str(prefix_count))
+            logger.debug("  Prefix indexes: " + str(indexes))
+            logger.debug("  Prefix list: " + str(prefixes))
         return prefixes
 
     def compose_update_message(self, prefix_count_to_add=None,
@@ -518,26 +543,26 @@ class MessageGenerator(object):
             prefix_count_to_del = self.prefix_count_to_del_default
         # logging
         if self.log_info and not (self.iteration % 1000):
-            stdout_logger.info("Iteration: " + str(self.iteration) +
-                               " - total remaining prefixes: " +
-                               str(self.remaining_prefixes))
+            logger.info("Iteration: " + str(self.iteration) +
+                        " - total remaining prefixes: " +
+                        str(self.remaining_prefixes))
         if self.log_debug:
-            stdout_logger.debug("#" * 10 + " Iteration: " +
-                                str(self.iteration) + " " + "#" * 10)
-            stdout_logger.debug("Remaining prefixes: " +
-                                str(self.remaining_prefixes))
+            logger.debug("#" * 10 + " Iteration: " +
+                         str(self.iteration) + " " + "#" * 10)
+            logger.debug("Remaining prefixes: " +
+                         str(self.remaining_prefixes))
         # scenario type & one-shot counter
         straightforward_scenario = (self.remaining_prefixes >
                                     self.remaining_prefixes_threshold)
         if straightforward_scenario:
             prefix_count_to_del = 0
             if self.log_debug:
-                stdout_logger.debug("--- STARAIGHTFORWARD SCENARIO ---")
+                logger.debug("--- STARAIGHTFORWARD SCENARIO ---")
             if not self.phase1_start_time:
                 self.phase1_start_time = time.time()
         else:
             if self.log_debug:
-                stdout_logger.debug("--- COMBINED SCENARIO ---")
+                logger.debug("--- COMBINED SCENARIO ---")
             if not self.phase2_start_time:
                 self.phase2_start_time = time.time()
         # tailor the number of prefixes if needed
@@ -549,12 +574,12 @@ class MessageGenerator(object):
         slot_index_to_del = slot_index_to_add - self.slot_gap_default
         # getting lists of prefixes for insertion in this iteration
         if self.log_debug:
-            stdout_logger.debug("Prefixes to be inserted in this iteration:")
+            logger.debug("Prefixes to be inserted in this iteration:")
         prefix_list_to_add = self.get_prefix_list(slot_index_to_add,
                                                   prefix_count=prefix_count_to_add)
         # getting lists of prefixes for withdrawal in this iteration
         if self.log_debug:
-            stdout_logger.debug("Prefixes to be withdrawn in this iteration:")
+            logger.debug("Prefixes to be withdrawn in this iteration:")
         prefix_list_to_del = self.get_prefix_list(slot_index_to_del,
                                                   prefix_count=prefix_count_to_del)
         # generating the mesage
@@ -636,16 +661,21 @@ class MessageGenerator(object):
         bgp_identifier_hex = struct.pack(">I", bgp_identifier)
 
         # Optional Parameters
-        optional_parameters_hex = (
-            "\x02"  # Param type ("Capability Ad")
-            "\x06"  # Length (6 bytes)
-            "\x01"  # Capability type (NLRI Unicast),
-                    # see RFC 4760, secton 8
-            "\x04"  # Capability value length
-            "\x00\x01"  # AFI (Ipv4)
-            "\x00"  # (reserved)
-            "\x01"  # SAFI (Unicast)
+        optional_parameters_hex = ""
+        if self.rfc4760:
+            optional_parameter_hex = (
+                "\x02"  # Param type ("Capability Ad")
+                "\x06"  # Length (6 bytes)
+                "\x01"  # Capability type (NLRI Unicast),
+                        # see RFC 4760, secton 8
+                "\x04"  # Capability value length
+                "\x00\x01"  # AFI (Ipv4)
+                "\x00"  # (reserved)
+                "\x01"  # SAFI (Unicast)
+            )
+            optional_parameters_hex += optional_parameter_hex
 
+        optional_parameter_hex = (
             "\x02"  # Param type ("Capability Ad")
             "\x06"  # Length (6 bytes)
             "\x41"  # "32 bit AS Numbers Support"
@@ -654,6 +684,7 @@ class MessageGenerator(object):
                     # My AS in 32 bit format
             + struct.pack(">I", my_autonomous_system)
         )
+        optional_parameters_hex += optional_parameter_hex
 
         # Optional Parameters Length
         optional_parameters_length = len(optional_parameters_hex)
@@ -684,30 +715,30 @@ class MessageGenerator(object):
         )
 
         if self.log_debug:
-            stdout_logger.debug("OPEN Message encoding")
-            stdout_logger.debug("  Marker=0x" + binascii.hexlify(marker_hex))
-            stdout_logger.debug("  Length=" + str(length) + " (0x" +
-                                binascii.hexlify(length_hex) + ")")
-            stdout_logger.debug("  Type=" + str(type) + " (0x" +
-                                binascii.hexlify(type_hex) + ")")
-            stdout_logger.debug("  Version=" + str(version) + " (0x" +
-                                binascii.hexlify(version_hex) + ")")
-            stdout_logger.debug("  My Autonomous System=" +
-                                str(my_autonomous_system_2_bytes) + " (0x" +
-                                binascii.hexlify(my_autonomous_system_hex_2_bytes) +
-                                ")")
-            stdout_logger.debug("  Hold Time=" + str(hold_time) + " (0x" +
-                                binascii.hexlify(hold_time_hex) + ")")
-            stdout_logger.debug("  BGP Identifier=" + str(bgp_identifier) +
-                                " (0x" + binascii.hexlify(bgp_identifier_hex) + ")")
-            stdout_logger.debug("  Optional Parameters Length=" +
-                                str(optional_parameters_length) + " (0x" +
-                                binascii.hexlify(optional_parameters_length_hex) +
-                                ")")
-            stdout_logger.debug("  Optional Parameters=0x" +
-                                binascii.hexlify(optional_parameters_hex))
-            stdout_logger.debug("  OPEN Message encoded: 0x" +
-                                binascii.b2a_hex(message_hex))
+            logger.debug("OPEN message encoding")
+            logger.debug("  Marker=0x" + binascii.hexlify(marker_hex))
+            logger.debug("  Length=" + str(length) + " (0x" +
+                         binascii.hexlify(length_hex) + ")")
+            logger.debug("  Type=" + str(type) + " (0x" +
+                         binascii.hexlify(type_hex) + ")")
+            logger.debug("  Version=" + str(version) + " (0x" +
+                         binascii.hexlify(version_hex) + ")")
+            logger.debug("  My Autonomous System=" +
+                         str(my_autonomous_system_2_bytes) + " (0x" +
+                         binascii.hexlify(my_autonomous_system_hex_2_bytes) +
+                         ")")
+            logger.debug("  Hold Time=" + str(hold_time) + " (0x" +
+                         binascii.hexlify(hold_time_hex) + ")")
+            logger.debug("  BGP Identifier=" + str(bgp_identifier) +
+                         " (0x" + binascii.hexlify(bgp_identifier_hex) + ")")
+            logger.debug("  Optional Parameters Length=" +
+                         str(optional_parameters_length) + " (0x" +
+                         binascii.hexlify(optional_parameters_length_hex) +
+                         ")")
+            logger.debug("  Optional Parameters=0x" +
+                         binascii.hexlify(optional_parameters_hex))
+            logger.debug("OPEN message encoded: 0x%s",
+                         binascii.b2a_hex(message_hex))
 
         return message_hex
 
@@ -817,29 +848,29 @@ class MessageGenerator(object):
         )
 
         if self.log_debug:
-            stdout_logger.debug("UPDATE Message encoding")
-            stdout_logger.debug("  Marker=0x" + binascii.hexlify(marker_hex))
-            stdout_logger.debug("  Length=" + str(length) + " (0x" +
-                                binascii.hexlify(length_hex) + ")")
-            stdout_logger.debug("  Type=" + str(type) + " (0x" +
-                                binascii.hexlify(type_hex) + ")")
-            stdout_logger.debug("  withdrawn_routes_length=" +
-                                str(withdrawn_routes_length) + " (0x" +
-                                binascii.hexlify(withdrawn_routes_length_hex) + ")")
-            stdout_logger.debug("  Withdrawn_Routes=" + str(wr_prefixes) + "/" +
-                                str(wr_prefix_length) + " (0x" +
-                                binascii.hexlify(withdrawn_routes_hex) + ")")
-            stdout_logger.debug("  Total Path Attributes Length=" +
-                                str(total_path_attributes_length) + " (0x" +
-                                binascii.hexlify(total_path_attributes_length_hex) +
-                                ")")
-            stdout_logger.debug("  Path Attributes=" + "(0x" +
-                                binascii.hexlify(path_attributes_hex) + ")")
-            stdout_logger.debug("  Network Layer Reachability Information=" +
-                                str(nlri_prefixes) + "/" + str(nlri_prefix_length) +
-                                " (0x" + binascii.hexlify(nlri_hex) + ")")
-            stdout_logger.debug("  UPDATE Message encoded: 0x" +
-                                binascii.b2a_hex(message_hex))
+            logger.debug("UPDATE message encoding")
+            logger.debug("  Marker=0x" + binascii.hexlify(marker_hex))
+            logger.debug("  Length=" + str(length) + " (0x" +
+                         binascii.hexlify(length_hex) + ")")
+            logger.debug("  Type=" + str(type) + " (0x" +
+                         binascii.hexlify(type_hex) + ")")
+            logger.debug("  withdrawn_routes_length=" +
+                         str(withdrawn_routes_length) + " (0x" +
+                         binascii.hexlify(withdrawn_routes_length_hex) + ")")
+            logger.debug("  Withdrawn_Routes=" + str(wr_prefixes) + "/" +
+                         str(wr_prefix_length) + " (0x" +
+                         binascii.hexlify(withdrawn_routes_hex) + ")")
+            logger.debug("  Total Path Attributes Length=" +
+                         str(total_path_attributes_length) + " (0x" +
+                         binascii.hexlify(total_path_attributes_length_hex) +
+                         ")")
+            logger.debug("  Path Attributes=" + "(0x" +
+                         binascii.hexlify(path_attributes_hex) + ")")
+            logger.debug("  Network Layer Reachability Information=" +
+                         str(nlri_prefixes) + "/" + str(nlri_prefix_length) +
+                         " (0x" + binascii.hexlify(nlri_hex) + ")")
+            logger.debug("UPDATE message encoded: 0x" +
+                         binascii.b2a_hex(message_hex))
 
         # updating counter
         self.updates_sent += 1
@@ -886,19 +917,19 @@ class MessageGenerator(object):
         )
 
         if self.log_debug:
-            stdout_logger.debug("NOTIFICATION Message encoding")
-            stdout_logger.debug("  Marker=0x" + binascii.hexlify(marker_hex))
-            stdout_logger.debug("  Length=" + str(length) + " (0x" +
-                                binascii.hexlify(length_hex) + ")")
-            stdout_logger.debug("  Type=" + str(type) + " (0x" +
-                                binascii.hexlify(type_hex) + ")")
-            stdout_logger.debug("  Error Code=" + str(error_code) + " (0x" +
-                                binascii.hexlify(error_code_hex) + ")")
-            stdout_logger.debug("  Error Subode=" + str(error_subcode) + " (0x" +
-                                binascii.hexlify(error_subcode_hex) + ")")
-            stdout_logger.debug("  Data=" + " (0x" + binascii.hexlify(data_hex) + ")")
-            stdout_logger.debug("  NOTIFICATION Message encoded: 0x" +
-                                binascii.b2a_hex(message_hex))
+            logger.debug("NOTIFICATION message encoding")
+            logger.debug("  Marker=0x" + binascii.hexlify(marker_hex))
+            logger.debug("  Length=" + str(length) + " (0x" +
+                         binascii.hexlify(length_hex) + ")")
+            logger.debug("  Type=" + str(type) + " (0x" +
+                         binascii.hexlify(type_hex) + ")")
+            logger.debug("  Error Code=" + str(error_code) + " (0x" +
+                         binascii.hexlify(error_code_hex) + ")")
+            logger.debug("  Error Subode=" + str(error_subcode) + " (0x" +
+                         binascii.hexlify(error_subcode_hex) + ")")
+            logger.debug("  Data=" + " (0x" + binascii.hexlify(data_hex) + ")")
+            logger.debug("NOTIFICATION message encoded: 0x%s",
+                         binascii.b2a_hex(message_hex))
 
         return message_hex
 
@@ -928,14 +959,14 @@ class MessageGenerator(object):
         )
 
         if self.log_debug:
-            stdout_logger.debug("KEEP ALIVE Message encoding")
-            stdout_logger.debug("  Marker=0x" + binascii.hexlify(marker_hex))
-            stdout_logger.debug("  Length=" + str(length) + " (0x" +
-                                binascii.hexlify(length_hex) + ")")
-            stdout_logger.debug("  Type=" + str(type) + " (0x" +
-                                binascii.hexlify(type_hex) + ")")
-            stdout_logger.debug("  KEEP ALIVE Message encoded: 0x" +
-                                binascii.b2a_hex(message_hex))
+            logger.debug("KEEP ALIVE message encoding")
+            logger.debug("  Marker=0x" + binascii.hexlify(marker_hex))
+            logger.debug("  Length=" + str(length) + " (0x" +
+                         binascii.hexlify(length_hex) + ")")
+            logger.debug("  Type=" + str(type) + " (0x" +
+                         binascii.hexlify(type_hex) + ")")
+            logger.debug("KEEP ALIVE message encoded: 0x%s",
+                         binascii.b2a_hex(message_hex))
 
         return message_hex
 
@@ -965,7 +996,7 @@ class TimeTracker(object):
         if hold_timedelta > peer_hold_timedelta:
             hold_timedelta = peer_hold_timedelta
         if hold_timedelta != 0 and hold_timedelta < 3:
-            stdout_logger.error("Invalid hold timedelta value: " + str(hold_timedelta))
+            logger.error("Invalid hold timedelta value: " + str(hold_timedelta))
             raise ValueError("Invalid hold timedelta value: ", hold_timedelta)
         self.hold_timedelta = hold_timedelta
         # If we do not hear from peer this long, we assume it has died.
@@ -1018,7 +1049,7 @@ class TimeTracker(object):
         if self.hold_timedelta != 0:
             # time.time() may be too strict
             if snapshot_time > self.peer_hold_time:
-                stdout_logger.error("Peer has overstepped the hold timer.")
+                logger.error("Peer has overstepped the hold timer.")
                 raise RuntimeError("Peer has overstepped the hold timer.")
                 # TODO: Include hold_timedelta?
                 # TODO: Add notification sending (attempt). That means
@@ -1050,6 +1081,11 @@ class ReadTracker(object):
         self.bytes_to_read = self.header_length
         # Incremental buffer for message under read.
         self.msg_in = ""
+        # Initialising counters
+        self.updates_received = 0
+        self.prefixes_introduced = 0
+        self.prefixes_withdrawn = 0
+        self.rx_idle_time = 0
 
     def read_message_chunk(self):
         """Read up to one message
@@ -1081,26 +1117,209 @@ class ReadTracker(object):
                 # Prepare state for reading another message.
                 message_type_hex = self.msg_in[self.header_length]
                 if message_type_hex == "\x01":
-                    stdout_logger.info("OPEN message received: 0x%s",
-                                       binascii.b2a_hex(self.msg_in))
+                    logger.info("OPEN message received: 0x%s",
+                                binascii.b2a_hex(self.msg_in))
                 elif message_type_hex == "\x02":
-                    stdout_logger.debug("UPDATE message received: 0x%s",
-                                        binascii.b2a_hex(self.msg_in))
+                    logger.debug("UPDATE message received: 0x%s",
+                                 binascii.b2a_hex(self.msg_in))
+                    self.decode_update_message(self.msg_in)
                 elif message_type_hex == "\x03":
-                    stdout_logger.info("NOTIFICATION message received: 0x%s",
-                                       binascii.b2a_hex(self.msg_in))
+                    logger.info("NOTIFICATION message received: 0x%s",
+                                binascii.b2a_hex(self.msg_in))
                 elif message_type_hex == "\x04":
-                    stdout_logger.info("KEEP ALIVE message received: 0x%s",
-                                       binascii.b2a_hex(self.msg_in))
+                    logger.info("KEEP ALIVE message received: 0x%s",
+                                binascii.b2a_hex(self.msg_in))
                 else:
-                    stdout_logger.warning("Unexpected message received: 0x%s",
-                                          binascii.b2a_hex(self.msg_in))
+                    logger.warning("Unexpected message received: 0x%s",
+                                   binascii.b2a_hex(self.msg_in))
                 self.msg_in = ""
                 self.reading_header = True
                 self.bytes_to_read = self.header_length
         # We should not act upon peer_hold_time if we are reading
         # something right now.
         return
+
+    def decode_path_attributes(self, path_attributes_hex):
+        """Decode the Path Attributes field (rfc4271#section-4.3)
+
+        Arguments:
+            :path_attributes: path_attributes field to be decoded in hex
+        Returns:
+            :return: None
+        """
+        hex_to_decode = path_attributes_hex
+
+        while len(hex_to_decode):
+            attr_flags_hex = hex_to_decode[0]
+            attr_flags = int(binascii.b2a_hex(attr_flags_hex), 16)
+#            attr_optional_bit = attr_flags & 128
+#            attr_transitive_bit = attr_flags & 64
+#            attr_partial_bit = attr_flags & 32
+            attr_extended_length_bit = attr_flags & 16
+
+            attr_type_code_hex = hex_to_decode[1]
+            attr_type_code = int(binascii.b2a_hex(attr_type_code_hex), 16)
+
+            if attr_extended_length_bit:
+                attr_length_hex = hex_to_decode[2:4]
+                attr_length = int(binascii.b2a_hex(attr_length_hex), 16)
+                attr_value_hex = hex_to_decode[4:4 + attr_length]
+                hex_to_decode = hex_to_decode[4 + attr_length:]
+            else:
+                attr_length_hex = hex_to_decode[2]
+                attr_length = int(binascii.b2a_hex(attr_length_hex), 16)
+                attr_value_hex = hex_to_decode[3:3 + attr_length]
+                hex_to_decode = hex_to_decode[3 + attr_length:]
+
+            if attr_type_code == 1:
+                logger.debug("Attribute type = 1 (ORIGIN, flags:0x%s)",
+                             binascii.b2a_hex(attr_flags_hex))
+                logger.debug("Attribute value = 0x%s", binascii.b2a_hex(attr_value_hex))
+            elif attr_type_code == 2:
+                logger.debug("Attribute type = 2 (AS_PATH, flags:0x%s)",
+                             binascii.b2a_hex(attr_flags_hex))
+                logger.debug("Attribute value = 0x%s", binascii.b2a_hex(attr_value_hex))
+            elif attr_type_code == 3:
+                logger.debug("Attribute type = 3 (NEXT_HOP, flags:0x%s)",
+                             binascii.b2a_hex(attr_flags_hex))
+                logger.debug("Attribute value = 0x%s", binascii.b2a_hex(attr_value_hex))
+            elif attr_type_code == 4:
+                logger.debug("Attribute type = 4 (MULTI_EXIT_DISC, flags:0x%s)",
+                             binascii.b2a_hex(attr_flags_hex))
+                logger.debug("Attribute value = 0x%s", binascii.b2a_hex(attr_value_hex))
+            elif attr_type_code == 5:
+                logger.debug("Attribute type = 5 (LOCAL_PREF, flags:0x%s)",
+                             binascii.b2a_hex(attr_flags_hex))
+                logger.debug("Attribute value = 0x%s", binascii.b2a_hex(attr_value_hex))
+            elif attr_type_code == 6:
+                logger.debug("Attribute type = 6 (ATOMIC_AGGREGATE, flags:0x%s)",
+                             binascii.b2a_hex(attr_flags_hex))
+                logger.debug("Attribute value = 0x%s", binascii.b2a_hex(attr_value_hex))
+            elif attr_type_code == 7:
+                logger.debug("Attribute type = 7 (AGGREGATOR, flags:0x%s)",
+                             binascii.b2a_hex(attr_flags_hex))
+                logger.debug("Attribute value = 0x%s", binascii.b2a_hex(attr_value_hex))
+            elif attr_type_code == 14:  # rfc4760#section-3
+                logger.debug("Attribute type = 14 (MP_REACH_NLRI, flags:0x%s)",
+                             binascii.b2a_hex(attr_flags_hex))
+                logger.debug("Attribute value = 0x%s", binascii.b2a_hex(attr_value_hex))
+                address_family_identifier_hex = attr_value_hex[0:2]
+                logger.debug("  Address Family Identifier = 0x%s",
+                             binascii.b2a_hex(address_family_identifier_hex))
+                subsequent_address_family_identifier_hex = attr_value_hex[2]
+                logger.debug("  Subsequent Address Family Identifier = 0x%s",
+                             binascii.b2a_hex(subsequent_address_family_identifier_hex))
+                next_hop_netaddr_len_hex = attr_value_hex[3]
+                next_hop_netaddr_len = int(binascii.b2a_hex(next_hop_netaddr_len_hex), 16)
+                logger.debug("  Length of Next Hop Network Address = 0x%s (%s)",
+                             binascii.b2a_hex(next_hop_netaddr_len_hex),
+                             next_hop_netaddr_len)
+                next_hop_netaddr_hex = attr_value_hex[4:4 + next_hop_netaddr_len]
+                logger.debug("  Network Address of Next Hop = 0x%s",
+                             binascii.b2a_hex(next_hop_netaddr_hex))
+                reserved_hex = attr_value_hex[4 + next_hop_netaddr_len]
+                logger.debug("  Reserved = 0x%s",
+                             binascii.b2a_hex(reserved_hex))
+                nlri_hex = attr_value_hex[4 + next_hop_netaddr_len + 1:]
+                logger.debug("  Network Layer Reachability Information = 0x%s",
+                             binascii.b2a_hex(nlri_hex))
+                nlri_prefix_list = get_prefix_list_from_hex(nlri_hex)
+                logger.debug("  NLRI prefix list: %s", nlri_prefix_list)
+                for prefix in nlri_prefix_list:
+                    logger.debug("  nlri_prefix_received: %s", prefix)
+                self.prefixes_introduced += len(nlri_prefix_list)  # update counter
+            elif attr_type_code == 15:  # rfc4760#section-4
+                logger.debug("Attribute type = 15 (MP_UNREACH_NLRI, flags:0x%s)",
+                             binascii.b2a_hex(attr_flags_hex))
+                logger.debug("Attribute value = 0x%s", binascii.b2a_hex(attr_value_hex))
+                address_family_identifier_hex = attr_value_hex[0:2]
+                logger.debug("  Address Family Identifier = 0x%s",
+                             binascii.b2a_hex(address_family_identifier_hex))
+                subsequent_address_family_identifier_hex = attr_value_hex[2]
+                logger.debug("  Subsequent Address Family Identifier = 0x%s",
+                             binascii.b2a_hex(subsequent_address_family_identifier_hex))
+                wd_hex = attr_value_hex[3:]
+                logger.debug("  Withdrawn Routes = 0x%s",
+                             binascii.b2a_hex(wd_hex))
+                wdr_prefix_list = get_prefix_list_from_hex(wd_hex)
+                logger.debug("  Withdrawn routes prefix list: %s",
+                             wdr_prefix_list)
+                for prefix in wdr_prefix_list:
+                    logger.debug("  withdrawn_prefix_received: %s", prefix)
+                self.prefixes_withdrawn += len(wdr_prefix_list)  # update counter
+            else:
+                logger.debug("Unknown attribute type = %s, flags:0x%s)", attr_type_code,
+                             binascii.b2a_hex(attr_flags_hex))
+                logger.debug("Unknown attribute value = 0x%s", binascii.b2a_hex(attr_value_hex))
+        return None
+
+    def decode_update_message(self, msg):
+        """Decode an UPDATE message (rfc4271#section-4.3)
+
+        Arguments:
+            :msg: message to be decoded in hex
+        Returns:
+            :return: None
+        """
+        logger.debug("Decoding update message:")
+        # message header - marker
+        marker_hex = msg[:16]
+        logger.debug("Message header marker: 0x%s",
+                     binascii.b2a_hex(marker_hex))
+        # message header - message length
+        msg_length_hex = msg[16:18]
+        msg_length = int(binascii.b2a_hex(msg_length_hex), 16)
+        logger.debug("Message lenght: 0x%s (%s)",
+                     binascii.b2a_hex(msg_length_hex), msg_length)
+        # message header - message type
+        msg_type_hex = msg[18:19]
+        msg_type = int(binascii.b2a_hex(msg_type_hex), 16)
+        if msg_type == 2:
+            logger.debug("Message type: 0x%s (update)",
+                         binascii.b2a_hex(msg_type_hex))
+            # withdrawn routes length
+            wdr_length_hex = msg[19:21]
+            wdr_length = int(binascii.b2a_hex(wdr_length_hex), 16)
+            logger.debug("Withdrawn routes lenght: 0x%s (%s)",
+                         binascii.b2a_hex(wdr_length_hex), wdr_length)
+            # withdrawn routes
+            wdr_hex = msg[21:21 + wdr_length]
+            logger.debug("Withdrawn routes: 0x%s",
+                         binascii.b2a_hex(wdr_hex))
+            wdr_prefix_list = get_prefix_list_from_hex(wdr_hex)
+            logger.debug("Withdrawn routes prefix list: %s",
+                         wdr_prefix_list)
+            for prefix in wdr_prefix_list:
+                logger.debug("withdrawn_prefix_received: %s", prefix)
+            # total path attribute length
+            total_pa_length_offset = 21 + wdr_length
+            total_pa_length_hex = msg[total_pa_length_offset:total_pa_length_offset+2]
+            total_pa_length = int(binascii.b2a_hex(total_pa_length_hex), 16)
+            logger.debug("Total path attribute lenght: 0x%s (%s)",
+                         binascii.b2a_hex(total_pa_length_hex), total_pa_length)
+            # path attributes
+            pa_offset = total_pa_length_offset + 2
+            pa_hex = msg[pa_offset:pa_offset+total_pa_length]
+            logger.debug("Path attributes: 0x%s", binascii.b2a_hex(pa_hex))
+            self.decode_path_attributes(pa_hex)
+            # network layer reachability information length
+            nlri_length = msg_length - 23 - total_pa_length - wdr_length
+            logger.debug("Calculated NLRI length: %s", nlri_length)
+            # network layer reachability information
+            nlri_offset = pa_offset + total_pa_length
+            nlri_hex = msg[nlri_offset:nlri_offset+nlri_length]
+            logger.debug("NLRI: 0x%s", binascii.b2a_hex(nlri_hex))
+            nlri_prefix_list = get_prefix_list_from_hex(nlri_hex)
+            logger.debug("NLRI prefix list: %s", nlri_prefix_list)
+            for prefix in nlri_prefix_list:
+                logger.debug("nlri_prefix_received: %s", prefix)
+            # Updating counters
+            self.updates_received += 1
+            self.prefixes_introduced += len(nlri_prefix_list)
+            self.prefixes_withdrawn += len(wdr_prefix_list)
+        else:
+            logger.error("Unexpeced message type 0x%s in 0x%s",
+                         binascii.b2a_hex(msg_type_hex), binascii.b2a_hex(msg))
 
     def wait_for_read(self):
         """Read message until timeout (next expected event).
@@ -1112,7 +1331,7 @@ class ReadTracker(object):
         # Compute time to the first predictable state change
         event_time = self.timer.get_next_event_time()
         # snapshot_time would be imprecise
-        wait_timedelta = event_time - time.time()
+        wait_timedelta = min(event_time - time.time(), 10)
         if wait_timedelta < 0:
             # The program got around to waiting to an event in "very near
             # future" so late that it became a "past" event, thus tell
@@ -1121,8 +1340,21 @@ class ReadTracker(object):
             # select.error("Invalid parameter") (for everything else).
             wait_timedelta = 0
         # And wait for event or something to read.
+
+        logger.info("total_received_update_message_counter: %s",
+                    self.updates_received)
+        logger.info("total_received_nlri_prefix_counter: %s",
+                    self.prefixes_introduced)
+        logger.info("total_received_withdrawn_prefix_counter: %s",
+                    self.prefixes_withdrawn)
+
+        start_time = time.time()
         select.select([self.socket], [], [self.socket], wait_timedelta)
-        # Not checking anything, that will be done in next iteration.
+        timedelta = time.time() - start_time
+        self.rx_idle_time += timedelta
+
+        logger.info("... idle for %.3fs", timedelta)
+        logger.info("total_rx_idle_time_counter: %.3fs", self.rx_idle_time)
         return
 
 
@@ -1223,6 +1455,7 @@ class StateTracker(object):
                 if not self.writer.sending_message:
                     # We need to schedule a keepalive ASAP.
                     self.writer.enqueue_message_for_sending(self.generator.keepalive_message())
+                    logger.info("KEEP ALIVE is sent.")
                 # We are sending a message now, so let's prioritize it.
                 self.prioritize_writing = True
         # Now we know what our priorities are, we have to check
@@ -1235,7 +1468,7 @@ class StateTracker(object):
         # Lists are unpacked, each is either [] or [self.socket],
         # so we will test them as boolean.
         if except_list:
-            stdout_logger.error("Exceptional state on the socket.")
+            logger.error("Exceptional state on the socket.")
             raise RuntimeError("Exceptional state on socket", self.socket)
         # We will do either read or write.
         if not (self.prioritize_writing and write_list):
@@ -1269,24 +1502,22 @@ class StateTracker(object):
                 if not self.generator.remaining_prefixes:
                     # We have just finished update generation,
                     # end-of-rib is due.
-                    stdout_logger.info("All update messages generated.")
-                    stdout_logger.info("Storing performance results.")
+                    logger.info("All update messages generated.")
+                    logger.info("Storing performance results.")
                     self.generator.store_results()
-                    stdout_logger.info("Finally an END-OF-RIB is going to be sent.")
+                    logger.info("Finally an END-OF-RIB is sent.")
                     msg_out += self.generator.update_message(wr_prefixes=[],
                                                              nlri_prefixes=[])
                 self.writer.enqueue_message_for_sending(msg_out)
                 # Attempt for real sending to be done in next iteration.
                 return
-            # Nothing to write anymore, except occasional keepalives.
-            stdout_logger.info("Everything has been done." +
-                               "Now just waiting for possible incomming message.")
+            # Nothing to write anymore.
             # To avoid busy loop, we do idle waiting here.
             self.reader.wait_for_read()
             return
         # We can neither read nor write.
-        stdout_logger.warning("Input and output both blocked for " +
-                              str(self.timer.report_timedelta) + " seconds.")
+        logger.warning("Input and output both blocked for " +
+                       str(self.timer.report_timedelta) + " seconds.")
         # FIXME: Are we sure select has been really waiting
         # the whole period?
         return
@@ -1299,9 +1530,15 @@ if __name__ == "__main__":
         Establish BGP connection and run iterations.
     """
     arguments = parse_arguments()
-    logging.basicConfig(format="%(asctime)s %(levelname)s: %(message)s")
-    stdout_logger = logging.getLogger("stdout_logger")
-    stdout_logger.setLevel(arguments.loglevel)
+    logger = logging.getLogger("logger")
+    log_formatter = logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
+    console_handler = logging.StreamHandler()
+    file_handler = logging.FileHandler(arguments.logfile, mode="w")
+    console_handler.setFormatter(log_formatter)
+    file_handler.setFormatter(log_formatter)
+    logger.addHandler(console_handler)
+    logger.addHandler(file_handler)
+    logger.setLevel(arguments.loglevel)
     bgp_socket = establish_connection(arguments)
     # Initial handshake phase. TODO: Can it be also moved to StateTracker?
     # Receive open message before sending anything.
@@ -1311,7 +1548,7 @@ if __name__ == "__main__":
     timer = TimeTracker(msg_in)
     generator = MessageGenerator(arguments)
     msg_out = generator.open_message()
-    stdout_logger.debug("Sending the OPEN message: " + binascii.hexlify(msg_out))
+    logger.debug("Sending the OPEN message: " + binascii.hexlify(msg_out))
     # Send our open message to the peer.
     bgp_socket.send(msg_out)
     # Wait for confirming keepalive.
@@ -1319,15 +1556,15 @@ if __name__ == "__main__":
     # Using exact keepalive length to not to see possible updates.
     msg_in = bgp_socket.recv(19)
     if msg_in != generator.keepalive_message():
-        stdout_logger.error("Open not confirmed by keepalive, instead got " +
-                            binascii.hexlify(msg_in))
+        logger.error("Open not confirmed by keepalive, instead got " +
+                     binascii.hexlify(msg_in))
         raise MessageError("Open not confirmed by keepalive, instead got",
                            msg_in)
     timer.reset_peer_hold_time()
     # Send the keepalive to indicate the connection is accepted.
     timer.snapshot()  # Remember this time.
     msg_out = generator.keepalive_message()
-    stdout_logger.debug("Sending a KEEP ALIVE message: " + binascii.hexlify(msg_out))
+    logger.debug("Sending a KEEP ALIVE message: " + binascii.hexlify(msg_out))
     bgp_socket.send(msg_out)
     # Use the remembered time.
     timer.reset_my_keepalive_time(timer.snapshot_time)
