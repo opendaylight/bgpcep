@@ -9,6 +9,7 @@ package org.opendaylight.controller.config.yang.bmp.impl;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
@@ -195,7 +196,7 @@ public class BmpMonitorImplModuleTest extends AbstractConfigTest {
     public void testCreateBean() throws Exception {
         final CommitStatus status = createInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 11, 0, 0);
+        assertStatus(status, 9, 0, 0);
     }
 
     @Test
@@ -205,7 +206,7 @@ public class BmpMonitorImplModuleTest extends AbstractConfigTest {
         assertBeanCount(1, FACTORY_NAME);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 11);
+        assertStatus(status, 0, 0, 9);
     }
 
     private CommitStatus createInstance() throws Exception {

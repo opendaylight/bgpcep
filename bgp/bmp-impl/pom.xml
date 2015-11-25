@@ -65,10 +65,6 @@
             <artifactId>bgp-inet</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>protocol-framework</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.opendaylight.tcpmd5</groupId>
             <artifactId>tcpmd5-api</artifactId>
         </dependency>

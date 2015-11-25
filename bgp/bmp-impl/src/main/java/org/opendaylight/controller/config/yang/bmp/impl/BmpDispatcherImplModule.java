@@ -15,11 +15,11 @@ import org.opendaylight.tcpmd5.netty.MD5ChannelFactory;
 import org.opendaylight.tcpmd5.netty.MD5ServerChannelFactory;
 
 public class BmpDispatcherImplModule extends org.opendaylight.controller.config.yang.bmp.impl.AbstractBmpDispatcherImplModule {
-    public BmpDispatcherImplModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+    public BmpDispatcherImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public BmpDispatcherImplModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, org.opendaylight.controller.config.yang.bmp.impl.BmpDispatcherImplModule oldModule, java.lang.AutoCloseable oldInstance) {
+    public BmpDispatcherImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final org.opendaylight.controller.config.yang.bmp.impl.BmpDispatcherImplModule oldModule, final java.lang.AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
@@ -33,8 +33,7 @@ public class BmpDispatcherImplModule extends org.opendaylight.controller.config.
         return new BmpDispatcherImpl(getBossGroupDependency(), getWorkerGroupDependency(),
                 getBmpExtensionsDependency().getBmpMessageRegistry(), new DefaultBmpSessionFactory(),
                 Optional.<MD5ChannelFactory<?>>fromNullable(getMd5ChannelFactoryDependency()),
-                Optional.<MD5ServerChannelFactory<?>>fromNullable(getMd5ServerChannelFactoryDependency()),
-                getBmpReconnectStrategyFactoryDependency());
+                Optional.<MD5ServerChannelFactory<?>>fromNullable(getMd5ServerChannelFactoryDependency()));
     }
 
 }

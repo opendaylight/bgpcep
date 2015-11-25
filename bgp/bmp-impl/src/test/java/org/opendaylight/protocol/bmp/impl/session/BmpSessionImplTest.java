@@ -8,11 +8,8 @@
 
 package org.opendaylight.protocol.bmp.impl.session;
 
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.embedded.EmbeddedChannel;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,27 +23,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 
 public class BmpSessionImplTest {
 
-    private static final SocketAddress FAKE_ADDRESS = InetSocketAddress.createUnresolved("localhost", 12345);
-
     private BmpSession session;
     private EmbeddedChannel channel;
     private BmpTestSessionListener listener;
-    @Mock
-    private Channel mockedChannel;
     @Mock
     private ChannelHandlerContext mockedHandlerContext;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        Mockito.doReturn(FAKE_ADDRESS).when(this.mockedChannel).localAddress();
-        Mockito.doReturn(FAKE_ADDRESS).when(this.mockedChannel).remoteAddress();
-        Mockito.doReturn(null).when(this.mockedChannel).close();
-        Mockito.doReturn("").when(this.mockedChannel).toString();
         Mockito.doReturn(null).when(this.mockedHandlerContext).channel();
         Mockito.doReturn(null).when(this.mockedHandlerContext).fireChannelInactive();
         this.listener = new BmpTestSessionListener();
-        this.session = new BmpSessionImpl(this.listener, this.mockedChannel);
+        this.session = new BmpSessionImpl(this.listener);
         this.channel = new EmbeddedChannel(this.session);
         Assert.assertTrue(this.listener.isUp());
     }
@@ -65,21 +54,21 @@ public class BmpSessionImplTest {
         Assert.assertEquals(this.listener.getListMsg().size(), 1);
         this.channel.writeInbound(TestUtil.createTerminationMsg());
         Assert.assertEquals(this.listener.getListMsg().size(), 1);
-        Mockito.verify(this.mockedChannel, Mockito.times(1)).close();
+        Assert.assertFalse(this.listener.isUp());
     }
 
     @Test
     public void testOnTermination() {
         this.channel.writeInbound(TestUtil.createTerminationMsg());
         Assert.assertEquals(this.listener.getListMsg().size(), 0);
-        Mockito.verify(this.mockedChannel, Mockito.times(1)).close();
+        Assert.assertFalse(this.listener.isUp());
     }
 
     @Test
     public void testOnUnexpectedMessage() {
         this.channel.writeInbound(TestUtil.createPeerDownFSM());
         Assert.assertEquals(this.listener.getListMsg().size(), 0);
-        Mockito.verify(this.mockedChannel, Mockito.times(1)).close();
+        Assert.assertFalse(this.listener.isUp());
     }
 
     @Test
@@ -87,7 +76,7 @@ public class BmpSessionImplTest {
         try {
             this.session.exceptionCaught(this.mockedHandlerContext, new BmpDeserializationException(""));
             Assert.assertEquals(this.listener.getListMsg().size(), 0);
-            Mockito.verify(this.mockedChannel, Mockito.times(1)).close();
+            Assert.assertFalse(this.listener.isUp());
         } catch (final Exception e) {
             Assert.fail(e.getMessage());
         }

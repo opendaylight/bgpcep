@@ -18,7 +18,6 @@ import io.netty.channel.ChannelFutureListener;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import org.opendaylight.controller.config.yang.bmp.impl.MonitoredRouter;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -58,7 +57,6 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
     private final Channel channel;
     private final MonitorId monitorId;
     private final List<MonitoredRouter> monitoredRouters;
-    private final List<Channel> clientChannels;
 
     private BmpMonitoringStationImpl(final DOMDataBroker domDataBroker, final YangInstanceIdentifier yangMonitorId,
             final Channel channel, final RouterSessionManager sessionManager, final MonitorId monitorId,
@@ -69,7 +67,6 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
         this.sessionManager = Preconditions.checkNotNull(sessionManager);
         this.monitorId = monitorId;
         this.monitoredRouters = mrs;
-        this.clientChannels = new CopyOnWriteArrayList<Channel>();
 
         createEmptyMonitor();
         LOG.info("BMP Monitoring station {} started", this.monitorId.getValue());
@@ -92,14 +89,9 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
                         ret = new KeyMapping();
                         ret.put(addr, rfc2385KeyPassword.getValue().getBytes(Charsets.US_ASCII));
                     }
-                    try {
-                        this.clientChannels.add(dispatcher.createClient(
-                            Ipv4Util.toInetSocketAddress(mr.getAddress(), mr.getPort()),
-                            this.sessionManager, Optional.<KeyMapping>fromNullable(ret)).sync().channel());
-                    } catch (final InterruptedException ex) {
-                        LOG.error("failed to connect bmp client {}", mr);
-                    }
-                    ret.remove(addr);
+                    dispatcher.createClient(
+                        Ipv4Util.toInetSocketAddress(mr.getAddress(), mr.getPort()),
+                        this.sessionManager, Optional.<KeyMapping>fromNullable(ret));
                 }
             }
         }
@@ -158,10 +150,6 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
                 BmpMonitoringStationImpl.this.sessionManager.close();
             }
         }).await();
-
-        for (final Channel ch : BmpMonitoringStationImpl.this.clientChannels) {
-            ch.close().await();
-        }
 
         final DOMDataWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, this.yangMonitorId);

@@ -17,7 +17,7 @@ public class DefaultBmpSessionFactory implements BmpSessionFactory {
 
     @Override
     public BmpSession getSession(final Channel channel, final BmpSessionListenerFactory sessionListenerFactory) {
-        return new BmpSessionImpl(sessionListenerFactory.getSessionListener(), channel);
+        return new BmpSessionImpl(sessionListenerFactory.getSessionListener());
     }
 
 }
