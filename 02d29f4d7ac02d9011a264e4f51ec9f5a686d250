@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7aade967_60f8e77c",
+        "filename": "bgp/openconfig-impl/src/test/java/org/opendaylight/protocol/bgp/openconfig/impl/BGPOpenConfigTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-11-25T16:17:29Z",
+      "side": 1,
+      "message": "some alternative solutions?",
+      "revId": "02d29f4d7ac02d9011a264e4f51ec9f5a686d250",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
