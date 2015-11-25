@@ -25,7 +25,6 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.util.concurrent.GlobalEventExecutor;;
 import java.net.InetSocketAddress;
 import java.util.List;
 import javassist.ClassPool;
@@ -57,8 +56,6 @@ import org.opendaylight.protocol.bmp.impl.spi.BmpMonitoringStation;
 import org.opendaylight.protocol.bmp.impl.test.TestUtil;
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;
-import org.opendaylight.protocol.framework.NeverReconnectStrategy;
-import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.tcpmd5.api.KeyAccess;
 import org.opendaylight.tcpmd5.api.KeyAccessFactory;
 import org.opendaylight.tcpmd5.api.KeyMapping;
@@ -110,12 +107,9 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class BmpMonitorImplTest extends AbstractDataBrokerTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BmpMonitorImplTest.class);
     private static final int PORT = 12345;
     private static final String LOCAL_ADDRESS = "127.0.0.10";
     private static final InetSocketAddress CLIENT_REMOTE = new InetSocketAddress("127.0.0.10", PORT);
@@ -125,10 +119,6 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
     private static final RouterId ROUTER_ID = new RouterId(new IpAddress(new Ipv4Address(LOCAL_ADDRESS)));
     private static final PeerId PEER_ID = new PeerId(PEER1.getValue());
     private static final String MD5_PASSWORD = "abcdef";
-    private static final int CONNECT_TIME = 720000;
-    private static final int MAX_SLEEP = 30000;
-    private static final int MIN_SLEEP = 30000;
-    private static final int SLEEP_FACTOR = 1;
 
     private BindingToNormalizedNodeCodec mappingService;
     private RIBActivator ribActivator;
@@ -139,7 +129,6 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
     private BmpMessageRegistry msgRegistry;
     private MD5NioServerSocketChannelFactory scfServerMd5;
     private MD5NioSocketChannelFactory scfMd5;
-    private ReconnectStrategyFactory brsf;
     private List<MonitoredRouter> mrs;
 
     @Mock private KeyAccess mockKeyAccess;
@@ -170,7 +159,6 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
 
         this.scfServerMd5 = new MD5NioServerSocketChannelFactory(this.kaf);
         this.scfMd5 = new MD5NioSocketChannelFactory(this.kaf);
-        this.brsf = new ReconnectStrategyFctImpl();
 
         this.ribActivator = new RIBActivator();
         final RIBExtensionProviderContext ribExtension = new SimpleRIBExtensionProviderContext();
@@ -186,7 +174,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
 
         this.dispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
                 ctx.getBmpMessageRegistry(), new DefaultBmpSessionFactory(), Optional.<MD5ChannelFactory<?>>of(this.scfMd5),
-                Optional.<MD5ServerChannelFactory<?>>of(this.scfServerMd5), this.brsf);
+                Optional.<MD5ServerChannelFactory<?>>of(this.scfServerMd5));
 
         this.bmpApp = BmpMonitoringStationImpl.createBmpMonitorInstance(ribExtension, this.dispatcher, getDomBroker(),
                 MONITOR_ID, new InetSocketAddress(InetAddresses.forString("127.0.0.10"), PORT), Optional.of(keys),
@@ -294,7 +282,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             assertEquals(tlvs.getPerAfiSafiLocRibTlv().getCount().toString(), peerStats.getPerAfiSafiLocRibRoutes().getAfiSafi().get(0).getCount().toString());
 
             // route mirror message test
-            RouteMirroringMessage routeMirrorMsg = TestUtil.createRouteMirrorMsg(PEER1);
+            final RouteMirroringMessage routeMirrorMsg = TestUtil.createRouteMirrorMsg(PEER1);
             channel.writeAndFlush(routeMirrorMsg);
             Thread.sleep(500);
             final Mirrors routeMirrors = getBmpData(peerIId.child(Mirrors.class)).get();
@@ -324,7 +312,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             final Monitor monitorAfterClose = getBmpData(monitorIId).get();
             assertTrue(monitorAfterClose.getRouter().isEmpty());
         } catch (final Exception e) {
-            StringBuffer ex = new StringBuffer();
+            final StringBuffer ex = new StringBuffer();
             ex.append(e.getMessage() + "\n");
             for (final StackTraceElement element: e.getStackTrace()) {
                 ex.append(element.toString() + "\n");
@@ -349,13 +337,6 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
         b.localAddress(CLIENT_LOCAL);
         b.option(ChannelOption.SO_REUSEADDR, true);
         return b.connect(CLIENT_REMOTE).sync();
-    }
-
-    private static final class ReconnectStrategyFctImpl implements ReconnectStrategyFactory {
-        @Override
-        public NeverReconnectStrategy createReconnectStrategy() {
-            return new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, CONNECT_TIME);
-        }
     }
 
     private <T extends DataObject> Optional<T> getBmpData(final InstanceIdentifier<T> iid) throws ReadFailedException {

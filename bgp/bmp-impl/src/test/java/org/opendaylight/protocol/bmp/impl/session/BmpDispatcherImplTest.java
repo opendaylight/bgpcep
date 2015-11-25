@@ -13,7 +13,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetSocketAddress;
 import org.junit.After;
 import org.junit.Assert;
@@ -33,8 +32,6 @@ import org.opendaylight.protocol.bmp.impl.BmpActivator;
 import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;
-import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
-import org.opendaylight.protocol.framework.TimedReconnectStrategy;
 import org.opendaylight.tcpmd5.api.KeyMapping;
 import org.opendaylight.tcpmd5.netty.MD5ChannelFactory;
 import org.opendaylight.tcpmd5.netty.MD5ServerChannelFactory;
@@ -55,8 +52,6 @@ public class BmpDispatcherImplTest {
     private BmpSessionListenerFactory mockedListenerFactory;
     @Mock
     private ChannelHandler mockedChannelHandler;
-    @Mock
-    private ReconnectStrategyFactory mockedReconnectStrategyFactory;
 
     @Before
     public void setUp() throws Exception {
@@ -68,8 +63,6 @@ public class BmpDispatcherImplTest {
         Mockito.doNothing().when(this.mockedSession).channelInactive(Mockito.any(ChannelHandlerContext.class));
         Mockito.doNothing().when(this.mockedSession).channelUnregistered(Mockito.any(ChannelHandlerContext.class));
         Mockito.doNothing().when(this.mockedSession).channelReadComplete(Mockito.any(ChannelHandlerContext.class));
-
-        Mockito.doReturn(new TimedReconnectStrategy(GlobalEventExecutor.INSTANCE, 720000, 30000L, 1.0, 30000L, 10L, 720000L)).when(this.mockedReconnectStrategyFactory).createReconnectStrategy();
 
         this.bgpActivator = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
@@ -85,8 +78,7 @@ public class BmpDispatcherImplTest {
                     final BmpSessionListenerFactory sessionListenerFactory) {
                 return BmpDispatcherImplTest.this.mockedSession;
             }
-        }, Optional.<MD5ChannelFactory<?>>absent(), Optional.<MD5ServerChannelFactory<?>>absent(),
-        mockedReconnectStrategyFactory);
+        }, Optional.<MD5ChannelFactory<?>>absent(), Optional.<MD5ServerChannelFactory<?>>absent());
     }
 
     @After

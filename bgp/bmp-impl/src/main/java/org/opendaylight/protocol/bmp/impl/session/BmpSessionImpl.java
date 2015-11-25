@@ -34,14 +34,13 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
 
     private final BmpSessionListener listener;
 
-    private final Channel channel;
+    private Channel channel;
 
-    private State state = State.UP;
+    private State state;
 
-    public BmpSessionImpl(@Nonnull final BmpSessionListener listener, @Nonnull final Channel channel) {
+    public BmpSessionImpl(@Nonnull final BmpSessionListener listener) {
         this.listener = Preconditions.checkNotNull(listener);
-        this.channel = Preconditions.checkNotNull(channel);
-        LOG.info("Session {} <-> {} started.", channel.localAddress(), channel.remoteAddress());
+        this.state = State.IDLE;
     }
 
     @Override
@@ -62,18 +61,25 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
     }
 
     @Override
-    public void handlerAdded(final ChannelHandlerContext ctx) {
-        this.sessionUp();
+    public void channelActive(final ChannelHandlerContext ctx) throws Exception {
+        this.channel = ctx.channel();
+        sessionUp();
+        LOG.info("Session {} <-> {} started.", channel.localAddress(), channel.remoteAddress());
     }
 
     @Override
     public synchronized void close() {
         LOG.info("Closing session: {}", this);
-        this.channel.close();
+        if (this.channel != null) {
+            this.channel.close();
+            this.channel = null;
+            this.state = State.IDLE;
+        }
     }
 
     @Override
     public InetAddress getRemoteAddress() {
+        Preconditions.checkState(this.state != State.IDLE, "BMP Session %s is not active.", this);
         return ((InetSocketAddress) this.channel.remoteAddress()).getAddress();
     }
 
@@ -81,6 +87,7 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
     public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) throws Exception {
         LOG.error("Exception caught in BMP Session.", cause);
         close();
+        this.listener.onSessionDown(this, new IllegalStateException(cause));
     }
 
     @Override
@@ -100,6 +107,7 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
                 this.state = State.INITIATED;
                 this.listener.onMessage(this, msg);
             } else {
+                LOG.warn("Unexpected message recieved {}, expected was BMP Initiation Message. Closing session.", msg);
                 close();
             }
             break;
@@ -110,6 +118,9 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
             } else {
                 this.listener.onMessage(this, msg);
             }
+            break;
+        case IDLE:
+            new IllegalStateException("Recieved message" + msg + "while BMP Session" + this + "was not active.");
             break;
         default:
             break;
@@ -129,10 +140,15 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
     }
 
     private void sessionUp() {
+        this.state = State.UP;
         this.listener.onSessionUp(this);
     }
 
     protected enum State {
+        /**
+         * Waiting for connection to be established.
+         */
+        IDLE,
         /**
          * The connection has been established. Waiting for Initiation Message.
          */

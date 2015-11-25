@@ -9,7 +9,6 @@ module odl-bmp-impl-cfg {
     import odl-bgp-parser-spi-cfg { prefix bgp-spi; revision-date 2013-11-15; }
     import odl-tcpmd5-netty-cfg { prefix tcpmd5-netty; revision-date 2014-04-27; }
     import odl-tcpmd5-cfg { prefix tcpmd5; revision-date 2014-04-27; }
-    import protocol-framework { prefix pf; revision-date 2014-03-13; }
     import netty { prefix netty; revision-date 2013-11-19; }
     import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
     import opendaylight-md-sal-binding {prefix mdsb; revision-date 2013-10-28; }
@@ -116,15 +115,6 @@ module odl-bmp-impl-cfg {
                     refine type {
                         mandatory false;
                         config:required-identity tcpmd5-netty:md5-server-channel-factory;
-                    }
-                }
-            }
-
-            container bmp-reconnect-strategy-factory {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity pf:reconnect-strategy-factory;
                     }
                 }
             }

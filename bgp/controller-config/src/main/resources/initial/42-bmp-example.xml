@@ -33,6 +33,13 @@
                         <password>changeme</password>
                     </monitored-router>
                     -->
+                    <!-- To enable active TCP connection, configure monitored-router with address, port and active flag.
+                    <monitored-router>
+                        <address>192.0.2.2</address>
+                        <port>1234</port>
+                        <active>true</active>
+                    </monitored-router>
+                     -->
                     <extensions>
                         <type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extensions</type>
                         <name>global-rib-extensions</name>
