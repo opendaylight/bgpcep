@@ -51,13 +51,13 @@ final class BGPRibImplProvider {
     }
 
     public void onGlobalRemoved(final Global removedGlobal, final DataBroker dataBroker) {
-        final ModuleKey moduleKey = globalState.getModuleKey(GlobalIdentifier.GLOBAL_IDENTIFIER);
+        final ModuleKey moduleKey = this.globalState.getModuleKey(GlobalIdentifier.GLOBAL_IDENTIFIER);
         if (moduleKey != null) {
             try {
-                globalState.remove(moduleKey);
-                final Optional<Module> maybeModule = configModuleWriter.readModuleConfiguration(moduleKey, dataBroker.newReadOnlyTransaction()).get();
+                this.globalState.remove(moduleKey);
+                final Optional<Module> maybeModule = this.configModuleWriter.readModuleConfiguration(moduleKey, dataBroker.newReadOnlyTransaction()).get();
                 if (maybeModule.isPresent()) {
-                    configModuleWriter.removeModuleConfiguration(moduleKey, dataBroker.newWriteOnlyTransaction());
+                    this.configModuleWriter.removeModuleConfiguration(moduleKey, dataBroker.newWriteOnlyTransaction());
                 }
             } catch (final Exception e) {
                 LOG.error("Failed to remove a configuration module: {}", moduleKey, e);
@@ -67,22 +67,19 @@ final class BGPRibImplProvider {
     }
 
     public void onGlobalModified(final Global modifiedGlobal, final DataBroker dataBroker) {
-        final ModuleKey moduleKey = globalState.getModuleKey(GlobalIdentifier.GLOBAL_IDENTIFIER);
-        if (moduleKey != null) {
-            //update existing RIB configuration
-            if (globalState.addOrUpdate(moduleKey, GlobalIdentifier.GLOBAL_IDENTIFIER, modifiedGlobal)) {
-                final ReadOnlyTransaction rTx = dataBroker.newReadOnlyTransaction();
-                try {
-                    final Optional<Module> maybeModule = configModuleWriter.readModuleConfiguration(moduleKey, rTx).get();
-                    if (maybeModule.isPresent()) {
-                        final ListenableFuture<List<LocalTable>> localTablesFuture = new TableTypesFunction<LocalTable>(rTx, configModuleWriter, LOCAL_TABLE_FUNCTION).apply(modifiedGlobal.getAfiSafis().getAfiSafi());
-                        final Module newModule = toRibImplConfigModule(modifiedGlobal, maybeModule.get(), localTablesFuture.get());
-                        configModuleWriter.putModuleConfiguration(newModule, dataBroker.newWriteOnlyTransaction());
-                    }
-                } catch (final Exception e) {
-                    LOG.error("Failed to update a configuration module: {}", moduleKey, e);
-                    throw new IllegalStateException(e);
+        final ModuleKey moduleKey = this.globalState.getModuleKey(GlobalIdentifier.GLOBAL_IDENTIFIER);
+        if (moduleKey != null && this.globalState.addOrUpdate(moduleKey, GlobalIdentifier.GLOBAL_IDENTIFIER, modifiedGlobal)) {
+            final ReadOnlyTransaction rTx = dataBroker.newReadOnlyTransaction();
+            try {
+                final Optional<Module> maybeModule = this.configModuleWriter.readModuleConfiguration(moduleKey, rTx).get();
+                if (maybeModule.isPresent()) {
+                    final ListenableFuture<List<LocalTable>> localTablesFuture = new TableTypesFunction<LocalTable>(rTx, this.configModuleWriter, LOCAL_TABLE_FUNCTION).apply(modifiedGlobal.getAfiSafis().getAfiSafi());
+                    final Module newModule = toRibImplConfigModule(modifiedGlobal, maybeModule.get(), localTablesFuture.get());
+                    this.configModuleWriter.putModuleConfiguration(newModule, dataBroker.newWriteOnlyTransaction());
                 }
+            } catch (final Exception e) {
+                LOG.error("Failed to update a configuration module: {}", moduleKey, e);
+                throw new IllegalStateException(e);
             }
         }
     }
