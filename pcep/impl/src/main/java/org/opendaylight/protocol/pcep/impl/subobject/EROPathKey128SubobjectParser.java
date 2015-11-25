@@ -15,12 +15,12 @@ import org.opendaylight.protocol.util.ByteArray;
 public final class EROPathKey128SubobjectParser extends AbstractEROPathKeySubobjectParser {
 
     @Override
-    protected final byte[] readPceId(final ByteBuf buffer) {
+    protected byte[] readPceId(final ByteBuf buffer) {
         return ByteArray.readBytes(buffer, PCE128_ID_F_LENGTH);
     }
 
     @Override
-    protected final void checkContentLenght(final int lenght) throws PCEPDeserializerException {
+    protected void checkContentLenght(final int lenght) throws PCEPDeserializerException {
         if (lenght != CONTENT128_LENGTH) {
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + lenght + "; Expected: >"
                 + CONTENT128_LENGTH + ".");
