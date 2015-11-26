@@ -121,6 +121,9 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
     }
 
     private Update withdraw(final MapEntryNode route) {
+        if (!this.mpSupport) {
+            return buildUpdate(Collections.<MapEntryNode>emptyList(), Collections.singleton(route), routeAttributes(route));
+        }
         return this.support.buildUpdate(Collections.<MapEntryNode>emptyList(), Collections.singleton(route), routeAttributes(route));
     }
 
