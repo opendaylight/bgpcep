@@ -18,6 +18,7 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev140815.DataChangeCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev140815.DataChangeCounterBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -53,7 +54,11 @@ public class TopologyDataChangeCounter implements DataChangeListener, Transactio
     public void close() {
         final WriteTransaction wTx = this.dataBroker.newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, IID);
-        wTx.submit();
+        try {
+            wTx.submit().checkedGet();
+        } catch (TransactionCommitFailedException except) {
+            LOG.warn("Error on remove  data change counter{}", IID.toString(), except);
+        }
         this.chain.close();
         LOG.debug("Data change counter removed");
     }
