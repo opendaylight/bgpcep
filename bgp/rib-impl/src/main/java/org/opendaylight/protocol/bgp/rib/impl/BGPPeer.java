@@ -196,21 +196,28 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
         this.session = session;
         this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
         final PeerId peerId = RouterIds.createPeerId(session.getBgpId());
-        TablesKey key = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-        this.tables.add(key);
-        createAdjRibOutListener(peerId, key, false);
 
         for (final BgpTableType t : session.getAdvertisedTableTypes()) {
-            key = new TablesKey(t.getAfi(), t.getSafi());
+            final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
             if (this.tables.add(key)) {
                 createAdjRibOutListener(peerId, key, true);
             }
         }
 
+        addBgp4Support(peerId);
+
         this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, false);
         this.sessionEstablishedCounter++;
         if (this.registrator != null) {
             this.runtimeReg = this.registrator.register(this);
+        }
+    }
+
+    //try to add a support for old-school BGP-4, if peer did not advertise IPv4-Unicast MP capability
+    private void addBgp4Support(final PeerId peerId) {
+        final TablesKey key = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+        if (this.tables.add(key)) {
+            createAdjRibOutListener(peerId, key, false);
         }
     }
 
