@@ -37,8 +37,9 @@ def _build_url(odl_ip, port, uri):
     return url
 
 
-def _build_data(xml_template, prefix_base, prefix_len, count, element="ipv4-routes"):
-    """Generate list of routes based on xml templates.
+def _stream_data(xml_template, prefix_base, prefix_len, count, element="ipv4-routes"):
+    """Stream list of routes based on xml template. Memory non-consumable
+    data generation (on the fly).
 
     Args:
         :xml_template: xml template for routes
@@ -52,41 +53,47 @@ def _build_data(xml_template, prefix_base, prefix_len, count, element="ipv4-rout
         :element: element to be returned
 
     Returns:
-        :returns xml_data: requested element as xml data
+        :yield xml_data: requested data by elements as xml data
     """
     global total_build_data_time_counter
-    build_data_timestamp = time.time()
 
     routes = md.parse(xml_template)
 
     routes_node = routes.getElementsByTagName("ipv4-routes")[0]
     route_node = routes.getElementsByTagName("ipv4-route")[0]
+    routes_node.removeChild(route_node)
+    route_prefix = route_node.getElementsByTagName("prefix")[0]
+    prefix_gap = 2 ** (32 - prefix_len)
+    prefix_index_list = range(count)
     if element == routes_node.tagName:
-        routes_node.removeChild(route_node)
-        if count:
-            prefix_gap = 2 ** (32 - prefix_len)
-
-        for prefix_index in range(count):
-            new_route_node = route_node.cloneNode(True)
-            new_route_prefix = new_route_node.getElementsByTagName("prefix")[0]
-
-            prefix = prefix_base + prefix_index * prefix_gap
-            new_route_prefix.childNodes[0].nodeValue = str(prefix) + "/" + str(prefix_len)
-
-            routes_node.appendChild(new_route_node)
-
-        xml_data = routes_node.toxml()
+        lines = routes_node.toxml().splitlines()
+        xml_head = lines[0] + "\n"
+        xml_tail = "\n".join(lines[1:])
     elif element == route_node.tagName:
-        route_node.setAttribute("xmlns", routes_node.namespaceURI)
-        route_prefix = route_node.getElementsByTagName("prefix")[0]
-        route_prefix.childNodes[0].nodeValue = str(prefix_base) + "/" + str(prefix_len)
-        xml_data = route_node.toxml()
+        xml_head = ""
+        xml_tail = ""
+        route_node.setAttribute("xmlns", route_node.namespaceURI)
     else:
-        xml_data = ""
-    routes.unlink()
-    logger.debug("xml data generated:\n%s", xml_data)
-    total_build_data_time_counter += time.time() - build_data_timestamp
-    return xml_data
+        prefix_index_list = range(0)
+
+    for prefix_index in prefix_index_list:
+        build_data_timestamp = time.time()
+        prefix = prefix_base + prefix_index * prefix_gap
+        prefix_str = str(prefix) + "/" + str(prefix_len)
+        route_prefix.childNodes[0].nodeValue = prefix_str
+        xml_data = route_node.toxml()
+        if prefix_index == 0:
+            xml_data = xml_head + xml_data
+        if prefix_index == len(prefix_index_list) - 1:
+            xml_data = xml_data + xml_tail
+        chunk = prefix_index + 1
+        if not (chunk % 1000):
+            logger.info("... streaming chunk %s (prefix: %s)", chunk, prefix_str)
+        else:
+            logger.debug("...streaming chunk %s (prefix: %s)", chunk, prefix_str)
+        logger.debug("xml data\n%s", xml_data)
+        total_build_data_time_counter += time.time() - build_data_timestamp
+        yield xml_data
 
 
 def send_request(operation, odl_ip, port, uri, auth, xml_data=None, expect_status_code=200):
@@ -125,20 +132,14 @@ def send_request(operation, odl_ip, port, uri, auth, xml_data=None, expect_statu
     except requests.exceptions.Timeout:
         logger.error("No response from %s", odl_ip)
     else:
-        logger.debug("%s %s", rsp.request, rsp.request.url)
-        logger.debug("Request headers: %s:", rsp.request.headers)
-        logger.debug("Request body: %s", rsp.request.body)
-        logger.debug("Response: %s", rsp.text)
         if rsp.status_code == expect_status_code:
             logger.debug("%s %s", rsp.request, rsp.request.url)
             logger.debug("Request headers: %s:", rsp.request.headers)
-            logger.debug("Request body: %s", rsp.request.body)
             logger.debug("Response: %s", rsp.text)
             logger.debug("%s %s", rsp, rsp.reason)
         else:
             logger.error("%s %s", rsp.request, rsp.request.url)
             logger.error("Request headers: %s:", rsp.request.headers)
-            logger.error("Request body: %s", rsp.request.body)
             logger.error("Response: %s", rsp.text)
             logger.error("%s %s", rsp, rsp.reason)
         return rsp
@@ -214,8 +215,8 @@ def post_prefixes(odl_ip, port, uri, auth, prefix_base=None, prefix_len=None,
     """
     logger.info("Post %s prefix(es) in a single request (starting from %s/%s) into %s:%s/restconf/%s",
                 count, prefix_base, prefix_len, odl_ip, port, uri)
-    xml_data = _build_data(xml_template, prefix_base, prefix_len, count)
-    send_request("POST", odl_ip, port, uri, auth, xml_data=xml_data, expect_status_code=204)
+    xml_stream = _stream_data(xml_template, prefix_base, prefix_len, count)
+    send_request("POST", odl_ip, port, uri, auth, xml_data=xml_stream, expect_status_code=204)
 
 
 def put_prefixes(odl_ip, port, uri, auth, prefix_base, prefix_len, count,
@@ -245,8 +246,8 @@ def put_prefixes(odl_ip, port, uri, auth, prefix_base, prefix_len, count,
     uri_add_prefix = uri + _uri_suffix_ipv4_routes
     logger.info("Put %s prefix(es) in a single request (starting from %s/%s) into %s:%s/restconf/%s",
                 count, prefix_base, prefix_len, odl_ip, port, uri_add_prefix)
-    xml_data = _build_data(xml_template, prefix_base, prefix_len, count)
-    send_request("PUT", odl_ip, port, uri_add_prefix, auth, xml_data=xml_data)
+    xml_stream = _stream_data(xml_template, prefix_base, prefix_len, count)
+    send_request("PUT", odl_ip, port, uri_add_prefix, auth, xml_data=xml_stream)
 
 
 def add_prefixes(odl_ip, port, uri, auth, prefix_base, prefix_len, count,
@@ -281,9 +282,9 @@ def add_prefixes(odl_ip, port, uri, auth, prefix_base, prefix_len, count,
         prefix = prefix_base + prefix_index * prefix_gap
         logger.info("Adding prefix %s/%s to %s:%s/restconf/%s",
                     prefix, prefix_len, odl_ip, port, uri)
-        xml_data = _build_data(xml_template, prefix, prefix_len, 1, "ipv4-route")
+        xml_stream = _stream_data(xml_template, prefix, prefix_len, 1, "ipv4-route")
         send_request("POST", odl_ip, port, uri_add_prefix, auth,
-                     xml_data=xml_data, expect_status_code=204)
+                     xml_data=xml_stream, expect_status_code=204)
 
 
 def delete_prefixes(odl_ip, port, uri, auth, prefix_base, prefix_len, count,

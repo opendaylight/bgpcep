@@ -1086,6 +1086,7 @@ class ReadTracker(object):
         self.prefixes_introduced = 0
         self.prefixes_withdrawn = 0
         self.rx_idle_time = 0
+        self.rx_activity_detected = True
 
     def read_message_chunk(self):
         """Read up to one message
@@ -1341,20 +1342,27 @@ class ReadTracker(object):
             wait_timedelta = 0
         # And wait for event or something to read.
 
-        logger.info("total_received_update_message_counter: %s",
-                    self.updates_received)
-        logger.info("total_received_nlri_prefix_counter: %s",
-                    self.prefixes_introduced)
-        logger.info("total_received_withdrawn_prefix_counter: %s",
-                    self.prefixes_withdrawn)
+        if not self.rx_activity_detected or not (self.updates_received % 100):
+            # right time to write statistics to the log (not for every update and
+            # not too frequently to avoid having large log files)
+            logger.info("total_received_update_message_counter: %s",
+                        self.updates_received)
+            logger.info("total_received_nlri_prefix_counter: %s",
+                        self.prefixes_introduced)
+            logger.info("total_received_withdrawn_prefix_counter: %s",
+                        self.prefixes_withdrawn)
 
         start_time = time.time()
         select.select([self.socket], [], [self.socket], wait_timedelta)
         timedelta = time.time() - start_time
         self.rx_idle_time += timedelta
+        self.rx_activity_detected = timedelta < 1
 
-        logger.info("... idle for %.3fs", timedelta)
-        logger.info("total_rx_idle_time_counter: %.3fs", self.rx_idle_time)
+        if not self.rx_activity_detected or not (self.updates_received % 100):
+            # right time to write statistics to the log (not for every update and
+            # not too frequently to avoid having large log files)
+            logger.info("... idle for %.3fs", timedelta)
+            logger.info("total_rx_idle_time_counter: %.3fs", self.rx_idle_time)
         return
 
 
