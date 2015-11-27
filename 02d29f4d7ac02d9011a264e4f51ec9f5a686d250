@@ -16,6 +16,24 @@
       "revId": "02d29f4d7ac02d9011a264e4f51ec9f5a686d250",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5aaae553_3946d724",
+        "filename": "bgp/openconfig-impl/src/test/java/org/opendaylight/protocol/bgp/openconfig/impl/BGPOpenConfigTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-11-27T09:59:21Z",
+      "side": 1,
+      "message": "what is it that you need to mock?",
+      "parentUuid": "7aade967_60f8e77c",
+      "revId": "02d29f4d7ac02d9011a264e4f51ec9f5a686d250",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
