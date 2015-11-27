@@ -9,6 +9,7 @@ package org.opendaylight.protocol.util;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.io.BaseEncoding;
 import com.google.common.io.CharStreams;
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,8 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,12 +68,7 @@ public final class PCEPHexDumpParser {
 
             // dot
             final String hexMessage = content.substring(messageIdx + 1, messageEndIdx);
-            byte[] message = null;
-            try {
-                message = Hex.decodeHex(hexMessage.toCharArray());
-            } catch (final DecoderException e) {
-                throw new IllegalArgumentException("Failed to decode message", e);
-            }
+            final byte[] message = BaseEncoding.base16().decode(hexMessage);
             messages.add(message);
             idx = messageEndIdx;
             idx = content.indexOf(LENGTH, idx);
