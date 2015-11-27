@@ -57,7 +57,6 @@
         <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
         <bundle>mvn:org.opendaylight.bgpcep/concepts/{{VERSION}}</bundle>
         <!-- util -->
-        <bundle>mvn:commons-codec/commons-codec/{{VERSION}}</bundle>
         <bundle>mvn:io.netty/netty-common/{{VERSION}}</bundle>
         <bundle>mvn:io.netty/netty-buffer/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/util/{{VERSION}}</bundle>
