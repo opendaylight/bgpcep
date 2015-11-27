@@ -7,6 +7,7 @@
  */
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
+import com.google.common.io.BaseEncoding;
 import com.google.common.primitives.UnsignedBytes;
 import java.util.Arrays;
 import org.apache.commons.codec.binary.Hex;
@@ -83,7 +84,7 @@ final class UriBuilder {
         final StringBuilder sBuilder = new StringBuilder();
         int i = 0;
         while (i < bytes.length) {
-            sBuilder.append(Hex.encodeHexString(new byte[] { bytes[i++], bytes[i++] }));
+            sBuilder.append(BaseEncoding.base16().encode(new byte[] { bytes[i++], bytes[i++] }));
             if (i != bytes.length) {
                 sBuilder.append(HEX_SEPARATOR);
             }
@@ -102,7 +103,7 @@ final class UriBuilder {
         return isoId(systemId.getValue());
     }
 
-    private String formatRouterIdentifier(final CRouterIdentifier routerIdentifier) {
+    private static String formatRouterIdentifier(final CRouterIdentifier routerIdentifier) {
         if (routerIdentifier == null) {
             return null;
         }
