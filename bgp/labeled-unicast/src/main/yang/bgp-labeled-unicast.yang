@@ -12,8 +12,8 @@ module bgp-labeled-unicast {
     import network-concepts { prefix netc; revision-date 2013-11-25; }
 
     organization "Cisco Systems, Inc.";
-    contact "GE QU <gequ@cisco.com>";
-    contact "Mingming Chen <mingmche@cisco.com>";
+    contact "GE QU <gequ@cisco.com>"
+    + " Mingming Chen <mingmche@cisco.com>";
 
     description
         "This module contains the base data model of a BGP message.

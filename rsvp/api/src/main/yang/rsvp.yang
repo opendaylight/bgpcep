@@ -925,8 +925,8 @@ module rsvp {
     grouping protection-object {
         choice protection-object {
             description "Protection Subobject";
-            reference "http://tools.ietf.org/html/rfc4873#section-6.1";
-            reference "http://tools.ietf.org/html/rfc4872#section-14";
+            reference "http://tools.ietf.org/html/rfc4873#section-6.1"
+            + " http://tools.ietf.org/html/rfc4872#section-14";
 
             case basic-protection-object {
                 uses rsvp-te-object;
