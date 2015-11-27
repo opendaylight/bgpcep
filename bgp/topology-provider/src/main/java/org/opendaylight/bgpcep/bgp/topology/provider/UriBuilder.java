@@ -7,9 +7,9 @@
  */
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
+import com.google.common.io.BaseEncoding;
 import com.google.common.primitives.UnsignedBytes;
 import java.util.Arrays;
-import org.apache.commons.codec.binary.Hex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.IsisAreaIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.LinkCase;
@@ -83,7 +83,7 @@ final class UriBuilder {
         final StringBuilder sBuilder = new StringBuilder();
         int i = 0;
         while (i < bytes.length) {
-            sBuilder.append(Hex.encodeHexString(new byte[] { bytes[i++], bytes[i++] }));
+            sBuilder.append(BaseEncoding.base16().encode(new byte[] { bytes[i++], bytes[i++] }));
             if (i != bytes.length) {
                 sBuilder.append(HEX_SEPARATOR);
             }
@@ -102,7 +102,7 @@ final class UriBuilder {
         return isoId(systemId.getValue());
     }
 
-    private String formatRouterIdentifier(final CRouterIdentifier routerIdentifier) {
+    private static String formatRouterIdentifier(final CRouterIdentifier routerIdentifier) {
         if (routerIdentifier == null) {
             return null;
         }
@@ -111,7 +111,8 @@ final class UriBuilder {
         }
         if (routerIdentifier instanceof IsisPseudonodeCase) {
             final IsisPseudonode r = ((IsisPseudonodeCase) routerIdentifier).getIsisPseudonode();
-            return isoId(r.getIsIsRouterIdentifier().getIsoSystemId().getValue()) + '.' + Hex.encodeHexString(new byte[] { UnsignedBytes.checkedCast(r.getPsn()) });
+            return isoId(r.getIsIsRouterIdentifier().getIsoSystemId().getValue()) + '.' +
+                    BaseEncoding.base16().encode(new byte[] { UnsignedBytes.checkedCast(r.getPsn()) });
         }
         if (routerIdentifier instanceof OspfNodeCase) {
             return ((OspfNodeCase) routerIdentifier).getOspfNode().getOspfRouterId().toString();
@@ -157,7 +158,7 @@ final class UriBuilder {
         final byte[] value = areaId.getValue();
         final StringBuilder sb = new StringBuilder();
         //first byte is AFI
-        sb.append(Hex.encodeHexString(Arrays.copyOf(value, 1)));
+        sb.append(BaseEncoding.base16().encode(value, 0, 1));
         sb.append(HEX_SEPARATOR);
         //ISIS area identifier might have variable length, but need to fit the IsoNetId pattern
         sb.append(UriBuilder.isoId(Arrays.copyOfRange(value, 1, AREA_ID_MAX_SIZE)));
