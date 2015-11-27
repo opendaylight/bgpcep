@@ -11,6 +11,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.io.BaseEncoding;
 import com.google.common.io.CharStreams;
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,8 +20,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 import javax.annotation.concurrent.Immutable;
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
 import org.opendaylight.protocol.util.ByteArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,12 +65,7 @@ public final class HexDumpBGPFileParser {
             final int lengthIdx = idx + sixteen * 2;
             final int messageIdx = lengthIdx + four;
             final String hexLength = content.substring(lengthIdx, messageIdx);
-            byte[] byteLength = null;
-            try {
-                byteLength = Hex.decodeHex(hexLength.toCharArray());
-            } catch (final DecoderException e) {
-                throw new IllegalArgumentException("Failed to decode message length", e);
-            }
+            final byte[] byteLength = BaseEncoding.base16().decode(hexLength);
             final int length = ByteArray.bytesToInt(byteLength);
             final int messageEndIdx = idx + length * 2;
 
@@ -81,12 +75,7 @@ public final class HexDumpBGPFileParser {
                     + MINIMAL_LENGTH);
 
             final String hexMessage = content.substring(idx, messageEndIdx);
-            byte[] message = null;
-            try {
-                message = Hex.decodeHex(hexMessage.toCharArray());
-            } catch (final DecoderException e) {
-                throw new IllegalArgumentException("Failed to decode message body", e);
-            }
+            final byte[] message = BaseEncoding.base16().decode(hexMessage);
             messages.add(message);
             idx = messageEndIdx;
             idx = content.indexOf(FF_16, idx);
