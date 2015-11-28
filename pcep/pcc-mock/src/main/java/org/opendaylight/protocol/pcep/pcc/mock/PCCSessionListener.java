@@ -12,8 +12,8 @@ import java.util.Random;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
-import org.opendaylight.protocol.pcep.pcc.mock.api.PccSession;
-import org.opendaylight.protocol.pcep.pcc.mock.api.PccTunnelManager;
+import org.opendaylight.protocol.pcep.pcc.mock.api.PCCSession;
+import org.opendaylight.protocol.pcep.pcc.mock.api.PCCTunnelManager;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Pcinitiate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1;
@@ -24,19 +24,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcerr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.Tlvs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PCCSessionListener implements PCEPSessionListener, PccSession {
+public class PCCSessionListener implements PCEPSessionListener, PCCSession {
 
     private static final Logger LOG = LoggerFactory.getLogger(PCCSessionListener.class);
 
     private final boolean errorMode;
-    private final PccTunnelManager tunnelManager;
+    private final PCCTunnelManager tunnelManager;
     private final int sessionId;
     private PCEPSession session;
 
-    public PCCSessionListener(final int sessionId, final PccTunnelManager tunnelManager, final boolean errorMode) {
+    public PCCSessionListener(final int sessionId, final PCCTunnelManager tunnelManager, final boolean errorMode) {
         this.errorMode = errorMode;
         this.tunnelManager = tunnelManager;
         this.sessionId = sessionId;
@@ -118,6 +119,16 @@ public class PCCSessionListener implements PCEPSessionListener, PccSession {
     @Override
     public int getId() {
         return this.sessionId;
+    }
+
+    @Override
+    public Tlvs getRemoteTlvs() {
+        return this.session.getRemoteTlvs();
+    }
+
+    @Override
+    public Tlvs localSessionCharacteristics() {
+        return this.session.localSessionCharacteristics();
     }
 
     private final Random rnd = new Random();

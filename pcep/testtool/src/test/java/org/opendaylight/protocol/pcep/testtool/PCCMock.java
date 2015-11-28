@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.testtool;
 
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ public class PCCMock {
                 public PCEPSessionListener getSessionListener() {
                     return new SimpleSessionListener();
                 }
-            }, snf, null, new InetSocketAddress("127.0.0.1", 12345)).get();
+            }, snf, null, new InetSocketAddress("127.0.0.1", 12345), BigInteger.ONE).get();
         }
     }
 }
