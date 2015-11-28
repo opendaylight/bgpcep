@@ -138,7 +138,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
          */
         final InetAddress peerAddress = session.getRemoteAddress();
 
-        syncOptimization  = new SyncOptimization(session);
+        this.syncOptimization  = new SyncOptimization(session);
 
         final TopologyNodeState state = this.serverSessionManager.takeNodeState(peerAddress, this, isLspDbRetreived());
 

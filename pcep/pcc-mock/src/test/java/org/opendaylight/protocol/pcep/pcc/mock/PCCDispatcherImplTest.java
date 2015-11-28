@@ -12,6 +12,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,12 +31,12 @@ import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 
-public class PccDispatcherImplTest {
+public class PCCDispatcherImplTest {
 
     private static final List<PCEPCapability> CAPS = new ArrayList<>();
     private static final PCEPSessionProposalFactory PROPOSAL = new BasePCEPSessionProposalFactory(30, 120, CAPS);
 
-    private PccDispatcherImpl dispatcher;
+    private PCCDispatcherImpl dispatcher;
     private final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(PROPOSAL, 0);
     private PCEPDispatcher pcepDispatcher;
     private InetSocketAddress serverAddress;
@@ -48,7 +49,7 @@ public class PccDispatcherImplTest {
     public void setUp() {
         this.workerGroup = new NioEventLoopGroup();
         this.bossGroup = new NioEventLoopGroup();
-        this.dispatcher = new PccDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry());
+        this.dispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry());
         this.pcepDispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(),
                 this.nf, this.bossGroup, this.workerGroup);
         this.serverAddress = new InetSocketAddress("127.0.5.0", getRandomPort());
@@ -65,7 +66,7 @@ public class PccDispatcherImplTest {
     @Test
     public void testClientReconnect() throws Exception {
         final Future<PCEPSession> futureSession = this.dispatcher.createClient(this.serverAddress, 500, new TestingSessionListenerFactory(),
-                this.nf, null, this.clientAddress);
+                this.nf, null, this.clientAddress, BigInteger.ONE);
 
         final TestingSessionListenerFactory slf = new TestingSessionListenerFactory();
         final Channel channel = this.pcepDispatcher.createServer(this.serverAddress, slf, null).channel();
