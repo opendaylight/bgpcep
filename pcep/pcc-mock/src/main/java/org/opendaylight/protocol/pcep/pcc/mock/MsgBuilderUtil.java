@@ -11,10 +11,15 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.Nonnull;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.lsp.db.version.tlv.LspDbVersionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.pcinitiate.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.OperationalStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcrpt;
@@ -118,7 +123,7 @@ public final class MsgBuilderUtil {
     }
 
     public static Tlvs createLspTlvs(final long lspId, final boolean symbolicPathName, final String tunnelEndpoint,
-            final String tunnelSender, final String extendedTunnelAddress, final Optional<byte[]> symbolicName) {
+            final String tunnelSender, final String extendedTunnelAddress, final Optional<byte[]> symbolicName, final Optional<BigInteger> lspDBVersion) {
         final TlvsBuilder tlvs = new TlvsBuilder().setLspIdentifiers(new LspIdentifiersBuilder()
                 .setLspId(new LspId(lspId))
                 .setAddressFamily(
@@ -138,7 +143,21 @@ public final class MsgBuilderUtil {
                         new SymbolicPathName(getDefaultPathName(tunnelSender, lspId))).build());
             }
         }
+
+        if(lspDBVersion.isPresent()) {
+            tlvs.addAugmentation(Tlvs1.class, new Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder().
+                setLspDbVersionValue(lspDBVersion.get()).build()).build());
+        }
         return tlvs.build();
+    }
+
+    public static Optional<Tlvs> createLspTlvsEndofSync(@Nonnull final BigInteger bigInteger) {
+        final Tlvs tlvs = new TlvsBuilder()
+            .addAugmentation(Tlvs1.class,
+                new Tlvs1Builder()
+                    .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(bigInteger).build()).build()).build();
+
+        return Optional.of(tlvs);
     }
 
     public static Pcerr createErrorMsg(final PCEPErrors e, final long srpId) {
