@@ -6,36 +6,39 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.bgpcep.pcep.topology.provider;
+package org.opendaylight.protocol.pcep.pcc.mock;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import org.opendaylight.protocol.pcep.PCEPSession;
+import java.math.BigInteger;
+import javax.annotation.Nonnull;
+import org.opendaylight.protocol.pcep.pcc.mock.api.PCCSession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.Tlvs3;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.lsp.db.version.tlv.LspDbVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.Tlvs;
 
-final class SyncOptimization {
-
+final class PCCSyncOptimization {
     private final boolean dbVersionMatch;
     private final boolean isSyncAvoidanceEnabled;
     private final boolean isDeltaSyncEnabled;
-    private final boolean isDbVersionPresent;
-    private final boolean isTriggeredInitialSyncEnable;
+    private final boolean isTriggeredInitialSynEnable;
     private final boolean isTriggeredReSyncEnable;
+    private final LspDbVersion localLspDbVersion;
+    private final LspDbVersion remoteLspDbVersion;
+    private BigInteger lspDBVersion = BigInteger.ONE;
 
-    public SyncOptimization(final PCEPSession session) {
+    public PCCSyncOptimization(@Nonnull final PCCSession session) {
         Preconditions.checkNotNull(session);
         final Tlvs remote = session.getRemoteTlvs();
         final Tlvs local = session.localSessionCharacteristics();
-        final LspDbVersion localLspDbVersion = getLspDbVersion(local);
-        final LspDbVersion remoteLspDbVersion = getLspDbVersion(remote);
+        this.localLspDbVersion = getLspDbVersion(local);
+        this.remoteLspDbVersion = getLspDbVersion(remote);
         this.dbVersionMatch = compareLspDbVersion(localLspDbVersion, remoteLspDbVersion);
         this.isSyncAvoidanceEnabled = isSyncAvoidance(local) && isSyncAvoidance(remote);
         this.isDeltaSyncEnabled = isDeltaSync(local) && isDeltaSync(remote);
-        this.isDbVersionPresent = localLspDbVersion != null || remoteLspDbVersion != null;
-        this.isTriggeredInitialSyncEnable = isTriggeredInitialSync(local) && isTriggeredInitialSync(remote) &&
+        this.isTriggeredInitialSynEnable = isTriggeredInitialSync(local) && isTriggeredInitialSync(remote) &&
             (this.isDeltaSyncEnabled || this.isSyncAvoidanceEnabled);
         this.isTriggeredReSyncEnable = isTriggeredReSync(local) && isTriggeredReSync(remote);
     }
@@ -53,21 +56,32 @@ final class SyncOptimization {
     }
 
     public boolean isTriggeredInitSyncEnabled() {
-        return isTriggeredInitialSyncEnable;
+        return isTriggeredInitialSynEnable;
     }
+
     public boolean isTriggeredReSyncEnabled() {
         return isTriggeredReSyncEnable;
     }
 
-    public boolean isDbVersionPresent() {
-        return isDbVersionPresent;
+    public BigInteger getLocalLspDbVersionValue() {
+        if (this.localLspDbVersion == null) {
+            return null;
+        }
+        return this.localLspDbVersion.getLspDbVersionValue();
+    }
+
+    public BigInteger getRemoteLspDbVersionValue() {
+        if (this.remoteLspDbVersion == null) {
+            return null;
+        }
+        return this.remoteLspDbVersion.getLspDbVersionValue();
     }
 
     private static LspDbVersion getLspDbVersion(final Tlvs openTlvs) {
         if (openTlvs != null) {
             final Tlvs3 tlvs3 = openTlvs.getAugmentation(Tlvs3.class);
             if (tlvs3 != null && tlvs3.getLspDbVersion() != null
-                    && tlvs3.getLspDbVersion().getLspDbVersionValue() != null) {
+                && tlvs3.getLspDbVersion().getLspDbVersionValue() != null) {
                 return tlvs3.getLspDbVersion();
             }
         }
@@ -121,5 +135,24 @@ final class SyncOptimization {
             return stateful1.isTriggeredResync();
         }
         return false;
+    }
+
+    public Optional<BigInteger> incrementLspDBVersion() {
+        if (!isSyncAvoidanceEnabled()) {
+            return Optional.absent();
+        } else if (isSyncNeedIt() && getLocalLspDbVersionValue() != null) {
+            this.lspDBVersion = getLocalLspDbVersionValue();
+            return Optional.of(this.lspDBVersion);
+        }
+
+        this.lspDBVersion = this.lspDBVersion.add(BigInteger.ONE);
+        return Optional.of(this.lspDBVersion);
+    }
+
+    public boolean isSyncNeedIt() {
+        if (doesLspDbMatch()) {
+            return false;
+        }
+        return true;
     }
 }
