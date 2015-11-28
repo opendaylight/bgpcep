@@ -10,8 +10,9 @@ package org.opendaylight.protocol.pcep.pcc.mock.api;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcrpt;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcerr;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.Tlvs;
 
-public interface PccSession {
+public interface PCCSession {
 
     void sendReport(Pcrpt reportMessage);
 
@@ -19,4 +20,7 @@ public interface PccSession {
 
     int getId();
 
+    Tlvs getRemoteTlvs();
+
+    Tlvs localSessionCharacteristics();
 }
