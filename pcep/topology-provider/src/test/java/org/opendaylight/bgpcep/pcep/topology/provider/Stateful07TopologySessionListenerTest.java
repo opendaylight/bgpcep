@@ -17,6 +17,7 @@ import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createLspTl
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import java.math.BigInteger;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.List;
@@ -133,8 +134,11 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
         final long srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
-                TEST_ADDRESS, TEST_ADDRESS, TEST_ADDRESS, Optional.<byte[]>absent());
-        final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs).setPlspId(new PlspId(1L)).setSync(false).setRemove(false).setOperational(OperationalStatus.Active).build(), Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(req.getEro().getSubobject()));
+            TEST_ADDRESS, TEST_ADDRESS, TEST_ADDRESS, Optional.<byte[]>absent(), Optional.<BigInteger>absent());
+        final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(
+            new LspBuilder(req.getLsp()).setTlvs(tlvs).setPlspId(new PlspId(1L))
+                .setSync(false).setRemove(false).setOperational(OperationalStatus.Active).build(),
+            Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(req.getEro().getSubobject()));
         final Pcrpt esm = MsgBuilderUtil.createPcRtpMessage(new LspBuilder().setSync(false).build(), Optional.of(MsgBuilderUtil.createSrp(0L)), null);
         this.listener.onMessage(this.session, esm);
 
@@ -180,8 +184,10 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         final Updates upd = updateMsg.getPcupdMessage().getUpdates().get(0);
         final long srpId2 = upd.getSrp().getOperationId().getValue();
         final Tlvs tlvs2 = createLspTlvs(upd.getLsp().getPlspId().getValue(), false,
-                NEW_DESTINATION_ADDRESS, TEST_ADDRESS, TEST_ADDRESS, Optional.<byte[]>absent());
-        final Pcrpt pcRpt2 = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(upd.getLsp()).setTlvs(tlvs2).setSync(true).setRemove(false).setOperational(OperationalStatus.Active).build(), Optional.of(MsgBuilderUtil.createSrp(srpId2)), MsgBuilderUtil.createPath(upd.getPath().getEro().getSubobject()));
+                NEW_DESTINATION_ADDRESS, TEST_ADDRESS, TEST_ADDRESS, Optional.<byte[]>absent(), Optional.<BigInteger>absent());
+        final Pcrpt pcRpt2 = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(upd.getLsp()).setTlvs(tlvs2).setSync(true).setRemove(false).
+            setOperational(OperationalStatus.Active).build(), Optional.of(MsgBuilderUtil.createSrp(srpId2)),
+            MsgBuilderUtil.createPath(upd.getPath().getEro().getSubobject()));
         this.listener.onMessage(this.session, pcRpt2);
         //check updated lsp
         topology = getTopology().get();
@@ -223,7 +229,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         final Requests req2 = pcinitiate2.getPcinitiateMessage().getRequests().get(0);
         final long srpId3 = req2.getSrp().getOperationId().getValue();
         final Tlvs tlvs3 = createLspTlvs(req2.getLsp().getPlspId().getValue(), false,
-                TEST_ADDRESS, TEST_ADDRESS, TEST_ADDRESS, Optional.<byte[]>absent());
+                TEST_ADDRESS, TEST_ADDRESS, TEST_ADDRESS, Optional.<byte[]>absent(), Optional.<BigInteger>absent());
         final Pcrpt pcRpt3 = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req2.getLsp()).setTlvs(tlvs3).setRemove(true).setSync(true).setOperational(OperationalStatus.Down).build(), Optional.of(MsgBuilderUtil.createSrp(srpId3)), MsgBuilderUtil.createPath(Collections.<Subobject>emptyList()));
         this.listener.onMessage(this.session, pcRpt3);
         // check if lsp was removed
@@ -290,7 +296,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
         final long srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
-                TEST_ADDRESS, TEST_ADDRESS, TEST_ADDRESS, Optional.<byte[]>absent());
+                TEST_ADDRESS, TEST_ADDRESS, TEST_ADDRESS, Optional.<byte[]>absent(), Optional.<BigInteger>absent());
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs).setSync(true).setRemove(false).setOperational(OperationalStatus.Active).build(), Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(req.getEro().getSubobject()));
         this.listener.onMessage(this.session, pcRpt);
         assertEquals(1, getTopology().get().getNode().size());
@@ -350,7 +356,7 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
         final long srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
-                TEST_ADDRESS, TEST_ADDRESS, TEST_ADDRESS, Optional.<byte[]>absent());
+                TEST_ADDRESS, TEST_ADDRESS, TEST_ADDRESS, Optional.<byte[]>absent(), Optional.<BigInteger>absent());
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs).setPlspId(new PlspId(1L)).setSync(false).setRemove(false).setOperational(OperationalStatus.Active).build(), Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(req.getEro().getSubobject()));
         this.listener.onMessage(this.session, pcRpt);
 
