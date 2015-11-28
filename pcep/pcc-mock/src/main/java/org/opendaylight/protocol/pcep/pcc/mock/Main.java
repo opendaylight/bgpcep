@@ -8,19 +8,15 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
-import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.net.HostAndPort;
 import com.google.common.net.InetAddresses;
-import io.netty.util.HashedWheelTimer;
-import io.netty.util.Timer;
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -28,20 +24,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import org.opendaylight.protocol.pcep.PCEPCapability;
-import org.opendaylight.protocol.pcep.PCEPSessionListener;
-import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
-import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
-import org.opendaylight.protocol.pcep.ietf.initiated00.CrabbeInitiatedActivator;
-import org.opendaylight.protocol.pcep.ietf.stateful07.PCEPStatefulCapability;
-import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
-import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
-import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
-import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
-import org.opendaylight.protocol.pcep.pcc.mock.api.PccTunnelManager;
-import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
-import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
-import org.opendaylight.tcpmd5.api.KeyMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,11 +36,14 @@ public final class Main {
     private static final short DEFAULT_KEEP_ALIVE = 30;
     private static final short DEFAULT_DEAD_TIMER = 120;
     private static final InetAddress LOCALHOST = InetAddresses.forString("127.0.0.1");
-    private static final PCEPCapability STATEFUL_CAPABILITY = new PCEPStatefulCapability(true, true, true,
-            false, false, false, false);
-    private static final List<PCEPCapability> CAPABILITIES = Lists.newArrayList(STATEFUL_CAPABILITY);
+    private static StateSyncOpt STATE_SYNC_OPT = StateSyncOpt.Inactive;
+    private static BigInteger SYNC_OPT_DB_VERSION;
+    private static int RECONNECT_AFTER;
+    private static int DISCONNECT_AFTER;
 
-    private Main() { }
+    private Main() {
+        throw new UnsupportedOperationException();
+    }
 
     public static void main(final String[] args) throws InterruptedException, ExecutionException, UnknownHostException {
         InetSocketAddress localAddress = new InetSocketAddress(LOCALHOST, DEFAULT_LOCAL_PORT);
@@ -73,7 +58,6 @@ public final class Main {
         long reconnectTime = -1;
         int redelegationTimeout = 0;
         int stateTimeout = -1;
-        final Timer timer = new HashedWheelTimer();
 
         getRootLogger(lc).setLevel(ch.qos.logback.classic.Level.INFO);
         int argIdx = 0;
@@ -97,51 +81,33 @@ public final class Main {
             } else if (args[argIdx].equals("--password")) {
                 password = args[++argIdx];
             } else if (args[argIdx].equals("--reconnect")) {
-                reconnectTime =  TimeUnit.SECONDS.toMillis(Integer.valueOf(args[++argIdx]).intValue());
+                reconnectTime = TimeUnit.SECONDS.toMillis(Integer.valueOf(args[++argIdx]).intValue());
             } else if (args[argIdx].equals("--redelegation-timeout")) {
                 redelegationTimeout = Integer.valueOf(args[++argIdx]);
             } else if (args[argIdx].equals("--state-timeout")) {
                 stateTimeout = Integer.valueOf(args[++argIdx]);
+            } else if (args[argIdx].equals("--state-sync-avoidance")) {
+                //"--state-sync-avoidance 10, 5, 10
+                STATE_SYNC_OPT = StateSyncOpt.AvoidanceProcedure;
+                final Long dbVersionAfterReconnect = Long.valueOf(args[++argIdx]);
+                DISCONNECT_AFTER = Integer.valueOf(args[++argIdx]);
+                RECONNECT_AFTER = Integer.valueOf(args[++argIdx]);
+                SYNC_OPT_DB_VERSION = BigInteger.valueOf(dbVersionAfterReconnect);
+            } else if (args[argIdx].equals("--incremental-sync-procedure")) {
+                STATE_SYNC_OPT = StateSyncOpt.IncrementalProcedure;
+                final Long dbVersionAfterReconnect = Long.valueOf(args[++argIdx]);
+                DISCONNECT_AFTER = Integer.valueOf(args[++argIdx]);
+                RECONNECT_AFTER = Integer.valueOf(args[++argIdx]);
+                SYNC_OPT_DB_VERSION = BigInteger.valueOf(dbVersionAfterReconnect);
             } else {
                 LOG.warn("WARNING: Unrecognized argument: {}", args[argIdx]);
             }
             argIdx++;
         }
-        createPCCs(lsps, pcError, pccCount, localAddress, remoteAddress, ka, dt, password, reconnectTime, redelegationTimeout, stateTimeout, timer);
-    }
+        final PCCsBuilder pccs = new PCCsBuilder(lsps, pcError, pccCount, localAddress, remoteAddress, ka, dt, password, reconnectTime, redelegationTimeout,
+            stateTimeout, SYNC_OPT_DB_VERSION, STATE_SYNC_OPT, DISCONNECT_AFTER, RECONNECT_AFTER);
+        pccs.createPCCs();
 
-    public static void createPCCs(final int lspsPerPcc, final boolean pcerr, final int pccCount,
-            final InetSocketAddress localAddress, final List<InetSocketAddress> remoteAddress, final short keepalive, final short deadtimer,
-            final String password, final long reconnectTime, final int redelegationTimeout, final int stateTimeout, final Timer timer) throws InterruptedException, ExecutionException {
-        startActivators();
-        InetAddress currentAddress = localAddress.getAddress();
-        final PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry());
-        for (int i = 0; i < pccCount; i++) {
-            final PccTunnelManager tunnelManager = new PCCTunnelManagerImpl(lspsPerPcc, currentAddress,
-                    redelegationTimeout, stateTimeout, timer);
-            createPCC(pcerr, new InetSocketAddress(currentAddress, localAddress.getPort()),
-                    remoteAddress, getSessionNegotiatorFactory(keepalive, deadtimer), pccDispatcher, password, reconnectTime, tunnelManager);
-            currentAddress = InetAddresses.increment(currentAddress);
-        }
-    }
-
-    private static void createPCC(final boolean pcerr, final InetSocketAddress localAddress,
-            final List<InetSocketAddress> remoteAddress, final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf, final PCCDispatcherImpl pccDispatcher,
-            final String password, final long reconnectTime, final PccTunnelManager tunnelManager) throws InterruptedException, ExecutionException {
-
-        for (final InetSocketAddress pceAddress : remoteAddress) {
-            pccDispatcher.createClient(pceAddress, reconnectTime,
-                    new PCEPSessionListenerFactory() {
-                        @Override
-                        public PCEPSessionListener getSessionListener() {
-                            return new PCCSessionListener(remoteAddress.indexOf(pceAddress), tunnelManager, pcerr);
-                        }
-                    }, snf, getKeyMapping(pceAddress.getAddress(), password), localAddress);
-        }
-    }
-
-    private static PCEPSessionNegotiatorFactory<PCEPSessionImpl> getSessionNegotiatorFactory(final short keepAlive, final short deadTimer) {
-        return new DefaultPCEPSessionNegotiatorFactory(new BasePCEPSessionProposalFactory(deadTimer, keepAlive, CAPABILITIES), 0);
     }
 
     private static ch.qos.logback.classic.Logger getRootLogger(final LoggerContext lc) {
@@ -165,25 +131,6 @@ public final class Main {
     private static InetSocketAddress getInetSocketAddress(final String hostPortString, final int defaultPort) {
         final HostAndPort hostAndPort = HostAndPort.fromString(hostPortString).withDefaultPort(defaultPort);
         return new InetSocketAddress(hostAndPort.getHostText(), hostAndPort.getPort());
-    }
-
-    private static KeyMapping getKeyMapping(final InetAddress inetAddress, final String password) {
-        if (!isNullOrEmpty(password)) {
-            final KeyMapping keyMapping = new KeyMapping();
-            keyMapping.put(inetAddress, password.getBytes(Charsets.US_ASCII));
-            return keyMapping;
-        }
-        return null;
-    }
-
-    private static void startActivators() {
-        final PCCActivator pccActivator = new PCCActivator();
-        final StatefulActivator stateful = new StatefulActivator();
-        final CrabbeInitiatedActivator activator = new CrabbeInitiatedActivator();
-        final PCEPExtensionProviderContext ctx = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance();
-        pccActivator.start(ctx);
-        stateful.start(ctx);
-        activator.start(ctx);
     }
 
 }
