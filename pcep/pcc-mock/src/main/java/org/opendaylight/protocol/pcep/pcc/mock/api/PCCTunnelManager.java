@@ -11,20 +11,20 @@ package org.opendaylight.protocol.pcep.pcc.mock.api;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.pcinitiate.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcupd.message.pcupd.message.Updates;
 
-public interface PccTunnelManager {
+public interface PCCTunnelManager {
 
-    void reportToAll(Updates updates, PccSession session);
+    void reportToAll(Updates updates, PCCSession session);
 
-    void returnDelegation(Updates updates, PccSession session);
+    void returnDelegation(Updates updates, PCCSession session);
 
-    void takeDelegation(Requests request, PccSession session);
+    void takeDelegation(Requests request, PCCSession session);
 
-    void onSessionUp(PccSession session);
+    void onSessionUp(PCCSession session);
 
-    void onSessionDown(PccSession session);
+    void onSessionDown(PCCSession session);
 
-    void addTunnel(Requests request, PccSession session);
+    void addTunnel(Requests request, PCCSession session);
 
-    void removeTunnel(Requests request, PccSession session);
+    void removeTunnel(Requests request, PCCSession session);
 
 }
