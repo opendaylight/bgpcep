@@ -20,8 +20,9 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.protocol.pcep.PCEPSession;
-import org.opendaylight.protocol.pcep.pcc.mock.api.PccSession;
-import org.opendaylight.protocol.pcep.pcc.mock.api.PccTunnelManager;
+import org.opendaylight.protocol.pcep.pcc.mock.api.PCCSession;
+import org.opendaylight.protocol.pcep.pcc.mock.api.PCCTunnelManager;
+import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCSessionListener;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
@@ -56,7 +57,7 @@ public class PCCSessionListenerTest {
     private PCEPSession mockedSession;
 
     @Mock
-    private PccTunnelManager tunnelManager;
+    private PCCTunnelManager tunnelManager;
 
     private final List<Message> sendMessages = Lists.newArrayList();
 
@@ -81,15 +82,21 @@ public class PCCSessionListenerTest {
     public void testOnMessage() {
         final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
         listener.onMessage(mockedSession, createUpdMsg(true));
-        Mockito.verify(tunnelManager).reportToAll(Mockito.any(Updates.class), Mockito.any(PccSession.class));
+        Mockito.verify(tunnelManager).onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
+        Mockito.verify(tunnelManager, Mockito.never()).onMesssgePcinitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
         listener.onMessage(mockedSession, createUpdMsg(false));
-        Mockito.verify(tunnelManager).returnDelegation(Mockito.any(Updates.class), Mockito.any(PccSession.class));
+        Mockito.verify(tunnelManager, Mockito.times(2)).onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
+        Mockito.verify(tunnelManager, Mockito.never()).onMesssgePcinitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
+
         listener.onMessage(mockedSession, createInitMsg(false, true));
-        Mockito.verify(tunnelManager).addTunnel(Mockito.any(Requests.class), Mockito.any(PccSession.class));
+        Mockito.verify(tunnelManager, Mockito.times(2)).onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
+        Mockito.verify(tunnelManager).onMesssgePcinitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
         listener.onMessage(mockedSession, createInitMsg(true, false));
-        Mockito.verify(tunnelManager).removeTunnel(Mockito.any(Requests.class), Mockito.any(PccSession.class));
+        Mockito.verify(tunnelManager, Mockito.times(2)).onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
+        Mockito.verify(tunnelManager, Mockito.times(2)).onMesssgePcinitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
         listener.onMessage(mockedSession, createInitMsg(false, false));
-        Mockito.verify(tunnelManager).takeDelegation(Mockito.any(Requests.class), Mockito.any(PccSession.class));
+        Mockito.verify(tunnelManager, Mockito.times(2)).onMessagePcupd(Mockito.any(Updates.class), Mockito.any(PCCSession.class));
+        Mockito.verify(tunnelManager, Mockito.times(3)).onMesssgePcinitiate(Mockito.any(Requests.class), Mockito.any(PCCSession.class));
     }
 
     @Test
@@ -103,14 +110,14 @@ public class PCCSessionListenerTest {
     public void testOnSessionUp() {
         final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
         listener.onSessionUp(mockedSession);
-        Mockito.verify(tunnelManager).onSessionUp(Mockito.any(PccSession.class));
+        Mockito.verify(tunnelManager).onSessionUp(Mockito.any(PCCSession.class));
     }
 
     @Test
     public void testOnSessionDown() {
         final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
         listener.onSessionDown(mockedSession, new Exception());
-        Mockito.verify(tunnelManager).onSessionDown(Mockito.any(PccSession.class));
+        Mockito.verify(tunnelManager).onSessionDown(Mockito.any(PCCSession.class));
     }
 
     @Test
@@ -156,8 +163,7 @@ public class PCCSessionListenerTest {
         }
         requests.add(reqBuilder.build());
 
-        final PcinitiateMessageBuilder initBuilder = new PcinitiateMessageBuilder()
-            .setRequests(requests);
+        final PcinitiateMessageBuilder initBuilder = new PcinitiateMessageBuilder().setRequests(requests);
         return new PcinitiateBuilder().setPcinitiateMessage(initBuilder.build()).build();
     }
 
