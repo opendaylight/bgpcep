@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.pcep.pcc.mock;
+package org.opendaylight.protocol.pcep.pcc.mock.protocol;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelHandlerContext;
@@ -18,8 +18,11 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
@@ -28,7 +31,7 @@ import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPHandlerFactory;
-import org.opendaylight.protocol.pcep.pcc.mock.api.PccDispatcher;
+import org.opendaylight.protocol.pcep.pcc.mock.api.PCCDispatcher;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.tcpmd5.api.DummyKeyAccessFactory;
 import org.opendaylight.tcpmd5.api.KeyAccessFactory;
@@ -41,17 +44,17 @@ import org.opendaylight.tcpmd5.netty.MD5NioSocketChannelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class PCCDispatcherImpl implements PccDispatcher, AutoCloseable {
+public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(PCCDispatcherImpl.class);
 
     private static final int RECONNECT_STRATEGY_TIMEOUT = 2000;
 
-    private final PCEPHandlerFactory factory; 
+    private final PCEPHandlerFactory factory;
     private final MD5ChannelFactory<?> cf;
     private final NioEventLoopGroup workerGroup;
 
-    public PCCDispatcherImpl(final MessageRegistry registry) {
+    public PCCDispatcherImpl(@Nonnull final MessageRegistry registry) {
         this.workerGroup = new NioEventLoopGroup();
         this.factory = new PCEPHandlerFactory(registry);
         this.cf = new MD5NioSocketChannelFactory(DeafultKeyAccessFactory.getKeyAccessFactory());
@@ -84,9 +87,16 @@ public final class PCCDispatcherImpl implements PccDispatcher, AutoCloseable {
     }
 
     @Override
-    public Future<PCEPSession> createClient(
-            final InetSocketAddress remoteAddress, final long reconnectTime, final PCEPSessionListenerFactory listenerFactory,
-            final PCEPSessionNegotiatorFactory negotiatorFactory, final KeyMapping keys, final InetSocketAddress localAddress) {
+    public Future<PCEPSession> createClient(@Nonnull final InetSocketAddress remoteAddress, @Nonnull final long reconnectTime,
+                                            @Nonnull final PCEPSessionListenerFactory listenerFactory, @Nonnull final PCEPSessionNegotiatorFactory negotiatorFactory,
+                                            @Nonnull final KeyMapping keys, @Nullable final InetSocketAddress localAddress) {
+        return createClient(remoteAddress, reconnectTime, listenerFactory, negotiatorFactory, keys, localAddress, BigInteger.ONE);
+    }
+
+    @Override
+    public Future<PCEPSession> createClient(@Nonnull final InetSocketAddress remoteAddress, @Nonnull final long reconnectTime,
+                                            @Nonnull final PCEPSessionListenerFactory listenerFactory, @Nonnull final PCEPSessionNegotiatorFactory negotiatorFactory,
+                                            @Nonnull final KeyMapping keys, @Nullable final InetSocketAddress localAddress, @Nonnull final BigInteger dbVersion) {
         final Bootstrap b = new Bootstrap();
         b.group(this.workerGroup);
         b.localAddress(localAddress);
@@ -99,7 +109,7 @@ public final class PCCDispatcherImpl implements PccDispatcher, AutoCloseable {
             @Override
             protected void initChannel(final SocketChannel ch) throws Exception {
                 ch.pipeline().addLast(PCCDispatcherImpl.this.factory.getDecoders());
-                ch.pipeline().addLast("negotiator", negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise, null));
+                ch.pipeline().addLast("negotiator", negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise, new PCCPeerProposal(dbVersion)));
                 ch.pipeline().addLast(PCCDispatcherImpl.this.factory.getEncoders());
                 ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
                     @Override
@@ -114,7 +124,7 @@ public final class PCCDispatcherImpl implements PccDispatcher, AutoCloseable {
                         }
                         LOG.debug("Reconnecting after connection to {} was dropped", remoteAddress);
                         PCCDispatcherImpl.this.createClient(remoteAddress, reconnectTime, listenerFactory, negotiatorFactory,
-                                keys, localAddress);
+                            keys, localAddress, dbVersion);
                     }
                 });
             }
