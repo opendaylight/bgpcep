@@ -8,23 +8,17 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock.api;
 
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.pcinitiate.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcupd.message.pcupd.message.Updates;
 
-public interface PccTunnelManager {
+public interface PCCTunnelManager {
 
-    void reportToAll(Updates updates, PccSession session);
+    void onSessionUp(PCCSession session);
 
-    void returnDelegation(Updates updates, PccSession session);
+    void onSessionDown(PCCSession session);
 
-    void takeDelegation(Requests request, PccSession session);
+    void onMessagePcupd(@Nonnull Updates update, @Nonnull PCCSession session);
 
-    void onSessionUp(PccSession session);
-
-    void onSessionDown(PccSession session);
-
-    void addTunnel(Requests request, PccSession session);
-
-    void removeTunnel(Requests request, PccSession session);
-
+    void onMessagePcInitiate(@Nonnull Requests request, @Nonnull PCCSession session);
 }
