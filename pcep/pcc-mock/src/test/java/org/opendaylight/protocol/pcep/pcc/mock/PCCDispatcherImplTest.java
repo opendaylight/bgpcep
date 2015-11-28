@@ -12,6 +12,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +66,7 @@ public class PCCDispatcherImplTest {
     @Test
     public void testClientReconnect() throws Exception {
         final Future<PCEPSession> futureSession = this.dispatcher.createClient(this.serverAddress, 500, new TestingSessionListenerFactory(),
-                this.nf, null, this.clientAddress);
+                this.nf, null, this.clientAddress, BigInteger.ONE);
 
         final TestingSessionListenerFactory slf = new TestingSessionListenerFactory();
         final Channel channel = this.pcepDispatcher.createServer(this.serverAddress, slf, null).channel();

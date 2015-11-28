@@ -26,8 +26,8 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.opendaylight.protocol.pcep.pcc.mock.api.PccSession;
-import org.opendaylight.protocol.pcep.pcc.mock.api.PccTunnelManager;
+import org.opendaylight.protocol.pcep.pcc.mock.api.PCCSession;
+import org.opendaylight.protocol.pcep.pcc.mock.api.PCCTunnelManager;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
@@ -62,9 +62,9 @@ public class PCCTunnelManagerImplTest {
             new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("127.0.0.2/32"))).build()).build()).build())).build();
 
     @Mock
-    private PccSession session1;
+    private PCCSession session1;
     @Mock
-    private PccSession session2;
+    private PCCSession session2;
 
     private final List<PCEPErrors> errorsSession1 = new ArrayList<>();
 
@@ -101,7 +101,7 @@ public class PCCTunnelManagerImplTest {
 
     @Test
     public void testOnSessionUp() {
-        final PccTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER);
+        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onSessionUp(session2);
         //1 reported LSP + 1 end-of-sync marker
@@ -112,7 +112,7 @@ public class PCCTunnelManagerImplTest {
 
     @Test
     public void testOnSessionDownAndDelegateBack() throws InterruptedException {
-        final PccTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 1, 10, TIMER);
+        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 1, 10, TIMER);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onSessionUp(session2);
         Mockito.verify(session1, Mockito.times(2)).sendReport(Mockito.any(Pcrpt.class));
@@ -125,7 +125,7 @@ public class PCCTunnelManagerImplTest {
 
     @Test
     public void testOnSessionDownAndDelegateToOther() throws InterruptedException {
-        final PccTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, -1, TIMER);
+        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, -1, TIMER);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onSessionUp(session2);
         Mockito.verify(session1, Mockito.times(2)).sendReport(Mockito.any(Pcrpt.class));
@@ -140,7 +140,7 @@ public class PCCTunnelManagerImplTest {
 
     @Test
     public void testReportToAll() throws InterruptedException {
-        final PccTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER);
+        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onSessionUp(session2);
         tunnelManager.reportToAll(createUpdate(1), session1);
@@ -150,7 +150,7 @@ public class PCCTunnelManagerImplTest {
 
     @Test
     public void testReportToAllUnknownLsp() {
-        final PccTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER);
+        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER);
         tunnelManager.onSessionUp(session1);
         tunnelManager.reportToAll(createUpdate(2), session1);
         Mockito.verify(session1, Mockito.times(1)).sendError(Mockito.any(Pcerr.class));
@@ -159,7 +159,7 @@ public class PCCTunnelManagerImplTest {
 
     @Test
     public void testReportToAllNonDelegatedLsp() {
-        final PccTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER);
+        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onSessionUp(session2);
         tunnelManager.reportToAll(createUpdate(1), session2);
@@ -169,7 +169,7 @@ public class PCCTunnelManagerImplTest {
 
     @Test
     public void testReturnDelegationPccLsp() throws InterruptedException {
-        final PccTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 1, -1, TIMER);
+        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 1, -1, TIMER);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onSessionUp(session2);
         tunnelManager.returnDelegation(createUpdate(1), session1);
@@ -182,7 +182,7 @@ public class PCCTunnelManagerImplTest {
 
     @Test
     public void testReturnDelegationUnknownLsp() {
-        final PccTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER);
+        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER);
         tunnelManager.onSessionUp(session1);
         tunnelManager.returnDelegation(createUpdate(2), session1);
         Mockito.verify(session1, Mockito.times(1)).sendError(Mockito.any(Pcerr.class));
@@ -191,7 +191,7 @@ public class PCCTunnelManagerImplTest {
 
     @Test
     public void testReturnDelegationNonDelegatedLsp() {
-        final PccTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER);
+        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onSessionUp(session2);
         tunnelManager.returnDelegation(createUpdate(1), session2);
@@ -201,7 +201,7 @@ public class PCCTunnelManagerImplTest {
 
     @Test
     public void testAddTunnel() {
-        final PccTunnelManager tunnelManager = new PCCTunnelManagerImpl(0, ADDRESS, 0, 0, TIMER);
+        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(0, ADDRESS, 0, 0, TIMER);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onSessionUp(session2);
         tunnelManager.addTunnel(createRequests(1), session1);
@@ -211,7 +211,7 @@ public class PCCTunnelManagerImplTest {
 
     @Test
     public void testRemoveTunnel() {
-        final PccTunnelManager tunnelManager = new PCCTunnelManagerImpl(0, ADDRESS, 0, 0, TIMER);
+        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(0, ADDRESS, 0, 0, TIMER);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onSessionUp(session2);
         tunnelManager.addTunnel(createRequests(1), session1);
@@ -222,7 +222,7 @@ public class PCCTunnelManagerImplTest {
 
     @Test
     public void testRemoveTunnelUnknownLsp() {
-        final PccTunnelManager tunnelManager = new PCCTunnelManagerImpl(0, ADDRESS, 0, 0, TIMER);
+        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(0, ADDRESS, 0, 0, TIMER);
         tunnelManager.onSessionUp(session1);
         tunnelManager.removeTunnel(createRequests(1), session1);
         Mockito.verify(session1, Mockito.times(1)).sendError(Mockito.any(Pcerr.class));
@@ -231,7 +231,7 @@ public class PCCTunnelManagerImplTest {
 
     @Test
     public void testRemoveTunnelNotPceInitiatedLsp() {
-        final PccTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER);
+        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER);
         tunnelManager.onSessionUp(session1);
         tunnelManager.removeTunnel(createRequests(1), session1);
         Mockito.verify(session1, Mockito.times(1)).sendError(Mockito.any(Pcerr.class));
@@ -240,7 +240,7 @@ public class PCCTunnelManagerImplTest {
 
     @Test
     public void testRemoveTunnelNotDelegated() {
-        final PccTunnelManager tunnelManager = new PCCTunnelManagerImpl(0, ADDRESS, 0, 0, TIMER);
+        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(0, ADDRESS, 0, 0, TIMER);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onSessionUp(session2);
         tunnelManager.addTunnel(createRequests(1), session1);
@@ -251,7 +251,7 @@ public class PCCTunnelManagerImplTest {
 
     @Test
     public void testTakeDelegation() throws InterruptedException {
-        final PccTunnelManager tunnelManager = new PCCTunnelManagerImpl(0, ADDRESS, 0, -1, TIMER);
+        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(0, ADDRESS, 0, -1, TIMER);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onSessionUp(session2);
         tunnelManager.addTunnel(createRequests(1), session1);
@@ -266,7 +266,7 @@ public class PCCTunnelManagerImplTest {
 
     @Test
     public void testTakeDelegationUnknownLsp() {
-        final PccTunnelManager tunnelManager = new PCCTunnelManagerImpl(0, ADDRESS, 0, 0, TIMER);
+        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(0, ADDRESS, 0, 0, TIMER);
         tunnelManager.onSessionUp(session1);
         tunnelManager.takeDelegation(createRequests(1), session1);
         Mockito.verify(session1, Mockito.times(1)).sendError(Mockito.any(Pcerr.class));
@@ -275,7 +275,7 @@ public class PCCTunnelManagerImplTest {
 
     @Test
     public void testTakeDelegationNotPceInitiatedLsp() {
-        final PccTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER);
+        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER);
         tunnelManager.onSessionUp(session1);
         tunnelManager.takeDelegation(createRequests(1), session1);
         Mockito.verify(session1, Mockito.times(1)).sendError(Mockito.any(Pcerr.class));
@@ -284,7 +284,7 @@ public class PCCTunnelManagerImplTest {
 
     @Test
     public void testReturnDelegationNoRetake() throws InterruptedException {
-        final PccTunnelManager tunnelManager = new PCCTunnelManagerImpl(0, ADDRESS, 0, 0, TIMER);
+        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(0, ADDRESS, 0, 0, TIMER);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onSessionUp(session2);
         tunnelManager.addTunnel(createRequests(1), session1);
