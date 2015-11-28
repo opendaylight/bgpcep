@@ -28,6 +28,7 @@ import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
+import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 
 public class PCCDispatcherImplTest {
@@ -85,7 +86,7 @@ public class PCCDispatcherImplTest {
 
         final TestingSessionListenerFactory slf2 = new TestingSessionListenerFactory();
         this.pcepDispatcher.createServer(this.serverAddress, slf2, null).channel();
-        Thread.sleep(2000);
+        Thread.sleep(500);
 
         final TestingSessionListener sl2 = slf2.getSessionListenerByRemoteAddress(this.clientAddress.getAddress());
         Assert.assertNotNull(sl2);
