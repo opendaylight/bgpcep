@@ -12,7 +12,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Before;
@@ -27,13 +26,12 @@ import org.opendaylight.protocol.rsvp.parser.spi.RSVPTeObjectSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.explicit.route.object.SecondaryExplicitRouteObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.explicit.route.object.SecondaryExplicitRouteObjectBuilder;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public class SimpleRSVPObjectRegistryTest {
     private final int subObjectTypeOne = 1;
     private final int subObjectCTypeOne = 1;
     private final ByteBuf input = Unpooled.wrappedBuffer(new byte[]{1, 2, 3});
-    private SimpleRSVPObjectRegistry simpleRSVPObjectRegistry = new SimpleRSVPObjectRegistry();
+    private final SimpleRSVPObjectRegistry simpleRSVPObjectRegistry = new SimpleRSVPObjectRegistry();
     @Mock
     private RSVPTeObjectParser rsvpTeObjectParser;
     @Mock
@@ -42,7 +40,7 @@ public class SimpleRSVPObjectRegistryTest {
     @Before
     public void setUp() throws RSVPParsingException {
         MockitoAnnotations.initMocks(this);
-        this.simpleRSVPObjectRegistry.registerRsvpObjectParser(subObjectTypeOne, subObjectCTypeOne, this.rsvpTeObjectParser);
+        this.simpleRSVPObjectRegistry.registerRsvpObjectParser(this.subObjectTypeOne, this.subObjectCTypeOne, this.rsvpTeObjectParser);
         this.simpleRSVPObjectRegistry.registerRsvpObjectSerializer(SecondaryExplicitRouteObject.class, this.rsvpTeObjectSerializer);
         Mockito.doReturn(new SecondaryExplicitRouteObjectBuilder().build()).when(this.rsvpTeObjectParser).parseObject(this.input);
         final ArgumentCaptor<RsvpTeObject> arg = ArgumentCaptor.forClass(RsvpTeObject.class);
@@ -52,7 +50,7 @@ public class SimpleRSVPObjectRegistryTest {
 
     @Test
     public void testParserRegistration() {
-        this.simpleRSVPObjectRegistry.registerRsvpObjectParser(subObjectTypeOne, subObjectCTypeOne, this.rsvpTeObjectParser);
+        this.simpleRSVPObjectRegistry.registerRsvpObjectParser(this.subObjectTypeOne, this.subObjectCTypeOne, this.rsvpTeObjectParser);
     }
 
     @Test
@@ -63,13 +61,13 @@ public class SimpleRSVPObjectRegistryTest {
     @Test
     public void testParseWrongType() throws RSVPParsingException {
         final int wrongType = 65536;
-        assertNull(this.simpleRSVPObjectRegistry.parseRSPVTe(wrongType, subObjectCTypeOne, this.input));
+        assertNull(this.simpleRSVPObjectRegistry.parseRSPVTe(wrongType, this.subObjectCTypeOne, this.input));
     }
 
     @Test
     public void testUnrecognizedType() throws RSVPParsingException {
         final int wrongType = 99;
-        assertNull(this.simpleRSVPObjectRegistry.parseRSPVTe(wrongType, subObjectCTypeOne, this.input));
+        assertNull(this.simpleRSVPObjectRegistry.parseRSPVTe(wrongType, this.subObjectCTypeOne, this.input));
         final ByteBuf output = Unpooled.EMPTY_BUFFER;
         this.simpleRSVPObjectRegistry.serializeRSPVTe(new SecondaryExplicitRouteObjectBuilder().build(), output);
         assertEquals(0, output.readableBytes());
@@ -77,7 +75,7 @@ public class SimpleRSVPObjectRegistryTest {
 
     @Test
     public void testParseRSVP() throws RSVPParsingException {
-        final RsvpTeObject output = this.simpleRSVPObjectRegistry.parseRSPVTe(subObjectTypeOne, subObjectCTypeOne, this.input);
+        final RsvpTeObject output = this.simpleRSVPObjectRegistry.parseRSPVTe(this.subObjectTypeOne, this.subObjectCTypeOne, this.input);
         assertNotNull(output);
         assertTrue(output instanceof SecondaryExplicitRouteObject);
 
@@ -90,19 +88,13 @@ public class SimpleRSVPObjectRegistryTest {
     @Test
     public void testRegisterWrongCType() throws RSVPParsingException {
         final int wrongCType = 65536;
-        assertNull(this.simpleRSVPObjectRegistry.parseRSPVTe(subObjectTypeOne, wrongCType, this.input));
+        assertNull(this.simpleRSVPObjectRegistry.parseRSPVTe(this.subObjectTypeOne, wrongCType, this.input));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testRegisterWrongType() {
         final int wrongType = 65536;
-        this.simpleRSVPObjectRegistry.registerRsvpObjectParser(wrongType, subObjectCTypeOne, this.rsvpTeObjectParser);
+        this.simpleRSVPObjectRegistry.registerRsvpObjectParser(wrongType, this.subObjectCTypeOne, this.rsvpTeObjectParser);
     }
 
-    private final class MockRsvpTeObjectClass implements RsvpTeObject {
-        @Override
-        public Class<? extends DataContainer> getImplementedInterface() {
-            return MockRsvpTeObjectClass.class;
-        }
-    }
 }
