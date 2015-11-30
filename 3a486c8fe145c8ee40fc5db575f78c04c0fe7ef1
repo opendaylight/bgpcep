@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5aaae553_aeda7615",
+        "filename": "rsvp/api/src/main/yang/rsvp.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 929,
+      "author": {
+        "id": 21
+      },
+      "writtenOn": "2015-11-30T10:36:17Z",
+      "side": 1,
+      "message": "Please add at least one whitespace before URL (inside string),\notherwise both URLs will be concatenated into one.",
+      "range": {
+        "startLine": 929,
+        "startChar": 14,
+        "endLine": 929,
+        "endChar": 60
+      },
+      "revId": "3a486c8fe145c8ee40fc5db575f78c04c0fe7ef1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
