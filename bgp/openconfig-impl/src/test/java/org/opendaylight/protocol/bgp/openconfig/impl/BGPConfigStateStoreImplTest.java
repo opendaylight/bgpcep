@@ -7,29 +7,21 @@
  */
 package org.opendaylight.protocol.bgp.openconfig.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
 import org.junit.Test;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
-import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 
 public class BGPConfigStateStoreImplTest {
 
     private static final BGPConfigStateStoreImpl STORE = new BGPConfigStateStoreImpl();
-    private static final BGPConfigHolderImpl<MyDataObject> HOLDER = new BGPConfigHolderImpl<MyDataObject>();
 
     @Test
     public void test() {
-        assertNull(STORE.getBGPConfigHolder(MyDataObject.class));
-        STORE.registerBGPConfigHolder(MyDataObject.class, HOLDER);
-        assertEquals(HOLDER, STORE.getBGPConfigHolder(MyDataObject.class));
-    }
-
-    private class MyDataObject implements DataObject {
-        @Override
-        public Class<? extends DataContainer> getImplementedInterface() {
-            return null;
-        }
+        assertNull(STORE.getBGPConfigHolder(Neighbor.class));
+        STORE.registerBGPConfigHolder(Neighbor.class);
+        assertNotNull(STORE.getBGPConfigHolder(Neighbor.class));
     }
 
 }

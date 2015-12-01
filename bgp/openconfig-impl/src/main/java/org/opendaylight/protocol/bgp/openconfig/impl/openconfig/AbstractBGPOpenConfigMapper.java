@@ -17,7 +17,6 @@ import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigHolder;
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigStateStore;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenconfigMapper;
 import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfiguration;
-import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfigurationIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.ModuleKey;
 import org.opendaylight.yangtools.concepts.Identifier;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -50,11 +49,12 @@ abstract class AbstractBGPOpenConfigMapper<F extends InstanceConfiguration, T ex
     }
 
     @Override
-    public final void removeConfiguration(final InstanceConfigurationIdentifier identifier) {
-        LOG.debug("Remove configuration candidate: {}", identifier);
-        final ModuleKey moduleKey = createModuleKey(identifier.getName());
+    public final void removeConfiguration(final F instanceConfiguration) {
+        final T openConfig = apply(instanceConfiguration);
+        LOG.debug("Remove configuration candidate: {} mapped to: {}", instanceConfiguration, openConfig);
+        final ModuleKey moduleKey = createModuleKey(instanceConfiguration.getIdentifier().getName());
         final Identifier key = configHolder.getKey(moduleKey);
-        if (configHolder.remove(moduleKey)) {
+        if (configHolder.remove(moduleKey, openConfig)) {
             removeConfiguration(key);
             LOG.debug("Configuration [{} <-> {}] removed", key, moduleKey);
         }

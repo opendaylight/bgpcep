@@ -238,7 +238,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
     private final class BGPPeerModuleTracker implements BGPConfigModuleTracker {
 
         private final BGPOpenconfigMapper<BGPPeerInstanceConfiguration> neighborProvider;
-        private final InstanceConfigurationIdentifier identifier;
+        private final BGPPeerInstanceConfiguration bgpPeerInstanceConfiguration;
 
         public BGPPeerModuleTracker(final Optional<BGPOpenConfigProvider> openconfigProvider) {
             if (openconfigProvider.isPresent()) {
@@ -246,29 +246,30 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
             } else {
                 neighborProvider = null;
             }
-            identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
+            final InstanceConfigurationIdentifier identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
+            this.bgpPeerInstanceConfiguration = new BGPPeerInstanceConfiguration(identifier, Rev130715Util.getIpvAddress(getNormalizedHost()),
+                    Rev130715Util.getPort(getPort().getValue()), getHoldtimer(), getPeerRole(), getInitiateConnection(),
+                        getAdvertizedTableDependency(), Rev130715Util.getASNumber(getAsOrDefault(getRibDependency()).getValue()),
+                        getOptionaPassword(getPassword()));
         }
 
         @Override
         public void onInstanceCreate() {
             if (neighborProvider != null) {
-                neighborProvider.writeConfiguration(new BGPPeerInstanceConfiguration(identifier, Rev130715Util.getIpvAddress(getNormalizedHost()),
-                    Rev130715Util.getPort(getPort().getValue()), getHoldtimer(), getPeerRole(), getInitiateConnection(),
-                        getAdvertizedTableDependency(), Rev130715Util.getASNumber(getAsOrDefault(getRibDependency()).getValue()),
-                        getOptionaPassword(getPassword())));
+                neighborProvider.writeConfiguration(this.bgpPeerInstanceConfiguration);
             }
         }
 
         @Override
         public void onInstanceClose() {
             if (neighborProvider != null) {
-                neighborProvider.removeConfiguration(identifier);
+                neighborProvider.removeConfiguration(this.bgpPeerInstanceConfiguration);
             }
         }
 
     }
 
-    private Optional<Rfc2385Key> getOptionaPassword(Rfc2385Key password) {
+    private Optional<Rfc2385Key> getOptionaPassword(final Rfc2385Key password) {
         return password != null && ! password.getValue().isEmpty() ? Optional.of(password) : Optional.<Rfc2385Key>absent();
     }
 
