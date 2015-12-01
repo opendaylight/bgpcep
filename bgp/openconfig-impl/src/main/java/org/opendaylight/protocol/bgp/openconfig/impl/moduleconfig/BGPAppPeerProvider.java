@@ -14,6 +14,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigHolder;
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigStateStore;
 import org.opendaylight.protocol.bgp.openconfig.impl.util.GlobalIdentifier;
@@ -50,21 +51,23 @@ final class BGPAppPeerProvider {
     private final BGPConfigHolder<Neighbor> neighborState;
     private final BGPConfigHolder<Global> globalState;
     private final BGPConfigModuleProvider configModuleOp;
+    private final DataBroker dataBroker;
 
-    public BGPAppPeerProvider(final BGPConfigStateStore configHolders, final BGPConfigModuleProvider configModuleWriter) {
+    public BGPAppPeerProvider(final BGPConfigStateStore configHolders, final BGPConfigModuleProvider configModuleWriter, final DataBroker dataBroker) {
+        this.dataBroker = dataBroker;
         this.configModuleOp = Preconditions.checkNotNull(configModuleWriter);
         this.globalState = Preconditions.checkNotNull(configHolders.getBGPConfigHolder(Global.class));
         this.neighborState = Preconditions.checkNotNull(configHolders.getBGPConfigHolder(Neighbor.class));
     }
 
-    public void onNeighborRemoved(final Neighbor removedNeighbor, final DataBroker dataBroker) {
+    public void onNeighborRemoved(final Neighbor removedNeighbor) {
         final ModuleKey moduleKey = neighborState.getModuleKey(removedNeighbor.getKey());
         if (moduleKey != null) {
             try {
-                globalState.remove(moduleKey);
-                final Optional<Module> maybeModule = configModuleOp.readModuleConfiguration(moduleKey, dataBroker.newReadOnlyTransaction()).get();
-                if (maybeModule.isPresent()) {
-                    configModuleOp.removeModuleConfiguration(moduleKey, dataBroker.newWriteOnlyTransaction());
+                final ReadWriteTransaction rwTx = dataBroker.newReadWriteTransaction();
+                final Optional<Module> maybeModule = configModuleOp.readModuleConfiguration(moduleKey, rwTx).get();
+                if (maybeModule.isPresent() && neighborState.remove(moduleKey, removedNeighbor)) {
+                    configModuleOp.removeModuleConfiguration(moduleKey, rwTx);
                 }
             } catch (final Exception e) {
                 LOG.error("Failed to remove a configuration module: {}", moduleKey, e);
@@ -73,7 +76,7 @@ final class BGPAppPeerProvider {
         }
     }
 
-    public void onNeighborModified(final Neighbor modifiedAppNeighbor, final DataBroker dataBroker) {
+    public void onNeighborModified(final Neighbor modifiedAppNeighbor) {
         final ModuleKey moduleKey = neighborState.getModuleKey(modifiedAppNeighbor.getKey());
         final ReadOnlyTransaction rTx = dataBroker.newReadOnlyTransaction();
         if (moduleKey != null) {

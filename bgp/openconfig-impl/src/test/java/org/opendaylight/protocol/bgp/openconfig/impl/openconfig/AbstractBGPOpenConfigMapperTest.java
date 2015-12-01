@@ -90,12 +90,12 @@ public class AbstractBGPOpenConfigMapperTest {
 
     @Test
     public void testRemoveConfiguration() {
-        Mockito.doReturn(true).when(this.configHolder).remove(Mockito.any(ModuleKey.class));
-        mapper.removeConfiguration(IDENTIFIER);
+        Mockito.doReturn(true).when(this.configHolder).remove(Mockito.any(ModuleKey.class), Mockito.any(Neighbor.class));
+        mapper.removeConfiguration(INSTANCE_CONFIGURATION);
         Mockito.verify(wTx, Mockito.times(1)).delete(Mockito.any(LogicalDatastoreType.class), Mockito.any(InstanceIdentifier.class));
 
-        Mockito.doReturn(false).when(this.configHolder).remove(Mockito.any(ModuleKey.class));
-        mapper.removeConfiguration(IDENTIFIER);
+        Mockito.doReturn(false).when(this.configHolder).remove(Mockito.any(ModuleKey.class), Mockito.any(Neighbor.class));
+        mapper.removeConfiguration(INSTANCE_CONFIGURATION);
         Mockito.verify(wTx, Mockito.times(1)).delete(Mockito.any(LogicalDatastoreType.class), Mockito.any(InstanceIdentifier.class));
 
     }

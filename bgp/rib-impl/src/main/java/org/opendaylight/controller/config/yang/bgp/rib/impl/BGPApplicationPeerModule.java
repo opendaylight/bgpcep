@@ -53,7 +53,7 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
     private final class AppPeerModuleTracker implements BGPConfigModuleTracker {
 
         private final BGPOpenconfigMapper<BGPAppPeerInstanceConfiguration> appProvider;
-        private final InstanceConfigurationIdentifier identifier;
+        private final BGPAppPeerInstanceConfiguration bgpAppPeerInstanceConfiguration;
 
         public AppPeerModuleTracker(final Optional<BGPOpenConfigProvider> openConfigProvider) {
             if (openConfigProvider.isPresent()) {
@@ -61,21 +61,22 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
             } else {
                 appProvider = null;
             }
-            identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
+            final InstanceConfigurationIdentifier identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
+            bgpAppPeerInstanceConfiguration = new BGPAppPeerInstanceConfiguration(identifier, getApplicationRibId().getValue(),
+                    Rev130715Util.getIpv4Address(getBgpPeerId()));
         }
 
         @Override
         public void onInstanceCreate() {
             if (appProvider != null) {
-                appProvider.writeConfiguration(new BGPAppPeerInstanceConfiguration(identifier, getApplicationRibId().getValue(),
-                    Rev130715Util.getIpv4Address(getBgpPeerId())));
+                appProvider.writeConfiguration(this.bgpAppPeerInstanceConfiguration);
             }
         }
 
         @Override
         public void onInstanceClose() {
             if (appProvider != null) {
-                appProvider.removeConfiguration(identifier);
+                appProvider.removeConfiguration(this.bgpAppPeerInstanceConfiguration);
             }
         }
 
