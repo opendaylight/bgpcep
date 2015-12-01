@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.openconfig.impl;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.opendaylight.protocol.bgp.openconfig.impl.comparator.OpenConfigComparatorFactory;
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigHolder;
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigStateStore;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -25,8 +26,8 @@ final class BGPConfigStateStoreImpl implements BGPConfigStateStore {
     }
 
     @Override
-    public <T extends DataObject> void registerBGPConfigHolder(final Class<T> clazz, final BGPConfigHolder<T> configHolder) {
-        configHolderMap.put(clazz, configHolder);
+    public <T extends DataObject> void registerBGPConfigHolder(final Class<T> clazz) {
+        configHolderMap.put(clazz, new BGPConfigHolderImpl<T>(OpenConfigComparatorFactory.getComparator(clazz)));
     }
 
 

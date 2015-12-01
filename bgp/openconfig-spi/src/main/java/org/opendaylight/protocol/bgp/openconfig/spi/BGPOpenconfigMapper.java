@@ -27,10 +27,10 @@ public interface BGPOpenconfigMapper<T extends InstanceConfiguration> {
     void writeConfiguration(@Nonnull T instanceConfiguration);
 
     /**
-     * Remove an existing configuration identified by InstanceConfigurationIdentifier.
-     * @param instanceConfiguration an identifier of the configuration instance
+     * Remove an existing configuration.
+     * @param instanceConfiguration An input configuration is mapped to OpenConfig API
      * @throws NullPointerException when instanceConfiguration is null
      */
-    void removeConfiguration(@Nonnull InstanceConfigurationIdentifier instanceConfiguration);
+    void removeConfiguration(@Nonnull T instanceConfiguration);
 
 }

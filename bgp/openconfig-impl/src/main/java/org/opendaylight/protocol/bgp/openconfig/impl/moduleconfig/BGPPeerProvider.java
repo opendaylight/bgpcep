@@ -66,20 +66,21 @@ final class BGPPeerProvider {
     private final BGPConfigHolder<Neighbor> neighborState;
     private final BGPConfigHolder<Global> globalState;
     private final BGPConfigModuleProvider configModuleOp;
+    private final DataBroker dataBroker;
 
-    public BGPPeerProvider(final BGPConfigStateStore configHolders, final BGPConfigModuleProvider configModuleWriter) {
+    public BGPPeerProvider(final BGPConfigStateStore configHolders, final BGPConfigModuleProvider configModuleWriter, final DataBroker dataBroker) {
+        this.dataBroker = dataBroker;
         this.configModuleOp = Preconditions.checkNotNull(configModuleWriter);
         this.globalState = Preconditions.checkNotNull(configHolders.getBGPConfigHolder(Global.class));
         this.neighborState = Preconditions.checkNotNull(configHolders.getBGPConfigHolder(Neighbor.class));
     }
 
-    public void onNeighborRemoved(final Neighbor removedNeighbor, final DataBroker dataBroker) {
+    public void onNeighborRemoved(final Neighbor removedNeighbor) {
         final ModuleKey moduleKey = neighborState.getModuleKey(removedNeighbor.getKey());
         if (moduleKey != null) {
             try {
-                globalState.remove(moduleKey);
                 final Optional<Module> maybeModule = configModuleOp.readModuleConfiguration(moduleKey, dataBroker.newReadOnlyTransaction()).get();
-                if (maybeModule.isPresent()) {
+                if (maybeModule.isPresent() && neighborState.remove(moduleKey, removedNeighbor)) {
                     configModuleOp.removeModuleConfiguration(moduleKey, dataBroker.newWriteOnlyTransaction());
                 }
             } catch (InterruptedException | ExecutionException | TransactionCommitFailedException e) {
@@ -89,7 +90,7 @@ final class BGPPeerProvider {
         }
     }
 
-    public void onNeighborModified(final Neighbor modifiedNeighbor, final DataBroker dataBroker) {
+    public void onNeighborModified(final Neighbor modifiedNeighbor) {
         final ModuleKey moduleKey = neighborState.getModuleKey(modifiedNeighbor.getKey());
         final ReadOnlyTransaction rTx = dataBroker.newReadOnlyTransaction();
         final ListenableFuture<List<AdvertizedTable>> advertizedTablesFuture = new TableTypesFunction<AdvertizedTable>(rTx,

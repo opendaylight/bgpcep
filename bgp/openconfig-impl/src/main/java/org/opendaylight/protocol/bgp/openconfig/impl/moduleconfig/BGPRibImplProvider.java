@@ -15,6 +15,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigHolder;
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigStateStore;
 import org.opendaylight.protocol.bgp.openconfig.impl.util.GlobalIdentifier;
@@ -44,20 +45,23 @@ final class BGPRibImplProvider {
 
     private final BGPConfigHolder<Global> globalState;
     private final BGPConfigModuleProvider configModuleWriter;
+    private final DataBroker dataBroker;
 
-    public BGPRibImplProvider(final BGPConfigStateStore configHolders, final BGPConfigModuleProvider configModuleWriter) {
+    public BGPRibImplProvider(final BGPConfigStateStore configHolders, final BGPConfigModuleProvider configModuleWriter, final DataBroker dataBroker) {
         this.globalState = Preconditions.checkNotNull(configHolders.getBGPConfigHolder(Global.class));
         this.configModuleWriter = Preconditions.checkNotNull(configModuleWriter);
+        this.dataBroker = Preconditions.checkNotNull(dataBroker);
     }
 
-    public void onGlobalRemoved(final Global removedGlobal, final DataBroker dataBroker) {
+    public void onGlobalRemoved(final Global removedGlobal) {
         final ModuleKey moduleKey = this.globalState.getModuleKey(GlobalIdentifier.GLOBAL_IDENTIFIER);
         if (moduleKey != null) {
             try {
-                this.globalState.remove(moduleKey);
-                final Optional<Module> maybeModule = this.configModuleWriter.readModuleConfiguration(moduleKey, dataBroker.newReadOnlyTransaction()).get();
-                if (maybeModule.isPresent()) {
-                    this.configModuleWriter.removeModuleConfiguration(moduleKey, dataBroker.newWriteOnlyTransaction());
+                //this.globalState.remove(moduleKey);
+                final ReadWriteTransaction rwTx = dataBroker.newReadWriteTransaction();
+                final Optional<Module> maybeModule = this.configModuleWriter.readModuleConfiguration(moduleKey, rwTx).get();
+                if (maybeModule.isPresent() && globalState.remove(moduleKey, removedGlobal)) {
+                    this.configModuleWriter.removeModuleConfiguration(moduleKey, rwTx);
                 }
             } catch (final Exception e) {
                 LOG.error("Failed to remove a configuration module: {}", moduleKey, e);
@@ -66,7 +70,7 @@ final class BGPRibImplProvider {
         }
     }
 
-    public void onGlobalModified(final Global modifiedGlobal, final DataBroker dataBroker) {
+    public void onGlobalModified(final Global modifiedGlobal) {
         final ModuleKey moduleKey = this.globalState.getModuleKey(GlobalIdentifier.GLOBAL_IDENTIFIER);
         if (moduleKey != null && this.globalState.addOrUpdate(moduleKey, GlobalIdentifier.GLOBAL_IDENTIFIER, modifiedGlobal)) {
             final ReadOnlyTransaction rTx = dataBroker.newReadOnlyTransaction();

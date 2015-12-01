@@ -8,17 +8,23 @@
 
 package org.opendaylight.protocol.bgp.openconfig.impl;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigHolder;
+import org.opendaylight.protocol.bgp.openconfig.impl.spi.OpenConfigComparator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.ModuleKey;
 import org.opendaylight.yangtools.concepts.Identifier;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class BGPConfigHolderImpl<V extends DataObject> implements BGPConfigHolder<V> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BGPConfigHolderImpl.class);
 
     @GuardedBy("this")
     private final BiMap<ModuleKey, Identifier> moduleToOpenConfig = HashBiMap.<ModuleKey, Identifier>create();
@@ -26,12 +32,19 @@ final class BGPConfigHolderImpl<V extends DataObject> implements BGPConfigHolder
     @GuardedBy("this")
     private final Map<Identifier, V> bgpOpenConfigConfig = new HashMap<>();
 
+    private final OpenConfigComparator<V> comparator;
+
+    public BGPConfigHolderImpl(final OpenConfigComparator<V> comparator) {
+        this.comparator = Preconditions.checkNotNull(comparator);
+    }
+
     @Override
-    public synchronized boolean remove(final ModuleKey moduleKey) {
+    public synchronized boolean remove(final ModuleKey moduleKey, final V removeValue) {
         final Identifier key = getKey(moduleKey);
-        if (key != null) {
+        if (key != null && this.comparator.isSame(bgpOpenConfigConfig.get(key), removeValue)) {
             bgpOpenConfigConfig.remove(key);
             moduleToOpenConfig.remove(moduleKey);
+            LOG.trace("Configuration removed: {}", moduleKey);
             return true;
         }
         return false;
@@ -42,9 +55,11 @@ final class BGPConfigHolderImpl<V extends DataObject> implements BGPConfigHolder
         if (!moduleToOpenConfig.containsKey(moduleKey)) {
             moduleToOpenConfig.put(moduleKey, key);
             bgpOpenConfigConfig.put(key, newValue);
+            LOG.trace("Configuration added: {}", moduleKey);
             return true;
-        } else if (!bgpOpenConfigConfig.get(key).equals(newValue)) {
+        } else if (!this.comparator.isSame(bgpOpenConfigConfig.get(key), newValue)) {
             bgpOpenConfigConfig.put(key, newValue);
+            LOG.trace("Configuration updated: {}", moduleKey);
             return true;
         }
         return false;
