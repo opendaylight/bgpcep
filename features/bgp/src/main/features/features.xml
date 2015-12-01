@@ -46,7 +46,7 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-flowspec</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-labeled-unicast</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-topology</feature>
-        <feature version='${netconf.version}'>odl-netconf-connector</feature>
+        <feature version='${netconf.version}'>odl-netconf-connector-all</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-impl/{{VERSION}}</bundle>
     </feature>
