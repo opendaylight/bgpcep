@@ -24,11 +24,12 @@ public interface BGPConfigHolder<V extends DataObject> {
 
     /**
      * Remove configuration stored configuration state. The stored configuration
-     * is removed when configuration with such ModuleKey is present.
+     * is removed when configuration with such ModuleKey is present and value is same.
      * @param moduleKey ModuleKey identifies configuration to be removed.
+     * @param removeValue Configuration to be removed.
      * @return True if configuration was removed successfully, otherwise false.
      */
-    boolean remove(@Nonnull ModuleKey moduleKey);
+    boolean remove(@Nonnull ModuleKey moduleKey, @Nonnull V removeValue);
 
     /**
      * Update or add a new configuration object. If configuration object is present for

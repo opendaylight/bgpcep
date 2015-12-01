@@ -18,12 +18,11 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 public interface BGPConfigStateStore {
 
     /**
-     * Register BGP configuration holder and store it future use.
+     * Creates instance of BGP configuration holder and store it for future use.
      * @param clazz the type BGP configuration holder
-     * @param configHolder BGPConfigHolder
      * @throws NullPointerException when input parameters are null.
      */
-    <T extends DataObject> void registerBGPConfigHolder(@Nonnull Class<T> clazz, @Nonnull BGPConfigHolder<T> configHolder);
+    <T extends DataObject> void registerBGPConfigHolder(@Nonnull Class<T> clazz);
 
     /**
      * Retrieve BGPConfigHolder by input parameter class type.

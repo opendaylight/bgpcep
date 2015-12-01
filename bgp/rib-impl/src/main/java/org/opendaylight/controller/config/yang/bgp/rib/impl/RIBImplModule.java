@@ -103,30 +103,29 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
     private final class RIBImplModuleTracker implements BGPConfigModuleTracker {
 
         private final BGPOpenconfigMapper<BGPRibInstanceConfiguration> globalWriter;
-        private final InstanceConfigurationIdentifier identifier;
+        private final BGPRibInstanceConfiguration bgpRibConfig;
 
         public RIBImplModuleTracker(final BGPOpenconfigMapper<BGPRibInstanceConfiguration> globalWriter) {
             this.globalWriter = globalWriter;
-            this.identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
+            final InstanceConfigurationIdentifier identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
+            final List<BgpTableType> tableDependency = getLocalTableDependency();
+            final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber as = Rev130715Util.getASNumber(getLocalAs());
+            final Ipv4Address bgpRibId = Rev130715Util.getIpv4Address(getBgpRibId());
+            final Ipv4Address clusterId = Rev130715Util.getIpv4Address(getClusterId());
+            this.bgpRibConfig = new BGPRibInstanceConfiguration(identifier, as, bgpRibId, clusterId, tableDependency);
         }
 
         @Override
         public void onInstanceCreate() {
             if (globalWriter != null) {
-                final List<BgpTableType> tableDependency = getLocalTableDependency();
-                final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber as = Rev130715Util.getASNumber(getLocalAs());
-                final Ipv4Address bgpRibId = Rev130715Util.getIpv4Address(getBgpRibId());
-                final Ipv4Address clusterId = Rev130715Util.getIpv4Address(getClusterId());
-
-                final BGPRibInstanceConfiguration bgpRibConfig = new BGPRibInstanceConfiguration(identifier, as, bgpRibId, clusterId, tableDependency);
-                globalWriter.writeConfiguration(bgpRibConfig);
+                globalWriter.writeConfiguration(this.bgpRibConfig);
             }
         }
 
         @Override
         public void onInstanceClose() {
             if (globalWriter != null) {
-                globalWriter.removeConfiguration(identifier);
+                globalWriter.removeConfiguration(this.bgpRibConfig);
             }
         }
 

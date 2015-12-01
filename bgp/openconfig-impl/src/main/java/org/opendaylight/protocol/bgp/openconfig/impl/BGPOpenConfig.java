@@ -8,17 +8,10 @@
 
 package org.opendaylight.protocol.bgp.openconfig.impl;
 
-import com.google.common.base.Optional;
-import java.util.Collection;
-import java.util.concurrent.Callable;
+import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.binding.api.MountPoint;
 import org.opendaylight.controller.md.sal.binding.api.MountPointService;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.binding.api.MountPointService.MountPointListener;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ConsumerContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareConsumer;
@@ -43,7 +36,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class BGPOpenConfig implements BindingAwareConsumer, AutoCloseable, DataTreeChangeListener<Node>, BGPOpenConfigProvider {
+public final class BGPOpenConfig implements BindingAwareConsumer, AutoCloseable, BGPOpenConfigProvider, MountPointListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(BGPOpenConfig.class);
 
@@ -58,15 +51,18 @@ public final class BGPOpenConfig implements BindingAwareConsumer, AutoCloseable,
 
     private final BGPConfigStateStore configStateHolders;
     private BGPConfigModuleMapperProvider configModuleListener;
+    @GuardedBy("this")
     private BGPOpenConfigListener openConfigListener;
-    private ListenerRegistration<BGPOpenConfig> registration;
+
     private MountPointService mountService;
     private DataBroker dataBroker;
 
+    private ListenerRegistration<BGPOpenConfig> mpListenerRegistration;
+
     public BGPOpenConfig() {
         configStateHolders = new BGPConfigStateStoreImpl();
-        configStateHolders.registerBGPConfigHolder(Global.class, new BGPConfigHolderImpl<Global>());
-        configStateHolders.registerBGPConfigHolder(Neighbor.class, new BGPConfigHolderImpl<Neighbor>());
+        configStateHolders.registerBGPConfigHolder(Global.class);
+        configStateHolders.registerBGPConfigHolder(Neighbor.class);
     }
 
     @Override
@@ -79,54 +75,16 @@ public final class BGPOpenConfig implements BindingAwareConsumer, AutoCloseable,
             throw new IllegalStateException(e);
         }
         mountService = session.getSALService(MountPointService.class);
-        registration = dataBroker.registerDataTreeChangeListener(new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION,
-                NETCONF_TOPOLOGY.child(Node.class)), this);
-    }
-
-    @Override
-    public void onDataTreeChanged(final Collection<DataTreeModification<Node>> changes) {
-        for (final DataTreeModification<Node> dataTreeModification : changes) {
-            final DataObjectModification<Node> rootNode = dataTreeModification.getRootNode();
-            if (dataTreeModification.getRootPath().getRootIdentifier().firstKeyOf(Node.class).equals(CONFIG_NODE_KEY)) {
-                switch (rootNode.getModificationType()) {
-                case DELETE:
-                    closeOpenConfigListener();
-                    break;
-                case SUBTREE_MODIFIED:
-                    closeOpenConfigListener();
-                    getConfigMountPoint();
-                    break;
-                case WRITE:
-                    getConfigMountPoint();
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unhandled modification type " + rootNode.getModificationType());
-                }
-            }
-        }
-    }
-
-    private void getConfigMountPoint() {
-        final Callable<MountPoint> callable = new Callable<MountPoint>() {
-            @Override
-            public MountPoint call() {
-                Optional<MountPoint> mp;
-                do {
-                    mp = mountService.getMountPoint(CONTROLLER_CONFIG_IID);
-                } while (!mp.isPresent());
-                return mp.get();
-            }
-        };
-        openConfigListener = new BGPOpenConfigListener(dataBroker, callable, configStateHolders);
+        mpListenerRegistration = mountService.registerListener(CONTROLLER_CONFIG_IID, this);
     }
 
     @Override
     public void close() {
         closeConfigModuleListener();
         closeOpenConfigListener();
-        if (registration != null) {
-            registration.close();
-            registration = null;
+        if (mpListenerRegistration != null) {
+            mpListenerRegistration.close();
+            mpListenerRegistration = null;
         }
     }
 
@@ -157,6 +115,20 @@ public final class BGPOpenConfig implements BindingAwareConsumer, AutoCloseable,
     @Override
     public <T extends InstanceConfiguration> BGPOpenconfigMapper<T> getOpenConfigMapper(final Class<T> clazz) {
         return configModuleListener.getOpenConfigMapper(clazz);
+    }
+
+    @Override
+    public void onMountPointCreated(final InstanceIdentifier<?> path) {
+        LOG.debug("Created mountpoint {}.", path);
+        if (openConfigListener == null) {
+            openConfigListener = new BGPOpenConfigListener(dataBroker, mountService.getMountPoint(path).get(), configStateHolders);
+        }
+    }
+
+    @Override
+    public void onMountPointRemoved(final InstanceIdentifier<?> path) {
+        LOG.debug("Removed mountpoint {}.", path);
+        closeOpenConfigListener();
     }
 
 }
