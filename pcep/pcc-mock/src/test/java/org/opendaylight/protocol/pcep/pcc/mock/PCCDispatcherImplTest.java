@@ -30,12 +30,12 @@ import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 
-public class PccDispatcherImplTest {
+public class PCCDispatcherImplTest {
 
     private static final List<PCEPCapability> CAPS = new ArrayList<>();
     private static final PCEPSessionProposalFactory PROPOSAL = new BasePCEPSessionProposalFactory(30, 120, CAPS);
 
-    private PccDispatcherImpl dispatcher;
+    private PCCDispatcherImpl dispatcher;
     private final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(PROPOSAL, 0);
     private PCEPDispatcher pcepDispatcher;
     private InetSocketAddress serverAddress;
@@ -48,7 +48,7 @@ public class PccDispatcherImplTest {
     public void setUp() {
         this.workerGroup = new NioEventLoopGroup();
         this.bossGroup = new NioEventLoopGroup();
-        this.dispatcher = new PccDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry());
+        this.dispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry());
         this.pcepDispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(),
                 this.nf, this.bossGroup, this.workerGroup);
         this.serverAddress = new InetSocketAddress("127.0.5.0", getRandomPort());

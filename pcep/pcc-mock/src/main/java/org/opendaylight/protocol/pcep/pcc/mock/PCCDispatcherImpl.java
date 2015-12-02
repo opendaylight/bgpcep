@@ -41,9 +41,9 @@ import org.opendaylight.tcpmd5.netty.MD5NioSocketChannelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class PccDispatcherImpl implements PccDispatcher, AutoCloseable {
+public final class PCCDispatcherImpl implements PccDispatcher, AutoCloseable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PccDispatcherImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PCCDispatcherImpl.class);
 
     private static final int RECONNECT_STRATEGY_TIMEOUT = 2000;
 
@@ -51,7 +51,7 @@ public final class PccDispatcherImpl implements PccDispatcher, AutoCloseable {
     private final MD5ChannelFactory<?> cf;
     private final NioEventLoopGroup workerGroup;
 
-    public PccDispatcherImpl(final MessageRegistry registry) {
+    public PCCDispatcherImpl(final MessageRegistry registry) {
         this.workerGroup = new NioEventLoopGroup();
         this.factory = new PCEPHandlerFactory(registry);
         this.cf = new MD5NioSocketChannelFactory(DeafultKeyAccessFactory.getKeyAccessFactory());
@@ -93,14 +93,14 @@ public final class PccDispatcherImpl implements PccDispatcher, AutoCloseable {
         setChannelFactory(b, keys);
         b.option(ChannelOption.SO_KEEPALIVE, true);
         b.option(ChannelOption.MAX_MESSAGES_PER_READ, 1);
-        final PccReconnectPromise promise = new PccReconnectPromise(remoteAddress,
+        final PCCReconnectPromise promise = new PCCReconnectPromise(remoteAddress,
                 reconnectTime == -1 ? getNeverReconnectStrategyFactory() : getTimedReconnectStrategyFactory(reconnectTime), b);
         final ChannelInitializer<SocketChannel> channelInitializer = new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(final SocketChannel ch) throws Exception {
-                ch.pipeline().addLast(PccDispatcherImpl.this.factory.getDecoders());
+                ch.pipeline().addLast(PCCDispatcherImpl.this.factory.getDecoders());
                 ch.pipeline().addLast("negotiator", negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise, null));
-                ch.pipeline().addLast(PccDispatcherImpl.this.factory.getEncoders());
+                ch.pipeline().addLast(PCCDispatcherImpl.this.factory.getEncoders());
                 ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
                     @Override
                     public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
@@ -112,7 +112,7 @@ public final class PccDispatcherImpl implements PccDispatcher, AutoCloseable {
                             LOG.debug("Connection to {} was dropped during negotiation, reattempting", remoteAddress);
                         }
                         LOG.debug("Reconnecting after connection to {} was dropped", remoteAddress);
-                        PccDispatcherImpl.this.createClient(remoteAddress, reconnectTime, listenerFactory, negotiatorFactory,
+                        PCCDispatcherImpl.this.createClient(remoteAddress, reconnectTime, listenerFactory, negotiatorFactory,
                                 keys, localAddress);
                     }
                 });

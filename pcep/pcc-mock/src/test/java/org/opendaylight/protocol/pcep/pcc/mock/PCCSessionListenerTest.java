@@ -50,7 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
 
-public class PccSessionListenerTest {
+public class PCCSessionListenerTest {
 
     @Mock
     private PCEPSession mockedSession;
@@ -66,7 +66,7 @@ public class PccSessionListenerTest {
         Mockito.doAnswer(new Answer<Void>() {
             @Override
             public Void answer(final InvocationOnMock invocation) throws Throwable {
-                PccSessionListenerTest.this.sendMessages.add((Message) invocation.getArguments()[0]);
+                PCCSessionListenerTest.this.sendMessages.add((Message) invocation.getArguments()[0]);
                 return null;
             }
         }).when(mockedSession).sendMessage(Mockito.any(Message.class));
@@ -79,7 +79,7 @@ public class PccSessionListenerTest {
 
     @Test
     public void testOnMessage() {
-        final PccSessionListener listener = new PccSessionListener(1, tunnelManager, false);
+        final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
         listener.onMessage(mockedSession, createUpdMsg(true));
         Mockito.verify(tunnelManager).reportToAll(Mockito.any(Updates.class), Mockito.any(PccSession.class));
         listener.onMessage(mockedSession, createUpdMsg(false));
@@ -94,28 +94,28 @@ public class PccSessionListenerTest {
 
     @Test
     public void testOnMessageErrorMode() {
-        final PccSessionListener listener = new PccSessionListener(1, tunnelManager, true);
+        final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, true);
         listener.onMessage(mockedSession, createUpdMsg(true));
         Mockito.verify(mockedSession).sendMessage(Mockito.any(Message.class));
     }
 
     @Test
     public void testOnSessionUp() {
-        final PccSessionListener listener = new PccSessionListener(1, tunnelManager, false);
+        final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
         listener.onSessionUp(mockedSession);
         Mockito.verify(tunnelManager).onSessionUp(Mockito.any(PccSession.class));
     }
 
     @Test
     public void testOnSessionDown() {
-        final PccSessionListener listener = new PccSessionListener(1, tunnelManager, false);
+        final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
         listener.onSessionDown(mockedSession, new Exception());
         Mockito.verify(tunnelManager).onSessionDown(Mockito.any(PccSession.class));
     }
 
     @Test
     public void testSendError() {
-        final PccSessionListener listener = new PccSessionListener(1, tunnelManager, false);
+        final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
         listener.onSessionUp(mockedSession);
         listener.sendError(MsgBuilderUtil.createErrorMsg(PCEPErrors.ATTEMPT_2ND_SESSION, 0));
         Mockito.verify(mockedSession).sendMessage(Mockito.<Message>any());
@@ -123,7 +123,7 @@ public class PccSessionListenerTest {
 
     @Test
     public void testSendReport() {
-        final PccSessionListener listener = new PccSessionListener(1, tunnelManager, false);
+        final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
         listener.onSessionUp(mockedSession);
         listener.sendReport(null);
         Mockito.verify(mockedSession).sendMessage(Mockito.<Message>any());
@@ -131,7 +131,7 @@ public class PccSessionListenerTest {
 
     @Test
     public void testGetId() {
-        final PccSessionListener listener = new PccSessionListener(1, tunnelManager, false);
+        final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
         Assert.assertEquals(1, listener.getId());
     }
 
