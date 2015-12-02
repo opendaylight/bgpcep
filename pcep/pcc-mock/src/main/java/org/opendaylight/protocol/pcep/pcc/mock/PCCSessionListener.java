@@ -27,16 +27,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PccSessionListener implements PCEPSessionListener, PccSession {
+public class PCCSessionListener implements PCEPSessionListener, PccSession {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PccSessionListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PCCSessionListener.class);
 
     private final boolean errorMode;
     private final PccTunnelManager tunnelManager;
     private final int sessionId;
     private PCEPSession session;
 
-    public PccSessionListener(final int sessionId, final PccTunnelManager tunnelManager, final boolean errorMode) {
+    public PCCSessionListener(final int sessionId, final PccTunnelManager tunnelManager, final boolean errorMode) {
         this.errorMode = errorMode;
         this.tunnelManager = tunnelManager;
         this.sessionId = sessionId;

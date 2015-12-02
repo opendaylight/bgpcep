@@ -59,7 +59,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
 
-public class PccTunnelManagerImpl implements PccTunnelManager {
+public class PCCTunnelManagerImpl implements PccTunnelManager {
 
     private static final Subobject DEFAULT_ENDPOINT_HOP = getDefaultEROEndpointHop();
     private static final String ENDPOINT_ADDRESS = "1.1.1.1";
@@ -79,8 +79,8 @@ public class PccTunnelManagerImpl implements PccTunnelManager {
     private final int redelegationTimeout;
     private final int stateTimeout;
 
-    public PccTunnelManagerImpl(final int lspsCount, final InetAddress address, final int redelegationTimeout,
-            final int stateTimeout, final Timer timer) {
+    public PCCTunnelManagerImpl(final int lspsCount, final InetAddress address, final int redelegationTimeout,
+                                final int stateTimeout, final Timer timer) {
         Preconditions.checkArgument(lspsCount >= 0);
         Preconditions.checkNotNull(address);
         this.redelegationTimeout = redelegationTimeout;
@@ -278,7 +278,7 @@ public class PccTunnelManagerImpl implements PccTunnelManager {
                 @Override
                 public void run(final Timeout timeout) throws Exception {
                     if (tunnel.getType() == LspType.PCE_LSP) {
-                        PccTunnelManagerImpl.this.tunnels.remove(plspId);
+                        PCCTunnelManagerImpl.this.tunnels.remove(plspId);
                         //report tunnel removal to all
                         sendToAll(tunnel, plspId, Collections.<Subobject>emptyList(), createSrp(0), new PathBuilder().build(),
                                 createLsp(plspId.getValue(), false, Optional.<Tlvs>absent(), false, true));
@@ -294,20 +294,20 @@ public class PccTunnelManagerImpl implements PccTunnelManager {
             @Override
             public void run(final Timeout timeout) throws Exception {
                 //remove delegation
-                PccTunnelManagerImpl.this.setDelegation(plspId, null);
+                PCCTunnelManagerImpl.this.setDelegation(plspId, null);
                 //delegate to another PCE
                 int index = session.getId();
-                for (int i = 1; i < PccTunnelManagerImpl.this.sessions.size(); i++) {
+                for (int i = 1; i < PCCTunnelManagerImpl.this.sessions.size(); i++) {
                     index++;
-                    if (index == PccTunnelManagerImpl.this.sessions.size()) {
+                    if (index == PCCTunnelManagerImpl.this.sessions.size()) {
                         index = 0;
                     }
-                    final PccSession nextSession = PccTunnelManagerImpl.this.sessions.get(index);
+                    final PccSession nextSession = PCCTunnelManagerImpl.this.sessions.get(index);
                     if (nextSession != null) {
                         tunnel.cancelTimeouts();
                         final Tlvs tlvs = createLspTlvs(plspId.getValue(), true,
-                                getDestinationAddress(tunnel.getLspState().getEro().getSubobject(), PccTunnelManagerImpl.this.address),
-                                PccTunnelManagerImpl.this.address, PccTunnelManagerImpl.this.address, Optional.of(tunnel.getPathName()));
+                                getDestinationAddress(tunnel.getLspState().getEro().getSubobject(), PCCTunnelManagerImpl.this.address),
+                                PCCTunnelManagerImpl.this.address, PCCTunnelManagerImpl.this.address, Optional.of(tunnel.getPathName()));
                         nextSession.sendReport(createPcRtpMessage(
                                 createLsp(plspId.getValue(), true, Optional.<Tlvs> fromNullable(tlvs), true, false), NO_SRP,
                                 tunnel.getLspState()));

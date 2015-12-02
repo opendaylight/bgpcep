@@ -25,9 +25,9 @@ import org.opendaylight.protocol.pcep.PCEPSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PccReconnectPromise extends DefaultPromise<PCEPSession> {
+public class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PccReconnectPromise.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PCCReconnectPromise.class);
 
     private final InetSocketAddress address;
     private final Bootstrap b;
@@ -36,7 +36,7 @@ public class PccReconnectPromise extends DefaultPromise<PCEPSession> {
     @GuardedBy("this")
     private Future<?> pending;
 
-    public PccReconnectPromise(final InetSocketAddress address, final ReconnectStrategyFactory rsf, final Bootstrap b) {
+    public PCCReconnectPromise(final InetSocketAddress address, final ReconnectStrategyFactory rsf, final Bootstrap b) {
         this.address = address;
         this.b = b;
         this.reconnectStrategy = rsf.createReconnectStrategy();
@@ -46,7 +46,7 @@ public class PccReconnectPromise extends DefaultPromise<PCEPSession> {
         try {
             this.b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.reconnectStrategy.getConnectTimeout());
             final ChannelFuture cf = this.b.connect(this.address);
-            cf.addListener(new BootstrapConnectListener(PccReconnectPromise.this));
+            cf.addListener(new BootstrapConnectListener(PCCReconnectPromise.this));
             this.pending = cf;
         } catch (final Exception e) {
             LOG.info("Failed to connect to {}", this.address, e);
@@ -89,17 +89,17 @@ public class PccReconnectPromise extends DefaultPromise<PCEPSession> {
         public void operationComplete(final ChannelFuture cf) throws Exception {
 
             synchronized (this.lock) {
-                if (PccReconnectPromise.this.isCancelled()) {
+                if (PCCReconnectPromise.this.isCancelled()) {
                     if (cf.isSuccess()) {
-                        PccReconnectPromise.LOG.debug("Closing channels for cancelled promise {}");
+                        PCCReconnectPromise.LOG.debug("Closing channels for cancelled promise {}");
                         cf.channel().close();
                     }
                 } else if (cf.isSuccess()) {
-                    PccReconnectPromise.LOG.debug("Promise connection is successful.");
+                    PCCReconnectPromise.LOG.debug("Promise connection is successful.");
                 } else {
-                    PccReconnectPromise.LOG.debug("Attempt to reconnect using reconnect strategy ...");
-                    final Future<Void> rf = PccReconnectPromise.this.reconnectStrategy.scheduleReconnect(cf.cause());
-                    rf.addListener(new PccReconnectPromise.BootstrapConnectListener.ReconnectStrategyListener());
+                    PCCReconnectPromise.LOG.debug("Attempt to reconnect using reconnect strategy ...");
+                    final Future<Void> rf = PCCReconnectPromise.this.reconnectStrategy.scheduleReconnect(cf.cause());
+                    rf.addListener(new PCCReconnectPromise.BootstrapConnectListener.ReconnectStrategyListener());
                 }
             }
         }
@@ -109,13 +109,13 @@ public class PccReconnectPromise extends DefaultPromise<PCEPSession> {
             @Override
             public void operationComplete(final Future<Void> f ) {
                 synchronized (BootstrapConnectListener.this.lock) {
-                    if (!PccReconnectPromise.this.isCancelled()) {
+                    if (!PCCReconnectPromise.this.isCancelled()) {
                         if (f.isSuccess()) {
-                            PccReconnectPromise.LOG.debug("ReconnectStrategy has scheduled a retry.");
-                            PccReconnectPromise.this.connect();
+                            PCCReconnectPromise.LOG.debug("ReconnectStrategy has scheduled a retry.");
+                            PCCReconnectPromise.this.connect();
                         } else {
-                            PccReconnectPromise.LOG.debug("ReconnectStrategy has failed. No attempts will be made.");
-                            PccReconnectPromise.this.setFailure(f.cause());
+                            PCCReconnectPromise.LOG.debug("ReconnectStrategy has failed. No attempts will be made.");
+                            PCCReconnectPromise.this.setFailure(f.cause());
                         }
                     }
                 }

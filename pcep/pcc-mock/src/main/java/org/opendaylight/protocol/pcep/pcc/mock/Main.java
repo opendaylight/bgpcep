@@ -115,9 +115,9 @@ public final class Main {
             final String password, final long reconnectTime, final int redelegationTimeout, final int stateTimeout, final Timer timer) throws InterruptedException, ExecutionException {
         startActivators();
         InetAddress currentAddress = localAddress.getAddress();
-        final PccDispatcherImpl pccDispatcher = new PccDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry());
+        final PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry());
         for (int i = 0; i < pccCount; i++) {
-            final PccTunnelManager tunnelManager = new PccTunnelManagerImpl(lspsPerPcc, currentAddress,
+            final PccTunnelManager tunnelManager = new PCCTunnelManagerImpl(lspsPerPcc, currentAddress,
                     redelegationTimeout, stateTimeout, timer);
             createPCC(pcerr, new InetSocketAddress(currentAddress, localAddress.getPort()),
                     remoteAddress, getSessionNegotiatorFactory(keepalive, deadtimer), pccDispatcher, password, reconnectTime, tunnelManager);
@@ -126,7 +126,7 @@ public final class Main {
     }
 
     private static void createPCC(final boolean pcerr, final InetSocketAddress localAddress,
-            final List<InetSocketAddress> remoteAddress, final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf, final PccDispatcherImpl pccDispatcher,
+            final List<InetSocketAddress> remoteAddress, final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf, final PCCDispatcherImpl pccDispatcher,
             final String password, final long reconnectTime, final PccTunnelManager tunnelManager) throws InterruptedException, ExecutionException {
 
         for (final InetSocketAddress pceAddress : remoteAddress) {
@@ -134,7 +134,7 @@ public final class Main {
                     new PCEPSessionListenerFactory() {
                         @Override
                         public PCEPSessionListener getSessionListener() {
-                            return new PccSessionListener(remoteAddress.indexOf(pceAddress), tunnelManager, pcerr);
+                            return new PCCSessionListener(remoteAddress.indexOf(pceAddress), tunnelManager, pcerr);
                         }
                     }, snf, getKeyMapping(pceAddress.getAddress(), password), localAddress);
         }
