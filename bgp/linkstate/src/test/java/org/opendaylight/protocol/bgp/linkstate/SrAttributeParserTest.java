@@ -101,6 +101,9 @@ public class SrAttributeParserTest {
     private static final OspfAdjFlagsCase OSPF_ADJ_FLAGS = new OspfAdjFlagsCaseBuilder()
         .setBackup(Boolean.TRUE)
         .setSet(Boolean.FALSE).build();
+    private static final OspfAdjFlagsCase OSPF_LAN_ADJ_FLAGS = new OspfAdjFlagsCaseBuilder()
+        .setBackup(Boolean.FALSE)
+        .setSet(Boolean.FALSE).build();
 
     @Test
     public void testSrAlgorithm() {
@@ -161,7 +164,7 @@ public class SrAttributeParserTest {
         final byte[] tested = {
             0, 0, 0, 5,
             4, (byte)0x89, 0, 4, 1, 2, 3, 4, // sid
-            4, (byte)0x86, 0, 7, (byte)0xac, 1, 0, 0, 1, 2, 0, // prefix
+            4, (byte)0x86, 0, 7, (byte)0xac, 1, 0, 0, 1, 2, 0, // prefix + mpls label
             4, (byte)0x88, 0, 0x58, 5, 0x48, 0, 0, // binding sid
             // binding sub-tlvs
             4, (byte)0x86, 0, 8, (byte)0xa0, 1, 0, 0, 1, 2, 3, 4, // prefix
@@ -193,7 +196,7 @@ public class SrAttributeParserTest {
             new PrefixSidTlvCaseBuilder()
                 .setFlags(ISIS_PREFIX_FLAGS)
                 .setAlgorithm(Algorithm.StrictShortestPathFirst)
-                .setSidLabelIndex(new LocalLabelCaseBuilder().setLocalLabel(new MplsLabel(4128L)).build()).build()).build());
+                .setSidLabelIndex(new LocalLabelCaseBuilder().setLocalLabel(new MplsLabel(66048L)).build()).build()).build());
         final List<BindingSubTlvs> bindingSubTlvs = new ArrayList<BindingSubTlvs>();
         addBindingSubTlvs(bindingSubTlvs);
         rangeSubTlvs.add(new SubTlvsBuilder().setRangeSubTlv(
@@ -280,7 +283,20 @@ public class SrAttributeParserTest {
     }
 
     @Test
-    public void testSrLanAdjId() {
+    public void testSrLanAdjIdOspf() {
+        final byte[] tested = { (byte)0x60, 10, 0, 0, 1, 2, 3, 4, 0,  0x5d, (byte)0xc0 };
+        final SrLanAdjId srLanAdjId = new SrLanAdjIdBuilder()
+            .setFlags(OSPF_LAN_ADJ_FLAGS)
+            .setWeight(new Weight((short)10))
+            .setNeighborId(new Ipv4Address("1.2.3.4"))
+            .setSidLabelIndex(new LocalLabelCaseBuilder().setLocalLabel(new MplsLabel(24000L)).build()).build();
+        assertEquals(srLanAdjId, SrLinkAttributesParser.parseLanAdjacencySegmentIdentifier(Unpooled.wrappedBuffer(tested), ProtocolId.Ospf));
+        final ByteBuf serializedData = SrLinkAttributesParser.serializeLanAdjacencySegmentIdentifier(srLanAdjId);
+        assertArrayEquals(tested, ByteArray.readAllBytes(serializedData));
+    }
+
+    @Test
+    public void testSrLanAdjIdIsis() {
         final byte[] tested = { (byte)0x60, 10, 0, 0, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
         final byte[] sidLabel = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
         final byte[] systemId = { 1, 2, 3, 4, 5, 6 };
