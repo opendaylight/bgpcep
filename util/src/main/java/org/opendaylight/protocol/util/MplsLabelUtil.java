@@ -24,13 +24,13 @@ public final class MplsLabelUtil {
     }
 
     /**
-     * Creates and returns MplsLabel object from 20 leftmost bits in the incoming buffer.
+     * Creates and returns MplsLabel object from 20 rightmost bits in the incoming buffer.
      * Moves reader index by 3.
-     * @param buffer expecting 3 bytes with 20 leftmost bits as label
+     * @param buffer expecting 3 bytes with 20 rightmost bits as label
      * @return MplsLabel object
      */
     public static MplsLabel mplsLabelForByteBuf(final ByteBuf buffer) {
-        return new MplsLabel(new Long(buffer.readUnsignedMedium() >> LABEL_OFFSET));
+        return new MplsLabel(new Long(buffer.readUnsignedMedium() << LABEL_OFFSET >> LABEL_OFFSET));
     }
 
     /**
@@ -52,12 +52,12 @@ public final class MplsLabelUtil {
     }
 
     /**
-     * Makes a value of incoming label 20 leftmost bits in 24bit number
+     * Makes a value of incoming label 20 rightmost bits in 24bit number
      * @param label object
      * @return shifted value
      */
     private static int intForMplsLabel(final MplsLabel label) {
-        return label.getValue().intValue() << LABEL_OFFSET;
+        return label.getValue().intValue() << LABEL_OFFSET >> LABEL_OFFSET;
     }
 
     /**
