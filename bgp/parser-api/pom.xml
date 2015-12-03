@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
         <artifactId>bgp-parent</artifactId>
-        <version>0.4.3-SNAPSHOT</version>
+        <version>0.4.3-Lithium-SR3</version>
     </parent>
 
     <artifactId>bgp-parser-api</artifactId>

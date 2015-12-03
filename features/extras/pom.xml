@@ -13,19 +13,19 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>features-parent</artifactId>
-        <version>1.5.3-SNAPSHOT</version>
+        <version>1.5.3-Lithium-SR3</version>
         <relativePath/>
     </parent>
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>features-extras</artifactId>
-    <version>0.4.3-SNAPSHOT</version>
+    <version>0.4.3-Lithium-SR3</version>
     <packaging>jar</packaging>
 
     <properties>
-        <yangtools.version>0.7.3-SNAPSHOT</yangtools.version>
-        <mdsal.version>1.2.3-SNAPSHOT</mdsal.version>
-        <config.version>0.3.3-SNAPSHOT</config.version>
+        <yangtools.version>0.7.3-Lithium-SR3</yangtools.version>
+        <mdsal.version>1.2.3-Lithium-SR3</mdsal.version>
+        <config.version>0.3.3-Lithium-SR3</config.version>
     </properties>
 
     <dependencyManagement>
