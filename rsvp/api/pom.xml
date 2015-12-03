@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
         <artifactId>rsvp-parent</artifactId>
-        <version>0.4.3-Lithium-SR3</version>
+        <version>0.4.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>rsvp-api</artifactId>
