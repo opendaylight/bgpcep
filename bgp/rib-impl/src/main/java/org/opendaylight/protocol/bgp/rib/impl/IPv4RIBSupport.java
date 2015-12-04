@@ -55,7 +55,7 @@ final class IPv4RIBSupport extends AbstractIPRIBSupport {
                 .withNodeIdentifier(new NodeIdentifier(Ipv4Routes.QNAME))
                 .withChild(ImmutableNodes.mapNodeBuilder(Ipv4Route.QNAME).build()).build()).build();
     private final NodeIdentifier destination = new NodeIdentifier(DestinationIpv4.QNAME);
-    private final NodeIdentifier route = new NodeIdentifier(Ipv4Route.QNAME);
+    private final NodeIdentifier ipv4Route = new NodeIdentifier(Ipv4Route.QNAME);
     private final NodeIdentifier nlriRoutesList = new NodeIdentifier(Ipv4Prefixes.QNAME);
     private final NodeIdentifier routeKeyLeaf = new NodeIdentifier(PREFIX_QNAME);
 
@@ -79,7 +79,7 @@ final class IPv4RIBSupport extends AbstractIPRIBSupport {
 
     @Override
     protected NodeIdentifier routeIdentifier() {
-        return this.route;
+        return this.ipv4Route;
     }
 
     @Override
