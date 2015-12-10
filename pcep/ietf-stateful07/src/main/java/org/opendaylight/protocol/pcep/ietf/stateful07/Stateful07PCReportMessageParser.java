@@ -20,6 +20,7 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcrpt;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcrptBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.bandwidth.usage.object.BandwidthUsage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.PcrptMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.pcrpt.message.Reports;
@@ -72,6 +73,7 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
             serializeObject(p.getEro(), buffer);
             serializeObject(p.getLspa(), buffer);
             serializeObject(p.getBandwidth(), buffer);
+            serializeObject(p.getBandwidthUsage(), buffer);
             if (p.getMetrics() != null) {
                 for (final Metrics m : p.getMetrics()) {
                     serializeObject(m.getMetric(), buffer);
@@ -84,9 +86,7 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
 
     @Override
     public Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
-        if (objects == null) {
-            throw new IllegalArgumentException("Passed list can't be null.");
-        }
+        Preconditions.checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty()) {
             throw new PCEPDeserializerException("Pcrpt message cannot be empty.");
         }
@@ -140,46 +140,7 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
         State state = State.INIT;
         while (!objects.isEmpty() && !state.equals(State.END)) {
             obj = objects.get(0);
-            switch (state) {
-            case INIT:
-                state = State.LSPA_IN;
-                if (obj instanceof Lspa) {
-                    builder.setLspa((Lspa) obj);
-                    break;
-                }
-            case LSPA_IN:
-                state = State.BANDWIDTH_IN;
-                if (obj instanceof Bandwidth) {
-                    builder.setBandwidth((Bandwidth) obj);
-                    break;
-                }
-            case BANDWIDTH_IN:
-                state = State.METRIC_IN;
-                if (obj instanceof Metric) {
-                    pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-                    state = State.BANDWIDTH_IN;
-                    break;
-                }
-            case METRIC_IN:
-                state = State.IRO_IN;
-                if (obj instanceof Iro) {
-                    builder.setIro((Iro) obj);
-                    break;
-                }
-            case IRO_IN:
-                state = State.RRO_IN;
-                if (obj instanceof Rro) {
-                    builder.setRro((Rro) obj);
-                    break;
-                }
-            case RRO_IN:
-                state = State.END;
-                break;
-            case END:
-                break;
-            default:
-                break;
-            }
+            state = insertObject(state, obj, builder, pathMetrics);
             if (!state.equals(State.END)) {
                 objects.remove(0);
             }
@@ -189,7 +150,47 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
         }
     }
 
+    private State insertObject(final State state, final Object obj, final PathBuilder builder, final List<Metrics> pathMetrics) {
+        switch (state) {
+        case INIT:
+            if (obj instanceof Lspa) {
+                builder.setLspa((Lspa) obj);
+                return State.LSPA_IN;
+            }
+        case LSPA_IN:
+            if (obj instanceof Bandwidth) {
+                builder.setBandwidth((Bandwidth) obj);
+                return State.BANDWIDTH_IN;
+            }
+        case BANDWIDTH_IN:
+            if (obj instanceof BandwidthUsage) {
+                builder.setBandwidthUsage((BandwidthUsage) obj);
+                return State.BANDWIDTH_USAGE_IN;
+            }
+        case BANDWIDTH_USAGE_IN:
+            if (obj instanceof Metric) {
+                pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
+                return State.BANDWIDTH_USAGE_IN;
+            }
+        case METRIC_IN:
+            if (obj instanceof Iro) {
+                builder.setIro((Iro) obj);
+                return State.IRO_IN;
+            }
+        case IRO_IN:
+            if (obj instanceof Rro) {
+                builder.setRro((Rro) obj);
+                return State.RRO_IN;
+            }
+        case RRO_IN:
+        case END:
+            return State.END;
+        default:
+            return state;
+        }
+    }
+
     private enum State {
-        INIT, LSPA_IN, BANDWIDTH_IN, METRIC_IN, IRO_IN, RRO_IN, END
+        INIT, LSPA_IN, BANDWIDTH_IN, BANDWIDTH_USAGE_IN, METRIC_IN, IRO_IN, RRO_IN, END
     }
 }

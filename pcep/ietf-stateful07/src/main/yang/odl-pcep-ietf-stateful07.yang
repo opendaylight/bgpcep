@@ -13,6 +13,7 @@ module odl-pcep-ietf-stateful07 {
     import topology-tunnel-pcep { prefix tun; revision-date 2013-08-20; }
     import topology-tunnel-pcep-programming { prefix ttpp; revision-date 2013-10-30; }
     import yang-ext { prefix ext; revision-date 2013-07-09; }
+    import network-concepts { prefix netc; revision-date 2013-11-25; }
 
     organization "Cisco Systems, Inc.";
     contact "Robert Varga <rovarga@cisco.com>";
@@ -267,6 +268,17 @@ module odl-pcep-ietf-stateful07 {
         }
     }
 
+    grouping bandwidth-usage-object {
+        description "Bandwidth-Usage Report Object";
+        reference "https://tools.ietf.org/html/draft-dhody-pce-stateful-pce-auto-bandwidth-06#section-8.4";
+        container bandwidth-usage {
+            uses pcep:object;
+            leaf bandwidth {
+                type netc:bandwidth;
+            }
+        }
+    }
+
     grouping pcupd-message {
         uses pcep:message;
 
@@ -304,6 +316,7 @@ module odl-pcep-ietf-stateful07 {
 
                 container path {
                     uses pcep:path-definition;
+                    uses bandwidth-usage-object;
                 }
             }
         }
