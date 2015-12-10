@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aa4ed85_d67d05b3",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2015-12-10T09:33:33Z",
+      "side": 1,
+      "message": "Please keep the watermark computed as bytes -- this makes it non-obvious what the constant does.",
+      "revId": "ec6813763749876d9ccd0651c64b581dc0783bc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
