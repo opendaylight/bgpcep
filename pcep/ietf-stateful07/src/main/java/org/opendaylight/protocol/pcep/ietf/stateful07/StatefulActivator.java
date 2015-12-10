@@ -16,6 +16,7 @@ import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcrpt;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcupd;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.bandwidth.usage.object.BandwidthUsage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.error.code.tlv.LspErrorCode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.Lsp;
@@ -52,6 +53,10 @@ public final class StatefulActivator extends AbstractPCEPExtensionProviderActiva
         regs.add(context.registerObjectParser(Stateful07OpenObjectParser.CLASS, Stateful07OpenObjectParser.TYPE,
             new Stateful07OpenObjectParser(tlvReg, viTlvReg)));
         regs.add(context.registerObjectSerializer(Open.class, new Stateful07OpenObjectParser(tlvReg, viTlvReg)));
+
+        regs.add(context.registerObjectParser(BandwidthUsageObjectParser.CLASS, BandwidthUsageObjectParser.TYPE,
+                new BandwidthUsageObjectParser()));
+        regs.add(context.registerObjectSerializer(BandwidthUsage.class, new BandwidthUsageObjectParser()));
 
         regs.add(context.registerTlvParser(Stateful07LSPIdentifierIpv4TlvParser.TYPE, new Stateful07LSPIdentifierIpv4TlvParser()));
         regs.add(context.registerTlvParser(Stateful07LSPIdentifierIpv6TlvParser.TYPE, new Stateful07LSPIdentifierIpv6TlvParser()));

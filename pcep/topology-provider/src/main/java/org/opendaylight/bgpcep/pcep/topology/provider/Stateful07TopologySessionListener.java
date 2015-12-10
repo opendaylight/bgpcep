@@ -190,12 +190,13 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
                 }
             }
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder pb = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder();
+            final Path1Builder p1Builder = new Path1Builder();
             if (report.getPath() != null) {
                 pb.fieldsFrom(report.getPath());
+                p1Builder.setBandwidthUsage(report.getPath().getBandwidthUsage());
             }
             // LSP is mandatory (if there is none, parser will throw an exception)
             // this is to ensure a path will be created at any rate
-            final Path1Builder p1Builder = new Path1Builder();
             p1Builder.setLsp(report.getLsp());
             final PathSetupType pst;
             if (srp != null && srp.getTlvs() != null && srp.getTlvs().getPathSetupType() != null) {
