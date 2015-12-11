@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1aa4ed85_9eba3fe0",
+        "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/comparator/GlobalComparator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-12-11T12:55:46Z",
+      "side": 1,
+      "message": "hmm my API doc says comparing non-null objects...implementation corrected in a next path set",
+      "parentUuid": "1aa4ed85_0013575d",
+      "revId": "e0c0876c8709479c0aab9c01c83e97fae3d86736",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1aa4ed85_40094f2b",
         "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/comparator/OpenConfigComparatorFactory.java",
         "patchSetId": 2
@@ -47,6 +65,24 @@
       "writtenOn": "2015-12-09T21:58:44Z",
       "side": 1,
       "message": "looks like this could be singletons",
+      "revId": "e0c0876c8709479c0aab9c01c83e97fae3d86736",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aa4ed85_3ecb0b74",
+        "filename": "bgp/openconfig-impl/src/main/java/org/opendaylight/protocol/bgp/openconfig/impl/comparator/OpenConfigComparatorFactory.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-12-11T12:55:46Z",
+      "side": 1,
+      "message": "Created a map of singleton instances.",
+      "parentUuid": "1aa4ed85_600ecb36",
       "revId": "e0c0876c8709479c0aab9c01c83e97fae3d86736",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
