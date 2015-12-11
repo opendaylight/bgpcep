@@ -38,8 +38,10 @@ public final class SrLinkAttributesParser {
     private static final int BACKUP_OSPF = 0;
     private static final int VALUE_ISIS = 2;
     private static final int VALUE_OSPF = 1;
+    private static final int VALUE_EPE = 0;
     private static final int LOCAL_ISIS = 3;
     private static final int LOCAL_OSPF = 2;
+    private static final int LOCAL_EPE = 1;
     private static final int SET_ISIS = 4;
     private static final int SET_OSPF = 3;
     private static final int FLAGS_SIZE = 8;
@@ -116,6 +118,9 @@ public final class SrLinkAttributesParser {
     }
 
     private static Flags parseFlags(final BitArray flags, final ProtocolId protocol) {
+        if (protocol == null) {
+            return null;
+        }
         if (protocol.equals(ProtocolId.IsisLevel1) || protocol.equals(ProtocolId.IsisLevel2)) {
             return new IsisAdjFlagsCaseBuilder()
                 .setAddressFamily(flags.get(ADDRESS_FAMILY_FLAG))
@@ -167,6 +172,8 @@ public final class SrLinkAttributesParser {
             bitFlags.set(BACKUP_ISIS, isisFlags.isBackup());
             bitFlags.set(SET_ISIS, isisFlags.isSet());
             SidLabelIndexParser.setFlags(sidLabelIndex, bitFlags, VALUE_ISIS, LOCAL_ISIS);
+        } else if (flags == null){
+            SidLabelIndexParser.setFlags(sidLabelIndex, bitFlags, VALUE_EPE, LOCAL_EPE);
         }
         return bitFlags;
     }

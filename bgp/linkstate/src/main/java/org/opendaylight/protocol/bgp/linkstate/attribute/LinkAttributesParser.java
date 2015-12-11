@@ -28,8 +28,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkProtectionType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.MplsProtocolMask;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.PeerAdjSidBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.PeerNodeSidBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.PeerSetSidBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.PeerSidBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrAdjIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.UnreservedBandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.UnreservedBandwidthBuilder;
@@ -80,8 +81,9 @@ public final class LinkAttributesParser {
     private static final int LINK_NAME = 1098;
     private static final int SR_ADJ_ID = 1099;
     private static final int SR_LAN_ADJ_ID = 1100;
-    private static final int PEER_SID_CODE = 1036;
-    private static final int PEER_SET_SID_CODE = 1037;
+    private static final int PEER_NODE_SID_CODE = 1101;
+    private static final int PEER_ADJ_SID_CODE = 1102;
+    private static final int PEER_SET_SID_CODE = 1103;
 
     /**
      * Parse Link Attributes.
@@ -164,12 +166,16 @@ public final class LinkAttributesParser {
                 builder.setSrLanAdjId(SrLinkAttributesParser.parseLanAdjacencySegmentIdentifier(value, protocolId));
                 LOG.debug("Parsed Adjacency Segment Identifier :{}", builder.getSrLanAdjId());
                 break;
-            case PEER_SID_CODE:
-                builder.setPeerSid(new PeerSidBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value, protocolId)).build());
-                LOG.debug("Parsed Peer Segment Identifier :{}", builder.getPeerSid());
+            case PEER_NODE_SID_CODE:
+                builder.setPeerNodeSid(new PeerNodeSidBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value, null)).build());
+                LOG.debug("Parsed Peer Segment Identifier :{}", builder.getPeerNodeSid());
+                break;
+            case PEER_ADJ_SID_CODE:
+                builder.setPeerAdjSid(new PeerAdjSidBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value, null)).build());
+                LOG.debug("Parsed Peer Segment Identifier :{}", builder.getPeerAdjSid());
                 break;
             case PEER_SET_SID_CODE:
-                builder.setPeerSetSid(new PeerSetSidBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value, protocolId)).build());
+                builder.setPeerSetSid(new PeerSetSidBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(value, null)).build());
                 LOG.debug("Parsed Peer Set Sid :{}", builder.getPeerSetSid());
                 break;
             default:
@@ -245,8 +251,11 @@ public final class LinkAttributesParser {
         if (linkAttributes.getSrLanAdjId() != null) {
             TlvUtil.writeTLV(SR_LAN_ADJ_ID, SrLinkAttributesParser.serializeLanAdjacencySegmentIdentifier(linkAttributes.getSrLanAdjId()), byteAggregator);
         }
-        if (linkAttributes.getPeerSid() != null) {
-            TlvUtil.writeTLV(PEER_SID_CODE, SrLinkAttributesParser.serializeAdjacencySegmentIdentifier(linkAttributes.getPeerSid()), byteAggregator);
+        if (linkAttributes.getPeerNodeSid() != null) {
+            TlvUtil.writeTLV(PEER_NODE_SID_CODE, SrLinkAttributesParser.serializeAdjacencySegmentIdentifier(linkAttributes.getPeerNodeSid()), byteAggregator);
+        }
+        if (linkAttributes.getPeerAdjSid() != null) {
+            TlvUtil.writeTLV(PEER_ADJ_SID_CODE, SrLinkAttributesParser.serializeAdjacencySegmentIdentifier(linkAttributes.getPeerAdjSid()), byteAggregator);
         }
         if (linkAttributes.getPeerSetSid() != null) {
             TlvUtil.writeTLV(PEER_SET_SID_CODE, SrLinkAttributesParser.serializeAdjacencySegmentIdentifier(linkAttributes.getPeerSetSid()), byteAggregator);
