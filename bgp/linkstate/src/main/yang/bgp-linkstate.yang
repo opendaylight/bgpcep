@@ -573,14 +573,19 @@ module bgp-linkstate {
         container sr-lan-adj-id {
             uses bgp-sr:lan-adj-sid-tlv;
         }
-        container peer-sid {
+        container peer-node-sid {
             description "The SID representing the peer of the BGP session.";
-            reference "https://tools.ietf.org/html/draft-ietf-idr-bgpls-segment-routing-epe-00#section-4.3";
+            reference "https://tools.ietf.org/html/draft-ietf-idr-bgpls-segment-routing-epe-01#section-4.3";
+            uses bgp-sr:adj-sid-tlv;
+        }
+        container peer-adj-sid {
+            description "The SID representing the peer of the BGP session.";
+            reference "https://tools.ietf.org/html/draft-ietf-idr-bgpls-segment-routing-epe-01#section-4.3";
             uses bgp-sr:adj-sid-tlv;
         }
         container peer-set-sid {
             description "The SID representing the group the peer is part of.";
-            reference "https://tools.ietf.org/html/draft-ietf-idr-bgpls-segment-routing-epe-00#section-4.3";
+            reference "https://tools.ietf.org/html/draft-ietf-idr-bgpls-segment-routing-epe-01#section-4.3";
             uses bgp-sr:adj-sid-tlv;
         }
     }

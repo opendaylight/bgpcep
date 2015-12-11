@@ -11,7 +11,9 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -96,8 +98,9 @@ public class LinkstateAttributeParserTest {
         0, 0x05, 0x31, 0x32, 0x4b, 0x2d, 0x32,
         0x04, 0x4b, 0, 0x07, (byte)-80, 10, 0, 0, (byte)0x0f, (byte)0xff, (byte)0xff, // sr-adj
         0x04, 0x4c, 0, 0x0d, (byte)-80, 10, 0, 0, 1, 2, 3, 4, 5, 6, (byte)0x0f, (byte)0xff, (byte)0xff, // sr-lan-adj
-        0x04, 0x0c, 0, 0x08, (byte)0x80, 0x05, 0, 0, 0x0a, 0x0b, 0x0c, 0x0d, // peer-sid
-        0x04, 0x0d, 0, 0x08, (byte)0x80, 0x05, 0, 0, 0x0a, 0x0b, 0x0c, 0x0e, // peer-set-sid
+        0x04, 0x4d, 0, 0x08, 0, 0x05, 0, 0, 0x0a, 0x0b, 0x0c, 0x0d, // peer-node-sid
+        0x04, 0x4e, 0, 0x08, 0, 0x05, 0, 0, 0x0a, 0x0b, 0x0c, 0x0f, // peer-adj-sid
+        0x04, 0x4f, 0, 0x08, 0, 0x05, 0, 0, 0x0a, 0x0b, 0x0c, 0x0e, // peer-set-sid
         0x04, (byte) 0x88, 0, 0x01, 0x0a };
 
     private static final byte[] NODE_ATTR = { 0x01, 0x07, 0, 0x04, 0, 0x2a, 0, 0x2b, 0x04, 0, 0, 0x01, (byte) 0xbc, 0x04, 0x02, 0,
@@ -210,12 +213,16 @@ public class LinkstateAttributeParserTest {
         assertEquals(305419896, ls.getSharedRiskLinkGroups().get(0).getValue().intValue());
         assertEquals("12K-2", ls.getLinkName());
         final IsisAdjFlagsCase flags = new IsisAdjFlagsCaseBuilder().setAddressFamily(Boolean.TRUE).setBackup(Boolean.FALSE).setSet(Boolean.FALSE).build();
-        assertEquals(flags, ls.getPeerSid().getFlags());
-        assertEquals(flags, ls.getPeerSetSid().getFlags());
-        assertEquals(new Long(168496141L), ((SidCase) ls.getPeerSid().getSidLabelIndex()).getSid());
-        assertEquals(new Short("5"), ls.getPeerSid().getWeight().getValue());
+        assertEquals(flags, ls.getSrAdjId().getFlags());
+        assertNull(ls.getPeerNodeSid().getFlags());
+        assertNull(ls.getPeerSetSid().getFlags());
+        assertNull(ls.getPeerAdjSid().getFlags());
+        assertEquals(new Long(168496141L), ((SidCase) ls.getPeerNodeSid().getSidLabelIndex()).getSid());
+        assertEquals(new Short("5"), ls.getPeerNodeSid().getWeight().getValue());
         assertEquals(new Long(168496142L), ((SidCase) ls.getPeerSetSid().getSidLabelIndex()).getSid());
         assertEquals(new Short("5"), ls.getPeerSetSid().getWeight().getValue());
+        assertEquals(new Long(168496143L), ((SidCase) ls.getPeerAdjSid().getSidLabelIndex()).getSid());
+        assertEquals(new Short("5"), ls.getPeerAdjSid().getWeight().getValue());
 
         //serialization
         final ByteBuf buff = Unpooled.buffer();
