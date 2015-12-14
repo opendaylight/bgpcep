@@ -40,6 +40,8 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
     private final BGPHandlerFactory hf;
     private Optional<KeyMapping> keys;
     private static final String NEGOTIATOR = "negotiator";
+    private static final int HIGH_WATER_MARK = 256 * 1024;
+    private static final int LOW_WATER_MARK = 128 * 1024;
 
     public BGPDispatcherImpl(final MessageRegistry messageRegistry, final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
         this(messageRegistry, bossGroup, workerGroup, null, null);
@@ -134,6 +136,9 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 
         // Make sure we are doing round-robin processing
         b.option(ChannelOption.MAX_MESSAGES_PER_READ, 1);
+
+        b.option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, HIGH_WATER_MARK);
+        b.option(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, LOW_WATER_MARK);
     }
 
     @Override
@@ -148,6 +153,9 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 
         // Make sure we are doing round-robin processing
         b.childOption(ChannelOption.MAX_MESSAGES_PER_READ, 1);
+
+        b.option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, HIGH_WATER_MARK);
+        b.option(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, LOW_WATER_MARK);
     }
 
 }
