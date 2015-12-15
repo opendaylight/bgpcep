@@ -1,0 +1,29 @@
+<module xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-peer</type>
+    <name>$NAME</name>
+    <host xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">$IP</host>
+    <port xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">$PEER_PORT</port>
+    <peer-role xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">$PEER_ROLE</peer-role>
+    <holdtimer xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">$HOLDTIME</holdtimer>
+    <initiate-connection xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">$INITIATE</initiate-connection>
+    <rib xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">
+        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:rib-instance</type>
+        <name>example-bgp-rib</name>
+    </rib>
+    <peer-registry xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">
+        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-peer-registry</type>
+        <name>global-bgp-peer-registry</name>
+    </peer-registry>
+    <advertized-table xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">
+        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+        <name>ipv4-unicast</name>
+    </advertized-table>
+    <advertized-table xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">
+        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+        <name>ipv6-unicast</name>
+    </advertized-table>
+    <advertized-table xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">
+        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+        <name>linkstate</name>
+    </advertized-table>
+</module>

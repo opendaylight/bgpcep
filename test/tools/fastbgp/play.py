@@ -70,6 +70,12 @@ def parse_arguments():
     str_help = "The IP of the next hop to be placed into the update messages."
     parser.add_argument("--nexthop", default="192.0.2.1",
                         type=ipaddr.IPv4Address, dest="nexthop", help=str_help)
+    str_help = "Identifier of the route originator."
+    parser.add_argument("--originator", default=None,
+                        type=ipaddr.IPv4Address, dest="originator", help=str_help)
+    str_help = "Cluster list item identifier."
+    parser.add_argument("--cluster", default=None,
+                        type=ipaddr.IPv4Address, dest="cluster", help=str_help)
     str_help = ("Numeric IP Address to try to connect to." +
                 "Currently no effect in listening mode.")
     parser.add_argument("--peerip", default="127.0.0.2",
@@ -274,6 +280,8 @@ class MessageGenerator(object):
         self.hold_time_default = args.holdtime  # Local hold time.
         self.bgp_identifier_default = int(args.myip)
         self.next_hop_default = args.nexthop
+        self.originator_id_default = args.originator
+        self.cluster_list_item_default = args.cluster
         self.single_update_default = args.updates == "single"
         self.randomize_updates_default = args.updates == "random"
         self.prefix_count_to_add_default = args.insert
@@ -338,6 +346,8 @@ class MessageGenerator(object):
         logger.info("  My Hold Time: " + str(self.hold_time_default))
         logger.info("  My BGP Identifier: " + str(self.bgp_identifier_default))
         logger.info("  Next Hop: " + str(self.next_hop_default))
+        logger.info("  Originator ID: " + str(self.originator_id_default))
+        logger.info("  Cluster list: " + str(self.cluster_list_item_default))
         logger.info("  Prefix count to be inserted at once: " +
                     str(self.prefix_count_to_add_default))
         logger.info("  Prefix count to be withdrawn at once: " +
@@ -375,6 +385,7 @@ class MessageGenerator(object):
             :return: n/a
         """
         # default values handling
+        # TODO optimize default values handling (use e.g. dicionary.update() approach)
         if file_name is None:
             file_name = self.results_file_name_default
         if threshold is None:
@@ -470,6 +481,7 @@ class MessageGenerator(object):
             Created just as a fame for future generator enhancement.
         """
         # default values handling
+        # TODO optimize default values handling (use e.g. dicionary.update() approach)
         if lowest is None:
             lowest = self.randomize_lowest_default
         if highest is None:
@@ -503,6 +515,7 @@ class MessageGenerator(object):
             :return: list of generated IP address prefixes
         """
         # default values handling
+        # TODO optimize default values handling (use e.g. dicionary.update() approach)
         if slot_size is None:
             slot_size = self.slot_size_default
         if prefix_base is None:
@@ -546,6 +559,7 @@ class MessageGenerator(object):
             Updates global counters.
         """
         # default values handling
+        # TODO optimize default values handling (use e.g. dicionary.update() approach)
         if prefix_count_to_add is None:
             prefix_count_to_add = self.prefix_count_to_add_default
         if prefix_count_to_del is None:
@@ -634,7 +648,8 @@ class MessageGenerator(object):
             :return: encoded OPEN message in HEX
         """
 
-        # Default values handling
+        # default values handling
+        # TODO optimize default values handling (use e.g. dicionary.update() approach)
         if version is None:
             version = self.version_default
         if my_autonomous_system is None:
@@ -754,7 +769,8 @@ class MessageGenerator(object):
 
     def update_message(self, wr_prefixes=None, nlri_prefixes=None,
                        wr_prefix_length=None, nlri_prefix_length=None,
-                       my_autonomous_system=None, next_hop=None):
+                       my_autonomous_system=None, next_hop=None,
+                       originator_id=None, cluster_list_item=None):
         """Generates an UPDATE Message (rfc4271#section-4.3)
 
         Arguments:
@@ -768,7 +784,8 @@ class MessageGenerator(object):
             :return: encoded UPDATE message in HEX
         """
 
-        # Default values handling
+        # default values handling
+        # TODO optimize default values handling (use e.g. dicionary.update() approach)
         if wr_prefixes is None:
             wr_prefixes = self.wr_prefixes_default
         if nlri_prefixes is None:
@@ -781,6 +798,10 @@ class MessageGenerator(object):
             my_autonomous_system = self.my_autonomous_system_default
         if next_hop is None:
             next_hop = self.next_hop_default
+        if originator_id is None:
+            originator_id = self.originator_id_default
+        if cluster_list_item is None:
+            cluster_list_item = self.cluster_list_item_default
 
         # Marker
         marker_hex = "\xFF" * 16
@@ -803,12 +824,15 @@ class MessageGenerator(object):
 
         # TODO: to replace hardcoded string by encoding?
         # Path Attributes
+        path_attributes_hex = ""
         if nlri_prefixes != []:
-            path_attributes_hex = (
+            path_attributes_hex += (
                 "\x40"  # Flags ("Well-Known")
                 "\x01"  # Type (ORIGIN)
                 "\x01"  # Length (1)
                 "\x00"  # Origin: IGP
+            )
+            path_attributes_hex += (
                 "\x40"  # Flags ("Well-Known")
                 "\x02"  # Type (AS_PATH)
                 "\x06"  # Length (6)
@@ -826,8 +850,22 @@ class MessageGenerator(object):
             path_attributes_hex += (
                 next_hop_hex  # IP address of the next hop (4 bytes)
             )
-        else:
-            path_attributes_hex = ""
+            if originator_id is not None:
+                path_attributes_hex += (
+                    "\x80"  # Flags ("Optional, non-transitive")
+                    "\x09"  # Type (ORIGINATOR_ID)
+                    "\x04"  # Length (4)
+                            # ORIGINATOR_ID (4 bytes)
+                    + struct.pack(">I", int(originator_id))
+                )
+            if cluster_list_item is not None:
+                path_attributes_hex += (
+                    "\x80"  # Flags ("Optional, non-transitive")
+                    "\x09"  # Type (CLUSTER_LIST)
+                    "\x04"  # Length (4)
+                            # one CLUSTER_LIST item (4 bytes)
+                    + struct.pack(">I", int(cluster_list_item))
+                )
 
         # Total Path Attributes Length
         total_path_attributes_length = len(path_attributes_hex)
@@ -874,12 +912,19 @@ class MessageGenerator(object):
             logger.debug("  Withdrawn_Routes=" + str(wr_prefixes) + "/" +
                          str(wr_prefix_length) + " (0x" +
                          binascii.hexlify(withdrawn_routes_hex) + ")")
-            logger.debug("  Total Path Attributes Length=" +
-                         str(total_path_attributes_length) + " (0x" +
-                         binascii.hexlify(total_path_attributes_length_hex) +
-                         ")")
-            logger.debug("  Path Attributes=" + "(0x" +
-                         binascii.hexlify(path_attributes_hex) + ")")
+            if total_path_attributes_length:
+                logger.debug("  Total Path Attributes Length=" +
+                             str(total_path_attributes_length) + " (0x" +
+                             binascii.hexlify(total_path_attributes_length_hex) + ")")
+                logger.debug("  Path Attributes=" + "(0x" +
+                             binascii.hexlify(path_attributes_hex) + ")")
+                logger.debug("    Origin=IGP")
+                logger.debug("    AS path=" + str(my_autonomous_system))
+                logger.debug("    Next hop=" + str(next_hop))
+                if originator_id is not None:
+                    logger.debug("    Originator id=" + str(originator_id))
+                if cluster_list_item is not None:
+                    logger.debug("    Cluster list=" + str(cluster_list_item))
             logger.debug("  Network Layer Reachability Information=" +
                          str(nlri_prefixes) + "/" + str(nlri_prefix_length) +
                          " (0x" + binascii.hexlify(nlri_hex) + ")")
@@ -1187,56 +1232,65 @@ class ReadTracker(object):
                 hex_to_decode = hex_to_decode[3 + attr_length:]
 
             if attr_type_code == 1:
-                logger.debug("Attribute type = 1 (ORIGIN, flags:0x%s)",
+                logger.debug("Attribute type=1 (ORIGIN, flags:0x%s)",
                              binascii.b2a_hex(attr_flags_hex))
-                logger.debug("Attribute value = 0x%s", binascii.b2a_hex(attr_value_hex))
+                logger.debug("Attribute value=0x%s", binascii.b2a_hex(attr_value_hex))
             elif attr_type_code == 2:
-                logger.debug("Attribute type = 2 (AS_PATH, flags:0x%s)",
+                logger.debug("Attribute type=2 (AS_PATH, flags:0x%s)",
                              binascii.b2a_hex(attr_flags_hex))
-                logger.debug("Attribute value = 0x%s", binascii.b2a_hex(attr_value_hex))
+                logger.debug("Attribute value=0x%s", binascii.b2a_hex(attr_value_hex))
             elif attr_type_code == 3:
-                logger.debug("Attribute type = 3 (NEXT_HOP, flags:0x%s)",
+                logger.debug("Attribute type=3 (NEXT_HOP, flags:0x%s)",
                              binascii.b2a_hex(attr_flags_hex))
-                logger.debug("Attribute value = 0x%s", binascii.b2a_hex(attr_value_hex))
+                logger.debug("Attribute value=0x%s", binascii.b2a_hex(attr_value_hex))
             elif attr_type_code == 4:
-                logger.debug("Attribute type = 4 (MULTI_EXIT_DISC, flags:0x%s)",
+                logger.debug("Attribute type=4 (MULTI_EXIT_DISC, flags:0x%s)",
                              binascii.b2a_hex(attr_flags_hex))
-                logger.debug("Attribute value = 0x%s", binascii.b2a_hex(attr_value_hex))
+                logger.debug("Attribute value=0x%s", binascii.b2a_hex(attr_value_hex))
             elif attr_type_code == 5:
-                logger.debug("Attribute type = 5 (LOCAL_PREF, flags:0x%s)",
+                logger.debug("Attribute type=5 (LOCAL_PREF, flags:0x%s)",
                              binascii.b2a_hex(attr_flags_hex))
-                logger.debug("Attribute value = 0x%s", binascii.b2a_hex(attr_value_hex))
+                logger.debug("Attribute value=0x%s", binascii.b2a_hex(attr_value_hex))
             elif attr_type_code == 6:
-                logger.debug("Attribute type = 6 (ATOMIC_AGGREGATE, flags:0x%s)",
+                logger.debug("Attribute type=6 (ATOMIC_AGGREGATE, flags:0x%s)",
                              binascii.b2a_hex(attr_flags_hex))
-                logger.debug("Attribute value = 0x%s", binascii.b2a_hex(attr_value_hex))
+                logger.debug("Attribute value=0x%s", binascii.b2a_hex(attr_value_hex))
             elif attr_type_code == 7:
-                logger.debug("Attribute type = 7 (AGGREGATOR, flags:0x%s)",
+                logger.debug("Attribute type=7 (AGGREGATOR, flags:0x%s)",
                              binascii.b2a_hex(attr_flags_hex))
-                logger.debug("Attribute value = 0x%s", binascii.b2a_hex(attr_value_hex))
+                logger.debug("Attribute value=0x%s", binascii.b2a_hex(attr_value_hex))
+            elif attr_type_code == 9:  # rfc4456#section-8
+                logger.debug("Attribute type=9 (ORIGINATOR_ID, flags:0x%s)",
+                             binascii.b2a_hex(attr_flags_hex))
+                logger.debug("Attribute value=0x%s", binascii.b2a_hex(attr_value_hex))
+            elif attr_type_code == 10:  # rfc4456#section-8
+                logger.debug("Attribute type=10 (CLUSTER_LIST, flags:0x%s)",
+                             binascii.b2a_hex(attr_flags_hex))
+                logger.debug("Attribute value=0x%s", binascii.b2a_hex(attr_value_hex))
             elif attr_type_code == 14:  # rfc4760#section-3
-                logger.debug("Attribute type = 14 (MP_REACH_NLRI, flags:0x%s)",
+                logger.debug("Attribute type=14 (MP_REACH_NLRI, flags:0x%s)",
                              binascii.b2a_hex(attr_flags_hex))
-                logger.debug("Attribute value = 0x%s", binascii.b2a_hex(attr_value_hex))
+                logger.debug("Attribute value=0x%s", binascii.b2a_hex(attr_value_hex))
                 address_family_identifier_hex = attr_value_hex[0:2]
-                logger.debug("  Address Family Identifier = 0x%s",
+                logger.debug("  Address Family Identifier=0x%s",
                              binascii.b2a_hex(address_family_identifier_hex))
                 subsequent_address_family_identifier_hex = attr_value_hex[2]
-                logger.debug("  Subsequent Address Family Identifier = 0x%s",
+                logger.debug("  Subsequent Address Family Identifier=0x%s",
                              binascii.b2a_hex(subsequent_address_family_identifier_hex))
                 next_hop_netaddr_len_hex = attr_value_hex[3]
                 next_hop_netaddr_len = int(binascii.b2a_hex(next_hop_netaddr_len_hex), 16)
-                logger.debug("  Length of Next Hop Network Address = 0x%s (%s)",
-                             binascii.b2a_hex(next_hop_netaddr_len_hex),
-                             next_hop_netaddr_len)
+                logger.debug("  Length of Next Hop Network Address=%s (0x%s)",
+                             next_hop_netaddr_len,
+                             binascii.b2a_hex(next_hop_netaddr_len_hex))
                 next_hop_netaddr_hex = attr_value_hex[4:4 + next_hop_netaddr_len]
-                logger.debug("  Network Address of Next Hop = 0x%s",
-                             binascii.b2a_hex(next_hop_netaddr_hex))
+                next_hop_netaddr = ".".join(str(i) for i in struct.unpack("BBBB", next_hop_netaddr_hex))
+                logger.debug("  Network Address of Next Hop=%s (0x%s)",
+                             next_hop_netaddr, binascii.b2a_hex(next_hop_netaddr_hex))
                 reserved_hex = attr_value_hex[4 + next_hop_netaddr_len]
-                logger.debug("  Reserved = 0x%s",
+                logger.debug("  Reserved=0x%s",
                              binascii.b2a_hex(reserved_hex))
                 nlri_hex = attr_value_hex[4 + next_hop_netaddr_len + 1:]
-                logger.debug("  Network Layer Reachability Information = 0x%s",
+                logger.debug("  Network Layer Reachability Information=0x%s",
                              binascii.b2a_hex(nlri_hex))
                 nlri_prefix_list = get_prefix_list_from_hex(nlri_hex)
                 logger.debug("  NLRI prefix list: %s", nlri_prefix_list)
@@ -1244,17 +1298,17 @@ class ReadTracker(object):
                     logger.debug("  nlri_prefix_received: %s", prefix)
                 self.prefixes_introduced += len(nlri_prefix_list)  # update counter
             elif attr_type_code == 15:  # rfc4760#section-4
-                logger.debug("Attribute type = 15 (MP_UNREACH_NLRI, flags:0x%s)",
+                logger.debug("Attribute type=15 (MP_UNREACH_NLRI, flags:0x%s)",
                              binascii.b2a_hex(attr_flags_hex))
-                logger.debug("Attribute value = 0x%s", binascii.b2a_hex(attr_value_hex))
+                logger.debug("Attribute value=0x%s", binascii.b2a_hex(attr_value_hex))
                 address_family_identifier_hex = attr_value_hex[0:2]
-                logger.debug("  Address Family Identifier = 0x%s",
+                logger.debug("  Address Family Identifier=0x%s",
                              binascii.b2a_hex(address_family_identifier_hex))
                 subsequent_address_family_identifier_hex = attr_value_hex[2]
-                logger.debug("  Subsequent Address Family Identifier = 0x%s",
+                logger.debug("  Subsequent Address Family Identifier=0x%s",
                              binascii.b2a_hex(subsequent_address_family_identifier_hex))
                 wd_hex = attr_value_hex[3:]
-                logger.debug("  Withdrawn Routes = 0x%s",
+                logger.debug("  Withdrawn Routes=0x%s",
                              binascii.b2a_hex(wd_hex))
                 wdr_prefix_list = get_prefix_list_from_hex(wd_hex)
                 logger.debug("  Withdrawn routes prefix list: %s",
@@ -1263,9 +1317,9 @@ class ReadTracker(object):
                     logger.debug("  withdrawn_prefix_received: %s", prefix)
                 self.prefixes_withdrawn += len(wdr_prefix_list)  # update counter
             else:
-                logger.debug("Unknown attribute type = %s, flags:0x%s)", attr_type_code,
+                logger.debug("Unknown attribute type=%s, flags:0x%s)", attr_type_code,
                              binascii.b2a_hex(attr_flags_hex))
-                logger.debug("Unknown attribute value = 0x%s", binascii.b2a_hex(attr_value_hex))
+                logger.debug("Unknown attribute value=0x%s", binascii.b2a_hex(attr_value_hex))
         return None
 
     def decode_update_message(self, msg):
