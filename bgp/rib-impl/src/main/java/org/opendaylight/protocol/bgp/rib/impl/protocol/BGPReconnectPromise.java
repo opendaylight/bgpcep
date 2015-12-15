@@ -128,6 +128,7 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
 
             if (!this.promise.isInitialConnectFinished()) {
                 LOG.debug("Connection to {} was dropped during negotiation, reattempting", this.promise.address);
+                return;
             }
 
             LOG.debug("Reconnecting after connection to {} was dropped", this.promise.address);
