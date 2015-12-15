@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aa4ed85_b205e7c3",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/Main.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-12-15T01:37:24Z",
+      "side": 1,
+      "message": "why not using primitives?",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 60
+      },
+      "revId": "37a78921dba624f8efbae1e41e037190e9deb697",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aa4ed85_12aabb70",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/Main.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-12-15T01:37:24Z",
+      "side": 1,
+      "message": "rather yes, or change meaning of this argument to something like...\"how much will be DBv incremented after reconnect\"",
+      "revId": "37a78921dba624f8efbae1e41e037190e9deb697",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aa4ed85_12171bef",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/PCCsBuilder.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-12-15T01:37:24Z",
+      "side": 1,
+      "message": "make no sense with primitive types",
+      "range": {
+        "startLine": 65,
+        "startChar": 48,
+        "endLine": 65,
+        "endChar": 56
+      },
+      "revId": "37a78921dba624f8efbae1e41e037190e9deb697",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aa4ed85_92b9cbeb",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/api/PCCTunnelManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-12-15T01:37:24Z",
+      "side": 1,
+      "message": "remove final modifier",
+      "range": {
+        "startLine": 31,
+        "startChar": 58,
+        "endLine": 31,
+        "endChar": 63
+      },
+      "revId": "37a78921dba624f8efbae1e41e037190e9deb697",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
