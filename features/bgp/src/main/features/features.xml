@@ -37,8 +37,8 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-topology</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-openconfig</feature>
         <configfile finalname="etc/opendaylight/karaf/31-bgp.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/config</configfile>
+        <configfile finalname="etc/opendaylight/karaf/40-bgp-openconfig.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/openconfig-config</configfile>
         <configfile finalname="etc/opendaylight/karaf/41-bgp-example.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/config-example</configfile>
-        <configfile finalname="etc/opendaylight/karaf/43-bgp-openconfig.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/openconfig-config</configfile>
     </feature>
 
     <feature name="odl-bgpcep-bgp-openconfig" version='${project.version}'>

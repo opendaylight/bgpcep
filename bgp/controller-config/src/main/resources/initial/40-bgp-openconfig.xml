@@ -12,7 +12,6 @@
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:openconfig?module=odl-openconfig-bgp-cfg&amp;revision=2015-07-18</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp-openconfig-spi?module=odl-bgp-openconfig-spi-cfg&amp;revision=2015-09-25</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
-        <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl?module=odl-bgp-rib-impl-cfg&amp;revision=2013-04-09</capability>
     </required-capabilities>
 
     <configuration>
@@ -25,14 +24,6 @@
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">prefix:binding-broker-osgi-registry</type>
                         <name>binding-osgi-broker</name>
                     </binding-broker>
-                </module>
-                <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:rib-impl</type>
-                    <name>example-bgp-rib</name>
-                    <openconfig-provider>
-                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp-openconfig-spi">prefix:bgp-openconfig-provider</type>
-                        <name>openconfig-bgp</name>
-                    </openconfig-provider>
                 </module>
             </modules>
 
