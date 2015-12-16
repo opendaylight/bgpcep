@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aa4ed85_301d6a67",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-12-16T09:58:08Z",
+      "side": 1,
+      "message": "Initializing global static variable via constructor is not a good idea.\nI think, we do not need this variable at all. We can use GlobalEventExecutor.INSTANCE directly.",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 42
+      },
+      "revId": "e358bab42cfb61ef7ca146c1f5d2cb97a6d260d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
