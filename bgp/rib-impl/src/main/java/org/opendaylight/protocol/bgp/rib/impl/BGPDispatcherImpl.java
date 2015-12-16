@@ -54,7 +54,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     private final BGPHandlerFactory handlerFactory;
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
-    private final EventExecutor executor;
+    private static EventExecutor executor;
     private Optional<KeyMapping> keys;
 
     public BGPDispatcherImpl(final MessageRegistry messageRegistry, final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
@@ -78,7 +78,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
 
         final Bootstrap bootstrap = createClientBootStrap();
         final BGPProtocolSessionPromise sessionPromise = new BGPProtocolSessionPromise(this.executor, address, strategy, bootstrap);
-        bootstrap.handler(BGPChannel.createChannelInitializer(initializer, sessionPromise));
+        bootstrap.handler(BGPChannel.createClientChannelHandler(initializer, sessionPromise));
         sessionPromise.connect();
         LOG.debug("Client created.");
         return sessionPromise;
@@ -117,7 +117,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(peerRegistry);
         this.keys = keys;
         final Bootstrap bootstrap = createClientBootStrap();
-        final BGPReconnectPromise reconnectPromise = new BGPReconnectPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE, address,
+        final BGPReconnectPromise reconnectPromise = new BGPReconnectPromise(GlobalEventExecutor.INSTANCE, address,
             connectStrategyFactory, bootstrap, BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.handlerFactory, snf));
         reconnectPromise.connect();
         this.keys = Optional.absent();
@@ -136,7 +136,9 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
 
     private ServerBootstrap createServerBootstrap(final ChannelPipelineInitializer initializer) {
         final ServerBootstrap serverBootstrap = new ServerBootstrap();
-        serverBootstrap.childHandler(BGPChannel.createChannelInitializer(initializer, new DefaultPromise(BGPDispatcherImpl.this.executor)));
+        final ChannelHandler serverChannelHandler = BGPChannel.createServerChannelHandler(initializer);
+        serverBootstrap.childHandler(serverChannelHandler);
+
         serverBootstrap.option(ChannelOption.SO_BACKLOG, Integer.valueOf(SOCKET_BACKLOG_SIZE));
         serverBootstrap.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
         if (this.keys.isPresent()) {
@@ -177,11 +179,21 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
             };
         }
 
-        public static <S extends BGPSession> ChannelHandler createChannelInitializer(final ChannelPipelineInitializer initializer, final Promise<S> promise) {
+        public static <S extends BGPSession> ChannelHandler createClientChannelHandler(final ChannelPipelineInitializer initializer, final Promise<S>
+            promise) {
             return new ChannelInitializer<SocketChannel>() {
                 @Override
                 protected void initChannel(final SocketChannel channel) {
                     initializer.initializeChannel(channel, promise);
+                }
+            };
+        }
+
+        public static ChannelHandler createServerChannelHandler(final ChannelPipelineInitializer initializer) {
+            return new ChannelInitializer<SocketChannel>() {
+                @Override
+                protected void initChannel(final SocketChannel channel) {
+                    initializer.initializeChannel(channel, new DefaultPromise<BGPSessionImpl>(BGPDispatcherImpl.executor));
                 }
             };
         }
