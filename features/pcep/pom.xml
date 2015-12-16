@@ -76,6 +76,15 @@
                 <type>pom</type>
             </dependency>
 
+            <!-- ODL-PARENT -->
+            <dependency>
+                <groupId>org.opendaylight.odlparent</groupId>
+                <artifactId>odlparent-artifacts</artifactId>
+                <version>${commons.opendaylight.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+
             <dependency>
                 <groupId>org.opendaylight.controller</groupId>
                 <artifactId>protocol-framework</artifactId>
@@ -136,6 +145,12 @@
         <dependency>
             <groupId>org.opendaylight.tcpmd5</groupId>
             <artifactId>features-tcpmd5</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.odlparent</groupId>
+            <artifactId>features-odlparent</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
         </dependency>

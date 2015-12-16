@@ -18,6 +18,7 @@
     <repository>mvn:org.opendaylight.yangtools/features-yangtools/{{VERSION}}/xml/features</repository>
     <repository>mvn:org.opendaylight.tcpmd5/features-tcpmd5/{{VERSION}}/xml/features</repository>
     <repository>mvn:org.opendaylight.mdsal.model/features-mdsal-model/{{VERSION}}/xml/features</repository>
+    <repository>mvn:org.opendaylight.odlparent/features-odlparent/{{VERSION}}/xml/features</repository>
 
     <feature name='odl-bgpcep-pcep-all' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-pcep</feature>
@@ -41,8 +42,7 @@
         <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
         <bundle>mvn:org.opendaylight.bgpcep/concepts/{{VERSION}}</bundle>
         <!-- util -->
-        <bundle>mvn:io.netty/netty-common/{{VERSION}}</bundle>
-        <bundle>mvn:io.netty/netty-buffer/{{VERSION}}</bundle>
+        <feature version='${netty.version}'>odl-netty</feature>
         <bundle>mvn:org.opendaylight.bgpcep/util/{{VERSION}}</bundle>
     </feature>
 
@@ -58,8 +58,8 @@
     </feature>
 
     <feature name='odl-bgpcep-pcep-impl' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-pcep-dependencies</feature>
         <feature version='${project.version}'>odl-bgpcep-pcep-api</feature>
-        <bundle>mvn:io.netty/netty-codec/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/pcep-impl/{{VERSION}}</bundle>
     </feature>
 
