@@ -20,6 +20,7 @@
         <capability>urn:opendaylight:params:xml:ns:yang:controller:netty?module=netty&amp;revision=2013-11-19</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:protocol:framework?module=protocol-framework&amp;revision=2014-03-13</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:topology?module=odl-topology-api-cfg&amp;revision=2013-11-15</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp-openconfig-spi?module=odl-bgp-openconfig-spi-cfg&amp;revision=2015-09-25</capability>
     </required-capabilities>
     <configuration>
 
@@ -170,6 +171,10 @@
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:protocol:framework">prefix:reconnect-strategy-factory</type>
                         <name>example-reconnect-strategy-factory</name>
                     </tcp-reconnect-strategy>
+                    <openconfig-provider>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp-openconfig-spi">prefix:bgp-openconfig-provider</type>
+                        <name>openconfig-bgp</name>
+                    </openconfig-provider>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:reachability:ipv4">prefix:bgp-reachability-ipv4</type>

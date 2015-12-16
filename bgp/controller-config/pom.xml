@@ -66,7 +66,7 @@
                                     <classifier>bmp-config-example</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>${project.build.directory}/classes/initial/43-bgp-openconfig.xml</file>
+                                    <file>${project.build.directory}/classes/initial/40-bgp-openconfig.xml</file>
                                     <type>xml</type>
                                     <classifier>openconfig-config</classifier>
                                 </artifact>
