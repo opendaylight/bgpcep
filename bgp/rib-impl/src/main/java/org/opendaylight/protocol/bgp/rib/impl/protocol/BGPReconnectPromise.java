@@ -34,14 +34,12 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
     private final ReconnectStrategyFactory strategyFactory;
     private final Bootstrap bootstrap;
     private final ChannelPipelineInitializer initializer;
-    private final EventExecutor executor;
     private Future<S> pending;
 
     public BGPReconnectPromise(final EventExecutor executor, final InetSocketAddress address,
                                final ReconnectStrategyFactory connectStrategyFactory, final Bootstrap bootstrap,
                                final ChannelPipelineInitializer initializer) {
         super(executor);
-        this.executor = executor;
         this.bootstrap = bootstrap;
         this.initializer = Preconditions.checkNotNull(initializer);
         this.address = Preconditions.checkNotNull(address);
@@ -76,7 +74,7 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
 
     public Future<S> connectSessionPromise(final InetSocketAddress address, final ReconnectStrategy strategy, final Bootstrap bootstrap,
                                   final ChannelPipelineInitializer initializer) {
-        final BGPProtocolSessionPromise sessionPromise = new BGPProtocolSessionPromise(this.executor, address, strategy, bootstrap);
+        final BGPProtocolSessionPromise sessionPromise = new BGPProtocolSessionPromise(address, strategy, bootstrap);
         final ChannelHandler chInit = new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(final SocketChannel channel) {

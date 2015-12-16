@@ -13,9 +13,9 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.util.concurrent.DefaultPromise;
-import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
 import javax.annotation.concurrent.GuardedBy;
@@ -33,8 +33,8 @@ public class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultProm
     @GuardedBy("this")
     private Future<?> pending;
 
-    public BGPProtocolSessionPromise(EventExecutor executor, InetSocketAddress address, ReconnectStrategy strategy, Bootstrap bootstrap) {
-        super(executor);
+    public BGPProtocolSessionPromise(InetSocketAddress address, ReconnectStrategy strategy, Bootstrap bootstrap) {
+        super(GlobalEventExecutor.INSTANCE);
         this.strategy = Preconditions.checkNotNull(strategy);
         this.address = Preconditions.checkNotNull(address);
         this.bootstrap = Preconditions.checkNotNull(bootstrap);
