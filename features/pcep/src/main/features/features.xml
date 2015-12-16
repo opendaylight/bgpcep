@@ -41,8 +41,11 @@
         <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
         <bundle>mvn:org.opendaylight.bgpcep/concepts/{{VERSION}}</bundle>
         <!-- util -->
-        <bundle>mvn:io.netty/netty-common/{{VERSION}}</bundle>
         <bundle>mvn:io.netty/netty-buffer/{{VERSION}}</bundle>
+        <bundle>mvn:io.netty/netty-common/{{VERSION}}</bundle>
+        <bundle>mvn:io.netty/netty-transport/{{VERSION}}</bundle>
+        <bundle>mvn:io.netty/netty-codec/{{VERSION}}</bundle>
+        <bundle>mvn:io.netty/netty-handler/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/util/{{VERSION}}</bundle>
     </feature>
 
@@ -58,8 +61,8 @@
     </feature>
 
     <feature name='odl-bgpcep-pcep-impl' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-pcep-dependencies</feature>
         <feature version='${project.version}'>odl-bgpcep-pcep-api</feature>
-        <bundle>mvn:io.netty/netty-codec/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/pcep-impl/{{VERSION}}</bundle>
     </feature>
 
