@@ -20,6 +20,7 @@
     <repository>mvn:org.opendaylight.mdsal.model/features-mdsal-model/{{VERSION}}/xml/features</repository>
     <repository>mvn:org.opendaylight.bgpcep/features-rsvp/{{VERSION}}/xml/features</repository>
     <repository>mvn:org.opendaylight.netconf/features-netconf-connector/{{VERSION}}/xml/features</repository>
+    <repository>mvn:org.opendaylight.odlparent/features-odlparent/{{VERSION}}/xml/features</repository>
 
 
     <feature name='odl-bgpcep-bgp-all' version='${project.version}'>
@@ -57,8 +58,7 @@
         <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
         <bundle>mvn:org.opendaylight.bgpcep/concepts/{{VERSION}}</bundle>
         <!-- util -->
-        <bundle>mvn:io.netty/netty-common/{{VERSION}}</bundle>
-        <bundle>mvn:io.netty/netty-buffer/{{VERSION}}</bundle>
+        <feature version='[4.0.30,4.1.0)'>odl-netty</feature>
         <bundle>mvn:org.opendaylight.bgpcep/util/{{VERSION}}</bundle>
         <!-- bgp-concept -->
         <bundle>mvn:org.opendaylight.bgpcep/bgp-concepts/{{VERSION}}</bundle>
@@ -114,8 +114,8 @@
     </feature>
 
     <feature name='odl-bgpcep-bgp-rib-impl' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-bgp-dependencies</feature>
         <feature version='${tcpmd5.version}'>odl-tcpmd5-netty</feature>
-        <bundle>mvn:io.netty/netty-codec/${netty.version}</bundle>
         <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>

@@ -100,6 +100,15 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
+
+            <!-- ODL-PARENT -->
+            <dependency>
+                <groupId>org.opendaylight.odlparent</groupId>
+                <artifactId>odlparent-artifacts</artifactId>
+                <version>${commons.opendaylight.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -167,6 +176,12 @@
         <dependency>
             <groupId>org.opendaylight.netconf</groupId>
             <artifactId>features-netconf-connector</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.odlparent</groupId>
+            <artifactId>features-odlparent</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
         </dependency>
