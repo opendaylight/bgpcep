@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aa4ed85_ca87870e",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/handlers/types/FSDscpHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-12-16T00:01:24Z",
+      "side": 1,
+      "message": "Please check all classes package names, some of them does to fit to class location. However code compilation pass, IDE (like Eclipse) is complaining about it.",
+      "revId": "2dea71ff2d4a15df892249b5226a7161f99c2f11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aa4ed85_cab0e7f6",
+        "filename": "rsvp/impl/src/main/java/org/opendaylight/controller/config/yang/rsvp/spi/SimpleRSVPExtensionProviderContextModule.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-12-16T00:01:24Z",
+      "side": 1,
+      "message": "remove, unrelated",
+      "revId": "2dea71ff2d4a15df892249b5226a7161f99c2f11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aa4ed85_6a95333f",
+        "filename": "rsvp/impl/src/main/java/org/opendaylight/controller/config/yang/rsvp/spi/SimpleRSVPExtensionProviderContextModuleFactory.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2015-12-16T00:01:24Z",
+      "side": 1,
+      "message": "remove, unrelated",
+      "revId": "2dea71ff2d4a15df892249b5226a7161f99c2f11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
