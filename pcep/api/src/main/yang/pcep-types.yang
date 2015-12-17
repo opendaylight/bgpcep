@@ -274,8 +274,9 @@ module pcep-types {
 
             leaf priority {
                 type uint8 {
-                    range 1..7;
+                    range 0..7;
                 }
+                default 0;
             }
 
             leaf request-id {
