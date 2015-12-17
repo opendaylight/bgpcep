@@ -12,7 +12,6 @@ import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.MountPointService;
 import org.opendaylight.controller.md.sal.binding.api.MountPointService.MountPointListener;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ConsumerContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareConsumer;
 import org.opendaylight.protocol.bgp.openconfig.impl.moduleconfig.BGPOpenConfigListener;
@@ -22,7 +21,7 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenconfigMapper;
 import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfiguration;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.node.topology.rev150114.network.topology.topology.topology.types.TopologyNetconf;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
@@ -61,19 +60,14 @@ public final class BGPOpenConfig implements BindingAwareConsumer, AutoCloseable,
 
     public BGPOpenConfig() {
         configStateHolders = new BGPConfigStateStoreImpl();
-        configStateHolders.registerBGPConfigHolder(Global.class);
+        configStateHolders.registerBGPConfigHolder(Bgp.class);
         configStateHolders.registerBGPConfigHolder(Neighbor.class);
     }
 
     @Override
     public void onSessionInitialized(final ConsumerContext session) {
         dataBroker = session.getSALService(DataBroker.class);
-        try {
-            configModuleListener = new BGPConfigModuleMapperProvider(dataBroker, configStateHolders);
-        } catch (final TransactionCommitFailedException e) {
-            LOG.error("Failed to initialize application.", e);
-            throw new IllegalStateException(e);
-        }
+        configModuleListener = new BGPConfigModuleMapperProvider(dataBroker, configStateHolders);
         mountService = session.getSALService(MountPointService.class);
         mpListenerRegistration = mountService.registerListener(CONTROLLER_CONFIG_IID, this);
     }

@@ -25,7 +25,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.n
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Timers;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Transport;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.PeerType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
@@ -65,14 +65,14 @@ final class BGPPeerProvider {
     };
 
     private final BGPConfigHolder<Neighbor> neighborState;
-    private final BGPConfigHolder<Global> globalState;
+    private final BGPConfigHolder<Bgp> globalState;
     private final BGPConfigModuleProvider configModuleOp;
     private final DataBroker dataBroker;
 
     public BGPPeerProvider(final BGPConfigStateStore configHolders, final BGPConfigModuleProvider configModuleWriter, final DataBroker dataBroker) {
         this.dataBroker = dataBroker;
         this.configModuleOp = Preconditions.checkNotNull(configModuleWriter);
-        this.globalState = Preconditions.checkNotNull(configHolders.getBGPConfigHolder(Global.class));
+        this.globalState = Preconditions.checkNotNull(configHolders.getBGPConfigHolder(Bgp.class));
         this.neighborState = Preconditions.checkNotNull(configHolders.getBGPConfigHolder(Neighbor.class));
     }
 

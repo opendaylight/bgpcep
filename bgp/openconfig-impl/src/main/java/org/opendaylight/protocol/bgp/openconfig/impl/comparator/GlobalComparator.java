@@ -13,14 +13,17 @@ import java.util.List;
 import java.util.Objects;
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.OpenConfigComparator;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 
-final class GlobalComparator implements OpenConfigComparator<Global> {
+final class GlobalComparator implements OpenConfigComparator<Bgp> {
 
     @Override
-    public boolean isSame(final Global global1, final Global global2) {
-        Preconditions.checkNotNull(global1);
-        Preconditions.checkNotNull(global2);
+    public boolean isSame(final Bgp bgp1, final Bgp bgp2) {
+        Preconditions.checkNotNull(bgp1);
+        Preconditions.checkNotNull(bgp2);
+        final Global global1 = bgp1.getGlobal();
+        final Global global2 = bgp2.getGlobal();
         //do not care about an order of collections' entries
         if (global1.getAfiSafis() != null && global2.getAfiSafis() != null) {
             final List<AfiSafi> afiSafiA = global1.getAfiSafis().getAfiSafi();
