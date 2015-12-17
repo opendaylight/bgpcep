@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.openconfig.impl.openconfig;
 
 import static org.junit.Assert.assertTrue;
+
 import com.google.common.util.concurrent.CheckedFuture;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,7 +73,7 @@ public class BGPConfigModuleMapperProviderTest {
     public void testClose() throws Exception {
         this.mapperProvider.close();
         Mockito.verify(this.myTx).delete(Mockito.any(LogicalDatastoreType.class), Mockito.any(InstanceIdentifier.class));
-        Mockito.verify(this.myTx, Mockito.times(2)).submit();
+        Mockito.verify(this.myTx, Mockito.times(1)).submit();
         Mockito.verify(this.txChain).close();
     }
 

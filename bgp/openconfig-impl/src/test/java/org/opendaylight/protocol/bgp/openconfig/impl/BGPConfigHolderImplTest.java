@@ -16,13 +16,14 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.openconfig.impl.comparator.OpenConfigComparatorFactory;
 import org.opendaylight.protocol.bgp.openconfig.impl.util.GlobalIdentifier;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.ConfigBuilder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.BgpBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.GlobalBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.openconfig.rev150718.OpenconfigBgp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.ModuleKey;
 
 public class BGPConfigHolderImplTest {
-    private static final BGPConfigHolderImpl<Global> HOLDER = new BGPConfigHolderImpl<Global>(OpenConfigComparatorFactory.getComparator(Global.class));
+    private static final BGPConfigHolderImpl<Bgp> HOLDER = new BGPConfigHolderImpl<Bgp>(OpenConfigComparatorFactory.getComparator(Bgp.class));
 
     @Test
     public void test() {
@@ -32,8 +33,8 @@ public class BGPConfigHolderImplTest {
         final ModuleKey moduleKey2 = new ModuleKey("key2", OpenconfigBgp.class);
         assertNull(HOLDER.getKey(moduleKey));
 
-        final Global obj1 = new GlobalBuilder().build();
-        final Global obj2 = new GlobalBuilder().setConfig(new ConfigBuilder().build()).build();
+        final Bgp obj1 = new BgpBuilder().setGlobal(new GlobalBuilder().build()).build();
+        final Bgp obj2 = new BgpBuilder().setGlobal(new GlobalBuilder().setConfig(new ConfigBuilder().build()).build()).build();
         assertTrue(HOLDER.addOrUpdate(moduleKey, GlobalIdentifier.GLOBAL_IDENTIFIER, obj1));
         assertFalse(HOLDER.addOrUpdate(moduleKey, GlobalIdentifier.GLOBAL_IDENTIFIER, obj1));
         assertEquals(moduleKey, HOLDER.getModuleKey(GlobalIdentifier.GLOBAL_IDENTIFIER));

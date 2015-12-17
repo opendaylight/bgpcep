@@ -13,14 +13,14 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public class OpenConfigComparatorsTest {
 
     @Test
     public void testGetComparatorGlobal() {
-        assertNotNull(OpenConfigComparatorFactory.getComparator(Global.class));
+        assertNotNull(OpenConfigComparatorFactory.getComparator(Bgp.class));
     }
 
     @Test
