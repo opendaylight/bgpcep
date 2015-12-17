@@ -11,13 +11,13 @@ package org.opendaylight.protocol.bgp.openconfig.impl.comparator;
 import com.google.common.collect.ImmutableMap;
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.OpenConfigComparator;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class OpenConfigComparatorFactory {
 
     private static final ImmutableMap<Class<?>, OpenConfigComparator<? extends DataObject>> COMPARATORS = ImmutableMap.<Class<?>, OpenConfigComparator<? extends DataObject>>builder()
-            .put(Global.class, new GlobalComparator())
+            .put(Bgp.class, new GlobalComparator())
             .put(Neighbor.class, new NeighborComparator())
             .build();
 

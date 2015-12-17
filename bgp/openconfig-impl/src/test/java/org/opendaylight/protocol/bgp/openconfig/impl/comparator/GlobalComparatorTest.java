@@ -15,6 +15,7 @@ import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.AfiSafisBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.BgpBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.GlobalBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
@@ -26,13 +27,15 @@ public class GlobalComparatorTest {
 
     @Test
     public void testIsSamePositiveSimple() {
+        final BgpBuilder bgpBuilder = new BgpBuilder();
         final Global a = new GlobalBuilder().build();
         final Global b = new GlobalBuilder().build();
-        assertTrue(COMPARATOR.isSame(a, b));
+        assertTrue(COMPARATOR.isSame(bgpBuilder.setGlobal(a).build(), bgpBuilder.setGlobal(b).build()));
     }
 
     @Test
     public void testIsSamePositiveCollection() {
+        final BgpBuilder bgpBuilder = new BgpBuilder();
         final Global a = new GlobalBuilder().setAfiSafis(new AfiSafisBuilder()
             .setAfiSafi(Lists.newArrayList(
                     new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build(),
@@ -43,11 +46,12 @@ public class GlobalComparatorTest {
                 new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class).build(),
                 new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build()))
             .build()).build();
-        assertTrue(COMPARATOR.isSame(a, b));
+        assertTrue(COMPARATOR.isSame(bgpBuilder.setGlobal(a).build(), bgpBuilder.setGlobal(b).build()));
     }
 
     @Test
     public void testIsSameNegativeCollectionSize() {
+        final BgpBuilder bgpBuilder = new BgpBuilder();
         final Global a = new GlobalBuilder().setAfiSafis(new AfiSafisBuilder()
             .setAfiSafi(Lists.newArrayList(
                     new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build(),
@@ -57,11 +61,12 @@ public class GlobalComparatorTest {
             .setAfiSafi(Lists.newArrayList(
                 new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class).build()))
             .build()).build();
-        assertFalse(COMPARATOR.isSame(a, b));
+        assertFalse(COMPARATOR.isSame(bgpBuilder.setGlobal(a).build(), bgpBuilder.setGlobal(b).build()));
     }
 
     @Test
     public void testIsSameNegativeCollectionContent() {
+        final BgpBuilder bgpBuilder = new BgpBuilder();
         final Global a = new GlobalBuilder().setAfiSafis(new AfiSafisBuilder()
             .setAfiSafi(Lists.newArrayList(
                     new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build()))
@@ -70,7 +75,7 @@ public class GlobalComparatorTest {
             .setAfiSafi(Lists.newArrayList(
                 new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class).build()))
             .build()).build();
-        assertFalse(COMPARATOR.isSame(a, b));
+        assertFalse(COMPARATOR.isSame(bgpBuilder.setGlobal(a).build(), bgpBuilder.setGlobal(b).build()));
     }
 
 }
