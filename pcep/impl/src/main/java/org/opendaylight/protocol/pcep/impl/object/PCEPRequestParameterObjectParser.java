@@ -107,7 +107,9 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
         priority |= flags.get(PRI_SF_OFFSET + 2) ? 1 : 0;
         priority |= (flags.get(PRI_SF_OFFSET + 1) ? 1 : 0) << 1;
         priority |= (flags.get(PRI_SF_OFFSET) ? 1 : 0) << 2;
-        builder.setPriority(priority);
+        if (priority != 0) {
+            builder.setPriority(priority);
+        }
         builder.setFragmentation(flags.get(F_FLAG_OFFSET));
         builder.setP2mp(flags.get(N_FLAG_OFFSET));
         builder.setEroCompression(flags.get(E_FLAG_OFFSET));
