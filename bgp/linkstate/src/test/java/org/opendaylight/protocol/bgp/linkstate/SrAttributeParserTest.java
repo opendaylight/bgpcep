@@ -30,10 +30,10 @@ import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrAdjId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrAdjIdBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrLanAdjId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrLanAdjIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrAdjIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrAdjIdsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrLanAdjIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrLanAdjIdsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.state.SrAlgorithm;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.state.SrAlgorithmBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.state.SrCapabilities;
@@ -265,17 +265,17 @@ public class SrAttributeParserTest {
         final byte[] tested = { (byte)0x60, 10, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
         final byte[] testedOspf = { (byte)0xc0, 10, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
         final byte[] sidLabel = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
-        final SrAdjId srAdjId = new SrAdjIdBuilder()
+        final SrAdjIds srAdjId = new SrAdjIdsBuilder()
             .setFlags(ISIS_ADJ_FLAGS)
             .setWeight(new Weight((short) 10))
             .setSidLabelIndex(new Ipv6AddressCaseBuilder().setIpv6Address(Ipv6Util.addressForByteBuf(Unpooled.copiedBuffer(sidLabel))).build()).build();
-        final SrAdjId ospfAdj = new SrAdjIdBuilder()
+        final SrAdjIds ospfAdj = new SrAdjIdsBuilder()
             .setFlags(OSPF_ADJ_FLAGS)
             .setWeight(new Weight((short) 10))
             .setSidLabelIndex(new Ipv6AddressCaseBuilder().setIpv6Address(Ipv6Util.addressForByteBuf(Unpooled.copiedBuffer(sidLabel))).build()).build();
 
-        assertEquals(srAdjId, new SrAdjIdBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(Unpooled.wrappedBuffer(tested), ProtocolId.IsisLevel1)).build());
-        assertEquals(ospfAdj, new SrAdjIdBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(Unpooled.wrappedBuffer(testedOspf), ProtocolId.Ospf)).build());
+        assertEquals(srAdjId, new SrAdjIdsBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(Unpooled.wrappedBuffer(tested), ProtocolId.IsisLevel1)).build());
+        assertEquals(ospfAdj, new SrAdjIdsBuilder(SrLinkAttributesParser.parseAdjacencySegmentIdentifier(Unpooled.wrappedBuffer(testedOspf), ProtocolId.Ospf)).build());
         final ByteBuf serializedData = SrLinkAttributesParser.serializeAdjacencySegmentIdentifier(srAdjId);
         final ByteBuf serializedOspf = SrLinkAttributesParser.serializeAdjacencySegmentIdentifier(ospfAdj);
         assertArrayEquals(tested, ByteArray.readAllBytes(serializedData));
@@ -285,7 +285,7 @@ public class SrAttributeParserTest {
     @Test
     public void testSrLanAdjIdOspf() {
         final byte[] tested = { (byte)0x60, 10, 0, 0, 1, 2, 3, 4, 0,  0x5d, (byte)0xc0 };
-        final SrLanAdjId srLanAdjId = new SrLanAdjIdBuilder()
+        final SrLanAdjIds srLanAdjId = new SrLanAdjIdsBuilder()
             .setFlags(OSPF_LAN_ADJ_FLAGS)
             .setWeight(new Weight((short)10))
             .setNeighborId(new Ipv4Address("1.2.3.4"))
@@ -300,7 +300,7 @@ public class SrAttributeParserTest {
         final byte[] tested = { (byte)0x60, 10, 0, 0, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
         final byte[] sidLabel = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
         final byte[] systemId = { 1, 2, 3, 4, 5, 6 };
-        final SrLanAdjId srLanAdjId = new SrLanAdjIdBuilder()
+        final SrLanAdjIds srLanAdjId = new SrLanAdjIdsBuilder()
             .setFlags(ISIS_ADJ_FLAGS)
             .setWeight(new Weight((short)10))
             .setIsoSystemId(new IsoSystemIdentifier(systemId))
