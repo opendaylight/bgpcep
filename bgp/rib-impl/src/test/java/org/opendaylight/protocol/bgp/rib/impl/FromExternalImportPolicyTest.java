@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -43,7 +42,6 @@ public class FromExternalImportPolicyTest {
     private static final QName MED = QName.cachedReference(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "multi-exit-disc"));
     private static final QName ORIGIN = QName.cachedReference(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "origin"));
 
-    @Ignore("https://bugs.opendaylight.org/show_bug.cgi?id=4801")
     @Test
     public void testEffectiveAttributes() {
         DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder = createContBuilder(this.DATA_QNAME);
