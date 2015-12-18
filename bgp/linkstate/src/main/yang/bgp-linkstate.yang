@@ -570,6 +570,9 @@ module bgp-linkstate {
         container sr-adj-id {
             uses bgp-sr:adj-sid-tlv;
         }
+        container sr-adj-id-unprotected {
+            uses bgp-sr:adj-sid-tlv;
+        }
         container sr-lan-adj-id {
             uses bgp-sr:lan-adj-sid-tlv;
         }
