@@ -34,7 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.prefix.attributes._case.PrefixAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.path.attribute.link.state.attribute.prefix.attributes._case.PrefixAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.IgpBitsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrBindingSidLabel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrBindingSidLabels;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrRange;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IgpMetric;
@@ -132,8 +132,14 @@ public final class PrefixAttributesParser {
             LOG.debug("Parsed SR Range: {}", range);
             break;
         case BINDING_SID:
-            final SrBindingSidLabel label = BindingSidLabelParser.parseBindingSidLabel(value, protocolId);
-            builder.setSrBindingSidLabel(label);
+            final SrBindingSidLabels label = BindingSidLabelParser.parseBindingSidLabel(value, protocolId);
+            if (builder.getSrBindingSidLabels() != null) {
+                builder.getSrBindingSidLabels().add(label);
+            } else {
+                final List<SrBindingSidLabels> labels = new ArrayList<SrBindingSidLabels>();
+                labels.add(label);
+                builder.setSrBindingSidLabels(labels);
+            }
             LOG.debug("Parsed SR Binding SID {}", label);
             break;
         default:
@@ -195,10 +201,8 @@ public final class PrefixAttributesParser {
             RangeTlvParser.serializeSrRange(prefixAtrributes.getSrRange(), sidBuffer);
             TlvUtil.writeTLV(RANGE, sidBuffer, byteAggregator);
         }
-        if (prefixAtrributes.getSrBindingSidLabel() != null) {
-            final ByteBuf sidBuffer = Unpooled.buffer();
-            BindingSidLabelParser.serializeBindingSidLabel(prefixAtrributes.getSrBindingSidLabel(), sidBuffer);
-            TlvUtil.writeTLV(BINDING_SID, sidBuffer, byteAggregator);
+        if (prefixAtrributes.getSrBindingSidLabels() != null) {
+            BindingSidLabelParser.serializeBindingSidLabels(prefixAtrributes.getSrBindingSidLabels(), byteAggregator, BINDING_SID);
         }
     }
 

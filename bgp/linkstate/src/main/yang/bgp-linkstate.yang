@@ -567,10 +567,10 @@ module bgp-linkstate {
         leaf admin-group {
             type administrative-group;
         }
-        container sr-adj-id {
+        list sr-adj-ids {
             uses bgp-sr:adj-sid-tlv;
         }
-        container sr-lan-adj-id {
+        list sr-lan-adj-ids {
             uses bgp-sr:lan-adj-sid-tlv;
         }
         container peer-node-sid {
@@ -583,7 +583,7 @@ module bgp-linkstate {
             reference "https://tools.ietf.org/html/draft-ietf-idr-bgpls-segment-routing-epe-01#section-4.3";
             uses bgp-sr:adj-sid-tlv;
         }
-        container peer-set-sid {
+        list peer-set-sids {
             description "The SID representing the group the peer is part of.";
             reference "https://tools.ietf.org/html/draft-ietf-idr-bgpls-segment-routing-epe-01#section-4.3";
             uses bgp-sr:adj-sid-tlv;
@@ -637,7 +637,7 @@ module bgp-linkstate {
         container sr-range {
             uses bgp-sr:range-tlv;
         }
-        container sr-binding-sid-label {
+        list sr-binding-sid-labels {
             uses bgp-sr:binding-sid-tlv;
         }
     }

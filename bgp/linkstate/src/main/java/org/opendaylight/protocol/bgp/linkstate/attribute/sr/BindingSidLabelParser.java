@@ -20,8 +20,8 @@ import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrBindingSidLabel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrBindingSidLabelBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrBindingSidLabels;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrBindingSidLabelsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.prefix.state.SrPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.Weight;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.binding.sid.tlv.BindingSubTlvs;
@@ -85,8 +85,8 @@ public final class BindingSidLabelParser {
     private static final int RESERVED_BINDING_SID = 2;
     private static final int RESERVED_ERO = 3;
 
-    public static SrBindingSidLabel parseBindingSidLabel(final ByteBuf buffer, final ProtocolId protocolId) {
-        final SrBindingSidLabelBuilder bindingSid = new SrBindingSidLabelBuilder();
+    public static SrBindingSidLabels parseBindingSidLabel(final ByteBuf buffer, final ProtocolId protocolId) {
+        final SrBindingSidLabelsBuilder bindingSid = new SrBindingSidLabelsBuilder();
         bindingSid.setWeight(new Weight(buffer.readUnsignedByte()));
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         bindingSid.setFlags(parseBindingSidFlags(flags, protocolId));
@@ -213,8 +213,12 @@ public final class BindingSidLabelParser {
         return builder.build();
     }
 
-    public static void serializeBindingSidLabel(final SrBindingSidLabel bindingSid, final ByteBuf aggregator) {
-        serializeBindingSidAttributes(bindingSid.getWeight(), bindingSid.getFlags(), bindingSid.getBindingSubTlvs(), aggregator);
+    public static void serializeBindingSidLabels(final List<SrBindingSidLabels> bindingSids, final ByteBuf aggregator, final int sid_type) {
+        for (final SrBindingSidLabels bindingSid : bindingSids) {
+            final ByteBuf sidBuffer = Unpooled.buffer();
+            serializeBindingSidAttributes(bindingSid.getWeight(), bindingSid.getFlags(), bindingSid.getBindingSubTlvs(), sidBuffer);
+            TlvUtil.writeTLV(sid_type, sidBuffer, aggregator);
+        }
     }
 
     public static void serializeBindingSidAttributes(final Weight weight, final Flags flags, final List<BindingSubTlvs> bindingSubTlvs, final ByteBuf aggregator) {
