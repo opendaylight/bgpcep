@@ -567,10 +567,10 @@ module bgp-linkstate {
         leaf admin-group {
             type administrative-group;
         }
-        container sr-adj-id {
+        list sr-adj-ids {
             uses bgp-sr:adj-sid-tlv;
         }
-        container sr-lan-adj-id {
+        list sr-lan-adj-ids {
             uses bgp-sr:lan-adj-sid-tlv;
         }
         container peer-node-sid {

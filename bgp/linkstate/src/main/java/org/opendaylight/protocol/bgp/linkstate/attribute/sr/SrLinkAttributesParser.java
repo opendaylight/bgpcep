@@ -9,13 +9,16 @@ package org.opendaylight.protocol.bgp.linkstate.attribute.sr;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.List;
 import org.opendaylight.protocol.bgp.linkstate.attribute.sr.SidLabelIndexParser.Size;
+import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrLanAdjId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrLanAdjIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrAdjIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrLanAdjIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.SrLanAdjIdsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.AdjSidTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.Weight;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.Flags;
@@ -98,11 +101,11 @@ public final class SrLinkAttributesParser {
         };
     }
 
-    public static SrLanAdjId parseLanAdjacencySegmentIdentifier(final ByteBuf buffer, final ProtocolId protocolId) {
+    public static SrLanAdjIds parseLanAdjacencySegmentIdentifier(final ByteBuf buffer, final ProtocolId protocolId) {
         if (!buffer.isReadable()) {
-            return new SrLanAdjIdBuilder().build();
+            return new SrLanAdjIdsBuilder().build();
         }
-        final SrLanAdjIdBuilder srLanAdjIdBuilder = new SrLanAdjIdBuilder();
+        final SrLanAdjIdsBuilder srLanAdjIdBuilder = new SrLanAdjIdsBuilder();
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         srLanAdjIdBuilder.setFlags(parseFlags(flags, protocolId));
         srLanAdjIdBuilder.setWeight(new Weight(buffer.readUnsignedByte()));
@@ -134,6 +137,12 @@ public final class SrLinkAttributesParser {
         return null;
     }
 
+    public static void serializeAdjacencySegmentIdentifiers(final List<SrAdjIds> adjSids, final int srAdjId, final ByteBuf byteAggregator) {
+        for (final SrAdjIds id : adjSids) {
+            TlvUtil.writeTLV(srAdjId, serializeAdjacencySegmentIdentifier(id), byteAggregator);
+        }
+    }
+
     public static ByteBuf serializeAdjacencySegmentIdentifier(final AdjSidTlv adjSid) {
         final ByteBuf value = Unpooled.buffer();
         final BitArray flags = serializeAdjFlags(adjSid.getFlags(), adjSid.getSidLabelIndex());
@@ -144,7 +153,13 @@ public final class SrLinkAttributesParser {
         return value;
     }
 
-    public static ByteBuf serializeLanAdjacencySegmentIdentifier(final SrLanAdjId srLanAdjId) {
+    public static void serializeLanAdjacencySegmentIdentifiers(final List<SrLanAdjIds> srLanAdjIds, final int srLanAdjId, final ByteBuf byteAggregator) {
+        for (final SrLanAdjIds id : srLanAdjIds) {
+            TlvUtil.writeTLV(srLanAdjId, serializeLanAdjacencySegmentIdentifier(id), byteAggregator);
+        }
+    }
+
+    public static ByteBuf serializeLanAdjacencySegmentIdentifier(final SrLanAdjIds srLanAdjId) {
         final ByteBuf value = Unpooled.buffer();
         final BitArray flags = serializeAdjFlags(srLanAdjId.getFlags(), srLanAdjId.getSidLabelIndex());
         flags.toByteBuf(value);
