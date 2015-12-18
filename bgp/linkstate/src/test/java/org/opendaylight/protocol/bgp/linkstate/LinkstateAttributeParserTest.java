@@ -13,7 +13,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -41,6 +40,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.PeerSetSids;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.link.state.PeerSetSidsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.ObjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.CLinkstateDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.LinkCaseBuilder;
@@ -66,9 +67,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.Weight;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.Flags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.IsisAdjFlagsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.IsisAdjFlagsCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.sid.label.index.LocalLabelCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.sid.label.index.SidCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.sid.label.index.SidCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.AssociationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.association.object.AssociationObject;
@@ -97,7 +102,9 @@ public class LinkstateAttributeParserTest {
         (byte) 0xc0, 0x04, 0x47, 0, 0x03, 0, 0, 0x0a, 0x04, 0x48, 0, 0x08, 0x12, 0x34, 0x56, 0x78, 0x10, 0x30, 0x50, 0x70, 0x04, 0x4a,
         0, 0x05, 0x31, 0x32, 0x4b, 0x2d, 0x32,
         0x04, 0x4b, 0, 0x07, (byte)-80, 10, 0, 0, (byte)0x0f, (byte)0xff, (byte)0xff, // sr-adj
+        0x04, 0x4b, 0, 0x07, (byte)-80, 10, 0, 0, (byte)0x0f, (byte)0xff, (byte)0xef, // sr-adj
         0x04, 0x4c, 0, 0x0d, (byte)-80, 10, 0, 0, 1, 2, 3, 4, 5, 6, (byte)0x0f, (byte)0xff, (byte)0xff, // sr-lan-adj
+        0x04, 0x4c, 0, 0x0d, (byte)-80, 10, 0, 0, 1, 2, 3, 4, 5, 6, (byte)0x0f, (byte)0xff, (byte)0xef, // sr-lan-adj
         0x04, 0x4d, 0, 0x08, 0, 0x05, 0, 0, 0x0a, 0x0b, 0x0c, 0x0d, // peer-node-sid
         0x04, 0x4e, 0, 0x08, 0, 0x05, 0, 0, 0x0a, 0x0b, 0x0c, 0x0f, // peer-adj-sid
         0x04, 0x4f, 0, 0x08, 0, 0x05, 0, 0, 0x0a, 0x0b, 0x0c, 0x0e, // peer-set-sid
@@ -213,14 +220,17 @@ public class LinkstateAttributeParserTest {
         assertEquals(305419896, ls.getSharedRiskLinkGroups().get(0).getValue().intValue());
         assertEquals("12K-2", ls.getLinkName());
         final IsisAdjFlagsCase flags = new IsisAdjFlagsCaseBuilder().setAddressFamily(Boolean.TRUE).setBackup(Boolean.FALSE).setSet(Boolean.FALSE).build();
-        assertEquals(flags, ls.getSrAdjId().getFlags());
+        assertEquals(flags, ls.getSrAdjIds().get(0).getFlags());
+        assertEquals(flags, ls.getSrAdjIds().get(1).getFlags());
         assertNull(ls.getPeerNodeSid().getFlags());
-        assertNull(ls.getPeerSetSid().getFlags());
+        assertNull(ls.getPeerSetSids().get(0).getFlags());
         assertNull(ls.getPeerAdjSid().getFlags());
+        assertEquals(new Long(1048575L), ((LocalLabelCase)ls.getSrAdjIds().get(0).getSidLabelIndex()).getLocalLabel().getValue());
+        assertEquals(new Long(1048559L), ((LocalLabelCase)ls.getSrAdjIds().get(1).getSidLabelIndex()).getLocalLabel().getValue());
         assertEquals(new Long(168496141L), ((SidCase) ls.getPeerNodeSid().getSidLabelIndex()).getSid());
         assertEquals(new Short("5"), ls.getPeerNodeSid().getWeight().getValue());
-        assertEquals(new Long(168496142L), ((SidCase) ls.getPeerSetSid().getSidLabelIndex()).getSid());
-        assertEquals(new Short("5"), ls.getPeerSetSid().getWeight().getValue());
+        assertEquals(new Long(168496142L), ((SidCase) ls.getPeerSetSids().get(0).getSidLabelIndex()).getSid());
+        assertEquals(new Short("5"), ls.getPeerSetSids().get(0).getWeight().getValue());
         assertEquals(new Long(168496143L), ((SidCase) ls.getPeerAdjSid().getSidLabelIndex()).getSid());
         assertEquals(new Short("5"), ls.getPeerAdjSid().getWeight().getValue());
 
@@ -229,7 +239,15 @@ public class LinkstateAttributeParserTest {
         this.parser.serializeAttribute(builder.build(), buff);
         buff.skipBytes(3);
         // there is unresolved TLV at the end, that needs to be cut off
+
         assertArrayEquals(ByteArray.subByte(LINK_ATTR, 0, LINK_ATTR.length -5), ByteArray.getAllBytes(buff));
+    }
+
+    private PeerSetSids buildPeerSetSid(final Flags flags, final long sid, final short weight) {
+        return new PeerSetSidsBuilder()
+            .setFlags(flags)
+            .setWeight(new Weight(new Short(weight)))
+            .setSidLabelIndex(new SidCaseBuilder().setSid(new Long(sid)).build()).build();
     }
 
     @Test
