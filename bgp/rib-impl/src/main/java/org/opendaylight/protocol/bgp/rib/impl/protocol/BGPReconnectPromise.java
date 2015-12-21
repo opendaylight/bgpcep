@@ -47,6 +47,7 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
     }
 
     public synchronized void connect() {
+        LOG.info("Attempt to connect to {}.", this.address);
         final ReconnectStrategy reconnectStrategy = this.strategyFactory.createReconnectStrategy();
 
         // Set up a client with pre-configured bootstrap, but add a closed channel handler into the pipeline to support reconnect attempts
@@ -58,14 +59,16 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
                 // This handler has to be added as last channel handler and the channel inactive event has to be caught by it
                 // Handlers in front of it can react to channelInactive event, but have to forward the event or the reconnect will not work
                 // This handler is last so all handlers in front of it can handle channel inactive (to e.g. resource cleanup) before a new connection is started
+                LOG.info("Add ClosedChannelHandler into pipeline.");
                 channel.pipeline().addLast(new ClosedChannelHandler(BGPReconnectPromise.this));
             }
         });
-
+        LOG.info("Add listener to BGPProtocolSessionPromise.");
         this.pending.addListener(new GenericFutureListener<Future<Object>>() {
             @Override
             public void operationComplete(final Future<Object> future) throws Exception {
                 if (!future.isSuccess()) {
+                    LOG.info("BGPProtocolSessionPromise operation completed with failure.");
                     BGPReconnectPromise.this.setFailure(future.cause());
                 }
             }
@@ -125,11 +128,11 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
             }
 
             if (!this.promise.isInitialConnectFinished()) {
-                LOG.debug("Connection to {} was dropped during negotiation", this.promise.address);
+                LOG.info("Connection to {} was dropped during negotiation", this.promise.address);
                 return;
             }
 
-            LOG.debug("Reconnecting after connection to {} was dropped", this.promise.address);
+            LOG.info("Reconnecting after connection to {} was dropped, reattempting", this.promise.address);
             this.promise.connect();
         }
     }
