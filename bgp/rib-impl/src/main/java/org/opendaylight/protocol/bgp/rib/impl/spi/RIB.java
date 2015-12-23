@@ -85,4 +85,10 @@ public interface RIB {
      * not available.
      */
     Optional<BGPOpenConfigProvider> getOpenConfigProvider();
+
+    /**
+     * Return policy Database
+     * @return
+     */
+    public PolicyDatabase getPolicyDatabse();
 }
