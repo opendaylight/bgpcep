@@ -11,6 +11,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ExportPolicy;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicy;
+import org.opendaylight.protocol.bgp.rib.impl.spi.PolicyDatabase;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
@@ -19,11 +20,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  * Policy database attached to a particular RIB instance. Acts as the unified
  * lookup point.
  */
-final class PolicyDatabase {
+final class PolicyDatabaseImpl implements PolicyDatabase {
     private final Map<PeerRole, ExportPolicy> exportPolicies = new EnumMap<>(PeerRole.class);
     private final Map<PeerRole, ImportPolicy> importPolicies = new EnumMap<>(PeerRole.class);
 
-    PolicyDatabase(final Long localAs, final Ipv4Address bgpId, final ClusterIdentifier clusterId) {
+    PolicyDatabaseImpl(final Long localAs, final Ipv4Address bgpId, final ClusterIdentifier clusterId) {
         exportPolicies.put(PeerRole.Ebgp, new ToExternalExportPolicy(localAs));
         exportPolicies.put(PeerRole.Ibgp, new ToInternalExportPolicy(bgpId, clusterId));
         exportPolicies.put(PeerRole.RrClient, new ToReflectorClientExportPolicy(bgpId, clusterId));
@@ -35,11 +36,13 @@ final class PolicyDatabase {
         importPolicies.put(PeerRole.Internal, new FromInternalReflectorClientImportPolicy(bgpId, clusterId));
     }
 
-    ExportPolicy exportPolicyForRole(final PeerRole peerRole) {
+    @Override
+    public ExportPolicy exportPolicyForRole(final PeerRole peerRole) {
         return exportPolicies.get(peerRole);
     }
 
-    ImportPolicy importPolicyForRole(final PeerRole peerRole) {
+    @Override
+    public ImportPolicy importPolicyForRole(final PeerRole peerRole) {
         return importPolicies.get(peerRole);
     }
 }

@@ -54,7 +54,7 @@ public class LocRibWriterTest {
     @Mock
     DOMDataWriteTransaction domTransWrite;
 
-    private final PolicyDatabase pd = new PolicyDatabase((long) 35, new Ipv4Address("10.25.2.9"), new ClusterIdentifier(new Ipv4Address("10.25.2.9")));
+    private final PolicyDatabaseImpl pd = new PolicyDatabaseImpl((long) 35, new Ipv4Address("10.25.2.9"), new ClusterIdentifier(new Ipv4Address("10.25.2.9")));
 
     @Mock
     private RIBSupportContextRegistry registry;
