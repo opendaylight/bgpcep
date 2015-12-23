@@ -19,6 +19,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicy;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -79,7 +80,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
             this.reg = service.registerDataTreeChangeListener(treeId, this);
         }
 
-        private void processRoute(final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final AbstractImportPolicy policy, final YangInstanceIdentifier routesPath, final DataTreeCandidateNode route) {
+        private void processRoute(final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final ImportPolicy policy, final YangInstanceIdentifier routesPath, final DataTreeCandidateNode route) {
             LOG.debug("Process route {}", route.getIdentifier());
             final YangInstanceIdentifier routeId = ribSupport.routePath(routesPath, route.getIdentifier());
             switch (route.getModificationType()) {
@@ -120,7 +121,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
         }
 
         private void processTableChildren(final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final NodeIdentifierWithPredicates peerKey, final YangInstanceIdentifier tablePath, final Collection<DataTreeCandidateNode> children) {
-            final AbstractImportPolicy policy = EffectiveRibInWriter.this.peerPolicyTracker.policyFor(IdentifierUtils.peerId(peerKey));
+            final ImportPolicy policy = EffectiveRibInWriter.this.peerPolicyTracker.policyFor(IdentifierUtils.peerId(peerKey));
 
             for (final DataTreeCandidateNode child : children) {
                 final PathArgument childIdentifier = child.getIdentifier();
@@ -152,7 +153,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
         }
 
         private void processModifiedRouteTables(final DataTreeCandidateNode child, final PathArgument childIdentifier, final DOMDataWriteTransaction tx,
-            final RIBSupport ribSupport, final AbstractImportPolicy policy, final YangInstanceIdentifier childPath, final Optional<NormalizedNode<?, ?>> childDataAfter) {
+            final RIBSupport ribSupport, final ImportPolicy policy, final YangInstanceIdentifier childPath, final Optional<NormalizedNode<?, ?>> childDataAfter) {
             if (TABLE_ROUTES.equals(childIdentifier)) {
                 for (final DataTreeCandidateNode route : ribSupport.changedRoutes(child)) {
                     processRoute(tx, ribSupport, policy, childPath, route);
@@ -162,7 +163,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
             }
         }
 
-        private void writeRouteTables(final DataTreeCandidateNode child, final PathArgument childIdentifier, final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final AbstractImportPolicy policy, final YangInstanceIdentifier childPath, final Optional<NormalizedNode<?, ?>> childDataAfter) {
+        private void writeRouteTables(final DataTreeCandidateNode child, final PathArgument childIdentifier, final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final ImportPolicy policy, final YangInstanceIdentifier childPath, final Optional<NormalizedNode<?, ?>> childDataAfter) {
             tx.put(LogicalDatastoreType.OPERATIONAL, childPath, childDataAfter.get());
             // Routes are special, as they may end up being filtered. The previous put conveniently
             // ensured that we have them in at target, so a subsequent delete will not fail :)

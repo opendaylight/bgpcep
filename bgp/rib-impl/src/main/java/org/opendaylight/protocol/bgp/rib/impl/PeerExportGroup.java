@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.opendaylight.protocol.bgp.rib.impl.spi.ExportPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -22,9 +23,9 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 final class PeerExportGroup {
     private final Collection<Entry<PeerId, YangInstanceIdentifier>> peers;
     private final Map<PeerId, PeerRole> peerRoles;
-    private final AbstractExportPolicy policy;
+    private final ExportPolicy policy;
 
-    PeerExportGroup(final Collection<Entry<PeerId, YangInstanceIdentifier>> peers, final Map<PeerId, PeerRole> peerRoles, final AbstractExportPolicy policy) {
+    PeerExportGroup(final Collection<Entry<PeerId, YangInstanceIdentifier>> peers, final Map<PeerId, PeerRole> peerRoles, final ExportPolicy policy) {
         this.peers = Preconditions.checkNotNull(peers);
         this.peerRoles = Preconditions.checkNotNull(peerRoles);
         this.policy = Preconditions.checkNotNull(policy);

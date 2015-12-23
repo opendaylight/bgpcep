@@ -8,13 +8,14 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Preconditions;
+import org.opendaylight.protocol.bgp.rib.impl.spi.ExportPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
  * Invoked on routes which we send outside of our home AS.
  */
-final class ToExternalExportPolicy extends AbstractExportPolicy {
+final class ToExternalExportPolicy implements ExportPolicy {
     private final Long localAs;
 
     ToExternalExportPolicy(final Long localAs) {
@@ -22,7 +23,7 @@ final class ToExternalExportPolicy extends AbstractExportPolicy {
     }
 
     @Override
-    ContainerNode effectiveAttributes(final PeerRole sourceRole, final ContainerNode attributes) {
+    public ContainerNode effectiveAttributes(final PeerRole sourceRole, final ContainerNode attributes) {
         final ContainerNode ret = AttributeOperations.getInstance(attributes).exportedAttributes(attributes, localAs);
 
         switch (sourceRole) {

@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -14,7 +14,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
  * Defines the internal hooks invoked when a route is being distributed
  * to a peer.
  */
-abstract class AbstractExportPolicy {
+public interface ExportPolicy {
     /**
      * Transform outgoing attributes according to policy.
      *
@@ -22,5 +22,5 @@ abstract class AbstractExportPolicy {
      * @param attributes outgoing attributes
      * @return Filtered attributes, or null if the advertisement should be ignored.
      */
-    abstract ContainerNode effectiveAttributes(PeerRole sourceRole, ContainerNode attributes);
+    ContainerNode effectiveAttributes(PeerRole sourceRole, ContainerNode attributes);
 }
