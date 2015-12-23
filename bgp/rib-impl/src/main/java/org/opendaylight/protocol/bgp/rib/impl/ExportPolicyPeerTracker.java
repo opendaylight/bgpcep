@@ -22,6 +22,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.opendaylight.protocol.bgp.rib.impl.spi.ExportPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
@@ -73,7 +74,7 @@ final class ExportPolicyPeerTracker extends AbstractPeerRoleTracker {
 
         final Map<PeerRole, PeerExportGroup> ret = new EnumMap<>(PeerRole.class);
         for (final Entry<PeerRole, Collection<YangInstanceIdentifier>> e : roleToIds.asMap().entrySet()) {
-            final AbstractExportPolicy policy = this.policyDatabase.exportPolicyForRole(e.getKey());
+            final ExportPolicy policy = this.policyDatabase.exportPolicyForRole(e.getKey());
             final Collection<Entry<PeerId, YangInstanceIdentifier>> peers = ImmutableList.copyOf(Collections2.transform(e.getValue(), GENERATE_PEERID));
 
             ret.put(e.getKey(), new PeerExportGroup(peers, allPeerRoles, policy));

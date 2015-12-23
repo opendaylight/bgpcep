@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import javax.annotation.Nullable;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -13,12 +13,12 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 /**
  * Defines the internal hooks invoked when a new route appears.
  */
-abstract class AbstractImportPolicy {
+public interface ImportPolicy {
     /**
      * Transform incoming attributes according to policy.
      *
      * @param attributes received attributes
      * @return Filtered attributes, or null if the advertisement should be ignored.
      */
-    @Nullable abstract ContainerNode effectiveAttributes(@Nullable ContainerNode attributes);
+    @Nullable ContainerNode effectiveAttributes(@Nullable ContainerNode attributes);
 }

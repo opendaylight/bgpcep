@@ -7,14 +7,15 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicy;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
  * Import policy invoked on routes which we get from outside of our home AS.
  */
-final class FromExternalImportPolicy extends AbstractImportPolicy {
+final class FromExternalImportPolicy implements ImportPolicy {
     @Override
-    ContainerNode effectiveAttributes(final ContainerNode attributes) {
+    public ContainerNode effectiveAttributes(final ContainerNode attributes) {
         /*
          * Filter out non-transitive attributes, so they do not cross inter-AS
          * boundaries.
