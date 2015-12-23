@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.base.Preconditions;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -23,7 +24,7 @@ import org.slf4j.LoggerFactory;
 final class ImportPolicyPeerTracker extends AbstractPeerRoleTracker {
     private static final Logger LOG = LoggerFactory.getLogger(ImportPolicyPeerTracker.class);
 
-    private final Map<PeerId, AbstractImportPolicy> policies = new ConcurrentHashMap<>();
+    private final Map<PeerId, ImportPolicy> policies = new ConcurrentHashMap<>();
     private final PolicyDatabase policyDatabase;
 
     protected ImportPolicyPeerTracker(final PolicyDatabase policyDatabase) {
@@ -37,7 +38,7 @@ final class ImportPolicyPeerTracker extends AbstractPeerRoleTracker {
 
         if (role != null) {
             // Lookup policy based on role
-            final AbstractImportPolicy policy = this.policyDatabase.importPolicyForRole(role);
+            final ImportPolicy policy = this.policyDatabase.importPolicyForRole(role);
 
             // Update lookup map
             this.policies.put(peer, policy);
@@ -47,7 +48,7 @@ final class ImportPolicyPeerTracker extends AbstractPeerRoleTracker {
         }
     }
 
-    AbstractImportPolicy policyFor(final PeerId peerId) {
+    ImportPolicy policyFor(final PeerId peerId) {
         LOG.trace("Peer ID : {}", peerId);
         return new CachingImportPolicy(this.policies.get(peerId));
     }

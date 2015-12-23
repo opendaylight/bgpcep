@@ -9,6 +9,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import java.util.EnumMap;
 import java.util.Map;
+import org.opendaylight.protocol.bgp.rib.impl.spi.ExportPolicy;
+import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicy;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
@@ -18,8 +20,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  * lookup point.
  */
 final class PolicyDatabase {
-    private final Map<PeerRole, AbstractExportPolicy> exportPolicies = new EnumMap<>(PeerRole.class);
-    private final Map<PeerRole, AbstractImportPolicy> importPolicies = new EnumMap<>(PeerRole.class);
+    private final Map<PeerRole, ExportPolicy> exportPolicies = new EnumMap<>(PeerRole.class);
+    private final Map<PeerRole, ImportPolicy> importPolicies = new EnumMap<>(PeerRole.class);
 
     PolicyDatabase(final Long localAs, final Ipv4Address bgpId, final ClusterIdentifier clusterId) {
         exportPolicies.put(PeerRole.Ebgp, new ToExternalExportPolicy(localAs));
@@ -33,11 +35,11 @@ final class PolicyDatabase {
         importPolicies.put(PeerRole.Internal, new FromInternalReflectorClientImportPolicy(bgpId, clusterId));
     }
 
-    AbstractExportPolicy exportPolicyForRole(final PeerRole peerRole) {
+    ExportPolicy exportPolicyForRole(final PeerRole peerRole) {
         return exportPolicies.get(peerRole);
     }
 
-    AbstractImportPolicy importPolicyForRole(final PeerRole peerRole) {
+    ImportPolicy importPolicyForRole(final PeerRole peerRole) {
         return importPolicies.get(peerRole);
     }
 }

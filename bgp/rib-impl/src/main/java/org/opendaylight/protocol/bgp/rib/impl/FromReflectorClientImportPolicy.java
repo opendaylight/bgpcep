@@ -21,7 +21,7 @@ final class FromReflectorClientImportPolicy extends FromInternalImportPolicy {
     }
 
     @Override
-    ContainerNode effectiveAttributes(final ContainerNode attributes) {
+    public ContainerNode effectiveAttributes(final ContainerNode attributes) {
         // TODO: (defensiveness) verify ORIGINATOR_ID (should have been set)
 
         return super.effectiveAttributes(attributes);

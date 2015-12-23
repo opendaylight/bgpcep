@@ -21,7 +21,7 @@ final class ToInternalExportPolicy extends AbstractReflectingExportPolicy {
     }
 
     @Override
-    ContainerNode effectiveAttributes(final PeerRole sourceRole, final ContainerNode attributes) {
+    public ContainerNode effectiveAttributes(final PeerRole sourceRole, final ContainerNode attributes) {
         switch (sourceRole) {
         case Ebgp:
             // eBGP -> Non-Client iBGP, propagate
