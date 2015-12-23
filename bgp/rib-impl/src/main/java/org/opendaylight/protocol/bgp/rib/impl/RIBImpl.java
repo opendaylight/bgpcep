@@ -38,6 +38,7 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.spi.PolicyDatabase;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
@@ -105,6 +106,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final List<LocRibWriter> locRibs = new ArrayList<>();
     private final BGPConfigModuleTracker configModuleTracker;
     private final BGPOpenConfigProvider openConfigProvider;
+    private final PolicyDatabaseImpl policyDatabase;
 
     public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final Ipv4Address clusterId, final RIBExtensionConsumerContext extensions,
         final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory, final BindingCodecTreeFactory codecFactory,
@@ -155,17 +157,17 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             LOG.error("Failed to initiate RIB {}", this.yangRibId, e);
         }
         final ClusterIdentifier cId = (clusterId == null) ? new ClusterIdentifier(localBgpId) : new ClusterIdentifier(clusterId);
-        final PolicyDatabase pd  = new PolicyDatabase(localAs.getValue(), localBgpId, cId);
+        this.policyDatabase  = new PolicyDatabaseImpl(localAs.getValue(), localBgpId, cId);
 
         final DOMDataBrokerExtension domDatatreeChangeService = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
         this.service = domDatatreeChangeService;
-        this.efWriter = EffectiveRibInWriter.create(getService(), createPeerChain(this), getYangRibId(), pd, this.ribContextRegistry);
+        this.efWriter = EffectiveRibInWriter.create(getService(), createPeerChain(this), getYangRibId(), this.policyDatabase, this.ribContextRegistry);
         LOG.debug("Effective RIB created.");
 
         for (final BgpTableType t : this.localTables) {
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
             this.localTablesKeys.add(key);
-            startLocRib(key, pd);
+            startLocRib(key);
         }
 
         if (this.configModuleTracker != null) {
@@ -181,7 +183,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
                 dps, domDataBroker, localTables, classStrategy, null, null);
     }
 
-    private void startLocRib(final TablesKey key, final PolicyDatabase pd) {
+    private void startLocRib(final TablesKey key) {
         LOG.debug("Creating LocRib table for {}", key);
         // create locRibWriter for each table
         final DOMDataWriteTransaction tx = this.domChain.newWriteOnlyTransaction();
@@ -206,7 +208,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         } catch (final TransactionCommitFailedException e1) {
             LOG.error("Failed to initiate LocRIB for key {}", key, e1);
         }
-        this.locRibs.add(LocRibWriter.create(this.ribContextRegistry, key, createPeerChain(this), getYangRibId(), this.localAs, getService(), pd));
+        this.locRibs.add(LocRibWriter.create(this.ribContextRegistry, key, createPeerChain(this), getYangRibId(), this.localAs, getService(), this.policyDatabase));
     }
 
     @Override
@@ -348,5 +350,10 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     @Override
     public Optional<BGPOpenConfigProvider> getOpenConfigProvider() {
         return Optional.fromNullable(this.openConfigProvider);
+    }
+
+    @Override
+    public PolicyDatabase getPolicyDatabse() {
+        return this.policyDatabase;
     }
 }
