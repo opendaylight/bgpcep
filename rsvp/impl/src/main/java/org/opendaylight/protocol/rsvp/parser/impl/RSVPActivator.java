@@ -10,9 +10,6 @@ package org.opendaylight.protocol.rsvp.parser.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.opendaylight.protocol.rsvp.parser.impl.subobject.Label.GeneralizedLabelParser;
-import org.opendaylight.protocol.rsvp.parser.impl.subobject.Label.Type1LabelParser;
-import org.opendaylight.protocol.rsvp.parser.impl.subobject.Label.WavebandSwitchingLabelParser;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.ero.EROAsNumberSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.ero.EROIpv4PrefixSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.ero.EROIpv6PrefixSubobjectParser;
@@ -22,6 +19,9 @@ import org.opendaylight.protocol.rsvp.parser.impl.subobject.ero.EROPathKey32Subo
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.ero.EROUnnumberedInterfaceSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.ero.SEROBasicProtectionSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.ero.SERODynamicProtectionSubobjectParser;
+import org.opendaylight.protocol.rsvp.parser.impl.subobject.label.GeneralizedLabelParser;
+import org.opendaylight.protocol.rsvp.parser.impl.subobject.label.Type1LabelParser;
+import org.opendaylight.protocol.rsvp.parser.impl.subobject.label.WavebandSwitchingLabelParser;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.rro.RROIpv4PrefixSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.rro.RROIpv6PrefixSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.rro.RROLabelSubobjectParser;
