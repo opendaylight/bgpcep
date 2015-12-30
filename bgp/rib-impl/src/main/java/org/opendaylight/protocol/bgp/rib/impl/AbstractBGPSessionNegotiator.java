@@ -246,7 +246,7 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
             @Override
             public void operationComplete(final ChannelFuture f) {
                 if (!f.isSuccess()) {
-                    LOG.info("Failed to send message {}", msg, f.cause());
+                    LOG.warn("Failed to send message {}", msg, f.cause());
                     negotiationFailedCloseChannel(f.cause());
                 } else {
                     LOG.trace("Message {} sent to socket", msg);

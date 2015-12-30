@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.AdjRibOut;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -60,6 +61,7 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
     private final Codecs codecs;
     private final RIBSupport support;
     private final boolean mpSupport;
+    private final ListenerRegistration<AdjRibOutListener> registerDataTreeChangeListener;
 
     private AdjRibOutListener(final PeerId peerId, final TablesKey tablesKey, final YangInstanceIdentifier ribId,
         final CodecsRegistry registry, final RIBSupport support, final DOMDataTreeChangeService service,
@@ -69,7 +71,7 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
         this.codecs = registry.getCodecs(this.support);
         this.mpSupport = mpSupport;
         final YangInstanceIdentifier adjRibOutId =  ribId.node(Peer.QNAME).node(IdentifierUtils.domPeerId(peerId)).node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
-        service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, adjRibOutId), this);
+        this.registerDataTreeChangeListener = service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, adjRibOutId), this);
     }
 
     static AdjRibOutListener create(@Nonnull final PeerId peerId, @Nonnull final TablesKey tablesKey, @Nonnull final YangInstanceIdentifier ribId, @Nonnull final CodecsRegistry registry, @Nonnull final RIBSupport support, @Nonnull final DOMDataTreeChangeService service, @Nonnull final ChannelOutputLimiter session, @Nonnull final boolean mpSupport) {
@@ -149,5 +151,9 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
             prefs.add(new Ipv4Prefix(prefix));
         }
         return prefs;
+    }
+
+    public void close() {
+        this.registerDataTreeChangeListener.close();
     }
 }

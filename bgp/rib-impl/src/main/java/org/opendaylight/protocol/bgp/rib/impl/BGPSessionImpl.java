@@ -236,7 +236,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
                 @Override
                 public void operationComplete(final ChannelFuture f) {
                     if (!f.isSuccess()) {
-                        LOG.info("Failed to send message {} to socket {}", msg, f.cause(), BGPSessionImpl.this.channel);
+                        LOG.warn("Failed to send message {} to socket {}", msg, f.cause(), BGPSessionImpl.this.channel);
                     } else {
                         LOG.trace("Message {} sent to socket {}", msg, BGPSessionImpl.this.channel);
                     }
