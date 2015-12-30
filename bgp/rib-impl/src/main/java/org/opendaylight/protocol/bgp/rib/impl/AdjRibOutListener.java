@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * performs transcoding to BA form (message) and sends it down the channel.
  */
 @NotThreadSafe
-final class AdjRibOutListener implements AutoCloseable, DOMDataTreeChangeListener {
+final class AdjRibOutListener implements DOMDataTreeChangeListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibOutListener.class);
 
@@ -151,7 +151,6 @@ final class AdjRibOutListener implements AutoCloseable, DOMDataTreeChangeListene
         return prefs;
     }
 
-    @Override
     public void close() {
         this.reg.close();
     }
