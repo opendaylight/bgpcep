@@ -59,6 +59,7 @@ import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTreeFactory
 import org.opendaylight.yangtools.binding.data.codec.gen.impl.DataObjectSerializerGenerator;
 import org.opendaylight.yangtools.binding.data.codec.gen.impl.StreamWriterGenerator;
 import org.opendaylight.yangtools.binding.data.codec.impl.BindingNormalizedNodeCodecRegistry;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.sal.binding.generator.api.ClassLoadingStrategy;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
@@ -168,7 +169,7 @@ public class AbstractRIBTestSetup {
     private void mockedMethods() throws Exception {
         MockitoAnnotations.initMocks(this);
         final ReadOnlyTransaction readTx = Mockito.mock(ReadOnlyTransaction.class);
-        Mockito.doReturn(null).when(this.service).registerDataTreeChangeListener(Mockito.any(DOMDataTreeIdentifier.class), Mockito.any(DOMDataTreeChangeListener.class));
+        Mockito.doReturn(new listenerRegistration()).when(this.service).registerDataTreeChangeListener(Mockito.any(DOMDataTreeIdentifier.class), Mockito.any(DOMDataTreeChangeListener.class));
         final Map<Class<? extends DOMDataBrokerExtension>, DOMDataBrokerExtension> map = new HashMap<>();
         map.put(DOMDataTreeChangeService.class, this.service);
         Mockito.doNothing().when(readTx).close();
@@ -242,5 +243,15 @@ public class AbstractRIBTestSetup {
     @After
     public void tearDown() {
         this.a1.close();
+    }
+
+    private class listenerRegistration implements ListenerRegistration {
+        @Override
+        public Object getInstance() {
+            return null;
+        }
+
+        public void close() {
+        }
     }
 }
