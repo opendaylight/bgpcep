@@ -15,6 +15,9 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.t
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class OpenConfigComparatorFactory {
+    private OpenConfigComparatorFactory() {
+        throw new UnsupportedOperationException();
+    }
 
     private static final ImmutableMap<Class<?>, OpenConfigComparator<? extends DataObject>> COMPARATORS = ImmutableMap.<Class<?>, OpenConfigComparator<? extends DataObject>>builder()
             .put(Bgp.class, new GlobalComparator())
