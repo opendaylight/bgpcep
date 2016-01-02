@@ -18,7 +18,7 @@ final class ComplexRouteEntry extends AbstractRouteEntry {
     private MapEntryNode[] values = EMPTY_VALUES;
 
     @Override
-    protected int addRoute(final UnsignedInteger routerId, final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
+    public int addRoute(final UnsignedInteger routerId, final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
         final OffsetMap oldMap = getOffsets();
         final int offset = super.addRoute(routerId, attributesIdentifier, data);
         final OffsetMap newMap = getOffsets();
@@ -32,14 +32,14 @@ final class ComplexRouteEntry extends AbstractRouteEntry {
     }
 
     @Override
-    protected MapEntryNode createValue(final PathArgument routeId) {
+    public MapEntryNode createValue(final PathArgument routeId) {
         final OffsetMap map = getOffsets();
         final int offset = map.offsetOf(getBestRouterId());
         return map.getValue(this.values, offset);
     }
 
     @Override
-    boolean removeRoute(final UnsignedInteger routerId) {
+    public boolean removeRoute(final UnsignedInteger routerId) {
         final OffsetMap map = getOffsets();
         final int offset = map.offsetOf(routerId);
 
