@@ -25,6 +25,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PolicyDatabase;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -63,7 +64,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     private static final NodeIdentifier EFFRIBIN_NID = new NodeIdentifier(EffectiveRibIn.QNAME);
     private static final NodeIdentifier TABLES_NID = new NodeIdentifier(Tables.QNAME);
 
-    private final Map<PathArgument, AbstractRouteEntry> routeEntries = new HashMap<>();
+    private final Map<PathArgument, RouteEntry> routeEntries = new HashMap<>();
     private final YangInstanceIdentifier locRibTarget;
     private final DOMTransactionChain chain;
     private final ExportPolicyPeerTracker peerPolicyTracker;
@@ -111,8 +112,8 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     }
 
     @Nonnull
-    private AbstractRouteEntry createEntry(final PathArgument routeId) {
-        final AbstractRouteEntry ret = this.ribSupport.isComplexRoute() ? new ComplexRouteEntry() : new SimpleRouteEntry();
+    private RouteEntry createEntry(final PathArgument routeId) {
+        final RouteEntry ret = this.ribSupport.isComplexRoute() ? new ComplexRouteEntry() : new SimpleRouteEntry();
         this.routeEntries.put(routeId, ret);
         LOG.trace("Created new entry for {}", routeId);
         return ret;
@@ -128,7 +129,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
              * We use two-stage processing here in hopes that we avoid duplicate
              * calculations when multiple peers have changed a particular entry.
              */
-            final Map<RouteUpdateKey, AbstractRouteEntry> toUpdate = update(tx, changes);
+            final Map<RouteUpdateKey, RouteEntry> toUpdate = update(tx, changes);
 
             // Now walk all updated entries
             walkThrough(tx, toUpdate);
@@ -139,9 +140,9 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         }
     }
 
-    private Map<RouteUpdateKey, AbstractRouteEntry> update(final DOMDataWriteTransaction tx,
+    private Map<RouteUpdateKey, RouteEntry> update(final DOMDataWriteTransaction tx,
         final Collection<DataTreeCandidate> changes) {
-        final Map<RouteUpdateKey, AbstractRouteEntry> ret = new HashMap<>();
+        final Map<RouteUpdateKey, RouteEntry> ret = new HashMap<>();
 
         for (final DataTreeCandidate tc : changes) {
             final YangInstanceIdentifier rootPath = tc.getRootPath();
@@ -175,7 +176,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         return ret;
     }
 
-    private void updateNodes(final DataTreeCandidateNode table, final PeerId peerId, final DOMDataWriteTransaction tx, final Map<RouteUpdateKey, AbstractRouteEntry> routes) {
+    private void updateNodes(final DataTreeCandidateNode table, final PeerId peerId, final DOMDataWriteTransaction tx, final Map<RouteUpdateKey, RouteEntry> routes) {
         for (final DataTreeCandidateNode child : table.getChildNodes()) {
             LOG.debug("Modification type {}", child.getModificationType());
             if ((Attributes.QNAME).equals(child.getIdentifier().getNodeType())) {
@@ -190,11 +191,11 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         }
     }
 
-    private void updateRoutesEntries(final DataTreeCandidateNode child, final PeerId peerId, final Map<RouteUpdateKey, AbstractRouteEntry> routes) {
+    private void updateRoutesEntries(final DataTreeCandidateNode child, final PeerId peerId, final Map<RouteUpdateKey, RouteEntry> routes) {
         final UnsignedInteger routerId = RouterIds.routerIdForPeerId(peerId);
         for (final DataTreeCandidateNode route : this.ribSupport.changedRoutes(child)) {
             final PathArgument routeId = route.getIdentifier();
-            AbstractRouteEntry entry = this.routeEntries.get(routeId);
+            RouteEntry entry = this.routeEntries.get(routeId);
 
             final Optional<NormalizedNode<?, ?>> maybeData = route.getDataAfter();
             if (maybeData.isPresent()) {
@@ -212,10 +213,10 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         }
     }
 
-    private void walkThrough(final DOMDataWriteTransaction tx, final Map<RouteUpdateKey, AbstractRouteEntry> toUpdate) {
-        for (final Entry<RouteUpdateKey, AbstractRouteEntry> e : toUpdate.entrySet()) {
+    private void walkThrough(final DOMDataWriteTransaction tx, final Map<RouteUpdateKey, RouteEntry> toUpdate) {
+        for (final Entry<RouteUpdateKey, RouteEntry> e : toUpdate.entrySet()) {
             LOG.trace("Walking through {}", e);
-            final AbstractRouteEntry entry = e.getValue();
+            final RouteEntry entry = e.getValue();
             final RouteUpdateKey key = e.getKey();
             final NormalizedNode<?, ?> value;
 
@@ -244,7 +245,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     }
 
     @VisibleForTesting
-    void fillAdjRibsOut(final DOMDataWriteTransaction tx, final AbstractRouteEntry entry, final NormalizedNode<?, ?> value, final RouteUpdateKey key) {
+    void fillAdjRibsOut(final DOMDataWriteTransaction tx, final RouteEntry entry, final NormalizedNode<?, ?> value, final RouteUpdateKey key) {
         /*
          * We need to keep track of routers and populate adj-ribs-out, too. If we do not, we need to
          * expose from which client a particular route was learned from in the local RIB, and have
