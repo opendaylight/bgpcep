@@ -9,10 +9,9 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.primitives.UnsignedInteger;
 import javax.annotation.concurrent.NotThreadSafe;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RouteEntry;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.slf4j.Logger;
@@ -26,7 +25,7 @@ import org.slf4j.LoggerFactory;
  * where individual object overhead becomes the dominating factor.
  */
 @NotThreadSafe
-abstract class AbstractRouteEntry {
+abstract class AbstractRouteEntry implements RouteEntry {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRouteEntry.class);
 
@@ -52,14 +51,15 @@ abstract class AbstractRouteEntry {
         return offset;
     }
 
-    protected int addRoute(final UnsignedInteger routerId, final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
+    @Override
+    public int addRoute(final UnsignedInteger routerId, final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
         LOG.trace("Find {} in {}", attributesIdentifier, data);
         final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(data, attributesIdentifier).orNull();
         return addRoute(routerId, advertisedAttrs);
     }
 
-    // Indicates whether this was the last route
-    protected final boolean removeRoute(final int offset) {
+    @Override
+    public final boolean removeRoute(final int offset) {
         if (this.offsets.size() != 1) {
             // FIXME: actually shrink the array
             this.offsets.setValue(this.values, offset, null);
@@ -69,8 +69,8 @@ abstract class AbstractRouteEntry {
         }
     }
 
-    // Indicates whether best has changed
-    final boolean selectBest(final long localAs) {
+    @Override
+    public final boolean selectBest(final long localAs) {
         /*
          * FIXME: optimize flaps by making sure we consider stability of currently-selected route.
          */
@@ -92,7 +92,8 @@ abstract class AbstractRouteEntry {
         return ret;
     }
 
-    final ContainerNode attributes() {
+    @Override
+    public final ContainerNode attributes() {
         return this.bestPath.getState().getAttributes();
     }
 
@@ -103,7 +104,4 @@ abstract class AbstractRouteEntry {
     protected final UnsignedInteger getBestRouterId() {
         return this.bestPath.getRouterId();
     }
-
-    abstract boolean removeRoute(final UnsignedInteger routerId);
-    abstract MapEntryNode createValue(PathArgument routeId);
 }
