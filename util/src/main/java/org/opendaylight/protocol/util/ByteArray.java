@@ -14,7 +14,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.BitSet;
 import org.slf4j.Logger;
@@ -277,7 +277,7 @@ public final class ByteArray {
      */
     public static String bytesToHRString(final byte[] bytes) {
         try {
-            return Charset.forName("UTF-8").newDecoder().decode(ByteBuffer.wrap(bytes)).toString();
+            return StandardCharsets.UTF_8.newDecoder().decode(ByteBuffer.wrap(bytes)).toString();
         } catch (final CharacterCodingException e) {
             LOG.debug("Could not apply UTF-8 encoding.", e);
             return Arrays.toString(bytes);
