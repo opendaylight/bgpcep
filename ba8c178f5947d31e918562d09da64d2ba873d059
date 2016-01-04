@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aa4ed85_19ff0eac",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractBGPSessionNegotiator.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2016-01-04T16:57:49Z",
+      "side": 1,
+      "message": "Warning, as most of BGP functionality is still there, only one channel has encountered a problem and will be closed.",
+      "range": {
+        "startLine": 249,
+        "startChar": 24,
+        "endLine": 249,
+        "endChar": 29
+      },
+      "revId": "ba8c178f5947d31e918562d09da64d2ba873d059",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aa4ed85_79272265",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractBGPSessionNegotiator.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2016-01-04T16:57:49Z",
+      "side": 1,
+      "message": "Trace, as messages may be long, and info would kill performance (and log space).",
+      "range": {
+        "startLine": 252,
+        "startChar": 24,
+        "endLine": 252,
+        "endChar": 28
+      },
+      "revId": "ba8c178f5947d31e918562d09da64d2ba873d059",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
