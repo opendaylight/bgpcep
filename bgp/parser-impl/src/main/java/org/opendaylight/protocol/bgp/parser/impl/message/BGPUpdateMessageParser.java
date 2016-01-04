@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.parser.impl.message;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -19,6 +20,7 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
+import org.opendaylight.protocol.bgp.sdniwrapper.SdniWrapper;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
@@ -48,6 +50,8 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
 
     private static final int TOTAL_PATH_ATTR_LENGTH_SIZE = 2;
 
+    public static SdniWrapper sdniwrapper = new SdniWrapper();
+
     private final AttributeRegistry reg;
 
     public BGPUpdateMessageParser(final AttributeRegistry reg) {
@@ -68,6 +72,17 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         final int totalPathAttrLength = buffer.readUnsignedShort();
 
         if (withdrawnRoutesLength == 0 && totalPathAttrLength == 0) {
+            //Retrieve and parse sdni message
+            final byte[] sdniNlri = ByteArray.readAllBytes(buffer);
+            LOG.trace("Started Parsing sdni update message");
+            if(!sdniNlri.equals(null) && sdniNlri.length>0){
+                ByteBuf sdniMsg = Unpooled.copiedBuffer(sdniNlri);
+                //Parsing sdni message
+                LOG.trace("In parser-impl Calling ParseSDNiMsg");
+                String result = sdniwrapper.parseSDNIMessage(sdniMsg);
+                LOG.trace("In parser-impl Calling ParseSDNiQOSMsg");
+                String result1 = sdniwrapper.parseSDNIQOSMessage(sdniMsg);
+            }
             return builder.build();
         }
         if (totalPathAttrLength > 0) {
@@ -119,6 +134,20 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
             for (final Ipv4Prefix prefix : nlri.getNlri()) {
                 messageBody.writeBytes(Ipv4Util.bytesForPrefixBegin(prefix));
             }
+        }
+        else {
+            LOG.trace("Serialize sdni update message in parser-impl");
+            messageBody.writeBytes(sdniwrapper.getSDNIMessage());
+            messageBody.writeBytes(sdniwrapper.getSDNIQOSMessage());
+
+            byte[] byte1 = new byte[messageBody.readableBytes()];
+            int readerIndex = messageBody.readerIndex();
+            messageBody.getBytes(readerIndex, byte1);
+            String sdniQOSMsg = new String(byte1);
+            LOG.trace("Buffer in parser-impl {}", sdniQOSMsg);
+        }
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Update message serialized to {}", ByteBufUtil.hexDump(messageBody));
         }
         MessageUtil.formatMessage(TYPE, messageBody, bytes);
     }

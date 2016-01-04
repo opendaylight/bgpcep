@@ -74,11 +74,13 @@
     </feature>
 
     <feature name='odl-bgpcep-bgp-parser' version='${project.version}'>
+        <bundle>mvn:com.sun.jersey/jersey-client/1.17</bundle>
         <feature version='${project.version}'>odl-bgpcep-bgp-dependencies</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-inet</feature>
         <feature version='${config.version}'>odl-config-api</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-spi/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-sdniwrapper/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-impl/{{VERSION}}</bundle>
     </feature>
 
@@ -114,12 +116,14 @@
     </feature>
 
     <feature name='odl-bgpcep-bgp-rib-impl' version='${project.version}'>
+        <bundle>mvn:com.sun.jersey/jersey-client/1.17</bundle>
         <feature version='${project.version}'>odl-bgpcep-bgp-dependencies</feature>
         <feature version='${tcpmd5.version}'>odl-tcpmd5-netty</feature>
         <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-openconfig-spi/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-sdniwrapper/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-impl/{{VERSION}}</bundle>
     </feature>
 

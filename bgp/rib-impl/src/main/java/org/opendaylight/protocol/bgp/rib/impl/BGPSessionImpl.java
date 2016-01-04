@@ -41,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.NotifyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.OptionalCapabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParameters;
@@ -58,7 +59,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     private static final Logger LOG = LoggerFactory.getLogger(BGPSessionImpl.class);
 
     private static final Notification KEEP_ALIVE = new KeepaliveBuilder().build();
-
+    private static final Notification UPDATE = new UpdateBuilder().build();
     private static final int KA_TO_DEADTIMER_RATIO = 3;
 
     /**
@@ -336,6 +337,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
 
         if (ct >= nextKeepalive) {
             this.writeAndFlush(KEEP_ALIVE);
+            // Send Update message with sdni message
+            this.writeAndFlush(UPDATE);
             nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
             this.sessionStats.updateSentMsgKA();
         }
