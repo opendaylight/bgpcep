@@ -11,7 +11,7 @@ package org.opendaylight.protocol.bmp.impl.app;
 import static org.opendaylight.protocol.bmp.impl.app.TablesUtil.BMP_TABLES_QNAME;
 
 import com.google.common.base.Preconditions;
-import java.util.HashSet;
+import com.google.common.collect.Sets;
 import java.util.Set;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -101,6 +101,8 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     private static final QName STAT10_QNAME = QName.create(Stats.QNAME, "per-afi-safi-loc-rib-routes").intern();
     private static final QName STAT11_QNAME = QName.create(Stats.QNAME, "updates-treated-as-withdraw").intern();
     private static final QName STAT13_QNAME = QName.create(Stats.QNAME, "duplicate-updates").intern();
+
+    private static final TablesKey DEFAULT_TABLE = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
 
     private static final InstanceIdentifier<SentOpen> SENT_OPEN_IID = InstanceIdentifier.builder(BmpMonitor.class)
             .child(Monitor.class)
@@ -217,7 +219,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     }
 
     private Set<TablesKey> setPeerTables(final ReceivedOpen open) {
-        final Set<TablesKey> tables = new HashSet<>();
+        final Set<TablesKey> tables = Sets.newHashSet(DEFAULT_TABLE);
         for (final BgpParameters param : open.getBgpParameters()) {
             for (final OptionalCapabilities optCapa : param.getOptionalCapabilities()) {
                 final CParameters cParam = optCapa.getCParameters();
