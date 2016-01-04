@@ -18,8 +18,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 
 public final class RibSupportUtils {
 
-    private static final QName AFI_QNAME = QName.cachedReference(QName.create(Tables.QNAME, "afi"));
-    private static final QName SAFI_QNAME = QName.cachedReference(QName.create(Tables.QNAME, "safi"));
+    private static final QName AFI_QNAME = QName.create(Tables.QNAME, "afi").intern();
+    private static final QName SAFI_QNAME = QName.create(Tables.QNAME, "safi").intern();
 
     private RibSupportUtils() {
         throw new UnsupportedOperationException("Utility class");

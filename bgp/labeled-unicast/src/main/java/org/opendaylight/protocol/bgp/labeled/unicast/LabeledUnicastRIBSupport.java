@@ -70,11 +70,11 @@ final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
 
     private static final Logger LOG = LoggerFactory.getLogger(LabeledUnicastRIBSupport.class);
 
-    private static final NodeIdentifier PREFIX_TYPE_NID = NodeIdentifier.create(QName.cachedReference(QName.create(CLabeledUnicastDestination.QNAME, "prefix")));
+    private static final NodeIdentifier PREFIX_TYPE_NID = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "prefix").intern());
     private static final NodeIdentifier LABEL_STACK_NID = NodeIdentifier.create(LabelStack.QNAME);
     private static final NodeIdentifier LV_NID = NodeIdentifier.create(QName.create(Label.QNAME, "label-value"));
 
-    private static final QName ROUTE_KEY = QName.cachedReference(QName.create(LabeledUnicastRoute.QNAME, "route-key"));
+    private static final QName ROUTE_KEY = QName.create(LabeledUnicastRoute.QNAME, "route-key").intern();
     private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
 
     private static final ChoiceNode EMPTY_ROUTES = Builders.choiceBuilder()

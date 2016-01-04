@@ -90,7 +90,7 @@ final class LinkstateRIBSupport extends AbstractRIBSupport {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateRIBSupport.class);
 
-    private static final QName ROUTE_KEY = QName.cachedReference(QName.create(LinkstateRoute.QNAME, "route-key"));
+    private static final QName ROUTE_KEY = QName.create(LinkstateRoute.QNAME, "route-key").intern();
     private static final LinkstateRIBSupport SINGLETON = new LinkstateRIBSupport();
     private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
 

@@ -43,15 +43,15 @@ public final class LinkNlriParser {
 
     /* Link Descriptor QNames */
     @VisibleForTesting
-    public static final NodeIdentifier IPV4_IFACE_NID = new NodeIdentifier(QName.cachedReference(QName.create(LinkDescriptors.QNAME, "ipv4-interface-address")));
-    private static final NodeIdentifier IPV6_IFACE_NID = new NodeIdentifier(QName.cachedReference(QName.create(LinkDescriptors.QNAME, "ipv6-interface-address")));
+    public static final NodeIdentifier IPV4_IFACE_NID = new NodeIdentifier(QName.create(LinkDescriptors.QNAME, "ipv4-interface-address").intern());
+    private static final NodeIdentifier IPV6_IFACE_NID = new NodeIdentifier(QName.create(LinkDescriptors.QNAME, "ipv6-interface-address").intern());
     @VisibleForTesting
-    public static final NodeIdentifier IPV4_NEIGHBOR_NID = new NodeIdentifier(QName.cachedReference(QName.create(LinkDescriptors.QNAME, "ipv4-neighbor-address")));
-    private static final NodeIdentifier IPV6_NEIGHBOR_NID = new NodeIdentifier(QName.cachedReference(QName.create(LinkDescriptors.QNAME, "ipv6-neighbor-address")));
+    public static final NodeIdentifier IPV4_NEIGHBOR_NID = new NodeIdentifier(QName.create(LinkDescriptors.QNAME, "ipv4-neighbor-address").intern());
+    private static final NodeIdentifier IPV6_NEIGHBOR_NID = new NodeIdentifier(QName.create(LinkDescriptors.QNAME, "ipv6-neighbor-address").intern());
     @VisibleForTesting
-    public static final NodeIdentifier LINK_LOCAL_NID = new NodeIdentifier(QName.cachedReference(QName.create(LinkDescriptors.QNAME, "link-local-identifier")));
+    public static final NodeIdentifier LINK_LOCAL_NID = new NodeIdentifier(QName.create(LinkDescriptors.QNAME, "link-local-identifier").intern());
     @VisibleForTesting
-    public static final NodeIdentifier LINK_REMOTE_NID = new NodeIdentifier(QName.cachedReference(QName.create(LinkDescriptors.QNAME, "link-remote-identifier")));
+    public static final NodeIdentifier LINK_REMOTE_NID = new NodeIdentifier(QName.create(LinkDescriptors.QNAME, "link-remote-identifier").intern());
 
     static LinkDescriptors parseLinkDescriptors(final ByteBuf buffer) throws BGPParsingException {
         final LinkDescriptorsBuilder builder = new LinkDescriptorsBuilder();

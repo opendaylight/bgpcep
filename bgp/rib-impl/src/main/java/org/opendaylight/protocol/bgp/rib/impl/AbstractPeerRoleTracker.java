@@ -48,7 +48,7 @@ abstract class AbstractPeerRoleTracker {
         peerRoleChanged(peerPath, role);
     }
 
-    static final NodeIdentifier PEER_ROLE_NID = new NodeIdentifier(QName.cachedReference(QName.create(Peer.QNAME, "peer-role")));
+    static final NodeIdentifier PEER_ROLE_NID = new NodeIdentifier(QName.create(Peer.QNAME, "peer-role").intern());
     static final NodeIdentifier PEER_TABLES = new NodeIdentifier(SupportedTables.QNAME);
 
     protected AbstractPeerRoleTracker() {

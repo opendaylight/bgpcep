@@ -26,7 +26,7 @@ public final class TlvUtil {
     public static final int TOPOLOGY_ID_OFFSET = 0x3fff;
 
     public static final int MULTI_TOPOLOGY_ID = 263;
-    public static final NodeIdentifier MULTI_TOPOLOGY_NID = new NodeIdentifier(QName.cachedReference(QName.create(PrefixDescriptors.QNAME, "topology-identifier")));
+    public static final NodeIdentifier MULTI_TOPOLOGY_NID = new NodeIdentifier(QName.create(PrefixDescriptors.QNAME, "topology-identifier").intern());
     public static final int LOCAL_IPV4_ROUTER_ID = 1028;
     public static final int LOCAL_IPV6_ROUTER_ID = 1029;
 

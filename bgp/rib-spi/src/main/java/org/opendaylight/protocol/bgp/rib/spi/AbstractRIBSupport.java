@@ -71,13 +71,13 @@ public abstract class AbstractRIBSupport implements RIBSupport {
      * @param listClass Binding class of the route list, nust not be null;
      */
     protected AbstractRIBSupport(final Class<? extends Routes> cazeClass, final Class<? extends DataObject> containerClass, final Class<? extends Route> listClass) {
-        final QName qname = QName.cachedReference(BindingReflections.findQName(containerClass));
+        final QName qname = BindingReflections.findQName(containerClass).intern();
         this.routesContainerIdentifier = new NodeIdentifier(qname);
-        this.routeAttributesIdentifier = new NodeIdentifier(QName.cachedReference(QName.create(qname, Attributes.QNAME.getLocalName())));
+        this.routeAttributesIdentifier = new NodeIdentifier(QName.create(qname, Attributes.QNAME.getLocalName().intern()));
         this.cazeClass = Preconditions.checkNotNull(cazeClass);
         this.containerClass = Preconditions.checkNotNull(containerClass);
         this.listClass = Preconditions.checkNotNull(listClass);
-        this.routesListIdentifier = new NodeIdentifier(QName.cachedReference(BindingReflections.findQName(listClass)));
+        this.routesListIdentifier = new NodeIdentifier(BindingReflections.findQName(listClass).intern());
     }
 
     @Override

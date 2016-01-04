@@ -85,17 +85,17 @@ public final class NodeNlriParser {
 
     /* Node Descriptor QNames */
     @VisibleForTesting
-    public static final NodeIdentifier AS_NUMBER_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "as-number")));
+    public static final NodeIdentifier AS_NUMBER_NID = new NodeIdentifier(QName.create(NodeDescriptors.QNAME, "as-number").intern());
     @VisibleForTesting
-    public static final NodeIdentifier AREA_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "area-id")));
+    public static final NodeIdentifier AREA_NID = new NodeIdentifier(QName.create(NodeDescriptors.QNAME, "area-id").intern());
     @VisibleForTesting
-    public static final NodeIdentifier DOMAIN_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "domain-id")));
+    public static final NodeIdentifier DOMAIN_NID = new NodeIdentifier(QName.create(NodeDescriptors.QNAME, "domain-id").intern());
     @VisibleForTesting
     public static final NodeIdentifier ROUTER_NID = new NodeIdentifier(CRouterIdentifier.QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier BGP_ROUTER_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "bgp-router-id")));
+    public static final NodeIdentifier BGP_ROUTER_NID = new NodeIdentifier(QName.create(NodeDescriptors.QNAME, "bgp-router-id").intern());
     @VisibleForTesting
-    public static final NodeIdentifier MEMBER_ASN_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "member-asn")));
+    public static final NodeIdentifier MEMBER_ASN_NID = new NodeIdentifier(QName.create(NodeDescriptors.QNAME, "member-asn").intern());
 
     /* Router Identifier QNames */
     @VisibleForTesting
@@ -107,14 +107,14 @@ public final class NodeNlriParser {
     @VisibleForTesting
     public static final NodeIdentifier OSPF_PSEUDONODE_NID = new NodeIdentifier(OspfPseudonode.QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier ISO_SYSTEM_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "iso-system-id")));
+    public static final NodeIdentifier ISO_SYSTEM_NID = new NodeIdentifier(QName.create(NodeDescriptors.QNAME, "iso-system-id").intern());
     @VisibleForTesting
-    public static final NodeIdentifier ISIS_ROUTER_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "is-is-router-identifier")));
+    public static final NodeIdentifier ISIS_ROUTER_NID = new NodeIdentifier(QName.create(NodeDescriptors.QNAME, "is-is-router-identifier").intern());
     @VisibleForTesting
-    public static final NodeIdentifier PSN_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "psn")));
+    public static final NodeIdentifier PSN_NID = new NodeIdentifier(QName.create(NodeDescriptors.QNAME, "psn").intern());
     @VisibleForTesting
-    public static final NodeIdentifier OSPF_ROUTER_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "ospf-router-id")));
-    private static final NodeIdentifier LAN_IFACE_NID = new NodeIdentifier(QName.cachedReference(QName.create(NodeDescriptors.QNAME, "lan-interface")));
+    public static final NodeIdentifier OSPF_ROUTER_NID = new NodeIdentifier(QName.create(NodeDescriptors.QNAME, "ospf-router-id").intern());
+    private static final NodeIdentifier LAN_IFACE_NID = new NodeIdentifier(QName.create(NodeDescriptors.QNAME, "lan-interface").intern());
 
     static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier parseNodeDescriptors(final ByteBuf buffer, final NlriType nlriType, final boolean local) throws BGPParsingException {
         AsNumber asnumber = null;

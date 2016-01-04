@@ -68,11 +68,11 @@ final class AttributeOperations {
             new CacheLoader<QNameModule, ImmutableSet<QName>>() {
                 @Override
                 public ImmutableSet<QName> load(final QNameModule key) {
-                    return ImmutableSet.of(QName.cachedReference(QName.create(key, Origin.QNAME.getLocalName())),
-                        QName.cachedReference(QName.create(key, AsPath.QNAME.getLocalName())),
-                        QName.cachedReference(QName.create(key, CNextHop.QNAME.getLocalName())),
-                        QName.cachedReference(QName.create(key, Communities.QNAME.getLocalName())),
-                        QName.cachedReference(QName.create(key, ExtendedCommunities.QNAME.getLocalName())));
+                    return ImmutableSet.of(QName.create(key, Origin.QNAME.getLocalName()).intern(),
+                        QName.create(key, AsPath.QNAME.getLocalName()).intern(),
+                        QName.create(key, CNextHop.QNAME.getLocalName()).intern(),
+                        QName.create(key, Communities.QNAME.getLocalName()).intern(),
+                        QName.create(key, ExtendedCommunities.QNAME.getLocalName()).intern());
                 }
             });
     private final ImmutableSet<QName> transitiveCollection;
@@ -90,20 +90,20 @@ final class AttributeOperations {
     private final NodeIdentifier transitiveLeaf;
 
     private AttributeOperations(final QNameModule namespace) {
-        this.asPathContainer = new NodeIdentifier(QName.cachedReference(QName.create(namespace, AsPath.QNAME.getLocalName())));
-        this.asPathSegments = new NodeIdentifier(QName.cachedReference(QName.create(namespace, Segments.QNAME.getLocalName())));
-        this.asPathSequence = new NodeIdentifier(QName.cachedReference(QName.create(namespace, "as-sequence")));
-        this.asNumberQname = QName.cachedReference(QName.create(namespace, "as-number"));
+        this.asPathContainer = new NodeIdentifier(QName.create(namespace, AsPath.QNAME.getLocalName()).intern());
+        this.asPathSegments = new NodeIdentifier(QName.create(namespace, Segments.QNAME.getLocalName()).intern());
+        this.asPathSequence = new NodeIdentifier(QName.create(namespace, "as-sequence").intern());
+        this.asNumberQname = QName.create(namespace, "as-number").intern();
 
-        this.clusterListContainer = new NodeIdentifier(QName.cachedReference(QName.create(namespace, ClusterId.QNAME.getLocalName())));
-        this.clusterQname = QName.cachedReference(QName.create(namespace, "cluster"));
+        this.clusterListContainer = new NodeIdentifier(QName.create(namespace, ClusterId.QNAME.getLocalName()).intern());
+        this.clusterQname = QName.create(namespace, "cluster").intern();
         this.clusterListLeaf = new NodeIdentifier(this.clusterQname);
         this.clusterListPath = ImmutableList.<PathArgument>of(this.clusterListContainer, this.clusterListLeaf);
-        this.originatorIdContainer = new NodeIdentifier(QName.cachedReference(QName.create(namespace, OriginatorId.QNAME.getLocalName())));
-        this.originatorIdLeaf = new NodeIdentifier(QName.cachedReference(QName.create(namespace, "originator")));
+        this.originatorIdContainer = new NodeIdentifier(QName.create(namespace, OriginatorId.QNAME.getLocalName()).intern());
+        this.originatorIdLeaf = new NodeIdentifier(QName.create(namespace, "originator").intern());
         this.originatorIdPath = ImmutableList.<PathArgument>of(this.originatorIdContainer, this.originatorIdLeaf);
 
-        this.transitiveLeaf = new NodeIdentifier(QName.cachedReference(QName.create(UnrecognizedAttributes.QNAME, "transitive")));
+        this.transitiveLeaf = new NodeIdentifier(QName.create(UnrecognizedAttributes.QNAME, "transitive").intern());
         this.transitiveCollection = TRANSITIVE_CACHE.getUnchecked(namespace);
     }
 

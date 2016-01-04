@@ -45,7 +45,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
  */
 final class IPv4RIBSupport extends AbstractIPRIBSupport {
     @VisibleForTesting
-    static final QName PREFIX_QNAME = QName.cachedReference(QName.create(Ipv4Route.QNAME, "prefix"));
+    static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
     private static final IPv4RIBSupport SINGLETON = new IPv4RIBSupport();
     private static final ImmutableCollection<Class<? extends DataObject>> CACHEABLE_NLRI_OBJECTS =
             ImmutableSet.<Class<? extends DataObject>>of(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.Ipv4Prefix.class);

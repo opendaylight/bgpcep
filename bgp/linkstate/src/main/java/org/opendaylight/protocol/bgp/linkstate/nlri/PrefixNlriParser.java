@@ -47,9 +47,9 @@ public final class PrefixNlriParser {
 
     /* Prefix Descriptor QNames */
     @VisibleForTesting
-    public static final NodeIdentifier OSPF_ROUTE_NID = new NodeIdentifier(QName.cachedReference(QName.create(PrefixDescriptors.QNAME, "ospf-route-type")));
+    public static final NodeIdentifier OSPF_ROUTE_NID = new NodeIdentifier(QName.create(PrefixDescriptors.QNAME, "ospf-route-type").intern());
     @VisibleForTesting
-    public static final NodeIdentifier IP_REACH_NID = new NodeIdentifier(QName.cachedReference(QName.create(PrefixDescriptors.QNAME, "ip-reachability-information")));
+    public static final NodeIdentifier IP_REACH_NID = new NodeIdentifier(QName.create(PrefixDescriptors.QNAME, "ip-reachability-information").intern());
 
     static PrefixDescriptors parsePrefixDescriptors(final ByteBuf buffer, final boolean ipv4) throws BGPParsingException {
         final PrefixDescriptorsBuilder builder = new PrefixDescriptorsBuilder();
