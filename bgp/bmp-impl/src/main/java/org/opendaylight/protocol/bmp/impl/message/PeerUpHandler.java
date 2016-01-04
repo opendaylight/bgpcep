@@ -65,13 +65,13 @@ public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<InformationBu
         ByteBufWriteUtil.writeUnsignedShort(peerUp.getLocalPort().getValue(), buffer);
         ByteBufWriteUtil.writeUnsignedShort(peerUp.getRemotePort().getValue(), buffer);
 
-        getBgpMessageRegistry().serializeMessage(new OpenBuilder(peerUp.getReceivedOpen()).build(), buffer);
         getBgpMessageRegistry().serializeMessage(new OpenBuilder(peerUp.getSentOpen()).build(), buffer);
+        getBgpMessageRegistry().serializeMessage(new OpenBuilder(peerUp.getReceivedOpen()).build(), buffer);
         serializeTlvs(peerUp.getInformation(), buffer);
     }
 
     private void serializeTlvs(final Information tlvs, final ByteBuf output) {
-        if (tlvs.getStringInformation() != null) {
+        if (tlvs != null && tlvs.getStringInformation() != null) {
             for (final StringInformation stringInfo : tlvs.getStringInformation()) {
                 if (stringInfo.getStringTlv() != null) {
                     serializeTlv(stringInfo.getStringTlv(), output);
