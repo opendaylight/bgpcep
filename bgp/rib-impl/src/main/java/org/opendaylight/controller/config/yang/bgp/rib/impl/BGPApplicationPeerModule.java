@@ -28,7 +28,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
  */
 public class BGPApplicationPeerModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPApplicationPeerModule {
 
-    private static final QName APP_ID_QNAME = QName.cachedReference(QName.create(ApplicationRib.QNAME, "id"));
+    private static final QName APP_ID_QNAME = QName.create(ApplicationRib.QNAME, "id").intern();
 
     public BGPApplicationPeerModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);

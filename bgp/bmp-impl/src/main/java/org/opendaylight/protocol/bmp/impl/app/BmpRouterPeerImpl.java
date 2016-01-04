@@ -71,36 +71,36 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
 
     private static final String TIMESTAMP_SEC = "timestamp-sec";
 
-    private static final QName PEER_ID_QNAME = QName.cachedReference(QName.create(Peer.QNAME, "peer-id"));
-    private static final QName PEER_TYPE_QNAME = QName.cachedReference(QName.create(Peer.QNAME, "type"));
-    private static final QName PEER_ADDRESS_QNAME = QName.cachedReference(QName.create(Peer.QNAME, "address"));
-    private static final QName PEER_AS_QNAME = QName.cachedReference(QName.create(Peer.QNAME, "as"));
-    private static final QName PEER_BGP_ID_QNAME = QName.cachedReference(QName.create(Peer.QNAME, "bgp-id"));
-    private static final QName PEER_DISTINGUISHER_QNAME = QName.cachedReference(QName.create(Peer.QNAME, "router-distinguisher"));
-    private static final QName PEER_LOCAL_ADDRESS_QNAME = QName.cachedReference(QName.create(PeerSession.QNAME, "local-address"));
-    private static final QName PEER_LOCAL_PORT_QNAME = QName.cachedReference(QName.create(PeerSession.QNAME, "local-port"));
-    private static final QName PEER_REMOTE_PORT_QNAME = QName.cachedReference(QName.create(PeerSession.QNAME, "remote-port"));
-    private static final QName PEER_STATUS_QNAME = QName.cachedReference(QName.create(PeerSession.QNAME, "status"));
-    private static final QName PEER_UP_TIMESTAMP_QNAME = QName.cachedReference(QName.create(PeerSession.QNAME, TIMESTAMP_SEC));
-    private static final QName PEER_STATS_TIMESTAMP_QNAME = QName.cachedReference(QName.create(Stats.QNAME, TIMESTAMP_SEC));
-    private static final QName PEER_MIRROR_INFORMATION_QNAME = QName.cachedReference(QName.create(Mirrors.QNAME, "information"));
-    private static final QName PEER_MIRROR_TIMESTAMP_QNAME = QName.cachedReference(QName.create(Mirrors.QNAME, TIMESTAMP_SEC));
+    private static final QName PEER_ID_QNAME = QName.create(Peer.QNAME, "peer-id").intern();
+    private static final QName PEER_TYPE_QNAME = QName.create(Peer.QNAME, "type");
+    private static final QName PEER_ADDRESS_QNAME = QName.create(Peer.QNAME, "address").intern();
+    private static final QName PEER_AS_QNAME = QName.create(Peer.QNAME, "as").intern();
+    private static final QName PEER_BGP_ID_QNAME = QName.create(Peer.QNAME, "bgp-id").intern();
+    private static final QName PEER_DISTINGUISHER_QNAME = QName.create(Peer.QNAME, "router-distinguisher").intern();
+    private static final QName PEER_LOCAL_ADDRESS_QNAME = QName.create(PeerSession.QNAME, "local-address").intern();
+    private static final QName PEER_LOCAL_PORT_QNAME = QName.create(PeerSession.QNAME, "local-port").intern();
+    private static final QName PEER_REMOTE_PORT_QNAME = QName.create(PeerSession.QNAME, "remote-port").intern();
+    private static final QName PEER_STATUS_QNAME = QName.create(PeerSession.QNAME, "status").intern();
+    private static final QName PEER_UP_TIMESTAMP_QNAME = QName.create(PeerSession.QNAME, TIMESTAMP_SEC).intern();
+    private static final QName PEER_STATS_TIMESTAMP_QNAME = QName.create(Stats.QNAME, TIMESTAMP_SEC).intern();
+    private static final QName PEER_MIRROR_INFORMATION_QNAME = QName.create(Mirrors.QNAME, "information").intern();
+    private static final QName PEER_MIRROR_TIMESTAMP_QNAME = QName.create(Mirrors.QNAME, TIMESTAMP_SEC).intern();
 
-    private static final QName STAT0_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "rejected-prefixes"));
-    private static final QName STAT1_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "duplicate-prefix-advertisements"));
-    private static final QName STAT2_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "duplicate-withdraws"));
-    private static final QName STAT3_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "invalidated-cluster-list-loop"));
-    private static final QName STAT4_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "invalidated-as-path-loop"));
-    private static final QName STAT5_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "invalidated-originator-id"));
-    private static final QName STAT6_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "invalidated-as-confed-loop"));
-    private static final QName STAT7_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "adj-ribs-in-routes"));
-    private static final QName STAT8_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "loc-rib-routes"));
-    private static final QName STAT9_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "per-afi-safi-adj-rib-in-routes"));
-    private static final QName AF_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "afi-safi"));
-    private static final QName COUNT_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "count"));
-    private static final QName STAT10_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "per-afi-safi-loc-rib-routes"));
-    private static final QName STAT11_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "updates-treated-as-withdraw"));
-    private static final QName STAT13_QNAME = QName.cachedReference(QName.create(Stats.QNAME, "duplicate-updates"));
+    private static final QName STAT0_QNAME = QName.create(Stats.QNAME, "rejected-prefixes").intern();
+    private static final QName STAT1_QNAME = QName.create(Stats.QNAME, "duplicate-prefix-advertisements").intern();
+    private static final QName STAT2_QNAME = QName.create(Stats.QNAME, "duplicate-withdraws").intern();
+    private static final QName STAT3_QNAME = QName.create(Stats.QNAME, "invalidated-cluster-list-loop").intern();
+    private static final QName STAT4_QNAME = QName.create(Stats.QNAME, "invalidated-as-path-loop").intern();
+    private static final QName STAT5_QNAME = QName.create(Stats.QNAME, "invalidated-originator-id").intern();
+    private static final QName STAT6_QNAME = QName.create(Stats.QNAME, "invalidated-as-confed-loop").intern();
+    private static final QName STAT7_QNAME = QName.create(Stats.QNAME, "adj-ribs-in-routes");
+    private static final QName STAT8_QNAME = QName.create(Stats.QNAME, "loc-rib-routes");
+    private static final QName STAT9_QNAME = QName.create(Stats.QNAME, "per-afi-safi-adj-rib-in-routes").intern();
+    private static final QName AF_QNAME = QName.create(Stats.QNAME, "afi-safi").intern();
+    private static final QName COUNT_QNAME = QName.create(Stats.QNAME, "count").intern();
+    private static final QName STAT10_QNAME = QName.create(Stats.QNAME, "per-afi-safi-loc-rib-routes").intern();
+    private static final QName STAT11_QNAME = QName.create(Stats.QNAME, "updates-treated-as-withdraw").intern();
+    private static final QName STAT13_QNAME = QName.create(Stats.QNAME, "duplicate-updates").intern();
 
     private static final InstanceIdentifier<SentOpen> SENT_OPEN_IID = InstanceIdentifier.builder(BmpMonitor.class)
             .child(Monitor.class)

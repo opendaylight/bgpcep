@@ -73,7 +73,7 @@ public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
         }
     }
 
-    private static final QName ROUTE_KEY = QName.cachedReference(QName.create(FlowspecRoute.QNAME, "route-key"));
+    private static final QName ROUTE_KEY = QName.create(FlowspecRoute.QNAME, "route-key").intern();
     private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
     private final ApplyRoute putRoute = new PutRoute();
 

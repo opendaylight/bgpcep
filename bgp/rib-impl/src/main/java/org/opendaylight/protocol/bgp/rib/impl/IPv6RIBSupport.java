@@ -43,7 +43,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
  * Class supporting IPv6 unicast RIBs.
  */
 final class IPv6RIBSupport extends AbstractIPRIBSupport {
-    private static final QName PREFIX_QNAME = QName.cachedReference(QName.create(Ipv6Route.QNAME, "prefix"));
+    private static final QName PREFIX_QNAME = QName.create(Ipv6Route.QNAME, "prefix").intern();
     private static final IPv6RIBSupport SINGLETON = new IPv6RIBSupport();
     private static final ImmutableCollection<Class<? extends DataObject>> CACHEABLE_NLRI_OBJECTS =
             ImmutableSet.<Class<? extends DataObject>>of(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.Ipv6Prefix.class);

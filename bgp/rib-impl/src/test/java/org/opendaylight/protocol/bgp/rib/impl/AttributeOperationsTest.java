@@ -36,9 +36,9 @@ import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 
 public class AttributeOperationsTest {
 
-    static final NodeIdentifier ORIGIN_NID = new NodeIdentifier(QName.cachedReference(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, Origin.QNAME.getLocalName())));
-    static final NodeIdentifier ORIGIN_VALUE_NID = new NodeIdentifier(QName.cachedReference(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "value")));
-    static final NodeIdentifier AS_PATH_NID = new NodeIdentifier(QName.cachedReference(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, AsPath.QNAME.getLocalName())));
+    static final NodeIdentifier ORIGIN_NID = new NodeIdentifier(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, Origin.QNAME.getLocalName()).intern());
+    static final NodeIdentifier ORIGIN_VALUE_NID = new NodeIdentifier(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "value").intern());
+    static final NodeIdentifier AS_PATH_NID = new NodeIdentifier(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, AsPath.QNAME.getLocalName()).intern());
     static final NodeIdentifier ATOMIC_NID = new NodeIdentifier(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, AtomicAggregate.QNAME.getLocalName()));
     static final NodeIdentifier CLUSTER_C_NID = new NodeIdentifier(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, ClusterId.QNAME.getLocalName()));
     static final NodeIdentifier CLUSTER_NID = new NodeIdentifier(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "cluster"));

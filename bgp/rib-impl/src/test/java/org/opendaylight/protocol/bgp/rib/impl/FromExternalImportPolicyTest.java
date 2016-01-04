@@ -29,18 +29,18 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableUn
 
 public class FromExternalImportPolicyTest {
 
-    private static final QName DATA_QNAME = QName.cachedReference(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "attributes"));
-    private static final QName LOCALPREF = QName.cachedReference(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "local-pref"));
-    private static final QName CLUSTERID = QName.cachedReference(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "cluster-id"));
-    private static final QName CLUSTER = QName.cachedReference(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "cluster"));
-    private static final QName ASPATH = QName.cachedReference(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "as-path"));
-    private static final QName SEGMENT = QName.cachedReference(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "segments"));
-    private static final QName UNRECOGNIZED = QName.cachedReference(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "unrecognized-attributes"));
-    private static final QName NEXTHOP = QName.cachedReference(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "c-next-hop"));
-    private static final QName IPV4NH = QName.cachedReference(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "ipv4-next-hop"));
-    private static final QName ORIGINATOR = QName.cachedReference(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "originator-id"));
-    private static final QName MED = QName.cachedReference(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "multi-exit-disc"));
-    private static final QName ORIGIN = QName.cachedReference(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "origin"));
+    private static final QName DATA_QNAME = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "attributes").intern();
+    private static final QName LOCALPREF = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "local-pref").intern();
+    private static final QName CLUSTERID = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "cluster-id").intern();
+    private static final QName CLUSTER = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "cluster").intern();
+    private static final QName ASPATH = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "as-path").intern();
+    private static final QName SEGMENT = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "segments").intern();
+    private static final QName UNRECOGNIZED = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "unrecognized-attributes");
+    private static final QName NEXTHOP = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "c-next-hop").intern();
+    private static final QName IPV4NH = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "ipv4-next-hop").intern();
+    private static final QName ORIGINATOR = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "originator-id").intern();
+    private static final QName MED = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "multi-exit-disc").intern();
+    private static final QName ORIGIN = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2013-09-19", "origin").intern();
 
     @Test
     public void testEffectiveAttributes() {

@@ -31,7 +31,7 @@ final class IdentifierUtils {
             return Tables.QNAME.equals(input.getNodeType());
         }
     };
-    private static final QName PEER_ID = QName.cachedReference(QName.create(Peer.QNAME, "peer-id"));
+    private static final QName PEER_ID = QName.create(Peer.QNAME, "peer-id").intern();
 
     private IdentifierUtils() {
         throw new UnsupportedOperationException();

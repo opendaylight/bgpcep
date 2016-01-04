@@ -53,11 +53,11 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(BmpRouterImpl.class);
 
-    private static final QName ROUTER_ID_QNAME = QName.cachedReference(QName.create(Router.QNAME, "router-id"));
-    private static final QName ROUTER_STATUS_QNAME = QName.cachedReference(QName.create(Router.QNAME, "status"));
-    private static final QName ROUTER_NAME_QNAME = QName.cachedReference(QName.create(Router.QNAME, "name"));
-    private static final QName ROUTER_DESCRIPTION_QNAME = QName.cachedReference(QName.create(Router.QNAME, "description"));
-    private static final QName ROUTER_INFO_QNAME = QName.cachedReference(QName.create(Router.QNAME, "info"));
+    private static final QName ROUTER_ID_QNAME = QName.create(Router.QNAME, "router-id").intern();
+    private static final QName ROUTER_STATUS_QNAME = QName.create(Router.QNAME, "status").intern();
+    private static final QName ROUTER_NAME_QNAME = QName.create(Router.QNAME, "name").intern();
+    private static final QName ROUTER_DESCRIPTION_QNAME = QName.create(Router.QNAME, "description").intern();
+    private static final QName ROUTER_INFO_QNAME = QName.create(Router.QNAME, "info").intern();
     private static final String UP = "up";
     private static final String DOWN = "down";
 

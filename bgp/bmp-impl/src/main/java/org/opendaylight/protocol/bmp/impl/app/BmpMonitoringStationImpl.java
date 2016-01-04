@@ -49,7 +49,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
 
     private static final Logger LOG = LoggerFactory.getLogger(BmpMonitoringStationImpl.class);
 
-    private static final QName MONITOR_ID_QNAME = QName.cachedReference(QName.create(Monitor.QNAME, "monitor-id"));
+    private static final QName MONITOR_ID_QNAME = QName.create(Monitor.QNAME, "monitor-id").intern();
 
     private final DOMDataBroker domDataBroker;
     private final YangInstanceIdentifier yangMonitorId;

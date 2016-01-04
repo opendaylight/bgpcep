@@ -53,7 +53,7 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibOutListener.class);
 
-    static final QName PREFIX_QNAME = QName.cachedReference(QName.create(Ipv4Route.QNAME, "prefix"));
+    static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
     private final YangInstanceIdentifier.NodeIdentifier routeKeyLeaf = new YangInstanceIdentifier.NodeIdentifier(PREFIX_QNAME);
 
     private final ChannelOutputLimiter session;

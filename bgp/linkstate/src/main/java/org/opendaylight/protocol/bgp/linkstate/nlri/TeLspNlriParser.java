@@ -38,22 +38,22 @@ public final class TeLspNlriParser {
 
     @VisibleForTesting
     public static final YangInstanceIdentifier.NodeIdentifier LSP_ID = new YangInstanceIdentifier.NodeIdentifier(
-        QName.cachedReference(QName.create(CLinkstateDestination.QNAME, "lsp-id")));
+        QName.create(CLinkstateDestination.QNAME, "lsp-id").intern());
     @VisibleForTesting
     public static final YangInstanceIdentifier.NodeIdentifier TUNNEL_ID = new YangInstanceIdentifier.NodeIdentifier(
-        QName.cachedReference(QName.create(CLinkstateDestination.QNAME, "tunnel-id")));
+        QName.create(CLinkstateDestination.QNAME, "tunnel-id").intern());
     @VisibleForTesting
     public static final YangInstanceIdentifier.NodeIdentifier IPV4_TUNNEL_SENDER_ADDRESS = new YangInstanceIdentifier.NodeIdentifier(
-        QName.cachedReference(QName.create(CLinkstateDestination.QNAME, "ipv4-tunnel-sender-address")));
+        QName.create(CLinkstateDestination.QNAME, "ipv4-tunnel-sender-address").intern());
     @VisibleForTesting
     public static final YangInstanceIdentifier.NodeIdentifier IPV4_TUNNEL_ENDPOINT_ADDRESS = new YangInstanceIdentifier
-        .NodeIdentifier(QName.cachedReference(QName.create(CLinkstateDestination.QNAME, "ipv4-tunnel-endpoint-address")));
+        .NodeIdentifier(QName.create(CLinkstateDestination.QNAME, "ipv4-tunnel-endpoint-address").intern());
     @VisibleForTesting
     public static final YangInstanceIdentifier.NodeIdentifier IPV6_TUNNEL_SENDER_ADDRESS = new YangInstanceIdentifier
-        .NodeIdentifier( QName.cachedReference(QName.create(CLinkstateDestination.QNAME, "ipv6-tunnel-sender-address")));
+        .NodeIdentifier( QName.create(CLinkstateDestination.QNAME, "ipv6-tunnel-sender-address").intern());
     @VisibleForTesting
     public static final YangInstanceIdentifier.NodeIdentifier IPV6_TUNNEL_ENDPOINT_ADDRESS = new YangInstanceIdentifier
-        .NodeIdentifier(QName.cachedReference(QName.create(CLinkstateDestination.QNAME, "ipv6-tunnel-endpoint-address")));
+        .NodeIdentifier(QName.create(CLinkstateDestination.QNAME, "ipv6-tunnel-endpoint-address").intern());
 
     @VisibleForTesting
     public static final YangInstanceIdentifier.NodeIdentifier IPV4_CASE = new YangInstanceIdentifier.NodeIdentifier(Ipv4Case.QNAME);

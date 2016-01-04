@@ -105,11 +105,11 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     @VisibleForTesting
     public static final NodeIdentifier TE_LSP_NID = new NodeIdentifier(TeLspCase.QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier DISTINGUISHER_NID = new NodeIdentifier(QName.cachedReference(QName.create(CLinkstateDestination.QNAME, "route-distinguisher")));
+    public static final NodeIdentifier DISTINGUISHER_NID = new NodeIdentifier(QName.create(CLinkstateDestination.QNAME, "route-distinguisher").intern());
     @VisibleForTesting
-    public static final NodeIdentifier PROTOCOL_ID_NID = new NodeIdentifier(QName.cachedReference(QName.create(CLinkstateDestination.QNAME, "protocol-id")));
+    public static final NodeIdentifier PROTOCOL_ID_NID = new NodeIdentifier(QName.create(CLinkstateDestination.QNAME, "protocol-id").intern());
     @VisibleForTesting
-    public static final NodeIdentifier IDENTIFIER_NID = new NodeIdentifier(QName.cachedReference(QName.create(CLinkstateDestination.QNAME, "identifier")));
+    public static final NodeIdentifier IDENTIFIER_NID = new NodeIdentifier(QName.create(CLinkstateDestination.QNAME, "identifier").intern());
 
     private final boolean isVpn;
 

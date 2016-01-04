@@ -55,24 +55,24 @@ final class BestPathState {
         private final NodeIdentifier asSeqNid;
 
         NamespaceSpecificIds(final QName namespace) {
-            NodeIdentifier container = new NodeIdentifier(QName.cachedReference(QName.create(namespace, AsPath.QNAME.getLocalName())));
-            NodeIdentifier leaf = new NodeIdentifier(QName.cachedReference(QName.create(namespace, "segments")));
+            NodeIdentifier container = new NodeIdentifier(QName.create(namespace, AsPath.QNAME.getLocalName().intern()));
+            NodeIdentifier leaf = new NodeIdentifier(QName.create(namespace, "segments").intern());
             this.asPath = ImmutableList.<PathArgument>of(container, leaf);
 
-            container = new NodeIdentifier(QName.cachedReference(QName.create(namespace, LocalPref.QNAME.getLocalName())));
-            leaf = new NodeIdentifier(QName.cachedReference(QName.create(namespace, "pref")));
+            container = new NodeIdentifier(QName.create(namespace, LocalPref.QNAME.getLocalName()).intern());
+            leaf = new NodeIdentifier(QName.create(namespace, "pref").intern());
             this.locPref = ImmutableList.<PathArgument>of(container, leaf);
 
-            container = new NodeIdentifier(QName.cachedReference(QName.create(namespace, MultiExitDisc.QNAME.getLocalName())));
-            leaf = new NodeIdentifier(QName.cachedReference(QName.create(namespace, "med")));
+            container = new NodeIdentifier(QName.create(namespace, MultiExitDisc.QNAME.getLocalName()).intern());
+            leaf = new NodeIdentifier(QName.create(namespace, "med").intern());
             this.med = ImmutableList.<PathArgument>of(container, leaf);
 
-            container = new NodeIdentifier(QName.cachedReference(QName.create(namespace, Origin.QNAME.getLocalName())));
-            leaf = new NodeIdentifier(QName.cachedReference(QName.create(namespace, "value")));
+            container = new NodeIdentifier(QName.create(namespace, Origin.QNAME.getLocalName()).intern());
+            leaf = new NodeIdentifier(QName.create(namespace, "value").intern());
             this.orig = ImmutableList.<PathArgument>of(container, leaf);
 
-            this.asSetNid = new NodeIdentifier(QName.cachedReference(QName.create(namespace, "as-set")));
-            this.asSeqNid = new NodeIdentifier(QName.cachedReference(QName.create(namespace, "as-sequence")));
+            this.asSetNid = new NodeIdentifier(QName.create(namespace, "as-set").intern());
+            this.asSeqNid = new NodeIdentifier(QName.create(namespace, "as-sequence").intern());
         }
 
         Collection<PathArgument> getAsPath() {

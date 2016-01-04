@@ -81,7 +81,7 @@ import org.slf4j.LoggerFactory;
 public final class RIBImpl extends DefaultRibReference implements AutoCloseable, RIB, TransactionChainListener, SchemaContextListener {
     private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
     @VisibleForTesting
-    public static final QName RIB_ID_QNAME = QName.cachedReference(QName.create(Rib.QNAME, "id"));
+    public static final QName RIB_ID_QNAME = QName.create(Rib.QNAME, "id").intern();
     @VisibleForTesting
     public static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes.QNAME);
 
