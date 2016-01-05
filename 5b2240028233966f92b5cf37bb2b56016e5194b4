@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aa4ed85_8035c2f8",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-05T08:43:50Z",
+      "side": 1,
+      "message": "The \"error\" is too harsh here.",
+      "range": {
+        "startLine": 239,
+        "startChar": 28,
+        "endLine": 239,
+        "endChar": 33
+      },
+      "revId": "5b2240028233966f92b5cf37bb2b56016e5194b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aa4ed85_403fcad6",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-05T08:43:50Z",
+      "side": 1,
+      "message": "Imagine a consequence in a case of huge amount of exported routes. Also the log level changes are not really related to the bug fix.",
+      "range": {
+        "startLine": 241,
+        "startChar": 28,
+        "endLine": 241,
+        "endChar": 32
+      },
+      "revId": "5b2240028233966f92b5cf37bb2b56016e5194b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
