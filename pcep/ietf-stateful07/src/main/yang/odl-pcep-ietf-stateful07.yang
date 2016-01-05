@@ -267,6 +267,15 @@ module odl-pcep-ietf-stateful07 {
         }
     }
 
+    grouping bandwidth-usage-object {
+        description "Bandwidth-Usage Report Object";
+        reference "https://tools.ietf.org/html/draft-dhody-pce-stateful-pce-auto-bandwidth-06#section-8.4";
+        container bandwidth-usage {
+            uses pcep:object;
+            uses pcep:bandwidth;
+        }
+    }
+
     grouping pcupd-message {
         uses pcep:message;
 
@@ -304,6 +313,7 @@ module odl-pcep-ietf-stateful07 {
 
                 container path {
                     uses pcep:path-definition;
+                    uses bandwidth-usage-object;
                 }
             }
         }
@@ -351,6 +361,7 @@ module odl-pcep-ietf-stateful07 {
     augment "/nt:network-topology/nt:topology/nt:node/topo:path-computation-client/topo:reported-lsp/topo:path" {
         uses lsp-object;
         uses pcep:path-setup-type-tlv;
+        uses bandwidth-usage-object;
     }
 
     augment "/nt:network-topology/nt:topology/nt:node/topo:path-computation-client/topo:stateful-tlv" {

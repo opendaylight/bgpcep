@@ -20,6 +20,7 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcrpt;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcrptBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.bandwidth.usage.object.BandwidthUsage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.PcrptMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.pcrpt.message.Reports;
@@ -72,6 +73,7 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
             serializeObject(p.getEro(), buffer);
             serializeObject(p.getLspa(), buffer);
             serializeObject(p.getBandwidth(), buffer);
+            serializeObject(p.getBandwidthUsage(), buffer);
             if (p.getMetrics() != null) {
                 for (final Metrics m : p.getMetrics()) {
                     serializeObject(m.getMetric(), buffer);
@@ -161,9 +163,14 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
                 return State.BANDWIDTH_IN;
             }
         case BANDWIDTH_IN:
+            if (obj instanceof BandwidthUsage) {
+                builder.setBandwidthUsage((BandwidthUsage) obj);
+                return State.BANDWIDTH_USAGE_IN;
+            }
+        case BANDWIDTH_USAGE_IN:
             if (obj instanceof Metric) {
                 pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-                return State.BANDWIDTH_IN;
+                return State.BANDWIDTH_USAGE_IN;
             }
         case METRIC_IN:
             if (obj instanceof Iro) {
@@ -184,6 +191,6 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
     }
 
     private enum State {
-        INIT, LSPA_IN, BANDWIDTH_IN, METRIC_IN, IRO_IN, RRO_IN, END
+        INIT, LSPA_IN, BANDWIDTH_IN, BANDWIDTH_USAGE_IN, METRIC_IN, IRO_IN, RRO_IN, END
     }
 }
