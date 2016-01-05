@@ -20,6 +20,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultChannelPromise;
 import io.netty.channel.EventLoop;
+import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.ScheduledFuture;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -49,6 +50,9 @@ public class AbstractPCEPSessionTest {
 
     @Mock
     protected Channel channel;
+
+    @Mock
+    private ChannelFuture channelFuture;
 
     @Mock
     private EventLoop eventLoop;
@@ -84,6 +88,8 @@ public class AbstractPCEPSessionTest {
                 return future;
             }
         }).when(this.channel).writeAndFlush(any(Notification.class));
+        doReturn(this.channelFuture).when(this.channel).closeFuture();
+        doReturn(this.channelFuture).when(this.channelFuture).addListener(any(GenericFutureListener.class));
         doReturn("TestingChannel").when(this.channel).toString();
         doReturn(this.pipeline).when(this.channel).pipeline();
         doReturn(this.address).when(this.channel).localAddress();

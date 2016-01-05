@@ -10,6 +10,8 @@ package org.opendaylight.protocol.pcep.impl;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.concurrent.Promise;
 import java.util.concurrent.Future;
@@ -186,6 +188,16 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
         } else {
             startNegotiationWithOpen();
         }
+        this.channel.closeFuture().addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(final ChannelFuture f) {
+                cancelTimers();
+            }
+        });
+    }
+
+    private void cancelTimers() {
+        failTimer.cancel(false);
     }
 
     private void startNegotiationWithOpen() {
@@ -315,7 +327,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 
     @Override
     protected final void handleMessage(final Message msg) {
-        this.failTimer.cancel(false);
+        cancelTimers();
 
         LOG.debug("Channel {} handling message {} in state {}", this.channel, msg, this.state);
 
