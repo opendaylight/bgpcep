@@ -25,6 +25,9 @@ import time
 import logging
 import struct
 
+import thread
+from copy import deepcopy
+
 
 def parse_arguments():
     """Use argparse to get arguments,
@@ -95,7 +98,12 @@ def parse_arguments():
     parser.add_argument("--threshold", default="1000", type=int, help=str_help)
     str_help = "RFC 4760 Multiprotocol Extensions for BGP-4 supported"
     parser.add_argument("--rfc4760", default="yes", type=str, help=str_help)
+    str_help = "How many play utilities are to be started."
+    parser.add_argument("--multiplicity", default="1", type=int, help=str_help)
     arguments = parser.parse_args()
+    if arguments.multiplicity < 1:
+        print "Multiplicity", arguments.multiplicity, "is not positive."
+        raise SystemExit(1)
     # TODO: Are sanity checks (such as asnumber>=0) required?
     return arguments
 
@@ -1531,22 +1539,37 @@ class StateTracker(object):
         return
 
 
-if __name__ == "__main__":
-    """ One time initialisation and iterations looping.
+def create_logger(loglevel, logfile):
+    """Create logger object
 
-    Notes:
-        Establish BGP connection and run iterations.
+    Arguments:
+        :loglevel: log level
+        :logfile: log file name
+    Returns:
+        :return: logger object
     """
-    arguments = parse_arguments()
     logger = logging.getLogger("logger")
     log_formatter = logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
     console_handler = logging.StreamHandler()
-    file_handler = logging.FileHandler(arguments.logfile, mode="w")
+    file_handler = logging.FileHandler(logfile, mode="w")
     console_handler.setFormatter(log_formatter)
     file_handler.setFormatter(log_formatter)
     logger.addHandler(console_handler)
     logger.addHandler(file_handler)
-    logger.setLevel(arguments.loglevel)
+    logger.setLevel(loglevel)
+    return logger
+
+
+def job(arguments):
+    """One time initialisation and iterations looping.
+    Notes:
+        Establish BGP connection and run iterations.
+
+    Arguments:
+        :arguments: Command line arguments
+    Returns:
+        :return: None
+    """
     bgp_socket = establish_connection(arguments)
     # Initial handshake phase. TODO: Can it be also moved to StateTracker?
     # Receive open message before sending anything.
@@ -1580,3 +1603,55 @@ if __name__ == "__main__":
     state = StateTracker(bgp_socket, generator, timer)
     while True:  # main reactor loop
         state.perform_one_loop_iteration()
+
+
+def threaded_job(arguments):
+    """Run the job threaded
+
+    Arguments:
+        :arguments: Command line arguments
+    Returns:
+        :return: None
+    """
+    amount_left = arguments.amount
+    utils_left = arguments.multiplicity
+    prefix_current = arguments.firstprefix
+    myip_current = arguments.myip
+    thread_args = []
+
+    while 1:
+        amount_per_util = (amount_left - 1) / utils_left + 1  # round up
+        amount_left -= amount_per_util
+        utils_left -= 1
+
+        args = deepcopy(arguments)
+        args.amount = amount_per_util
+        args.firstprefix = prefix_current
+        args.myip = myip_current
+        thread_args.append(args)
+
+        if not utils_left:
+            break
+        prefix_current += amount_per_util * 16
+        myip_current += 1
+
+    try:
+        # Create threads
+        for t in thread_args:
+            thread.start_new_thread(job, (t,))
+    except Exception:
+        print "Error: unable to start thread."
+        raise SystemExit(2)
+
+    # Work remains forever
+    while 1:
+        time.sleep(5)
+
+
+if __name__ == "__main__":
+    arguments = parse_arguments()
+    logger = create_logger(arguments.loglevel, arguments.logfile)
+    if arguments.multiplicity > 1:
+        threaded_job(arguments)
+    else:
+        job(arguments)
