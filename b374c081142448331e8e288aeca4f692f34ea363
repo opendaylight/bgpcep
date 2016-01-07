@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da33351e_21d58e43",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/BGPActivator.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-07T22:39:03Z",
+      "side": 1,
+      "message": "The fs activator and provider context can created in a module and context can be injected to this class via constructor. And activator can be closed in the module class too.",
+      "range": {
+        "startLine": 44,
+        "startChar": 36,
+        "endLine": 44,
+        "endChar": 47
+      },
+      "revId": "b374c081142448331e8e288aeca4f692f34ea363",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da33351e_01b96a2e",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FlowspecActivator.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-07T22:39:03Z",
+      "side": 1,
+      "message": "Would not be simpler to create registrations in constructor and close them in a AutoClosebale#close()?",
+      "range": {
+        "startLine": 49,
+        "startChar": 19,
+        "endLine": 49,
+        "endChar": 36
+      },
+      "revId": "b374c081142448331e8e288aeca4f692f34ea363",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
