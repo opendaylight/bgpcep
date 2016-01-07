@@ -51,10 +51,11 @@ public final class BasePCEPSessionProposalFactory implements PCEPSessionProposal
         }
 
         final TlvsBuilder builder = new TlvsBuilder();
+        addTlvs(address, builder);
+
         if (peerProposal != null) {
             peerProposal.setPeerSpecificProposal(address, builder);
         }
-        addTlvs(address, builder);
         return oBuilder.setTlvs(builder.build()).build();
     }
 
