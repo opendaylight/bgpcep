@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
+import io.netty.util.concurrent.Future;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -149,9 +150,13 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
     }
 
     @Override
-    public synchronized ListenableFuture<OperationResult> triggerSync(final TriggerSyncArgs input) {
+    public synchronized Future<Void> triggerSync(final TriggerSyncArgs input) {
         final TopologySessionListener l = checkSessionPresence(input.getNode());
-        return (l != null) ? l.triggerSync(input) : OperationResults.UNSENT.future();
+        if(l == null) {
+            LOG.debug("TriggerSyncInput null", input);
+            return null;
+        }
+        return l.triggerSync(input);
     }
 
     @Override
