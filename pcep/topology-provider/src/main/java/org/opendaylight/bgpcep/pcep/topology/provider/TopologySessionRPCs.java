@@ -9,6 +9,7 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import io.netty.util.concurrent.Future;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.EnsureLspOperationalInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
@@ -25,5 +26,5 @@ interface TopologySessionRPCs {
 
     ListenableFuture<OperationResult> ensureLspOperational(EnsureLspOperationalInput input);
 
-    ListenableFuture<OperationResult> triggerSync(TriggerSyncArgs input);
+    Future<Void> triggerSync(TriggerSyncArgs input);
 }

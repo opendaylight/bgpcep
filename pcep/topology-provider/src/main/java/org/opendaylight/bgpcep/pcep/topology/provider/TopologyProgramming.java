@@ -24,14 +24,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitRemoveLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitRemoveLspOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerSyncInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerSyncOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitTriggerSyncOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitUpdateLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitUpdateLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitUpdateLspOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.EnsureLspOperationalInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 
 /**
  *
@@ -122,18 +121,9 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
 
 
     @Override
-    public ListenableFuture<RpcResult<SubmitTriggerSyncOutput>> submitTriggerSync(final SubmitTriggerSyncInput input) {
+    public ListenableFuture<RpcResult<Void>> submitTriggerSync(final SubmitTriggerSyncInput input) {
         Preconditions.checkArgument(input.getNode() != null);
-
-        final SubmitTriggerSyncOutputBuilder b = new SubmitTriggerSyncOutputBuilder();
-        b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
-            @Override
-            protected ListenableFuture<OperationResult> invokeOperation() {
-                return TopologyProgramming.this.manager.triggerSync(input);
-            }
-        }));
-
-        final RpcResult<SubmitTriggerSyncOutput> res = SuccessfulRpcResult.create(b.build());
-        return Futures.immediateFuture(res);
+        TopologyProgramming.this.manager.triggerSync(input);
+        return Futures.immediateFuture( RpcResultBuilder.<Void> success().build() );
     }
 }

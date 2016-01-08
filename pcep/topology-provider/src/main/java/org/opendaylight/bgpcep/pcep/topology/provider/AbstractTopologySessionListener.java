@@ -12,6 +12,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -333,6 +334,9 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         return req.getFuture();
     }
 
+    protected final Future<Void> sendMessage(final Message message) {
+        return this.session.sendMessage(message);
+    }
     /**
      * Update an LSP in the data store
      *
