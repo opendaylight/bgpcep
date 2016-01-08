@@ -82,9 +82,6 @@ module network-topology-pcep-programming {
             uses ntp:topology-instruction-input;
             uses pcep:trigger-sync-args;
         }
-        output {
-            uses ntp:topology-instruction-output;
-        }
     }
 }
 

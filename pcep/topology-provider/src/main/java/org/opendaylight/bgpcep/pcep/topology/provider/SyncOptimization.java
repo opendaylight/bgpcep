@@ -22,7 +22,7 @@ final class SyncOptimization {
     private final boolean isSyncAvoidanceEnabled;
     private final boolean isDeltaSyncEnabled;
     private final boolean isDbVersionPresent;
-    private final boolean isTriggeredInitialSynEnable;
+    private final boolean isTriggeredInitialSyncEnable;
     private final boolean isTriggeredReSyncEnable;
 
     public SyncOptimization(final PCEPSession session) {
@@ -35,7 +35,8 @@ final class SyncOptimization {
         this.isSyncAvoidanceEnabled = isSyncAvoidance(local) && isSyncAvoidance(remote);
         this.isDeltaSyncEnabled = isDeltaSync(local) && isDeltaSync(remote);
         this.isDbVersionPresent = localLspDbVersion != null || remoteLspDbVersion != null;
-        this.isTriggeredInitialSynEnable = isTriggeredInitialSync(local) && isTriggeredInitialSync(remote);
+        this.isTriggeredInitialSyncEnable = isTriggeredInitialSync(local) && isTriggeredInitialSync(remote) &&
+            (this.isDeltaSyncEnabled || this.isSyncAvoidanceEnabled);
         this.isTriggeredReSyncEnable = isTriggeredReSync(local) && isTriggeredReSync(remote);
     }
 
@@ -52,7 +53,7 @@ final class SyncOptimization {
     }
 
     public boolean isTriggeredInitSyncEnabled() {
-        return isTriggeredInitialSynEnable;
+        return isTriggeredInitialSyncEnable;
     }
     public boolean isTriggeredReSyncEnabled() {
         return isTriggeredReSyncEnable;
