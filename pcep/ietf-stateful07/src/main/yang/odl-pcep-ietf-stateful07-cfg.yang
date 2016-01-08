@@ -67,7 +67,7 @@ module odl-pcep-ietf-stateful07-cfg {
 
         leaf triggered-initial-sync {
             type boolean;
-            default false;
+            default true;
         }
 
         leaf delta-lsp-sync-capability {
