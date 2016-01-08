@@ -24,12 +24,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerSyncInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerSyncOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerSyncOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspOutputBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 
 final class TopologyRPCs implements NetworkTopologyPcepService {
     private final ServerSessionManager manager;
@@ -59,13 +58,9 @@ final class TopologyRPCs implements NetworkTopologyPcepService {
     }
 
     @Override
-    public Future<RpcResult<TriggerSyncOutput>> triggerSync(final TriggerSyncInput input) {
-        return Futures.transform(manager.triggerSync(input), new Function<OperationResult, RpcResult<TriggerSyncOutput>>() {
-            @Override
-            public RpcResult<TriggerSyncOutput> apply(final OperationResult input) {
-                return SuccessfulRpcResult.create(new TriggerSyncOutputBuilder(input).build());
-            }
-        });
+    public Future<RpcResult<Void>> triggerSync(final TriggerSyncInput input) {
+        manager.triggerSync(input);
+        return Futures.immediateFuture( RpcResultBuilder.<Void>success().build());
     }
 
     @Override
