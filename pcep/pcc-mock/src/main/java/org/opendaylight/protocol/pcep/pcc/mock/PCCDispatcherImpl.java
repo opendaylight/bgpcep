@@ -47,7 +47,7 @@ public final class PCCDispatcherImpl implements PccDispatcher, AutoCloseable {
 
     private static final int RECONNECT_STRATEGY_TIMEOUT = 2000;
 
-    private final PCEPHandlerFactory factory;
+    private final PCEPHandlerFactory factory; 
     private final MD5ChannelFactory<?> cf;
     private final NioEventLoopGroup workerGroup;
 
@@ -93,8 +93,8 @@ public final class PCCDispatcherImpl implements PccDispatcher, AutoCloseable {
         setChannelFactory(b, keys);
         b.option(ChannelOption.SO_KEEPALIVE, true);
         b.option(ChannelOption.MAX_MESSAGES_PER_READ, 1);
-        final PCCReconnectPromise promise = new PCCReconnectPromise(remoteAddress,
-                reconnectTime == -1 ? getNeverReconnectStrategyFactory() : getTimedReconnectStrategyFactory(reconnectTime), b);
+        final ReconnectStrategyFactory reconnectStrategy = reconnectTime == -1 ? getNeverReconnectStrategyFactory() : getTimedReconnectStrategyFactory(reconnectTime);
+        final PCCReconnectPromise promise = new PCCReconnectPromise(remoteAddress, reconnectStrategy, b);
         final ChannelInitializer<SocketChannel> channelInitializer = new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(final SocketChannel ch) throws Exception {
@@ -110,6 +110,7 @@ public final class PCCDispatcherImpl implements PccDispatcher, AutoCloseable {
 
                         if (!promise.isInitialConnectFinished()) {
                             LOG.debug("Connection to {} was dropped during negotiation, reattempting", remoteAddress);
+                            return;
                         }
                         LOG.debug("Reconnecting after connection to {} was dropped", remoteAddress);
                         PCCDispatcherImpl.this.createClient(remoteAddress, reconnectTime, listenerFactory, negotiatorFactory,
