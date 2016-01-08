@@ -45,7 +45,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerSyncArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerSyncInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerSyncOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspOutput;
@@ -77,7 +76,7 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
     @Mock
     private ListenableFuture<RpcResult<RemoveLspOutput>> futureRemoveLspOutput;
     @Mock
-    private ListenableFuture<RpcResult<TriggerSyncOutput>> futureTriggerSyncOutput;
+    private io.netty.util.concurrent.Future<Void> futureTriggerSyncOutput;
     @Mock
     private ListenableFuture<RpcResult<EnsureLspOperationalOutput>> futureEnsureLspOutput;
 
@@ -130,14 +129,6 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
                 callback.run();
                 return null;
             }
-        }).when(this.futureTriggerSyncOutput).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
-        Mockito.doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Runnable callback = (Runnable) invocation.getArguments()[0];
-                callback.run();
-                return null;
-            }
         }).when(this.futureEnsureLspOutput).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
         Mockito.doAnswer(new Answer<Future<RpcResult<AddLspOutput>>>() {
             @Override
@@ -160,9 +151,9 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
                 return TopologyProgrammingTest.this.futureRemoveLspOutput;
             }
         }).when(listener).removeLsp(Mockito.any(RemoveLspInput.class));
-        Mockito.doAnswer(new Answer<Future<RpcResult<TriggerSyncOutput>>>() {
+        Mockito.doAnswer(new Answer<io.netty.util.concurrent.Future<Void>>() {
             @Override
-            public Future<RpcResult<TriggerSyncOutput>> answer(final InvocationOnMock invocation) throws Throwable {
+            public io.netty.util.concurrent.Future<Void> answer(final InvocationOnMock invocation) throws Throwable {
                 TopologyProgrammingTest.this.triggerSyncArgs = (TriggerSyncArgs) invocation.getArguments()[0];
                 return TopologyProgrammingTest.this.futureTriggerSyncOutput;
             }

@@ -12,6 +12,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -309,14 +310,14 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
     protected final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId,
         final Metadata metadata) {
-        final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
+        final Future<Void> f = this.session.sendMessage(message);
         this.listenerState.updateStatefulSentMsg(message);
         final PCEPRequest req = new PCEPRequest(metadata);
         this.requests.put(requestId, req);
 
         f.addListener(new FutureListener<Void>() {
             @Override
-            public void operationComplete(final io.netty.util.concurrent.Future<Void> future) {
+            public void operationComplete(final Future<Void> future) {
                 if (!future.isSuccess()) {
                     synchronized (AbstractTopologySessionListener.this) {
                         AbstractTopologySessionListener.this.requests.remove(requestId);
@@ -333,6 +334,9 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         return req.getFuture();
     }
 
+    protected final Future<Void> sendMessage(final Message message) {
+        return this.session.sendMessage(message);
+    }
     /**
      * Update an LSP in the data store
      *

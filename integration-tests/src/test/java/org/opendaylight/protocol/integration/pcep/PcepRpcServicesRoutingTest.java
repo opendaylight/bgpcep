@@ -44,7 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerSyncInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerSyncInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TriggerSyncOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.PcepCreateP2pTunnelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.PcepCreateP2pTunnelInputBuilder;
@@ -177,7 +176,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
 
         @SuppressWarnings("rawtypes")
         final ListenableFuture future = Futures.immediateFuture(RpcResultBuilder.<AddLspOutput>success().build());
-        final ListenableFuture futureSyncTrigger = Futures.immediateFuture(RpcResultBuilder.<TriggerSyncOutput>success().build());
+        final ListenableFuture futureSyncTrigger = Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
 
         when(pcepService.addLsp(Mockito.<AddLspInput>any())).thenReturn(future);
         when(pcepService.removeLsp(Mockito.<RemoveLspInput>any())).thenReturn(future);
@@ -313,7 +312,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
     private void initMock(final NetworkTopologyPcepProgrammingService pcepService) {
         @SuppressWarnings("rawtypes")
         final ListenableFuture future = Futures.immediateFuture(RpcResultBuilder.<AddLspOutput>success().build());
-        final ListenableFuture futureTriggerSync = Futures.immediateFuture(RpcResultBuilder.<TriggerSyncOutput>success().build());
+        final ListenableFuture futureTriggerSync = Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
         when(pcepService.submitAddLsp(Mockito.<SubmitAddLspInput>any())).thenReturn(future);
         when(pcepService.submitRemoveLsp(Mockito.<SubmitRemoveLspInput>any())).thenReturn(future);
         when(pcepService.submitTriggerSync(Mockito.<SubmitTriggerSyncInput>any())).thenReturn(futureTriggerSync);
