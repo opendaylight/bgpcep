@@ -119,6 +119,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     private boolean synced = false;
     private PCEPSession session;
     private SyncOptimization syncOptimization;
+    private boolean triggeredResyncInProcess;
 
     private ListenerStateRuntimeRegistration registration;
     private final SessionListenerState listenerState;
@@ -198,6 +199,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         updatePccNode(ctx, new PathComputationClientBuilder().setStateSync(pccSyncState).build());
         if (pccSyncState != PccSyncState.Synchronized) {
             this.synced = false;
+            this.triggeredResyncInProcess = true;
         }
         // All set, commit the modifications
         Futures.addCallback(ctx.trans.submit(), new FutureCallback<Void>() {
@@ -212,6 +214,10 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
                 session.close(TerminationReason.UNKNOWN);
             }
         });
+    }
+
+    protected boolean isTriggeredSyncInProcess() {
+        return this.triggeredResyncInProcess;
     }
 
     @GuardedBy("this")
@@ -448,6 +454,9 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
         // Update synchronization flag
         this.synced = true;
+        if(this.triggeredResyncInProcess) {
+            this.triggeredResyncInProcess = false;
+        }
         updatePccNode(ctx, new PathComputationClientBuilder().setStateSync(PccSyncState.Synchronized).build());
 
         // The node has completed synchronization, cleanup metadata no longer reported back
