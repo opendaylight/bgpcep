@@ -141,7 +141,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
     public synchronized ListenableFuture<OperationResult> triggerSync(final TriggerSyncArgs input) {
         if (isTriggeredInitialSynchro() && !isSynchronized()) {
             return triggerSynchronization(input);
-        } else if (isSynchronized() && isTriggeredReSyncEnabled()) {
+        } else if (getSynchronized() && isTriggeredReSyncEnabled()) {
             Preconditions.checkArgument(input != null && input.getNode() != null, MISSING_XML_TAG);
             if (input.getName() == null) {
                 return triggerResyncronization(input);
@@ -296,13 +296,15 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         case Active:
         case Down:
         case Up:
-            final PCEPRequest req = removeRequest(id);
-            if (req != null) {
-                LOG.debug("Request {} resulted in LSP operational state {}", id, lsp.getOperational());
-                rlb.setMetadata(req.getMetadata());
-                ctx.resolveRequest(req);
-            } else {
-                LOG.warn("Request ID {} not found in outstanding DB", id);
+            if(!isTriggeredSyncInProcess()) {
+                final PCEPRequest req = removeRequest(id);
+                if (req != null) {
+                    LOG.debug("Request {} resulted in LSP operational state {}", id, lsp.getOperational());
+                    rlb.setMetadata(req.getMetadata());
+                    ctx.resolveRequest(req);
+                } else {
+                    LOG.warn("Request ID {} not found in outstanding DB", id);
+                }
             }
             break;
         case GoingDown:
@@ -323,6 +325,17 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
 
         if (!lsp.isSync() && (plspid == null || plspid.getValue() == 0)) {
             purgeStaleLsps(ctx);
+            if(isTriggeredSyncInProcess()) {
+                if (srp == null) {
+                    return false;
+                }
+                final SrpIdNumber id = srp.getOperationId();
+                if (id.getValue() == 0) {
+                    return false;
+                }
+                final PCEPRequest req = removeRequest(id);
+                ctx.resolveRequest(req);
+            }
             stateSynchronizationAchieved(ctx);
             return true;
         }
