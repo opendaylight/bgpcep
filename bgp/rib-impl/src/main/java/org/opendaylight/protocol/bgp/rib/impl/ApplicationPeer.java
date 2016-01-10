@@ -167,7 +167,7 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
 
     @Override
     public void close() {
-        this.writer.cleanTables(this.targetRib.getLocalTablesKeys());
+        this.writer.removePeer();
         this.chain.close();
         this.writerChain.close();
     }
