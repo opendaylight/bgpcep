@@ -48,6 +48,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,9 +74,10 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     private final TablesKey localTablesKey;
     private final RIBSupportContextRegistry registry;
     private final ListenerRegistration<LocRibWriter> reg;
+    private final YangInstanceIdentifier peerYangId;
 
     LocRibWriter(final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier target, final Long ourAs,
-                 final DOMDataTreeChangeService service, final PolicyDatabase pd, final TablesKey tablesKey) {
+        final DOMDataTreeChangeService service, final PolicyDatabase pd, final TablesKey tablesKey) {
         this.chain = Preconditions.checkNotNull(chain);
         this.tableKey = RibSupportUtils.toYangTablesKey(tablesKey);
         this.localTablesKey = tablesKey;
@@ -91,13 +93,13 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         tx.merge(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(Attributes.QNAME).node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
         tx.submit();
 
-        final YangInstanceIdentifier tableId = target.node(Peer.QNAME).node(Peer.QNAME);
+        this.peerYangId = target.node(Peer.QNAME).node(Peer.QNAME);
 
-        this.reg = service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, tableId), this);
+        this.reg = service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, this.peerYangId), this);
     }
 
     public static LocRibWriter create(@Nonnull final RIBSupportContextRegistry registry, @Nonnull final TablesKey tablesKey, @Nonnull final DOMTransactionChain chain, @Nonnull final YangInstanceIdentifier target,
-                                      @Nonnull final AsNumber ourAs, @Nonnull final DOMDataTreeChangeService service, @Nonnull final PolicyDatabase pd) {
+        @Nonnull final AsNumber ourAs, @Nonnull final DOMDataTreeChangeService service, @Nonnull final PolicyDatabase pd) {
         return new LocRibWriter(registry, chain, target, ourAs.getValue(), service, pd, tablesKey);
     }
 
@@ -139,39 +141,64 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     }
 
     private Map<RouteUpdateKey, AbstractRouteEntry> update(final DOMDataWriteTransaction tx,
-                                                           final Collection<DataTreeCandidate> changes) {
+        final Collection<DataTreeCandidate> changes) {
         final Map<RouteUpdateKey, AbstractRouteEntry> ret = new HashMap<>();
 
         for (final DataTreeCandidate tc : changes) {
             final YangInstanceIdentifier rootPath = tc.getRootPath();
             final DataTreeCandidateNode rootNode = tc.getRootNode();
-            // filter out changes to supported tables
-            final DataTreeCandidateNode tablesChange = rootNode.getModifiedChild(AbstractPeerRoleTracker.PEER_TABLES);
-            if (tablesChange != null) {
-                this.peerPolicyTracker.onTablesChanged(tablesChange, IdentifierUtils.peerPath(rootPath));
+            //Perform first PeerRoleChange, in case where peer is not deleted, since a new
+            //peer added needs to be add to peerPolicyTracker before process tables
+            if(!rootNode.getModificationType().equals(ModificationType.DELETE))
+            {
+                filterOutPeerRole(rootNode, rootPath);
             }
-            // filter out peer role
-            final DataTreeCandidateNode roleChange = rootNode.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
-            if (roleChange != null) {
-                this.peerPolicyTracker.onDataTreeChanged(roleChange, IdentifierUtils.peerPath(rootPath));
+            filterOutChangesToSupportedTables(rootNode, rootPath, tx);
+            filterOutAnyChangeOutsideEffRibsIn(rootNode, rootPath, ret, tx);
+            //If Peer is removed we need to filterOutPeerRole after all routes are removed, then peer can
+            // be removed from peerPolicyTracker
+            if(rootNode.getModificationType().equals(ModificationType.DELETE))
+            {
+                filterOutPeerRole(rootNode, rootPath);
             }
-            // filter out any change outside EffRibsIn
-            final DataTreeCandidateNode ribIn = rootNode.getModifiedChild(EFFRIBIN_NID);
-            if (ribIn == null) {
-                LOG.debug("Skipping change {}", rootNode.getIdentifier());
-                continue;
-            }
-            final DataTreeCandidateNode table = ribIn.getModifiedChild(TABLES_NID).getModifiedChild(this.tableKey);
-            if (table == null) {
-                LOG.debug("Skipping change {}", rootNode.getIdentifier());
-                continue;
-            }
-            final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(rootPath);
-            final PeerId peerId = IdentifierUtils.peerId(peerKey);
-            updateNodes(table, peerId, tx, ret);
         }
 
         return ret;
+    }
+
+    private void filterOutAnyChangeOutsideEffRibsIn(final DataTreeCandidateNode rootNode, final YangInstanceIdentifier rootPath,
+        final Map<RouteUpdateKey, AbstractRouteEntry> ret, final DOMDataWriteTransaction tx) {
+        final DataTreeCandidateNode ribIn = rootNode.getModifiedChild(EFFRIBIN_NID);
+        if (ribIn == null) {
+            LOG.debug("Skipping change {}", rootNode.getIdentifier());
+            return;
+        }
+        final DataTreeCandidateNode table = ribIn.getModifiedChild(TABLES_NID).getModifiedChild(this.tableKey);
+        if (table == null) {
+            LOG.debug("Skipping change {}", rootNode.getIdentifier());
+            return;
+        }
+        final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(rootPath);
+        final PeerId peerId = IdentifierUtils.peerId(peerKey);
+        updateNodes(table, peerId, tx, ret);
+    }
+
+    private void filterOutChangesToSupportedTables(final DataTreeCandidateNode rootNode, final YangInstanceIdentifier rootPath, final DOMDataWriteTransaction tx) {
+        final DataTreeCandidateNode tablesChange = rootNode.getModifiedChild(AbstractPeerRoleTracker.PEER_TABLES);
+
+        if (tablesChange != null) {
+            final PeerId peerIdOfNewPeer = IdentifierUtils.peerId((NodeIdentifierWithPredicates) IdentifierUtils.peerPath(rootPath).getLastPathArgument());
+            for (final DataTreeCandidateNode node : tablesChange.getChildNodes()) {
+                this.peerPolicyTracker.onTablesChanged(peerIdOfNewPeer, node);
+            }
+        }
+    }
+
+    private void filterOutPeerRole(final DataTreeCandidateNode rootNode, final YangInstanceIdentifier rootPath) {
+        final DataTreeCandidateNode roleChange = rootNode.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
+        if (roleChange != null) {
+            this.peerPolicyTracker.onDataTreeChanged(roleChange, IdentifierUtils.peerPath(rootPath));
+        }
     }
 
     private void updateNodes(final DataTreeCandidateNode table, final PeerId peerId, final DOMDataWriteTransaction tx, final Map<RouteUpdateKey, AbstractRouteEntry> routes) {
