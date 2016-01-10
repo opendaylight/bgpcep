@@ -46,6 +46,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 
@@ -147,6 +148,7 @@ public class LocRibWriterTest {
         Mockito.doReturn(null).when(node).getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
         Mockito.doReturn(null).when(node).getModifiedChild(YangInstanceIdentifier.of(EffectiveRibIn.QNAME).getLastPathArgument());
         Mockito.doReturn(node).when(candidate).getRootNode();
+        Mockito.doReturn(ModificationType.SUBTREE_MODIFIED).when(node).getModificationType();
         this.locRibWriter.onDataTreeChanged(Lists.newArrayList(candidate));
         // delete
         final DataTreeCandidateNode tableDelete = Mockito.mock(DataTreeCandidateNode.class);
