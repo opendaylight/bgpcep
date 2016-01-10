@@ -13,11 +13,11 @@ import com.google.common.collect.ImmutableMap.Builder;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
@@ -128,20 +128,16 @@ final class AdjRibInWriter {
     AdjRibInWriter transform(final PeerId newPeerId, final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes, final boolean isAppPeer) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
 
-        final YangInstanceIdentifier newPeerPath;
-        if (!newPeerId.equals(this.peerId)) {
-            newPeerPath = this.createEmptyPeerStructure(newPeerId, isAppPeer, tx);
-        } else {
-            newPeerPath = this.peerPath;
+        final YangInstanceIdentifier newPeerPath = this.createEmptyPeerStructure(newPeerId, isAppPeer, tx);
+        final ImmutableMap<TablesKey, TableContext> tb = createNewTableInstances(newPeerPath, isAppPeer, registry, tableTypes, tx);
 
-            // Wipe tables which are not present in the new types
-            for (final Entry<TablesKey, TableContext> e : this.tables.entrySet()) {
-                if (!tableTypes.contains(e.getKey())) {
-                    e.getValue().removeTable(tx);
-                }
-            }
-        }
+        tx.submit();
 
+        return new AdjRibInWriter(this.ribPath, this.chain, newPeerId, this.role, newPeerPath, tb);
+    }
+
+    private ImmutableMap<TablesKey, TableContext> createNewTableInstances(final YangInstanceIdentifier newPeerPath, final boolean isAppPeer,
+        final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes, final DOMDataWriteTransaction tx) {
         // Now create new table instances, potentially creating their empty entries
         final Builder<TablesKey, TableContext> tb = ImmutableMap.builder();
         for (final TablesKey k : tableTypes) {
@@ -171,10 +167,7 @@ final class AdjRibInWriter {
             LOG.debug("Created table instance {}", ctx.getTableId());
             tb.put(k, ctx);
         }
-
-        tx.submit();
-
-        return new AdjRibInWriter(this.ribPath, this.chain, newPeerId, this.role, newPeerPath, tb.build());
+        return tb.build();
     }
 
     private YangInstanceIdentifier createEmptyPeerStructure(final PeerId newPeerId, final boolean isAppPeer, final DOMDataWriteTransaction tx) {
@@ -214,6 +207,17 @@ final class AdjRibInWriter {
         }
 
         tx.submit();
+    }
+
+    void removePeer() {
+        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+        tx.delete(LogicalDatastoreType.OPERATIONAL, this.peerPath);
+
+        try {
+            tx.submit().checkedGet();
+        } catch (final TransactionCommitFailedException e) {
+            LOG.debug("Failed to remove Peer {}", this.peerPath, e);
+        }
     }
 
     void markTableUptodate(final TablesKey tableTypes) {

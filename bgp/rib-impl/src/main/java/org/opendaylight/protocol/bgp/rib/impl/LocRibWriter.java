@@ -47,6 +47,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,57 +143,81 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         for (final DataTreeCandidate tc : changes) {
             final YangInstanceIdentifier rootPath = tc.getRootPath();
             final DataTreeCandidateNode rootNode = tc.getRootNode();
-            final DataTreeCandidateNode roleChange =  rootNode.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
-            if (roleChange != null) {
-                this.peerPolicyTracker.onDataTreeChanged(roleChange, IdentifierUtils.peerPath(rootPath));
+
+            //Perform first PeerRoleChange, in case where peer is not deleted, since a new
+            //peer added needs to be add to peerPolicyTracker before process tables
+            if (!rootNode.getModificationType().equals(ModificationType.DELETE)) {
+                filterOutPeerRole(rootNode, rootPath);
             }
             // filter out any change outside EffRibsIn
-            final DataTreeCandidateNode ribIn = rootNode.getModifiedChild(EFFRIBIN_NID);
-            if (ribIn == null) {
-                LOG.debug("Skipping change {}", rootNode.getIdentifier());
-                continue;
-            }
-            final DataTreeCandidateNode table = ribIn.getModifiedChild(TABLES_NID).getModifiedChild(this.tableKey);
-            if (table == null) {
-                LOG.debug("Skipping change {}", rootNode.getIdentifier());
-                continue;
-            }
-            final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(rootPath);
-            final PeerId peerId = IdentifierUtils.peerId(peerKey);
-            final UnsignedInteger routerId = RouterIds.routerIdForPeerId(peerId);
-            for (final DataTreeCandidateNode child : table.getChildNodes()) {
-                LOG.debug("Modification type {}", child.getModificationType());
-                if ((Attributes.QNAME).equals(child.getIdentifier().getNodeType())) {
-                    if (child.getDataAfter().isPresent()) {
-                        // putting uptodate attribute in
-                        LOG.trace("Uptodate found for {}", child.getDataAfter());
-                        tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(child.getIdentifier()), child.getDataAfter().get());
-                    }
-                    continue;
-                }
-                for (final DataTreeCandidateNode route : this.ribSupport.changedRoutes(child)) {
-                    final PathArgument routeId = route.getIdentifier();
-                    AbstractRouteEntry entry = this.routeEntries.get(routeId);
-
-                    final Optional<NormalizedNode<?, ?>> maybeData = route.getDataAfter();
-                    if (maybeData.isPresent()) {
-                        if (entry == null) {
-                            entry = createEntry(routeId);
-                        }
-
-                        entry.addRoute(routerId, this.attributesIdentifier, maybeData.get());
-                    } else if (entry != null && entry.removeRoute(routerId)) {
-                        this.routeEntries.remove(routeId);
-                        entry = null;
-                        LOG.trace("Removed route from {}", routerId);
-                    }
-                    LOG.debug("Updated route {} entry {}", routeId, entry);
-                    ret.put(new RouteUpdateKey(peerId, routeId), entry);
-                }
+            filterOutAnyChangeOutsideEffRibsIn(rootNode, rootPath, ret, tx);
+            //If Peer is removed we need to filterOutPeerRole after all routes are removed, then peer can
+            // be removed from peerPolicyTracker
+            if (rootNode.getModificationType().equals(ModificationType.DELETE)) {
+                filterOutPeerRole(rootNode, rootPath);
             }
         }
 
         return ret;
+    }
+
+    private void filterOutAnyChangeOutsideEffRibsIn(final DataTreeCandidateNode rootNode, final YangInstanceIdentifier rootPath,
+        final Map<RouteUpdateKey, AbstractRouteEntry> ret, final DOMDataWriteTransaction tx) {
+        final DataTreeCandidateNode ribIn = rootNode.getModifiedChild(EFFRIBIN_NID);
+        if (ribIn == null) {
+            LOG.debug("Skipping change {}", rootNode.getIdentifier());
+            return;
+        }
+        final DataTreeCandidateNode table = ribIn.getModifiedChild(TABLES_NID).getModifiedChild(this.tableKey);
+        if (table == null) {
+            LOG.debug("Skipping change {}", rootNode.getIdentifier());
+            return;
+        }
+        final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(rootPath);
+        final PeerId peerId = IdentifierUtils.peerId(peerKey);
+        final UnsignedInteger routerId = RouterIds.routerIdForPeerId(peerId);
+        for (final DataTreeCandidateNode child : table.getChildNodes()) {
+            LOG.debug("Modification type {}", child.getModificationType());
+            if ((Attributes.QNAME).equals(child.getIdentifier().getNodeType())) {
+                if (child.getDataAfter().isPresent()) {
+                    // putting uptodate attribute in
+                    LOG.trace("Uptodate found for {}", child.getDataAfter());
+                    tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(child.getIdentifier()), child.getDataAfter().get());
+                }
+                continue;
+            }
+            updateRoutesEntries(peerId, child, routerId, ret);
+        }
+    }
+
+    private void filterOutPeerRole(final DataTreeCandidateNode rootNode, final YangInstanceIdentifier rootPath) {
+        final DataTreeCandidateNode roleChange = rootNode.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
+        if (roleChange != null) {
+            this.peerPolicyTracker.onDataTreeChanged(roleChange, IdentifierUtils.peerPath(rootPath));
+        }
+    }
+
+    private void updateRoutesEntries(final PeerId peerId, final DataTreeCandidateNode child, final UnsignedInteger routerId,
+        final Map<RouteUpdateKey, AbstractRouteEntry> routes) {
+        for (final DataTreeCandidateNode route : this.ribSupport.changedRoutes(child)) {
+            final PathArgument routeId = route.getIdentifier();
+            AbstractRouteEntry entry = this.routeEntries.get(routeId);
+
+            final Optional<NormalizedNode<?, ?>> maybeData = route.getDataAfter();
+            if (maybeData.isPresent()) {
+                if (entry == null) {
+                    entry = createEntry(routeId);
+                }
+
+                entry.addRoute(routerId, this.attributesIdentifier, maybeData.get());
+            } else if (entry != null && entry.removeRoute(routerId)) {
+                this.routeEntries.remove(routeId);
+                entry = null;
+                LOG.trace("Removed route from {}", routerId);
+            }
+            LOG.debug("Updated route {} entry {}", routeId, entry);
+            routes.put(new RouteUpdateKey(peerId, routeId), entry);
+        }
     }
 
     private void walkThrough(final DOMDataWriteTransaction tx, final Map<RouteUpdateKey, AbstractRouteEntry> toUpdate) {
