@@ -105,18 +105,15 @@ final class ExportPolicyPeerTracker extends AbstractPeerRoleTracker {
         return this.groups.get(Preconditions.checkNotNull(role));
     }
 
-    void onTablesChanged(final DataTreeCandidateNode change, final YangInstanceIdentifier peerPath) {
-        final PeerId peerId = IdentifierUtils.peerId((NodeIdentifierWithPredicates) peerPath.getLastPathArgument());
-        for (final DataTreeCandidateNode node : change.getChildNodes()) {
-            if (node.getDataAfter().isPresent()) {
-                final NodeIdentifierWithPredicates value = (NodeIdentifierWithPredicates) node.getDataAfter().get().getIdentifier();
-                final boolean added = this.peerTables.put(peerId, value);
-                if (added) {
-                    LOG.debug("Supported table {} added to peer {}", value, peerId);
-                }
-            } else {
-                LOG.debug("Removed tables {} from peer {}", this.peerTables.removeAll(peerId), peerId);
+    void onTablesChanged(final PeerId peerId, final DataTreeCandidateNode node) {
+        if (node.getDataAfter().isPresent()) {
+            final NodeIdentifierWithPredicates value = (NodeIdentifierWithPredicates) node.getDataAfter().get().getIdentifier();
+            final boolean added = this.peerTables.put(peerId, value);
+            if (added) {
+                LOG.debug("Supported table {} added to peer {}", value, peerId);
             }
+        } else {
+            LOG.debug("Removed tables {} from peer {}", this.peerTables.removeAll(peerId), peerId);
         }
     }
 

@@ -213,13 +213,13 @@ final class EffectiveRibInWriter implements AutoCloseable {
                 final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(rootPath);
                 final DataTreeCandidateNode root = tc.getRootNode();
 
-                // call out peer-role has changed
-                final DataTreeCandidateNode roleChange =  root.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
-                if (roleChange != null) {
-                    EffectiveRibInWriter.this.peerPolicyTracker.onDataTreeChanged(roleChange, IdentifierUtils.peerPath(rootPath));
-                }
+                //Perform first PeerRoleChange, since it will remove peer from policy if peer session is close
+                peerRoleChange(root, rootPath);
 
-                // filter out any change outside AdjRibsIn
+                if (tc.getRootNode().getModificationType().equals(ModificationType.DELETE)) {
+                    continue;
+                }
+                    // filter out any change outside AdjRibsIn
                 final DataTreeCandidateNode ribIn =  root.getModifiedChild(ADJRIBIN_NID);
                 if (ribIn == null) {
                     LOG.debug("Skipping change {}", root.getIdentifier());
@@ -276,6 +276,13 @@ final class EffectiveRibInWriter implements AutoCloseable {
         public void close() {
             // FIXME: wipe all effective routes?
             this.reg.close();
+        }
+    }
+
+    private void peerRoleChange(final DataTreeCandidateNode root, final YangInstanceIdentifier rootPath) {
+        final DataTreeCandidateNode roleChange =  root.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
+        if (roleChange != null) {
+            EffectiveRibInWriter.this.peerPolicyTracker.onDataTreeChanged(roleChange, IdentifierUtils.peerPath(rootPath));
         }
     }
 

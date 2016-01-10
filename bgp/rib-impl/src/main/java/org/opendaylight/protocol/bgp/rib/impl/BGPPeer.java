@@ -199,6 +199,16 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
         final PeerId peerId = RouterIds.createPeerId(session.getBgpId());
 
+        createAdjRibOutListener(peerId);
+
+        this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, false);
+        this.sessionEstablishedCounter++;
+        if (this.registrator != null) {
+            this.runtimeReg = this.registrator.register(this);
+        }
+    }
+
+    private void createAdjRibOutListener(final PeerId peerId) {
         for (final BgpTableType t : session.getAdvertisedTableTypes()) {
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
             if (this.tables.add(key)) {
@@ -207,12 +217,6 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         }
 
         addBgp4Support(peerId);
-
-        this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, false);
-        this.sessionEstablishedCounter++;
-        if (this.registrator != null) {
-            this.runtimeReg = this.registrator.register(this);
-        }
     }
 
     //try to add a support for old-school BGP-4, if peer did not advertise IPv4-Unicast MP capability
@@ -239,7 +243,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
             adjRibOutListener.close();
         }
         this.adjRibOutListenerSet.clear();
-        this.ribWriter.cleanTables(this.tables);
+        this.ribWriter.removePeer();
         this.tables.clear();
     }
 
