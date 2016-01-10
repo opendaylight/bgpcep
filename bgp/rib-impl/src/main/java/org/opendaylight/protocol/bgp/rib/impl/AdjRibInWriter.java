@@ -7,17 +7,17 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
@@ -107,7 +107,7 @@ final class AdjRibInWriter {
     /**
      * Create a new writer using a transaction chain.
      *
-     * @param role peer's role
+     * @param role  peer's role
      * @param chain transaction chain
      * @return A fresh writer instance
      */
@@ -120,100 +120,107 @@ final class AdjRibInWriter {
      * Empty tables are created for new entries and old tables are deleted. Once this
      * method returns, the old instance must not be reasonably used.
      *
-     * @param newPeerId new peer BGP identifier
-     * @param registry RIB extension registry
+     * @param newPeerId  new peer BGP identifier
+     * @param registry   RIB extension registry
      * @param tableTypes New tables, must not be null
      * @return New writer
      */
     AdjRibInWriter transform(final PeerId newPeerId, final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes, final boolean isAppPeer) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
 
-        final YangInstanceIdentifier newPeerPath;
-        if (!newPeerId.equals(this.peerId)) {
-            newPeerPath = this.createEmptyPeerStructure(newPeerId, isAppPeer, tx);
-        } else {
-            newPeerPath = this.peerPath;
-
-            // Wipe tables which are not present in the new types
-            for (final Entry<TablesKey, TableContext> e : this.tables.entrySet()) {
-                if (!tableTypes.contains(e.getKey())) {
-                    e.getValue().removeTable(tx);
-                }
-            }
-        }
-
-        // Now create new table instances, potentially creating their empty entries
-        final Builder<TablesKey, TableContext> tb = ImmutableMap.builder();
-        for (final TablesKey k : tableTypes) {
-            TableContext ctx = this.tables.get(k);
-            if (ctx == null) {
-                final RIBSupportContext rs = registry.getRIBSupportContext(k);
-                // TODO: Use returned value once Instance Identifier builder allows for it.
-                final NodeIdentifierWithPredicates key = RibSupportUtils.toYangTablesKey(k);
-                if (rs == null) {
-                    LOG.warn("No support for table type {}, skipping it", k);
-                    continue;
-                }
-                // install tables for adj-ribs-out (we do not need TableContext for that
-                if (!isAppPeer) {
-                    rs.clearTable(tx, newPeerPath.node(EMPTY_ADJRIBOUT.getIdentifier()).node(TABLES).node(key));
-                }
-
-                // We will use table keys very often, make sure they are optimized
-                final InstanceIdentifierBuilder idb = YangInstanceIdentifier.builder(newPeerPath.node(EMPTY_ADJRIBIN.getIdentifier()).node(TABLES));
-                idb.nodeWithKey(key.getNodeType(), key.getKeyValues());
-
-                // install tables for adj-ribs-in
-                ctx = new TableContext(rs, idb.build());
-                ctx.clearTable(tx);
-            }
-            tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME).node(ATTRIBUTES_UPTODATE_FALSE.getNodeType()), ATTRIBUTES_UPTODATE_FALSE);
-            LOG.debug("Created table instance {}", ctx.getTableId());
-            tb.put(k, ctx);
-        }
-
+        final YangInstanceIdentifier newPeerPath = createEmptyPeerStructure(newPeerId, isAppPeer, tx);
+        final ImmutableMap<TablesKey, TableContext> tb = createNewTableInstances(newPeerPath, isAppPeer, registry, tableTypes, tx);
         tx.submit();
 
-        return new AdjRibInWriter(this.ribPath, this.chain, newPeerId, this.role, newPeerPath, tb.build());
+        return new AdjRibInWriter(this.ribPath, this.chain, newPeerId, this.role, newPeerPath, tb);
+    }
+
+    /**
+     * Create new table instances, potentially creating their empty entries
+     * @param newPeerPath
+     * @param isAppPeer
+     * @param registry
+     * @param tableTypes
+     * @param tx
+     * @return
+     */
+    private ImmutableMap<TablesKey, TableContext> createNewTableInstances(final YangInstanceIdentifier newPeerPath, final boolean isAppPeer,
+        final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes, final DOMDataWriteTransaction tx) {
+
+        final Builder<TablesKey, TableContext> tb = ImmutableMap.builder();
+        for (final TablesKey tableKey : tableTypes) {
+            final RIBSupportContext rs = registry.getRIBSupportContext(tableKey);
+            // TODO: Use returned value once Instance Identifier builder allows for it.
+            final NodeIdentifierWithPredicates instanceIdentifierKey = RibSupportUtils.toYangTablesKey(tableKey);
+            if (rs == null) {
+                LOG.warn("No support for table type {}, skipping it", tableKey);
+                continue;
+            }
+            installAdjRibsOutTables(isAppPeer, newPeerPath, rs, instanceIdentifierKey, tx);
+            installAdjRibInTables(newPeerPath, tableKey, rs, instanceIdentifierKey, tx, tb);
+        }
+        return tb.build();
+    }
+
+    private void installAdjRibInTables(final YangInstanceIdentifier newPeerPath, final TablesKey tableKey, final RIBSupportContext rs,
+        final NodeIdentifierWithPredicates instanceIdentifierKey, final DOMDataWriteTransaction tx, final Builder<TablesKey, TableContext> tb) {
+        // We will use table keys very often, make sure they are optimized
+        final InstanceIdentifierBuilder idb = YangInstanceIdentifier.builder(newPeerPath.node(EMPTY_ADJRIBIN.getIdentifier()).node(TABLES));
+        idb.nodeWithKey(instanceIdentifierKey.getNodeType(), instanceIdentifierKey.getKeyValues());
+
+        TableContext ctx = new TableContext(rs, idb.build());
+        ctx.clearTable(tx);
+
+        tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME).node(ATTRIBUTES_UPTODATE_FALSE.getNodeType()), ATTRIBUTES_UPTODATE_FALSE);
+        LOG.debug("Created table instance {}", ctx.getTableId());
+        tb.put(tableKey, ctx);
+    }
+
+    private void installAdjRibsOutTables(final boolean isAppPeer, final YangInstanceIdentifier newPeerPath, final RIBSupportContext rs,
+        final NodeIdentifierWithPredicates instanceIdentifierKey, final DOMDataWriteTransaction tx) {
+        if (!isAppPeer) {
+            rs.clearTable(tx, newPeerPath.node(EMPTY_ADJRIBOUT.getIdentifier()).node(TABLES).node(instanceIdentifierKey));
+        }
     }
 
     private YangInstanceIdentifier createEmptyPeerStructure(final PeerId newPeerId, final boolean isAppPeer, final DOMDataWriteTransaction tx) {
         if (this.peerId != null) {
             // Wipe old peer data completely
-            tx.delete(LogicalDatastoreType.OPERATIONAL, this.ribPath.node(Peer.QNAME).node(new NodeIdentifierWithPredicates(Peer.QNAME, PEER_ID_QNAME, this.peerId.getValue())));
+            tx.delete(LogicalDatastoreType.OPERATIONAL, this.ribPath.node(Peer.QNAME).node(new NodeIdentifierWithPredicates(Peer.QNAME, PEER_ID_QNAME,
+                this.peerId.getValue())));
         }
         // Install new empty peer structure
         final NodeIdentifierWithPredicates peerKey = IdentifierUtils.domPeerId(newPeerId);
         final YangInstanceIdentifier newPeerPath = this.ribPath.node(Peer.QNAME).node(peerKey);
 
+        tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath, peerSkeleton(peerKey, newPeerId.getValue(), isAppPeer));
+        LOG.debug("New peer {} structure installed.", newPeerPath);
+        return newPeerPath;
+    }
+
+    @VisibleForTesting
+    MapEntryNode peerSkeleton(final NodeIdentifierWithPredicates peerKey, final String peerId, final boolean isAppPeer) {
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> pb = Builders.mapEntryBuilder();
         pb.withNodeIdentifier(peerKey);
-        pb.withChild(ImmutableNodes.leafNode(PEER_ID, newPeerId.getValue()));
+        pb.withChild(ImmutableNodes.leafNode(PEER_ID, peerId));
         pb.withChild(ImmutableNodes.leafNode(PEER_ROLE, this.role));
         pb.withChild(EMPTY_ADJRIBIN);
         pb.withChild(EMPTY_EFFRIBIN);
         if (!isAppPeer) {
             pb.withChild(EMPTY_ADJRIBOUT);
         }
-        tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath, pb.build());
-        LOG.debug("New peer {} structure installed.", newPeerPath);
-        return newPeerPath;
+        return pb.build();
     }
 
-    /**
-     * Clean all routes in specified tables
-     *
-     * @param tableTypes Tables to clean.
-     */
-    void cleanTables(final Collection<TablesKey> tableTypes) {
+    void removePeer() {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+        tx.delete(LogicalDatastoreType.OPERATIONAL, this.peerPath);
 
-        for (final TablesKey k : tableTypes) {
-            LOG.debug("Clearing table {}", k);
-            this.tables.get(k).clearTable(tx);
+        try {
+            tx.submit().checkedGet();
+        } catch (final TransactionCommitFailedException e) {
+            LOG.debug("Failed to remove Peer {}", this.peerPath, e);
         }
-
-        tx.submit();
     }
 
     void markTableUptodate(final TablesKey tableTypes) {
