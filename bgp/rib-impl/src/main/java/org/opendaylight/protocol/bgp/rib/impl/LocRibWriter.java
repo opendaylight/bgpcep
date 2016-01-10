@@ -47,6 +47,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,10 +125,12 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
              * We use two-stage processing here in hopes that we avoid duplicate
              * calculations when multiple peers have changed a particular entry.
              */
-            final Map<RouteUpdateKey, AbstractRouteEntry> toUpdate = update(tx, changes);
+            final Map<YangInstanceIdentifier, PeerId> deletedPeers = new HashMap<>();
+            final Map<RouteUpdateKey, AbstractRouteEntry> toUpdate = update(tx, changes, deletedPeers);
 
             // Now walk all updated entries
             walkThrough(tx, toUpdate);
+            removeDeletedPeersFromExportPolicyTracker(deletedPeers);
         } catch (final Exception e) {
             LOG.error("Failed to completely propagate updates {}, state is undefined", changes, e);
         } finally {
@@ -135,64 +138,91 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         }
     }
 
+    private void removeDeletedPeersFromExportPolicyTracker(final Map<YangInstanceIdentifier, PeerId> deletedPeers) {
+        for (Entry<YangInstanceIdentifier, PeerId> peerPath : deletedPeers.entrySet()) {
+            this.peerPolicyTracker.peerRoleChanged(peerPath.getKey(), null);
+        }
+    }
+
     private Map<RouteUpdateKey, AbstractRouteEntry> update(final DOMDataWriteTransaction tx,
-        final Collection<DataTreeCandidate> changes) {
+        final Collection<DataTreeCandidate> changes, final Map<YangInstanceIdentifier, PeerId> deletedPeers) {
         final Map<RouteUpdateKey, AbstractRouteEntry> ret = new HashMap<>();
 
         for (final DataTreeCandidate tc : changes) {
             final YangInstanceIdentifier rootPath = tc.getRootPath();
             final DataTreeCandidateNode rootNode = tc.getRootNode();
-            final DataTreeCandidateNode roleChange =  rootNode.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
-            if (roleChange != null) {
-                this.peerPolicyTracker.onDataTreeChanged(roleChange, IdentifierUtils.peerPath(rootPath));
-            }
-            // filter out any change outside EffRibsIn
-            final DataTreeCandidateNode ribIn = rootNode.getModifiedChild(EFFRIBIN_NID);
-            if (ribIn == null) {
-                LOG.debug("Skipping change {}", rootNode.getIdentifier());
-                continue;
-            }
-            final DataTreeCandidateNode table = ribIn.getModifiedChild(TABLES_NID).getModifiedChild(this.tableKey);
-            if (table == null) {
-                LOG.debug("Skipping change {}", rootNode.getIdentifier());
-                continue;
-            }
             final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(rootPath);
             final PeerId peerId = IdentifierUtils.peerId(peerKey);
-            final UnsignedInteger routerId = RouterIds.routerIdForPeerId(peerId);
-            for (final DataTreeCandidateNode child : table.getChildNodes()) {
-                LOG.debug("Modification type {}", child.getModificationType());
-                if ((Attributes.QNAME).equals(child.getIdentifier().getNodeType())) {
-                    if (child.getDataAfter().isPresent()) {
-                        // putting uptodate attribute in
-                        LOG.trace("Uptodate found for {}", child.getDataAfter());
-                        tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(child.getIdentifier()), child.getDataAfter().get());
-                    }
-                    continue;
-                }
-                for (final DataTreeCandidateNode route : this.ribSupport.changedRoutes(child)) {
-                    final PathArgument routeId = route.getIdentifier();
-                    AbstractRouteEntry entry = this.routeEntries.get(routeId);
-
-                    final Optional<NormalizedNode<?, ?>> maybeData = route.getDataAfter();
-                    if (maybeData.isPresent()) {
-                        if (entry == null) {
-                            entry = createEntry(routeId);
-                        }
-
-                        entry.addRoute(routerId, this.attributesIdentifier, maybeData.get());
-                    } else if (entry != null && entry.removeRoute(routerId)) {
-                        this.routeEntries.remove(routeId);
-                        entry = null;
-                        LOG.trace("Removed route from {}", routerId);
-                    }
-                    LOG.debug("Updated route {} entry {}", routeId, entry);
-                    ret.put(new RouteUpdateKey(peerId, routeId), entry);
-                }
-            }
+            filterOutPeerRole(peerId, rootNode, rootPath, deletedPeers);
+            filterOutAnyChangeOutsideEffRibsIn(peerId, rootNode, ret, tx);
         }
 
         return ret;
+    }
+
+    private void filterOutAnyChangeOutsideEffRibsIn(final PeerId peerId, final DataTreeCandidateNode rootNode,
+        final Map<RouteUpdateKey, AbstractRouteEntry> ret, final DOMDataWriteTransaction tx) {
+        final DataTreeCandidateNode ribIn = rootNode.getModifiedChild(EFFRIBIN_NID);
+        if (ribIn == null) {
+            LOG.debug("Skipping change {}", rootNode.getIdentifier());
+            return;
+        }
+        final DataTreeCandidateNode table = ribIn.getModifiedChild(TABLES_NID).getModifiedChild(this.tableKey);
+        if (table == null) {
+            LOG.debug("Skipping change {}", rootNode.getIdentifier());
+            return;
+        }
+        updateNodes(table, peerId, tx, ret);
+    }
+
+    private void filterOutPeerRole(final PeerId peerId, final DataTreeCandidateNode rootNode, final YangInstanceIdentifier rootPath, final Map<YangInstanceIdentifier, PeerId> deletedPeers) {
+        final DataTreeCandidateNode roleChange = rootNode.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
+        if (roleChange != null) {
+            if (!rootNode.getModificationType().equals(ModificationType.DELETE)) {
+                this.peerPolicyTracker.onDataTreeChanged(roleChange, IdentifierUtils.peerPath(rootPath));
+            } else {
+                deletedPeers.put(IdentifierUtils.peerPath(rootPath), peerId);
+            }
+        }
+    }
+
+    private void updateNodes(final DataTreeCandidateNode table, final PeerId peerId, final DOMDataWriteTransaction tx,
+        final Map<RouteUpdateKey, AbstractRouteEntry> ret) {
+        final UnsignedInteger routerId = RouterIds.routerIdForPeerId(peerId);
+        for (final DataTreeCandidateNode child : table.getChildNodes()) {
+            LOG.debug("Modification type {}", child.getModificationType());
+            if ((Attributes.QNAME).equals(child.getIdentifier().getNodeType())) {
+                if (child.getDataAfter().isPresent()) {
+                    // putting uptodate attribute in
+                    LOG.trace("Uptodate found for {}", child.getDataAfter());
+                    tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(child.getIdentifier()), child.getDataAfter().get());
+                }
+                continue;
+            }
+            updateRoutesEntries(peerId, child, routerId, ret);
+        }
+    }
+
+    private void updateRoutesEntries(final PeerId peerId, final DataTreeCandidateNode child, final UnsignedInteger routerId,
+        final Map<RouteUpdateKey, AbstractRouteEntry> routes) {
+        for (final DataTreeCandidateNode route : this.ribSupport.changedRoutes(child)) {
+            final PathArgument routeId = route.getIdentifier();
+            AbstractRouteEntry entry = this.routeEntries.get(routeId);
+
+            final Optional<NormalizedNode<?, ?>> maybeData = route.getDataAfter();
+            if (maybeData.isPresent()) {
+                if (entry == null) {
+                    entry = createEntry(routeId);
+                }
+                entry.addRoute(routerId, this.attributesIdentifier, maybeData.get());
+            } else if (entry != null && entry.removeRoute(routerId)) {
+                this.routeEntries.remove(routeId);
+                entry = null;
+                LOG.trace("Removed route from {}", routerId);
+            }
+            LOG.debug("Updated route {} entry {}", routeId, entry);
+            routes.put(new RouteUpdateKey(peerId, routeId), entry);
+        }
     }
 
     private void walkThrough(final DOMDataWriteTransaction tx, final Map<RouteUpdateKey, AbstractRouteEntry> toUpdate) {
@@ -236,25 +266,23 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
          * if we have two eBGP peers, for example, there is no reason why we should perform the translation
          * multiple times.
          */
+        final ContainerNode attributes = entry == null ? null : entry.attributes();
         for (final PeerRole role : PeerRole.values()) {
             final PeerExportGroup peerGroup = this.peerPolicyTracker.getPeerGroup(role);
             if (peerGroup != null) {
-                final ContainerNode attributes = entry == null ? null : entry.attributes();
                 final PeerId peerId = key.getPeerId();
                 final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(peerId, attributes);
-                if(effectiveAttributes != null) {
-                    for (final Entry<PeerId, YangInstanceIdentifier> pid : peerGroup.getPeers()) {
-                        if (!peerId.equals(pid.getKey())) {
-                            final YangInstanceIdentifier routeTarget = this.ribSupport.routePath(pid.getValue().node(AdjRibOut.QNAME)
-                                .node(Tables.QNAME).node(this.tableKey).node(Routes.QNAME), key.getRouteId());
-                            if (value != null) {
-                                LOG.debug("Write route {} to peers AdjRibsOut {}", value, pid.getKey());
-                                tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
-                                tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(this.attributesIdentifier), effectiveAttributes);
-                            } else {
-                                LOG.trace("Removing {} from transaction for peer {}", routeTarget, pid.getKey());
-                                tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);
-                            }
+                for (final Entry<PeerId, YangInstanceIdentifier> pid : peerGroup.getPeers()) {
+                    if (!peerId.equals(pid.getKey())) {
+                        final YangInstanceIdentifier routeTarget = this.ribSupport.routePath(pid.getValue().node(AdjRibOut.QNAME)
+                            .node(Tables.QNAME).node(this.tableKey).node(Routes.QNAME), key.getRouteId());
+                        if (value != null && effectiveAttributes != null) {
+                            LOG.debug("Write route {} to peers AdjRibsOut {}", value, pid.getKey());
+                            tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
+                            tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(this.attributesIdentifier), effectiveAttributes);
+                        } else {
+                            LOG.trace("Removing {} from transaction for peer {}", routeTarget, pid.getKey());
+                            tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);
                         }
                     }
                 }
