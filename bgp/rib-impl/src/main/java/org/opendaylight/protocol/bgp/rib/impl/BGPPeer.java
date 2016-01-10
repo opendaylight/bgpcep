@@ -85,7 +85,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     private BGPPeerRuntimeRegistrator registrator;
     private BGPPeerRuntimeRegistration runtimeReg;
     private long sessionEstablishedCounter = 0L;
-    private AdjRibOutListener adjRibOutListener;
+    private final Set<AdjRibOutListener> adjRibOutListenerSet = new HashSet<>();
 
     public BGPPeer(final String name, final RIB rib) {
         this(name, rib, PeerRole.Ibgp);
@@ -228,14 +228,17 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
 
         // not particularly nice
         if (context != null && this.session instanceof BGPSessionImpl) {
-            this.adjRibOutListener = AdjRibOutListener.create(peerId, key, this.rib.getYangRibId(), this.rib.getCodecsRegistry(), context.getRibSupport(),
-                ((RIBImpl) this.rib).getService(), ((BGPSessionImpl) this.session).getLimiter(), mpSupport);
+            this.adjRibOutListenerSet.add(AdjRibOutListener.create(peerId, key, this.rib.getYangRibId(), this.rib.getCodecsRegistry(),
+                context.getRibSupport(), ((RIBImpl) this.rib).getService(), ((BGPSessionImpl) this.session).getLimiter(), mpSupport));
         }
     }
 
     private synchronized void cleanup() {
         // FIXME: BUG-196: support graceful
-        this.adjRibOutListener.close();
+        for (final AdjRibOutListener adjRibOutListener : this.adjRibOutListenerSet) {
+            adjRibOutListener.close();
+        }
+        this.adjRibOutListenerSet.clear();
         this.ribWriter.cleanTables(this.tables);
         this.tables.clear();
     }
