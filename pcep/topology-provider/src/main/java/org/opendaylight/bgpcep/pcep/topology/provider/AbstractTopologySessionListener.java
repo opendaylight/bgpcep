@@ -357,16 +357,24 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         // just one path should be reported
         Preconditions.checkState(rlb.getPath().size() == 1);
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId reportedLspId = rlb.getPath().get(0).getLspId();
-        // check previous report for existing paths
-        final List<Path> updatedPaths = new ArrayList<>(previous.getPath());
-        LOG.debug("Found previous paths {} to this lsp name {}", updatedPaths, name);
-        for (final Path path : previous.getPath()) {
-            //we found reported path in previous reports
-            if (path.getLspId().getValue() == 0 || path.getLspId().equals(reportedLspId)) {
-                LOG.debug("Match on lsp-id {}", path.getLspId().getValue() );
-                // path that was reported previously and does have the same lsp-id, path will be updated
-                final boolean r = updatedPaths.remove(path);
-                LOG.trace("Request removed? {}", r);
+        final List<Path> updatedPaths;
+        //lspId = 0 and remove = false -> tunnel is down, still exists but no path is signaled
+        //remove existing tunnel's paths now, as explicit path remove will not come
+        if (!remove && reportedLspId.getValue() == 0) {
+            updatedPaths = new ArrayList<>();
+            LOG.debug("Remove previous paths {} to this lsp name {}", previous.getPath(), name);
+        } else {
+            // check previous report for existing paths
+            updatedPaths = new ArrayList<>(previous.getPath());
+            LOG.debug("Found previous paths {} to this lsp name {}", updatedPaths, name);
+            for (final Path path : previous.getPath()) {
+                //we found reported path in previous reports
+                if (path.getLspId().getValue() == 0 || path.getLspId().equals(reportedLspId)) {
+                    LOG.debug("Match on lsp-id {}", path.getLspId().getValue() );
+                    // path that was reported previously and does have the same lsp-id, path will be updated
+                    final boolean r = updatedPaths.remove(path);
+                    LOG.trace("Request removed? {}", r);
+                }
             }
         }
         // if the path does not exist in previous report, add it to path list, it's a new ERO
