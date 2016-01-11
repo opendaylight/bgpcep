@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da33351e_0a521add",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-01-11T08:37:09Z",
+      "side": 1,
+      "message": "we already check if lsp exist. In case it doesn\u0027t exist a warn is show.",
+      "range": {
+        "startLine": 160,
+        "startChar": 0,
+        "endLine": 172,
+        "endChar": 9
+      },
+      "revId": "f0f2ff689df93a01b35acedc8e4508405220d855",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
