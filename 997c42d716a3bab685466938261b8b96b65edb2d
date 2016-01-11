@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da33351e_60e9471a",
+        "filename": "pcep/controller-config/src/main/resources/initial/34-pcep-auto-bandwidth.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2016-01-11T17:51:59Z",
+      "side": 1,
+      "message": "I believe the two data segments (lines 11-17 and 22) have to be un-commented before this config file starts doing what is supposed to do.",
+      "revId": "997c42d716a3bab685466938261b8b96b65edb2d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
