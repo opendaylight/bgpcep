@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<snapshot>
+    <required-capabilities>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:impl?module=odl-pcep-impl-cfg&amp;revision=2013-06-27</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:spi?module=odl-pcep-spi-cfg&amp;revision=2013-11-15</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:auto:bandwidth:cfg?module=odl-pcep-auto-bandwidth-cfg&amp;revision=2016-01-09</capability>
+    </required-capabilities>
+    <configuration>
+        <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+            <modules xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">prefix:pcep-extensions-impl</type>
+                    <name>global-pcep-extensions</name>
+                    <extension>
+                        <type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
+                        <name>pcep-parser-auto-bandwidth</name>
+                    </extension>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:auto:bandwidth:cfg">prefix:pcep-parser-auto-bandwidth</type>
+                    <name>pcep-parser-auto-bandwidth</name>
+                    <!--<bandwidth-usage-object-type>5</bandwidth-usage-object-type>-->
+                </module>
+            </modules>
+            <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+                <service>
+                    <type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
+                    <instance>
+                        <name>pcep-parser-auto-bandwidth</name>
+                        <provider>/config/modules/module[name='pcep-parser-auto-bandwidth']/instance[name='pcep-parser-auto-bandwidth']</provider>
+                    </instance>
+                </service>
+           </services>
+        </data>
+    </configuration>
+</snapshot>
