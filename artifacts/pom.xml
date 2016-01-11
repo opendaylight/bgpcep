@@ -252,6 +252,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-auto-bandwidth-extension</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>pcep-controller-config</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -275,6 +280,13 @@
                 <version>${project.version}</version>
                 <type>xml</type>
                 <classifier>config-segment</classifier>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-controller-config</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>config-auto-bw</classifier>
             </dependency>
 
             <dependency>
