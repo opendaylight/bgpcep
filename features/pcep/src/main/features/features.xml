@@ -29,6 +29,7 @@
         <feature version='${project.version}'>odl-bgpcep-pcep-impl</feature>
         <feature version='${project.version}'>odl-bgpcep-pcep-stateful07</feature>
         <feature version='${project.version}'>odl-bgpcep-pcep-segment-routing</feature>
+        <feature version='${project.version}'>odl-bgpcep-pcep-auto-bandwidth</feature>
         <feature version='${project.version}'>odl-bgpcep-pcep-topology</feature>
         <feature version='${project.version}'>odl-bgpcep-pcep-topology-provider</feature>
         <feature version='${project.version}'>odl-bgpcep-pcep-tunnel-provider</feature>
@@ -113,5 +114,11 @@
         <feature version='${project.version}'>odl-bgpcep-pcep-stateful07</feature>
         <bundle>mvn:org.opendaylight.bgpcep/pcep-segment-routing/{{VERSION}}</bundle>
         <configfile finalname="etc/opendaylight/karaf/33-pcep-segment-routing.xml">mvn:org.opendaylight.bgpcep/pcep-controller-config/{{VERSION}}/xml/config-segment</configfile>
+    </feature>
+
+    <feature name='odl-bgpcep-pcep-auto-bandwidth' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-pcep-stateful07</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/pcep-auto-bandwidth-extension/{{VERSION}}</bundle>
+        <configfile finalname="etc/opendaylight/karaf/34-pcep-auto-bandwidth.xml">mvn:org.opendaylight.bgpcep/pcep-controller-config/{{VERSION}}/xml/config-auto-bw</configfile>
     </feature>
 </features>
