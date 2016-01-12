@@ -73,7 +73,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     private final RIBSupportContextRegistry registry;
     private final ListenerRegistration<LocRibWriter> reg;
 
-    LocRibWriter(final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier target, final Long ourAs,
+    private LocRibWriter(final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier target, final Long ourAs,
         final DOMDataTreeChangeService service, final PolicyDatabase pd, final TablesKey tablesKey) {
         this.chain = Preconditions.checkNotNull(chain);
         this.tableKey = RibSupportUtils.toYangTablesKey(tablesKey);
@@ -154,13 +154,13 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(rootPath);
             final PeerId peerId = IdentifierUtils.peerId(peerKey);
             filterOutPeerRole(peerId, rootNode, rootPath, deletedPeers);
-            filterOutAnyChangeOutsideEffRibsIn(peerId, rootNode, ret, tx);
+            filterOutAnyChangeOutsideEffRibsIn(peerId, rootPath, rootNode, ret, tx);
         }
 
         return ret;
     }
 
-    private void filterOutAnyChangeOutsideEffRibsIn(final PeerId peerId, final DataTreeCandidateNode rootNode,
+    private void filterOutAnyChangeOutsideEffRibsIn(final PeerId peerId, final YangInstanceIdentifier rootPath, final DataTreeCandidateNode rootNode,
         final Map<RouteUpdateKey, AbstractRouteEntry> ret, final DOMDataWriteTransaction tx) {
         final DataTreeCandidateNode ribIn = rootNode.getModifiedChild(EFFRIBIN_NID);
         if (ribIn == null) {
@@ -172,7 +172,33 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             LOG.debug("Skipping change {}", rootNode.getIdentifier());
             return;
         }
+        initializeTableWithExistenRoutes(table, peerId, rootPath, tx);
         updateNodes(table, peerId, tx, ret);
+    }
+
+    private void initializeTableWithExistenRoutes(final DataTreeCandidateNode table, final PeerId peerIdOfNewPeer, final YangInstanceIdentifier rootPath, final DOMDataWriteTransaction tx) {
+        if (!table.getDataBefore().isPresent()) {
+            LOG.debug("Peer {} table has been created, inserting existent routes", peerIdOfNewPeer);
+            final PeerRole newPeerRole = this.peerPolicyTracker.getRole(IdentifierUtils.peerPath(rootPath));
+            final PeerExportGroup peerGroup = this.peerPolicyTracker.getPeerGroup(newPeerRole);
+            for (Map.Entry<PathArgument, AbstractRouteEntry> entry : this.routeEntries.entrySet()) {
+                final AbstractRouteEntry routeEntry = entry.getValue();
+                final PathArgument routeId = entry.getKey();
+                final YangInstanceIdentifier routeTarget = getRouteTarget(rootPath, routeId);
+                final NormalizedNode<?, ?> value = routeEntry.createValue(routeId);
+                final PeerId routePeerId = RouterIds.createPeerId(routeEntry.getBestRouterId());
+                final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(routePeerId, routeEntry.attributes());
+                if (effectiveAttributes != null && value != null) {
+                    LOG.debug("Write route {} to peer AdjRibsOut {}", value, peerIdOfNewPeer);
+                    tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
+                    tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(this.attributesIdentifier), effectiveAttributes);
+                }
+            }
+        }
+    }
+
+    private YangInstanceIdentifier getRouteTarget(final YangInstanceIdentifier rootPath, final PathArgument routeId) {
+        return this.ribSupport.routePath(rootPath.node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey).node(ROUTES_IDENTIFIER), routeId);
     }
 
     private void filterOutPeerRole(final PeerId peerId, final DataTreeCandidateNode rootNode, final YangInstanceIdentifier rootPath, final Map<YangInstanceIdentifier, PeerId> deletedPeers) {

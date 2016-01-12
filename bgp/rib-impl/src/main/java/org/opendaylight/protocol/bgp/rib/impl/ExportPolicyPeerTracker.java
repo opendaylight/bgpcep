@@ -98,4 +98,8 @@ final class ExportPolicyPeerTracker extends AbstractPeerRoleTracker {
     PeerExportGroup getPeerGroup(final PeerRole role) {
         return this.groups.get(Preconditions.checkNotNull(role));
     }
+
+    public PeerRole getRole(final YangInstanceIdentifier peerId) {
+        return this.peerRoles.get(peerId);
+    }
 }
