@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -36,12 +37,14 @@ public class ExportPolicyTest {
     private static final NodeIdentifier SEQ_LEAFLIST_NID = new NodeIdentifier(QName.create(BestPathSelectorTest.extensionQName, "as-sequence"));
     private static final NodeIdentifier C_SEGMENT_NID = new NodeIdentifier(QName.create(BestPathSelectorTest.extensionQName, "c-segment"));
     private static final NodeIdentifier A_List = new NodeIdentifier(QName.create(BestPathSelectorTest.extensionQName, "a-list"));
+    private static final ToInternalReflectorClientExportPolicy INTERNAL_POLICY = new ToInternalReflectorClientExportPolicy(IPV4, CLUSTER);
 
     @Test
     public void testEbgpEffectiveAttributes() {
         final ContainerNode clusterIn = createClusterInput();
         final PeerRole peerRole = PeerRole.Ebgp;
         assertEquals(clusterIn, REF_POLICY.effectiveAttributes(peerRole, clusterIn));
+        assertNull(INTERNAL_POLICY.effectiveAttributes(peerRole, clusterIn));
         assertEquals(clusterIn, INT_POLICY.effectiveAttributes(peerRole, clusterIn));
 
         final ContainerNode asPathIn = createPathInput(null);
@@ -53,6 +56,7 @@ public class ExportPolicyTest {
         final ContainerNode clusterIn = createClusterInput();
         final PeerRole peerRole = PeerRole.Ibgp;
         assertEquals(createInputWithOriginator(), REF_POLICY.effectiveAttributes(peerRole, clusterIn));
+        assertNull(INTERNAL_POLICY.effectiveAttributes(peerRole, clusterIn));
         assertEquals(null, INT_POLICY.effectiveAttributes(peerRole, clusterIn));
 
         final ContainerNode asPathIn = createPathInput(null);
@@ -64,6 +68,7 @@ public class ExportPolicyTest {
         final ContainerNode clusterIn = createClusterInput();
         final PeerRole peerRole = PeerRole.RrClient;
         assertEquals(createInputWithOriginator(), REF_POLICY.effectiveAttributes(peerRole, clusterIn));
+        assertNull(INTERNAL_POLICY.effectiveAttributes(peerRole, clusterIn));
         assertEquals(createInputWithOriginator(), INT_POLICY.effectiveAttributes(peerRole, clusterIn));
 
         final ContainerNode asPathIn = createPathInput(null);
@@ -75,6 +80,7 @@ public class ExportPolicyTest {
         final ContainerNode clusterIn = createClusterInput();
         final PeerRole peerRole = PeerRole.Internal;
         assertEquals(createInternalOutput(), REF_POLICY.effectiveAttributes(peerRole, clusterIn));
+        assertNull(INTERNAL_POLICY.effectiveAttributes(peerRole, clusterIn));
         assertEquals(createInternalOutput(), INT_POLICY.effectiveAttributes(peerRole, clusterIn));
 
         final ContainerNode asPathIn = createPathInput(null);
