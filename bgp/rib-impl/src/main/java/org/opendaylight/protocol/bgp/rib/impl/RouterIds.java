@@ -55,4 +55,9 @@ final class RouterIds {
     public static PeerId createPeerId(@Nonnull final Ipv4Address address) {
         return new PeerId(BGP_PREFIX + address.getValue());
     }
+
+    public static PeerId createPeerId(@Nonnull final UnsignedInteger intAddress) {
+        final String inet4Address = InetAddresses.fromInteger(intAddress.intValue()).getHostAddress();
+        return new PeerId(BGP_PREFIX.concat(inet4Address));
+    }
 }
