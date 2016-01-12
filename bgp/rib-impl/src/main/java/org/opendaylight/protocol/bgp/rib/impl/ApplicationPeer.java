@@ -71,8 +71,7 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         this.chain = this.targetRib.createPeerChain(this);
         this.writerChain = this.targetRib.createPeerChain(this);
         this.writer = AdjRibInWriter.create(this.targetRib.getYangRibId(), PeerRole.Internal, this.writerChain);
-        // FIXME: set to true, once it's fixed how to skip advertising routes back to AppPeer
-        this.writer = this.writer.transform(RouterIds.createPeerId(ipAddress), this.targetRib.getRibSupportContext(), this.targetRib.getLocalTablesKeys(), false);
+        this.writer = this.writer.transform(RouterIds.createPeerId(ipAddress), this.targetRib.getRibSupportContext(), this.targetRib.getLocalTablesKeys(), true);
         this.moduleTracker = moduleTracker;
         if (moduleTracker != null) {
             moduleTracker.onInstanceCreate();
