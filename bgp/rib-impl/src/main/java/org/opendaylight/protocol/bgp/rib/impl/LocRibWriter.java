@@ -75,7 +75,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     private final ListenerRegistration<LocRibWriter> reg;
 
     LocRibWriter(final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier target, final Long ourAs,
-        final DOMDataTreeChangeService service, final PolicyDatabase pd, final TablesKey tablesKey) {
+                 final DOMDataTreeChangeService service, final PolicyDatabase pd, final TablesKey tablesKey) {
         this.chain = Preconditions.checkNotNull(chain);
         this.tableKey = RibSupportUtils.toYangTablesKey(tablesKey);
         this.localTablesKey = tablesKey;
@@ -97,7 +97,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     }
 
     public static LocRibWriter create(@Nonnull final RIBSupportContextRegistry registry, @Nonnull final TablesKey tablesKey, @Nonnull final DOMTransactionChain chain, @Nonnull final YangInstanceIdentifier target,
-        @Nonnull final AsNumber ourAs, @Nonnull final DOMDataTreeChangeService service, @Nonnull final PolicyDatabase pd) {
+                                      @Nonnull final AsNumber ourAs, @Nonnull final DOMDataTreeChangeService service, @Nonnull final PolicyDatabase pd) {
         return new LocRibWriter(registry, chain, target, ourAs.getValue(), service, pd, tablesKey);
     }
 
@@ -139,7 +139,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     }
 
     private Map<RouteUpdateKey, AbstractRouteEntry> update(final DOMDataWriteTransaction tx,
-        final Collection<DataTreeCandidate> changes) {
+                                                           final Collection<DataTreeCandidate> changes) {
         final Map<RouteUpdateKey, AbstractRouteEntry> ret = new HashMap<>();
 
         for (final DataTreeCandidate tc : changes) {
@@ -151,7 +151,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
                 this.peerPolicyTracker.onTablesChanged(tablesChange, IdentifierUtils.peerPath(rootPath));
             }
             // filter out peer role
-            final DataTreeCandidateNode roleChange =  rootNode.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
+            final DataTreeCandidateNode roleChange = rootNode.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
             if (roleChange != null) {
                 this.peerPolicyTracker.onDataTreeChanged(roleChange, IdentifierUtils.peerPath(rootPath));
             }
@@ -259,19 +259,23 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
                 final ContainerNode attributes = entry == null ? null : entry.attributes();
                 final PeerId peerId = key.getPeerId();
                 final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(peerId, attributes);
-                for (final Entry<PeerId, YangInstanceIdentifier> pid : peerGroup.getPeers()) {
-                    if (!this.peerPolicyTracker.isTableSupported(pid.getKey(), this.localTablesKey)) {
-                        LOG.trace("Route rejected, peer {} does not support this table type {}", pid.getKey(), this.localTablesKey);
-                        continue;
-                    }
-                    final YangInstanceIdentifier routeTarget = this.ribSupport.routePath(pid.getValue().node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey).node(ROUTES_IDENTIFIER), key.getRouteId());
-                    if (effectiveAttributes != null && value != null && !peerId.equals(pid.getKey())) {
-                        LOG.debug("Write route {} to peers AdjRibsOut {}", value, pid.getKey());
-                        tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
-                        tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(this.attributesIdentifier), effectiveAttributes);
-                    } else {
-                        LOG.trace("Removing {} from transaction for peer {}", routeTarget, pid.getKey());
-                        tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);
+                if (effectiveAttributes != null) {
+                    for (final Entry<PeerId, YangInstanceIdentifier> pid : peerGroup.getPeers()) {
+                        if (!peerId.equals(pid.getKey())) {
+                            if (!this.peerPolicyTracker.isTableSupported(pid.getKey(), this.localTablesKey)) {
+                                LOG.trace("Route rejected, peer {} does not support this table type {}", pid.getKey(), this.localTablesKey);
+                                continue;
+                            }
+                            final YangInstanceIdentifier routeTarget = this.ribSupport.routePath(pid.getValue().node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey).node(ROUTES_IDENTIFIER), key.getRouteId());
+                            if (value != null) {
+                                LOG.debug("Write route {} to peers AdjRibsOut {}", value, pid.getKey());
+                                tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
+                                tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(this.attributesIdentifier), effectiveAttributes);
+                            } else {
+                                LOG.trace("Removing {} from transaction for peer {}", routeTarget, pid.getKey());
+                                tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);
+                            }
+                        }
                     }
                 }
             }
