@@ -75,7 +75,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     private final RIBSupportContextRegistry registry;
     private final ListenerRegistration<LocRibWriter> reg;
 
-    LocRibWriter(final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier target, final Long ourAs,
+    private LocRibWriter(final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier target, final Long ourAs,
         final DOMDataTreeChangeService service, final PolicyDatabase pd, final TablesKey tablesKey) {
         this.chain = Preconditions.checkNotNull(chain);
         this.tableKey = RibSupportUtils.toYangTablesKey(tablesKey);
@@ -185,10 +185,36 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
 
         if (tablesChange != null) {
             final PeerId peerIdOfNewPeer = IdentifierUtils.peerId((NodeIdentifierWithPredicates) IdentifierUtils.peerPath(rootPath).getLastPathArgument());
+            final PeerRole newPeerRole = this.peerPolicyTracker.getRole(IdentifierUtils.peerPath(rootPath));
+            final PeerExportGroup peerGroup = this.peerPolicyTracker.getPeerGroup(newPeerRole);
+
             for (final DataTreeCandidateNode node : tablesChange.getChildNodes()) {
-                this.peerPolicyTracker.onTablesChanged(peerIdOfNewPeer, node);
+                final boolean supportedTableAdded = this.peerPolicyTracker.onTablesChanged(peerIdOfNewPeer, node);
+                if (supportedTableAdded) {
+                    for (Map.Entry<PathArgument, AbstractRouteEntry> entry : this.routeEntries.entrySet()) {
+                        if(isTableSupported(peerIdOfNewPeer)) {
+                            final AbstractRouteEntry routeEntry = entry.getValue();
+                            final ContainerNode attributes = routeEntry.attributes();
+                            final PathArgument routeId = entry.getKey();
+                            final YangInstanceIdentifier routeTarget = getRouteTarget(rootPath, routeId);
+                            final NormalizedNode<?, ?> value = routeEntry.createValue(routeId);
+                            final PeerId routePeerId = RouterIds.createPeerId(routeEntry.getBestRouterId());
+                            final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(routePeerId, attributes);
+
+                            if (effectiveAttributes != null && value != null) {
+                                LOG.debug("Write route {} to peer AdjRibsOut {}", value, peerIdOfNewPeer);
+                                tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
+                                tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(this.attributesIdentifier), effectiveAttributes);
+                            }
+                        }
+                    }
+                }
             }
         }
+    }
+
+    private YangInstanceIdentifier getRouteTarget(final YangInstanceIdentifier rootPath, final PathArgument routeId) {
+        return this.ribSupport.routePath(rootPath.node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey).node(ROUTES_IDENTIFIER), routeId);
     }
 
     private void filterOutPeerRole(final DataTreeCandidateNode rootNode, final YangInstanceIdentifier rootPath) {
@@ -267,7 +293,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     }
 
     @VisibleForTesting
-    void fillAdjRibsOut(final DOMDataWriteTransaction tx, final AbstractRouteEntry entry, final NormalizedNode<?, ?> value, final RouteUpdateKey key) {
+    private void fillAdjRibsOut(final DOMDataWriteTransaction tx, final AbstractRouteEntry entry, final NormalizedNode<?, ?> value, final RouteUpdateKey key) {
         /*
          * We need to keep track of routers and populate adj-ribs-out, too. If we do not, we need to
          * expose from which client a particular route was learned from in the local RIB, and have
@@ -280,17 +306,12 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         for (final PeerRole role : PeerRole.values()) {
             final PeerExportGroup peerGroup = this.peerPolicyTracker.getPeerGroup(role);
             if (peerGroup != null) {
-                final ContainerNode attributes = entry == null ? null : entry.attributes();
                 final PeerId peerId = key.getPeerId();
-                final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(peerId, attributes);
+                final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(peerId, entry.attributes());
                 if (effectiveAttributes != null) {
                     for (final Entry<PeerId, YangInstanceIdentifier> pid : peerGroup.getPeers()) {
-                        if (!peerId.equals(pid.getKey())) {
-                            if (!this.peerPolicyTracker.isTableSupported(pid.getKey(), this.localTablesKey)) {
-                                LOG.trace("Route rejected, peer {} does not support this table type {}", pid.getKey(), this.localTablesKey);
-                                continue;
-                            }
-                            final YangInstanceIdentifier routeTarget = this.ribSupport.routePath(pid.getValue().node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey).node(ROUTES_IDENTIFIER), key.getRouteId());
+                        if (!peerId.equals(pid.getKey()) && isTableSupported(pid.getKey())) {
+                            final YangInstanceIdentifier routeTarget = getRouteTarget(pid.getValue(), key.getRouteId());
                             if (value != null) {
                                 LOG.debug("Write route {} to peers AdjRibsOut {}", value, pid.getKey());
                                 tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
@@ -304,5 +325,13 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
                 }
             }
         }
+    }
+
+    private boolean isTableSupported(final PeerId key) {
+        if (!this.peerPolicyTracker.isTableSupported(key, this.localTablesKey)) {
+            LOG.trace("Route rejected, peer {} does not support this table type {}", key, this.localTablesKey);
+            return false;
+        }
+        return true;
     }
 }
