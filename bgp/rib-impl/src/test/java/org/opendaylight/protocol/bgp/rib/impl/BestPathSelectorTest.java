@@ -64,7 +64,7 @@ public class BestPathSelectorTest {
     private static final NodeIdentifier asSetNid = new NodeIdentifier(QName.create(extensionQName, "as-set"));
     private static final NodeIdentifier aSetNid = new NodeIdentifier(QName.create(extensionQName, ASet.QNAME.getLocalName()));
     private static final NodeIdentifier aListNid = new NodeIdentifier(QName.create(extensionQName, AList.QNAME.getLocalName()));
-    private static final NodeIdentifier asSeqNid = new NodeIdentifier(QName.create(extensionQName, AsSequence.QNAME.getLocalName()));
+    protected static final NodeIdentifier asSeqNid = new NodeIdentifier(QName.create(extensionQName, AsSequence.QNAME.getLocalName()));
     protected static final NodeIdentifier asNid = new NodeIdentifier(QName.create(extensionQName, "as"));
 
     static final UnkeyedListEntryNode SET_SEGMENT = Builders.unkeyedListEntryBuilder().withNodeIdentifier(segmentsNid)

@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -33,15 +34,14 @@ public class ExportPolicyTest {
     private static final long LOCAL_AS = 8;
     private static final ToExternalExportPolicy EXT_POLICY = new ToExternalExportPolicy(LOCAL_AS);
     private static final ToInternalExportPolicy INT_POLICY = new ToInternalExportPolicy(IPV4, CLUSTER);
-    private static final NodeIdentifier SEQ_LEAFLIST_NID = new NodeIdentifier(QName.create(BestPathSelectorTest.extensionQName, "as-sequence"));
-    private static final NodeIdentifier C_SEGMENT_NID = new NodeIdentifier(QName.create(BestPathSelectorTest.extensionQName, "c-segment"));
-    private static final NodeIdentifier A_List = new NodeIdentifier(QName.create(BestPathSelectorTest.extensionQName, "a-list"));
+    private static final ToInternalReflectorClientExportPolicy INTERNAL_POLICY = new ToInternalReflectorClientExportPolicy(IPV4, CLUSTER);
 
     @Test
     public void testEbgpEffectiveAttributes() {
         final ContainerNode clusterIn = createClusterInput();
         final PeerRole peerRole = PeerRole.Ebgp;
         assertEquals(clusterIn, REF_POLICY.effectiveAttributes(peerRole, clusterIn));
+        assertNull(INTERNAL_POLICY.effectiveAttributes(peerRole, clusterIn));
         assertEquals(clusterIn, INT_POLICY.effectiveAttributes(peerRole, clusterIn));
 
         final ContainerNode asPathIn = createPathInput(null);
@@ -53,6 +53,7 @@ public class ExportPolicyTest {
         final ContainerNode clusterIn = createClusterInput();
         final PeerRole peerRole = PeerRole.Ibgp;
         assertEquals(createInputWithOriginator(), REF_POLICY.effectiveAttributes(peerRole, clusterIn));
+        assertNull(INTERNAL_POLICY.effectiveAttributes(peerRole, clusterIn));
         assertEquals(null, INT_POLICY.effectiveAttributes(peerRole, clusterIn));
 
         final ContainerNode asPathIn = createPathInput(null);
@@ -64,6 +65,7 @@ public class ExportPolicyTest {
         final ContainerNode clusterIn = createClusterInput();
         final PeerRole peerRole = PeerRole.RrClient;
         assertEquals(createInputWithOriginator(), REF_POLICY.effectiveAttributes(peerRole, clusterIn));
+        assertNull(INTERNAL_POLICY.effectiveAttributes(peerRole, clusterIn));
         assertEquals(createInputWithOriginator(), INT_POLICY.effectiveAttributes(peerRole, clusterIn));
 
         final ContainerNode asPathIn = createPathInput(null);
@@ -75,6 +77,7 @@ public class ExportPolicyTest {
         final ContainerNode clusterIn = createClusterInput();
         final PeerRole peerRole = PeerRole.Internal;
         assertEquals(createInternalOutput(), REF_POLICY.effectiveAttributes(peerRole, clusterIn));
+        assertNull(INTERNAL_POLICY.effectiveAttributes(peerRole, clusterIn));
         assertEquals(createInternalOutput(), INT_POLICY.effectiveAttributes(peerRole, clusterIn));
 
         final ContainerNode asPathIn = createPathInput(null);
@@ -188,25 +191,14 @@ public class ExportPolicyTest {
         }
         segB.addChild(BestPathSelectorTest.SET_SEGMENT).addChild(BestPathSelectorTest.SEQ_SEGMENT);
         return Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(BestPathSelectorTest.extensionQName))
-            .addChild(Builders.containerBuilder()
-                .withNodeIdentifier(new NodeIdentifier(QName.cachedReference(QName.create(BestPathSelectorTest.extensionQName, "as-path"))))
+            .addChild(Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(QName.cachedReference(QName.create(BestPathSelectorTest.extensionQName, "as-path"))))
                 .addChild(segB.build()).build()).build();
     }
 
     private static UnkeyedListEntryNode createSequenceWithLocalAs() {
-        final UnkeyedListEntryNode asSequence = Builders.unkeyedListEntryBuilder().withNodeIdentifier(SEQ_LEAFLIST_NID)
-            .addChild(Builders.leafBuilder().withNodeIdentifier(BestPathSelectorTest.asNid)
-                .withValue(LOCAL_AS)
-                .build()).build();
-
-        final CollectionNodeBuilder<UnkeyedListEntryNode, UnkeyedListNode> segB = Builders.unkeyedListBuilder();
-        segB.withNodeIdentifier(SEQ_LEAFLIST_NID);
-        segB.addChild(asSequence);
-
         return Builders.unkeyedListEntryBuilder().withNodeIdentifier(BestPathSelectorTest.segmentsNid)
-            .addChild(Builders.choiceBuilder().withNodeIdentifier(C_SEGMENT_NID)
-                .addChild(Builders.containerBuilder()
-                    .withNodeIdentifier(A_List)
-                    .addChild(segB.build()).build()).build()).build();
+            .addChild(Builders.orderedLeafSetBuilder().withNodeIdentifier(BestPathSelectorTest.asSeqNid)
+                .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(BestPathSelectorTest.asNumberQ, LOCAL_AS)).withValue(LOCAL_AS).build())
+                .build()).build();
     }
 }
