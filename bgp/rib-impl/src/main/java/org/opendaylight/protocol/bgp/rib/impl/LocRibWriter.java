@@ -188,8 +188,34 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
 
         if (tablesChange != null) {
             final PeerId peerIdOfNewPeer = IdentifierUtils.peerId((NodeIdentifierWithPredicates) IdentifierUtils.peerPath(rootPath).getLastPathArgument());
+            final PeerRole newPeerRole = this.peerPolicyTracker.getRole(IdentifierUtils.peerPath(rootPath));
+            final PeerExportGroup peerGroup = this.peerPolicyTracker.getPeerGroup(newPeerRole);
+
             for (final DataTreeCandidateNode node : tablesChange.getChildNodes()) {
-                this.peerPolicyTracker.onTablesChanged(peerIdOfNewPeer, node);
+                final boolean supportedTableAdded = this.peerPolicyTracker.onTablesChanged(peerIdOfNewPeer, node);
+                if (supportedTableAdded) {
+                    for (Map.Entry<PathArgument, AbstractRouteEntry> entry : this.routeEntries.entrySet()) {
+                        final AbstractRouteEntry routeEntry = entry.getValue();
+                        final PeerId routePeerId = RouterIds.createPeerId(routeEntry.getBestRouterId());
+                        final ContainerNode attributes = routeEntry == null ? null : routeEntry.attributes();
+                        final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(routePeerId, attributes);
+                        final PathArgument routeId = entry.getKey();
+
+                        if (!this.peerPolicyTracker.isTableSupported(peerIdOfNewPeer, this.localTablesKey)) {
+                            LOG.trace("Route skipped, peer {} does not support this table type {}", peerIdOfNewPeer, this.localTablesKey);
+                            continue;
+                        }
+                        final YangInstanceIdentifier routeTarget = this.ribSupport.routePath(rootPath.node(AdjRibOut.QNAME)
+                            .node(Tables.QNAME).node(this.tableKey).node(ROUTES_IDENTIFIER), routeId);
+                        final NormalizedNode<?, ?> value = routeEntry.createValue(routeId);
+
+                        if (effectiveAttributes != null && value != null) {
+                            LOG.debug("Write route {} to peer AdjRibsOut {}", value, peerIdOfNewPeer);
+                            tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
+                            tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(this.attributesIdentifier), effectiveAttributes);
+                        }
+                    }
+                }
             }
         }
     }
