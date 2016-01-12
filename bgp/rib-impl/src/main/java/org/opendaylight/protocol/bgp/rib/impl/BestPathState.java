@@ -129,6 +129,7 @@ final class BestPathState {
 
         this.attributes = Preconditions.checkNotNull(attributes);
         this.ids = col;
+        resolveValues();
     }
 
     private static BgpOrigin fromString(final String originStr) {
