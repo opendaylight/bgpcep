@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "da33351e_d9d76ebe",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-01-12T13:08:46Z",
+      "side": 1,
+      "message": "this method its only called from trigger rpc. Indeed what its wrong is the if, which should cover the whole method and dont allow more than one trigger until previous one is finish.",
+      "parentUuid": "da33351e_799bc2c9",
+      "range": {
+        "startLine": 202,
+        "startChar": 17,
+        "endLine": 202,
+        "endChar": 41
+      },
+      "revId": "d3a8e2ac266dc6b121277685e15967eb4d139ccb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da33351e_5987de61",
         "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
         "patchSetId": 8
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "da33351e_b9d1cacf",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-01-12T13:08:46Z",
+      "side": 1,
+      "message": "we check if isTriggeredSyncInProcess, if the resync still in process we dont want the request to be removed, since all PCrpt will carry same srp Id. If the first remove it nexts ones will show WARN for not srpId recognized.\nTherefore End of Sync will be on charge of remove of remove it.",
+      "parentUuid": "da33351e_5987de61",
+      "revId": "d3a8e2ac266dc6b121277685e15967eb4d139ccb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da33351e_b9f38a09",
         "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
         "patchSetId": 8
@@ -53,6 +95,30 @@
       "writtenOn": "2016-01-12T10:23:17Z",
       "side": 1,
       "message": "Why we need this special case?",
+      "range": {
+        "startLine": 328,
+        "startChar": 0,
+        "endLine": 338,
+        "endChar": 13
+      },
+      "revId": "d3a8e2ac266dc6b121277685e15967eb4d139ccb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da33351e_99d686c4",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-01-12T13:08:46Z",
+      "side": 1,
+      "message": "previous answer",
+      "parentUuid": "da33351e_b9f38a09",
       "range": {
         "startLine": 328,
         "startChar": 0,
