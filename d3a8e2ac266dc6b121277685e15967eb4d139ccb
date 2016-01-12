@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da33351e_799bc2c9",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-12T10:23:17Z",
+      "side": 1,
+      "message": "Should be set true when re-sync rpc is triggered (pccSyncState \u003d\u003d PccSyncState.PcepTrigerredResync).",
+      "range": {
+        "startLine": 202,
+        "startChar": 17,
+        "endLine": 202,
+        "endChar": 41
+      },
+      "revId": "d3a8e2ac266dc6b121277685e15967eb4d139ccb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da33351e_5987de61",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-12T10:23:17Z",
+      "side": 1,
+      "message": "Should only check if log warning or not.",
+      "revId": "d3a8e2ac266dc6b121277685e15967eb4d139ccb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da33351e_b9f38a09",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-12T10:23:17Z",
+      "side": 1,
+      "message": "Why we need this special case?",
+      "range": {
+        "startLine": 328,
+        "startChar": 0,
+        "endLine": 338,
+        "endChar": 13
+      },
+      "revId": "d3a8e2ac266dc6b121277685e15967eb4d139ccb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
