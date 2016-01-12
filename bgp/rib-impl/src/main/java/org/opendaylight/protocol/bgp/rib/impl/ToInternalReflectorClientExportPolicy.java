@@ -13,8 +13,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
- * Invoked on routes which we send to our reflector peers. This is a special-case of
- * FromInternalImportPolicy.
+ * Application Peer doesnt require AdjRibOut
  */
 final class ToInternalReflectorClientExportPolicy extends AbstractReflectingExportPolicy {
 
@@ -24,21 +23,7 @@ final class ToInternalReflectorClientExportPolicy extends AbstractReflectingExpo
 
     @Override
     ContainerNode effectiveAttributes(final PeerRole sourceRole, final ContainerNode attributes) {
-        switch (sourceRole) {
-        case Ebgp:
-            // eBGP -> Client iBGP, propagate
-            return attributes;
-        case Ibgp:
-            // Non-Client iBGP -> Client iBGP, reflect
-            return reflectedAttributes(attributes);
-        case RrClient:
-            // Client iBGP -> Client iBGP, reflect
-            return reflectedAttributes(attributes);
-        case Internal:
-            // Internal Client iBGP -> Client iBGP, reflect
-            return reflectedFromInternalAttributes(attributes);
-        default:
-            throw new IllegalArgumentException("Unhandled source role " + sourceRole);
-        }
+        // Any Role -> Internal
+        return null;
     }
 }
