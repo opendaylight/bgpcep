@@ -254,6 +254,9 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
          * multiple times.
          */
         for (final PeerRole role : PeerRole.values()) {
+            if(role.equals(PeerRole.Internal)){
+                continue;
+            }
             final PeerExportGroup peerGroup = this.peerPolicyTracker.getPeerGroup(role);
             if (peerGroup != null) {
                 final ContainerNode attributes = entry == null ? null : entry.attributes();
