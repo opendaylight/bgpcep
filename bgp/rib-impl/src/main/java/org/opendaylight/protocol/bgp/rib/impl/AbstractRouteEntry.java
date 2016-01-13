@@ -48,7 +48,7 @@ abstract class AbstractRouteEntry {
         }
 
         this.offsets.setValue(this.values, offset, attributes);
-        LOG.trace("Added route from {} attributes {}", routerId, attributes);
+        LOG.trace("$$ Added route from {} attributes {} offset {}", routerId, attributes, offset);
         return offset;
     }
 
@@ -59,10 +59,10 @@ abstract class AbstractRouteEntry {
     }
 
     // Indicates whether this was the last route
-    protected final boolean removeRoute(final int offset) {
+    protected final boolean removeRoute(final int offset, final UnsignedInteger routerId) {
+        LOG.debug("$$ offsets.size = {}, offset = {}", this.offsets.size(), offset);
         if (this.offsets.size() != 1) {
-            // FIXME: actually shrink the array
-            this.offsets.setValue(this.values, offset, null);
+            this.values = this.offsets.remove(this.values, offset, routerId);
             return false;
         } else {
             return true;

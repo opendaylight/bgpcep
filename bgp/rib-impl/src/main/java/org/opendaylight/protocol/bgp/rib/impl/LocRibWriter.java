@@ -195,7 +195,20 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             final PathArgument routeId = route.getIdentifier();
             AbstractRouteEntry entry = this.routeEntries.get(routeId);
 
+            final Optional<NormalizedNode<?, ?>> maybeDataBefore = route.getDataBefore();
+            NormalizedNode<?, ?> print1, print2;
+            if (maybeDataBefore.isPresent()) {
+                print1 = maybeDataBefore.get();
+            } else {
+                print1 = null;
+            }
             final Optional<NormalizedNode<?, ?>> maybeData = route.getDataAfter();
+            if (maybeData.isPresent()) {
+                print2 = maybeData.get();
+            } else {
+                print2 = null;
+            }
+            LOG.trace("## Data before {} \nData after {} \n route mType {} \nEntry before {}", print1, print2, route.getModificationType(), entry);
             if (maybeData.isPresent()) {
                 if (entry == null) {
                     entry = createEntry(routeId);
@@ -205,6 +218,8 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
                 this.routeEntries.remove(routeId);
                 entry = null;
                 LOG.trace("Removed route from {}", routerId);
+            } else {
+                // withdraw
             }
             LOG.debug("Updated route {} entry {}", routeId, entry);
             routes.put(new RouteUpdateKey(peerId, routeId), entry);

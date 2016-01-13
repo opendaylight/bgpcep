@@ -15,9 +15,11 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
 import com.google.common.primitives.UnsignedInteger;
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -42,7 +44,7 @@ final class OffsetMap {
             return o1.compareTo(o2);
         }
     };
-    private final UnsignedInteger[] routerIds;
+    private UnsignedInteger[] routerIds;
 
     private OffsetMap(final Set<UnsignedInteger> routerIds) {
         final UnsignedInteger[] array = routerIds.toArray(new UnsignedInteger[0]);
@@ -77,14 +79,30 @@ final class OffsetMap {
 
     <T> T getValue(final T[] array, final int offset) {
         Preconditions.checkArgument(offset >= 0, "Invalid negative offset %s", offset);
-        Preconditions.checkArgument(offset < routerIds.length, "Invalid offset %s for %s router IDs", offset, routerIds.length);
+        Preconditions.checkArgument(offset < this.routerIds.length, "Invalid offset %s for %s router IDs", offset, this.routerIds.length);
         return array[offset];
     }
 
     <T> void setValue(final T[] array, final int offset, final T value) {
         Preconditions.checkArgument(offset >= 0, "Invalid negative offset %s", offset);
-        Preconditions.checkArgument(offset < routerIds.length, "Invalid offset %s for %s router IDs", offset, routerIds.length);
+        Preconditions.checkArgument(offset < this.routerIds.length, "Invalid offset %s for %s router IDs", offset, this.routerIds.length);
         array[offset] = value;
+    }
+
+    <T> T[] remove(final T[] array, final int offset, final UnsignedInteger routeId) {
+        Preconditions.checkArgument(offset >= 0, "Invalid negative offset %s", offset);
+        Preconditions.checkArgument(offset < this.routerIds.length, "Invalid offset %s for %s router IDs", offset, this.routerIds.length);
+        final T[] ret = (T[]) Array.newInstance(array.getClass().getComponentType(), array.length - 1);
+        System.arraycopy(array, 0, ret, 0, offset);
+        System.arraycopy(array, offset + 1, ret, offset, array.length - offset - 1);
+        removeRouteId(routeId);
+        return ret;
+    }
+
+    private void removeRouteId( final UnsignedInteger routeId) {
+        final List<UnsignedInteger> list = new ArrayList<UnsignedInteger>(Arrays.asList(this.routerIds));
+        list.remove(routeId);
+        this.routerIds = list.toArray(new UnsignedInteger[0]);
     }
 
     <T> T[] expand(final OffsetMap oldOffsets, final T[] oldArray, final int offset) {
