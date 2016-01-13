@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da33351e_98883b24",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractRouteEntry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 4085
+      },
+      "writtenOn": "2016-01-13T10:46:37Z",
+      "side": 1,
+      "message": "I am not sure if this condition is correct in this situation (when both peers are removed with the same routeId info). Should the best path be set to null?",
+      "range": {
+        "startLine": 94,
+        "startChar": 8,
+        "endLine": 94,
+        "endChar": 34
+      },
+      "revId": "d8e39e7e993de69455ee4569586c8c2ccf1a1759",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
