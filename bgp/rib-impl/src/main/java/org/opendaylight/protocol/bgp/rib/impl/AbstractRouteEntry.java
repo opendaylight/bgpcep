@@ -86,9 +86,14 @@ abstract class AbstractRouteEntry {
 
         // Get the newly-selected best path.
         final BestPath newBestPath = selector.result();
-        final boolean ret = !newBestPath.equals(this.bestPath);
+        boolean ret = true;
+        if (newBestPath == null || newBestPath.equals(this.bestPath)) {
+            ret = false;
+        }
         LOG.trace("Previous best {}, current best {}, result {}", this.bestPath, newBestPath, ret);
-        this.bestPath = newBestPath;
+        if (newBestPath != null) {
+            this.bestPath = newBestPath;
+        }
         return ret;
     }
 
