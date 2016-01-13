@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba3841fe_808296fe",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-13T22:56:15Z",
+      "side": 1,
+      "message": "looks similar to the \"fillAdjRibsOut\"",
+      "range": {
+        "startLine": 195,
+        "startChar": 0,
+        "endLine": 217,
+        "endChar": 21
+      },
+      "revId": "f949fe4fb93189b07f4434e06ed0f5c033fc99f4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
