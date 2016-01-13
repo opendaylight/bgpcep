@@ -6,17 +6,18 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 
-__author__ = "Radovan Sajben"
-__copyright__ = "Copyright(c) 2015, Cisco Systems, Inc."
-__license__ = "Eclipse Public License v1.0"
-__email__ = "rsajben@cisco.com"
-
 import requests
 import ipaddr
 import argparse
 import logging
 import time
 import xml.dom.minidom as md
+
+
+__author__ = "Radovan Sajben"
+__copyright__ = "Copyright(c) 2015, Cisco Systems, Inc."
+__license__ = "Eclipse Public License v1.0"
+__email__ = "rsajben@cisco.com"
 
 
 def _build_url(odl_ip, port, uri):

@@ -11,11 +11,6 @@ EXABGP in this type of scenario."""
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 
-__author__ = "Vratko Polak"
-__copyright__ = "Copyright(c) 2015, Cisco Systems, Inc."
-__license__ = "Eclipse Public License v1.0"
-__email__ = "vrpolak@cisco.com"
-
 import argparse
 import binascii
 import ipaddr
@@ -27,6 +22,12 @@ import struct
 
 import thread
 from copy import deepcopy
+
+
+__author__ = "Vratko Polak"
+__copyright__ = "Copyright(c) 2015, Cisco Systems, Inc."
+__license__ = "Eclipse Public License v1.0"
+__email__ = "vrpolak@cisco.com"
 
 
 def parse_arguments():
@@ -689,8 +690,9 @@ class MessageGenerator(object):
             "\x41"  # "32 bit AS Numbers Support"
                     # (see RFC 6793, section 3)
             "\x04"  # Capability value length
-                    # My AS in 32 bit format
-            + struct.pack(">I", my_autonomous_system)
+        )
+        optional_parameter_hex += (
+            struct.pack(">I", my_autonomous_system)  # My AS in 32 bit format
         )
         optional_parameters_hex += optional_parameter_hex
 
@@ -812,13 +814,17 @@ class MessageGenerator(object):
                 "\x06"  # Length (6)
                 "\x02"  # AS segment type (AS_SEQUENCE)
                 "\x01"  # AS segment length (1)
-                        # AS segment (4 bytes)
-                + struct.pack(">I", my_autonomous_system) +
+            )
+            my_AS = struct.pack(">I", my_autonomous_system)
+            path_attributes_hex += my_AS  # AS segment (4 bytes)
+            path_attributes_hex += (
                 "\x40"  # Flags ("Well-Known")
                 "\x03"  # Type (NEXT_HOP)
                 "\x04"  # Length (4)
-                        # IP address of the next hop (4 bytes)
-                + struct.pack(">I", int(next_hop))
+            )
+            next_hop = struct.pack(">I", int(next_hop))
+            path_attributes_hex += (
+                next_hop  # IP address of the next hop (4 bytes)
             )
         else:
             path_attributes_hex = ""

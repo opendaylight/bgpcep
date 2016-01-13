@@ -11,13 +11,14 @@ read the file contents and access it as values of variables."""
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 
+import os
+import string
+
+
 __author__ = "Jozef Behran"
 __copyright__ = "Copyright(c) 2015, Cisco Systems, Inc."
 __license__ = "Eclipse Public License v1.0"
 __email__ = "jbehran@cisco.com"
-
-import os
-import string
 
 
 def get_variables(mininet_ip):
