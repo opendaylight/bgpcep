@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba3841fe_c0949e46",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-13T22:45:22Z",
+      "side": 1,
+      "message": "do we really want to do this? what\u0027s the point?",
+      "range": {
+        "startLine": 119,
+        "startChar": 0,
+        "endLine": 125,
+        "endChar": 17
+      },
+      "revId": "3c0340414922c5ca860ecb1c5008eb4c035a9cd5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba3841fe_60b032f5",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-13T22:45:22Z",
+      "side": 1,
+      "message": "ok for now, but not really nice...please left TODO here, we need to come with something better",
+      "revId": "3c0340414922c5ca860ecb1c5008eb4c035a9cd5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
