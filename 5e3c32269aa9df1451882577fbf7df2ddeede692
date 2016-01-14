@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba3841fe_40eece8c",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/PCCTunnelBuilder.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-14T00:03:12Z",
+      "side": 1,
+      "message": "final",
+      "revId": "5e3c32269aa9df1451882577fbf7df2ddeede692",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba3841fe_20f3ca74",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/PCCTunnelManagerImpl.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-14T00:03:12Z",
+      "side": 1,
+      "message": "final",
+      "revId": "5e3c32269aa9df1451882577fbf7df2ddeede692",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba3841fe_004e86c1",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/TimerHandler.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-14T00:03:12Z",
+      "side": 1,
+      "message": "final?",
+      "revId": "5e3c32269aa9df1451882577fbf7df2ddeede692",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba3841fe_20658a45",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/TimerHandler.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-14T00:03:12Z",
+      "side": 1,
+      "message": "remove or uncomment",
+      "revId": "5e3c32269aa9df1451882577fbf7df2ddeede692",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba3841fe_80e8d67d",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/api/PCCTunnelManager.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-14T00:03:12Z",
+      "side": 1,
+      "message": "since the scope of the interface has changed - is it necessary to expose all this functions?",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 85
+      },
+      "revId": "5e3c32269aa9df1451882577fbf7df2ddeede692",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
