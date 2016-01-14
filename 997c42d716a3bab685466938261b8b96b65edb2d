@@ -121,6 +121,24 @@
       "revId": "997c42d716a3bab685466938261b8b96b65edb2d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba3841fe_a378842c",
+        "filename": "pcep/controller-config/src/main/resources/initial/34-pcep-auto-bandwidth.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-14T02:22:45Z",
+      "side": 1,
+      "message": "Keeping un-commented by default.",
+      "parentUuid": "da33351e_60e9471a",
+      "revId": "997c42d716a3bab685466938261b8b96b65edb2d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
