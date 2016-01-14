@@ -16,6 +16,24 @@
       "revId": "516da1d0e292a7d773d5743f7651d5bb552e7d67",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba3841fe_6049528b",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpRouterPeerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-14T00:30:11Z",
+      "side": 1,
+      "message": "It was mean when peer does support MP capability other than IPv4-Unicast (or no MP capabilities at all), it can advertise routes in BGP-4 fashion - so this situation might not happen for real?",
+      "parentUuid": "da33351e_d53e1c29",
+      "revId": "516da1d0e292a7d773d5743f7651d5bb552e7d67",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
