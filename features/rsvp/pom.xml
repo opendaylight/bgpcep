@@ -15,18 +15,18 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>features-parent</artifactId>
-        <version>1.6.0-SNAPSHOT</version>
+        <version>1.7.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <artifactId>features-rsvp</artifactId>
     <groupId>org.opendaylight.bgpcep</groupId>
-    <version>0.5.0-SNAPSHOT</version>
+    <version>0.6.0-SNAPSHOT</version>
 
     <properties>
-        <mdsal.binding.base>0.8.0-SNAPSHOT</mdsal.binding.base>
-        <config.version>0.4.0-SNAPSHOT</config.version>
-        <protocol-framework.version>0.7.0-SNAPSHOT</protocol-framework.version>
+        <mdsal.binding.base>0.9.0-SNAPSHOT</mdsal.binding.base>
+        <config.version>0.5.0-SNAPSHOT</config.version>
+        <protocol-framework.version>0.8.0-SNAPSHOT</protocol-framework.version>
     </properties>
 
     <dependencyManagement>
