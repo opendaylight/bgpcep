@@ -855,17 +855,15 @@ class MessageGenerator(object):
                     "\x80"  # Flags ("Optional, non-transitive")
                     "\x09"  # Type (ORIGINATOR_ID)
                     "\x04"  # Length (4)
-                            # ORIGINATOR_ID (4 bytes)
-                    + struct.pack(">I", int(originator_id))
-                )
+                )           # ORIGINATOR_ID (4 bytes)
+                path_attributes_hex += struct.pack(">I", int(originator_id))
             if cluster_list_item is not None:
                 path_attributes_hex += (
                     "\x80"  # Flags ("Optional, non-transitive")
                     "\x09"  # Type (CLUSTER_LIST)
                     "\x04"  # Length (4)
-                            # one CLUSTER_LIST item (4 bytes)
-                    + struct.pack(">I", int(cluster_list_item))
-                )
+                )           # one CLUSTER_LIST item (4 bytes)
+                path_attributes_hex += struct.pack(">I", int(cluster_list_item))
 
         # Total Path Attributes Length
         total_path_attributes_length = len(path_attributes_hex)
