@@ -303,11 +303,12 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
          * if we have two eBGP peers, for example, there is no reason why we should perform the translation
          * multiple times.
          */
+        final ContainerNode attributes = entry == null ? null : entry.attributes();
         for (final PeerRole role : PeerRole.values()) {
             final PeerExportGroup peerGroup = this.peerPolicyTracker.getPeerGroup(role);
             if (peerGroup != null) {
                 final PeerId peerId = key.getPeerId();
-                final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(peerId, entry.attributes());
+                final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(peerId, attributes);
                 if (effectiveAttributes != null) {
                     for (final Entry<PeerId, YangInstanceIdentifier> pid : peerGroup.getPeers()) {
                         if (!peerId.equals(pid.getKey()) && isTableSupported(pid.getKey())) {
