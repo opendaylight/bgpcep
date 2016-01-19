@@ -232,13 +232,15 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             final RouteUpdateKey key = e.getKey();
             final NormalizedNode<?, ?> value;
 
+            PeerId routePeerId = key.getPeerId();
             if (entry != null) {
                 if (!entry.selectBest(this.ourAs)) {
                     // Best path has not changed, no need to do anything else. Proceed to next route.
                     LOG.trace("Continuing");
                     continue;
                 }
-                value = entry.createValue(key.getRouteId());
+                routePeerId = RouterIds.createPeerId(entry.getBestRouterId());
+                value = entry.createValue(routeId);
                 LOG.trace("Selected best value {}", value);
             } else {
                 value = null;
