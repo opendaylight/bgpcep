@@ -58,11 +58,16 @@ abstract class AbstractRouteEntry {
         return addRoute(routerId, advertisedAttrs);
     }
 
-    // Indicates whether this was the last route
-    protected final boolean removeRoute(final int offset) {
+    /**
+     * Remove route
+     * @param routerId
+     * @param offset
+     * @return true if it was the last route
+     */
+    protected final boolean removeRoute(final UnsignedInteger routerId, final int offset) {
         if (this.offsets.size() != 1) {
-            // FIXME: actually shrink the array
-            this.offsets.setValue(this.values, offset, null);
+            this.values = this.offsets.removeValue(this.values, offset);
+            this.offsets = this.offsets.without(routerId);
             return false;
         } else {
             return true;

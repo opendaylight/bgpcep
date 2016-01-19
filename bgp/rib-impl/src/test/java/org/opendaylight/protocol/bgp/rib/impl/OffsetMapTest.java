@@ -26,8 +26,10 @@ public class OffsetMapTest {
         assertEquals(EXPECTED_ROUTER_OFFSET, offsetMap.offsetOf(RouterIds.routerIdForAddress(LOCAL_ADDRESS)));
         assertEquals(LOCAL_ADDRESS_DECIMAL, offsetMap.getRouterId(EXPECTED_ROUTER_OFFSET).intValue());
 
-        assertEquals(EXPECTED_VALUE, (int)offsetMap.getValue(TESTED_VALUES, EXPECTED_ROUTER_OFFSET));
+        assertEquals(EXPECTED_VALUE, (int) offsetMap.getValue(TESTED_VALUES, EXPECTED_ROUTER_OFFSET));
         offsetMap.setValue(TESTED_VALUES, EXPECTED_ROUTER_OFFSET, CHANGED_VALUE);
-        assertEquals(CHANGED_VALUE, (int)offsetMap.getValue(TESTED_VALUES, EXPECTED_ROUTER_OFFSET));
+        assertEquals(CHANGED_VALUE, (int) offsetMap.getValue(TESTED_VALUES, EXPECTED_ROUTER_OFFSET));
+        assertEquals(TESTED_VALUES.length -1,offsetMap.removeValue(TESTED_VALUES, 0).length);
+        assertEquals(0, offsetMap.without(RouterIds.routerIdForAddress(LOCAL_ADDRESS)).size());
     }
 }
