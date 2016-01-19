@@ -42,10 +42,8 @@ final class ComplexRouteEntry extends AbstractRouteEntry {
     boolean removeRoute(final UnsignedInteger routerId) {
         final OffsetMap map = getOffsets();
         final int offset = map.offsetOf(routerId);
-
-        final boolean ret = removeRoute(offset);
-        // FIXME: actually shrink the array
-        map.setValue(this.values, offset, null);
+        final boolean ret = removeRoute(routerId, offset);
+        this.values = map.removeValue(this.values, offset);
         return ret;
     }
 }
