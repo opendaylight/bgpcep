@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Set;
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * A map of Router identifier to an offset. Used to maintain a simple
@@ -75,6 +76,13 @@ final class OffsetMap {
         return OFFSETMAPS.getUnchecked(b.build());
     }
 
+    OffsetMap without(final UnsignedInteger routerId) {
+        final Builder<UnsignedInteger> b = ImmutableSet.builder();
+        final UnsignedInteger[] newRoutersIdArray = ArrayUtils.removeElement(this.routerIds, routerId);
+        b.add(newRoutersIdArray);
+        return OFFSETMAPS.getUnchecked(b.build());
+    }
+
     <T> T getValue(final T[] array, final int offset) {
         Preconditions.checkArgument(offset >= 0, "Invalid negative offset %s", offset);
         Preconditions.checkArgument(offset < routerIds.length, "Invalid offset %s for %s router IDs", offset, routerIds.length);
@@ -96,5 +104,11 @@ final class OffsetMap {
         System.arraycopy(oldArray, offset, ret, offset + 1, oldSize - offset);
 
         return ret;
+    }
+
+    <T> T[] removeValue(final T[] array, final int offset) {
+        Preconditions.checkArgument(offset >= 0, "Invalid negative offset %s", offset);
+        Preconditions.checkArgument(offset < routerIds.length, "Invalid offset %s for %s router IDs", offset, routerIds.length);
+        return ArrayUtils.remove(array, offset);
     }
 }
