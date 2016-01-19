@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
 import com.google.common.primitives.UnsignedInteger;
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -24,7 +25,7 @@ import java.util.Set;
  * A map of Router identifier to an offset. Used to maintain a simple
  * offset-based lookup across multiple {@link AbstractRouteEntry} objects,
  * which share either contributors or consumers.
- *
+ * <p/>
  * We also provide utility reformat methods, which provide access to
  * array members and array management features.
  */
@@ -75,6 +76,15 @@ final class OffsetMap {
         return OFFSETMAPS.getUnchecked(b.build());
     }
 
+    OffsetMap without(final UnsignedInteger routerId) {
+        final Builder<UnsignedInteger> b = ImmutableSet.builder();
+        final ArrayList<UnsignedInteger> newArray = new ArrayList(Arrays.asList(this.routerIds));
+        newArray.remove(routerId);
+        final UnsignedInteger[] ret = new UnsignedInteger[newArray.size()];
+        b.add(newArray.toArray(ret));
+        return OFFSETMAPS.getUnchecked(b.build());
+    }
+
     <T> T getValue(final T[] array, final int offset) {
         Preconditions.checkArgument(offset >= 0, "Invalid negative offset %s", offset);
         Preconditions.checkArgument(offset < routerIds.length, "Invalid offset %s for %s router IDs", offset, routerIds.length);
@@ -96,5 +106,14 @@ final class OffsetMap {
         System.arraycopy(oldArray, offset, ret, offset + 1, oldSize - offset);
 
         return ret;
+    }
+
+    <T> T[] removeValue(final T[] array, final int offset) {
+        Preconditions.checkArgument(offset >= 0, "Invalid negative offset %s", offset);
+        Preconditions.checkArgument(offset < routerIds.length, "Invalid offset %s for %s router IDs", offset, routerIds.length);
+        final ArrayList<T> newArray = new ArrayList(Arrays.asList(array));
+        newArray.remove(offset);
+        final T[] ret = (T[]) Array.newInstance(array.getClass().getComponentType(), newArray.size());
+        return newArray.toArray(ret);
     }
 }
