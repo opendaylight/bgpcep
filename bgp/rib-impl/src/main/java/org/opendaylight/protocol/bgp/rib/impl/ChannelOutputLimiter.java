@@ -31,13 +31,14 @@ final class ChannelOutputLimiter extends ChannelInboundHandlerAdapter {
 
     private void ensureWritable() {
         if (blocked) {
+            flush();
             LOG.trace("Blocked slow path tripped on session {}", session);
             synchronized (this) {
                 while (blocked) {
                     try {
                         LOG.debug("Waiting for session {} to become writable", session);
                         this.wait();
-                    } catch (InterruptedException e) {
+                    } catch (final InterruptedException e) {
                         throw new IllegalStateException("Interrupted while waiting for channel to come back", e);
                     }
                 }
