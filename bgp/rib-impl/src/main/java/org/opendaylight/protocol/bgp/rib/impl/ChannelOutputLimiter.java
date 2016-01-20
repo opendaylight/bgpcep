@@ -71,6 +71,8 @@ final class ChannelOutputLimiter extends ChannelInboundHandlerAdapter {
 
             if (w) {
                 this.notifyAll();
+            } else {
+                flush();
             }
         }
 
