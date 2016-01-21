@@ -45,7 +45,7 @@
         <maven.info.reports.version>2.7</maven.info.reports.version>
 
         <!-- YANG tools artifacts -->
-        <yangtools.version>0.9.0-SNAPSHOT</yangtools.version>
+        <yangtools.version>1.0.0-SNAPSHOT</yangtools.version>
 
         <!-- MD-SAL artifacts -->
         <mdsal.version>2.1.0-SNAPSHOT</mdsal.version>
