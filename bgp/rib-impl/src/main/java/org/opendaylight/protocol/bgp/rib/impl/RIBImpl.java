@@ -117,28 +117,29 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.domDataBroker = Preconditions.checkNotNull(domDataBroker);
         this.extensions = Preconditions.checkNotNull(extensions);
         this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, codecFactory, classStrategy);
-        this.yangRibId = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME).nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
+        final InstanceIdentifierBuilder yangRibIdBuilder = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME);
+        this.yangRibId = yangRibIdBuilder.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
 
         LOG.debug("Instantiating RIB table {} at {}", ribId, this.yangRibId);
 
-        final ContainerNode rib = Builders.containerBuilder()
-            .withNodeIdentifier(new NodeIdentifier(BgpRib.QNAME))
-            .addChild(ImmutableNodes.mapNodeBuilder(Rib.QNAME)
-                .addChild(ImmutableNodes.mapEntryBuilder(Rib.QNAME, RIB_ID_QNAME, ribId.getValue())
+        final ContainerNode bgpRib = Builders.containerBuilder()
+                .withNodeIdentifier(new NodeIdentifier(BgpRib.QNAME))
+                    .addChild(ImmutableNodes.mapNodeBuilder(Rib.QNAME).build()).build();
+
+        final MapEntryNode ribInstance = Builders.mapEntryBuilder().withNodeIdentifier(
+                new NodeIdentifierWithPredicates(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()))
                     .addChild(ImmutableNodes.leafNode(RIB_ID_QNAME, ribId.getValue()))
                     .addChild(ImmutableNodes.mapNodeBuilder(Peer.QNAME).build())
                     .addChild(Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(LocRib.QNAME))
-                        .addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build())
-                        .build())
-                    .build())
-                    .build())
-            .build();
+                    .addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build())
+                    .build()).build();
 
 
         final DOMDataWriteTransaction trans = this.domChain.newWriteOnlyTransaction();
 
-        // put empty BgpRib if not exists
-        trans.put(LogicalDatastoreType.OPERATIONAL, YangInstanceIdentifier.builder().node(BgpRib.QNAME).build(), rib);
+        // merge empty BgpRib + Rib, to make sure the top-level parent structure is present
+        trans.merge(LogicalDatastoreType.OPERATIONAL, YangInstanceIdentifier.builder().node(BgpRib.QNAME).build(), bgpRib);
+        trans.put(LogicalDatastoreType.OPERATIONAL, yangRibIdBuilder.build(), ribInstance);
 
         try {
             trans.submit().checkedGet();
