@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -16,6 +17,7 @@ public class OffsetMapTest {
     private final String LOCAL_ADDRESS = "127.0.0.1";
     private final int LOCAL_ADDRESS_DECIMAL = 0x7f000001;
     private final Integer[] TESTED_VALUES = { 1, 2, 3, 4, 5, 6, 7 };
+    private final Integer[] TESTED_VALUES_REMOVE = {2, 3, 4, 5, 6, 7 };
     private final int EXPECTED_ROUTER_OFFSET = 0;
     private final int EXPECTED_VALUE = 1;
     private final int CHANGED_VALUE = 111;
@@ -29,7 +31,7 @@ public class OffsetMapTest {
         assertEquals(EXPECTED_VALUE, (int) offsetMap.getValue(TESTED_VALUES, EXPECTED_ROUTER_OFFSET));
         offsetMap.setValue(TESTED_VALUES, EXPECTED_ROUTER_OFFSET, CHANGED_VALUE);
         assertEquals(CHANGED_VALUE, (int) offsetMap.getValue(TESTED_VALUES, EXPECTED_ROUTER_OFFSET));
-        assertEquals(TESTED_VALUES.length -1,offsetMap.removeValue(TESTED_VALUES, 0).length);
+        assertArrayEquals(TESTED_VALUES_REMOVE, offsetMap.removeValue(TESTED_VALUES, 0));
         assertEquals(0, offsetMap.without(RouterIds.routerIdForAddress(LOCAL_ADDRESS)).size());
     }
 }
