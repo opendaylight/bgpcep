@@ -1607,7 +1607,7 @@ def create_logger(loglevel, logfile):
         :return: logger object
     """
     logger = logging.getLogger("logger")
-    log_formatter = logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
+    log_formatter = logging.Formatter("%(asctime)s %(levelname)s BGP-%(threadName)s: %(message)s")
     console_handler = logging.StreamHandler()
     file_handler = logging.FileHandler(logfile, mode="w")
     console_handler.setFormatter(log_formatter)
@@ -1709,7 +1709,4 @@ def threaded_job(arguments):
 if __name__ == "__main__":
     arguments = parse_arguments()
     logger = create_logger(arguments.loglevel, arguments.logfile)
-    if arguments.multiplicity > 1:
-        threaded_job(arguments)
-    else:
-        job(arguments)
+    threaded_job(arguments)
