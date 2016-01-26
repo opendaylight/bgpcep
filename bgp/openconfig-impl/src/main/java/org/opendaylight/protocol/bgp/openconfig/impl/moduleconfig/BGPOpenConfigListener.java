@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.openconfig.impl.moduleconfig;
 
 import com.google.common.base.Preconditions;
 import java.util.Collection;
+import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
@@ -77,9 +78,11 @@ public final class BGPOpenConfigListener implements DataTreeChangeListener<Bgp>,
         if (removedData instanceof Global) {
             ribImplProvider.onGlobalRemoved((Global) removedData);
         } else if (removedData instanceof Neighbors) {
-            final Neighbors neighbors = (Neighbors) removedData;
-            for (final Neighbor neighbor : neighbors.getNeighbor()) {
-                removeNeighbor(neighbor);
+            final List<Neighbor> neighbors = ((Neighbors) removedData).getNeighbor();
+            if( neighbors != null) {
+                for (final Neighbor neighbor : neighbors) {
+                    removeNeighbor(neighbor);
+                }
             }
         } else {
             LOG.info("Skipping unhandled removed data: {}", removedData);
