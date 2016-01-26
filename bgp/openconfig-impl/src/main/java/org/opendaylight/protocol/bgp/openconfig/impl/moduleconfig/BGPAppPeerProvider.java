@@ -11,7 +11,6 @@ package org.opendaylight.protocol.bgp.openconfig.impl.moduleconfig;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
@@ -65,7 +64,7 @@ final class BGPAppPeerProvider {
         if (moduleKey != null) {
             try {
                 final ReadWriteTransaction rwTx = dataBroker.newReadWriteTransaction();
-                final Optional<Module> maybeModule = configModuleOp.readModuleConfiguration(moduleKey, rwTx).get();
+                final Optional<Module> maybeModule = configModuleOp.readModuleConfiguration(moduleKey, rwTx);
                 if (maybeModule.isPresent() && neighborState.remove(moduleKey, removedNeighbor)) {
                     configModuleOp.removeModuleConfiguration(moduleKey, rwTx);
                 }
@@ -83,7 +82,7 @@ final class BGPAppPeerProvider {
             //update an existing peer configuration
             try {
                 if (neighborState.addOrUpdate(moduleKey, modifiedAppNeighbor.getKey(), modifiedAppNeighbor)) {
-                    final Optional<Module> maybeModule = configModuleOp.readModuleConfiguration(moduleKey, rTx).get();
+                    final Optional<Module> maybeModule = configModuleOp.readModuleConfiguration(moduleKey, rTx);
                     if (maybeModule.isPresent()) {
                         final Module peerConfigModule = toPeerConfigModule(modifiedAppNeighbor, maybeModule.get());
                         configModuleOp.putModuleConfiguration(peerConfigModule, dataBroker.newWriteOnlyTransaction());
@@ -98,8 +97,8 @@ final class BGPAppPeerProvider {
             final ModuleKey ribImplKey = globalState.getModuleKey(GlobalIdentifier.GLOBAL_IDENTIFIER);
             if (ribImplKey != null) {
                 try {
-                    final ListenableFuture<TargetRib> ribFuture = new RibInstanceFunction<>(rTx, configModuleOp, TO_RIB_FUNCTION).apply(ribImplKey.getName());
-                    final Module peerConfigModule = toPeerConfigModule(modifiedAppNeighbor, ribFuture.get());
+                    final TargetRib rib = RibInstanceFunction.getRibInstance(this.configModuleOp, this.TO_RIB_FUNCTION, ribImplKey.getName(), rTx);
+                    final Module peerConfigModule = toPeerConfigModule(modifiedAppNeighbor, rib);
                     configModuleOp.putModuleConfiguration(peerConfigModule, dataBroker.newWriteOnlyTransaction());
                     neighborState.addOrUpdate(peerConfigModule.getKey(), modifiedAppNeighbor.getKey(), modifiedAppNeighbor);
                 } catch (final Exception e) {

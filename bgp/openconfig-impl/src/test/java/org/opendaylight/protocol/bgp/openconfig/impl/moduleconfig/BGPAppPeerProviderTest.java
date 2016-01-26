@@ -73,8 +73,7 @@ public class BGPAppPeerProviderTest {
         Mockito.doReturn(future).when(this.wTx).submit();
         Mockito.doReturn(future).when(this.rwTx).submit();
         Mockito.doNothing().when(this.wTx).put(Mockito.any(LogicalDatastoreType.class), Mockito.any(InstanceIdentifier.class), Mockito.any(Module.class));
-        Mockito.doReturn(moduleOpt).when(future).get();
-        Mockito.doReturn(null).when(future).checkedGet();
+        Mockito.doReturn(moduleOpt).when(future).checkedGet();
         Mockito.doNothing().when(future).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
         Mockito.doReturn(Boolean.TRUE).when(moduleOpt).isPresent();
         final Module module = Mockito.mock(Module.class);
