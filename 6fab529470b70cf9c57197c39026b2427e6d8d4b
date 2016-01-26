@@ -83,6 +83,30 @@
     },
     {
       "key": {
+        "uuid": "9a3d3df0_d9f2a099",
+        "filename": "distribution-karaf/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-26T13:44:42Z",
+      "side": 1,
+      "message": "I am sorry, of course it is right.",
+      "parentUuid": "9a3d3df0_d9c46042",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 35
+      },
+      "revId": "6fab529470b70cf9c57197c39026b2427e6d8d4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3d3df0_3988ec1e",
         "filename": "distribution-karaf/pom.xml",
         "patchSetId": 1
