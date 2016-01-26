@@ -53,6 +53,8 @@
         <module>data-change-counter</module>
         <module>data-change-counter-controller-config</module>
 
+        <module>distribution-karaf</module>
+
     </modules>
 
     <build>
