@@ -9,10 +9,10 @@
 package org.opendaylight.protocol.bgp.openconfig.impl.moduleconfig;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.Modules;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.Services;
@@ -43,12 +43,12 @@ final class BGPConfigModuleProvider {
         wTx.submit().checkedGet();
     }
 
-    ListenableFuture<Optional<Module>> readModuleConfiguration(final ModuleKey moduleKey, final ReadTransaction rTx) {
-        return rTx.read(LogicalDatastoreType.CONFIGURATION, MODULES_IID.child(Module.class, moduleKey));
+    Optional<Module> readModuleConfiguration(final ModuleKey moduleKey, final ReadTransaction rTx) throws ReadFailedException {
+        return rTx.read(LogicalDatastoreType.CONFIGURATION, MODULES_IID.child(Module.class, moduleKey)).checkedGet();
     }
 
-    ListenableFuture<Optional<Service>> readConfigService(final ServiceKey serviceKey, final ReadTransaction rTx) {
-        return rTx.read(LogicalDatastoreType.CONFIGURATION, SERVICES_IID.child(Service.class, serviceKey));
+    Optional<Service> readConfigService(final ServiceKey serviceKey, final ReadTransaction rTx) throws ReadFailedException {
+        return rTx.read(LogicalDatastoreType.CONFIGURATION, SERVICES_IID.child(Service.class, serviceKey)).checkedGet();
     }
 
 }

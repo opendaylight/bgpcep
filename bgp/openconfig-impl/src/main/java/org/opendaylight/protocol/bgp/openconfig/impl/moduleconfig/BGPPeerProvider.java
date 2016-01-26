@@ -11,12 +11,11 @@ package org.opendaylight.protocol.bgp.openconfig.impl.moduleconfig;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigHolder;
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.BGPConfigStateStore;
@@ -81,11 +80,11 @@ final class BGPPeerProvider {
         if (moduleKey != null) {
             try {
                 final ReadWriteTransaction rwTx = dataBroker.newReadWriteTransaction();
-                final Optional<Module> maybeModule = configModuleOp.readModuleConfiguration(moduleKey, rwTx).get();
+                final Optional<Module> maybeModule = configModuleOp.readModuleConfiguration(moduleKey, rwTx);
                 if (maybeModule.isPresent() && neighborState.remove(moduleKey, removedNeighbor)) {
                     configModuleOp.removeModuleConfiguration(moduleKey, rwTx);
                 }
-            } catch (InterruptedException | ExecutionException | TransactionCommitFailedException e) {
+            } catch (ReadFailedException | TransactionCommitFailedException e) {
                 LOG.error("Failed to remove a configuration module: {}", moduleKey, e);
                 throw new IllegalStateException(e);
             }
@@ -95,35 +94,59 @@ final class BGPPeerProvider {
     public void onNeighborModified(final Neighbor modifiedNeighbor) {
         final ModuleKey moduleKey = neighborState.getModuleKey(modifiedNeighbor.getKey());
         final ReadOnlyTransaction rTx = dataBroker.newReadOnlyTransaction();
-        final ListenableFuture<List<AdvertizedTable>> advertizedTablesFuture = new TableTypesFunction<AdvertizedTable>(rTx,
-                configModuleOp, ADVERTIZED_TABLE_FUNCTION).apply(modifiedNeighbor.getAfiSafis().getAfiSafi());
+        final List<AdvertizedTable> advertizedTables = getAdvertizedTables(modifiedNeighbor, rTx);
         if (moduleKey != null) {
-            //update an existing peer configuration
-            try {
-                if (neighborState.addOrUpdate(moduleKey, modifiedNeighbor.getKey(), modifiedNeighbor)) {
-                    final Optional<Module> maybeModule = configModuleOp.readModuleConfiguration(moduleKey, rTx).get();
-                    if (maybeModule.isPresent()) {
-                        final Module peerConfigModule = toPeerConfigModule(modifiedNeighbor, maybeModule.get(), advertizedTablesFuture.get());
-                        configModuleOp.putModuleConfiguration(peerConfigModule, dataBroker.newWriteOnlyTransaction());
-                    }
-                }
-            } catch (final Exception e) {
-                LOG.error("Failed to update a configuration module: {}", moduleKey, e);
-                throw new IllegalStateException(e);
-            }
+            updateExistingPeerConfiguration(moduleKey, modifiedNeighbor, advertizedTables, rTx);
         } else {
-            //create new peer configuration
-            final ModuleKey ribImplKey = globalState.getModuleKey(GlobalIdentifier.GLOBAL_IDENTIFIER);
-            if (ribImplKey != null) {
-                try {
-                    final ListenableFuture<Rib> ribFuture = new RibInstanceFunction<>(rTx, configModuleOp, TO_RIB_FUNCTION).apply(ribImplKey.getName());
-                    final Module peerConfigModule = toPeerConfigModule(modifiedNeighbor, advertizedTablesFuture.get(), ribFuture.get());
-                    configModuleOp.putModuleConfiguration(peerConfigModule, dataBroker.newWriteOnlyTransaction());
-                    neighborState.addOrUpdate(peerConfigModule.getKey(), modifiedNeighbor.getKey(), modifiedNeighbor);
-                } catch (final Exception e) {
-                    LOG.error("Failed to create a configuration module: {}", moduleKey, e);
-                    throw new IllegalStateException(e);
-                }
+            createNewPeerConfiguration(moduleKey, modifiedNeighbor, advertizedTables, rTx);
+        }
+    }
+
+    private List<AdvertizedTable> getAdvertizedTables(final Neighbor modifiedNeighbor, final ReadOnlyTransaction rTx) {
+        return TableTypesFunction.getLocalTables(rTx, this.configModuleOp, this.ADVERTIZED_TABLE_FUNCTION, modifiedNeighbor.getAfiSafis().getAfiSafi());
+    }
+
+    private void updateExistingPeerConfiguration(final ModuleKey moduleKey, final Neighbor modifiedNeighbor, final List<AdvertizedTable>
+        advertizedTables, final ReadOnlyTransaction rTx) {
+        if (neighborState.addOrUpdate(moduleKey, modifiedNeighbor.getKey(), modifiedNeighbor)) {
+            final Optional<Module> maybeModule = getOldModuleConfiguration(moduleKey, rTx);
+            if (maybeModule.isPresent()) {
+                final Module peerConfigModule = toPeerConfigModule(modifiedNeighbor, maybeModule.get(), advertizedTables);
+                putOldModuleConfigurationIntoNewModule(peerConfigModule);
+            }
+        }
+    }
+
+    private Optional<Module> getOldModuleConfiguration(final ModuleKey moduleKey, final ReadOnlyTransaction rTx) {
+        try {
+            return configModuleOp.readModuleConfiguration(moduleKey, rTx);
+        } catch (final Exception e) {
+            LOG.error("Failed to read module configuration: {}", moduleKey, e);
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private void putOldModuleConfigurationIntoNewModule(final Module peerConfigModule) {
+        try {
+            configModuleOp.putModuleConfiguration(peerConfigModule, dataBroker.newWriteOnlyTransaction());
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("Failed to update a configuration module: {}", peerConfigModule, e);
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private void createNewPeerConfiguration(final ModuleKey moduleKey, final Neighbor modifiedNeighbor, final List<AdvertizedTable>
+        advertizedTables, final ReadOnlyTransaction rTx) {
+        final ModuleKey ribImplKey = globalState.getModuleKey(GlobalIdentifier.GLOBAL_IDENTIFIER);
+        if (ribImplKey != null) {
+            try {
+                final Rib rib = RibInstanceFunction.getRibInstance(this.configModuleOp, this.TO_RIB_FUNCTION, ribImplKey.getName(), rTx);
+                final Module peerConfigModule = toPeerConfigModule(modifiedNeighbor, advertizedTables, rib);
+                configModuleOp.putModuleConfiguration(peerConfigModule, dataBroker.newWriteOnlyTransaction());
+                neighborState.addOrUpdate(peerConfigModule.getKey(), modifiedNeighbor.getKey(), modifiedNeighbor);
+            } catch (final Exception e) {
+                LOG.error("Failed to create a configuration module: {}", moduleKey, e);
+                throw new IllegalStateException(e);
             }
         }
     }

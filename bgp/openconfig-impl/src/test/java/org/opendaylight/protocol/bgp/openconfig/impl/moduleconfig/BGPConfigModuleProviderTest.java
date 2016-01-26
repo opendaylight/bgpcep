@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.Module;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.ModuleKey;
@@ -55,7 +56,7 @@ public class BGPConfigModuleProviderTest {
     }
 
     @Test
-    public void testReadTransactions() throws InterruptedException, ExecutionException {
+    public void testReadTransactions() throws InterruptedException, ExecutionException, ReadFailedException {
         PROVIDER.readModuleConfiguration(this.key, this.rtx);
         final ServiceKey sKey = Mockito.mock(ServiceKey.class);
         PROVIDER.readConfigService(sKey, this.rtx);
