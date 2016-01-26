@@ -63,8 +63,7 @@ public class BGPPeerProviderTest {
         final Optional<Module> moduleOpt = Mockito.mock(Optional.class);
         Mockito.doReturn(this.rwTx).when(this.dataBroker).newReadWriteTransaction();
         Mockito.doReturn(future).when(this.rwTx).read(Mockito.any(LogicalDatastoreType.class), Mockito.any(InstanceIdentifier.class));
-        Mockito.doReturn(moduleOpt).when(future).get();
-        Mockito.doReturn(null).when(future).checkedGet();
+        Mockito.doReturn(moduleOpt).when(future).checkedGet();
         Mockito.doReturn(Boolean.TRUE).when(moduleOpt).isPresent();
         final Module module = Mockito.mock(Module.class);
         Mockito.doReturn(module).when(moduleOpt).get();

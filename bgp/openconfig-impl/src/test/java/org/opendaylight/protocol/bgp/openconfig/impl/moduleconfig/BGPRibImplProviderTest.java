@@ -78,8 +78,8 @@ public class BGPRibImplProviderTest {
 
         final Optional<Module> moduleOpt = Mockito.mock(Optional.class);
         final Optional<Module> moduleOpt2 = Mockito.mock(Optional.class);
-        Mockito.doReturn(moduleOpt).when(future).get();
-        Mockito.doReturn(moduleOpt2).when(future2).get();
+        Mockito.doReturn(moduleOpt).when(future).checkedGet();
+        Mockito.doReturn(moduleOpt2).when(future2).checkedGet();
         Mockito.doReturn(Boolean.TRUE).when(moduleOpt).isPresent();
         Mockito.doReturn(Boolean.FALSE).when(moduleOpt2).isPresent();
         final Module module = Mockito.mock(Module.class);

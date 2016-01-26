@@ -11,7 +11,6 @@ package org.opendaylight.protocol.bgp.openconfig.impl.moduleconfig;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -60,7 +59,7 @@ final class BGPRibImplProvider {
         if (moduleKey != null) {
             try {
                 final ReadWriteTransaction rwTx = dataBroker.newReadWriteTransaction();
-                final Optional<Module> maybeModule = this.configModuleWriter.readModuleConfiguration(moduleKey, rwTx).get();
+                final Optional<Module> maybeModule = this.configModuleWriter.readModuleConfiguration(moduleKey, rwTx);
                 if (maybeModule.isPresent() && globalState.remove(moduleKey, new BgpBuilder().setGlobal(removedGlobal).build())) {
                     this.configModuleWriter.removeModuleConfiguration(moduleKey, rwTx);
                 }
@@ -76,10 +75,10 @@ final class BGPRibImplProvider {
         if (moduleKey != null && this.globalState.addOrUpdate(moduleKey, GlobalIdentifier.GLOBAL_IDENTIFIER, new BgpBuilder().setGlobal(modifiedGlobal).build())) {
             final ReadOnlyTransaction rTx = dataBroker.newReadOnlyTransaction();
             try {
-                final Optional<Module> maybeModule = this.configModuleWriter.readModuleConfiguration(moduleKey, rTx).get();
+                final Optional<Module> maybeModule = this.configModuleWriter.readModuleConfiguration(moduleKey, rTx);
                 if (maybeModule.isPresent()) {
-                    final ListenableFuture<List<LocalTable>> localTablesFuture = new TableTypesFunction<LocalTable>(rTx, this.configModuleWriter, LOCAL_TABLE_FUNCTION).apply(modifiedGlobal.getAfiSafis().getAfiSafi());
-                    final Module newModule = toRibImplConfigModule(modifiedGlobal, maybeModule.get(), localTablesFuture.get());
+                    final List<LocalTable> localTablesFuture = getAdvertizedTables(modifiedGlobal, rTx);
+                    final Module newModule = toRibImplConfigModule(modifiedGlobal, maybeModule.get(), localTablesFuture);
                     this.configModuleWriter.putModuleConfiguration(newModule, dataBroker.newWriteOnlyTransaction());
                 }
             } catch (final Exception e) {
@@ -87,6 +86,10 @@ final class BGPRibImplProvider {
                 throw new IllegalStateException(e);
             }
         }
+    }
+
+    private List<LocalTable> getAdvertizedTables(final Global modifiedGlobal, final ReadOnlyTransaction rTx) {
+        return TableTypesFunction.getLocalTables(rTx, this.configModuleWriter, this.LOCAL_TABLE_FUNCTION, modifiedGlobal.getAfiSafis().getAfiSafi());
     }
 
     private static Module toRibImplConfigModule(final Global globalConfig, final Module module, final List<LocalTable> tableTypes) {
