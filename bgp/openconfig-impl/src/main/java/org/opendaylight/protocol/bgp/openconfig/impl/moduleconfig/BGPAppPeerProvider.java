@@ -65,7 +65,7 @@ final class BGPAppPeerProvider {
         if (moduleKey != null) {
             try {
                 final ReadWriteTransaction rwTx = dataBroker.newReadWriteTransaction();
-                final Optional<Module> maybeModule = configModuleOp.readModuleConfiguration(moduleKey, rwTx).get();
+                final Optional<Module> maybeModule = configModuleOp.readModuleConfiguration(moduleKey, rwTx);
                 if (maybeModule.isPresent() && neighborState.remove(moduleKey, removedNeighbor)) {
                     configModuleOp.removeModuleConfiguration(moduleKey, rwTx);
                 }
@@ -83,7 +83,7 @@ final class BGPAppPeerProvider {
             //update an existing peer configuration
             try {
                 if (neighborState.addOrUpdate(moduleKey, modifiedAppNeighbor.getKey(), modifiedAppNeighbor)) {
-                    final Optional<Module> maybeModule = configModuleOp.readModuleConfiguration(moduleKey, rTx).get();
+                    final Optional<Module> maybeModule = configModuleOp.readModuleConfiguration(moduleKey, rTx);
                     if (maybeModule.isPresent()) {
                         final Module peerConfigModule = toPeerConfigModule(modifiedAppNeighbor, maybeModule.get());
                         configModuleOp.putModuleConfiguration(peerConfigModule, dataBroker.newWriteOnlyTransaction());

@@ -60,7 +60,7 @@ final class BGPRibImplProvider {
         if (moduleKey != null) {
             try {
                 final ReadWriteTransaction rwTx = dataBroker.newReadWriteTransaction();
-                final Optional<Module> maybeModule = this.configModuleWriter.readModuleConfiguration(moduleKey, rwTx).get();
+                final Optional<Module> maybeModule = this.configModuleWriter.readModuleConfiguration(moduleKey, rwTx);
                 if (maybeModule.isPresent() && globalState.remove(moduleKey, new BgpBuilder().setGlobal(removedGlobal).build())) {
                     this.configModuleWriter.removeModuleConfiguration(moduleKey, rwTx);
                 }
@@ -76,7 +76,7 @@ final class BGPRibImplProvider {
         if (moduleKey != null && this.globalState.addOrUpdate(moduleKey, GlobalIdentifier.GLOBAL_IDENTIFIER, new BgpBuilder().setGlobal(modifiedGlobal).build())) {
             final ReadOnlyTransaction rTx = dataBroker.newReadOnlyTransaction();
             try {
-                final Optional<Module> maybeModule = this.configModuleWriter.readModuleConfiguration(moduleKey, rTx).get();
+                final Optional<Module> maybeModule = this.configModuleWriter.readModuleConfiguration(moduleKey, rTx);
                 if (maybeModule.isPresent()) {
                     final ListenableFuture<List<LocalTable>> localTablesFuture = new TableTypesFunction<LocalTable>(rTx, this.configModuleWriter, LOCAL_TABLE_FUNCTION).apply(modifiedGlobal.getAfiSafis().getAfiSafi());
                     final Module newModule = toRibImplConfigModule(modifiedGlobal, maybeModule.get(), localTablesFuture.get());

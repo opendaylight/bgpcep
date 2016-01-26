@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
@@ -34,9 +35,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controll
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.services.ServiceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.services.service.Instance;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class TableTypesFunction<T extends ServiceRef & ChildOf<Module>> implements AsyncFunction<List<AfiSafi>, List<T>> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(TableTypesFunction.class);
     private final ReadTransaction rTx;
     private final BGPConfigModuleProvider configModuleWriter;
     private final Function<String, T> function;
@@ -49,7 +53,41 @@ final class TableTypesFunction<T extends ServiceRef & ChildOf<Module>> implement
 
     @Override
     public ListenableFuture<List<T>> apply(final List<AfiSafi> afiSafis) {
-        final ListenableFuture<Optional<Service>> readFuture = configModuleWriter.readConfigService(new ServiceKey(BgpTableType.class), rTx);
+        try {
+            final Optional<Service> maybeService = configModuleWriter.readConfigService(new ServiceKey(BgpTableType.class), rTx);
+            if (maybeService.isPresent()) {
+                final Service service = maybeService.get();
+                final List<Optional<Module>> maybeModules = new ArrayList<>();
+                final Map<String, String> moduleNameToService = new HashMap<>();
+                for (final Instance instance : service.getInstance()) {
+                    final String moduleName = OpenConfigUtil.getModuleName(instance.getProvider());
+                    final ModuleKey moduleKey = new ModuleKey(moduleName, BgpTableTypeImpl.class);
+                    final Optional<Module> moduleConfig = configModuleWriter.readModuleConfiguration(moduleKey, rTx);
+                    maybeModules.add(moduleConfig);
+                    moduleNameToService.put(moduleName, instance.getName());
+                }
+
+                final ImmutableList<Module> modules = FluentIterable.from(maybeModules)
+                    .filter(new Predicate<Optional<Module>>() {
+                        @Override
+                        public boolean apply(final Optional<Module> input) {
+                            return input.isPresent();
+                        }
+                    }).transform(new Function<Optional<Module>, Module>() {
+                        @Override
+                        public Module apply(final Optional<Module> input) {
+                            return input.get();
+                        }
+                    }).toList();
+
+                return Futures.immediateFuture(toTableTypes(afiSafis, afiSafiToModuleName(afiSafis, modules), moduleNameToService));
+            }
+            return Futures.immediateFailedFuture(new IllegalStateException("No BgpTableType service present in configuration."));
+        } catch (ReadFailedException e) {
+            LOG.error("Failed to read service", e);
+            throw new IllegalStateException(e);
+        }
+       /* final ListenableFuture<Optional<Service>> readFuture = configModuleWriter.readConfigService(new ServiceKey(BgpTableType.class), rTx);
         return Futures.transform(readFuture, new AsyncFunction<Optional<Service>, List<T>>() {
 
             @Override
@@ -60,7 +98,9 @@ final class TableTypesFunction<T extends ServiceRef & ChildOf<Module>> implement
                     final Map<String, String> moduleNameToService = new HashMap<>();
                     for (final Instance instance : service.getInstance()) {
                         final String moduleName = OpenConfigUtil.getModuleName(instance.getProvider());
-                        modulesFuture.add(configModuleWriter.readModuleConfiguration(new ModuleKey(moduleName, BgpTableTypeImpl.class), rTx));
+                        final ModuleKey moduleKey = new ModuleKey(moduleName, BgpTableTypeImpl.class);
+                        final ListenableFuture<Optional<Module>> moduleConfig = configModuleWriter.readModuleConfiguration(moduleKey, rTx);
+                        modulesFuture.add(moduleConfig);
                         moduleNameToService.put(moduleName, instance.getName());
                     }
                     return Futures.transform(Futures.successfulAsList(modulesFuture), new ModulesToLocalTablesFunction(afiSafis, moduleNameToService));
@@ -68,10 +108,35 @@ final class TableTypesFunction<T extends ServiceRef & ChildOf<Module>> implement
                 return Futures.immediateFailedFuture(new IllegalStateException("No BgpTableType service present in configuration."));
             }
 
-        });
+        });*/
     }
 
-    private final class ModulesToLocalTablesFunction implements Function<List<Optional<Module>>, List<T>> {
+    private Map<Class<? extends AfiSafiType>, String> afiSafiToModuleName(final List<AfiSafi> afiSafis, final List<Module> modules) {
+        final Map<Class<? extends AfiSafiType>, String> afiSafiToModuleName = new HashMap<>(afiSafis.size());
+        for (final Module module : modules) {
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.modules.module.configuration.BgpTableTypeImpl config =
+                ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.modules.module.configuration.BgpTableTypeImpl) module.getConfiguration());
+            final Optional<AfiSafi> afiSafi = OpenConfigUtil.toAfiSafi(new org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl(config.getAfi(), config.getSafi()));
+            if (afiSafi.isPresent()) {
+                afiSafiToModuleName.put(afiSafi.get().getAfiSafiName(), module.getName());
+            }
+        }
+        return afiSafiToModuleName;
+    }
+
+    private List<T> toTableTypes(final List<AfiSafi> afiSafis, final Map<Class<? extends AfiSafiType>, String> afiSafiToModuleName,
+        final Map<String, String> moduleNameToService) {
+        final List<T> tableTypes = new ArrayList<>(afiSafis.size());
+        for (final AfiSafi afiSafi : afiSafis) {
+            final String moduleName = afiSafiToModuleName.get(afiSafi.getAfiSafiName());
+            if (moduleName != null) {
+                tableTypes.add(function.apply(moduleNameToService.get(moduleName)));
+            }
+        }
+        return tableTypes;
+    }
+
+ /*   private final class ModulesToLocalTablesFunction implements Function<List<Optional<Module>>, List<T>> {
 
         private final List<AfiSafi> afiSafis;
         private final Map<String, String> moduleNameToService;
@@ -123,5 +188,5 @@ final class TableTypesFunction<T extends ServiceRef & ChildOf<Module>> implement
             return tableTypes;
         }
 
-    }
+    }*/
 }

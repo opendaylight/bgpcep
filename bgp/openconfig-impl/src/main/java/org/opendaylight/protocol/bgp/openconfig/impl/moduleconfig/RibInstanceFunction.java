@@ -17,6 +17,7 @@ import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.RibInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.ServiceRef;
@@ -25,9 +26,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controll
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.services.ServiceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.services.service.Instance;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class RibInstanceFunction<T extends ServiceRef & ChildOf<Module>> implements AsyncFunction<String, T> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(RibInstanceFunction.class);
     private final ReadTransaction rTx;
     private final BGPConfigModuleProvider configModuleOp;
     private final Function<String, T> function;
@@ -40,28 +44,33 @@ final class RibInstanceFunction<T extends ServiceRef & ChildOf<Module>> implemen
 
     @Override
     public ListenableFuture<T> apply(final String instanceName) {
-        final ListenableFuture<Optional<Service>> readFuture = configModuleOp.readConfigService(new ServiceKey(RibInstance.class), rTx);
-        return Futures.transform(readFuture, new Function<Optional<Service>, T>() {
-            @Override
-            public T apply(final Optional<Service> maybeService) {
-                if (maybeService.isPresent()) {
-                    final Optional<Instance> maybeInstance = Iterables.tryFind(maybeService.get().getInstance(), new Predicate<Instance>() {
-                        @Override
-                        public boolean apply(final Instance instance) {
-                            final String moduleName = OpenConfigUtil.getModuleName(instance.getProvider());
-                            if (moduleName.equals(instanceName)) {
-                                return true;
+        final Optional<Service> readFuture;
+        try {
+            readFuture = configModuleOp.readConfigService(new ServiceKey(RibInstance.class), rTx);
+            return Futures.transform(Futures.immediateFuture(readFuture), new Function<Optional<Service>, T>() {
+                @Override
+                public T apply(final Optional<Service> maybeService) {
+                    if (maybeService.isPresent()) {
+                        final Optional<Instance> maybeInstance = Iterables.tryFind(maybeService.get().getInstance(), new Predicate<Instance>() {
+                            @Override
+                            public boolean apply(final Instance instance) {
+                                final String moduleName = OpenConfigUtil.getModuleName(instance.getProvider());
+                                if (moduleName.equals(instanceName)) {
+                                    return true;
+                                }
+                                return false;
                             }
-                            return false;
+                        });
+                        if (maybeInstance.isPresent()) {
+                            return function.apply(maybeInstance.get().getName());
                         }
-                    });
-                    if (maybeInstance.isPresent()) {
-                        return function.apply(maybeInstance.get().getName());
                     }
+                    return null;
                 }
-                return null;
-            }
-
-        });
+            });
+        } catch (ReadFailedException e) {
+            LOG.error("Failed to read service", e);
+            throw new IllegalStateException(e);
+        }
     }
 }
