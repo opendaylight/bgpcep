@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_1989a826",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-26T13:12:04Z",
+      "side": 1,
+      "message": "commit message incomplete...at least few words about the change",
+      "revId": "6fab529470b70cf9c57197c39026b2427e6d8d4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_f98de432",
+        "filename": "distribution-karaf/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-26T13:12:04Z",
+      "side": 1,
+      "message": "2016",
+      "revId": "6fab529470b70cf9c57197c39026b2427e6d8d4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_599a1064",
+        "filename": "distribution-karaf/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-26T13:12:04Z",
+      "side": 1,
+      "message": "indentation",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 35
+      },
+      "revId": "6fab529470b70cf9c57197c39026b2427e6d8d4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_3988ec1e",
+        "filename": "distribution-karaf/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-26T13:12:04Z",
+      "side": 1,
+      "message": "Not sure, if you can build with maven version \u003c 3.1.1",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "6fab529470b70cf9c57197c39026b2427e6d8d4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_7979d42e",
+        "filename": "distribution-karaf/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-26T13:12:04Z",
+      "side": 1,
+      "message": "Are those properties used somewhere?",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 15
+      },
+      "revId": "6fab529470b70cf9c57197c39026b2427e6d8d4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_d976203e",
+        "filename": "distribution-karaf/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-26T13:12:04Z",
+      "side": 1,
+      "message": "Do we want to deploy the output?",
+      "revId": "6fab529470b70cf9c57197c39026b2427e6d8d4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
