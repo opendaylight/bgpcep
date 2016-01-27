@@ -264,4 +264,26 @@ module bgp-types {
             type inet:as-number;
         }
     }
+
+    grouping route-distinguisher {
+        reference "https://tools.ietf.org/html/rfc4364#section-4";
+        leaf type {
+            type uint16;
+        }
+        choice administrator-subfield {
+            case as-number-case {
+                leaf as-number {
+                    type inet:as-number;
+                }
+            }
+            case ipv4-case {
+                leaf ipv4-address {
+                    type inet:ipv4-address;
+                }
+            }
+        }
+        leaf assigned-number-subfield {
+            type uint32;
+        }
+    }
 }
