@@ -198,7 +198,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         this.session = session;
         this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
         final PeerId peerId = RouterIds.createPeerId(session.getBgpId());
-
+        ConnectedPeers.getInstance().reconnected(peerId);
         createAdjRibOutListener(peerId);
 
         this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, false);
@@ -288,6 +288,8 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
             this.runtimeReg = null;
         }
         if (this.session != null) {
+            final PeerId peerId = RouterIds.createPeerId(this.session.getBgpId());
+            ConnectedPeers.getInstance().insertDesconectedPeer(peerId);
             try {
                 this.session.close();
             } catch (final Exception e) {
