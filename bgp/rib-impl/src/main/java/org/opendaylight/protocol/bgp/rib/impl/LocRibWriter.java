@@ -325,7 +325,8 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
                 final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(routePeerId, attributes);
                 for (final Entry<PeerId, YangInstanceIdentifier> pid : peerGroup.getPeers()) {
                     final PeerId peerDestiny = pid.getKey();
-                    if (!routePeerId.equals(peerDestiny) && isTableSupported(peerDestiny) && !deletedPeers.containsValue(peerDestiny)) {
+                    if (!routePeerId.equals(peerDestiny) && isTableSupported(peerDestiny) && !deletedPeers.containsValue(peerDestiny) &&
+                        !ConnectedPeers.getInstance().isPeerDisconnected(peerDestiny)) {
                         final YangInstanceIdentifier routeTarget = getRouteTarget(pid.getValue(), routeId);
                         if (value != null && effectiveAttributes != null) {
                             LOG.debug("Write route {} to peers AdjRibsOut {}", value, peerDestiny);
