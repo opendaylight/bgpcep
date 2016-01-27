@@ -35,6 +35,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
+import org.opendaylight.protocol.bgp.rib.impl.spi.CacheDisconnectedPeers;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
@@ -99,6 +100,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final EffectiveRibInWriter efWriter;
     private final DOMDataBrokerExtension service;
     private final List<LocRibWriter> locRibs = new ArrayList<>();
+    private final CacheDisconnectedPeers cacheDisconnectedPeers;
 
     public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final Ipv4Address clusterId, final RIBExtensionConsumerContext extensions,
         final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory, final BindingCodecTreeFactory codecFactory,
@@ -119,6 +121,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, codecFactory, classStrategy);
         final InstanceIdentifierBuilder yangRibIdBuilder = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME);
         this.yangRibId = yangRibIdBuilder.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
+        this.cacheDisconnectedPeers = new CacheDisconnectedPeersImpl();
 
         LOG.debug("Instantiating RIB table {} at {}", ribId, this.yangRibId);
 
@@ -186,7 +189,8 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         } catch (final TransactionCommitFailedException e1) {
             LOG.error("Failed to initiate LocRIB for key {}", key, e1);
         }
-        this.locRibs.add(LocRibWriter.create(this.ribContextRegistry, key, this.createPeerChain(this), getYangRibId(), this.localAs, getService(), pd));
+        this.locRibs.add(LocRibWriter.create(this.ribContextRegistry, key, this.createPeerChain(this), getYangRibId(), this.localAs, getService(), pd,
+            this.cacheDisconnectedPeers));
     }
 
     @Override
@@ -310,5 +314,10 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     @Override
     public void onGlobalContextUpdated(final SchemaContext context) {
         this.ribContextRegistry.onSchemaContextUpdated(context);
+    }
+
+    @Override
+    public CacheDisconnectedPeers getCacheDisconnectedPeers() {
+        return this.cacheDisconnectedPeers;
     }
 }

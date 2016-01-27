@@ -277,8 +277,15 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable, BGPPeerRun
 
     @Override
     public void releaseConnection() {
+        addPeerToDisconnectedSharedList();
         cleanup();
         dropConnection();
+    }
+
+    private void addPeerToDisconnectedSharedList() {
+        if(this.session != null) {
+            this.rib.getCacheDisconnectedPeers().insertDisconnectedPeer(this.session.getBgpId());
+        }
     }
 
     @GuardedBy("this")
