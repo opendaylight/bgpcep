@@ -11,7 +11,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -198,12 +197,6 @@ final class AdjRibInWriter {
     }
 
     private YangInstanceIdentifier createEmptyPeerStructure(final PeerId newPeerId, final boolean isAppPeer, final DOMDataWriteTransaction tx) {
-        if (this.peerId != null) {
-            // Wipe old peer data completely
-            tx.delete(LogicalDatastoreType.OPERATIONAL, this.ribPath.node(Peer.QNAME).node(new NodeIdentifierWithPredicates(Peer.QNAME, PEER_ID_QNAME,
-                this.peerId.getValue())));
-        }
-        // Install new empty peer structure
         final NodeIdentifierWithPredicates peerKey = IdentifierUtils.domPeerId(newPeerId);
         final YangInstanceIdentifier newPeerPath = this.ribPath.node(Peer.QNAME).node(peerKey);
 
@@ -225,22 +218,6 @@ final class AdjRibInWriter {
             pb.withChild(EMPTY_ADJRIBOUT);
         }
         return pb.build();
-    }
-
-    /**
-     * Clean all routes in specified tables
-     *
-     * @param tableTypes Tables to clean.
-     */
-    void cleanTables(final Collection<TablesKey> tableTypes) {
-        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
-
-        for (final TablesKey k : tableTypes) {
-            LOG.debug("Clearing table {}", k);
-            this.tables.get(k).clearTable(tx);
-        }
-
-        tx.submit();
     }
 
     void removePeer() {
