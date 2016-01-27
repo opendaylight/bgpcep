@@ -73,4 +73,12 @@ public interface RIB {
      * @return YangInstanceIdentifier
      */
     YangInstanceIdentifier getYangRibId();
+
+    /**
+     * Return cache disconnected peers which allows us to avoid update
+     * DS from a peer already disconnected, when multiple peers are disconnected
+     * at the same time and their own exportPolicy has not been updated yet.
+     * @return
+     */
+    CacheDisconnectedPeers getCacheDisconnectedPeers();
 }
