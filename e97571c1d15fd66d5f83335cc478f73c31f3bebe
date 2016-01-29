@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_26c0c029",
+        "filename": "bgp/concepts/src/main/yang/bgp-types.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-29T10:04:28Z",
+      "side": 1,
+      "message": "I was rather expecting a simple string type representation including a pattern.",
+      "range": {
+        "startLine": 268,
+        "startChar": 0,
+        "endLine": 288,
+        "endChar": 5
+      },
+      "revId": "e97571c1d15fd66d5f83335cc478f73c31f3bebe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
