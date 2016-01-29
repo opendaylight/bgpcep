@@ -36,14 +36,21 @@ public class PcRptMessageCodec extends Stateful07PCReportMessageParser {
 
     @Override
     protected Reports getValidReports(final List<Object> objects, final List<Message> errors) {
-        final Reports validReports = super.getValidReports(objects, errors);
         final Optional<Object> find = Iterables.tryFind(objects, Predicates.instanceOf(BandwidthUsage.class));
-        final Path path = validReports.getPath();
-        if (find.isPresent() && path != null) {
-            final Object object = find.get();
+        final Object object;
+        if (find.isPresent()) {
+            object = find.get();
             objects.remove(object);
-            return new ReportsBuilder(validReports).setPath(new PathBuilder(path).setBandwidth(
-                    setBandwidthUsage(path.getBandwidth(), (BandwidthUsage) object)).build()).build();
+        } else {
+            object = null;
+        }
+        final Reports validReports = super.getValidReports(objects, errors);
+        if (object != null && validReports != null) {
+            final Path path = validReports.getPath();
+            if (path != null) {
+                return new ReportsBuilder(validReports).setPath(new PathBuilder(path).setBandwidth(
+                        setBandwidthUsage(path.getBandwidth(), (BandwidthUsage) object)).build()).build();
+            }
         }
         return validReports;
     }

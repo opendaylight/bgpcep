@@ -16,18 +16,21 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Collections;
 import java.util.List;
+import javax.xml.bind.DatatypeConverter;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
 import org.opendaylight.protocol.pcep.impl.Activator;
+import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.auto.bandwidth.rev160109.Bandwidth1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.auto.bandwidth.rev160109.Bandwidth1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.auto.bandwidth.rev160109.bandwidth.usage.object.BandwidthUsage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.auto.bandwidth.rev160109.bandwidth.usage.object.BandwidthUsageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcrpt;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.LspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.pcrpt.message.Reports;
@@ -42,6 +45,7 @@ public class PcRptMessageCodecTest {
     private SimplePCEPExtensionProviderContext ctx;
     private Activator act;
     private StatefulActivator statefulAct;
+    private org.opendaylight.protocol.pcep.auto.bandwidth.extension.Activator autoBwActivator;
 
     @Before
     public void setUp() {
@@ -50,12 +54,15 @@ public class PcRptMessageCodecTest {
         this.act.start(this.ctx);
         this.statefulAct = new StatefulActivator();
         this.statefulAct.start(this.ctx);
+        this.autoBwActivator = new org.opendaylight.protocol.pcep.auto.bandwidth.extension.Activator(5);
+        this.autoBwActivator.start(this.ctx);
     }
 
     @After
     public void tearDown() {
         this.act.stop();
         this.statefulAct.stop();
+        this.autoBwActivator.stop();
     }
 
     @Test
@@ -79,6 +86,13 @@ public class PcRptMessageCodecTest {
         final ByteBuf buffer = Unpooled.buffer();
         codec.serializeObject(bwBuilder.build(), buffer);
         Assert.assertTrue(buffer.readableBytes() > 0);
+    }
+
+    @Test
+    public void testReportMsgWithRro() throws PCEPDeserializerException {
+        final byte[] parseHexBinary = DatatypeConverter.parseHexBinary("2010003c0084a019001100106e79636e7932316372735f7432313231001200100a0000d2004008490a0000d40a0000d4001f0006000005dd700000000710001401080a000706200001080a0000d420000910001400000000000000000000000005050100051000084998968005500008513a43b70810002401080a0000d42020030801010000000001080a00070620000308010100000000");
+        final Pcrpt msg = (Pcrpt) this.ctx.getMessageHandlerRegistry().parseMessage(10, Unpooled.wrappedBuffer(parseHexBinary), Collections.<Message>emptyList());
+        Assert.assertNotNull(msg.getPcrptMessage().getReports().get(0).getPath().getBandwidth().getAugmentation(Bandwidth1.class));
     }
 
 }
