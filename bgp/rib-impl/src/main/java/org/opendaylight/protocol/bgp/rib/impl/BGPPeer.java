@@ -100,10 +100,8 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
 
     @Override
     public synchronized void close() {
-        addPeerToDisconnectedSharedList();
-        dropConnection();
+        releaseConnection();
         this.chain.close();
-        // TODO should this perform cleanup ?
     }
 
     @Override
@@ -357,8 +355,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     @Override
     public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
         LOG.error("Transaction chain failed.", cause);
-        addPeerToDisconnectedSharedList();
-        dropConnection();
+        releaseConnection();
         this.chain.close();
         this.chain = this.rib.createPeerChain(this);
     }
