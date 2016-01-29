@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_4caec386",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/AbstractFSFragmentHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-29T18:26:15Z",
+      "side": 1,
+      "message": "Is this class used?",
+      "revId": "da322c00c5495613d59fb84978bffaa50b11b987",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_ccff7366",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSDestinationPortHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-29T18:26:15Z",
+      "side": 1,
+      "message": "Is the package name correct? Please, check all import that belong to this package. I think it should be like: org.opendaylight.protocol.bgp.flowspec.handlers.*",
+      "range": {
+        "startLine": 14,
+        "startChar": 7,
+        "endLine": 14,
+        "endChar": 77
+      },
+      "revId": "da322c00c5495613d59fb84978bffaa50b11b987",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_2ca9bf7b",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSIpv4DestinationPrefixHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-29T18:26:15Z",
+      "side": 1,
+      "message": "Is this class used somewhere?",
+      "revId": "da322c00c5495613d59fb84978bffaa50b11b987",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_ec9eb753",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FlowspecTypeListParser.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-29T18:26:15Z",
+      "side": 1,
+      "message": "Is this class used?",
+      "revId": "da322c00c5495613d59fb84978bffaa50b11b987",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_6cbaa7c1",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/handlers/FSNlriHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-29T18:26:15Z",
+      "side": 1,
+      "message": "Is this class used?",
+      "revId": "da322c00c5495613d59fb84978bffaa50b11b987",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_acb4afd1",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/handlers/FlowspecHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-29T18:26:15Z",
+      "side": 1,
+      "message": "Is this class used?",
+      "revId": "da322c00c5495613d59fb84978bffaa50b11b987",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
