@@ -244,13 +244,15 @@ final class AdjRibInWriter {
     }
 
     void removePeer() {
-        final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
-        tx.delete(LogicalDatastoreType.OPERATIONAL, this.peerPath);
+        if(this.peerPath != null) {
+            final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+            tx.delete(LogicalDatastoreType.OPERATIONAL, this.peerPath);
 
-        try {
-            tx.submit().checkedGet();
-        } catch (final TransactionCommitFailedException e) {
-            LOG.debug("Failed to remove Peer {}", this.peerPath, e);
+            try {
+                tx.submit().checkedGet();
+            } catch (final TransactionCommitFailedException e) {
+                LOG.debug("Failed to remove Peer {}", this.peerPath, e);
+            }
         }
     }
 
