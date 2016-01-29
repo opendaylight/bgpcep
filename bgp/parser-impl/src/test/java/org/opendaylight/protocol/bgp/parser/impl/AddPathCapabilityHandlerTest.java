@@ -1,0 +1,137 @@
+/*
+ * Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+package org.opendaylight.protocol.bgp.parser.impl;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.impl.message.open.AddPathCapabilityHandler;
+import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.AddPathCapability.SendReceive;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.AddPathCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
+
+public class AddPathCapabilityHandlerTest {
+    private final static Class afi = Ipv6AddressFamily.class;
+    @Mock private AddressFamilyRegistry afiRegistry;
+    @Mock private AddressFamilyRegistry afirExpection;
+    private final static Class safi = UnicastSubsequentAddressFamily.class;
+    @Mock private SubsequentAddressFamilyRegistry safiRegistry;
+    @Mock private SubsequentAddressFamilyRegistry safirException;
+    private final ByteBuf parseCorrectBytes = Unpooled.copiedBuffer(new byte[] {1, 4, 4, 1});
+    private final ByteBuf parseWrongBytes = Unpooled.copiedBuffer(new byte[] {1, 4, 4, 4});
+    private final byte[] serializedBytes = new byte[] {AddPathCapabilityHandler.CODE, 4, 1, 4, 4, 1};
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+        Mockito.doReturn(260).when(this.afiRegistry).numberForClass(afi);
+        Mockito.doReturn(this.afi).when(this.afiRegistry).classForFamily(260);
+
+        Mockito.doReturn(null).when(this.afirExpection).numberForClass(afi);
+        Mockito.doReturn(null).when(this.afirExpection).classForFamily(260);
+
+        Mockito.doReturn(4).when(this.safiRegistry).numberForClass(safi);
+        Mockito.doReturn(this.safi).when(this.safiRegistry).classForFamily(4);
+
+        Mockito.doReturn(null).when(this.safirException).numberForClass(safi);
+        Mockito.doReturn(null).when(this.safirException).classForFamily(4);
+    }
+
+    @Test
+    public void testCapabilityHandler() throws BGPDocumentedException, BGPParsingException {
+        final CParameters capabilityToSerialize = new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder().setAddPathCapability(
+            new AddPathCapabilityBuilder().setAfi(this.afi).setSafi(this.safi).setSendReceive(SendReceive.forValue(1)).build()).build()).build();
+
+        final ByteBuf bytes = Unpooled.buffer(6);
+        final AddPathCapabilityHandler handler = new AddPathCapabilityHandler(this.afiRegistry, this.safiRegistry);
+        handler.serializeCapability(capabilityToSerialize, bytes);
+        assertArrayEquals(this.serializedBytes, bytes.array());
+
+        final CParameters newCaps = handler.parseCapability(this.parseCorrectBytes);
+        assertEquals(capabilityToSerialize.hashCode(), newCaps.hashCode());
+    }
+
+    @Test(expected=BGPParsingException.class)
+    public void testAfiException() throws BGPDocumentedException, BGPParsingException {
+        final ByteBuf bytes = this.parseWrongBytes.copy();
+        final AddPathCapabilityHandler handler = new AddPathCapabilityHandler(this.afirExpection, this.safiRegistry);
+        handler.parseCapability(bytes);
+    }
+
+    @Test(expected=BGPParsingException.class)
+    public void testSafiException() throws BGPDocumentedException, BGPParsingException {
+        final ByteBuf bytes = this.parseWrongBytes.copy();
+        final AddPathCapabilityHandler handler = new AddPathCapabilityHandler(this.afiRegistry, this.safirException);
+        handler.parseCapability(bytes);
+    }
+
+    @Test(expected=BGPParsingException.class)
+    public void testSendReceiveException() throws BGPDocumentedException, BGPParsingException {
+        final ByteBuf bytes = this.parseWrongBytes.copy();
+        final AddPathCapabilityHandler handler = new AddPathCapabilityHandler(this.afiRegistry, this.safiRegistry);
+        handler.parseCapability(bytes);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testUnhandledAfi() {
+        final CParameters capabilityToSerialize = new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder().setAddPathCapability(
+            new AddPathCapabilityBuilder().setAfi(this.afi).setSafi(this.safi).setSendReceive(SendReceive.forValue(2)).build()).build()).build();
+
+        final ByteBuf bytes = Unpooled.buffer();
+        final AddPathCapabilityHandler handler = new AddPathCapabilityHandler(this.afirExpection, this.safiRegistry);
+        handler.serializeCapability(capabilityToSerialize, bytes);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testUnhandledSafi() {
+        final CParameters capabilityToSerialize = new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder().setAddPathCapability(
+            new AddPathCapabilityBuilder().setAfi(this.afi).setSafi(this.safi).build()).build()).build();
+
+        final ByteBuf bytes = Unpooled.buffer();
+        final AddPathCapabilityHandler handler = new AddPathCapabilityHandler(this.afiRegistry, this.safirException);
+        handler.serializeCapability(capabilityToSerialize, bytes);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testUnhandledSendReceive() {
+        final CParameters capabilityToSerialize = new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder().setAddPathCapability(
+            new AddPathCapabilityBuilder().setAfi(this.afi).setSafi(this.safi).setSendReceive(SendReceive.forValue(4)).build()).build()).build();
+
+        final ByteBuf bytes = Unpooled.buffer();
+        final AddPathCapabilityHandler handler = new AddPathCapabilityHandler(this.afiRegistry, this.safiRegistry);
+        handler.serializeCapability(capabilityToSerialize, bytes);
+    }
+
+    @Test
+    public void noSerializationTest() {
+        final CParameters capabilityNoAugmentation = new CParametersBuilder().addAugmentation(CParameters1.class, null).build();
+        final CParameters capabilityNoMP = new CParametersBuilder().addAugmentation(CParameters1.class, new CParameters1Builder().build()).build();
+
+        final ByteBuf bytes = Unpooled.buffer();
+        final AddPathCapabilityHandler handler = new AddPathCapabilityHandler(this.afiRegistry, this.safirException);
+        handler.serializeCapability(capabilityNoAugmentation, bytes);
+        assertEquals(0, bytes.readableBytes());
+        handler.serializeCapability(capabilityNoMP, bytes);
+        assertEquals(0, bytes.readableBytes());
+    }
+}

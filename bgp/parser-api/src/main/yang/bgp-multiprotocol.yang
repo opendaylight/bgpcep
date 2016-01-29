@@ -92,6 +92,17 @@ module bgp-multiprotocol {
                 }
             }
         }
+        container add-path-capability {
+            reference "http://tools.ietf.org/html/draft-ietf-idr-add-paths-13#section-4";
+            uses bgp-table-type;
+            leaf send-receive {
+                type enumeration {
+                    enum receive { value 1; }
+                    enum send { value 2; }
+                    enum both { value 3; }
+                }
+            }
+        }
     }
 
     augment "/bgp-msg:update/bgp-msg:attributes" {
