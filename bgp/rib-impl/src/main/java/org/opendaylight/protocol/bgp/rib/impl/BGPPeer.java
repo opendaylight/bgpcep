@@ -100,9 +100,8 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
 
     @Override
     public synchronized void close() {
-        dropConnection();
+        releaseConnection();
         this.chain.close();
-        // TODO should this perform cleanup ?
     }
 
     @Override
@@ -277,8 +276,8 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
 
     @Override
     public void releaseConnection() {
-        dropConnection();
         cleanup();
+        dropConnection();
     }
 
     @GuardedBy("this")
@@ -349,7 +348,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     @Override
     public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
         LOG.error("Transaction chain failed.", cause);
-        dropConnection();
+        releaseConnection();
         this.chain.close();
         this.chain = this.rib.createPeerChain(this);
     }
