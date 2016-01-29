@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_e69ed853",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-29T10:00:45Z",
+      "side": 1,
+      "message": "\"bug\" number missing",
+      "revId": "e5b9537555a1fa80f0cb225debe658dcbe722c56",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_a6869011",
+        "filename": "bgp/parser-api/src/main/yang/bgp-multiprotocol.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-29T10:00:45Z",
+      "side": 1,
+      "message": "There can be multiple add-path capabilities for different table types.",
+      "revId": "e5b9537555a1fa80f0cb225debe658dcbe722c56",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_26c4405e",
+        "filename": "bgp/parser-api/src/main/yang/bgp-multiprotocol.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-29T10:00:45Z",
+      "side": 1,
+      "message": "how about using enumeration type here?",
+      "range": {
+        "startLine": 99,
+        "startChar": 21,
+        "endLine": 99,
+        "endChar": 26
+      },
+      "revId": "e5b9537555a1fa80f0cb225debe658dcbe722c56",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_a69df05b",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/AddPathCapabilityHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-01-29T10:00:45Z",
+      "side": 1,
+      "message": "Does the handler need to be registered somewhere?",
+      "revId": "e5b9537555a1fa80f0cb225debe658dcbe722c56",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
