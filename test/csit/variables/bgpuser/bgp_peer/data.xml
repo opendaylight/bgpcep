@@ -6,7 +6,7 @@
     <holdtimer xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">$HOLDTIME</holdtimer>
     <initiate-connection xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">$INITIATE</initiate-connection>
     <rib xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">
-        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg">prefix:rib</type>
+        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:rib-instance</type>
         <name>example-bgp-rib</name>
     </rib>
     <peer-registry xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">
