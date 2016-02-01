@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_34cf4181",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/AddPathCapabilityHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-01T14:31:54Z",
+      "side": 1,
+      "message": "Set initial capacity.",
+      "revId": "1f2f0cf36edad188f03c0676dce90247127caf02",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_94be0dd3",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/AddPathCapabilityHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-01T14:31:54Z",
+      "side": 1,
+      "message": "A generic type do not needs to be on right side.",
+      "range": {
+        "startLine": 77,
+        "startChar": 61,
+        "endLine": 77,
+        "endChar": 76
+      },
+      "revId": "1f2f0cf36edad188f03c0676dce90247127caf02",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_54eda5ee",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/AddPathCapabilityHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-01T14:31:54Z",
+      "side": 1,
+      "message": "Invoking the same twice - save to local variable.",
+      "range": {
+        "startLine": 90,
+        "startChar": 16,
+        "endLine": 90,
+        "endChar": 49
+      },
+      "revId": "1f2f0cf36edad188f03c0676dce90247127caf02",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_d4e1b5ff",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/AddPathCapabilityHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-01T14:31:54Z",
+      "side": 1,
+      "message": "If any other value is received, then the capability SHOULD be treated as not understood and ignored [RFC5492].",
+      "revId": "1f2f0cf36edad188f03c0676dce90247127caf02",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
