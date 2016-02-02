@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "9a3d3df0_c9ce3b83",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ConnectedPeers.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-02T15:29:32Z",
+      "side": 1,
+      "message": "So the purpose of this utility class is to keep track of not connected peers? The class name is then misleading a bit.\nThis is not really solving the issue - the LocRibWriter thread non-safety. Here we end-up with mandatory cache look-up to solve a very-very rare use-case.\nAlso, is a singleton instance safely usable for all configurations - like multiple RIB instances?",
+      "revId": "22f17ce519630ea51033b233ac3ef69adfe3e32f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_89839303",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ConnectedPeers.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-02T15:29:32Z",
+      "side": 1,
+      "message": "What is the purpose of the boolean value?",
+      "range": {
+        "startLine": 17,
+        "startChar": 33,
+        "endLine": 17,
+        "endChar": 40
+      },
+      "revId": "22f17ce519630ea51033b233ac3ef69adfe3e32f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3d3df0_8ca28bac",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ConnectedPeers.java",
         "patchSetId": 3
@@ -13,6 +53,30 @@
       "writtenOn": "2016-01-29T17:42:41Z",
       "side": 1,
       "message": "I set 30 sec, but it may be a little limited time if many routes are processed. set to 5 minutes? Any suggestion will be welcomed.",
+      "range": {
+        "startLine": 19,
+        "startChar": 27,
+        "endLine": 19,
+        "endChar": 47
+      },
+      "revId": "22f17ce519630ea51033b233ac3ef69adfe3e32f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_a9fdb73d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ConnectedPeers.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-02T15:29:32Z",
+      "side": 1,
+      "message": "The entry needs to be stored for short time only, does not it?",
+      "parentUuid": "9a3d3df0_8ca28bac",
       "range": {
         "startLine": 19,
         "startChar": 27,
