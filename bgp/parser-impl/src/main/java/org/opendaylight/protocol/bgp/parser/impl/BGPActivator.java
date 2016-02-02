@@ -13,6 +13,7 @@ import org.opendaylight.protocol.bgp.parser.impl.message.BGPKeepAliveMessagePars
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPNotificationMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPOpenMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.open.AddPathCapabilityHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.As4CapabilityHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.CapabilityParameterParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.GracefulCapabilityHandler;
@@ -69,6 +70,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.OriginatorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.WithdrawnRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.AddPathCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.GracefulRestartCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
@@ -132,6 +134,10 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         final MultiProtocolCapabilityHandler multi = new MultiProtocolCapabilityHandler(afiReg, safiReg);
         regs.add(context.registerCapabilityParser(MultiProtocolCapabilityHandler.CODE, multi));
         regs.add(context.registerCapabilitySerializer(MultiprotocolCapability.class, multi));
+
+        final AddPathCapabilityHandler addPath = new AddPathCapabilityHandler(afiReg, safiReg);
+        regs.add(context.registerCapabilityParser(AddPathCapabilityHandler.CODE, addPath));
+        regs.add(context.registerCapabilitySerializer(AddPathCapability.class, addPath));
 
         final As4CapabilityHandler as4 = new As4CapabilityHandler();
         regs.add(context.registerCapabilityParser(As4CapabilityHandler.CODE, as4));
