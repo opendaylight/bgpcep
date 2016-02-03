@@ -36,6 +36,8 @@ public class BGPConfigModuleProviderTest {
     public void setUp() throws Exception {
         Mockito.doReturn(this.key).when(this.module).getKey();
         Mockito.doReturn("key").when(this.key).toString();
+        Mockito.doReturn("key").when(this.key).getName();
+        Mockito.doReturn(ModuleKey.class).when(this.key).getType();
         Mockito.doReturn("module").when(this.module).toString();
         Mockito.doNothing().when(this.wtx).put(Mockito.any(LogicalDatastoreType.class), Mockito.any(KeyedInstanceIdentifier.class), Mockito.any(Module.class));
         Mockito.doNothing().when(this.wtx).delete(Mockito.any(LogicalDatastoreType.class), Mockito.any(KeyedInstanceIdentifier.class));
@@ -59,6 +61,8 @@ public class BGPConfigModuleProviderTest {
     public void testReadTransactions() throws InterruptedException, ExecutionException, ReadFailedException {
         PROVIDER.readModuleConfiguration(this.key, this.rtx);
         final ServiceKey sKey = Mockito.mock(ServiceKey.class);
+        Mockito.doReturn("key").when(this.key).getName();
+        Mockito.doReturn(ModuleKey.class).when(sKey).getType();
         PROVIDER.readConfigService(sKey, this.rtx);
         Mockito.verify(this.rtx, Mockito.times(2)).read(Mockito.any(LogicalDatastoreType.class), Mockito.any(InstanceIdentifier.class));
     }

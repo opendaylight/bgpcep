@@ -56,6 +56,8 @@ public class BGPPeerProviderTest {
         final ModuleKey mKey = Mockito.mock(ModuleKey.class);
         Mockito.doReturn(mKey).when(this.neighborState).getModuleKey(this.neighbor.getKey());
         Mockito.doReturn("mKey").when(mKey).toString();
+        Mockito.doReturn("mKey").when(mKey).getName();
+        Mockito.doReturn(ModuleKey.class).when(mKey).getType();
         Mockito.doReturn(Boolean.TRUE).when(this.neighborState).remove(mKey, createNeighbor());
         this.peerProvider = new BGPPeerProvider(configHolders, moduleProvider, this.dataBroker);
 

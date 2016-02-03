@@ -60,6 +60,8 @@ public class BGPRibImplProviderTest {
 
         Mockito.doReturn(this.moduleKey).when(globalState).getModuleKey(Mockito.any(GlobalIdentifier.class));
         Mockito.doReturn("module-key").when(this.moduleKey).toString();
+        Mockito.doReturn("module-key").when(this.moduleKey).getName();
+        Mockito.doReturn(ModuleKey.class).when(this.moduleKey).getType();
         Mockito.doReturn(Boolean.TRUE).when(globalState).remove(Mockito.any(ModuleKey.class), Mockito.any(Global.class));
         Mockito.doReturn(Boolean.FALSE).when(globalState).remove(this.moduleKey, null);
         Mockito.doReturn(Boolean.TRUE).when(globalState).addOrUpdate(Mockito.any(ModuleKey.class), Mockito.any(GlobalIdentifier.class), Mockito.any(Global.class));

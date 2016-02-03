@@ -32,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controll
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.modules.module.configuration.bgp.application.peer.TargetRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.Module;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.ModuleKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.module.State;
 import org.opendaylight.yangtools.concepts.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -55,6 +56,8 @@ public class BGPAppPeerProviderTest {
         Mockito.doReturn(this.globalState).when(configHolders).getBGPConfigHolder(Bgp.class);
         Mockito.doReturn(this.neighborState).when(configHolders).getBGPConfigHolder(Neighbor.class);
         Mockito.doReturn(mKey).when(this.neighborState).getModuleKey(Mockito.any(NeighborKey.class));
+        Mockito.doReturn("mkey").when(mKey).getName();
+        Mockito.doReturn(ModuleKey.class).when(mKey).getType();
         Mockito.doReturn("mKey").when(mKey).toString();
         Mockito.doReturn(Boolean.TRUE).when(this.neighborState).remove(Mockito.any(ModuleKey.class), Mockito.any(Neighbor.class));
         Mockito.doReturn(Boolean.TRUE).when(this.neighborState).addOrUpdate(Mockito.any(ModuleKey.class), Mockito.any(Identifier.class), Mockito.any(Neighbor.class));
@@ -78,12 +81,20 @@ public class BGPAppPeerProviderTest {
         Mockito.doReturn(Boolean.TRUE).when(moduleOpt).isPresent();
         final Module module = Mockito.mock(Module.class);
         Mockito.doReturn(module).when(moduleOpt).get();
+        Mockito.doReturn("mkey").when(module).getName();
+        Mockito.doReturn(mKey).when(module).getKey();
+        State state = Mockito.mock(State.class);
+        Mockito.doReturn(state).when(module).getState();
         final BgpApplicationPeer appPeer = Mockito.mock(BgpApplicationPeer.class);
         Mockito.doReturn(appPeer).when(module).getConfiguration();
         final TargetRib rib = Mockito.mock(TargetRib.class);
         Mockito.doReturn(rib).when(appPeer).getTargetRib();
         final ApplicationRibId appRib = Mockito.mock(ApplicationRibId.class);
         Mockito.doReturn(appRib).when(appPeer).getApplicationRibId();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.modules.module.configuration.bgp.
+            application.peer.DataBroker dataBroker = Mockito.mock(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib
+            .impl.rev130409.modules.module.configuration.bgp.application.peer.DataBroker.class);
+        Mockito.doReturn(dataBroker).when(appPeer).getDataBroker();
         Mockito.doReturn("appRib").when(appRib).toString();
         Mockito.doReturn("targetRib").when(rib).toString();
     }
