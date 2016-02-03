@@ -9,6 +9,7 @@
 package org.opendaylight.protocol.bgp.openconfig.impl.moduleconfig;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -32,22 +33,32 @@ final class BGPConfigModuleProvider {
     private static final InstanceIdentifier<Modules> MODULES_IID = InstanceIdentifier.builder(Modules.class).build();
 
     void putModuleConfiguration(final Module module, final WriteTransaction wTx) throws TransactionCommitFailedException {
+        final ModuleKey moduleKey = Preconditions.checkNotNull(module, "Supplied module may not be null").getKey();
         LOG.debug("Adding/Updating configuration module: {}", module);
-        wTx.put(LogicalDatastoreType.CONFIGURATION, MODULES_IID.child(Module.class, module.getKey()), module);
+        checkModuleKey(moduleKey);
+        wTx.put(LogicalDatastoreType.CONFIGURATION, MODULES_IID.child(Module.class, moduleKey), module);
         wTx.submit().checkedGet();
+    }
+
+    private void checkModuleKey(final ModuleKey moduleKey) {
+        Preconditions.checkNotNull(moduleKey.getName(), "Supplied moduleKey Name may not be null");
+        Preconditions.checkNotNull(moduleKey.getType(), "Supplied moduleKey Type may not be null");
     }
 
     void removeModuleConfiguration(final ModuleKey moduleKey, final WriteTransaction wTx) throws TransactionCommitFailedException {
         LOG.debug("Removing configuration module with key: {}", moduleKey);
+        checkModuleKey(moduleKey);
         wTx.delete(LogicalDatastoreType.CONFIGURATION, MODULES_IID.child(Module.class, moduleKey));
         wTx.submit().checkedGet();
     }
 
     Optional<Module> readModuleConfiguration(final ModuleKey moduleKey, final ReadTransaction rTx) throws ReadFailedException {
+        checkModuleKey(moduleKey);
         return rTx.read(LogicalDatastoreType.CONFIGURATION, MODULES_IID.child(Module.class, moduleKey)).checkedGet();
     }
 
     Optional<Service> readConfigService(final ServiceKey serviceKey, final ReadTransaction rTx) throws ReadFailedException {
+        Preconditions.checkNotNull(serviceKey.getType(), "Supplied serviceKey Type may not be null");
         return rTx.read(LogicalDatastoreType.CONFIGURATION, SERVICES_IID.child(Service.class, serviceKey)).checkedGet();
     }
 
