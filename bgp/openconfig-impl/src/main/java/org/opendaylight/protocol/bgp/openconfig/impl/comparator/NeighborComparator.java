@@ -14,6 +14,9 @@ import java.util.Objects;
 import org.opendaylight.protocol.bgp.openconfig.impl.spi.OpenConfigComparator;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.Neighbor1;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Timers;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Transport;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 
 final class NeighborComparator implements OpenConfigComparator<Neighbor> {
@@ -35,8 +38,15 @@ final class NeighborComparator implements OpenConfigComparator<Neighbor> {
         } else if (neighbor1.getAfiSafis() != null || neighbor2.getAfiSafis() != null) {
             return false;
         }
-        if (!Objects.equals(neighbor1.getConfig(), neighbor2.getConfig())) {
-            return false;
+        final Config config1 = neighbor1.getConfig();
+        final Config config2 = neighbor2.getConfig();
+        if (config1 != null && config2 != null) {
+            if (!Objects.equals(config1.getPeerAs(), config2.getPeerAs())) {
+                return false;
+            }
+            if (!Objects.equals(config1.getPeerType(), config2.getPeerType())) {
+                return false;
+            }
         }
         if (!Objects.equals(neighbor1.getKey(), neighbor2.getKey())) {
             return false;
@@ -47,11 +57,19 @@ final class NeighborComparator implements OpenConfigComparator<Neighbor> {
         if (!Objects.equals(neighbor1.getRouteReflector(), neighbor2.getRouteReflector())) {
             return false;
         }
-        if (!Objects.equals(neighbor1.getTimers(), neighbor2.getTimers())) {
-            return false;
+        final Timers timers1 = neighbor1.getTimers();
+        final Timers timers2 = neighbor2.getTimers();
+        if (timers1 != null && timers2 != null) {
+            if (!Objects.equals(timers1.getConfig().getHoldTime(), timers2.getConfig().getHoldTime())) {
+                return false;
+            }
         }
-        if (!Objects.equals(neighbor1.getTransport(), neighbor2.getTransport())) {
-            return false;
+        final Transport transport1 = neighbor1.getTransport();
+        final Transport transport2 = neighbor2.getTransport();
+        if (transport1 != null && transport2 != null) {
+            if (!Objects.equals(transport1.getConfig().isPassiveMode(), transport2.getConfig().isPassiveMode())) {
+                return false;
+            }
         }
         if (!Objects.equals(neighbor1.getAugmentation(Neighbor1.class), neighbor2.getAugmentation(Neighbor1.class))) {
             return false;
