@@ -113,7 +113,7 @@ final class BGPAppPeerProvider {
         final BgpApplicationPeer appPeerConfig = (BgpApplicationPeer) currentModule.getConfiguration();
         final BgpApplicationPeerBuilder bgpPeerConfigBuilder = toBgpPeerConfig(neighbor, appPeerConfig.getTargetRib());
         bgpPeerConfigBuilder.setApplicationRibId(appPeerConfig.getApplicationRibId());
-        final ModuleBuilder mBuilder = new ModuleBuilder();
+        final ModuleBuilder mBuilder = new ModuleBuilder(currentModule);
         mBuilder.setConfiguration(bgpPeerConfigBuilder.build());
         return mBuilder.build();
     }
