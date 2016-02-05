@@ -48,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.AddPathCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.GracefulRestartCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
@@ -188,6 +189,11 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
             new CParameters1Builder().setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build()).build()).build());
 
+        if (!getAddPathDependency().isEmpty()) {
+            caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
+                new CParameters1Builder().setAddPathCapability(new AddPathCapabilityBuilder().setAddressFamilies(getAddPathDependency()).build()).build()).build()).build());
+        }
+
         for (final BgpTableType t : getAdvertizedTableDependency()) {
             if (!r.getLocalTables().contains(t)) {
                 LOG.info("RIB instance does not list {} in its local tables. Incoming data will be dropped.", t);
@@ -242,9 +248,9 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
         public BGPPeerModuleTracker(final Optional<BGPOpenConfigProvider> openconfigProvider) {
             if (openconfigProvider.isPresent()) {
-                neighborProvider = openconfigProvider.get().getOpenConfigMapper(BGPPeerInstanceConfiguration.class);
+                this.neighborProvider = openconfigProvider.get().getOpenConfigMapper(BGPPeerInstanceConfiguration.class);
             } else {
-                neighborProvider = null;
+                this.neighborProvider = null;
             }
             final InstanceConfigurationIdentifier identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
             this.bgpPeerInstanceConfiguration = new BGPPeerInstanceConfiguration(identifier, Rev130715Util.getIpvAddress(getNormalizedHost()),
@@ -255,15 +261,15 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
         @Override
         public void onInstanceCreate() {
-            if (neighborProvider != null) {
-                neighborProvider.writeConfiguration(this.bgpPeerInstanceConfiguration);
+            if (this.neighborProvider != null) {
+                this.neighborProvider.writeConfiguration(this.bgpPeerInstanceConfiguration);
             }
         }
 
         @Override
         public void onInstanceClose() {
-            if (neighborProvider != null) {
-                neighborProvider.removeConfiguration(this.bgpPeerInstanceConfiguration);
+            if (this.neighborProvider != null) {
+                this.neighborProvider.removeConfiguration(this.bgpPeerInstanceConfiguration);
             }
         }
 
