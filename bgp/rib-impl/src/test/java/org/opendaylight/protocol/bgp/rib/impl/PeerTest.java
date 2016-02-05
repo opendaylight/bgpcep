@@ -158,6 +158,7 @@ public class PeerTest extends AbstractRIBTestSetup {
         Mockito.doReturn(null).when(eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
         Mockito.doReturn(eventLoop).when(channel).eventLoop();
         Mockito.doReturn(Boolean.TRUE).when(channel).isWritable();
+        Mockito.doReturn(Boolean.TRUE).when(channel).isActive();
         Mockito.doReturn(null).when(channel).close();
         Mockito.doReturn(pipeline).when(channel).pipeline();
         Mockito.doCallRealMethod().when(channel).toString();
