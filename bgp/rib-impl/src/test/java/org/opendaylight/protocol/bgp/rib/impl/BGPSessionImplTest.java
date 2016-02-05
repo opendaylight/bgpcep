@@ -120,6 +120,7 @@ public class BGPSessionImplTest {
             }
         }).when(this.speakerListener).writeAndFlush(any(Notification.class));
         doReturn(this.eventLoop).when(this.speakerListener).eventLoop();
+        doReturn(true).when(this.speakerListener).isActive();
         doAnswer(new Answer<Void>() {
             @Override
             public Void answer(final InvocationOnMock invocation) throws Throwable {
