@@ -264,6 +264,17 @@ module odl-bgp-rib-impl-cfg {
         config:java-class "org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType";
     }
 
+    identity add-path {
+        base "config:service-type";
+        config:java-class "org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.add.path.capability.AddressFamilies";
+    }
+
+    identity add-path-impl {
+        config:provided-service add-path;
+        base config:module-type;
+        config:java-name-prefix AddPathImpl;
+    }
+
     identity bgp-table-type-impl {
         description
             "Simple provider for bgp-table-type.";
@@ -288,6 +299,23 @@ module odl-bgp-rib-impl-cfg {
                     base bgp-t:subsequent-address-family;
                 }
                 mandatory true;
+            }
+        }
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case add-path-impl {
+            when "/config:modules/config:module/config:type = 'add-path-impl'";
+            container address-family {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity bgp-table-type;
+                    }
+                }
+            }
+            leaf send-receive {
+                type bgp-mp:send-receive;
             }
         }
     }
@@ -331,6 +359,14 @@ module odl-bgp-rib-impl-cfg {
                     refine type {
                         mandatory true;
                         config:required-identity bgp-table-type;
+                    }
+                }
+            }
+
+            list add-path {
+                uses config:service-ref {
+                    refine type {
+                        config:required-identity add-path;
                     }
                 }
             }
@@ -448,6 +484,11 @@ module odl-bgp-rib-impl-cfg {
 
         leaf gr-capability {
             description "BGP graceful restart support capability.";
+            type boolean;
+            default "false";
+        }
+
+        leaf add-path-capability {
             type boolean;
             default "false";
         }
