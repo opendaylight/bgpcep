@@ -248,7 +248,11 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
 
     @Override
     public void onSessionDown(final BGPSession session, final Exception e) {
-        LOG.info("Session with peer {} went down", this.name, e);
+        if(e.getMessage().equals(BGPSessionImpl.END_OF_INPUT)) {
+            LOG.info("Session with peer {} went down", this.name);
+        } else {
+            LOG.info("Session with peer {} went down", this.name, e);
+        }
         releaseConnection();
     }
 
