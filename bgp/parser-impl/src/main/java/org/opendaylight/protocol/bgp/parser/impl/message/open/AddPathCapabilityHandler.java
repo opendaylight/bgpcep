@@ -23,10 +23,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.AddPathCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.AddPathCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.add.path.capability.AddressFamilies;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.add.path.capability.AddressFamilies.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.add.path.capability.AddressFamiliesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
@@ -53,24 +53,26 @@ public class AddPathCapabilityHandler implements CapabilityParser, CapabilitySer
         final AddPathCapability addPathCap = capability.getAugmentation(CParameters1.class).getAddPathCapability();
 
         final List<AddressFamilies> families = addPathCap.getAddressFamilies();
-        final ByteBuf capBuffer = Unpooled.buffer(families.size() * TRIPLET_BYTE_SIZE);
-        for (final AddressFamilies addressFamily : families) {
-            final Class<? extends AddressFamily> afi = addressFamily.getAfi();
-            final Integer afival = this.afiReg.numberForClass(afi);
-            Preconditions.checkArgument(afival != null, "Unhandled address family " + afi);
-            capBuffer.writeShort(afival);
+        if (families != null) {
+            final ByteBuf capBuffer = Unpooled.buffer(families.size() * TRIPLET_BYTE_SIZE);
+            for (final AddressFamilies addressFamily : families) {
+                final Class<? extends AddressFamily> afi = addressFamily.getAfi();
+                final Integer afival = this.afiReg.numberForClass(afi);
+                Preconditions.checkArgument(afival != null, "Unhandled address family " + afi);
+                capBuffer.writeShort(afival);
 
-            final Class<? extends SubsequentAddressFamily> safi = addressFamily.getSafi();
-            final Integer safival = this.safiReg.numberForClass(safi);
-            Preconditions.checkArgument(safival != null, "Unhandled subsequent address family " + safi);
-            capBuffer.writeByte(safival);
+                final Class<? extends SubsequentAddressFamily> safi = addressFamily.getSafi();
+                final Integer safival = this.safiReg.numberForClass(safi);
+                Preconditions.checkArgument(safival != null, "Unhandled subsequent address family " + safi);
+                capBuffer.writeByte(safival);
 
-            final SendReceive sendReceive = addressFamily.getSendReceive();
-            Preconditions.checkArgument(sendReceive != null, "Unhandled Send/Receive value");
-            capBuffer.writeByte(sendReceive.getIntValue());
+                final SendReceive sendReceive = addressFamily.getSendReceive();
+                Preconditions.checkArgument(sendReceive != null, "Unhandled Send/Receive value");
+                capBuffer.writeByte(sendReceive.getIntValue());
+            }
+
+            CapabilityUtil.formatCapability(CODE, capBuffer, byteAggregator);
         }
-
-        CapabilityUtil.formatCapability(CODE, capBuffer, byteAggregator);
     }
 
     @Override

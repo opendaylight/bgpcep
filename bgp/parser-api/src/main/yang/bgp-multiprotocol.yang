@@ -34,6 +34,14 @@ module bgp-multiprotocol {
         reference "RFC4760";
     }
 
+    typedef send-receive {
+        type enumeration {
+            enum receive { value 1; }
+            enum send { value 2; }
+            enum both { value 3; }
+        }
+    }
+
     grouping bgp-table-type {
         leaf afi {
             type identityref {
@@ -97,11 +105,7 @@ module bgp-multiprotocol {
             list address-families {
                 uses bgp-table-type;
                 leaf send-receive {
-                    type enumeration {
-                        enum receive { value 1; }
-                        enum send { value 2; }
-                        enum both { value 3; }
-                    }
+                    type send-receive;
                 }
             }
         }
