@@ -39,6 +39,7 @@ import org.opendaylight.yangtools.sal.binding.generator.util.BindingRuntimeConte
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
@@ -122,19 +123,22 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation {
         return new BmpMonitoringStationImpl(domDataBroker, yangMonitorId, channelFuture.sync().channel(), sessionManager, monitorId, dispatcher, mrs);
     }
 
+    private static void ensureParentExists(final DOMDataWriteTransaction wTx, final YangInstanceIdentifier path) {
+        final ContainerNode parentNode = Builders.containerBuilder().withNodeIdentifier(
+                new NodeIdentifier(BmpMonitor.QNAME)).addChild(ImmutableNodes.mapNodeBuilder(Monitor.QNAME).build()).build();
+        wTx.merge(LogicalDatastoreType.OPERATIONAL, path, parentNode);
+    }
+
     private void createEmptyMonitor() {
         final DOMDataWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
+        ensureParentExists(wTx, YangInstanceIdentifier.of(BmpMonitor.QNAME));
         wTx.put(LogicalDatastoreType.OPERATIONAL,
-                YangInstanceIdentifier.of(BmpMonitor.QNAME),
-                Builders.containerBuilder()
-                .withNodeIdentifier(
-                        new NodeIdentifier(BmpMonitor.QNAME))
-                        .addChild(ImmutableNodes.mapNodeBuilder(Monitor.QNAME)
-                                .addChild(ImmutableNodes.mapEntryBuilder(Monitor.QNAME, MONITOR_ID_QNAME, this.monitorId.getValue())
-                                        .addChild(ImmutableNodes.leafNode(MONITOR_ID_QNAME, this.monitorId.getValue()))
-                                        .addChild(ImmutableNodes.mapNodeBuilder(Router.QNAME).build())
-                                        .build()).build())
-                        .build());
+                YangInstanceIdentifier.builder().node(BmpMonitor.QNAME).node(Monitor.QNAME)
+                    .nodeWithKey(Monitor.QNAME, MONITOR_ID_QNAME, this.monitorId.getValue()).build(),
+                ImmutableNodes.mapEntryBuilder(Monitor.QNAME, MONITOR_ID_QNAME, this.monitorId.getValue())
+                    .addChild(ImmutableNodes.leafNode(MONITOR_ID_QNAME, this.monitorId.getValue()))
+                    .addChild(ImmutableNodes.mapNodeBuilder(Router.QNAME).build())
+                    .build());
         try {
             wTx.submit().checkedGet();
         } catch (final TransactionCommitFailedException e) {
