@@ -176,7 +176,7 @@ final class AdjRibInWriter {
         idb.nodeWithKey(instanceIdentifierKey.getNodeType(), instanceIdentifierKey.getKeyValues());
 
         TableContext ctx = new TableContext(rs, idb.build());
-        ctx.clearTable(tx);
+        ctx.createEmptyTableStructure(tx);
 
         tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME).node(ATTRIBUTES_UPTODATE_FALSE.getNodeType()), ATTRIBUTES_UPTODATE_FALSE);
         LOG.debug("Created table instance {}", ctx.getTableId());
@@ -192,7 +192,7 @@ final class AdjRibInWriter {
                 tt.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
             }
             tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath.node(PEER_TABLES).node(supTablesKey), tt.build());
-            rs.clearTable(tx, newPeerPath.node(EMPTY_ADJRIBOUT.getIdentifier()).node(TABLES).node(instanceIdentifierKey));
+            rs.createEmptyTableStructure(tx, newPeerPath.node(EMPTY_ADJRIBOUT.getIdentifier()).node(TABLES).node(instanceIdentifierKey));
         }
     }
 

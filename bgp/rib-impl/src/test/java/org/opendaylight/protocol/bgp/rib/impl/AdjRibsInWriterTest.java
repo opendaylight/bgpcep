@@ -72,7 +72,7 @@ public class AdjRibsInWriterTest {
         Mockito.doNothing().when(this.tx).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
         Mockito.doNothing().when(this.tx).merge(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
         Mockito.doReturn(this.context).when(this.registry).getRIBSupportContext(Mockito.any(TablesKey.class));
-        Mockito.doNothing().when(this.context).clearTable(Mockito.eq(this.tx), Mockito.any(YangInstanceIdentifier.class));
+        Mockito.doNothing().when(this.context).createEmptyTableStructure(Mockito.eq(this.tx), Mockito.any(YangInstanceIdentifier.class));
 
         this.writer.transform(new PeerId(this.peerIp), this.registry, this.tableTypes, false);
 
