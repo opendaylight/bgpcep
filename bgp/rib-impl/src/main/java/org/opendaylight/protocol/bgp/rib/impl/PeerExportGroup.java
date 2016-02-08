@@ -31,7 +31,8 @@ final class PeerExportGroup {
     }
 
     ContainerNode effectiveAttributes(final PeerId sourcePeerId, final ContainerNode attributes) {
-        return attributes == null ? null :  policy.effectiveAttributes(peerRoles.get(sourcePeerId), attributes);
+        final PeerRole peerRole = peerRoles.get(sourcePeerId);
+        return attributes == null || peerRole == null ? null :  policy.effectiveAttributes(peerRole, attributes);
     }
 
     Collection<Entry<PeerId, YangInstanceIdentifier>> getPeers() {
