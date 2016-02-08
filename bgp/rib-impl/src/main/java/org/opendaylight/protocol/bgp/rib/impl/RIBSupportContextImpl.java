@@ -50,8 +50,7 @@ class RIBSupportContextImpl extends RIBSupportContext {
     }
 
     @Override
-    public void clearTable(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tableId) {
-        //TODO: Change this method name to createTable which is more appropriate
+    public void createEmptyTableStructure(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tableId) {
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> tb = ImmutableNodes.mapEntryBuilder();
         tb.withNodeIdentifier((NodeIdentifierWithPredicates)tableId.getLastPathArgument());
         tb.withChild(EMPTY_TABLE_ATTRIBUTES);
