@@ -30,7 +30,7 @@ public abstract class RIBSupportContext {
      * @param tx Transaction to to be used
      * @param tableId Instance Identifier of table to be cleared.
      */
-    public abstract void clearTable(DOMDataWriteTransaction tx, YangInstanceIdentifier tableId);
+    public abstract void createEmptyTableStructure(DOMDataWriteTransaction tx, YangInstanceIdentifier tableId);
 
     /**
      * Removes supplied routes from RIB table using supplied transaction.
