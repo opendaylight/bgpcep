@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "9a3d3df0_5c7e556c",
+        "filename": "bgp/controller-config/src/main/resources/initial/41-bgp-example.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-08T07:15:30Z",
+      "side": 1,
+      "message": "Might not be a safe at the moment, as \"Add path\" is not implemented yet.",
+      "range": {
+        "startLine": 111,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 31
+      },
+      "revId": "c8c90344d91dd32851a61b23cf649679468d849d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3d3df0_9759dd00",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/AddPathImplModuleFactory.java",
         "patchSetId": 3
