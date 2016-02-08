@@ -255,7 +255,6 @@ final class EffectiveRibInWriter implements AutoCloseable {
 
         @Override
         public void close() {
-            // FIXME: wipe all effective routes?
             this.reg.close();
         }
     }
