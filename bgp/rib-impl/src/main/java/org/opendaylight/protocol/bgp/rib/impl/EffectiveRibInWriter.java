@@ -194,7 +194,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
 
             // Create an empty table
             LOG.trace("Create Empty table", tablePath);
-            ribSupport.clearTable(tx, tablePath);
+            ribSupport.createEmptyTableStructure(tx, tablePath);
 
             processTableChildren(tx, ribSupport.getRibSupport(), peerKey, tablePath, table.getChildNodes());
         }
