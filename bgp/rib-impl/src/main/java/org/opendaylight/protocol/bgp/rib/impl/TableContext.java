@@ -37,8 +37,8 @@ final class TableContext {
     }
 
 
-    void clearTable(final DOMDataWriteTransaction tx) {
-        this.tableSupport.clearTable(tx, this.tableId);
+    void createEmptyTableStructure(final DOMDataWriteTransaction tx) {
+        this.tableSupport.createEmptyTableStructure(tx, this.tableId);
     }
 
     void removeTable(final DOMDataWriteTransaction tx) {
