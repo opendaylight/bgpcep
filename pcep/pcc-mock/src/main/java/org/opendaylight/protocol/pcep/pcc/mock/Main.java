@@ -40,13 +40,13 @@ public final class Main {
     private static final short DEFAULT_KEEP_ALIVE = 30;
     private static final short DEFAULT_DEAD_TIMER = 120;
     private static final InetAddress LOCALHOST = InetAddresses.forString("127.0.0.1");
-    private static boolean TRIGGERED_INIT_SYNC = Boolean.FALSE;
-    private static boolean INCLUDE_DBV = Boolean.FALSE;
-    private static boolean INCREMENTAL_SYNC = Boolean.FALSE;
-    private static boolean TRIGGERED_RESYNC = Boolean.FALSE;
-    private static BigInteger SYNC_OPT_DB_VERSION;
-    private static int RECONNECT_AFTER_X_SECOND;
-    private static int DISCONNECT_AFTER_X_SECONDS;
+    private static boolean triggeredInitSync = Boolean.FALSE;
+    private static boolean includeDbv = Boolean.FALSE;
+    private static boolean incrementalSync = Boolean.FALSE;
+    private static boolean triggeredResync = Boolean.FALSE;
+    private static BigInteger syncOptDBVersion;
+    private static int reconnectAfterXSeconds;
+    private static int disonnectAfterXSeconds;
 
 
     private Main() {
@@ -96,50 +96,50 @@ public final class Main {
                 stateTimeout = Integer.valueOf(args[++argIdx]);
             } else if (args[argIdx].equals("--state-sync-avoidance")) {
                 //"--state-sync-avoidance 10, 5, 10
-                INCLUDE_DBV = Boolean.TRUE;
+                includeDbv = Boolean.TRUE;
                 final Long dbVersionAfterReconnect = Long.valueOf(args[++argIdx]);
-                DISCONNECT_AFTER_X_SECONDS = Integer.valueOf(args[++argIdx]);
-                RECONNECT_AFTER_X_SECOND = Integer.valueOf(args[++argIdx]);
-                SYNC_OPT_DB_VERSION = BigInteger.valueOf(dbVersionAfterReconnect);
+                disonnectAfterXSeconds = Integer.valueOf(args[++argIdx]);
+                reconnectAfterXSeconds = Integer.valueOf(args[++argIdx]);
+                syncOptDBVersion = BigInteger.valueOf(dbVersionAfterReconnect);
             } else if (args[argIdx].equals("--incremental-sync-procedure")) {
                 //TODO Check that DBv > Lsp always ??
-                INCLUDE_DBV = Boolean.TRUE;
-                INCREMENTAL_SYNC = Boolean.TRUE;
+                includeDbv = Boolean.TRUE;
+                incrementalSync = Boolean.TRUE;
                 //Version of database to be used after restart
                 final Long initialDbVersionAfterReconnect = Long.valueOf(args[++argIdx]);
-                DISCONNECT_AFTER_X_SECONDS = Integer.valueOf(args[++argIdx]);
-                RECONNECT_AFTER_X_SECOND = Integer.valueOf(args[++argIdx]);
-                SYNC_OPT_DB_VERSION = BigInteger.valueOf(initialDbVersionAfterReconnect);
+                disonnectAfterXSeconds = Integer.valueOf(args[++argIdx]);
+                reconnectAfterXSeconds = Integer.valueOf(args[++argIdx]);
+                syncOptDBVersion = BigInteger.valueOf(initialDbVersionAfterReconnect);
             } else if (args[argIdx].equals("--triggered-initial-sync")) {
-                TRIGGERED_INIT_SYNC = Boolean.TRUE;
+                triggeredInitSync = Boolean.TRUE;
             } else if (args[argIdx].equals("--triggered-re-sync")) {
-                TRIGGERED_RESYNC = Boolean.TRUE;
+                triggeredResync = Boolean.TRUE;
             } else {
                 LOG.warn("WARNING: Unrecognized argument: {}", args[argIdx]);
             }
             argIdx++;
         }
 
-        if (INCREMENTAL_SYNC) {
-            Preconditions.checkArgument(SYNC_OPT_DB_VERSION.intValue() > lsps, "Synchronization Database Version which will be used after " +
+        if (incrementalSync) {
+            Preconditions.checkArgument(syncOptDBVersion.intValue() > lsps, "Synchronization Database Version which will be used after " +
                 "reconnectes requires to be higher than lsps");
         }
 
-        final Optional<BigInteger> dBVersion = Optional.fromNullable(SYNC_OPT_DB_VERSION);
+        final Optional<BigInteger> dBVersion = Optional.fromNullable(syncOptDBVersion);
         final PCCsBuilder pccs = new PCCsBuilder(lsps, pcError, pccCount, localAddress, remoteAddress, ka, dt, password, reconnectTime, redelegationTimeout,
             stateTimeout, dBVersion, getCapabilities());
-        final TimerHandler timerHandler = new TimerHandler(pccs, dBVersion, DISCONNECT_AFTER_X_SECONDS, RECONNECT_AFTER_X_SECOND);
+        final TimerHandler timerHandler = new TimerHandler(pccs, dBVersion, disonnectAfterXSeconds, reconnectAfterXSeconds);
         pccs.createPCCs(BigInteger.valueOf(lsps), Optional.fromNullable(timerHandler));
-        if (!TRIGGERED_INIT_SYNC) {
+        if (!triggeredInitSync) {
             timerHandler.createDisconnectTask();
         }
     }
 
     private static PCEPCapability getCapabilities() {
-        if (TRIGGERED_INIT_SYNC) {
-            Preconditions.checkArgument(INCLUDE_DBV);
+        if (triggeredInitSync) {
+            Preconditions.checkArgument(includeDbv);
         }
-        return new PCEPStatefulCapability(true, true, true, TRIGGERED_INIT_SYNC, TRIGGERED_RESYNC, INCREMENTAL_SYNC, INCLUDE_DBV);
+        return new PCEPStatefulCapability(true, true, true, triggeredInitSync, triggeredResync, incrementalSync, includeDbv);
     }
 
     private static ch.qos.logback.classic.Logger getRootLogger(final LoggerContext lc) {

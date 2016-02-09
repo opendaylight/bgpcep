@@ -9,7 +9,6 @@
 package org.opendaylight.protocol.pcep.pcc.mock;
 
 import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createPath;
-
 import com.google.common.collect.Lists;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +27,11 @@ public class PCCTunnelBuilder {
     private static final String ENDPOINT_PREFIX = ENDPOINT_ADDRESS + "/32";
     public static final int PCC_DELEGATION = -1;
 
-    public static Map<PlspId, PCCTunnel> createTunnels(String address, final int lsps) {
+    private PCCTunnelBuilder() {
+        throw new UnsupportedOperationException();
+    }
+
+    public static Map<PlspId, PCCTunnel> createTunnels(final String address, final int lsps) {
         final Map<PlspId, PCCTunnel> tunnels = new HashMap<>();
         for (int i = 1; i <= lsps; i++) {
             final PCCTunnel tunnel = new PCCTunnel(MsgBuilderUtil.getDefaultPathName(address, i), PCC_DELEGATION, LspType.PCC_LSP,
