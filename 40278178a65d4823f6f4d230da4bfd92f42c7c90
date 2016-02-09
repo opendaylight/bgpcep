@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_883b7737",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/FSIpv4DestinationPrefixHandler.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-09T10:34:26Z",
+      "side": 1,
+      "message": "Class is not used - use or remove.",
+      "revId": "40278178a65d4823f6f4d230da4bfd92f42c7c90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_c8d73fec",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/SimpleFlowspecIpv6NlriParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-09T10:34:26Z",
+      "side": 1,
+      "message": "Duplicated semicolon.",
+      "range": {
+        "startLine": 16,
+        "startChar": 101,
+        "endLine": 16,
+        "endChar": 102
+      },
+      "revId": "40278178a65d4823f6f4d230da4bfd92f42c7c90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_e84a03c4",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/handlers/AbstractFSFragmentHandler.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-09T10:34:26Z",
+      "side": 1,
+      "message": "Class is not used - use or remove.",
+      "revId": "40278178a65d4823f6f4d230da4bfd92f42c7c90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
