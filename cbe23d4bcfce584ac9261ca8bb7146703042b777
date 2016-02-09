@@ -16,6 +16,24 @@
       "revId": "cbe23d4bcfce584ac9261ca8bb7146703042b777",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_32ad759d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-02-09T17:04:16Z",
+      "side": 1,
+      "message": "its returns null, but also we get null when removing some peer, entry \u003d\u003d null therefore effectiveAttributes will be null also. Skipping to write when effectiveAttributes null will end on not removed routes from adj-rib-out. fixed \u0026 updated by [1]\n\nWe didn\u0027t hit this bug in Be since we skipped the step of remove from DS because Internal Peers doesn\u0027t have supportedTables, but in Li we don\u0027t have supportedTables and it tries to delete. \nThe best way to avoid and ensure no change is applied to Internal adj-rib-out (which doesn\u0027t exist) is to skip them (Internal Peers) since supportedTables could change and have impact not desired here.\n[1] https://git.opendaylight.org/gerrit/#/c/32912/",
+      "parentUuid": "9a3d3df0_3fb89e75",
+      "revId": "cbe23d4bcfce584ac9261ca8bb7146703042b777",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
