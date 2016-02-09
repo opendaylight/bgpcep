@@ -23,7 +23,9 @@ import com.google.common.net.InetAddresses;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
@@ -51,7 +53,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.AddPathCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.GracefulRestartCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.add.path.capability.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.afi.safi.route.counter.AfiSafiKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.tcpmd5.cfg.rev140427.Rfc2385Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -190,8 +194,9 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
             new CParameters1Builder().setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build()).build()).build());
 
         if (!getAddPathDependency().isEmpty()) {
+            final List<AddressFamilies> addPathFamilies = filterAddPathDependency(getAddPathDependency());
             caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
-                new CParameters1Builder().setAddPathCapability(new AddPathCapabilityBuilder().setAddressFamilies(getAddPathDependency()).build()).build()).build()).build());
+                new CParameters1Builder().setAddPathCapability(new AddPathCapabilityBuilder().setAddressFamilies(addPathFamilies).build()).build()).build()).build());
         }
 
         for (final BgpTableType t : getAdvertizedTableDependency()) {
@@ -204,6 +209,19 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         }
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(caps).build());
         return tlvs;
+    }
+
+    private List<AddressFamilies> filterAddPathDependency(final List<AddressFamilies> addPathDependency) {
+        final Map<AfiSafiKey, AddressFamilies> filteredFamilies = new HashMap<AfiSafiKey, AddressFamilies>();
+        for (final AddressFamilies family : addPathDependency) {
+            final AfiSafiKey key = new AfiSafiKey(family.getAfi(), family.getSafi());
+            if (!filteredFamilies.containsKey(key)) {
+                filteredFamilies.put(key, family);
+            } else {
+                LOG.info("Ignoring Add-path dependency {}", family);
+            }
+        }
+        return new ArrayList<AddressFamilies>(filteredFamilies.values());
     }
 
     public IpAddress getNormalizedHost() {

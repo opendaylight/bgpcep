@@ -84,13 +84,13 @@ public class AddPathImplModuleTest extends AbstractConfigTest {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final AddPathImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, AddPathImplModuleMXBean.class);
 
-        mxBean.setAddressFamily(createAddressFamily(transaction));
+        mxBean.setAddressFamily(createAddressFamily(transaction, AFI_INSTANCE_NAME));
         mxBean.setSendReceive(SendReceive.Both);
         return nameCreated;
     }
 
-    private static ObjectName createAddressFamily(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
-        final ObjectName nameCreated = transaction.createModule(AFI_NAME, AFI_INSTANCE_NAME);
+    protected static ObjectName createAddressFamily(final ConfigTransactionJMXClient transaction, final String instanceName) throws InstanceAlreadyExistsException {
+        final ObjectName nameCreated = transaction.createModule(AFI_NAME, instanceName);
         final BGPTableTypeImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, BGPTableTypeImplModuleMXBean.class);
 
         final IdentityAttributeRef afiRef = new IdentityAttributeRef(Ipv4AddressFamily.QNAME.toString());

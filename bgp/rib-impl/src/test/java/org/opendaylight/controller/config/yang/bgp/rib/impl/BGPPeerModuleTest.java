@@ -11,6 +11,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.management.InstanceAlreadyExistsException;
@@ -28,6 +29,7 @@ import org.opendaylight.tcpmd5.jni.NativeTestSupport;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.PortNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
@@ -58,6 +60,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         moduleFactories.add(new NativeKeyAccessFactoryModuleFactory());
         moduleFactories.add(new MD5ClientChannelFactoryModuleFactory());
         moduleFactories.add(new StrictBgpPeerRegistryModuleFactory());
+        moduleFactories.add(new AddPathImplModuleFactory());
         return moduleFactories;
     }
 
@@ -95,7 +98,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
     public void testCreateBean() throws Exception {
         final CommitStatus status = createBgpPeerInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 16, 0, 0);
+        assertStatus(status, 20, 0, 0);
     }
 
     @Test
@@ -103,7 +106,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         NativeTestSupport.assumeSupportedPlatform();
         final CommitStatus status = createBgpPeerInstance(true);
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 18, 0, 0);
+        assertStatus(status, 22, 0, 0);
     }
 
     @Test
@@ -131,7 +134,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         assertBeanCount(1, FACTORY_NAME);
         status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 16);
+        assertStatus(status, 0, 0, 20);
     }
 
     @Test
@@ -144,7 +147,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         mxBean.setPort(new PortNumber(10));
         status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, 15);
+        assertStatus(status, 0, 1, 19);
     }
 
     private ObjectName createBgpPeerInstance(final ConfigTransactionJMXClient transaction, final IpAddress host,
@@ -160,6 +163,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
             final ObjectName ribON = createRIBImplModuleInstance(transaction);
             mxBean.setRib(ribON);
         }
+        mxBean.setAddPath(createAddPathCollection(transaction));
         if (md5) {
             final BGPDispatcherImplModuleMXBean bgpDispatcherProxy = getBgpDispatcherImplModuleMXBean(transaction, mxBean);
             final ObjectName jniON = transaction.createModule(NativeKeyAccessFactoryModuleFactory.NAME, NativeKeyAccessFactoryModuleFactory.NAME);
@@ -183,6 +187,23 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
             new IdentityAttributeRef(Ipv4AddressFamily.QNAME.toString()),
             new IdentityAttributeRef(MplsLabeledVpnSubsequentAddressFamily.QNAME.toString()))));
         return nameCreated;
+    }
+
+    private static List<ObjectName> createAddPathCollection(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
+        final ObjectName name1 = transaction.createModule(AddPathImplModuleFactory.NAME, "add-path-inst-1");
+        final AddPathImplModuleMXBean mxBean = transaction.newMXBeanProxy(name1, AddPathImplModuleMXBean.class);
+        mxBean.setAddressFamily(AddPathImplModuleTest.createAddressFamily(transaction, "add-path-inst-1"));
+        mxBean.setSendReceive(SendReceive.Both);
+
+        final ObjectName name2 = transaction.createModule(AddPathImplModuleFactory.NAME, "add-path-inst-2");
+        final AddPathImplModuleMXBean mxBean2 = transaction.newMXBeanProxy(name2, AddPathImplModuleMXBean.class);
+        mxBean2.setAddressFamily(AddPathImplModuleTest.createAddressFamily(transaction, "add-path-inst-2"));
+        mxBean2.setSendReceive(SendReceive.Receive);
+
+        final List<ObjectName> ret = new ArrayList<ObjectName>();
+        ret.add(name1);
+        ret.add(name2);
+        return ret;
     }
 
     private static ObjectName createPeerRegistry(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
