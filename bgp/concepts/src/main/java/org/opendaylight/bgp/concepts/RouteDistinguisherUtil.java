@@ -60,7 +60,7 @@ public final class RouteDistinguisherUtil {
      */
     public static RouteDistinguisher parseRouteDistinguisher(final ByteBuf buffer) {
         final int type = buffer.readUnsignedShort();
-        final StringBuffer routeDistiguisher = new StringBuffer();
+        final StringBuilder routeDistiguisher = new StringBuilder();
         switch (type) {
         case IPV4_TYPE:
             routeDistiguisher.append(Ipv4Util.addressForByteBuf(buffer).getValue());
