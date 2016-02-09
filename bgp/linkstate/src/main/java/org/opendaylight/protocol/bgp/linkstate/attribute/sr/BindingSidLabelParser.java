@@ -213,11 +213,11 @@ public final class BindingSidLabelParser {
         return builder.build();
     }
 
-    public static void serializeBindingSidLabels(final List<SrBindingSidLabels> bindingSids, final ByteBuf aggregator, final int sid_type) {
+    public static void serializeBindingSidLabels(final List<SrBindingSidLabels> bindingSids, final ByteBuf aggregator, final int sidType) {
         for (final SrBindingSidLabels bindingSid : bindingSids) {
             final ByteBuf sidBuffer = Unpooled.buffer();
             serializeBindingSidAttributes(bindingSid.getWeight(), bindingSid.getFlags(), bindingSid.getBindingSubTlvs(), sidBuffer);
-            TlvUtil.writeTLV(sid_type, sidBuffer, aggregator);
+            TlvUtil.writeTLV(sidType, sidBuffer, aggregator);
         }
     }
 

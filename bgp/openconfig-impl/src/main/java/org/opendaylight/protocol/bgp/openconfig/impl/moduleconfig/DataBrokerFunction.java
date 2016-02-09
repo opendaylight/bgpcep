@@ -24,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controll
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.md.sal.dom.rev131028.DomAsyncDataBroker;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 
-final public class DataBrokerFunction {
+public final class DataBrokerFunction {
     private DataBrokerFunction() {
         throw new UnsupportedOperationException();
     }
@@ -50,7 +50,7 @@ final public class DataBrokerFunction {
                 }
             }
             return null;
-        } catch (ReadFailedException e) {
+        } catch (final ReadFailedException e) {
             throw new IllegalStateException("Failed to read service.", e);
         }
     }
