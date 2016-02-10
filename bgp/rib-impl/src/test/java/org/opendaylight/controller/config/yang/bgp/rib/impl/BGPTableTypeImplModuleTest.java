@@ -1,9 +1,15 @@
+/*
+ * Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
-
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.ObjectName;
 import org.junit.Before;
@@ -25,12 +31,12 @@ public class BGPTableTypeImplModuleTest extends AbstractConfigTest {
     private static final String INSTANCE_NAME = "bgp-table-type-impl";
     private static final String FACTORY_NAME = BGPTableTypeImplModuleFactory.NAME;
 
-    private IdentityAttributeRef afiRef = new IdentityAttributeRef(Ipv4AddressFamily.QNAME.toString());
-    private IdentityAttributeRef safiRef = new IdentityAttributeRef(MplsLabeledVpnSubsequentAddressFamily.QNAME.toString());
+    private final IdentityAttributeRef afiRef = new IdentityAttributeRef(Ipv4AddressFamily.QNAME.toString());
+    private final IdentityAttributeRef safiRef = new IdentityAttributeRef(MplsLabeledVpnSubsequentAddressFamily.QNAME.toString());
 
     @Before
     public void setUp() throws Exception {
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new BGPTableTypeImplModuleFactory()));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.mockedContext, new BGPTableTypeImplModuleFactory()));
     }
 
     @Override
@@ -45,9 +51,9 @@ public class BGPTableTypeImplModuleTest extends AbstractConfigTest {
     @Test
     public void testValidationExceptionAfiNotSet() throws InstanceAlreadyExistsException, ConflictingVersionException {
         try {
-            createInstance(null, safiRef);
+            createInstance(null, this.safiRef);
             fail();
-        } catch (ValidationException e) {
+        } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("Afi value is not set."));
         }
     }
@@ -55,9 +61,9 @@ public class BGPTableTypeImplModuleTest extends AbstractConfigTest {
     @Test
     public void testValidationExceptionSafiNotSet() throws InstanceAlreadyExistsException, ConflictingVersionException {
         try {
-            createInstance(afiRef, null);
+            createInstance(this.afiRef, null);
             fail();
-        } catch (ValidationException e) {
+        } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("Safi value is not set."));
         }
     }
@@ -72,7 +78,7 @@ public class BGPTableTypeImplModuleTest extends AbstractConfigTest {
     @Test
     public void testReusingOldInstance() throws Exception {
         createInstance();
-        final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
@@ -82,7 +88,7 @@ public class BGPTableTypeImplModuleTest extends AbstractConfigTest {
     @Test
     public void testReconfigure() throws Exception {
         createInstance();
-        final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
         final BGPTableTypeImplModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME),
                 BGPTableTypeImplModuleMXBean.class);
@@ -93,12 +99,12 @@ public class BGPTableTypeImplModuleTest extends AbstractConfigTest {
     }
 
     private CommitStatus createInstance() throws Exception {
-        return createInstance(afiRef, safiRef);
+        return createInstance(this.afiRef, this.safiRef);
     }
 
     private CommitStatus createInstance(final IdentityAttributeRef afiRef, final IdentityAttributeRef safiRef)
             throws ConflictingVersionException, ValidationException, InstanceAlreadyExistsException {
-        ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         createTableInstance(transaction, afiRef, safiRef);
         return transaction.commit();
     }
@@ -106,7 +112,7 @@ public class BGPTableTypeImplModuleTest extends AbstractConfigTest {
     public static ObjectName createTableInstance(final ConfigTransactionJMXClient transaction, final IdentityAttributeRef afiRef,
             final IdentityAttributeRef safiRef) throws InstanceAlreadyExistsException {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
-        BGPTableTypeImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, BGPTableTypeImplModuleMXBean.class);
+        final BGPTableTypeImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, BGPTableTypeImplModuleMXBean.class);
 
         mxBean.setAfi(afiRef);
         mxBean.setSafi(safiRef);
