@@ -45,7 +45,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public class LUNlriParser implements NlriParser, NlriSerializer {
 
-    private static final int LABEL_LENGTH = 3;
+    public static final int LABEL_LENGTH = 3;
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
@@ -55,13 +55,13 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
         final Attributes2 pathAttributes2 = pathAttributes.getAugmentation(Attributes2.class);
         if (pathAttributes1 != null) {
             final AdvertizedRoutes routes = (pathAttributes1.getMpReachNlri()).getAdvertizedRoutes();
-            if (routes != null && routes.getDestinationType() instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLabeledUnicastCase) {
+            if ((routes != null) && (routes.getDestinationType() instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLabeledUnicastCase)) {
                 final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLabeledUnicastCase labeledUnicastCase = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLabeledUnicastCase) routes.getDestinationType();
                 serializeNlri(labeledUnicastCase.getDestinationLabeledUnicast().getCLabeledUnicastDestination(), byteAggregator);
             }
         } else if (pathAttributes2 != null) {
             final MpUnreachNlri mpUnreachNlri = pathAttributes2.getMpUnreachNlri();
-            if (mpUnreachNlri.getWithdrawnRoutes() != null && mpUnreachNlri.getWithdrawnRoutes().getDestinationType() instanceof DestinationLabeledUnicastCase) {
+            if ((mpUnreachNlri.getWithdrawnRoutes() != null) && (mpUnreachNlri.getWithdrawnRoutes().getDestinationType() instanceof DestinationLabeledUnicastCase)) {
                 final DestinationLabeledUnicastCase labeledUnicastCase = (DestinationLabeledUnicastCase) mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
                 serializeNlri(labeledUnicastCase.getDestinationLabeledUnicast().getCLabeledUnicastDestination(), byteAggregator);
             }
@@ -73,27 +73,31 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
         for (final CLabeledUnicastDestination dest: dests) {
             final List<LabelStack> labelStack = dest.getLabelStack();
             final IpPrefix prefix = dest.getPrefix();
-            final int stackSize = labelStack.size();
             // Serialize the length field
             // Length field contains one Byte which represents the length of label stack and prefix in bits
-            nlriByteBuf.writeByte((LABEL_LENGTH * stackSize + getPrefixLength(prefix)) * Byte.SIZE);
+            nlriByteBuf.writeByte(((LABEL_LENGTH * labelStack.size()) + getPrefixLength(prefix)) * Byte.SIZE);
 
-            // Serialize the label stack entries
-            int i = 1;
-            for (final LabelStack labelStackEntry : labelStack) {
-                if (i++ == stackSize) {
-                    //mark last label stack entry with bottom-bit
-                    nlriByteBuf.writeBytes(MplsLabelUtil.byteBufForMplsLabelWithBottomBit(labelStackEntry.getLabelValue()));
-                } else {
-                    nlriByteBuf.writeBytes(MplsLabelUtil.byteBufForMplsLabel(labelStackEntry.getLabelValue()));
-                }
-            }
-
-            // Serialize the prefix field
-            final byte[] prefixBytes = getPrefixBytes(prefix);
-            nlriByteBuf.writeBytes(Arrays.copyOfRange(prefixBytes, 1, prefixBytes.length));
+            serializeLabelStackEntries(labelStack, nlriByteBuf);
+            serializePrefixField(prefix, nlriByteBuf);
         }
         buffer.writeBytes(nlriByteBuf);
+    }
+
+    public static void serializeLabelStackEntries(final List<LabelStack> stack, final ByteBuf buffer) {
+        int i = 1;
+        for (final LabelStack labelStackEntry : stack) {
+            if (i++ == stack.size()) {
+                //mark last label stack entry with bottom-bit
+                buffer.writeBytes(MplsLabelUtil.byteBufForMplsLabelWithBottomBit(labelStackEntry.getLabelValue()));
+            } else {
+                buffer.writeBytes(MplsLabelUtil.byteBufForMplsLabel(labelStackEntry.getLabelValue()));
+            }
+        }
+    }
+
+    public static void serializePrefixField(final IpPrefix prefix, final ByteBuf buffer) {
+        final byte[] prefixBytes = getPrefixBytes(prefix);
+        buffer.writeBytes(Arrays.copyOfRange(prefixBytes, 1, prefixBytes.length));
     }
 
     private static int getPrefixLength(final IpPrefix prefix) {
@@ -133,23 +137,26 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
         while (nlri.isReadable()) {
             final CLabeledUnicastDestinationBuilder builder = new CLabeledUnicastDestinationBuilder();
             final short length = nlri.readUnsignedByte();
-
             builder.setLabelStack(parseLabel(nlri));
-
             final int labelNum = builder.getLabelStack().size();
-            final int prefixLen = length - LABEL_LENGTH * Byte.SIZE * labelNum;
-            final int prefixLenInByte = prefixLen / Byte.SIZE + ((prefixLen % Byte.SIZE == 0) ? 0 : 1);
-            if (afi.equals(Ipv4AddressFamily.class)) {
-                builder.setPrefix(new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.readBytes(nlri, prefixLenInByte), prefixLen)));
-            } else if (afi.equals(Ipv6AddressFamily.class)) {
-                builder.setPrefix(new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.readBytes(nlri, prefixLenInByte), prefixLen)));
-            }
+            final int prefixLen = length - (LABEL_LENGTH * Byte.SIZE * labelNum);
+            builder.setPrefix(parseIpPrefix(nlri, prefixLen, afi));
             dests.add(builder.build());
         }
         return dests;
     }
 
-    private static List<LabelStack> parseLabel(final ByteBuf nlri) {
+    public static IpPrefix parseIpPrefix(final ByteBuf nlri, final int prefixLen, final Class<? extends AddressFamily> afi) {
+        final int prefixLenInByte = (prefixLen / Byte.SIZE) + (((prefixLen % Byte.SIZE) == 0) ? 0 : 1);
+        if (afi.equals(Ipv4AddressFamily.class)) {
+            return new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.readBytes(nlri, prefixLenInByte), prefixLen));
+        } else if (afi.equals(Ipv6AddressFamily.class)) {
+            return new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.readBytes(nlri, prefixLenInByte), prefixLen));
+        }
+        return null;
+    }
+
+    public static List<LabelStack> parseLabel(final ByteBuf nlri) {
         if (!nlri.isReadable()) {
             return null;
         }
