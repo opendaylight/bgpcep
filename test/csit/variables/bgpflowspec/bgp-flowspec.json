@@ -1,0 +1,123 @@
+{
+    "bgp-flowspec:flowspec-routes": {
+        "flowspec-route": [
+            {
+                "route-key": "all packets to 192.168.0.1/32 AND from 10.0.0.1/32 AND where IP protocol equals to 6 AND where port equals to 80 AND where destination port is greater than 8080 and is less than 8088 AND where source port is greater than 1024 AND where ICMP type equals to 0 AND where ICMP code equals to 0 AND where TCP flags does match 32 AND where packet length is greater than 400 and is less than 500 AND where DSCP equals to 20 AND where fragment does match 'IS FIRST' ",
+                "attributes": {
+                    "extended-communities": [
+                        {
+                            "transitive": true,
+                            "traffic-action-extended-community": {
+                                "sample": true,
+                                "terminal-action": true
+                            }
+                        }
+                    ],
+                    "origin": {
+                        "value": "igp"
+                    },
+                    "as-path": {},
+                    "local-pref": {
+                        "pref": 100
+                    }
+                },
+                "flowspec": [
+                    {
+                        "destination-prefix": "192.168.0.1/32"
+                    },
+                    {
+                        "source-prefix": "10.0.0.1/32"
+                    },
+                    {
+                        "protocol-ips": [
+                            {
+                                "op": "equals end-of-list",
+                                "value": 6
+                            }
+                        ]
+                    },
+                    {
+                        "ports": [
+                            {
+                                "op": "equals end-of-list",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    {
+                        "destination-ports": [
+                            {
+                                "op": "greater-than",
+                                "value": 8080
+                            },
+                            {
+                                "op": "end-of-list less-than and-bit",
+                                "value": 8088
+                            }
+                        ]
+                    },
+                    {
+                        "source-ports": [
+                            {
+                                "op": "end-of-list greater-than",
+                                "value": 1024
+                            }
+                        ]
+                    },
+                    {
+                        "types": [
+                            {
+                                "op": "equals end-of-list",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    {
+                        "codes": [
+                            {
+                                "op": "equals end-of-list",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    {
+                        "tcp-flags": [
+                            {
+                                "op": "match end-of-list",
+                                "value": 32
+                            }
+                        ]
+                    },
+                    {
+                        "packet-lengths": [
+                            {
+                                "op": "greater-than",
+                                "value": 400
+                            },
+                            {
+                                "op": "end-of-list less-than and-bit",
+                                "value": 500
+                            }
+                        ]
+                    },
+                    {
+                        "dscps": [
+                            {
+                                "op": "equals end-of-list",
+                                "value": 20
+                            }
+                        ]
+                    },
+                    {
+                        "fragments": [
+                            {
+                                "op": "match end-of-list",
+                                "value": "first"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
