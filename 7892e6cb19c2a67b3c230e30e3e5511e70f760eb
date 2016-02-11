@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_3fe37106",
+        "filename": "bgp/l3vpn/src/main/java/org/opendaylight/protocol/bgp/l3vpn/BGPActivator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-11T23:35:34Z",
+      "side": 1,
+      "message": "VpnIpv4Routes?",
+      "revId": "7892e6cb19c2a67b3c230e30e3e5511e70f760eb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_1f84ad0a",
+        "filename": "bgp/l3vpn/src/main/java/org/opendaylight/protocol/bgp/l3vpn/VpnIpv4NextHopParserSerializer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-11T23:35:34Z",
+      "side": 1,
+      "message": "8-octet RD is set to zero",
+      "revId": "7892e6cb19c2a67b3c230e30e3e5511e70f760eb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
