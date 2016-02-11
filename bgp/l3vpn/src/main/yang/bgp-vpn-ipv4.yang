@@ -37,7 +37,7 @@ module bgp-vpn-ipv4 {
     }
 
     grouping vpn-ipv4-destination {
-        list c-vpn-ipv4-destination {
+        list vpn-ipv4-destination {
             uses vpn-ipv4;
         }
     }
