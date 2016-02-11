@@ -21,6 +21,7 @@ public final class RouteDistinguisherUtil {
     private static final int IPV4_TYPE = 1;
     private static final int AS_4BYTE_TYPE = 2;
     private static final char SEPARATOR = ':';
+    public static final int RD_LENGTH = 8;
 
     private RouteDistinguisherUtil() {
         throw new UnsupportedOperationException();
@@ -34,6 +35,10 @@ public final class RouteDistinguisherUtil {
      */
     public static void serializeRouteDistinquisher(final RouteDistinguisher distinquisher, final ByteBuf byteAggregator) {
         final String value = distinquisher.getString();
+        if (value.equals("0:0")) {
+            byteAggregator.writeZero(RD_LENGTH);
+            return;
+        }
         final String[] values = value.split(":");
         try {
             // type 1
