@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "9a3d3df0_0e43e014",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-12T11:28:30Z",
+      "side": 1,
+      "message": "Commit message should start with BUG-4831 ...\nAlso, please extend commit message - briefly describe the changes.",
+      "revId": "95b453616d3e614dc065823261bc7a244c6bc3ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_ce9c58c3",
+        "filename": "bgp/parser-api/src/main/java/org/opendaylight/protocol/bgp/parser/BgpExtendedMessageUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-12T11:28:30Z",
+      "side": 1,
+      "message": "2016 and adjust it for you company.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 3
+      },
+      "revId": "95b453616d3e614dc065823261bc7a244c6bc3ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3d3df0_ba4e6f94",
         "filename": "bgp/parser-api/src/main/yang/bgp-message.yang",
         "patchSetId": 1
@@ -18,6 +58,161 @@
         "startChar": 0,
         "endLine": 87,
         "endChar": 20
+      },
+      "revId": "95b453616d3e614dc065823261bc7a244c6bc3ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_2eab44d7",
+        "filename": "bgp/parser-api/src/main/yang/bgp-message.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-12T11:28:30Z",
+      "side": 1,
+      "message": "This is not conforming with \"Extended message Capability for BGP\". The capability has length 0 - no content. So, I think empty container will be enough here.",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 100,
+        "endChar": 10
+      },
+      "revId": "95b453616d3e614dc065823261bc7a244c6bc3ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_0e7e406b",
+        "filename": "bgp/parser-api/src/test/java/org/opendaylight/protocol/bgp/parser/APITest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-12T11:28:30Z",
+      "side": 1,
+      "message": "System print outs are prohibited.",
+      "range": {
+        "startLine": 87,
+        "startChar": 8,
+        "endLine": 87,
+        "endChar": 43
+      },
+      "revId": "95b453616d3e614dc065823261bc7a244c6bc3ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_2e92249f",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/BgpExtendedMessageCapabilityHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-12T11:28:30Z",
+      "side": 1,
+      "message": "Does not follow expected ODL import ordering - https://wiki.opendaylight.org/view/GettingStarted:_Eclipse#Import_ordering",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 32
+      },
+      "revId": "95b453616d3e614dc065823261bc7a244c6bc3ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_6ee38c33",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPHandlerFactory.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-12T11:28:30Z",
+      "side": 1,
+      "message": "The BGPMessageHeaderDecoder must be set here. There is an Open Message/KA message exchange before a BGP session is established.",
+      "revId": "95b453616d3e614dc065823261bc7a244c6bc3ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_6eba6c0b",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPMessageHeaderDecoder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-12T11:28:30Z",
+      "side": 1,
+      "message": "Extended Message max. length is hard-coded to 65535 bytes.",
+      "range": {
+        "startLine": 50,
+        "startChar": 35,
+        "endLine": 50,
+        "endChar": 59
+      },
+      "revId": "95b453616d3e614dc065823261bc7a244c6bc3ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_8ee89011",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-12T11:28:30Z",
+      "side": 1,
+      "message": "Always use blocks with if/else - even for single statement.",
+      "range": {
+        "startLine": 140,
+        "startChar": 8,
+        "endLine": 140,
+        "endChar": 119
+      },
+      "revId": "95b453616d3e614dc065823261bc7a244c6bc3ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_8ebff0fa",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/StrictBGPPeerRegistry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-12T11:28:30Z",
+      "side": 1,
+      "message": "This is too harsh, we do not want to enforce extended message capability. The Open Message should be accepted even if remote peer does not advertise extended message capability and ODL BGP does.",
+      "range": {
+        "startLine": 199,
+        "startChar": 0,
+        "endLine": 209,
+        "endChar": 5
       },
       "revId": "95b453616d3e614dc065823261bc7a244c6bc3ba",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
