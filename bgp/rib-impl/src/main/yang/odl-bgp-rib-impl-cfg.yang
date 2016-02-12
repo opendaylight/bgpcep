@@ -445,6 +445,17 @@ module odl-bgp-rib-impl-cfg {
             type boolean;
             default "false";
         }
+        
+        leaf bgp-extended-message-capability {
+            description "The bgp extended message support capability.";
+            type boolean;
+            default "false";
+        }
+        
+         leaf extended-message-size {
+            description "Extended Message Size";
+            type uint16;
+        }
 
         leaf gr-capability {
             description "BGP graceful restart support capability.";

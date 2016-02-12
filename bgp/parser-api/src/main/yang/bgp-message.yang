@@ -84,6 +84,20 @@ module bgp-message {
                             type inet:as-number;
                         }
                     }
+                    
+	              container bgp-extended-message-capability {
+	                    reference "https://www.ietf.org/archive/id/draft-ietf-idr-bgp-extended-messages-11.txt";
+	                    leaf extended-message-size {
+							   type enumeration { 
+			                          enum 65535 {
+			                            value 65535;
+			                          }
+                          } 
+						  description
+						    "Flag to enable/disable bgp extended message capability from 
+						    4096 octets to 65535 octets";
+						 }
+				   }   
                 }
             }
         }

@@ -56,8 +56,8 @@ public class BGPParserTest {
         final BGPHandlerFactory handlers = new BGPHandlerFactory(this.registry);
         assertEquals(1, handlers.getEncoders().length);
         assertTrue(handlers.getEncoders()[0] instanceof BGPMessageToByteEncoder);
-        assertEquals(2, handlers.getDecoders().length);
-        assertTrue(handlers.getDecoders()[0] instanceof BGPMessageHeaderDecoder);
-        assertTrue(handlers.getDecoders()[1] instanceof BGPByteToMessageDecoder);
+        assertEquals(1, handlers.getDecoders().length);
+        //assertTrue(handlers.getDecoders()[0] instanceof BGPMessageHeaderDecoder);
+        assertTrue(handlers.getDecoders()[0] instanceof BGPByteToMessageDecoder);
     }
 }

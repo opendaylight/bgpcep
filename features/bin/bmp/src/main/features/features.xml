@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+<!--
+ Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
+
+ This program and the accompanying materials are made available under the
+ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ and is available at http://www.eclipse.org/legal/epl-v10.html
+-->
+
+<features name="odl-bgpcep-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
+
+    <repository>mvn:org.opendaylight.controller/features-config/{{VERSION}}/xml/features</repository>
+    <repository>mvn:org.opendaylight.controller/features-mdsal/{{VERSION}}/xml/features</repository>
+    <repository>mvn:org.opendaylight.yangtools/features-yangtools/{{VERSION}}/xml/features</repository>
+    <repository>mvn:org.opendaylight.bgpcep/features-bgp/{{VERSION}}/xml/features</repository>
+    <repository>mvn:org.opendaylight.tcpmd5/features-tcpmd5/{{VERSION}}/xml/features</repository>
+
+    <feature name='odl-bgpcep-bmp' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-bgp-dependencies</feature>
+        <feature version='${tcpmd5.version}'>odl-tcpmd5-netty</feature>
+        <feature version='${controller.mdsal.version}'>odl-mdsal-broker</feature>
+        <feature version='${config.version}'>odl-config-netty</feature>
+        <feature version='${protocol-framework.version}'>odl-protocol-framework</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-rib-impl</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-linkstate</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-flowspec</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-labeled-unicast</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-api/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-spi/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-impl/{{VERSION}}</bundle>
+        <configfile finalname="etc/opendaylight/karaf/31-bgp.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/config</configfile>
+        <configfile finalname="etc/opendaylight/karaf/32-bmp.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/bmp-config</configfile>
+        <configfile finalname="etc/opendaylight/karaf/42-bmp-example.xml">mvn:org.opendaylight.bgpcep/bgp-controller-config/{{VERSION}}/xml/bmp-config-example</configfile>
+    </feature>
+</features>

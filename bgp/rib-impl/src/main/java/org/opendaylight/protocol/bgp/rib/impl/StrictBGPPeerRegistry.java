@@ -29,6 +29,7 @@ import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.As4CapabilityHandler;
+import org.opendaylight.protocol.bgp.parser.impl.message.open.BgpExtendedMessageCapabilityHandler;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
@@ -42,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.BgpExtendedMessageCapability;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -163,6 +165,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
             }
         }
         validateAs(remoteAsNumber, openObj, prefs);
+        validateExtendedMessageCapability(openObj, prefs);
 
         // Map session id to peer IP address
         this.sessionIds.put(ip, currentConnection);
@@ -192,6 +195,18 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
             throw new BGPDocumentedException("Open message unacceptable. Check the configuration of BGP speaker.", BGPError.UNSPECIFIC_OPEN_ERROR);
         }
     }
+    
+    private void validateExtendedMessageCapability(final Open openObj, final BGPSessionPreferences localPref) throws BGPDocumentedException {
+       
+        final List<BgpParameters> prefs = openObj.getBgpParameters();
+        if (prefs != null) {
+            if (getBgpExtendedMessageCapability(localPref.getParams()).isPresent() && !getBgpExtendedMessageCapability(prefs).isPresent()) {
+                throw new BGPDocumentedException("The peer must advertise Bgp Extended Message capability.", BGPError.UNSUPPORTED_CAPABILITY, serializeBgpExtendedMessageCapability(getBgpExtendedMessageCapability(localPref.getParams()).get()));
+            }
+        } else {
+            throw new BGPDocumentedException("Open message unacceptable. Check the configuration of BGP speaker.", BGPError.UNSPECIFIC_OPEN_ERROR);
+        }
+    }
 
     private static Optional<As4BytesCapability> getAs4BytesCapability(final List<BgpParameters> prefs) {
         for (final BgpParameters param : prefs) {
@@ -204,7 +219,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         }
         return Optional.absent();
     }
-
+    
     private static byte[] serializeAs4BytesCapability(final As4BytesCapability as4Capability) {
         final ByteBuf buffer = Unpooled.buffer(1 /*CODE*/ + 1 /*LENGTH*/ + Integer.SIZE / Byte.SIZE /*4 byte value*/);
         final As4CapabilityHandler serializer = new As4CapabilityHandler();
@@ -212,6 +227,26 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         return buffer.array();
     }
 
+    private static byte[] serializeBgpExtendedMessageCapability(final BgpExtendedMessageCapability bgpExMessCapability) {
+        final ByteBuf buffer = Unpooled.buffer(1 /*CODE*/ + 1 /*LENGTH*/ + Integer.SIZE / Byte.SIZE /*4 byte value*/);
+        final BgpExtendedMessageCapabilityHandler serializer = new BgpExtendedMessageCapabilityHandler();
+        serializer.serializeCapability(new CParametersBuilder().setBgpExtendedMessageCapability(bgpExMessCapability).build(), buffer);
+        return buffer.array();
+    }
+    
+    private static Optional<BgpExtendedMessageCapability> getBgpExtendedMessageCapability(final List<BgpParameters> prefs) {
+        for (final BgpParameters param : prefs) {
+            for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
+                final CParameters cParam = capa.getCParameters();
+                if (cParam.getBgpExtendedMessageCapability() != null) {
+                    return Optional.of(cParam.getBgpExtendedMessageCapability());
+                }
+            }
+        }
+        return Optional.absent();
+    }
+
+    
     @Override
     public BGPSessionPreferences getPeerPreferences(final IpAddress ip) {
         Preconditions.checkNotNull(ip);

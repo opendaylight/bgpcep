@@ -42,6 +42,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.OptionalCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.BgpExtendedMessageCapability.ExtendedMessageSize;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.BgpExtendedMessageCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1Builder;
@@ -56,6 +58,7 @@ public class BGPDispatcherImplTest {
     private static final InetSocketAddress CLIENT_ADDRESS2 = new InetSocketAddress("127.0.12.0", 1792);
     private static final AsNumber AS_NUMBER = new AsNumber(30L);
     private static final int TIMEOUT = 5000;
+    private static final ExtendedMessageSize exMesSize=ExtendedMessageSize._65535;
 
     private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
 
@@ -96,6 +99,7 @@ public class BGPDispatcherImplTest {
                 new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, TIMEOUT), Optional.<InetSocketAddress>absent()).get();
         Assert.assertEquals(BGPSessionImpl.State.UP, session.getState());
         Assert.assertEquals(AS_NUMBER, session.getAsNumber());
+        Assert.assertEquals(exMesSize, session.getExtendedMessageSize());
         Assert.assertEquals(Sets.newHashSet(this.ipv4tt), session.getAdvertisedTableTypes());
         session.close();
     }
@@ -134,8 +138,10 @@ public class BGPDispatcherImplTest {
         final List<OptionalCapabilities> capas = Lists.newArrayList();
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(
             CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build()).build())
-            .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(30L)).build()).build()).build());
+            		.setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build()).build())
+        		.setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(30L)).build())
+        		.setBgpExtendedMessageCapability(new BgpExtendedMessageCapabilityBuilder().setExtendedMessageSize(ExtendedMessageSize._65535).build())
+        		.build()).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
         return new BGPSessionPreferences(AS_NUMBER, (short) 4, new Ipv4Address(socketAddress.getAddress().getHostAddress()), AS_NUMBER, tlvs);
     }

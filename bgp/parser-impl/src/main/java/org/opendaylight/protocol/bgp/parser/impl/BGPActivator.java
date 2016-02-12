@@ -14,6 +14,7 @@ import org.opendaylight.protocol.bgp.parser.impl.message.BGPNotificationMessageP
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPOpenMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.As4CapabilityHandler;
+import org.opendaylight.protocol.bgp.parser.impl.message.open.BgpExtendedMessageCapabilityHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.CapabilityParameterParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.GracefulCapabilityHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.MultiProtocolCapabilityHandler;
@@ -57,6 +58,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.BgpExtendedMessageCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Aggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Aigp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.AsPath;
@@ -144,6 +146,10 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         final CapabilityParameterParser cpp = new CapabilityParameterParser(context.getCapabilityRegistry());
         regs.add(context.registerParameterParser(CapabilityParameterParser.TYPE, cpp));
         regs.add(context.registerParameterSerializer(BgpParameters.class, cpp));
+        
+        final BgpExtendedMessageCapabilityHandler bgpextmessage = new BgpExtendedMessageCapabilityHandler();
+        regs.add(context.registerCapabilityParser(BgpExtendedMessageCapabilityHandler.CODE, bgpextmessage));
+        regs.add(context.registerCapabilitySerializer(BgpExtendedMessageCapability.class, bgpextmessage));
     }
 
     private void registerAttributeParsers(final List<AutoCloseable> regs, final BGPExtensionProviderContext context) {

@@ -17,6 +17,7 @@ public final class BGPMessageHeaderDecoder extends LengthFieldBasedFrameDecoder 
     private static final int MAX_FRAME_SIZE = 4096;
 
     private static final int MARKER_SIZE = 16;
+    
 
     /*
      * the length field represents the length of the whole message including the header
@@ -41,7 +42,12 @@ public final class BGPMessageHeaderDecoder extends LengthFieldBasedFrameDecoder 
 
      */
 
+
     public BGPMessageHeaderDecoder() {
+        super(MAX_FRAME_SIZE, MARKER_SIZE, LENGTH_SIZE, -MARKER_SIZE - LENGTH_SIZE, 0);
+    }
+    
+    public BGPMessageHeaderDecoder(final int MAX_FRAME_SIZE) {
         super(MAX_FRAME_SIZE, MARKER_SIZE, LENGTH_SIZE, -MARKER_SIZE - LENGTH_SIZE, 0);
     }
 }

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<com.yattasolutions.uml.diagrams.classifier:ClassDiagram xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:com.yattasolutions.uml.diagrams.classifier="http://ns.yatta-solutions.com/umllab/diagrams/classifier/1.1.0" xmi:id="_DnvcUM34EeW918ygP57Snw">
+  <modelElement href="platform:/resource/bgp-rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/bgp-rib-impl.uml#_Dg9e4M34EeW918ygP57Snw"/>
+</com.yattasolutions.uml.diagrams.classifier:ClassDiagram>

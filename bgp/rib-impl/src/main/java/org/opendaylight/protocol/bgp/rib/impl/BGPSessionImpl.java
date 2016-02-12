@@ -16,6 +16,7 @@ import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import java.io.IOException;
@@ -26,6 +27,7 @@ import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPError;
+import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
@@ -44,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.OptionalCapabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.BgpExtendedMessageCapability.ExtendedMessageSize;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCapability;
@@ -60,6 +63,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     private static final Notification KEEP_ALIVE = new KeepaliveBuilder().build();
 
     private static final int KA_TO_DEADTIMER_RATIO = 3;
+   
 
     /**
      * Internal session state.
@@ -110,8 +114,11 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     private final Ipv4Address bgpId;
     private final BGPPeerRegistry peerRegistry;
     private final ChannelOutputLimiter limiter;
+    private final ExtendedMessageSize exMesSize;
 
     private BGPSessionStats sessionStats;
+    
+    
 
     public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen, final BGPSessionPreferences localPreferences,
             final BGPPeerRegistry peerRegistry) {
@@ -129,6 +136,9 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         LOG.info("BGP HoldTimer new value: {}", this.holdTimerValue);
         this.keepAlive = this.holdTimerValue / KA_TO_DEADTIMER_RATIO;
         this.asNumber = AsNumberUtil.advertizedAsNumber(remoteOpen);
+        this.exMesSize = BgpExtendedMessageUtil.advertizedBgpExtendedMessageCapability(remoteOpen);
+        if(this.exMesSize!=null) this.channel.pipeline().addLast(new BGPMessageHeaderDecoder(exMesSize.getIntValue()));
+        else this.channel.pipeline().addLast(new BGPMessageHeaderDecoder());
         this.peerRegistry = peerRegistry;
 
         final Set<TablesKey> tts = Sets.newHashSet();
@@ -382,6 +392,13 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     public final AsNumber getAsNumber() {
         return this.asNumber;
     }
+    
+    @Override
+	public ExtendedMessageSize getExtendedMessageSize() {
+		// TODO Auto-generated method stub
+		return exMesSize;
+	}
+    
 
     synchronized boolean isWritable() {
         return this.channel != null && this.channel.isWritable();
@@ -433,4 +450,6 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     public final void handlerAdded(final ChannelHandlerContext ctx) {
         this.sessionUp();
     }
+
+	
 }
