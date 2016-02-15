@@ -8,14 +8,14 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock;
 
-import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createLsp;
-import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createLspTlvs;
-import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createLspTlvsEndofSync;
-import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createPath;
-import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createPcRtpMessage;
-import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createSrp;
-import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.reqToRptPath;
-import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.updToRptPath;
+import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createLsp;
+import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createLspTlvs;
+import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createLspTlvsEndofSync;
+import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createPath;
+import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createPcRtpMessage;
+import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createSrp;
+import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.reqToRptPath;
+import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.updToRptPath;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -37,6 +37,7 @@ import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.pcep.pcc.mock.api.LspType;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCSession;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCTunnelManager;
+import org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Lsp1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Lsp1Builder;

@@ -53,7 +53,6 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationPeer.class);
 
     private final byte[] rawIdentifier;
-    private final RIBImpl targetRib;
     private final String name;
     private final YangInstanceIdentifier adjRibsInId;
     private final DOMTransactionChain chain;
@@ -62,16 +61,17 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
 
     private AdjRibInWriter writer;
 
-    public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIBImpl targetRib, final BGPConfigModuleTracker moduleTracker) {
+    public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIBImpl rib, final BGPConfigModuleTracker
+        moduleTracker) {
         this.name = applicationRibId.getValue().toString();
-        this.targetRib = Preconditions.checkNotNull(targetRib);
+        final RIBImpl targetRib = Preconditions.checkNotNull(rib);
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
         final NodeIdentifierWithPredicates peerId = IdentifierUtils.domPeerId(RouterIds.createPeerId(ipAddress));
-        this.adjRibsInId = this.targetRib.getYangRibId().node(Peer.QNAME).node(peerId).node(AdjRibIn.QNAME).node(Tables.QNAME);
-        this.chain = this.targetRib.createPeerChain(this);
-        this.writerChain = this.targetRib.createPeerChain(this);
-        this.writer = AdjRibInWriter.create(this.targetRib.getYangRibId(), PeerRole.Internal, this.writerChain);
-        this.writer = this.writer.transform(RouterIds.createPeerId(ipAddress), this.targetRib.getRibSupportContext(), this.targetRib.getLocalTablesKeys(), true);
+        this.adjRibsInId = targetRib.getYangRibId().node(Peer.QNAME).node(peerId).node(AdjRibIn.QNAME).node(Tables.QNAME);
+        this.chain = targetRib.createPeerChain(this);
+        this.writerChain = targetRib.createPeerChain(this);
+        this.writer = AdjRibInWriter.create(targetRib.getYangRibId(), PeerRole.Internal, this.writerChain);
+        this.writer = this.writer.transform(RouterIds.createPeerId(ipAddress), targetRib.getRibSupportContext(), targetRib.getLocalTablesKeys(), true);
         this.moduleTracker = moduleTracker;
         if (moduleTracker != null) {
             moduleTracker.onInstanceCreate();
