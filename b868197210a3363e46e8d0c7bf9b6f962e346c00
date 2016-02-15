@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_3228bee1",
+        "filename": "bgp/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/VpnIpv4NextHopTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-15T13:46:02Z",
+      "side": 1,
+      "message": "Is this value really expected?",
+      "range": {
+        "startLine": 31,
+        "startChar": 35,
+        "endLine": 31,
+        "endChar": 36
+      },
+      "revId": "b868197210a3363e46e8d0c7bf9b6f962e346c00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
