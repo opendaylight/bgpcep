@@ -8,12 +8,13 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock;
 
-import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createPath;
+import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createPath;
 
 import com.google.common.collect.Lists;
 import java.util.HashMap;
 import java.util.Map;
 import org.opendaylight.protocol.pcep.pcc.mock.api.LspType;
+import org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PlspId;

@@ -30,6 +30,9 @@ public final class BmpMock {
 
     private static final Logger LOG = LoggerFactory.getLogger(BmpMock.class);
 
+    private BmpMock() {
+        throw new UnsupportedOperationException();
+    }
     public static void main(final String[] args) {
         LOG.info("Starting BMP test tool.");
         final BmpMockArguments arguments = BmpMockArguments.parseArguments(args);

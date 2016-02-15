@@ -53,14 +53,12 @@ final class PCCsBuilder {
     private final int redelegationTimeout;
     private final int stateTimeout;
     private final PCEPCapability pcepCapabilities;
-    private final Optional<BigInteger> syncOptDBVersion;
     private PCCDispatcherImpl pccDispatcher;
     private Timer timer = new HashedWheelTimer();
 
     public PCCsBuilder(final int lsps, final boolean pcError, final int pccCount, @Nonnull final InetSocketAddress localAddress,
                        @Nonnull final List<InetSocketAddress> remoteAddress, final short keepAlive, final short deadTimer, @Nonnull final String password,
-                       final long reconnectTime, final int redelegationTimeout, final int stateTimeout, final Optional<BigInteger> syncOptDBVersion,
-                       @Nonnull final PCEPCapability pcepCapabilities) {
+                       final long reconnectTime, final int redelegationTimeout, final int stateTimeout, @Nonnull final PCEPCapability pcepCapabilities) {
         this.lsps = lsps;
         this.pcError = pcError;
         this.pccCount = pccCount;
@@ -72,7 +70,6 @@ final class PCCsBuilder {
         this.reconnectTime = reconnectTime;
         this.redelegationTimeout = redelegationTimeout;
         this.stateTimeout = stateTimeout;
-        this.syncOptDBVersion = syncOptDBVersion;
         this.pcepCapabilities = pcepCapabilities;
         startActivators();
     }

@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 public final class BmpMockDispatcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(BmpMockDispatcher.class);
+    private static final int CONNECT_TIMEOUT = 2000;
 
     final BmpHandlerFactory hf;
     private final BmpSessionFactory sessionFactory;
@@ -41,7 +42,7 @@ public final class BmpMockDispatcher {
 
         b.channel(NioSocketChannel.class);
         b.option(ChannelOption.SO_KEEPALIVE, true);
-        b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000);
+        b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECT_TIMEOUT);
         b.group(workergroup);
 
         b.handler(new ChannelInitializer<NioSocketChannel>() {
