@@ -127,7 +127,7 @@ public final class Main {
 
         final Optional<BigInteger> dBVersion = Optional.fromNullable(syncOptDBVersion);
         final PCCsBuilder pccs = new PCCsBuilder(lsps, pcError, pccCount, localAddress, remoteAddress, ka, dt, password, reconnectTime, redelegationTimeout,
-            stateTimeout, dBVersion, getCapabilities());
+            stateTimeout, getCapabilities());
         final TimerHandler timerHandler = new TimerHandler(pccs, dBVersion, disonnectAfterXSeconds, reconnectAfterXSeconds);
         pccs.createPCCs(BigInteger.valueOf(lsps), Optional.fromNullable(timerHandler));
         if (!triggeredInitSync) {

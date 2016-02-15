@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPCapability;
+import org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil;
 
 public class PCCMockTest extends PCCMockCommon {
     private static final String REMOTE_ADDRESS2 = "127.0.2.0";

@@ -74,7 +74,6 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     private final RIBSupport ribSupport;
     private final NodeIdentifierWithPredicates tableKey;
     private final TablesKey localTablesKey;
-    private final RIBSupportContextRegistry registry;
     private final ListenerRegistration<LocRibWriter> reg;
     private final CacheDisconnectedPeers cacheDisconnectedPeers;
 
@@ -85,8 +84,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         this.localTablesKey = tablesKey;
         this.locRibTarget = YangInstanceIdentifier.create(target.node(LocRib.QNAME).node(Tables.QNAME).node(this.tableKey).getPathArguments());
         this.ourAs = Preconditions.checkNotNull(ourAs);
-        this.registry = registry;
-        this.ribSupport = this.registry.getRIBSupportContext(tablesKey).getRibSupport();
+        this.ribSupport = registry.getRIBSupportContext(tablesKey).getRibSupport();
         this.attributesIdentifier = this.ribSupport.routeAttributesIdentifier();
         this.peerPolicyTracker = new ExportPolicyPeerTracker(pd);
         this.cacheDisconnectedPeers = cacheDisconnectedPeers;
