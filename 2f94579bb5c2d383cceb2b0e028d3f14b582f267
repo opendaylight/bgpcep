@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_f313fd63",
+        "filename": "bgp/l3vpn/src/main/java/org/opendaylight/protocol/bgp/l3vpn/VpnIpv4NextHopParserSerializer.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-15T09:12:42Z",
+      "side": 1,
+      "message": "Just write zeros.",
+      "revId": "2f94579bb5c2d383cceb2b0e028d3f14b582f267",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
