@@ -52,7 +52,7 @@ public final class SimpleSessionListener implements BGPSessionListener {
     public void onSessionUp(final BGPSession session) {
         LOG.info("Session Up");
         this.session = session;
-        sessionLatch.countDown();
+        this.sessionLatch.countDown();
     }
 
     @Override
@@ -88,7 +88,7 @@ public final class SimpleSessionListener implements BGPSessionListener {
     }
 
     BGPSessionImpl getSession() {
-        Assert.assertEquals("Session up", true, Uninterruptibles.awaitUninterruptibly(sessionLatch, 10, TimeUnit.SECONDS));
+        Assert.assertEquals("Session up", true, Uninterruptibles.awaitUninterruptibly(this.sessionLatch, 10, TimeUnit.SECONDS));
         return (BGPSessionImpl) this.session;
     }
 }
