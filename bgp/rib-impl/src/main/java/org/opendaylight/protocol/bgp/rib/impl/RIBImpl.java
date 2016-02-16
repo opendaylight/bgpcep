@@ -120,7 +120,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.sessionStrategyFactory = Preconditions.checkNotNull(sessionStrategyFactory);
         this.tcpStrategyFactory = Preconditions.checkNotNull(tcpStrategyFactory);
         this.localTables = ImmutableSet.copyOf(localTables);
-        this.localTablesKeys = new HashSet<TablesKey>();
+        this.localTablesKeys = new HashSet<>();
         this.dataBroker = dps;
         this.domDataBroker = Preconditions.checkNotNull(domDataBroker);
         this.extensions = Preconditions.checkNotNull(extensions);
