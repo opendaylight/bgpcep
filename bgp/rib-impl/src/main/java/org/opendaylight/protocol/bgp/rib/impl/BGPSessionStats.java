@@ -183,7 +183,6 @@ final class BGPSessionStats {
                             pref.setFourOctetAsCapability(cParam.getAs4BytesCapability() != null);
                             if(cParam.getBgpExtendedMessageCapability()!=null){
                             	pref.setBgpExtendedMessageCapability(true);
-                            	pref.setExtendedMessageSize(cParam.getBgpExtendedMessageCapability().getExtendedMessageSize().getIntValue());
                             }
                         }
                     }
@@ -218,7 +217,6 @@ final class BGPSessionStats {
                     pref.setBgpExtendedMessageCapability(cParam.getBgpExtendedMessageCapability()!=null);
                     if(cParam.getBgpExtendedMessageCapability()!=null){
                     	pref.setBgpExtendedMessageCapability(true);
-                    	pref.setExtendedMessageSize(cParam.getBgpExtendedMessageCapability().getExtendedMessageSize().getIntValue());
                     }
                 }
 
