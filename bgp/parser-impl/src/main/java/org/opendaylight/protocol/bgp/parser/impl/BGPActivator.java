@@ -146,7 +146,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         final CapabilityParameterParser cpp = new CapabilityParameterParser(context.getCapabilityRegistry());
         regs.add(context.registerParameterParser(CapabilityParameterParser.TYPE, cpp));
         regs.add(context.registerParameterSerializer(BgpParameters.class, cpp));
-        
+
         final BgpExtendedMessageCapabilityHandler bgpextmessage = new BgpExtendedMessageCapabilityHandler();
         regs.add(context.registerCapabilityParser(BgpExtendedMessageCapabilityHandler.CODE, bgpextmessage));
         regs.add(context.registerCapabilitySerializer(BgpExtendedMessageCapability.class, bgpextmessage));

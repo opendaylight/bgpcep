@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import com.google.common.base.Preconditions;
@@ -13,8 +21,8 @@ import java.security.AccessControlException;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 
 /**
-* BGP peer acceptor that handles incoming bgp connections.
-*/
+ * BGP peer acceptor that handles incoming bgp connections.
+ */
 public class BGPPeerAcceptorModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPPeerAcceptorModule {
 
     private static final int PRIVILEGED_PORTS = 1024;
@@ -69,8 +77,8 @@ public class BGPPeerAcceptorModule extends org.opendaylight.controller.config.ya
         try {
             inetAddr = InetAddress.getByName(getBindingAddress()
                     .getIpv4Address() != null ? getBindingAddress()
-                    .getIpv4Address().getValue() : getBindingAddress()
-                    .getIpv6Address().getValue());
+                            .getIpv4Address().getValue() : getBindingAddress()
+                            .getIpv6Address().getValue());
         } catch (final UnknownHostException e) {
             throw new IllegalArgumentException("Illegal binding address " + getBindingAddress(), e);
         }

@@ -20,6 +20,7 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 public class BGPHandlerFactory {
     private final ChannelOutboundHandler encoder;
     private final MessageRegistry registry;
+    private static final int MAX_FRAME_SIZE = 4096;
 
     public BGPHandlerFactory(final MessageRegistry registry) {
         this.registry = Preconditions.checkNotNull(registry);
@@ -31,6 +32,6 @@ public class BGPHandlerFactory {
     }
 
     public ChannelHandler[] getDecoders() {
-        return new ChannelHandler[] {  new BGPByteToMessageDecoder(this.registry), };
+        return new ChannelHandler[] { BGPMessageHeaderDecoder.getBGPMessageHeaderDecoder(MAX_FRAME_SIZE), new BGPByteToMessageDecoder(this.registry), };
     }
 }

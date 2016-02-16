@@ -103,7 +103,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
 
     @Override
     public synchronized BGPSessionListener getPeer(final IpAddress ip, final Ipv4Address sourceId,
-        final Ipv4Address remoteId, final Open openObj) throws BGPDocumentedException {
+            final Ipv4Address remoteId, final Open openObj) throws BGPDocumentedException {
         Preconditions.checkNotNull(ip);
         Preconditions.checkNotNull(sourceId);
         Preconditions.checkNotNull(remoteId);
@@ -127,16 +127,16 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
             if (!previousConnection.equals(currentConnection)) {
                 LOG.warn("BGP session with {} {} has to be dropped. Same session already present {}", ip, currentConnection, previousConnection);
                 throw new BGPDocumentedException(
-                    String.format("BGP session with %s %s has to be dropped. Same session already present %s",
-                        ip, currentConnection, previousConnection),
+                        String.format("BGP session with %s %s has to be dropped. Same session already present %s",
+                                ip, currentConnection, previousConnection),
                         BGPError.CEASE);
 
                 // Session reestablished with lower source bgp id, dropping current
             } else if (previousConnection.isHigherDirection(currentConnection)) {
                 LOG.warn("BGP session with {} {} has to be dropped. Opposite session already present", ip, currentConnection);
                 throw new BGPDocumentedException(
-                    String.format("BGP session with %s initiated %s has to be dropped. Opposite session already present",
-                        ip, currentConnection),
+                        String.format("BGP session with %s initiated %s has to be dropped. Opposite session already present",
+                                ip, currentConnection),
                         BGPError.CEASE);
 
                 // Session reestablished with higher source bgp id, dropping previous
@@ -148,19 +148,19 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
             } else if (previousConnection.hasHigherAsNumber(currentConnection)) {
                 LOG.warn("BGP session with {} {} has to be dropped. Opposite session already present", ip, currentConnection);
                 throw new BGPDocumentedException(
-                    String.format("BGP session with %s initiated %s has to be dropped. Opposite session already present",
-                        ip, currentConnection),
+                        String.format("BGP session with %s initiated %s has to be dropped. Opposite session already present",
+                                ip, currentConnection),
                         BGPError.CEASE);
             } else if (currentConnection.hasHigherAsNumber(previousConnection)) {
                 LOG.warn("BGP session with {} {} released. Replaced by opposite session", ip, previousConnection);
                 this.peers.get(ip).releaseConnection();
                 return this.peers.get(ip);
-            // Session reestablished with same source bgp id, dropping current as duplicate
+                // Session reestablished with same source bgp id, dropping current as duplicate
             } else {
                 LOG.warn("BGP session with %s initiated from %s to %s has to be dropped. Same session already present", ip, sourceId, remoteId);
                 throw new BGPDocumentedException(
-                    String.format("BGP session with %s initiated %s has to be dropped. Same session already present",
-                        ip, currentConnection),
+                        String.format("BGP session with %s initiated %s has to be dropped. Same session already present",
+                                ip, currentConnection),
                         BGPError.CEASE);
             }
         }
@@ -195,16 +195,14 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
             throw new BGPDocumentedException("Open message unacceptable. Check the configuration of BGP speaker.", BGPError.UNSPECIFIC_OPEN_ERROR);
         }
     }
-    
+
     private void validateExtendedMessageCapability(final Open openObj, final BGPSessionPreferences localPref) throws BGPDocumentedException {
-       
+
         final List<BgpParameters> prefs = openObj.getBgpParameters();
         if (prefs != null) {
             if (getBgpExtendedMessageCapability(localPref.getParams()).isPresent() && !getBgpExtendedMessageCapability(prefs).isPresent()) {
-                throw new BGPDocumentedException("The peer must advertise Bgp Extended Message capability.", BGPError.UNSUPPORTED_CAPABILITY, serializeBgpExtendedMessageCapability(getBgpExtendedMessageCapability(localPref.getParams()).get()));
+                LOG.info("BGP Open message Extended Message capability parameter differ, session still accepted.");
             }
-        } else {
-            throw new BGPDocumentedException("Open message unacceptable. Check the configuration of BGP speaker.", BGPError.UNSPECIFIC_OPEN_ERROR);
         }
     }
 
@@ -219,7 +217,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         }
         return Optional.absent();
     }
-    
+
     private static byte[] serializeAs4BytesCapability(final As4BytesCapability as4Capability) {
         final ByteBuf buffer = Unpooled.buffer(1 /*CODE*/ + 1 /*LENGTH*/ + Integer.SIZE / Byte.SIZE /*4 byte value*/);
         final As4CapabilityHandler serializer = new As4CapabilityHandler();
@@ -233,7 +231,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         serializer.serializeCapability(new CParametersBuilder().setBgpExtendedMessageCapability(bgpExMessCapability).build(), buffer);
         return buffer.array();
     }
-    
+
     private static Optional<BgpExtendedMessageCapability> getBgpExtendedMessageCapability(final List<BgpParameters> prefs) {
         for (final BgpParameters param : prefs) {
             for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
@@ -246,7 +244,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         return Optional.absent();
     }
 
-    
+
     @Override
     public BGPSessionPreferences getPeerPreferences(final IpAddress ip) {
         Preconditions.checkNotNull(ip);
@@ -282,8 +280,8 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-            .add("peers", this.peers.keySet())
-            .toString();
+                .add("peers", this.peers.keySet())
+                .toString();
     }
 
     /**
@@ -352,9 +350,9 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(this)
-                .add("from", this.from)
-                .add("to", this.to)
-                .toString();
+                    .add("from", this.from)
+                    .add("to", this.to)
+                    .toString();
         }
     }
 }

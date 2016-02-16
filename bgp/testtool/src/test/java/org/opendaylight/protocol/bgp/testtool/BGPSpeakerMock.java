@@ -71,7 +71,7 @@ public class BGPSpeakerMock {
 
             @Override
             public BGPSessionPreferences getPeerPreferences(final IpAddress ip) {
-                return new BGPSessionProposalImpl((short) 90, new AsNumber(72L), new Ipv4Address("127.0.0.2"), BGPSpeakerMock.this.tables, new AsNumber(72L),65535).getProposal();
+                return new BGPSessionProposalImpl((short) 90, new AsNumber(72L), new Ipv4Address("127.0.0.2"), BGPSpeakerMock.this.tables, new AsNumber(72L)).getProposal();
             }
 
             @Override

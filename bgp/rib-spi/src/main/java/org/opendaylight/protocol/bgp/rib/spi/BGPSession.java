@@ -11,7 +11,6 @@ import io.netty.channel.ChannelInboundHandler;
 import java.util.Set;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.BgpExtendedMessageCapability.ExtendedMessageSize;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 
 /**
@@ -42,12 +41,12 @@ public interface BGPSession extends AutoCloseable, ChannelInboundHandler {
      * @return Peer's AS Number
      */
     AsNumber getAsNumber();
-    
+
     /**
      * Return the Enable Extended Message capability which the peer advertises.
      *
      * @return Peer's Enable Extended Message capability
      */
-    ExtendedMessageSize getExtendedMessageSize() ;
-    
+    public boolean isEnableExMess() ;
+
 }

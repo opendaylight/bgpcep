@@ -21,7 +21,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.OptionalCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.BgpExtendedMessageCapability.ExtendedMessageSize;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.BgpExtendedMessageCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1Builder;
@@ -38,43 +37,38 @@ public final class BGPSessionProposalImpl implements BGPSessionProposal {
     private final short holdTimer;
 
     private final AsNumber as;
-    
-    private final int exMesSize;
-    
+
     private final Ipv4Address bgpId;
 
     private final BGPSessionPreferences prefs;
-    
-    
 
     private final AsNumber remoteAs;
 
     public BGPSessionProposalImpl(final short holdTimer, final AsNumber as, final Ipv4Address bgpId,
-        final Map<Class<? extends AddressFamily>, Class<? extends SubsequentAddressFamily>> tables,
-        final AsNumber remoteAs,final int exMesSize) {
+            final Map<Class<? extends AddressFamily>, Class<? extends SubsequentAddressFamily>> tables,
+            final AsNumber remoteAs) {
         this.holdTimer = holdTimer;
         this.as = as;
         this.bgpId = bgpId;
         this.remoteAs = remoteAs;
-        this.exMesSize = exMesSize;
         final List<OptionalCapabilities> caps = new ArrayList<>();
 
         for (final Entry<Class<? extends AddressFamily>, Class<? extends SubsequentAddressFamily>> e : tables.entrySet()) {
             caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(
-                CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                    .setAfi(e.getKey()).setSafi(e.getValue()).build()).build()).build()).build());
+                    CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                            .setAfi(e.getKey()).setSafi(e.getValue()).build()).build()).build()).build());
         }
         caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().setAs4BytesCapability(
-            new As4BytesCapabilityBuilder().setAsNumber(as).build()).setBgpExtendedMessageCapability(
-                    new BgpExtendedMessageCapabilityBuilder().setExtendedMessageSize(ExtendedMessageSize.forValue(exMesSize)).build()).build()).build());
-        
+                new As4BytesCapabilityBuilder().setAsNumber(as).build()).setBgpExtendedMessageCapability(
+                        new BgpExtendedMessageCapabilityBuilder().build()).build()).build());
+
         caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(
-            CParameters1.class, new CParameters1Builder().setGracefulRestartCapability(
-                new GracefulRestartCapabilityBuilder().build()).build()).build()).build());
+                CParameters1.class, new CParameters1Builder().setGracefulRestartCapability(
+                        new GracefulRestartCapabilityBuilder().build()).build()).build()).build());
         this.prefs = new BGPSessionPreferences(as, holdTimer, bgpId, remoteAs, Lists.newArrayList(
-            new BgpParametersBuilder().setOptionalCapabilities(caps).build()));
+                new BgpParametersBuilder().setOptionalCapabilities(caps).build()));
     }
-    
+
 
     @Override
     public BGPSessionPreferences getProposal() {
@@ -102,9 +96,4 @@ public final class BGPSessionProposalImpl implements BGPSessionProposal {
         return this.bgpId;
     }
 
-	public int getExMesSize() {
-		return exMesSize;
-	}
-    
-    
 }

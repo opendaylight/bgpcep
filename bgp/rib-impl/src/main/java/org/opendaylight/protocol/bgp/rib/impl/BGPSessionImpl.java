@@ -16,7 +16,6 @@ import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import java.io.IOException;
@@ -46,7 +45,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.OptionalCapabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.BgpExtendedMessageCapability.ExtendedMessageSize;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCapability;
@@ -63,7 +61,9 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     private static final Notification KEEP_ALIVE = new KeepaliveBuilder().build();
 
     private static final int KA_TO_DEADTIMER_RATIO = 3;
-   
+
+    private static final int MAX_FRAME_SIZE = 65535;
+
 
     /**
      * Internal session state.
@@ -114,11 +114,11 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     private final Ipv4Address bgpId;
     private final BGPPeerRegistry peerRegistry;
     private final ChannelOutputLimiter limiter;
-    private final ExtendedMessageSize exMesSize;
+    private final boolean enableExMess;
 
     private BGPSessionStats sessionStats;
-    
-    
+
+
 
     public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen, final BGPSessionPreferences localPreferences,
             final BGPPeerRegistry peerRegistry) {
@@ -136,11 +136,13 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         LOG.info("BGP HoldTimer new value: {}", this.holdTimerValue);
         this.keepAlive = this.holdTimerValue / KA_TO_DEADTIMER_RATIO;
         this.asNumber = AsNumberUtil.advertizedAsNumber(remoteOpen);
-        this.exMesSize = BgpExtendedMessageUtil.advertizedBgpExtendedMessageCapability(remoteOpen);
-        if(this.exMesSize!=null) this.channel.pipeline().addLast(new BGPMessageHeaderDecoder(exMesSize.getIntValue()));
-        else this.channel.pipeline().addLast(new BGPMessageHeaderDecoder());
-        this.peerRegistry = peerRegistry;
+        this.enableExMess = BgpExtendedMessageUtil.advertizedBgpExtendedMessageCapability(remoteOpen);
 
+        if(this.enableExMess) {
+            this.channel.pipeline().addLast(BGPMessageHeaderDecoder.getBGPMessageHeaderDecoder(MAX_FRAME_SIZE));
+        }
+
+        this.peerRegistry = peerRegistry;
         final Set<TablesKey> tts = Sets.newHashSet();
         final Set<BgpTableType> tats = Sets.newHashSet();
         if (remoteOpen.getBgpParameters() != null) {
@@ -212,10 +214,10 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         } else if (msg instanceof Notify) {
             // Notifications are handled internally
             LOG.info("Session closed because Notification message received: {} / {}", ((Notify) msg).getErrorCode(),
-                ((Notify) msg).getErrorSubcode());
+                    ((Notify) msg).getErrorSubcode());
             this.closeWithoutMessage();
             this.listener.onSessionTerminated(this, new BGPTerminationReason(BGPError.forValue(((Notify) msg).getErrorCode(),
-                ((Notify) msg).getErrorSubcode())));
+                    ((Notify) msg).getErrorSubcode())));
             this.sessionStats.updateReceivedMsgErr((Notify) msg);
         } else if (msg instanceof Keepalive) {
             // Keepalives are handled internally
@@ -242,16 +244,16 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     @GuardedBy("this")
     private void writeEpilogue(final ChannelFuture future, final Notification msg) {
         future.addListener(
-            new ChannelFutureListener() {
-                @Override
-                public void operationComplete(final ChannelFuture f) {
-                    if (!f.isSuccess()) {
-                        LOG.warn("Failed to send message {} to socket {}", msg, f.cause(), BGPSessionImpl.this.channel);
-                    } else {
-                        LOG.trace("Message {} sent to socket {}", msg, BGPSessionImpl.this.channel);
+                new ChannelFutureListener() {
+                    @Override
+                    public void operationComplete(final ChannelFuture f) {
+                        if (!f.isSuccess()) {
+                            LOG.warn("Failed to send message {} to socket {}", msg, f.cause(), BGPSessionImpl.this.channel);
+                        } else {
+                            LOG.trace("Message {} sent to socket {}", msg, BGPSessionImpl.this.channel);
+                        }
                     }
-                }
-            });
+                });
         this.lastMessageSentAt = System.nanoTime();
         this.sessionStats.updateSentMsgTotal();
         if (msg instanceof Update) {
@@ -392,13 +394,11 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     public final AsNumber getAsNumber() {
         return this.asNumber;
     }
-    
+
     @Override
-	public ExtendedMessageSize getExtendedMessageSize() {
-		// TODO Auto-generated method stub
-		return exMesSize;
-	}
-    
+    public boolean isEnableExMess() {
+        return enableExMess;
+    }
 
     synchronized boolean isWritable() {
         return this.channel != null && this.channel.isWritable();
@@ -451,5 +451,5 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         this.sessionUp();
     }
 
-	
+
 }

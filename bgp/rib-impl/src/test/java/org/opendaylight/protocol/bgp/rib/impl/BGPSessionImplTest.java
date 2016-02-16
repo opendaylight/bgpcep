@@ -56,7 +56,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.OptionalCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.BgpExtendedMessageCapability.ExtendedMessageSize;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.BgpExtendedMessageCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
@@ -74,7 +73,6 @@ public class BGPSessionImplTest {
     private static final Ipv4Address BGP_ID = new Ipv4Address("1.1.1.2");
     private static final String LOCAL_IP = "1.1.1.4";
     private static final int LOCAL_PORT = 12345;
-    private static final ExtendedMessageSize exMesSize=ExtendedMessageSize._65535;
 
     @Mock
     private EventLoop eventLoop;
@@ -94,7 +92,7 @@ public class BGPSessionImplTest {
     private BGPSessionImpl bgpSession;
 
     private SimpleSessionListener listener;
-   
+
 
     @Before
     public void setUp() throws UnknownHostException {
@@ -105,11 +103,11 @@ public class BGPSessionImplTest {
 
         final List<OptionalCapabilities> capa = Lists.newArrayList();
         capa.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
-            new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build())
+                new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                        .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build())
                 .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build())
                 .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(AS_NUMBER).build())
-                .setBgpExtendedMessageCapability(new BgpExtendedMessageCapabilityBuilder().setExtendedMessageSize(ExtendedMessageSize._65535).build()).build()).build()
+                .setBgpExtendedMessageCapability(new BgpExtendedMessageCapabilityBuilder().build()).build()).build()
         );
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capa).build());
 
@@ -151,7 +149,7 @@ public class BGPSessionImplTest {
         this.bgpSession.sessionUp();
         assertEquals(BGPSessionImpl.State.UP, this.bgpSession.getState());
         assertEquals(AS_NUMBER, this.bgpSession.getAsNumber());
-        assertEquals(exMesSize, this.bgpSession.getExtendedMessageSize());
+        assertEquals(true, this.bgpSession.isEnableExMess());
         assertEquals(BGP_ID, this.bgpSession.getBgpId());
         assertEquals(1, this.bgpSession.getAdvertisedTableTypes().size());
         assertTrue(this.listener.up);
@@ -162,7 +160,7 @@ public class BGPSessionImplTest {
         assertEquals(BGPSessionImpl.State.UP.name(), state.getSessionState());
         assertEquals(BGP_ID.getValue(), state.getPeerPreferences().getAddress());
         assertEquals(AS_NUMBER.getValue(), state.getPeerPreferences().getAs());
-        assertEquals(exMesSize.getIntValue(), state.getPeerPreferences().getExtendedMessageSize().intValue());
+        assertEquals(true, state.getPeerPreferences().getBgpExtendedMessageCapability());
         assertEquals(BGP_ID.getValue(), state.getPeerPreferences().getBgpId());
         assertEquals(1, state.getPeerPreferences().getAdvertizedTableTypes().size());
         assertEquals(HOLD_TIMER, state.getPeerPreferences().getHoldtime().intValue());

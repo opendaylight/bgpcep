@@ -24,7 +24,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.OptionalCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.BgpExtendedMessageCapability.ExtendedMessageSize;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.BgpExtendedMessageCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1Builder;
@@ -62,11 +61,11 @@ public class APITest {
         final List<BgpParameters> params = new ArrayList<>();
         final List<OptionalCapabilities> capas = new ArrayList<>();
         capas.add(new OptionalCapabilitiesBuilder().setCParameters( new CParametersBuilder().addAugmentation(
-            CParameters1.class, new CParameters1Builder().setMultiprotocolCapability( new MultiprotocolCapabilityBuilder()
-                .build()).build()).build()).build());
+                CParameters1.class, new CParameters1Builder().setMultiprotocolCapability( new MultiprotocolCapabilityBuilder()
+                        .build()).build()).build()).build());
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(
-            new CParametersBuilder().setAs4BytesCapability( new As4BytesCapabilityBuilder().setAsNumber(
-                new AsNumber(35L)).build()).build()).build());
+                new CParametersBuilder().setAs4BytesCapability( new As4BytesCapabilityBuilder().setAsNumber(
+                        new AsNumber(35L)).build()).build()).build());
         params.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
         final Open open1 = new OpenBuilder().setBgpParameters(params).build();
         assertEquals(35L, AsNumberUtil.advertizedAsNumber(open1).getValue().longValue());
@@ -74,22 +73,19 @@ public class APITest {
         final Open open2 = new OpenBuilder().setMyAsNumber(10).build();
         assertEquals(10, AsNumberUtil.advertizedAsNumber(open2).getValue().intValue());
     }
-    
+
     @Test
     public void testBgpExtendedMessageUtil() {
         final List<BgpParameters> params = new ArrayList<>();
         final List<OptionalCapabilities> capas = new ArrayList<>();
         capas.add(new OptionalCapabilitiesBuilder().setCParameters( new CParametersBuilder().addAugmentation(
-            CParameters1.class, new CParameters1Builder().setMultiprotocolCapability( new MultiprotocolCapabilityBuilder()
-                .build()).build()).build()).build());
+                CParameters1.class, new CParameters1Builder().setMultiprotocolCapability( new MultiprotocolCapabilityBuilder()
+                        .build()).build()).build()).build());
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(
-            new CParametersBuilder().setBgpExtendedMessageCapability(new BgpExtendedMessageCapabilityBuilder().setExtendedMessageSize(ExtendedMessageSize._65535).build()).build()).build());
-        System.out.println("capas="+capas);
+                new CParametersBuilder().setBgpExtendedMessageCapability(new BgpExtendedMessageCapabilityBuilder().build()).build()).build());
         params.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
         final Open open1 = new OpenBuilder().setBgpParameters(params).build();
-        
-        assertEquals(ExtendedMessageSize._65535, BgpExtendedMessageUtil.advertizedBgpExtendedMessageCapability(open1));
-        
+        assertEquals(true, BgpExtendedMessageUtil.advertizedBgpExtendedMessageCapability(open1));
     }
 
     @Test(expected=UnsupportedOperationException.class)

@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import com.google.common.base.MoreObjects;
@@ -11,8 +19,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 
 /**
-* Registry of BGP peers that allows only one connection per 2 peers
-*/
+ * Registry of BGP peers that allows only one connection per 2 peers
+ */
 public class StrictBgpPeerRegistryModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractStrictBgpPeerRegistryModule {
     public StrictBgpPeerRegistryModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
@@ -35,7 +43,7 @@ public class StrictBgpPeerRegistryModule extends org.opendaylight.controller.con
     // TODO backwards compatibility, peer-registry has to be mandatory attribute for peers
     /**
      * Wrapper for BGPPeerRegistry that prevents from executing close method
-      */
+     */
     private static final class GlobalBGPPeerRegistryWrapper implements BGPPeerRegistry, AutoCloseable {
         private final StrictBGPPeerRegistry global;
 

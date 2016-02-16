@@ -27,7 +27,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.OptionalCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.BgpExtendedMessageCapability.ExtendedMessageSize;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.BgpExtendedMessageCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1Builder;
@@ -47,12 +46,11 @@ public class ApiTest {
         final Map<Class<? extends AddressFamily>, Class<? extends SubsequentAddressFamily>> map = new HashMap<>();
         map.put(key, value);
 
-        final BGPSessionProposalImpl proposal = new BGPSessionProposalImpl((short) 5, new AsNumber(58L), null, map, null,65535);
+        final BGPSessionProposalImpl proposal = new BGPSessionProposalImpl((short) 5, new AsNumber(58L), null, map, null);
         final BGPSessionPreferences sp = proposal.getProposal();
         assertNull(sp.getBgpId());
         assertEquals(proposal.getHoldTimer(), sp.getHoldTime());
         assertEquals(proposal.getAs(), sp.getMyAs());
-        //assertEquals(proposal.getExMesSize(), sp.getParams().get(0).getOptionalCapabilities().get(0).getCParameters().getBgpExtendedMessageCapability().getExtendedMessageSize().getIntValue());
         assertNull(proposal.getBgpId());
         assertNotNull(sp.getParams());
 
@@ -60,12 +58,12 @@ public class ApiTest {
         final List<OptionalCapabilities> ipv4 = new ArrayList<>();
 
         linkstate.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(
-            CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                .setAfi(key).setSafi(value).build()).build()).build()).build());
+                CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                        .setAfi(key).setSafi(value).build()).build()).build()).build());
 
         ipv4.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(
-            CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                .setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()).build()).build()).build());
+                CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                        .setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()).build()).build()).build());
 
         setOptionalCapabilities(linkstate);
         setOptionalCapabilities(ipv4);
@@ -75,15 +73,15 @@ public class ApiTest {
         assertNotNull(rightInput);
         assertTrue(sp.getParams().contains(rightInput));
         assertFalse(sp.getParams().contains(wrongInput));
-        
+
     }
 
     private void setOptionalCapabilities(final List<OptionalCapabilities> list) {
         list.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().setAs4BytesCapability(
-            new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(58L)).build()).setBgpExtendedMessageCapability(
-            new BgpExtendedMessageCapabilityBuilder().setExtendedMessageSize(ExtendedMessageSize._65535).build()).build()).build());
+                new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(58L)).build()).setBgpExtendedMessageCapability(
+                        new BgpExtendedMessageCapabilityBuilder().build()).build()).build());
         list.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(
-            CParameters1.class, new CParameters1Builder().setGracefulRestartCapability(
-                new GracefulRestartCapabilityBuilder().build()).build()).build()).build());
+                CParameters1.class, new CParameters1Builder().setGracefulRestartCapability(
+                        new GracefulRestartCapabilityBuilder().build()).build()).build()).build());
     }
 }

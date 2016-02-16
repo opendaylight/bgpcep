@@ -26,7 +26,7 @@ public final class BGPSessionPreferences {
     private final List<BgpParameters> params;
 
     private final AsNumber remoteAs;
-    
+
 
     /**
      * Creates a new DTO for Open message.

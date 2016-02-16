@@ -23,7 +23,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.OptionalCapabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.BgpExtendedMessageCapability.ExtendedMessageSize;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCapability;
@@ -76,7 +75,7 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
                 for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
                     final CParameters cParam = capa.getCParameters();
                     if (cParam.getAugmentation(CParameters1.class) != null && cParam.getAugmentation(CParameters1.class)
-                        .getMultiprotocolCapability() != null) {
+                            .getMultiprotocolCapability() != null) {
                         final MultiprotocolCapability p = cParam.getAugmentation(CParameters1.class).getMultiprotocolCapability();
                         LOG.debug("Adding open parameter {}", p);
                         final BgpTableType type = new BgpTableTypeImpl(p.getAfi(), p.getSafi());
@@ -158,13 +157,12 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
                 return new AsNumber(AS);
             }
 
-			@Override
-			public ExtendedMessageSize getExtendedMessageSize() {
-				// TODO Auto-generated method stub
-				return ExtendedMessageSize._65535;
-			}
+            @Override
+            public boolean isEnableExMess() {
+                // TODO Auto-generated method stub
+                return true;
+            }
 
-			
         });
     }
 }
