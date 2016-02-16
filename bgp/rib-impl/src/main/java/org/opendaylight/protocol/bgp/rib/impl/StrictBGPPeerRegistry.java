@@ -201,11 +201,9 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         final List<BgpParameters> prefs = openObj.getBgpParameters();
         if (prefs != null) {
             if (getBgpExtendedMessageCapability(localPref.getParams()).isPresent() && !getBgpExtendedMessageCapability(prefs).isPresent()) {
-                throw new BGPDocumentedException("The peer must advertise Bgp Extended Message capability.", BGPError.UNSUPPORTED_CAPABILITY, serializeBgpExtendedMessageCapability(getBgpExtendedMessageCapability(localPref.getParams()).get()));
+                LOG.info("BGP Open message Extended Message capability parameter differ, session still accepted.");
             }
-        } else {
-            throw new BGPDocumentedException("Open message unacceptable. Check the configuration of BGP speaker.", BGPError.UNSPECIFIC_OPEN_ERROR);
-        }
+        } 
     }
 
     private static Optional<As4BytesCapability> getAs4BytesCapability(final List<BgpParameters> prefs) {

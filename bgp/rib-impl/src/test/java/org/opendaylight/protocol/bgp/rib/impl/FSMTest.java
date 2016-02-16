@@ -56,7 +56,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.OptionalCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.BgpExtendedMessageCapability.ExtendedMessageSize;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.BgpExtendedMessageCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
@@ -102,9 +101,8 @@ public class FSMTest {
             new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
                 .setAfi(this.linkstatett.getAfi()).setSafi(this.linkstatett.getSafi()).build()).build()).build()).build());
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().setAs4BytesCapability(
-            new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(30L)).build()).build()).build());
-        capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().setBgpExtendedMessageCapability(
-                new BgpExtendedMessageCapabilityBuilder().setExtendedMessageSize(ExtendedMessageSize._65535).build()).build()).build());
+            new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(30L)).build()).setBgpExtendedMessageCapability(
+                    new BgpExtendedMessageCapabilityBuilder().build()).build()).build());
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
             new CParameters1Builder().setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build()).build()).build());
 
@@ -189,7 +187,7 @@ public class FSMTest {
             new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
                 .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build()).build()).build()).build());
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().setBgpExtendedMessageCapability(
-                new BgpExtendedMessageCapabilityBuilder().setExtendedMessageSize(ExtendedMessageSize._65535).build()).build()).build());
+                new BgpExtendedMessageCapabilityBuilder().build()).build()).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
         // Open Message without advertised four-octet AS Number capability
         this.clientSession.handleMessage(new OpenBuilder().setMyAsNumber(30).setHoldTimer(1).setVersion(
@@ -202,7 +200,7 @@ public class FSMTest {
     }
     
     @Test
-    public void testNoBgpExtendedMessageCapability() {
+    public void testBgpExtendedMessageCapability() {
         this.clientSession.channelActive(null);
         assertEquals(1, this.receivedMsgs.size());
         assertTrue(this.receivedMsgs.get(0) instanceof Open);
@@ -215,14 +213,11 @@ public class FSMTest {
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().setAs4BytesCapability(
                 new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(30L)).build()).build()).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
-        // Open Message without advertised four-octet AS Number capability
         this.clientSession.handleMessage(new OpenBuilder().setMyAsNumber(30).setHoldTimer(1).setVersion(
             new ProtocolVersion((short) 4)).setBgpParameters(tlvs).setBgpIdentifier(new Ipv4Address("1.1.1.2")).build());
         assertEquals(2, this.receivedMsgs.size());
-        assertTrue(this.receivedMsgs.get(1) instanceof Notify);
-        final Notification m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);
-        assertEquals(BGPError.UNSUPPORTED_CAPABILITY, BGPError.forValue(((Notify) m).getErrorCode(), ((Notify) m).getErrorSubcode()));
-        assertNotNull(((Notify) m).getData());
+        assertTrue(this.receivedMsgs.get(1) instanceof Keepalive);
+        
     }
 
     @Test
