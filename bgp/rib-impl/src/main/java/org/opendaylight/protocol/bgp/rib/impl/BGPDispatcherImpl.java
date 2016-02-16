@@ -85,7 +85,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     }
 
     public Future<BGPSessionImpl> createClient(final InetSocketAddress localAddress, final InetSocketAddress remoteAddress,
-            final StrictBGPPeerRegistry strictBGPPeerRegistry, final int retryTimer) {
+            final BGPPeerRegistry strictBGPPeerRegistry, final int retryTimer) {
         final Bootstrap clientBootStrap = createClientBootStrap(Optional.<KeyMapping>absent(), this.workerGroup);
         clientBootStrap.localAddress(localAddress);
         return createClient(remoteAddress, strictBGPPeerRegistry, retryTimer, clientBootStrap);
