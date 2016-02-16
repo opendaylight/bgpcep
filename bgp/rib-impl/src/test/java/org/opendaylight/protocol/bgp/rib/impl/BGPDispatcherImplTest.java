@@ -86,7 +86,7 @@ public class BGPDispatcherImplTest {
         configureClient(ctx);
     }
 
-    private static <T extends Future> void waitFutureSuccess(final T future) throws InterruptedException {
+    static <T extends Future> void waitFutureSuccess(final T future) throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         future.addListener(future1 -> latch.countDown());
         Uninterruptibles.awaitUninterruptibly(latch, 10, TimeUnit.SECONDS);

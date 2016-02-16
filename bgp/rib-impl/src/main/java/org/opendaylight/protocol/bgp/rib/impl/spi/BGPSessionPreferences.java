@@ -38,6 +38,7 @@ public final class BGPSessionPreferences {
      * @param bgpId local BGP Identifier
      * @param remoteAs expected remote As Number
      * @param params list of advertised parameters
+     * @param md5Password - md5password
      */
     public BGPSessionPreferences(final AsNumber as, final int hold, final BgpId bgpId, final AsNumber remoteAs,
             final List<BgpParameters> params, final Optional<byte[]> md5Password) {
