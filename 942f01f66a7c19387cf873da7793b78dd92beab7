@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_711b5bca",
+        "filename": "bgp/l3vpn/src/main/java/org/opendaylight/protocol/bgp/l3vpn/VpnIpv4RIBSupport.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-17T13:40:28Z",
+      "side": 1,
+      "message": "missing implementation",
+      "range": {
+        "startLine": 202,
+        "startChar": 15,
+        "endLine": 202,
+        "endChar": 19
+      },
+      "revId": "942f01f66a7c19387cf873da7793b78dd92beab7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_d17b47f3",
+        "filename": "bgp/l3vpn/src/main/java/org/opendaylight/protocol/bgp/l3vpn/VpnIpv4RIBSupport.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-17T13:40:28Z",
+      "side": 1,
+      "message": "rename",
+      "range": {
+        "startLine": 205,
+        "startChar": 38,
+        "endLine": 205,
+        "endChar": 71
+      },
+      "revId": "942f01f66a7c19387cf873da7793b78dd92beab7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_5156175d",
+        "filename": "bgp/l3vpn/src/main/java/org/opendaylight/protocol/bgp/l3vpn/VpnIpv4RIBSupport.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-17T13:40:28Z",
+      "side": 1,
+      "message": "Do we need to create the instance here? Used functions are not static?",
+      "range": {
+        "startLine": 206,
+        "startChar": 55,
+        "endLine": 206,
+        "endChar": 79
+      },
+      "revId": "942f01f66a7c19387cf873da7793b78dd92beab7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
