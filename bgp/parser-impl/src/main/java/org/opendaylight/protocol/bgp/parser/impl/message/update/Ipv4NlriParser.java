@@ -15,6 +15,7 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.DestinationIpv4;
@@ -36,11 +37,11 @@ public final class Ipv4NlriParser implements NlriParser, NlriSerializer {
         Preconditions.checkArgument(attribute instanceof Nlri, "Attribute parameter is not a Nlri object.");
         final Nlri nlri = (Nlri) attribute;
         for (final Ipv4Prefix ipv4Prefix : nlri.getNlri()) {
-            byteAggregator.writeBytes(Ipv4Util.bytesForPrefixBegin(ipv4Prefix));
+            ByteBufWriteUtil.writeMinimalPrefix(ipv4Prefix, byteAggregator);
         }
     }
 
-    private DestinationIpv4 prefixes(final ByteBuf nlri) {
+    private static DestinationIpv4 prefixes(final ByteBuf nlri) {
         final List<Ipv4Prefix> prefs = Ipv4Util.prefixListForBytes(ByteArray.readAllBytes(nlri));
         final List<Ipv4Prefixes> prefixes = new ArrayList<>();
         for (final Ipv4Prefix p : prefs) {

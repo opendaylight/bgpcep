@@ -15,6 +15,7 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
@@ -98,13 +99,18 @@ public final class PrefixNlriParser {
         }
         if (descriptors.getIpReachabilityInformation() != null) {
             final IpPrefix prefix = descriptors.getIpReachabilityInformation();
-            byte[] prefixBytes = null;
+
+            final ByteBuf buf;
             if (prefix.getIpv4Prefix() != null) {
-                prefixBytes = Ipv4Util.bytesForPrefixBegin(prefix.getIpv4Prefix());
+                buf = Unpooled.buffer(Ipv4Util.IP4_LENGTH + 1);
+                ByteBufWriteUtil.writeMinimalPrefix(prefix.getIpv4Prefix(), buf);
             } else if (prefix.getIpv6Prefix() != null) {
-                prefixBytes = Ipv6Util.bytesForPrefixBegin(prefix.getIpv6Prefix());
+                buf = Unpooled.buffer(Ipv6Util.IPV6_LENGTH + 1);
+                ByteBufWriteUtil.writeMinimalPrefix(prefix.getIpv6Prefix(), buf);
+            } else {
+                buf = null;
             }
-            TlvUtil.writeTLV(IP_REACHABILITY, Unpooled.wrappedBuffer(prefixBytes), buffer);
+            TlvUtil.writeTLV(IP_REACHABILITY, buf, buffer);
         }
     }
 
