@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_81fb2cc0",
+        "filename": "bgp/controller-config/src/main/resources/initial/31-bgp.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-18T13:03:00Z",
+      "side": 1,
+      "message": "ipv4-l3vpn could be better",
+      "range": {
+        "startLine": 341,
+        "startChar": 26,
+        "endLine": 341,
+        "endChar": 36
+      },
+      "revId": "50a6c845df5f04b07ee72eeff29a20b30de8f230",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_61f8a8c3",
+        "filename": "bgp/l3vpn/src/main/java/org/opendaylight/protocol/bgp/l3vpn/VpnIpv4RIBSupport.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-18T13:03:00Z",
+      "side": 1,
+      "message": "no whitespaces between imports",
+      "revId": "50a6c845df5f04b07ee72eeff29a20b30de8f230",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
