@@ -9,9 +9,11 @@
 package org.opendaylight.protocol.util;
 
 import com.google.common.base.Preconditions;
+import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import java.math.BigInteger;
 import java.util.BitSet;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
@@ -276,6 +278,21 @@ public final class ByteBufWriteUtil {
         } else {
             output.writeZero(IPV6_PREFIX_BYTE_LENGTH);
         }
+    }
+
+    public static void writeMinimalPrefix(final Ipv4Prefix ipv4Prefix, final ByteBuf output) {
+        final byte[] bytes = IetfInetUtil.INSTANCE.ipv4PrefixToBytes(ipv4Prefix);
+        writeMinimalPrefix(output, bytes, bytes[Ipv4Util.IP4_LENGTH]);
+    }
+
+    public static void writeMinimalPrefix(final Ipv6Prefix ipv6Prefix, final ByteBuf output) {
+        final byte[] bytes = IetfInetUtil.INSTANCE.ipv6PrefixToBytes(ipv6Prefix);
+        writeMinimalPrefix(output, bytes, bytes[Ipv6Util.IPV6_LENGTH]);
+    }
+
+    private static void writeMinimalPrefix(final ByteBuf output, final byte[] bytes, final byte prefixBits) {
+        output.writeByte(prefixBits);
+        output.writeBytes(bytes, 0, Ipv4Util.prefixBitsToBytes(UnsignedBytes.toInt(prefixBits)));
     }
 
     /**

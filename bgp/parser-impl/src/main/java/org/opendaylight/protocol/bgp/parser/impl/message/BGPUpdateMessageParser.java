@@ -20,6 +20,7 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
@@ -99,7 +100,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         if (withdrawnRoutes != null) {
             final ByteBuf withdrawnRoutesBuf = Unpooled.buffer();
             for (final Ipv4Prefix prefix : withdrawnRoutes.getWithdrawnRoutes()) {
-                withdrawnRoutesBuf.writeBytes(Ipv4Util.bytesForPrefixBegin(prefix));
+                ByteBufWriteUtil.writeMinimalPrefix(prefix, withdrawnRoutesBuf);
             }
             messageBody.writeShort(withdrawnRoutesBuf.writerIndex());
             messageBody.writeBytes(withdrawnRoutesBuf);
@@ -117,7 +118,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         final Nlri nlri = update.getNlri();
         if (nlri != null) {
             for (final Ipv4Prefix prefix : nlri.getNlri()) {
-                messageBody.writeBytes(Ipv4Util.bytesForPrefixBegin(prefix));
+                ByteBufWriteUtil.writeMinimalPrefix(prefix, messageBody);
             }
         }
         MessageUtil.formatMessage(TYPE, messageBody, bytes);
