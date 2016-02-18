@@ -103,8 +103,6 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     public static final NodeIdentifier LINK_DESCRIPTORS_NID = new NodeIdentifier(LinkDescriptors.QNAME);
 
     @VisibleForTesting
-    public static final NodeIdentifier TE_LSP_NID = new NodeIdentifier(TeLspCase.QNAME);
-    @VisibleForTesting
     public static final NodeIdentifier DISTINGUISHER_NID = new NodeIdentifier(QName.create(CLinkstateDestination.QNAME, "route-distinguisher").intern());
     @VisibleForTesting
     public static final NodeIdentifier PROTOCOL_ID_NID = new NodeIdentifier(QName.create(CLinkstateDestination.QNAME, "protocol-id").intern());
@@ -304,7 +302,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
             TlvUtil.writeTLV(LOCAL_NODE_DESCRIPTORS_TYPE, ldescs, nlriByteBuf);
             nlriType = NlriType.Node;
         } else if (ot instanceof TeLspCase) {
-            final TeLspCase teLSP = (TeLspCase) destination.getObjectType();
+            final TeLspCase teLSP = ((TeLspCase) destination.getObjectType());
             final AddressFamily afi = teLSP.getAddressFamily();
             nlriType = TeLspNlriParser.serializeIpvTSA(afi, ldescs);
             TeLspNlriParser.serializeTunnelID(teLSP.getTunnelId(), ldescs);
@@ -361,7 +359,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
             return ProtocolId.Direct.getIntValue();
         case "static":
             return ProtocolId.Static.getIntValue();
-        case "rsvpte":
+        case "rsvp-te":
             return ProtocolId.RsvpTe.getIntValue();
         case "bgp-epe":
             return ProtocolId.BgpEpe.getIntValue();
@@ -387,8 +385,8 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
             } else {
                 LOG.warn("Unknown Object Type.");
             }
-        } else if (objectType.getChild(TE_LSP_NID).isPresent()) {
-            builder.setObjectType(TeLspNlriParser.serializeTeLsp((ContainerNode) objectType.getChild(TE_LSP_NID).get()));
+        } else if (TeLspNlriParser.isTeLsp(objectType)) {
+            builder.setObjectType(TeLspNlriParser.serializeTeLsp(objectType));
         }
         return builder.build();
     }

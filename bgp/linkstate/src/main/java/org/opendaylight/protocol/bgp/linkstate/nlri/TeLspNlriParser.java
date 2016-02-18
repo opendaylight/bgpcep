@@ -12,6 +12,7 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Address;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeShort;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
@@ -31,7 +32,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
-import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 @VisibleForTesting
 public final class TeLspNlriParser {
@@ -55,10 +55,6 @@ public final class TeLspNlriParser {
     public static final YangInstanceIdentifier.NodeIdentifier IPV6_TUNNEL_ENDPOINT_ADDRESS = new YangInstanceIdentifier
         .NodeIdentifier(QName.create(CLinkstateDestination.QNAME, "ipv6-tunnel-endpoint-address").intern());
 
-    @VisibleForTesting
-    public static final YangInstanceIdentifier.NodeIdentifier IPV4_CASE = new YangInstanceIdentifier.NodeIdentifier(Ipv4Case.QNAME);
-    @VisibleForTesting
-    public static final YangInstanceIdentifier.NodeIdentifier IPV6_CASE = new YangInstanceIdentifier.NodeIdentifier(Ipv6Case.QNAME);
     @VisibleForTesting
     public static final YangInstanceIdentifier.NodeIdentifier ADDRESS_FAMILY = new YangInstanceIdentifier.NodeIdentifier(AddressFamily.QNAME);
 
@@ -105,35 +101,31 @@ public final class TeLspNlriParser {
         writeIpv4Address(ipv4, body);
     }
 
-    public static TeLspCase serializeTeLsp(final ContainerNode containerNode) {
-        final TeLspCaseBuilder teLspCase = new TeLspCaseBuilder();
-        teLspCase.setLspId(new LspId((Long) containerNode.getChild(LSP_ID).get().getValue()));
-        teLspCase.setTunnelId(new TunnelId((Integer) containerNode.getChild(TUNNEL_ID).get().getValue()));
-        if(containerNode.getChild(ADDRESS_FAMILY).isPresent()) {
-            final ChoiceNode addressFamily = (ChoiceNode) containerNode.getChild(ADDRESS_FAMILY).get();
-            if(addressFamily.getChild(IPV4_CASE).isPresent()) {
-                teLspCase.setAddressFamily(serializeAddressFamily((ContainerNode) addressFamily.getChild(IPV4_CASE)
-                    .get(), true));
-            }else{
-                teLspCase.setAddressFamily(serializeAddressFamily((ContainerNode) addressFamily.getChild(IPV6_CASE)
-                    .get(), false));
-            }
-        }
-
-        return teLspCase.build();
+    public static boolean isTeLsp(final ChoiceNode objectType) {
+        return objectType.getChild(ADDRESS_FAMILY).isPresent();
     }
 
-    private static AddressFamily serializeAddressFamily(final ContainerNode containerNode, final boolean ipv4Case) {
+    public static TeLspCase serializeTeLsp(final ChoiceNode objectType) {
+        final TeLspCaseBuilder teLsp = new TeLspCaseBuilder();
+        teLsp.setLspId(new LspId((Long) objectType.getChild(LSP_ID).get().getValue()));
+        teLsp.setTunnelId(new TunnelId((Integer) objectType.getChild(TUNNEL_ID).get().getValue()));
+        final ChoiceNode addressFamily = (ChoiceNode) objectType.getChild(ADDRESS_FAMILY).get();
+        teLsp.setAddressFamily(serializeAddressFamily(addressFamily, addressFamily.getChild(IPV4_TUNNEL_SENDER_ADDRESS).isPresent()));
+
+        return teLsp.build();
+    }
+
+    private static AddressFamily serializeAddressFamily(final ChoiceNode addressFamily, final boolean ipv4Case) {
         if(ipv4Case) {
             return new Ipv4CaseBuilder()
-                .setIpv4TunnelSenderAddress(new Ipv4Address((String) containerNode.getChild(IPV4_TUNNEL_SENDER_ADDRESS).get().getValue()))
-                .setIpv4TunnelEndpointAddress(new Ipv4Address((String) containerNode.getChild(IPV4_TUNNEL_ENDPOINT_ADDRESS).get().getValue()))
+                .setIpv4TunnelSenderAddress(new Ipv4Address((String) addressFamily.getChild(IPV4_TUNNEL_SENDER_ADDRESS).get().getValue()))
+                .setIpv4TunnelEndpointAddress(new Ipv4Address((String) addressFamily.getChild(IPV4_TUNNEL_ENDPOINT_ADDRESS).get().getValue()))
                 .build();
         }
 
         return new Ipv6CaseBuilder()
-            .setIpv6TunnelSenderAddress(new Ipv6Address((String) containerNode.getChild(IPV6_TUNNEL_SENDER_ADDRESS).get().getValue()))
-            .setIpv6TunnelEndpointAddress(new Ipv6Address((String) containerNode.getChild(IPV6_TUNNEL_ENDPOINT_ADDRESS).get().getValue()))
+            .setIpv6TunnelSenderAddress(new Ipv6Address((String) addressFamily.getChild(IPV6_TUNNEL_SENDER_ADDRESS).get().getValue()))
+            .setIpv6TunnelEndpointAddress(new Ipv6Address((String) addressFamily.getChild(IPV6_TUNNEL_ENDPOINT_ADDRESS).get().getValue()))
             .build();
     }
 }
