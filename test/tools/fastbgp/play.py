@@ -104,7 +104,31 @@ def parse_arguments():
     str_help = "Minimum number of updates to reach to include result into csv."
     parser.add_argument("--threshold", default="1000", type=int, help=str_help)
     str_help = "RFC 4760 Multiprotocol Extensions for BGP-4 supported"
-    parser.add_argument("--rfc4760", default="yes", type=str, help=str_help)
+    parser.add_argument("--rfc4760", default=True, type=bool, help=str_help)
+    str_help = "Link-State NLRI supported"
+    parser.add_argument("--bgpls", default=False, type=bool, help=str_help)
+    str_help = "Link-State NLRI: Identifier"
+    parser.add_argument("-lsid", default="1", type=int, help=str_help)
+    str_help = "Link-State NLRI: Tunnel ID"
+    parser.add_argument("-lstid", default="1", type=int, help=str_help)
+    str_help = "Link-State NLRI: LSP ID"
+    parser.add_argument("-lspid", default="1", type=int, help=str_help)
+    str_help = "Link-State NLRI: IPv4 Tunnel Sender Address"
+    parser.add_argument("--lstsaddr", default="1.2.3.4",
+                        type=ipaddr.IPv4Address, help=str_help)
+    str_help = "Link-State NLRI: IPv4 Tunnel End Point Address"
+    parser.add_argument("--lsteaddr", default="5.6.7.8",
+                        type=ipaddr.IPv4Address, help=str_help)
+    str_help = "Link-State NLRI: Identifier Step"
+    parser.add_argument("-lsidstep", default="1", type=int, help=str_help)
+    str_help = "Link-State NLRI: Tunnel ID Step"
+    parser.add_argument("-lstidstep", default="2", type=int, help=str_help)
+    str_help = "Link-State NLRI: LSP ID Step"
+    parser.add_argument("-lspidstep", default="4", type=int, help=str_help)
+    str_help = "Link-State NLRI: IPv4 Tunnel Sender Address Step"
+    parser.add_argument("-lstsaddrstep", default="16", type=int, help=str_help)
+    str_help = "Link-State NLRI: IPv4 Tunnel End Point Address Step"
+    parser.add_argument("-lsteaddrstep", default="1", type=int, help=str_help)
     str_help = "How many play utilities are to be started."
     parser.add_argument("--multiplicity", default="1", type=int, help=str_help)
     arguments = parser.parse_args()
@@ -300,7 +324,22 @@ class MessageGenerator(object):
         self.remaining_prefixes_threshold = self.total_prefix_amount - args.prefill
         self.results_file_name_default = args.results
         self.performance_threshold_default = args.threshold
-        self.rfc4760 = args.rfc4760 == "yes"
+        self.rfc4760 = args.rfc4760
+        self.bgpls = args.bgpls
+        # Default values when BGP-LS Attributes are used
+        if self.bgpls:
+            self.prefix_count_to_add_default = 1
+            self.prefix_count_to_del_default = 0
+        self.ls_nlri_default = {"Identifier": args.lsid,
+                                "TunnelID": args.lstid,
+                                "LSPID": args.lspid,
+                                "IPv4TunnelSenderAddress": args.lstsaddr,
+                                "IPv4TunnelEndPointAddress": args.lsteaddr}
+        self.lsid_step = args.lsidstep
+        self.lstid_step = args.lstidstep
+        self.lspid_step = args.lspidstep
+        self.lstsaddr_step = args.lstsaddrstep
+        self.lsteaddr_step = args.lsteaddrstep
         # Default values used for randomized part
         s1_slots = ((self.total_prefix_amount -
                      self.remaining_prefixes_threshold - 1) /
@@ -319,7 +358,6 @@ class MessageGenerator(object):
                                  self.prefix_count_to_add_default + 1)
         self.randomize_lowest_default = s2_first_index
         self.randomize_highest_default = s2_last_index
-
         # Initialising counters
         self.phase1_start_time = 0
         self.phase1_stop_time = 0
@@ -501,7 +539,27 @@ class MessageGenerator(object):
             new_index = index
         return new_index
 
-    # Get list of prefixes
+    def get_ls_nlri_values(self, index):
+        """Generates LS-NLRI parameters.
+        http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03
+
+        Arguments:
+            :param index: index (iteration)
+        Returns:
+            :return: dictionary of LS NLRI parameters and values
+        """
+        # generating list of LS NLRI parameters
+        identifier = self.ls_nlri_default["Identifier"] + index / self.lsid_step
+        ipv4_tunnel_sender_address = self.ls_nlri_default["IPv4TunnelSenderAddress"] + index / self.lstsaddr_step
+        tunnel_id = self.ls_nlri_default["TunnelID"] + index / self.lstid_step
+        lsp_id = self.ls_nlri_default["LSPID"] + index / self.lspid_step
+        ipv4_tunnel_endpoint_address = self.ls_nlri_default["IPv4TunnelEndPointAddress"] + index / self.lsteaddr_step
+        ls_nlri_values = {"Identifier": identifier,
+                          "IPv4TunnelSenderAddress": ipv4_tunnel_sender_address,
+                          "TunnelID": tunnel_id, "LSPID": lsp_id,
+                          "IPv4TunnelEndPointAddress": ipv4_tunnel_endpoint_address}
+        return ls_nlri_values
+
     def get_prefix_list(self, slot_index, slot_size=None, prefix_base=None,
                         prefix_len=None, prefix_count=None, randomize=None):
         """Generates list of IP address prefixes.
@@ -610,20 +668,26 @@ class MessageGenerator(object):
             logger.debug("Prefixes to be withdrawn in this iteration:")
         prefix_list_to_del = self.get_prefix_list(slot_index_to_del,
                                                   prefix_count=prefix_count_to_del)
-        # generating the mesage
-        if self.single_update_default:
-            # Send prefixes to be introduced and withdrawn
-            # in one UPDATE message
-            msg_out = self.update_message(wr_prefixes=prefix_list_to_del,
-                                          nlri_prefixes=prefix_list_to_add)
+        # generating the UPDATE mesage with LS-NLRI only
+        if self.bgpls:
+            ls_nlri = self.get_ls_nlri_values(self.iteration)
+            msg_out = self.update_message(wr_prefixes=[], nlri_prefixes=[],
+                                          **ls_nlri)
         else:
-            # Send prefixes to be introduced and withdrawn
-            # in separate UPDATE messages (if needed)
-            msg_out = self.update_message(wr_prefixes=[],
-                                          nlri_prefixes=prefix_list_to_add)
-            if prefix_count_to_del:
-                msg_out += self.update_message(wr_prefixes=prefix_list_to_del,
-                                               nlri_prefixes=[])
+            # generating the UPDATE message with prefix lists
+            if self.single_update_default:
+                # Send prefixes to be introduced and withdrawn
+                # in one UPDATE message
+                msg_out = self.update_message(wr_prefixes=prefix_list_to_del,
+                                              nlri_prefixes=prefix_list_to_add)
+            else:
+                # Send prefixes to be introduced and withdrawn
+                # in separate UPDATE messages (if needed)
+                msg_out = self.update_message(wr_prefixes=[],
+                                              nlri_prefixes=prefix_list_to_add)
+                if prefix_count_to_del:
+                    msg_out += self.update_message(wr_prefixes=prefix_list_to_del,
+                                                   nlri_prefixes=[])
         # updating counters - who knows ... maybe I am last time here ;)
         if straightforward_scenario:
             self.phase1_stop_time = time.time()
@@ -704,6 +768,19 @@ class MessageGenerator(object):
             )
             optional_parameters_hex += optional_parameter_hex
 
+        if self.bgpls:
+            optional_parameter_hex = (
+                "\x02"  # Param type ("Capability Ad")
+                "\x06"  # Length (6 bytes)
+                "\x01"  # Capability type (NLRI Unicast),
+                        # see RFC 4760, secton 8
+                "\x04"  # Capability value length
+                "\x40\x04"  # AFI (BGP-LS)
+                "\x00"  # (reserved)
+                "\x47"  # SAFI (BGP-LS)
+            )
+            optional_parameters_hex += optional_parameter_hex
+
         optional_parameter_hex = (
             "\x02"  # Param type ("Capability Ad")
             "\x06"  # Length (6 bytes)
@@ -775,7 +852,8 @@ class MessageGenerator(object):
     def update_message(self, wr_prefixes=None, nlri_prefixes=None,
                        wr_prefix_length=None, nlri_prefix_length=None,
                        my_autonomous_system=None, next_hop=None,
-                       originator_id=None, cluster_list_item=None):
+                       originator_id=None, cluster_list_item=None,
+                       end_of_rib=False, **ls_nlri_params):
         """Generates an UPDATE Message (rfc4271#section-4.3)
 
         Arguments:
@@ -807,6 +885,8 @@ class MessageGenerator(object):
             originator_id = self.originator_id_default
         if cluster_list_item is None:
             cluster_list_item = self.cluster_list_item_default
+        ls_nlri = self.ls_nlri_default.copy()
+        ls_nlri.update(ls_nlri_params)
 
         # Marker
         marker_hex = "\xFF" * 16
@@ -816,12 +896,13 @@ class MessageGenerator(object):
         type_hex = struct.pack("B", type)
 
         # Withdrawn Routes
-        bytes = ((wr_prefix_length - 1) / 8) + 1
         withdrawn_routes_hex = ""
-        for prefix in wr_prefixes:
-            withdrawn_route_hex = (struct.pack("B", wr_prefix_length) +
-                                   struct.pack(">I", int(prefix))[:bytes])
-            withdrawn_routes_hex += withdrawn_route_hex
+        if not self.bgpls:
+            bytes = ((wr_prefix_length - 1) / 8) + 1
+            for prefix in wr_prefixes:
+                withdrawn_route_hex = (struct.pack("B", wr_prefix_length) +
+                                       struct.pack(">I", int(prefix))[:bytes])
+                withdrawn_routes_hex += withdrawn_route_hex
 
         # Withdrawn Routes Length
         withdrawn_routes_length = len(withdrawn_routes_hex)
@@ -870,17 +951,40 @@ class MessageGenerator(object):
                 )           # one CLUSTER_LIST item (4 bytes)
                 path_attributes_hex += struct.pack(">I", int(cluster_list_item))
 
+        if self.bgpls and not end_of_rib:
+            path_attributes_hex += (
+                "\x80"  # Flags ("Optional, non-transitive")
+                "\x0e"  # Type (MP_REACH_NLRI)
+                "\x22"  # Length (34)
+                "\x40\x04"  # AFI (BGP-LS)
+                "\x47"  # SAFI (BGP-LS)
+                "\x04"  # Next Hop Length (4)
+            )
+            path_attributes_hex += struct.pack(">I", int(next_hop))
+            path_attributes_hex += "\x00"           # Reserved
+            path_attributes_hex += (
+                "\x00\x05"  # LS-NLRI.NLRIType (IPv4 TE LSP NLRI)
+                "\x00\x15"  # LS-NLRI.TotalNLRILength (21)
+                "\x07"      # LS-NLRI.Variable.ProtocolID (RSVP-TE)
+            )
+            path_attributes_hex += struct.pack(">Q", int(ls_nlri["Identifier"]))
+            path_attributes_hex += struct.pack(">I", int(ls_nlri["IPv4TunnelSenderAddress"]))
+            path_attributes_hex += struct.pack(">H", int(ls_nlri["TunnelID"]))
+            path_attributes_hex += struct.pack(">H", int(ls_nlri["LSPID"]))
+            path_attributes_hex += struct.pack(">I", int(ls_nlri["IPv4TunnelEndPointAddress"]))
+
         # Total Path Attributes Length
         total_path_attributes_length = len(path_attributes_hex)
         total_path_attributes_length_hex = struct.pack(">H", total_path_attributes_length)
 
         # Network Layer Reachability Information
-        bytes = ((nlri_prefix_length - 1) / 8) + 1
         nlri_hex = ""
-        for prefix in nlri_prefixes:
-            nlri_prefix_hex = (struct.pack("B", nlri_prefix_length) +
-                               struct.pack(">I", int(prefix))[:bytes])
-            nlri_hex += nlri_prefix_hex
+        if not self.bgpls:
+            bytes = ((nlri_prefix_length - 1) / 8) + 1
+            for prefix in nlri_prefixes:
+                nlri_prefix_hex = (struct.pack("B", nlri_prefix_length) +
+                                   struct.pack(">I", int(prefix))[:bytes])
+                nlri_hex += nlri_prefix_hex
 
         # Length (big-endian)
         length = (
@@ -928,6 +1032,8 @@ class MessageGenerator(object):
                     logger.debug("    Originator id=" + str(originator_id))
                 if cluster_list_item is not None:
                     logger.debug("    Cluster list=" + str(cluster_list_item))
+                if self.bgpls:
+                    logger.debug("    MP_REACH_NLRI: %s", ls_nlri)
             logger.debug("  Network Layer Reachability Information=" +
                          str(nlri_prefixes) + "/" + str(nlri_prefix_length) +
                          " (0x" + binascii.hexlify(nlri_hex) + ")")
@@ -1586,7 +1692,8 @@ class StateTracker(object):
                     self.generator.store_results()
                     logger.info("Finally an END-OF-RIB is sent.")
                     msg_out += self.generator.update_message(wr_prefixes=[],
-                                                             nlri_prefixes=[])
+                                                             nlri_prefixes=[],
+                                                             end_of_rib=True)
                 self.writer.enqueue_message_for_sending(msg_out)
                 # Attempt for real sending to be done in next iteration.
                 return
