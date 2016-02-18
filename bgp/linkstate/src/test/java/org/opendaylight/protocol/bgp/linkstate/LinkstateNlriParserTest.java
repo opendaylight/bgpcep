@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.linkstate;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -500,7 +501,7 @@ public class LinkstateNlriParserTest {
         assertNull(this.dest.getDistinguisher());
         assertEquals(ProtocolId.RsvpTe, this.dest.getProtocolId());
         assertEquals(BigInteger.ONE, this.dest.getIdentifier().getValue());
-        final TeLspCase teCase = ((TeLspCase) this.dest.getObjectType());
+        final TeLspCase teCase = (TeLspCase) this.dest.getObjectType();
 
         assertEquals(new LspId(1L), teCase.getLspId());
         assertEquals(new TunnelId(1), teCase.getTunnelId());
@@ -513,7 +514,7 @@ public class LinkstateNlriParserTest {
 
         final ImmutableLeafNodeBuilder<String> protocolId = new ImmutableLeafNodeBuilder<>();
         protocolId.withNodeIdentifier(LinkstateNlriParser.PROTOCOL_ID_NID);
-        protocolId.withValue("rsvpte");
+        protocolId.withValue("rsvp-te");
         linkstateBI.addChild(protocolId.build());
 
         final ImmutableLeafNodeBuilder<BigInteger> identifier = new ImmutableLeafNodeBuilder<>();
@@ -523,11 +524,6 @@ public class LinkstateNlriParserTest {
 
         final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> objectType = Builders.choiceBuilder();
         objectType.withNodeIdentifier(LinkstateNlriParser.OBJECT_TYPE_NID);
-
-        // advertising node descriptors
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> teLspCase = Builders.containerBuilder();
-        teLspCase.withNodeIdentifier(LinkstateNlriParser.TE_LSP_NID);
-        objectType.addChild(teLspCase.build());
 
         final ImmutableLeafNodeBuilder<Long> lspId = new ImmutableLeafNodeBuilder<>();
         lspId.withNodeIdentifier(TeLspNlriParser.LSP_ID);
@@ -540,9 +536,6 @@ public class LinkstateNlriParserTest {
         final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> addressFamily = Builders.choiceBuilder();
         addressFamily.withNodeIdentifier(TeLspNlriParser.ADDRESS_FAMILY);
 
-        final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> ipv4Case = Builders.containerBuilder();
-        ipv4Case.withNodeIdentifier(TeLspNlriParser.IPV4_CASE);
-
         final ImmutableLeafNodeBuilder<String> ipv4TunnelSenderAddress = new ImmutableLeafNodeBuilder<>();
         ipv4TunnelSenderAddress.withNodeIdentifier(TeLspNlriParser.IPV4_TUNNEL_SENDER_ADDRESS);
         ipv4TunnelSenderAddress.withValue("1.2.3.4");
@@ -551,16 +544,13 @@ public class LinkstateNlriParserTest {
         ipv4TunnelEndPointAddress.withNodeIdentifier(TeLspNlriParser.IPV4_TUNNEL_ENDPOINT_ADDRESS);
         ipv4TunnelEndPointAddress.withValue("4.3.2.1");
 
-        ipv4Case.addChild(ipv4TunnelSenderAddress.build());
-        ipv4Case.addChild(ipv4TunnelEndPointAddress.build());
+        addressFamily.addChild(ipv4TunnelSenderAddress.build());
+        addressFamily.addChild(ipv4TunnelEndPointAddress.build());
 
-        addressFamily.addChild(ipv4Case.build());
+        objectType.addChild(lspId.build());
+        objectType.addChild(tunnelId.build());
+        objectType.addChild(addressFamily.build());
 
-        teLspCase.addChild(lspId.build());
-        teLspCase.addChild(tunnelId.build());
-        teLspCase.addChild(addressFamily.build());
-
-        objectType.addChild(teLspCase.build());
         linkstateBI.addChild(objectType.build());
         assertEquals(this.dest, LinkstateNlriParser.extractLinkstateDestination(linkstateBI.build()));
     }
