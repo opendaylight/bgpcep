@@ -9,17 +9,14 @@ package org.opendaylight.protocol.util;
 
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
-import com.google.common.primitives.Bytes;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
 
@@ -27,26 +24,11 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
  * Util class for creating generated Ipv6Address.
  */
 public final class Ipv6Util {
+    public static final int IPV6_LENGTH = 16;
+    private static final Ipv6Prefix EMPTY_PREFIX = new Ipv6Prefix("::/0");
 
     private Ipv6Util() {
         throw new UnsupportedOperationException();
-    }
-
-    public static final int IPV6_LENGTH = 16;
-
-    /**
-     * Converts byte array to Inet6Address.
-     *
-     * @param bytes to be converted
-     * @return InetAddress instance
-     * @throws IllegalArgumentException if {@link UnknownHostException} is thrown.
-     */
-    private static InetAddress getAddress(final byte[] bytes) {
-        try {
-            return Inet6Address.getByAddress(bytes);
-        } catch (final UnknownHostException e) {
-            throw new IllegalArgumentException("Failed to construct IPv6 address", e);
-        }
     }
 
     /**
@@ -66,7 +48,7 @@ public final class Ipv6Util {
      * @return Ipv6Address
      */
     public static Ipv6Address addressForByteBuf(final ByteBuf buffer) {
-        return new Ipv6Address(InetAddresses.toAddrString(getAddress((ByteArray.readBytes(buffer, IPV6_LENGTH)))));
+        return IetfInetUtil.INSTANCE.ipv6AddressFor(ByteArray.readBytes(buffer, IPV6_LENGTH));
     }
 
     /**
@@ -85,9 +67,7 @@ public final class Ipv6Util {
      * @return byte array
      */
     public static byte[] bytesForAddress(final Ipv6Address address) {
-        final InetAddress a = InetAddresses.forString(address.getValue());
-        Preconditions.checkArgument(a instanceof Inet6Address);
-        return a.getAddress();
+        return IetfInetUtil.INSTANCE.ipv6AddressBytes(address);
     }
 
     /**
@@ -97,12 +77,7 @@ public final class Ipv6Util {
      * @return byte array with prefix length at the end
      */
     public static byte[] bytesForPrefix(final Ipv6Prefix prefix) {
-        final String p = prefix.getValue();
-        final int sep = p.indexOf('/');
-        final InetAddress a = InetAddresses.forString(p.substring(0, sep));
-        Preconditions.checkArgument(a instanceof Inet6Address);
-        final byte[] bytes = a.getAddress();
-        return Bytes.concat(bytes, new byte[] { UnsignedBytes.parseUnsignedByte(p.substring(sep + 1, p.length())) });
+        return IetfInetUtil.INSTANCE.ipv6PrefixToBytes(prefix);
     }
 
     /**
@@ -111,18 +86,14 @@ public final class Ipv6Util {
      *
      * @param prefix Ipv6Prefix to be converted
      * @return byte array with the prefix length at the beginning
+     *
+     * @deprecated This is inefficient, refactor code to use {@link #bytesForAddress(Ipv6Address)} or
+     *             {@link ByteBufWriteUtil#writeMinimalPrefix(Ipv6Prefix, ByteBuf).
      */
+    @Deprecated
     public static byte[] bytesForPrefixBegin(final Ipv6Prefix prefix) {
-        final String p = prefix.getValue();
-        final int length = Ipv4Util.getPrefixLength(p);
-        if (length == 0) {
-            return new byte[] { 0 };
-        }
-        final int sep = p.indexOf('/');
-        final InetAddress a = InetAddresses.forString(p.substring(0, sep));
-        Preconditions.checkArgument(a instanceof Inet6Address);
-        final byte[] bytes = a.getAddress();
-        return Bytes.concat(new byte[] { UnsignedBytes.checkedCast(length) }, ByteArray.subByte(bytes, 0 , Ipv4Util.getPrefixLengthBytes(p)));
+        final byte[] addrWithPrefix = bytesForPrefix(prefix);
+        return Ipv4Util.prefixedBytes(addrWithPrefix[IPV6_LENGTH], addrWithPrefix);
     }
 
     /**
@@ -135,8 +106,7 @@ public final class Ipv6Util {
     public static Ipv6Prefix prefixForBytes(final byte[] bytes, final int length) {
         Preconditions.checkArgument(length <= bytes.length * Byte.SIZE);
         final byte[] tmp = Arrays.copyOfRange(bytes, 0, IPV6_LENGTH);
-        final InetAddress a = getAddress(tmp);
-        return new Ipv6Prefix(InetAddresses.toAddrString(a) + '/' + length);
+        return IetfInetUtil.INSTANCE.ipv6PrefixFor(tmp, length);
     }
 
     /**
@@ -150,7 +120,7 @@ public final class Ipv6Util {
         final int prefixLength = bytes.readByte();
         final int size = prefixLength / Byte.SIZE + ((prefixLength % Byte.SIZE == 0) ? 0 : 1);
         Preconditions.checkArgument(size <= bytes.readableBytes(), "Illegal length of IP prefix: %s", bytes.readableBytes());
-        return Ipv6Util.prefixForBytes(ByteArray.readBytes(bytes, size), prefixLength);
+        return prefixForBytes(ByteArray.readBytes(bytes, size), prefixLength);
     }
 
 
@@ -171,7 +141,7 @@ public final class Ipv6Util {
             byteOffset += 1;
             // if length == 0, default route will be added
             if (bitLength == 0) {
-                list.add(new Ipv6Prefix("::/0"));
+                list.add(EMPTY_PREFIX);
                 continue;
             }
             final int byteCount = (bitLength % Byte.SIZE != 0) ? (bitLength / Byte.SIZE) + 1 : bitLength / Byte.SIZE;

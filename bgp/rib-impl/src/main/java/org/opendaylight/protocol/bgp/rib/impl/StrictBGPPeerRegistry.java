@@ -33,9 +33,9 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.OptionalCapabilities;
@@ -169,7 +169,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         return p;
     }
 
-    private void validateAs(final AsNumber remoteAs, final Open openObj, final BGPSessionPreferences localPref) throws BGPDocumentedException {
+    private static void validateAs(final AsNumber remoteAs, final Open openObj, final BGPSessionPreferences localPref) throws BGPDocumentedException {
         if (!remoteAs.equals(localPref.getExpectedRemoteAs())) {
             LOG.warn("Unexpected remote AS number. Expecting {}, got {}", remoteAs, localPref.getExpectedRemoteAs());
             throw new BGPDocumentedException("Peer AS number mismatch", BGPError.BAD_PEER_AS);
@@ -232,10 +232,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         final InetAddress inetAddress = ((InetSocketAddress) socketAddress).getAddress();
 
         Preconditions.checkArgument(inetAddress instanceof Inet4Address || inetAddress instanceof Inet6Address, "Expecting %s or %s but was %s", Inet4Address.class, Inet6Address.class, inetAddress.getClass());
-        if(inetAddress instanceof Inet4Address) {
-            return new IpAddress(new Ipv4Address(inetAddress.getHostAddress()));
-        }
-        return new IpAddress(new Ipv6Address(inetAddress.getHostAddress()));
+        return IetfInetUtil.INSTANCE.ipAddressFor(inetAddress);
     }
 
     @Override
