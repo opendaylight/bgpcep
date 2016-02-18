@@ -8,11 +8,9 @@
 package org.opendaylight.protocol.bgp.flowspec.handlers;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.Bytes;
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeParser;
-import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeSerializer;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.FlowspecType;
@@ -23,26 +21,30 @@ public final class FSIpv6SourcePrefixHandler implements FlowspecTypeParser, Flow
     public static final int SOURCE_PREFIX_VALUE = 2;
 
     @Override
-    public void serializeType(FlowspecType value, ByteBuf output) {
+    public void serializeType(final FlowspecType value, final ByteBuf output) {
         Preconditions.checkArgument(value instanceof SourceIpv6PrefixCase, "SourceIpv6PrefixCase class is mandatory!");
         output.writeByte(SOURCE_PREFIX_VALUE);
-        output.writeBytes(insertOffsetByte(Ipv6Util.bytesForPrefixBegin(((SourceIpv6PrefixCase) value).getSourcePrefix())));
+        writePrefix(((SourceIpv6PrefixCase) value).getSourcePrefix(), output);
+    }
+
+    static void writePrefix(final Ipv6Prefix prefix, final ByteBuf output) {
+        final byte[] bytes = Ipv6Util.bytesForPrefix(prefix);
+        final byte prefixBits = bytes[Ipv6Util.IPV6_LENGTH];
+        output.writeByte(prefixBits);
+        output.writeByte(0);
+        output.writeBytes(bytes, 0, Ipv4Util.prefixBitsToBytes(Byte.toUnsignedInt(prefixBits)));
     }
 
     @Override
-    public FlowspecType parseType(ByteBuf buffer) {
+    public FlowspecType parseType(final ByteBuf buffer) {
         Preconditions.checkNotNull(buffer, "input buffer is null, missing data to parse.");
         return new SourceIpv6PrefixCaseBuilder().setSourcePrefix(parseIpv6Prefix(buffer)).build();
     }
 
-    private static Ipv6Prefix parseIpv6Prefix(final ByteBuf nlri) {
+    static Ipv6Prefix parseIpv6Prefix(final ByteBuf nlri) {
         final int bitLength = nlri.readUnsignedByte();
         nlri.readUnsignedByte();
+        // FIXME: this does not look right if bitLenght % Byte.SIZE != 0
         return Ipv6Util.prefixForBytes(ByteArray.readBytes(nlri, bitLength / Byte.SIZE), bitLength);
-    }
-
-    private static byte[] insertOffsetByte(final byte[] ipPrefix) {
-        // income <len, prefix>
-        return Bytes.concat(new byte[] { ipPrefix[0] }, new byte[] { 0 }, ByteArray.subByte(ipPrefix, 1 , ipPrefix.length-1));
     }
 }

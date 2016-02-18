@@ -9,8 +9,7 @@ package org.opendaylight.protocol.bgp.flowspec.handlers;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeParser;
-import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeSerializer;
+import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.FlowspecType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.ipv4.flowspec.flowspec.type.SourcePrefixCase;
@@ -20,14 +19,14 @@ public final class FSIpv4SourcePrefixHandler implements FlowspecTypeParser, Flow
     public static final int SOURCE_PREFIX_VALUE = 2;
 
     @Override
-    public void serializeType(FlowspecType value, ByteBuf output) {
+    public void serializeType(final FlowspecType value, final ByteBuf output) {
         Preconditions.checkArgument(value instanceof SourcePrefixCase, "SourcePrefixCase class is mandatory!");
         output.writeByte(SOURCE_PREFIX_VALUE);
-        output.writeBytes(Ipv4Util.bytesForPrefixBegin(((SourcePrefixCase) value).getSourcePrefix()));
+        ByteBufWriteUtil.writeMinimalPrefix(((SourcePrefixCase) value).getSourcePrefix(), output);
     }
 
     @Override
-    public FlowspecType parseType(ByteBuf buffer) {
+    public FlowspecType parseType(final ByteBuf buffer) {
         Preconditions.checkNotNull(buffer, "input buffer is null, missing data to parse.");
         return new SourcePrefixCaseBuilder().setSourcePrefix(Ipv4Util.prefixForByteBuf(buffer)).build();
     }
