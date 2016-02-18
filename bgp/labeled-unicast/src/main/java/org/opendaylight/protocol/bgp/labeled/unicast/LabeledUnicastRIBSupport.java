@@ -66,7 +66,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContaine
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
+public final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
 
     private static final Logger LOG = LoggerFactory.getLogger(LabeledUnicastRIBSupport.class);
 
@@ -231,19 +231,28 @@ final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
     // Conversion from DataContainer to LabeledUnicastDestination Object
     private static CLabeledUnicastDestination extractCLabeledUnicastDestination(final DataContainerNode<? extends PathArgument> route) {
         final CLabeledUnicastDestinationBuilder builder = new CLabeledUnicastDestinationBuilder();
+        builder.setPrefix(extractPrefix(route, PREFIX_TYPE_NID));
+        builder.setLabelStack(extractLabel(route));
+        return builder.build();
+    }
 
-        if (route.getChild(PREFIX_TYPE_NID).isPresent()) {
-            final String prefixType = (String) route.getChild(PREFIX_TYPE_NID).get().getValue();
+    public static IpPrefix extractPrefix(final DataContainerNode<? extends PathArgument> route, final NodeIdentifier prefixTypeNid) {
+        if (route.getChild(prefixTypeNid).isPresent()) {
+            final String prefixType = (String) route.getChild(prefixTypeNid).get().getValue();
             try {
                 Ipv4Util.bytesForPrefixBegin(new Ipv4Prefix(prefixType));
-                builder.setPrefix(new IpPrefix(new Ipv4Prefix(prefixType)));
+                return new IpPrefix(new Ipv4Prefix(prefixType));
             } catch (final IllegalArgumentException e) {
                 LOG.debug("Creating Ipv6 prefix because", e);
-                builder.setPrefix(new IpPrefix(new Ipv6Prefix(prefixType)));
+                return new IpPrefix(new Ipv6Prefix(prefixType));
             }
         }
-        final Optional<DataContainerChild<? extends PathArgument, ?>> labelStacks = route.getChild(LABEL_STACK_NID);
+        return null;
+    }
+
+    public static List<LabelStack> extractLabel(final DataContainerNode<? extends PathArgument> route) {
         final List<LabelStack> labels = new ArrayList<>();
+        final Optional<DataContainerChild<? extends PathArgument, ?>> labelStacks = route.getChild(LABEL_STACK_NID);
         final LabelStackBuilder labelStackbuilder = new LabelStackBuilder();
         if (labelStacks.isPresent()) {
             for(final UnkeyedListEntryNode label : ((UnkeyedListNode)labelStacks.get()).getValue()) {
@@ -254,7 +263,6 @@ final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
             }
         }
         labels.add(labelStackbuilder.build());
-        builder.setLabelStack(labels);
-        return builder.build();
+        return labels;
     }
 }
