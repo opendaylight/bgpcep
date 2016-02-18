@@ -10,8 +10,7 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
-import org.opendaylight.protocol.util.Ipv4Util;
-import org.opendaylight.protocol.util.Ipv6Util;
+import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.destination.ipv4.Ipv4Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.prefixes.destination.ipv6.Ipv6Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4Case;
@@ -46,14 +45,14 @@ public class WithdrawnRoutesSerializer implements NlriSerializer {
             final DestinationIpv4Case destinationIpv4Case = (DestinationIpv4Case) routes.getDestinationType();
             if (destinationIpv4Case.getDestinationIpv4().getIpv4Prefixes() != null) {
                 for (final Ipv4Prefixes ipv4Prefix : destinationIpv4Case.getDestinationIpv4().getIpv4Prefixes()) {
-                    byteAggregator.writeBytes(Ipv4Util.bytesForPrefixBegin(ipv4Prefix.getPrefix()));
+                    ByteBufWriteUtil.writeMinimalPrefix(ipv4Prefix.getPrefix(), byteAggregator);
                 }
             }
         } else if (routes.getDestinationType() instanceof DestinationIpv6Case) {
             final DestinationIpv6Case destinationIpv6Case = (DestinationIpv6Case) routes.getDestinationType();
             if (destinationIpv6Case.getDestinationIpv6().getIpv6Prefixes() != null) {
                 for (final Ipv6Prefixes ipv6Prefix : destinationIpv6Case.getDestinationIpv6().getIpv6Prefixes()) {
-                    byteAggregator.writeBytes(Ipv6Util.bytesForPrefixBegin(ipv6Prefix.getPrefix()));
+                    ByteBufWriteUtil.writeMinimalPrefix(ipv6Prefix.getPrefix(), byteAggregator);
                 }
             }
         }
