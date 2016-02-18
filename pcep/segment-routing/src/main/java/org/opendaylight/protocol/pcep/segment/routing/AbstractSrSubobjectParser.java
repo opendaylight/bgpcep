@@ -22,7 +22,6 @@ import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.SidType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.SrSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev150112.sr.subobject.Nai;
@@ -127,7 +126,7 @@ public abstract class AbstractSrSubobjectParser   {
         return buffer;
     }
 
-    private void serializeNai(final Nai nai, final SidType sidType, final ByteBuf buffer) {
+    private static void serializeNai(final Nai nai, final SidType sidType, final ByteBuf buffer) {
         switch (sidType) {
         case Ipv4NodeId:
             writeIpv4Address(((IpNodeId) nai).getIpAddress().getIpv4Address(), buffer);
@@ -155,11 +154,11 @@ public abstract class AbstractSrSubobjectParser   {
         }
     }
 
-    private Nai parseNai(final SidType sidType, final ByteBuf buffer) {
+    private static Nai parseNai(final SidType sidType, final ByteBuf buffer) {
         switch (sidType) {
         case Ipv4NodeId:
             return new IpNodeIdBuilder().setIpAddress(
-                    new IpAddress(new Ipv4Address(Ipv4Util.addressForByteBuf(buffer)))).build();
+                    new IpAddress(Ipv4Util.addressForByteBuf(buffer))).build();
         case Ipv6NodeId:
             return new IpNodeIdBuilder().setIpAddress(
                     new IpAddress(Ipv6Util.addressForByteBuf(buffer))).build();
@@ -180,7 +179,7 @@ public abstract class AbstractSrSubobjectParser   {
         }
     }
 
-    protected final SrSubobject parseSrSubobject(final ByteBuf buffer) throws PCEPDeserializerException {
+    protected static SrSubobject parseSrSubobject(final ByteBuf buffer) throws PCEPDeserializerException {
         final int sidTypeByte = buffer.readByte() >> SID_TYPE_BITS_OFFSET;
         final SidType sidType = SidType.forValue(sidTypeByte);
         final BitArray bitSet = BitArray.valueOf(buffer.readByte());
