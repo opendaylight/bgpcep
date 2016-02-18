@@ -17,40 +17,24 @@ import io.netty.buffer.Unpooled;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.PortNumber;
 
 /**
  * Util class for creating generated Ipv4Address.
  */
 public final class Ipv4Util {
+    public static final int IP4_LENGTH = 4;
+    private static final Ipv4Prefix EMPTY_PREFIX = new Ipv4Prefix("0.0.0.0/0");
 
     private Ipv4Util() {
         throw new UnsupportedOperationException();
-    }
-
-    public static final int IP4_LENGTH = 4;
-
-    /**
-     * Converts byte array to Inet4Address.
-     *
-     * @param bytes to be converted
-     * @return InetAddress instance
-     * @throws IllegalArgumentException if {@link UnknownHostException} is thrown.
-     */
-    private static InetAddress getAddress(final byte[] bytes) {
-        try {
-            return Inet4Address.getByAddress(bytes);
-        } catch (final UnknownHostException e) {
-            throw new IllegalArgumentException("Failed to construct IPv4 address", e);
-        }
     }
 
     /**
@@ -60,7 +44,7 @@ public final class Ipv4Util {
      * @return Ipv4Address
      */
     public static Ipv4Address addressForByteBuf(final ByteBuf buffer) {
-        return new Ipv4Address(InetAddresses.toAddrString(getAddress(ByteArray.readBytes(buffer, IP4_LENGTH))));
+        return IetfInetUtil.INSTANCE.ipv4AddressFor(ByteArray.readBytes(buffer, IP4_LENGTH));
     }
 
     /**
@@ -79,9 +63,7 @@ public final class Ipv4Util {
      * @return byte array
      */
     public static byte[] bytesForAddress(final Ipv4Address address) {
-        final InetAddress a = InetAddresses.forString(address.getValue());
-        Preconditions.checkArgument(a instanceof Inet4Address);
-        return a.getAddress();
+        return IetfInetUtil.INSTANCE.ipv4AddressBytes(address);
     }
 
     /**
@@ -143,8 +125,7 @@ public final class Ipv4Util {
     public static Ipv4Prefix prefixForBytes(final byte[] bytes, final int length) {
         Preconditions.checkArgument(length <= bytes.length * Byte.SIZE);
         final byte[] tmp = Arrays.copyOfRange(bytes, 0, IP4_LENGTH);
-        final InetAddress a = getAddress(tmp);
-        return new Ipv4Prefix(InetAddresses.toAddrString(a) + '/' + length);
+        return IetfInetUtil.INSTANCE.ipv4PrefixFor(tmp, length);
     }
 
     /**
@@ -158,7 +139,7 @@ public final class Ipv4Util {
         final int prefixLength = bytes.readByte();
         final int size = prefixLength / Byte.SIZE + ((prefixLength % Byte.SIZE == 0) ? 0 : 1);
         Preconditions.checkArgument(size <= bytes.readableBytes(), "Illegal length of IP prefix: " + (bytes.readableBytes()));
-        return Ipv4Util.prefixForBytes(ByteArray.readBytes(bytes, size), prefixLength);
+        return prefixForBytes(ByteArray.readBytes(bytes, size), prefixLength);
     }
 
     /**
@@ -178,7 +159,7 @@ public final class Ipv4Util {
             byteOffset += 1;
             // if length == 0, default route will be added
             if (bitLength == 0) {
-                list.add(new Ipv4Prefix("0.0.0.0/0"));
+                list.add(EMPTY_PREFIX);
                 continue;
             }
             final int byteCount = (bitLength % Byte.SIZE != 0) ? (bitLength / Byte.SIZE) + 1 : bitLength / Byte.SIZE;
@@ -207,11 +188,7 @@ public final class Ipv4Util {
      * @return IpAddress
      */
     public static IpAddress getIpAddress(final InetAddress inetAddress) {
-        final String address = InetAddresses.toAddrString(inetAddress);
-        if (inetAddress instanceof Inet4Address) {
-            return new IpAddress(new Ipv4Address(address));
-        }
-        return new IpAddress(new Ipv6Address(address));
+        return IetfInetUtil.INSTANCE.ipAddressFor(inetAddress);
     }
 
     /**
