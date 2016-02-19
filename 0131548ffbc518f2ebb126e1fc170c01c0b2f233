@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_ca9a646d",
+        "filename": "bgp/l3vpn/src/main/yang/odl-bgp-vpn-ipv4-cfg.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-19T11:50:20Z",
+      "side": 1,
+      "message": "2016",
+      "range": {
+        "startLine": 15,
+        "startChar": 24,
+        "endLine": 15,
+        "endChar": 25
+      },
+      "revId": "0131548ffbc518f2ebb126e1fc170c01c0b2f233",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
