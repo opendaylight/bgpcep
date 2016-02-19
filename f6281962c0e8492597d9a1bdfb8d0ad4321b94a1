@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "9a3d3df0_ca1b84c8",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/BgpExtendedMessageCapabilityHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-19T12:21:04Z",
+      "side": 1,
+      "message": "The capability body must be empty (length \u003d 0).",
+      "range": {
+        "startLine": 33,
+        "startChar": 50,
+        "endLine": 33,
+        "endChar": 104
+      },
+      "revId": "f6281962c0e8492597d9a1bdfb8d0ad4321b94a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3d3df0_07f1ec6a",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPPeerAcceptorModule.java",
         "patchSetId": 4
@@ -18,6 +41,29 @@
         "startChar": 0,
         "endLine": 7,
         "endChar": 3
+      },
+      "revId": "f6281962c0e8492597d9a1bdfb8d0ad4321b94a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_aa6f202a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPMessageHeaderDecoder.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-19T12:21:04Z",
+      "side": 1,
+      "message": "I would suggest something like:\n\npublic static BGPMessageHeaderDecoder getBGPMessageHeaderDecoder() {\n        return new BGPMessageHeaderDecoder(MAX_FRAME_SIZE);\n    }\n\npublic static BGPMessageHeaderDecoder getExtendedBGPMessageHeaderDecoder() {\n        return new BGPMessageHeaderDecoder(EXTENDED_MAX_FRAME_SIZE);\n    }",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 5
       },
       "revId": "f6281962c0e8492597d9a1bdfb8d0ad4321b94a1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
