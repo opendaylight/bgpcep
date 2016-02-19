@@ -1,5 +1,5 @@
 module bgp-vpn-ipv4 {
-    namespace "urn:opendaylight:bgp-vpn-ipv4";
+    namespace "urn:opendaylight:params:xml:ns:yang:bgp-vpn-ipv4";
     prefix "bgp-vpn";
 
     import bgp-labeled-unicast { prefix bgp-lu; revision-date 2015-05-25; }
