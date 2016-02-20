@@ -26,6 +26,7 @@ import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPError;
+import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
@@ -60,6 +61,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     private static final Notification KEEP_ALIVE = new KeepaliveBuilder().build();
 
     private static final int KA_TO_DEADTIMER_RATIO = 3;
+
+    private static final String EXTENDED_MSG_DECODER = "EXTENDED_MSG_DECODER";
 
     static final String END_OF_INPUT = "End of input detected. Close the session.";
 
@@ -112,6 +115,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     private final Ipv4Address bgpId;
     private final BGPPeerRegistry peerRegistry;
     private final ChannelOutputLimiter limiter;
+    private final boolean enableExMess;
 
     private BGPSessionStats sessionStats;
 
@@ -132,6 +136,10 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         this.keepAlive = this.holdTimerValue / KA_TO_DEADTIMER_RATIO;
         this.asNumber = AsNumberUtil.advertizedAsNumber(remoteOpen);
         this.peerRegistry = peerRegistry;
+        this.enableExMess=BgpExtendedMessageUtil.advertizedBgpExtendedMessageCapability(remoteOpen);
+        if(this.enableExMess) {
+            this.channel.pipeline().replace(BGPMessageHeaderDecoder.getBGPMessageHeaderDecoder(),EXTENDED_MSG_DECODER ,BGPMessageHeaderDecoder.getExtendedBGPMessageHeaderDecoder());
+        }
 
         final Set<TablesKey> tts = Sets.newHashSet();
         final Set<BgpTableType> tats = Sets.newHashSet();
