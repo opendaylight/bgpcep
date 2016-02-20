@@ -41,4 +41,12 @@ public interface BGPSession extends AutoCloseable, ChannelInboundHandler {
      * @return Peer's AS Number
      */
     AsNumber getAsNumber();
+
+    /**
+     * Return the Enable Extended Message capability which the peer advertises.
+     *
+     * @return Peer's Enable Extended Message capability
+     */
+    public boolean isEnableExMess() ;
+
 }

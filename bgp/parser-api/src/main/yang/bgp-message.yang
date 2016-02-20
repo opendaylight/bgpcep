@@ -84,6 +84,9 @@ module bgp-message {
                             type inet:as-number;
                         }
                     }
+                    container bgp-extended-message-capability {
+                        reference "https://www.ietf.org/archive/id/draft-ietf-idr-bgp-extended-messages-11.txt";
+                    }
                 }
             }
         }

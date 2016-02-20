@@ -31,6 +31,6 @@ public class BGPHandlerFactory {
     }
 
     public ChannelHandler[] getDecoders() {
-        return new ChannelHandler[] { new BGPMessageHeaderDecoder(), new BGPByteToMessageDecoder(this.registry), };
+        return new ChannelHandler[] { BGPMessageHeaderDecoder.getBGPMessageHeaderDecoder(), new BGPByteToMessageDecoder(this.registry), };
     }
 }
