@@ -32,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.OptionalCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.BgpExtendedMessageCapabilityBuilder;
 
 public class StrictBGPPeerRegistryTest {
 
@@ -50,7 +51,8 @@ public class StrictBGPPeerRegistryTest {
         final List<BgpParameters> params = Lists.newArrayList(new BgpParametersBuilder()
             .setOptionalCapabilities(Lists.newArrayList(new OptionalCapabilitiesBuilder()
                 .setCParameters(new CParametersBuilder()
-                    .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(as).build()).build()).build())).build());
+                    .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(as).build())
+                    .setBgpExtendedMessageCapability(new BgpExtendedMessageCapabilityBuilder().build()).build()).build())).build());
         return new OpenBuilder().setBgpIdentifier(bgpId).setBgpParameters(params).build();
     }
 

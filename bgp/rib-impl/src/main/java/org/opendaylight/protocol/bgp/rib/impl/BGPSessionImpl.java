@@ -26,6 +26,7 @@ import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPError;
+import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
@@ -112,6 +113,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     private final Ipv4Address bgpId;
     private final BGPPeerRegistry peerRegistry;
     private final ChannelOutputLimiter limiter;
+    private final boolean enableExMess;
 
     private BGPSessionStats sessionStats;
 
@@ -132,6 +134,10 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         this.keepAlive = this.holdTimerValue / KA_TO_DEADTIMER_RATIO;
         this.asNumber = AsNumberUtil.advertizedAsNumber(remoteOpen);
         this.peerRegistry = peerRegistry;
+        this.enableExMess=BgpExtendedMessageUtil.advertizedBgpExtendedMessageCapability(remoteOpen);
+        if(this.enableExMess) {
+            this.channel.pipeline().addLast(BGPMessageHeaderDecoder.getExtendedBGPMessageHeaderDecoder());
+        }
 
         final Set<TablesKey> tts = Sets.newHashSet();
         final Set<BgpTableType> tats = Sets.newHashSet();
@@ -382,6 +388,11 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         return this.asNumber;
     }
 
+    @Override
+    public boolean isEnableExMess() {
+        return enableExMess;
+    }
+
     synchronized boolean isWritable() {
         return this.channel != null && this.channel.isWritable();
     }
@@ -432,4 +443,6 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     public final void handlerAdded(final ChannelHandlerContext ctx) {
         this.sessionUp();
     }
+
+
 }
