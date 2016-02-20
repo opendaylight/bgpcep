@@ -56,6 +56,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.OptionalCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.BgpExtendedMessageCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1Builder;
@@ -104,7 +105,8 @@ public class BGPSessionImplTest {
             new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
                 .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build())
                 .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build())
-                .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(AS_NUMBER).build()).build()).build()
+                .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(AS_NUMBER).build())
+                .setBgpExtendedMessageCapability(new BgpExtendedMessageCapabilityBuilder().build()).build()).build()
         );
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capa).build());
 
@@ -157,10 +159,12 @@ public class BGPSessionImplTest {
         assertEquals(BGPSessionImpl.State.UP.name(), state.getSessionState());
         assertEquals(BGP_ID.getValue(), state.getPeerPreferences().getAddress());
         assertEquals(AS_NUMBER.getValue(), state.getPeerPreferences().getAs());
+        assertEquals(true, state.getPeerPreferences().getBgpExtendedMessageCapability());
         assertEquals(BGP_ID.getValue(), state.getPeerPreferences().getBgpId());
         assertEquals(1, state.getPeerPreferences().getAdvertizedTableTypes().size());
         assertEquals(HOLD_TIMER, state.getPeerPreferences().getHoldtime().intValue());
         assertTrue(state.getPeerPreferences().getFourOctetAsCapability().booleanValue());
+        assertTrue(state.getPeerPreferences().getBgpExtendedMessageCapability().booleanValue());
         assertTrue(state.getPeerPreferences().getGrCapability());
         assertEquals(LOCAL_IP, state.getSpeakerPreferences().getAddress());
         assertEquals(LOCAL_PORT, state.getSpeakerPreferences().getPort().intValue());
