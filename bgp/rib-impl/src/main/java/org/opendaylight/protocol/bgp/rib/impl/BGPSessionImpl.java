@@ -26,6 +26,7 @@ import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPError;
+import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
@@ -60,6 +61,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     private static final Notification KEEP_ALIVE = new KeepaliveBuilder().build();
 
     private static final int KA_TO_DEADTIMER_RATIO = 3;
+
+    private static final String EXTENDED_MSG_DECODER = "EXTENDED_MSG_DECODER";
 
     static final String END_OF_INPUT = "End of input detected. Close the session.";
 
@@ -132,6 +135,10 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         this.keepAlive = this.holdTimerValue / KA_TO_DEADTIMER_RATIO;
         this.asNumber = AsNumberUtil.advertizedAsNumber(remoteOpen);
         this.peerRegistry = peerRegistry;
+        final boolean enableExMess = BgpExtendedMessageUtil.advertizedBgpExtendedMessageCapability(remoteOpen);
+        if (enableExMess) {
+            this.channel.pipeline().replace(BGPMessageHeaderDecoder.class, EXTENDED_MSG_DECODER, BGPMessageHeaderDecoder.getExtendedBGPMessageHeaderDecoder());
+        }
 
         final Set<TablesKey> tts = Sets.newHashSet();
         final Set<BgpTableType> tats = Sets.newHashSet();
@@ -179,7 +186,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     public synchronized void close() {
         if (this.state != State.IDLE && this.channel.isActive()) {
             this.writeAndFlush(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).setErrorSubcode(
-                BGPError.CEASE.getSubcode()).build());
+                    BGPError.CEASE.getSubcode()).build());
         }
         this.closeWithoutMessage();
     }
@@ -200,10 +207,10 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         } else if (msg instanceof Notify) {
             // Notifications are handled internally
             LOG.info("Session closed because Notification message received: {} / {}", ((Notify) msg).getErrorCode(),
-                ((Notify) msg).getErrorSubcode());
+                    ((Notify) msg).getErrorSubcode());
             this.closeWithoutMessage();
             this.listener.onSessionTerminated(this, new BGPTerminationReason(BGPError.forValue(((Notify) msg).getErrorCode(),
-                ((Notify) msg).getErrorSubcode())));
+                    ((Notify) msg).getErrorSubcode())));
             this.sessionStats.updateReceivedMsgErr((Notify) msg);
         } else if (msg instanceof Keepalive) {
             // Keepalives are handled internally
@@ -231,16 +238,16 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     @GuardedBy("this")
     private void writeEpilogue(final ChannelFuture future, final Notification msg) {
         future.addListener(
-            new ChannelFutureListener() {
-                @Override
-                public void operationComplete(final ChannelFuture f) {
-                    if (!f.isSuccess()) {
-                        LOG.warn("Failed to send message {} to socket {}", msg, f.cause(), BGPSessionImpl.this.channel);
-                    } else {
-                        LOG.trace("Message {} sent to socket {}", msg, BGPSessionImpl.this.channel);
+                new ChannelFutureListener() {
+                    @Override
+                    public void operationComplete(final ChannelFuture f) {
+                        if (!f.isSuccess()) {
+                            LOG.warn("Failed to send message {} to socket {}", msg, f.cause(), BGPSessionImpl.this.channel);
+                        } else {
+                            LOG.trace("Message {} sent to socket {}", msg, BGPSessionImpl.this.channel);
+                        }
                     }
-                }
-            });
+                });
         this.lastMessageSentAt = System.nanoTime();
         this.sessionStats.updateSentMsgTotal();
         if (msg instanceof Update) {
