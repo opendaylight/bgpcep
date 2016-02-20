@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
@@ -56,6 +57,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.OptionalCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.BgpExtendedMessageCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1Builder;
@@ -79,6 +81,9 @@ public class FSMTest {
     @Mock
     private ChannelPipeline pipeline;
 
+    @Mock
+    private ChannelHandler channelHandler;
+
     private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
 
     private final BgpTableType linkstatett = new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
@@ -100,7 +105,9 @@ public class FSMTest {
             new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
                 .setAfi(this.linkstatett.getAfi()).setSafi(this.linkstatett.getSafi()).build()).build()).build()).build());
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().setAs4BytesCapability(
-            new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(30L)).build()).build()).build());
+                new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(30L)).build()).build()).build());
+        capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().setBgpExtendedMessageCapability(
+                        new BgpExtendedMessageCapabilityBuilder().build()).build()).build());
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
             new CParameters1Builder().setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build()).build()).build());
 
@@ -127,6 +134,7 @@ public class FSMTest {
         doReturn(new InetSocketAddress(peerAddress, 179)).when(this.speakerListener).localAddress();
         doReturn(this.pipeline).when(this.speakerListener).pipeline();
         doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class), any(ChannelHandler.class));
+        doReturn(this.channelHandler).when(this.pipeline).replace(Matchers.<Class<ChannelHandler>>any(), any(String.class), any(ChannelHandler.class));
         doReturn(this.pipeline).when(this.pipeline).addLast(any(ChannelHandler.class));
         doReturn(mock(ChannelFuture.class)).when(this.speakerListener).close();
 
@@ -184,6 +192,8 @@ public class FSMTest {
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
             new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
                 .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build()).build()).build()).build());
+        capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().setBgpExtendedMessageCapability(
+                new BgpExtendedMessageCapabilityBuilder().build()).build()).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
         // Open Message without advertised four-octet AS Number capability
         this.clientSession.handleMessage(new OpenBuilder().setMyAsNumber(30).setHoldTimer(1).setVersion(
@@ -193,6 +203,27 @@ public class FSMTest {
         final Notification m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);
         assertEquals(BGPError.UNSUPPORTED_CAPABILITY, BGPError.forValue(((Notify) m).getErrorCode(), ((Notify) m).getErrorSubcode()));
         assertNotNull(((Notify) m).getData());
+    }
+
+    @Test
+    public void testBgpExtendedMessageCapability() {
+        this.clientSession.channelActive(null);
+        assertEquals(1, this.receivedMsgs.size());
+        assertTrue(this.receivedMsgs.get(0) instanceof Open);
+
+        final List<BgpParameters> tlvs = Lists.newArrayList();
+        final List<OptionalCapabilities> capas = Lists.newArrayList();
+        capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
+                new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                        .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build()).build()).build()).build());
+        capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().setAs4BytesCapability(
+                new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(30L)).build()).build()).build());
+        tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
+        this.clientSession.handleMessage(new OpenBuilder().setMyAsNumber(30).setHoldTimer(1).setVersion(
+                new ProtocolVersion((short) 4)).setBgpParameters(tlvs).setBgpIdentifier(new Ipv4Address("1.1.1.2")).build());
+        assertEquals(2, this.receivedMsgs.size());
+        assertTrue(this.receivedMsgs.get(1) instanceof Keepalive);
+
     }
 
     @Test

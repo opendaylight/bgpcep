@@ -182,6 +182,9 @@ final class BGPSessionStats {
                             pref.setGrCapability(cParam.getAugmentation(CParameters1.class).getGracefulRestartCapability() != null);
                             pref.setFourOctetAsCapability(cParam.getAs4BytesCapability() != null);
                             pref.setAddPathCapability(cParam.getAugmentation(CParameters1.class).getAddPathCapability() != null);
+                            if(cParam.getBgpExtendedMessageCapability()!=null) {
+                                pref.setBgpExtendedMessageCapability(true);
+                            }
                         }
                     }
                 }
@@ -214,6 +217,9 @@ final class BGPSessionStats {
                         cParam.getAugmentation(CParameters1.class).getGracefulRestartCapability() != null);
                     pref.setAddPathCapability(cParam.getAugmentation(CParameters1.class) != null &&
                         cParam.getAugmentation(CParameters1.class).getAddPathCapability() != null);
+                    if(cParam.getBgpExtendedMessageCapability()!=null) {
+                        pref.setBgpExtendedMessageCapability(true);
+                    }
                 }
 
             }
