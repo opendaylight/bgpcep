@@ -156,6 +156,7 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
             public AsNumber getAsNumber() {
                 return new AsNumber(AS);
             }
+
         });
     }
 }
