@@ -156,6 +156,13 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
             public AsNumber getAsNumber() {
                 return new AsNumber(AS);
             }
+
+            @Override
+            public boolean isEnableExMess() {
+                // TODO Auto-generated method stub
+                return true;
+            }
+
         });
     }
 }
