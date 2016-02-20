@@ -14,14 +14,16 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
  */
 public final class BGPMessageHeaderDecoder extends LengthFieldBasedFrameDecoder {
 
-    private static final int MAX_FRAME_SIZE = 4096;
-
     private static final int MARKER_SIZE = 16;
 
     /*
      * the length field represents the length of the whole message including the header
      */
     private static final int LENGTH_SIZE = 2;
+
+    private static final int MAX_FRAME_SIZE = 4096;
+
+    private static final int EXTENDED_MAX_FRAME_SIZE = 65535;
 
     /*
 
@@ -41,7 +43,18 @@ public final class BGPMessageHeaderDecoder extends LengthFieldBasedFrameDecoder 
 
      */
 
-    public BGPMessageHeaderDecoder() {
-        super(MAX_FRAME_SIZE, MARKER_SIZE, LENGTH_SIZE, -MARKER_SIZE - LENGTH_SIZE, 0);
+
+    private BGPMessageHeaderDecoder(final int maxFrameSize) {
+        super(maxFrameSize, MARKER_SIZE, LENGTH_SIZE, -MARKER_SIZE - LENGTH_SIZE, 0);
     }
+
+    public static BGPMessageHeaderDecoder getBGPMessageHeaderDecoder() {
+        return new BGPMessageHeaderDecoder(MAX_FRAME_SIZE);
+    }
+
+    public static BGPMessageHeaderDecoder getExtendedBGPMessageHeaderDecoder() {
+        return new BGPMessageHeaderDecoder(EXTENDED_MAX_FRAME_SIZE);
+    }
+
+
 }
