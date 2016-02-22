@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_ab7a7d21",
+        "filename": "distribution-karaf/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-22T08:26:39Z",
+      "side": 1,
+      "message": "Define version in properties.",
+      "range": {
+        "startLine": 92,
+        "startChar": 15,
+        "endLine": 92,
+        "endChar": 29
+      },
+      "revId": "7d442ac6b3a1cc242fec6963efb389e4a77bd5f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
