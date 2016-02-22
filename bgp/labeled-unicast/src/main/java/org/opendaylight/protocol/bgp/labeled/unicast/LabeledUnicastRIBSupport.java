@@ -24,7 +24,6 @@ import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.Label;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.LabeledUnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.bgp.rib.rib.loc.rib.tables.routes.LabeledUnicastRoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.labeled.unicast.LabelStack;
@@ -71,8 +70,8 @@ public final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
     private static final Logger LOG = LoggerFactory.getLogger(LabeledUnicastRIBSupport.class);
 
     private static final NodeIdentifier PREFIX_TYPE_NID = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "prefix").intern());
-    private static final NodeIdentifier LABEL_STACK_NID = NodeIdentifier.create(LabelStack.QNAME);
-    private static final NodeIdentifier LV_NID = NodeIdentifier.create(QName.create(Label.QNAME, "label-value"));
+    private static final NodeIdentifier LABEL_STACK_NID = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-stack").intern());
+    private static final NodeIdentifier LV_NID = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-value").intern());
 
     private static final QName ROUTE_KEY = QName.create(LabeledUnicastRoute.QNAME, "route-key").intern();
     private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
@@ -95,8 +94,8 @@ public final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
     private static final class DeleteRoute extends ApplyRoute {
         @Override
         void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base,
-                final NodeIdentifierWithPredicates routeKey,
-                final DataContainerNode<?> route, final ContainerNode attributes) {
+            final NodeIdentifierWithPredicates routeKey,
+            final DataContainerNode<?> route, final ContainerNode attributes) {
             tx.delete(LogicalDatastoreType.OPERATIONAL, base.node(routeKey));
         }
     }
@@ -104,8 +103,8 @@ public final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
     private final class PutRoute extends ApplyRoute {
         @Override
         void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base,
-                final NodeIdentifierWithPredicates routeKey,
-                final DataContainerNode<?> route, final ContainerNode attributes) {
+            final NodeIdentifierWithPredicates routeKey,
+            final DataContainerNode<?> route, final ContainerNode attributes) {
             // Build the DataContainer data
             final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = ImmutableNodes.mapEntryBuilder();
             b.withNodeIdentifier(routeKey);
@@ -182,20 +181,20 @@ public final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
 
     @Override
     protected void deleteDestinationRoutes(final DOMDataWriteTransaction tx,
-            final YangInstanceIdentifier tablePath, final ContainerNode destination,final NodeIdentifier routesNodeId) {
+        final YangInstanceIdentifier tablePath, final ContainerNode destination,final NodeIdentifier routesNodeId) {
         processDestination(tx, tablePath.node(routesNodeId), destination, null, DELETE_ROUTE);
     }
 
     @Override
     protected void putDestinationRoutes(final DOMDataWriteTransaction tx,
-            final YangInstanceIdentifier tablePath, final ContainerNode destination,
-            final ContainerNode attributes,final NodeIdentifier routesNodeId) {
+        final YangInstanceIdentifier tablePath, final ContainerNode destination,
+        final ContainerNode attributes,final NodeIdentifier routesNodeId) {
         processDestination(tx, tablePath.node(routesNodeId), destination, attributes, this.putRoute);
     }
 
     @Override
     protected MpReachNlri buildReach(final Collection<MapEntryNode> routes,
-            final CNextHop hop) {
+        final CNextHop hop) {
         final MpReachNlriBuilder mb = new MpReachNlriBuilder();
         mb.setAfi(this.afiType);
         mb.setSafi(LabeledUnicastSubsequentAddressFamily.class);
@@ -232,7 +231,7 @@ public final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
     private static CLabeledUnicastDestination extractCLabeledUnicastDestination(final DataContainerNode<? extends PathArgument> route) {
         final CLabeledUnicastDestinationBuilder builder = new CLabeledUnicastDestinationBuilder();
         builder.setPrefix(extractPrefix(route, PREFIX_TYPE_NID));
-        builder.setLabelStack(extractLabel(route));
+        builder.setLabelStack(extractLabel(route, LABEL_STACK_NID, LV_NID));
         return builder.build();
     }
 
@@ -250,15 +249,15 @@ public final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
         return null;
     }
 
-    public static List<LabelStack> extractLabel(final DataContainerNode<? extends PathArgument> route) {
+    public static List<LabelStack> extractLabel(final DataContainerNode<? extends PathArgument> route, final NodeIdentifier labelStackNid, final NodeIdentifier labelValueNid) {
         final List<LabelStack> labels = new ArrayList<>();
-        final Optional<DataContainerChild<? extends PathArgument, ?>> labelStacks = route.getChild(LABEL_STACK_NID);
+        final Optional<DataContainerChild<? extends PathArgument, ?>> labelStacks = route.getChild(labelStackNid);
         final LabelStackBuilder labelStackbuilder = new LabelStackBuilder();
         if (labelStacks.isPresent()) {
             for(final UnkeyedListEntryNode label : ((UnkeyedListNode)labelStacks.get()).getValue()) {
-                final Optional<DataContainerChild<? extends PathArgument, ?>> labelStack = label.getChild(LV_NID);
+                final Optional<DataContainerChild<? extends PathArgument, ?>> labelStack = label.getChild(labelValueNid);
                 if (labelStack.isPresent()) {
-                    labelStackbuilder.setLabelValue((MplsLabel) labelStack.get());
+                    labelStackbuilder.setLabelValue(new MplsLabel((Long) labelStack.get().getValue()));
                 }
             }
         }

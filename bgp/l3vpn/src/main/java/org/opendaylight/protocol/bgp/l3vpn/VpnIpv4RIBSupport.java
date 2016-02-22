@@ -31,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisher;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisherBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.bgp.rib.rib.loc.rib.tables.routes.VpnIpv4RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationVpnIpv4CaseBuilder;
@@ -75,6 +76,8 @@ final class VpnIpv4RIBSupport extends AbstractRIBSupport {
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(VpnIpv4Destination.QNAME);
     private static final NodeIdentifier ROUTE = NodeIdentifier.create(VpnIpv4Route.QNAME);
     private static final NodeIdentifier PREFIX_TYPE_NID = NodeIdentifier.create(QName.create(VpnIpv4Destination.QNAME, "prefix").intern());
+    private static final NodeIdentifier LABEL_STACK_NID = NodeIdentifier.create(QName.create(VpnIpv4Destination.QNAME, "label-stack").intern());
+    private static final NodeIdentifier LV_NID = NodeIdentifier.create(QName.create(VpnIpv4Destination.QNAME, "label-value").intern());
     private static final QName ROUTE_KEY = QName.create(VpnIpv4Route.QNAME, "route-key").intern();
 
     private static final NodeIdentifier RD_NID = NodeIdentifier.create(QName.create(VpnIpv4Destination.QNAME, "route-distinguisher").intern());;
@@ -162,10 +165,10 @@ final class VpnIpv4RIBSupport extends AbstractRIBSupport {
         }
     }
 
-    private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode labeledUnicast) {
+    private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode l3vpn) {
         final ByteBuf buffer = Unpooled.buffer();
 
-        final VpnIpv4Destination dest = extractVpnIpv4Destination(labeledUnicast);
+        final VpnIpv4Destination dest = extractVpnIpv4Destination(l3vpn);
         VpnIpv4NlriParser.serializeNlri(Collections.singletonList(dest), buffer);
         return new NodeIdentifierWithPredicates(VpnIpv4Route.QNAME, ROUTE_KEY, ByteArray.readAllBytes(buffer));
     }
@@ -218,14 +221,14 @@ final class VpnIpv4RIBSupport extends AbstractRIBSupport {
     private static VpnIpv4Destination extractVpnIpv4Destination(final DataContainerNode<? extends PathArgument> route) {
         final VpnIpv4DestinationBuilder builder = new VpnIpv4DestinationBuilder();
         builder.setPrefix(LabeledUnicastRIBSupport.extractPrefix(route, PREFIX_TYPE_NID));
-        builder.setLabelStack(LabeledUnicastRIBSupport.extractLabel(route));
+        builder.setLabelStack(LabeledUnicastRIBSupport.extractLabel(route, LABEL_STACK_NID, LV_NID));
         builder.setRouteDistinguisher(extractRouteDistinguisher(route));
         return builder.build();
     }
 
     private static RouteDistinguisher extractRouteDistinguisher(final DataContainerNode<? extends PathArgument> route) {
         if (route.getChild(RD_NID).isPresent()) {
-            return (RouteDistinguisher) route.getChild(RD_NID).get();
+            return RouteDistinguisherBuilder.getDefaultInstance((String) route.getChild(RD_NID).get().getValue());
         }
         return null;
     }
