@@ -69,6 +69,11 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-labeled-unicast</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <scope>provided</scope>
+         </dependency>
 
         <!-- test scope dependencies -->
         <dependency>

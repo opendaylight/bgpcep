@@ -203,6 +203,10 @@
       </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
+          <artifactId>bgp-l3vpn</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>${project.groupId}</groupId>
           <artifactId>bgp-inet</artifactId>
       </dependency>
       <dependency>
