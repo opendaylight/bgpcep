@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_4b913146",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/BgpExtendedMessageCapabilityHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-22T10:56:00Z",
+      "side": 1,
+      "message": "The capability\u0027s body length is 0, use empty buffer here.\n\nAlso, it would be great to have a simple unit test for this class.",
+      "range": {
+        "startLine": 34,
+        "startChar": 50,
+        "endLine": 34,
+        "endChar": 104
+      },
+      "revId": "031723b62df2e9b0779e4b2b20756b0e12a8ab0d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_ee2e538b",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-22T10:56:00Z",
+      "side": 1,
+      "message": "Replace \"default\" BGPMessageHeaderDecoder rather than adding another one.",
+      "range": {
+        "startLine": 139,
+        "startChar": 36,
+        "endLine": 139,
+        "endChar": 43
+      },
+      "revId": "031723b62df2e9b0779e4b2b20756b0e12a8ab0d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_4e281f86",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-22T10:56:00Z",
+      "side": 1,
+      "message": "Is this getter used somewhere (except of unit tests)? Do we really need it?",
+      "range": {
+        "startLine": 391,
+        "startChar": 0,
+        "endLine": 394,
+        "endChar": 5
+      },
+      "revId": "031723b62df2e9b0779e4b2b20756b0e12a8ab0d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_2e54bbfd",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionProposalImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-22T10:56:00Z",
+      "side": 1,
+      "message": "Should be a standalone entry in the capabilities list.",
+      "range": {
+        "startLine": 59,
+        "startChar": 69,
+        "endLine": 60,
+        "endChar": 66
+      },
+      "revId": "031723b62df2e9b0779e4b2b20756b0e12a8ab0d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_4e765fa5",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/StrictBGPPeerRegistry.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-22T10:56:00Z",
+      "side": 1,
+      "message": "I am wondering if this really needs to be done. I think we are logging an information about session preferences when session goes up.",
+      "range": {
+        "startLine": 199,
+        "startChar": 0,
+        "endLine": 207,
+        "endChar": 5
+      },
+      "revId": "031723b62df2e9b0779e4b2b20756b0e12a8ab0d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_ee5c931b",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImplTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-22T10:56:00Z",
+      "side": 1,
+      "message": "assertTrue",
+      "range": {
+        "startLine": 152,
+        "startChar": 8,
+        "endLine": 152,
+        "endChar": 20
+      },
+      "revId": "031723b62df2e9b0779e4b2b20756b0e12a8ab0d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
