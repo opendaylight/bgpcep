@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_de99707a",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/BgpExtendedMessageCapabilityHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-24T14:31:48Z",
+      "side": 1,
+      "message": "I think this is unnecessary check, does not make sense to me. The null checking is enough.",
+      "range": {
+        "startLine": 33,
+        "startChar": 39,
+        "endLine": 33,
+        "endChar": 78
+      },
+      "revId": "52d416e04590dae66208932d1e6ba995885264da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_9ea1a896",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/BgpExtendedMessageCapabilityHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-24T14:31:48Z",
+      "side": 1,
+      "message": "This function is not much helpful, in fact the input parameter is not used at all. Use empty buffer directly as an input argument when calling CapabilityUtil.formatCapability(...)",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 5
+      },
+      "revId": "52d416e04590dae66208932d1e6ba995885264da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_9ec88856",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-24T14:31:48Z",
+      "side": 1,
+      "message": "This will create another instance of a decoder and I guess it will not replace the exiting one, rather use BGPMessageHeaderDecoder.class as an input parameter.",
+      "range": {
+        "startLine": 141,
+        "startChar": 44,
+        "endLine": 141,
+        "endChar": 96
+      },
+      "revId": "52d416e04590dae66208932d1e6ba995885264da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_9e93685a",
+        "filename": "bgp/rib-mock/src/main/java/org/opendaylight/protocol/bgp/rib/mock/EventBusRegistration.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-24T14:31:48Z",
+      "side": 1,
+      "message": "Please remove, as the method declaration was removed from interface.",
+      "range": {
+        "startLine": 160,
+        "startChar": 0,
+        "endLine": 164,
+        "endChar": 13
+      },
+      "revId": "52d416e04590dae66208932d1e6ba995885264da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
