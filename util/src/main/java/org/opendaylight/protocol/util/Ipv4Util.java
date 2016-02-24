@@ -174,7 +174,7 @@ public final class Ipv4Util {
         final List<Ipv4Prefix> list = new ArrayList<>();
         int byteOffset = 0;
         while (byteOffset < bytes.length) {
-            final int bitLength = UnsignedBytes.toInt(ByteArray.subByte(bytes, byteOffset, 1)[0]);
+            final int bitLength = UnsignedBytes.toInt(bytes[byteOffset]);
             byteOffset += 1;
             // if length == 0, default route will be added
             if (bitLength == 0) {
