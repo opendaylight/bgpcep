@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_9d9d2dbf",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/PccTunnelManagerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2016-02-24T20:11:59Z",
+      "side": 1,
+      "message": "this is too bug, split it out into its own file",
+      "revId": "b89e8af38e1c5bd77f90fa98e79a6ec8622c3868",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_7da2e9fd",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/api/PccSession.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2016-02-24T20:11:59Z",
+      "side": 1,
+      "message": "wrong year",
+      "revId": "b89e8af38e1c5bd77f90fa98e79a6ec8622c3868",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_dda335fe",
+        "filename": "pcep/spi/src/main/java/org/opendaylight/protocol/pcep/spi/PCEPErrors.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2016-02-24T20:11:59Z",
+      "side": 1,
+      "message": "Split this out into a separate patch?",
+      "revId": "b89e8af38e1c5bd77f90fa98e79a6ec8622c3868",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
