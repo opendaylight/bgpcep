@@ -118,14 +118,14 @@ public final class ByteArray {
      */
     public static int bytesToInt(final byte[] bytes) {
         Preconditions.checkArgument(bytes.length <= Integer.SIZE / Byte.SIZE, "Cannot convert bytes to integer. Byte array too big.");
-        byte[] res = new byte[Integer.SIZE / Byte.SIZE];
+        final byte[] res;
         if (bytes.length != Integer.SIZE / Byte.SIZE) {
+            res = new byte[Integer.SIZE / Byte.SIZE];
             System.arraycopy(bytes, 0, res, Integer.SIZE / Byte.SIZE - bytes.length, bytes.length);
         } else {
             res = bytes;
         }
-        final ByteBuffer buff = ByteBuffer.wrap(res);
-        return buff.getInt();
+        return ByteBuffer.wrap(res).getInt();
     }
 
     /**
@@ -137,14 +137,14 @@ public final class ByteArray {
      */
     public static long bytesToLong(final byte[] bytes) {
         Preconditions.checkArgument(bytes.length <= Long.SIZE / Byte.SIZE, "Cannot convert bytes to long.Byte array too big.");
-        byte[] res = new byte[Long.SIZE / Byte.SIZE];
+        final byte[] res;
         if (bytes.length != Long.SIZE / Byte.SIZE) {
+            res = new byte[Long.SIZE / Byte.SIZE];
             System.arraycopy(bytes, 0, res, Long.SIZE / Byte.SIZE - bytes.length, bytes.length);
         } else {
             res = bytes;
         }
-        final ByteBuffer buff = ByteBuffer.wrap(res);
-        return buff.getLong();
+        return ByteBuffer.wrap(res).getLong();
     }
 
     /**
