@@ -17,6 +17,7 @@ import org.opendaylight.bgp.concepts.NextHopUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.protocol.bgp.parser.spi.NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
@@ -42,6 +43,7 @@ final class SimpleNlriRegistry implements NlriRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(SimpleNlriRegistry.class);
 
     private final ConcurrentMap<BgpTableType, NlriParser> handlers = new ConcurrentHashMap<>();
+    private final ConcurrentMap<BgpTableType, NlriParser> multiPathHandlers = new ConcurrentHashMap<>();
     private final ConcurrentMap<Class<? extends DataObject>, NlriSerializer> serializers = new ConcurrentHashMap<>();
     private final ConcurrentMap<BgpTableType, NextHopParserSerializer> nextHopParsers = new ConcurrentHashMap<>();
     private final ConcurrentMap<Class<? extends CNextHop>, NextHopParserSerializer> nextHopSerializers = new ConcurrentHashMap<>();
@@ -91,7 +93,7 @@ final class SimpleNlriRegistry implements NlriRegistry {
 
         if (cNextHopClass != null) {
             this.nextHopSerializers.put(cNextHopClass, nextHopSerializer);
-            for (Class<? extends CNextHop> cNextHop : cNextHopClassList) {
+            for (final Class<? extends CNextHop> cNextHop : cNextHopClassList) {
                 this.nextHopSerializers.put(cNextHop, nextHopSerializer);
             }
         }
@@ -105,10 +107,27 @@ final class SimpleNlriRegistry implements NlriRegistry {
                     SimpleNlriRegistry.this.nextHopParsers.remove(key);
                     if (cNextHopClass != null) {
                         SimpleNlriRegistry.this.nextHopSerializers.remove(cNextHopClass);
-                        for (Class<? extends CNextHop> cNextHop : cNextHopClassList) {
+                        for (final Class<? extends CNextHop> cNextHop : cNextHopClassList) {
                             SimpleNlriRegistry.this.nextHopSerializers.remove(cNextHop);
                         }
                     }
+                }
+            }
+        };
+    }
+
+    synchronized AutoCloseable registerMultiPathNlriParser(final Class<? extends AddressFamily> afi,
+            final Class<? extends SubsequentAddressFamily> safi, final NlriParser parser) {
+        final BgpTableType key = createKey(afi, safi);
+        final NlriParser prev = this.multiPathHandlers.get(key);
+        Preconditions.checkState(prev == null, "AFI/SAFI is already bound to parser " + prev);
+        this.multiPathHandlers.put(key, parser);
+        final Object lock = this;
+        return new AbstractRegistration() {
+            @Override
+            protected void removeRegistration() {
+                synchronized (lock) {
+                    SimpleNlriRegistry.this.multiPathHandlers.remove(key);
                 }
             }
         };
@@ -140,6 +159,25 @@ final class SimpleNlriRegistry implements NlriRegistry {
 
         final NlriParser parser = this.handlers.get(createKey(builder.getAfi(), builder.getSafi()));
         final ByteBuf nlri = buffer.slice();
+        parser.parseNlri(nlri, builder);
+        return builder.build();
+    }
+
+    @Override
+    public MpUnreachNlri parseMultiPathMpUnreach(final ByteBuf buffer, final MultiPathSupport multiPathSupport)
+            throws BGPParsingException {
+        final MpUnreachNlriBuilder builder = new MpUnreachNlriBuilder();
+        builder.setAfi(getAfi(buffer));
+        builder.setSafi(getSafi(buffer));
+
+        final ByteBuf nlri = buffer.slice();
+        final BgpTableType key = createKey(builder.getAfi(), builder.getSafi());
+        final NlriParser parser;
+        if (multiPathSupport != null && multiPathSupport.isTableTypeSupported(key)) {
+            parser = this.multiPathHandlers.get(key);
+        } else {
+            parser = this.handlers.get(key);
+        }
         parser.parseNlri(nlri, builder);
         return builder.build();
     }
@@ -184,14 +222,18 @@ final class SimpleNlriRegistry implements NlriRegistry {
 
     @Override
     public MpReachNlri parseMpReach(final ByteBuf buffer) throws BGPParsingException {
+        return parseMultiPathMpReach(buffer, null);
+    }
+
+    @Override
+    public MpReachNlri parseMultiPathMpReach(final ByteBuf buffer, final MultiPathSupport multiPathSupport)
+            throws BGPParsingException {
         final MpReachNlriBuilder builder = new MpReachNlriBuilder();
         final Class<? extends AddressFamily> afi = getAfi(buffer);
         final Class<? extends SubsequentAddressFamily> safi = getSafi(buffer);
         builder.setAfi(afi);
         builder.setSafi(safi);
-
         final BgpTableType key = createKey(builder.getAfi(), builder.getSafi());
-        final NlriParser parser = this.handlers.get(key);
 
         final int nextHopLength = buffer.readUnsignedByte();
         if (nextHopLength != 0) {
@@ -206,6 +248,12 @@ final class SimpleNlriRegistry implements NlriRegistry {
         buffer.skipBytes(RESERVED);
 
         final ByteBuf nlri = buffer.slice();
+        final NlriParser parser;
+        if (multiPathSupport != null && multiPathSupport.isTableTypeSupported(key)) {
+            parser = this.multiPathHandlers.get(key);
+        } else {
+            parser = this.handlers.get(key);
+        }
         parser.parseNlri(nlri, builder);
         return builder.build();
     }
