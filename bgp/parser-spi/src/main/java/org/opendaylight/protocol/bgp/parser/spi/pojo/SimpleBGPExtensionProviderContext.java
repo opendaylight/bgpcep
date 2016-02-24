@@ -166,4 +166,10 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
     public AutoCloseable registerExtendedCommunityParser(final int type, final int subtype, final ExtendedCommunityParser parser) {
         return this.getExtendedCommunityReistry().registerExtendedCommunityParser(type, subtype, parser);
     }
+
+    @Override
+    public AutoCloseable registerMultiPathNlriParser(final Class<? extends AddressFamily> afi,
+            final Class<? extends SubsequentAddressFamily> safi, final NlriParser parser) {
+        return this.getNlriRegistry().registerMultiPathNlriParser(afi, safi, parser);
+    }
 }

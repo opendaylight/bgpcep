@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.parser.spi;
 
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
-
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
@@ -51,6 +50,9 @@ public interface BGPExtensionProviderContext extends BGPExtensionConsumerContext
     AutoCloseable registerNlriParser(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily>
         safi, NlriParser parser, final NextHopParserSerializer nextHopHandler, final Class<? extends CNextHop> cNextHopClass,
                                      final Class<? extends CNextHop>... cNextHopClassList);
+
+    AutoCloseable registerMultiPathNlriParser(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi,
+            NlriParser parser);
 
     AutoCloseable registerNlriSerializer(Class<? extends DataObject> nlriClass, NlriSerializer serializer);
 
