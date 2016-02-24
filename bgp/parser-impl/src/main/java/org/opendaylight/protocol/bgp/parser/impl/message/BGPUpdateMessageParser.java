@@ -19,6 +19,7 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -57,37 +58,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
 
     @Override
     public Update parseMessageBody(final ByteBuf buffer, final int messageLength) throws BGPDocumentedException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Buffer cannot be null or empty.");
-
-        final UpdateBuilder builder = new UpdateBuilder();
-
-        final int withdrawnRoutesLength = buffer.readUnsignedShort();
-        if (withdrawnRoutesLength > 0) {
-            final List<Ipv4Prefix> withdrawnRoutes = Ipv4Util.prefixListForBytes(ByteArray.readBytes(buffer, withdrawnRoutesLength));
-            builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setWithdrawnRoutes(withdrawnRoutes).build());
-        }
-        final int totalPathAttrLength = buffer.readUnsignedShort();
-
-        if (withdrawnRoutesLength == 0 && totalPathAttrLength == 0) {
-            return builder.build();
-        }
-        if (totalPathAttrLength > 0) {
-            try {
-                final Attributes pathAttributes = this.reg.parseAttributes(buffer.readSlice(totalPathAttrLength));
-                builder.setAttributes(pathAttributes);
-            } catch (final BGPParsingException | RuntimeException e) {
-                // Catch everything else and turn it into a BGPDocumentedException
-                LOG.warn("Could not parse BGP attributes", e);
-                throw new BGPDocumentedException("Could not parse BGP attributes.", BGPError.MALFORMED_ATTR_LIST, e);
-            }
-        }
-        final List<Ipv4Prefix> nlri = Ipv4Util.prefixListForBytes(ByteArray.readAllBytes(buffer));
-        if (!nlri.isEmpty()) {
-            builder.setNlri(new NlriBuilder().setNlri(nlri).build());
-        }
-        final Update msg = builder.build();
-        LOG.debug("BGP Update message was parsed {}.", msg);
-        return msg;
+        return parseMessageBody(buffer, messageLength, null);
     }
 
     @Override
@@ -122,5 +93,42 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
             }
         }
         MessageUtil.formatMessage(TYPE, messageBody, bytes);
+    }
+
+    @Override
+    public Update parseMessageBody(final ByteBuf buffer, final int messageLength, final PeerSpecificParserConstraint constraint)
+            throws BGPDocumentedException {
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Buffer cannot be null or empty.");
+
+        final UpdateBuilder builder = new UpdateBuilder();
+
+        final int withdrawnRoutesLength = buffer.readUnsignedShort();
+        if (withdrawnRoutesLength > 0) {
+            // TODO handle NLRI with multiple paths - requires modified yang data model
+            final List<Ipv4Prefix> withdrawnRoutes = Ipv4Util.prefixListForBytes(ByteArray.readBytes(buffer, withdrawnRoutesLength));
+            builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setWithdrawnRoutes(withdrawnRoutes).build());
+        }
+        final int totalPathAttrLength = buffer.readUnsignedShort();
+
+        if (withdrawnRoutesLength == 0 && totalPathAttrLength == 0) {
+            return builder.build();
+        }
+        if (totalPathAttrLength > 0) {
+            try {
+                final Attributes attributes = this.reg.parseAttributes(buffer.readSlice(totalPathAttrLength), constraint);
+                builder.setAttributes(attributes);
+            } catch (final RuntimeException | BGPParsingException e) {
+                // Catch everything else and turn it into a BGPDocumentedException
+                throw new BGPDocumentedException("Could not parse BGP attributes.", BGPError.MALFORMED_ATTR_LIST, e);
+            }
+        }
+        final List<Ipv4Prefix> nlri = Ipv4Util.prefixListForBytes(ByteArray.readAllBytes(buffer));
+        if (!nlri.isEmpty()) {
+            // TODO handle NLRI with multiple paths - requires modified yang data model
+            builder.setNlri(new NlriBuilder().setNlri(nlri).build());
+        }
+        final Update msg = builder.build();
+        LOG.debug("BGP Update message was parsed {}.", msg);
+        return msg;
     }
 }
