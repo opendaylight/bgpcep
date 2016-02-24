@@ -14,8 +14,10 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,12 +29,16 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.PeerConstraint;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
@@ -46,6 +52,20 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class SimpleRegistryTest {
+
+    private static final MultiPathSupport ADD_PATH_SUPPORT = new MultiPathSupport() {
+        @Override
+        public boolean isTableTypeSupported(final BgpTableType tableType) {
+            return true;
+        }
+    };
+
+    private static final PeerSpecificParserConstraint CONSTRAINT = new PeerSpecificParserConstraint() {
+        @Override
+        public <T extends PeerConstraint> Optional<T> getPeerConstraint(final Class<T> peerConstraintType) {
+            return (Optional<T>) Optional.of(ADD_PATH_SUPPORT);
+        }
+    };
 
     protected BGPExtensionProviderContext ctx;
     private BgpTestActivator activator;
@@ -70,8 +90,9 @@ public class SimpleRegistryTest {
         };
         final ByteBuf byteAggregator = Unpooled.buffer(attributeBytes.length);
         attrReg.serializeAttribute(Mockito.mock(DataObject.class), byteAggregator);
-        attrReg.parseAttributes(Unpooled.wrappedBuffer(attributeBytes));
-        verify(this.activator.attrParser, times(1)).parseAttribute(Mockito.any(ByteBuf.class), Mockito.any(AttributesBuilder.class));
+        attrReg.parseAttributes(Unpooled.wrappedBuffer(attributeBytes), CONSTRAINT);
+        verify(this.activator.attrParser, times(1)).parseAttribute(Mockito.any(ByteBuf.class), Mockito.any(AttributesBuilder.class),
+                Mockito.any(PeerSpecificParserConstraint.class));
         verify(this.activator.attrSerializer, times(1)).serializeAttribute(Mockito.any(DataObject.class), Mockito.any(ByteBuf.class));
     }
 
@@ -116,8 +137,9 @@ public class SimpleRegistryTest {
 
         final ByteBuf buffer = Unpooled.buffer(msgBytes.length);
         msgRegistry.serializeMessage(msg, buffer);
-        msgRegistry.parseMessage(Unpooled.wrappedBuffer(msgBytes));
-        verify(this.activator.msgParser, times(1)).parseMessageBody(Mockito.any(ByteBuf.class), Mockito.anyInt());
+        msgRegistry.parseMessage(Unpooled.wrappedBuffer(msgBytes), CONSTRAINT);
+        verify(this.activator.msgParser, times(1)).parseMessageBody(Mockito.any(ByteBuf.class), Mockito.anyInt(),
+                Mockito.any(PeerSpecificParserConstraint.class));
         verify(this.activator.msgSerializer, times(1)).serializeMessage(Mockito.any(Notification.class), Mockito.any(ByteBuf.class));
     }
 
@@ -149,8 +171,8 @@ public class SimpleRegistryTest {
         final ByteBuf buffer = Unpooled.buffer(mpReachBytes.length);
         nlriReg.serializeMpReach(mpReach, buffer);
         assertArrayEquals(mpReachBytes, buffer.array());
-        assertEquals(mpReach, nlriReg.parseMpReach(Unpooled.wrappedBuffer(mpReachBytes)));
-        verify(this.activator.nlriParser, times(1)).parseNlri(Mockito.any(ByteBuf.class), Mockito.any(MpReachNlriBuilder.class));
+        assertEquals(mpReach, nlriReg.parseMpReach(Unpooled.wrappedBuffer(mpReachBytes), CONSTRAINT));
+        verify(this.activator.nlriParser, times(1)).parseNlri(Mockito.any(ByteBuf.class), Mockito.any(MpReachNlriBuilder.class), Mockito.any());
     }
 
     @Test
@@ -166,7 +188,7 @@ public class SimpleRegistryTest {
         final ByteBuf buffer = Unpooled.buffer(mpReachBytes.length);
         nlriReg.serializeMpReach(mpReach, buffer);
         assertArrayEquals(mpReachBytes, buffer.array());
-        assertEquals(mpReach, nlriReg.parseMpReach(Unpooled.wrappedBuffer(mpReachBytes)));
+        assertEquals(mpReach, nlriReg.parseMpReach(Unpooled.wrappedBuffer(mpReachBytes), CONSTRAINT));
     }
 
     @Test
@@ -182,7 +204,7 @@ public class SimpleRegistryTest {
         final ByteBuf buffer = Unpooled.buffer(mpReachBytes.length);
         nlriReg.serializeMpReach(mpReach, buffer);
         assertArrayEquals(mpReachBytes, buffer.array());
-        assertEquals(mpReach, nlriReg.parseMpReach(Unpooled.wrappedBuffer(mpReachBytes)));
+        assertEquals(mpReach, nlriReg.parseMpReach(Unpooled.wrappedBuffer(mpReachBytes), CONSTRAINT));
     }
 
     @Test
@@ -195,7 +217,7 @@ public class SimpleRegistryTest {
         final ByteBuf buffer = Unpooled.buffer(mpUnreachBytes.length);
         nlriReg.serializeMpUnReach(mpUnreach, buffer);
         assertArrayEquals(mpUnreachBytes, buffer.array());
-        assertEquals(mpUnreach, nlriReg.parseMpUnreach(Unpooled.wrappedBuffer(mpUnreachBytes)));
-        verify(this.activator.nlriParser, times(1)).parseNlri(Mockito.any(ByteBuf.class), Mockito.any(MpUnreachNlriBuilder.class));
+        assertEquals(mpUnreach, nlriReg.parseMpUnreach(Unpooled.wrappedBuffer(mpUnreachBytes), CONSTRAINT));
+        verify(this.activator.nlriParser, times(1)).parseNlri(Mockito.any(ByteBuf.class), Mockito.any(MpUnreachNlriBuilder.class), Mockito.any());
     }
 }

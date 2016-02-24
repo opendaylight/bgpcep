@@ -30,6 +30,7 @@ import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterParser;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -136,7 +137,8 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
     private void initMock() {
         MockitoAnnotations.initMocks(this);
         try {
-            Mockito.doNothing().when(this.attrParser).parseAttribute(Mockito.any(ByteBuf.class), Mockito.any(AttributesBuilder.class));
+            Mockito.doNothing().when(this.attrParser).parseAttribute(Mockito.any(ByteBuf.class), Mockito.any(AttributesBuilder.class),
+                    Mockito.any(PeerSpecificParserConstraint.class));
             Mockito.doReturn(EMPTY).when(this.attrParser).toString();
             Mockito.doNothing().when(this.attrSerializer).serializeAttribute(Mockito.any(DataObject.class), Mockito.any(ByteBuf.class));
             Mockito.doReturn(EMPTY).when(this.attrSerializer).toString();
@@ -151,14 +153,16 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
             Mockito.doNothing().when(this.capaSerializer).serializeCapability(Mockito.any(CParameters.class), Mockito.any(ByteBuf.class));
             Mockito.doReturn(EMPTY).when(this.capaSerializer).toString();
 
-            Mockito.doReturn(Mockito.mock(Notification.class)).when(this.msgParser).parseMessageBody(Mockito.any(ByteBuf.class), Mockito.anyInt());
+            Mockito.doReturn(Mockito.mock(Notification.class)).when(this.msgParser).parseMessageBody(Mockito.any(ByteBuf.class), Mockito.anyInt(),
+                    Mockito.any(PeerSpecificParserConstraint.class));
             Mockito.doReturn(EMPTY).when(this.msgParser).toString();
             Mockito.doNothing().when(this.msgSerializer).serializeMessage(Mockito.any(Notification.class), Mockito.any(ByteBuf.class));
             Mockito.doReturn(EMPTY).when(this.msgSerializer).toString();
 
-            Mockito.doNothing().when(this.nlriParser).parseNlri(Mockito.any(ByteBuf.class), Mockito.any(MpUnreachNlriBuilder.class));
-            Mockito.doNothing().when(this.nlriParser).parseNlri(Mockito.any(ByteBuf.class), Mockito.any(MpReachNlriBuilder.class));
+            Mockito.doNothing().when(this.nlriParser).parseNlri(Mockito.any(ByteBuf.class), Mockito.any(MpUnreachNlriBuilder.class), Mockito.any());
+            Mockito.doNothing().when(this.nlriParser).parseNlri(Mockito.any(ByteBuf.class), Mockito.any(MpReachNlriBuilder.class), Mockito.any());
             Mockito.doReturn(EMPTY).when(this.nlriParser).toString();
+
         } catch (BGPDocumentedException | BGPParsingException e) {
             Assert.fail();
         }

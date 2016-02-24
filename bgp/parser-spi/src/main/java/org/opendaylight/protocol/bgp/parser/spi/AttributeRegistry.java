@@ -8,14 +8,39 @@
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import io.netty.buffer.ByteBuf;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
+/**
+ *
+ */
 public interface AttributeRegistry {
 
-    Attributes parseAttributes(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException;
+    /**
+     * @deprecated Use {@link #parseAttributes(ByteBuf, PeerSpecificParserConstraint)}
+     */
+    @Deprecated
+    Attributes parseAttributes(ByteBuf buffer) throws BGPDocumentedException, BGPParsingException;
 
-    void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator);
+    /**
+     * Parse BGP Attribute from buffer.
+     * @param buffer Input buffer.
+     * @param constraints Peer specific constraint.
+     * @return Decoded BGP Attribute.
+     * @throws BGPDocumentedException
+     * @throws BGPParsingException
+     */
+    @Nonnull Attributes parseAttributes(@Nonnull ByteBuf buffer, @Nullable PeerSpecificParserConstraint constraints)
+            throws BGPDocumentedException, BGPParsingException;
+
+    /**
+     * Serialize BGP Attribute to buffer.
+     * @param attribute Input BGP Attribute.
+     * @param byteAggregator Output buffer.
+     */
+    void serializeAttribute(@Nonnull DataObject attribute, @Nonnull ByteBuf byteAggregator);
 }
