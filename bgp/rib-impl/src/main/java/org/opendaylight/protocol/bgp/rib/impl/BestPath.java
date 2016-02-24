@@ -14,24 +14,36 @@ import com.google.common.primitives.UnsignedInteger;
 import javax.annotation.Nonnull;
 
 final class BestPath {
-    private final UnsignedInteger routerId;
+    private final String key;
     private final BestPathState state;
+    private final int offsetPosition;
+    private final Long pathId;
+    private final String prefix;
+    private final UnsignedInteger bestRouterId;
 
-    BestPath(@Nonnull final UnsignedInteger routerId, @Nonnull final BestPathState state) {
-        this.routerId = Preconditions.checkNotNull(routerId);
+    BestPath(@Nonnull final BestPathState state, @Nonnull final String key, final int offsetPosition, final UnsignedInteger bestRouterId, final Long pathId, final String prefix) {
         this.state = Preconditions.checkNotNull(state);
+        this.key = Preconditions.checkNotNull(key);
+        this.offsetPosition = offsetPosition;
+        this.bestRouterId = bestRouterId;
+        this.pathId = pathId;
+        this.prefix = prefix;
     }
 
-    UnsignedInteger getRouterId() {
-        return this.routerId;
+    String getKey() {
+        return this.key;
     }
 
     BestPathState getState() {
         return this.state;
     }
 
+    int getOfssetPosition() {
+        return this.offsetPosition;
+    }
+
     private ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-        toStringHelper.add("routerId", this.routerId);
+        toStringHelper.add("key", this.key);
         toStringHelper.add("state", this.state);
         return toStringHelper;
     }
@@ -45,7 +57,7 @@ final class BestPath {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + this.routerId.hashCode();
+        result = prime * result + this.key.hashCode();
         result = prime * result + this.state.hashCode();
         return result;
     }
@@ -59,12 +71,27 @@ final class BestPath {
             return false;
         }
         final BestPath other = (BestPath) obj;
-        if (!this.routerId.equals(other.routerId)) {
+        if (!this.key.equals(other.key)) {
             return false;
         }
         if (!this.state.equals(other.state)) {
             return false;
         }
+        if (!(this.offsetPosition == other.offsetPosition)) {
+            return false;
+        }
         return true;
+    }
+
+    Long getPathId() {
+        return this.pathId;
+    }
+
+    String getPrefix() {
+        return prefix;
+    }
+
+    UnsignedInteger getBestRouterId(){
+        return this.bestRouterId;
     }
 }

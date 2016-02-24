@@ -32,13 +32,18 @@ final class BestPathSelector {
     private final Long ourAs;
     private UnsignedInteger bestOriginatorId = null;
     private UnsignedInteger bestRouterId = null;
+    private String bestRouterKey = null;
     private BestPathState bestState = null;
+    private int bestOfssetPosition;
+    private Long pathId;
+    private String prefix;
 
     BestPathSelector(final Long ourAs) {
         this.ourAs = Preconditions.checkNotNull(ourAs);
     }
 
-    void processPath(final UnsignedInteger routerId, final ContainerNode attrs) {
+    void processPath(final UnsignedInteger routerId, final ContainerNode attrs, final String key, final int offsetPosition,
+        final Long pathId, final String prefix) {
         Preconditions.checkNotNull(routerId, "Router ID may not be null");
 
         // Consider only non-null attributes
@@ -65,12 +70,17 @@ final class BestPathSelector {
                 this.bestOriginatorId = originatorId;
                 this.bestRouterId = routerId;
                 this.bestState = state;
+                this.bestRouterKey = key;
+                this.bestOfssetPosition = offsetPosition;
+                this.pathId = pathId;
+                this.prefix = prefix;
             }
         }
     }
 
     BestPath result() {
-        return this.bestRouterId == null ? null : new BestPath(this.bestRouterId, this.bestState);
+        return this.bestRouterId == null ? null : new BestPath(this.bestState, this.bestRouterKey, this.bestOfssetPosition, this.bestRouterId,
+            this.pathId, this.prefix);
     }
 
     /**

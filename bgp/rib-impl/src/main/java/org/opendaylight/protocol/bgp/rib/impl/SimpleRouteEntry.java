@@ -16,15 +16,16 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContaine
 
 final class SimpleRouteEntry extends AbstractRouteEntry {
     @Override
-    boolean removeRoute(UnsignedInteger routerId) {
-        return removeRoute(routerId, getOffsets().offsetOf(routerId));
+    boolean removeRoute(UnsignedInteger routerId, final String prefix) {
+        String key = generateKey(routerId.toString(), prefix);
+        return removeRoute(key, getOffsets().offsetOf(key));
     }
 
     @Override
-    protected MapEntryNode createValue(final PathArgument routeId) {
+    protected MapEntryNode createValue(final PathArgument routeId, final BestPath path) {
         final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = Builders.mapEntryBuilder();
         b.withNodeIdentifier((NodeIdentifierWithPredicates) routeId);
-        b.addChild(attributes());
+        b.addChild(path.getState().getAttributes());
         return b.build();
     }
 }
