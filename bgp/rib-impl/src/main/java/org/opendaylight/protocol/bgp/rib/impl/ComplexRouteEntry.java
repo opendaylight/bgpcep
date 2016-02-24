@@ -18,9 +18,9 @@ final class ComplexRouteEntry extends AbstractRouteEntry {
     private MapEntryNode[] values = EMPTY_VALUES;
 
     @Override
-    protected int addRoute(final UnsignedInteger routerId, final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
+    protected int addRoute(final UnsignedInteger routerId, final String prefix, final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
         final OffsetMap oldMap = getOffsets();
-        final int offset = super.addRoute(routerId, attributesIdentifier, data);
+        final int offset = super.addRoute(routerId, prefix, attributesIdentifier, data);
         final OffsetMap newMap = getOffsets();
 
         if (!newMap.equals(oldMap)) {
@@ -32,17 +32,18 @@ final class ComplexRouteEntry extends AbstractRouteEntry {
     }
 
     @Override
-    protected MapEntryNode createValue(final PathArgument routeId) {
+    protected MapEntryNode createValue(final PathArgument routeId, final BestPath path) {
         final OffsetMap map = getOffsets();
-        final int offset = map.offsetOf(getBestRouterId());
+        final int offset = map.offsetOf(path.getKey());
         return map.getValue(this.values, offset);
     }
 
     @Override
-    boolean removeRoute(final UnsignedInteger routerId) {
+    boolean removeRoute(final UnsignedInteger routerId, final String prefix) {
+        final String key = generateKey(routerId.toString(), prefix);
         final OffsetMap map = getOffsets();
-        final int offset = map.offsetOf(routerId);
-        final boolean ret = removeRoute(routerId, offset);
+        final int offset = map.offsetOf(key);
+        final boolean ret = removeRoute(key, offset);
         this.values = map.removeValue(this.values, offset);
         return ret;
     }

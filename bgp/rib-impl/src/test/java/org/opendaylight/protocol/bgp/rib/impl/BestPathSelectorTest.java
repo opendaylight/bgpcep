@@ -40,13 +40,18 @@ public class BestPathSelectorTest {
     private final QName multiExitDiscQName = QName.create(ATTRS_EXTENSION_Q, "multi-exit-disc");
     private final QName originQName = QName.create(ATTRS_EXTENSION_Q, "origin");
     private final QName asPathQName = QName.create(ATTRS_EXTENSION_Q, "as-path");
-    private final UnsignedInteger ROUTER_ID = RouterIds.routerIdForAddress("127.0.0.1");
     private final UnsignedInteger ROUTER_ID2 = RouterIds.routerIdForPeerId(new PeerId("bgp://127.0.0.1"));
     private final UnsignedInteger ROUTER_ID3 = RouterIds.routerIdForPeerId(new PeerId("bgp://127.0.0.2"));
     private final BestPathState state = new BestPathState(createStateFromPrefMedOriginASPath());
-    private final BestPath originBestPath = new BestPath(this.ROUTER_ID, this.state);
+    private final String KEY = "testKey";
+    private final int BEST_OFFSET_POSITON = 0;
+    private final Long BEST_PATH_ID = Long.valueOf(1);
+    private final String PREFIX = "127.0.1.1/32";
+    private final UnsignedInteger BEST_ROUTER_ID = UnsignedInteger.ONE;
+    private final BestPath originBestPath = new BestPath(this.state, KEY, BEST_OFFSET_POSITON, BEST_ROUTER_ID, BEST_PATH_ID, PREFIX);
     private final BestPathSelector selector = new BestPathSelector(20L);
     private DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder;
+
 
     static final QName AS_NUMBER_Q = QName.create(ATTRS_EXTENSION_Q, "as-number");
     static final NodeIdentifier SEGMENTS_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, Segments.QNAME.getLocalName()));
@@ -75,10 +80,10 @@ public class BestPathSelectorTest {
 
     @Test
     public void testBestPathForEquality() {
-        this.selector.processPath(this.ROUTER_ID2, createStateFromPrefMedOriginASPath());
+        this.selector.processPath(this.ROUTER_ID2, createStateFromPrefMedOriginASPath(), KEY, BEST_OFFSET_POSITON, BEST_PATH_ID, PREFIX);
         final BestPath processedPath = this.selector.result();
 
-        assertEquals(this.originBestPath.getRouterId(), processedPath.getRouterId());
+        assertEquals(this.originBestPath.getKey(), processedPath.getKey());
         assertEquals(this.originBestPath.getState().getLocalPref(), processedPath.getState().getLocalPref());
         assertEquals(this.originBestPath.getState().getMultiExitDisc(), processedPath.getState().getMultiExitDisc());
         assertEquals(this.originBestPath.getState().getOrigin(), processedPath.getState().getOrigin());
@@ -88,33 +93,33 @@ public class BestPathSelectorTest {
 
     @Test
     public void testBestPathWithHigherLocalPref() {
-        this.selector.processPath(this.ROUTER_ID2, createStateFromPrefMedOrigin());   // local-pref 123
+        this.selector.processPath(this.ROUTER_ID2, createStateFromPrefMedOrigin(), KEY, BEST_OFFSET_POSITON, BEST_PATH_ID, PREFIX);   // local-pref 123
         BestPath processedPath = this.selector.result();
         assertEquals(123L, processedPath.getState().getLocalPref().longValue());
 
-        this.selector.processPath(this.ROUTER_ID2, createStateFromPrefMedOriginASPath());   // local-pref 321
+        this.selector.processPath(this.ROUTER_ID2, createStateFromPrefMedOriginASPath(), KEY, BEST_OFFSET_POSITON, BEST_PATH_ID, PREFIX);   // local-pref 321
         processedPath = this.selector.result();
         assertEquals(321L, processedPath.getState().getLocalPref().longValue());
 
         addLowerLocalRef(); // prefer path with higher LOCAL_PREF
-        this.selector.processPath(this.ROUTER_ID2, this.dataContBuilder.build());
+        this.selector.processPath(this.ROUTER_ID2, this.dataContBuilder.build(), KEY, BEST_OFFSET_POSITON, BEST_PATH_ID, PREFIX);
         processedPath = this.selector.result();
         assertEquals(321L, processedPath.getState().getLocalPref().longValue());
     }
 
     @Test
     public void testBestPathSelectionOptions() {
-        this.selector.processPath(this.ROUTER_ID2, createStateFromPrefMedOriginASPath());
+        this.selector.processPath(this.ROUTER_ID2, createStateFromPrefMedOriginASPath(), KEY, BEST_OFFSET_POSITON, BEST_PATH_ID, PREFIX);
         BestPath processedPath = this.selector.result();
         assertEquals(1, processedPath.getState().getOrigin().getIntValue());
 
         addIgpOrigin(); // prefer the path with the lowest origin type
-        this.selector.processPath(this.ROUTER_ID2, this.dataContBuilder.build());
+        this.selector.processPath(this.ROUTER_ID2, this.dataContBuilder.build(), KEY, BEST_OFFSET_POSITON, BEST_PATH_ID, PREFIX);
         processedPath = this.selector.result();
         assertEquals(0, processedPath.getState().getOrigin().getIntValue());
 
         addEgpOrigin();
-        this.selector.processPath(this.ROUTER_ID2, this.dataContBuilder.build());
+        this.selector.processPath(this.ROUTER_ID2, this.dataContBuilder.build(), KEY, BEST_OFFSET_POSITON, BEST_PATH_ID, PREFIX);
         processedPath = this.selector.result();
         assertEquals(0, processedPath.getState().getOrigin().getIntValue());
 
@@ -122,12 +127,12 @@ public class BestPathSelectorTest {
         assertEquals(4321L, (long) processedPath.getState().getMultiExitDisc());
         addIgpOrigin();
         addLowerMultiExitDisc();
-        this.selector.processPath(this.ROUTER_ID2, this.dataContBuilder.build());
+        this.selector.processPath(this.ROUTER_ID2, this.dataContBuilder.build(), KEY, BEST_OFFSET_POSITON, BEST_PATH_ID, PREFIX);
         processedPath = this.selector.result();
         assertEquals(1234L, (long) processedPath.getState().getMultiExitDisc());
 
         addHigherMultiExitDisc();
-        this.selector.processPath(this.ROUTER_ID2, this.dataContBuilder.build());
+        this.selector.processPath(this.ROUTER_ID2, this.dataContBuilder.build(), KEY, BEST_OFFSET_POSITON, BEST_PATH_ID, PREFIX);
         processedPath = this.selector.result();
         assertEquals(1234L, (long) processedPath.getState().getMultiExitDisc());
 
@@ -135,7 +140,7 @@ public class BestPathSelectorTest {
         addAsPath(SEQ_SEGMENT2);
         assertEquals(1L, (long) processedPath.getState().getPeerAs());
         assertEquals(3, processedPath.getState().getAsPathLength());
-        this.selector.processPath(this.ROUTER_ID2, this.dataContBuilder.build());
+        this.selector.processPath(this.ROUTER_ID2, this.dataContBuilder.build(), KEY, BEST_OFFSET_POSITON, BEST_PATH_ID, PREFIX);
         processedPath = this.selector.result();
         assertEquals(1L, (long) processedPath.getState().getPeerAs());
         assertEquals(3, processedPath.getState().getAsPathLength());
@@ -143,10 +148,10 @@ public class BestPathSelectorTest {
 
     @Test
     public void testBestPathForNonEquality() {
-        this.selector.processPath(this.ROUTER_ID3, createStateFromPrefMedOrigin());
+        this.selector.processPath(this.ROUTER_ID3, createStateFromPrefMedOrigin(), KEY, BEST_OFFSET_POSITON, BEST_PATH_ID, PREFIX);
         final BestPath processedPath = this.selector.result();
 
-        assertNotEquals(this.originBestPath.getRouterId(), processedPath.getRouterId());
+        assertNotEquals(this.originBestPath.getKey(), processedPath.getKey());
         assertNotEquals(this.originBestPath.getState().getLocalPref(), processedPath.getState().getLocalPref());
         assertNotEquals(this.originBestPath.getState().getMultiExitDisc(), processedPath.getState().getMultiExitDisc());
         assertNotEquals(this.originBestPath.getState().getOrigin(), processedPath.getState().getOrigin());
@@ -244,12 +249,12 @@ public class BestPathSelectorTest {
     @Test(expected=IllegalArgumentException.class)
     public void testBgpOrigin() {
         final ContainerNode containerIncom = this.dataContBuilder.addChild(createContBuilder(this.originQName).addChild(createValueBuilder("incomplete", this.originQName, "value").build()).build()).build();
-        this.selector.processPath(this.ROUTER_ID3, containerIncom);
+        this.selector.processPath(this.ROUTER_ID3, containerIncom, KEY, BEST_OFFSET_POSITON, BEST_PATH_ID, PREFIX);
         final BestPath processedPathIncom = this.selector.result();
         assertEquals(BgpOrigin.Incomplete, processedPathIncom.getState().getOrigin());
 
         final ContainerNode containerException = this.dataContBuilder.addChild(createContBuilder(this.originQName).addChild(createValueBuilder("LOL", this.originQName, "value").build()).build()).build();
-        this.selector.processPath(this.ROUTER_ID3, containerException);
+        this.selector.processPath(this.ROUTER_ID3, containerException, KEY, BEST_OFFSET_POSITON, BEST_PATH_ID, PREFIX);
         final BestPath processedPathException = this.selector.result();
         processedPathException.getState().getOrigin();
     }

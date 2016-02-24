@@ -13,12 +13,13 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
-import com.google.common.primitives.UnsignedInteger;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,66 +33,63 @@ import org.slf4j.LoggerFactory;
  */
 final class OffsetMap {
     private static final Logger LOG = LoggerFactory.getLogger(OffsetMap.class);
-    static final OffsetMap EMPTY = new OffsetMap(Collections.<UnsignedInteger>emptySet());
-    private static final LoadingCache<Set<UnsignedInteger>, OffsetMap> OFFSETMAPS = CacheBuilder.newBuilder().weakValues().build(new CacheLoader<Set<UnsignedInteger>, OffsetMap>() {
+    static final OffsetMap EMPTY = new OffsetMap(Collections.<String>emptySet());
+    private static final LoadingCache<Set<String>, OffsetMap> OFFSETMAPS = CacheBuilder.newBuilder().weakValues().build(new CacheLoader<Set<String>, OffsetMap>() {
         @Override
-        public OffsetMap load(final Set<UnsignedInteger> key) throws Exception {
+        public OffsetMap load(final Set<String> key) throws Exception {
             return new OffsetMap(key);
         }
     });
-    private static final Comparator<UnsignedInteger> IPV4_COMPARATOR = new Comparator<UnsignedInteger>() {
-        @Override
-        public int compare(final UnsignedInteger o1, final UnsignedInteger o2) {
-            return o1.compareTo(o2);
-        }
-    };
-    private final UnsignedInteger[] routerIds;
+    private static final Comparator<String> IPV4_COMPARATOR = (o1, o2) -> o1.compareTo(o2);
+    private final String[] routeKeys;
 
-    private OffsetMap(final Set<UnsignedInteger> routerIds) {
-        final UnsignedInteger[] array = routerIds.toArray(new UnsignedInteger[0]);
-        Arrays.sort(array, IPV4_COMPARATOR);
-        this.routerIds = array;
+    private OffsetMap(final Set<String> routerIds) {
+        this.routeKeys = routerIds.size() < 1 ? new String[0] : routerIds.stream().sorted(IPV4_COMPARATOR).toArray(String[]::new);
     }
 
-    UnsignedInteger getRouterId(final int offset) {
+    public List<String> getRouteKeysList(){
+        return Arrays.stream(this.routeKeys).collect(Collectors.toList());
+    }
+
+    String getRouterKey(final int offset) {
         Preconditions.checkArgument(offset >= 0);
-        return this.routerIds[offset];
+        return this.routeKeys[offset];
     }
 
-    int offsetOf(final UnsignedInteger routerId) {
-        return Arrays.binarySearch(this.routerIds, routerId, IPV4_COMPARATOR);
+    int offsetOf(final String key)
+    {
+        return Arrays.binarySearch(this.routeKeys, key, IPV4_COMPARATOR);
     }
 
     int size() {
-        return this.routerIds.length;
+        return this.routeKeys.length;
     }
 
-    OffsetMap with(final UnsignedInteger routerId) {
+    OffsetMap with(final String key) {
         // TODO: we could make this faster if we had an array-backed Set and requiring
         //       the caller to give us the result of offsetOf() -- as that indicates
         //       where to insert the new routerId while maintaining the sorted nature
         //       of the array
-        final Builder<UnsignedInteger> b = ImmutableSet.builder();
-        b.add(this.routerIds);
-        b.add(routerId);
+        final Builder<String> b = ImmutableSet.builder();
+        b.add(this.routeKeys);
+        b.add(key);
 
         return OFFSETMAPS.getUnchecked(b.build());
     }
 
-    OffsetMap without(final UnsignedInteger routerId) {
-        final Builder<UnsignedInteger> b = ImmutableSet.builder();
-        int index = indexOfRouterId(routerId);
+    OffsetMap without(final String key) {
+        final Builder<String> b = ImmutableSet.builder();
+        int index = indexOfRouterId(key);
         if (index < 0) {
-            LOG.trace("RouterId not found", routerId);
+            LOG.trace("Router key not found", key);
         }
-        b.add(removeValue(this.routerIds, index));
+        b.add(removeValue(this.routeKeys, index));
         return OFFSETMAPS.getUnchecked(b.build());
     }
 
-    private int indexOfRouterId(final UnsignedInteger routerId) {
-        final int startIndex = 0;
-        for (int i = startIndex; i < this.routerIds.length; i++) {
-            if (routerId.equals(this.routerIds[i])) {
+    private int indexOfRouterId(final String key) {
+        for (int i = 0; i < this.routeKeys.length; i++) {
+            if (key.equals(this.routeKeys[i])) {
                 return i;
             }
         }
@@ -100,20 +98,20 @@ final class OffsetMap {
 
     <T> T getValue(final T[] array, final int offset) {
         Preconditions.checkArgument(offset >= 0, "Invalid negative offset %s", offset);
-        Preconditions.checkArgument(offset < routerIds.length, "Invalid offset %s for %s router IDs", offset, routerIds.length);
+        Preconditions.checkArgument(offset < routeKeys.length, "Invalid offset %s for %s router IDs", offset, routeKeys.length);
         return array[offset];
     }
 
     <T> void setValue(final T[] array, final int offset, final T value) {
         Preconditions.checkArgument(offset >= 0, "Invalid negative offset %s", offset);
-        Preconditions.checkArgument(offset < routerIds.length, "Invalid offset %s for %s router IDs", offset, routerIds.length);
+        Preconditions.checkArgument(offset < routeKeys.length, "Invalid offset %s for %s router IDs", offset, routeKeys.length);
         array[offset] = value;
     }
 
     <T> T[] expand(final OffsetMap oldOffsets, final T[] oldArray, final int offset) {
         @SuppressWarnings("unchecked")
-        final T[] ret = (T[]) Array.newInstance(oldArray.getClass().getComponentType(), this.routerIds.length);
-        final int oldSize = oldOffsets.routerIds.length;
+        final T[] ret = (T[]) Array.newInstance(oldArray.getClass().getComponentType(), this.routeKeys.length);
+        final int oldSize = oldOffsets.routeKeys.length;
 
         System.arraycopy(oldArray, 0, ret, 0, offset);
         System.arraycopy(oldArray, offset, ret, offset + 1, oldSize - offset);
@@ -124,7 +122,7 @@ final class OffsetMap {
     <T> T[] removeValue(final T[] oldArray, final int offset) {
         final int length = oldArray.length;
         Preconditions.checkArgument(offset >= 0, "Invalid negative offset %s", offset);
-        Preconditions.checkArgument(offset < routerIds.length, "Invalid offset %s for %s router IDs", offset, length);
+        Preconditions.checkArgument(offset < routeKeys.length, "Invalid offset %s for %s router IDs", offset, length);
 
         final T[] ret = (T[]) Array.newInstance(oldArray.getClass().getComponentType(), length - 1);
         System.arraycopy(oldArray, 0, ret, 0, offset);
