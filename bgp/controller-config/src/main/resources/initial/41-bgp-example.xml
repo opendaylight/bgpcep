@@ -119,6 +119,8 @@
                     <bgp-rib-id>192.0.2.2</bgp-rib-id>
                     <!-- if cluster-id is not present, it's value is the same as bgp-id -->
                     <!-- <cluster-id>192.0.2.3</cluster-id> -->
+                    <!--  N-Best Paths by default 1, 0 represents all routes, different value represents N-->
+                    <!-- <n-best-paths>0</n-best-paths> -->
                     <local-table>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
                         <name>ipv4-unicast</name>
