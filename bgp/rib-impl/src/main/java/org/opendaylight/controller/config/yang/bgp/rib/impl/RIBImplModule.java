@@ -69,7 +69,7 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
         final RIBImpl rib = new RIBImpl(getRibId(), asNumber, getBgpRibId(), getClusterId(), getExtensionsDependency(),
             getBgpDispatcherDependency(), getTcpReconnectStrategyDependency(), getCodecTreeFactoryDependency(), getSessionReconnectStrategyDependency(),
             getDataProviderDependency(), getDomDataProviderDependency(), getLocalTableDependency(), classLoadingStrategy(),
-            new RIBImplModuleTracker(getGlobalWriter()), getOpenconfigProviderDependency());
+            new RIBImplModuleTracker(getGlobalWriter()), getOpenconfigProviderDependency(), getNBestPaths());
         registerSchemaContextListener(rib);
         return rib;
     }

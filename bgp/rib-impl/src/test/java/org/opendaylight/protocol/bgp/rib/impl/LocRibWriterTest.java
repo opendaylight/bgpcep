@@ -77,6 +77,8 @@ public class LocRibWriterTest {
 
     private LocRibWriter locRibWriter;
 
+    private final Long nBestPaths = Long.valueOf(1);
+
     private final List<YangInstanceIdentifier> routes = new ArrayList<>();
     private final TablesKey tablesKey = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
 
@@ -121,7 +123,7 @@ public class LocRibWriterTest {
         Mockito.doReturn(null).when(this.service).registerDataTreeChangeListener(Mockito.any(DOMDataTreeIdentifier.class), Mockito.any(DOMDataTreeChangeListener.class));
         Mockito.doReturn(Builders.choiceBuilder().withNodeIdentifier(new NodeIdentifier(Routes.QNAME)).addChild(Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(Ipv4Routes.QNAME)).withChild(ImmutableNodes.mapNodeBuilder(Ipv4Route.QNAME).build()).build()).build()).when(this.ribSupport).emptyRoutes();
         this.locRibWriter = LocRibWriter.create(this.registry, this.tablesKey, this.chain, YangInstanceIdentifier.of(BgpRib.QNAME),
-            new AsNumber((long) 35), this.service, this.pd, new CacheDisconnectedPeersImpl());
+            new AsNumber((long) 35), this.service, this.pd, new CacheDisconnectedPeersImpl(), nBestPaths);
     }
 
     private DataTreeCandidate prepareUpdate() {

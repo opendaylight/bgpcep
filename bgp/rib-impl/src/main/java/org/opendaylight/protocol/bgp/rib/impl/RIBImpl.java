@@ -107,11 +107,13 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final BGPConfigModuleTracker configModuleTracker;
     private final BGPOpenConfigProvider openConfigProvider;
     private final CacheDisconnectedPeers cacheDisconnectedPeers;
+    private final Long nBestPaths;
 
     public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final Ipv4Address clusterId, final RIBExtensionConsumerContext extensions,
         final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory, final BindingCodecTreeFactory codecFactory,
         final ReconnectStrategyFactory sessionStrategyFactory, final DataBroker dps, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
-        final GeneratedClassLoadingStrategy classStrategy, final BGPConfigModuleTracker moduleTracker, final BGPOpenConfigProvider openConfigProvider) {
+        final GeneratedClassLoadingStrategy classStrategy, final BGPConfigModuleTracker moduleTracker, final BGPOpenConfigProvider openConfigProvider,
+        final Long nBestPaths) {
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))));
         this.domChain = domDataBroker.createTransactionChain(this);
         this.localAs = Preconditions.checkNotNull(localAs);
@@ -131,6 +133,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.configModuleTracker = moduleTracker;
         this.openConfigProvider = openConfigProvider;
         this.cacheDisconnectedPeers = new CacheDisconnectedPeersImpl();
+        this.nBestPaths = nBestPaths;
 
         LOG.debug("Instantiating RIB table {} at {}", ribId, this.yangRibId);
 
@@ -180,9 +183,9 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final Ipv4Address clusterId, final RIBExtensionConsumerContext extensions,
             final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory, final BindingCodecTreeFactory codecFactory,
             final ReconnectStrategyFactory sessionStrategyFactory, final DataBroker dps, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
-            final GeneratedClassLoadingStrategy classStrategy) {
+            final GeneratedClassLoadingStrategy classStrategy, final Long nBestPaths) {
         this(ribId, localAs, localBgpId, clusterId, extensions, dispatcher, tcpStrategyFactory, codecFactory, sessionStrategyFactory,
-                dps, domDataBroker, localTables, classStrategy, null, null);
+                dps, domDataBroker, localTables, classStrategy, null, null, nBestPaths);
     }
 
     private void startLocRib(final TablesKey key, final PolicyDatabase pd) {
@@ -211,7 +214,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             LOG.error("Failed to initiate LocRIB for key {}", key, e1);
         }
         this.locRibs.add(LocRibWriter.create(this.ribContextRegistry, key, createPeerChain(this), getYangRibId(), this.localAs, getService(), pd,
-            this.cacheDisconnectedPeers));
+            this.cacheDisconnectedPeers, this.nBestPaths));
     }
 
     @Override

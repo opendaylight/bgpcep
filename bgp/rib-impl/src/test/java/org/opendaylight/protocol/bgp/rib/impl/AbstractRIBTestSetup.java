@@ -93,6 +93,7 @@ public class AbstractRIBTestSetup {
     private BindingCodecTreeFactory codecFactory;
     private RIBActivator a1;
     RIBSupport ribSupport;
+    private final Long nBestPaths = Long.valueOf(1);
 
     @Mock
     private BGPDispatcher dispatcher;
@@ -142,8 +143,9 @@ public class AbstractRIBTestSetup {
         this.a1 = new RIBActivator();
         this.a1.startRIBExtensionProvider(context);
         mockedMethods();
-        this.rib = new RIBImpl(new RibId("test"), new AsNumber(5L), this.ribId,
-            this.clusterId, context , this.dispatcher, this.tcpStrategyFactory, this.codecFactory, this.tcpStrategyFactory, this.dps, this.dom, localTables, GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
+        this.rib = new RIBImpl(new RibId("test"), new AsNumber(5L), this.ribId, this.clusterId, context , this.dispatcher, this.tcpStrategyFactory,
+            this.codecFactory, this.tcpStrategyFactory, this.dps, this.dom, localTables, GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy
+            (), this.nBestPaths);
         this.rib.onGlobalContextUpdated(schemaContext);
         this.ribSupport = getRib().getRibSupportContext().getRIBSupportContext(KEY).getRibSupport();
     }
