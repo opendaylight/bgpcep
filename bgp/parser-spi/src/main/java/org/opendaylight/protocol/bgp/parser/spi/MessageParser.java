@@ -8,10 +8,37 @@
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import io.netty.buffer.ByteBuf;
-
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
+/**
+ * Common interface for message parser implementation.
+ */
 public interface MessageParser {
-    Notification parseMessageBody(ByteBuf body, int messageLength) throws BGPDocumentedException;
+
+    /**
+     * Parse BGP Message from buffer.
+     *
+     * @param body Encoded BGP message in ByteBuf.
+     * @param messageLength Length of the BGP message.
+     * @return Parsed BGP Message body.
+     * @throws BGPDocumentedException
+     */
+    @Nonnull Notification parseMessageBody(@Nonnull ByteBuf body, int messageLength) throws BGPDocumentedException;
+
+    /**
+     * Invokes {@link #parseMessageBody(ByteBuf, int)}, so the constraint is omitted. Override for specific parser behavior.
+     *
+     * @param body Encoded BGP message in ByteBuf.
+     * @param messageLength Length of the BGP message.
+     * @param constraint Peer specific constraints.
+     * @return Parsed BGP Message body.
+     * @throws BGPDocumentedException
+     */
+    @Nonnull default Notification parseMessageBody(@Nonnull final ByteBuf body, final int messageLength, @Nullable final PeerSpecificParserConstraint constraint)
+            throws BGPDocumentedException {
+        return parseMessageBody(body, messageLength);
+    }
 }
