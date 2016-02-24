@@ -14,6 +14,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.After;
@@ -27,12 +28,14 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
@@ -46,6 +49,13 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class SimpleRegistryTest {
+
+    private static final MultiPathSupport ADD_PATH_SUPPORT = new MultiPathSupport() {
+        @Override
+        public boolean isTableTypeSupported(final BgpTableType tableType) {
+            return true;
+        }
+    };
 
     protected BGPExtensionProviderContext ctx;
     private BgpTestActivator activator;
@@ -197,5 +207,30 @@ public class SimpleRegistryTest {
         assertArrayEquals(mpUnreachBytes, buffer.array());
         assertEquals(mpUnreach, nlriReg.parseMpUnreach(Unpooled.wrappedBuffer(mpUnreachBytes)));
         verify(this.activator.nlriParser, times(1)).parseNlri(Mockito.any(ByteBuf.class), Mockito.any(MpUnreachNlriBuilder.class));
+    }
+
+    @Test
+    public void testMultiPathMpReachParser() throws BGPParsingException {
+        final NlriRegistry nlriReg = this.ctx.getNlriRegistry();
+        final byte[] mpReachBytes = {
+                0x00, 0x01, 0x01, 0x00, 0x00
+        };
+        final MpReachNlri mpReach = new MpReachNlriBuilder()
+            .setAfi(Ipv4AddressFamily.class)
+            .setSafi(UnicastSubsequentAddressFamily.class)
+            .build();
+        assertEquals(mpReach, nlriReg.parseMultiPathMpReach(Unpooled.wrappedBuffer(mpReachBytes), ADD_PATH_SUPPORT));
+        verify(this.activator.multiPathNlriParser, times(1)).parseNlri(Mockito.any(ByteBuf.class), Mockito.any(MpReachNlriBuilder.class));
+    }
+
+    @Test
+    public void testMultiPathMpUnReachParser() throws BGPParsingException {
+        final NlriRegistry nlriReg = this.ctx.getNlriRegistry();
+        final byte[] mpUnreachBytes = {
+            0x00, 0x01, 0x01
+        };
+        final MpUnreachNlri mpUnreach = new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build();
+        assertEquals(mpUnreach, nlriReg.parseMultiPathMpUnreach(Unpooled.wrappedBuffer(mpUnreachBytes), ADD_PATH_SUPPORT));
+        verify(this.activator.multiPathNlriParser, times(1)).parseNlri(Mockito.any(ByteBuf.class), Mockito.any(MpUnreachNlriBuilder.class));
     }
 }

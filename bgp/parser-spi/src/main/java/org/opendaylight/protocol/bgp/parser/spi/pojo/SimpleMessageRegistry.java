@@ -8,11 +8,12 @@
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractMessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.MultiPathMessageParser;
+import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -23,11 +24,19 @@ final class SimpleMessageRegistry extends AbstractMessageRegistry {
 
     @Override
     protected Notification parseBody(final int type, final ByteBuf body, final int messageLength) throws BGPDocumentedException {
+        return parseMultiPathBody(type, body, messageLength, null);
+    }
+
+    @Override
+    protected Notification parseMultiPathBody(final int type, final ByteBuf body, final int messageLength,
+            final MultiPathSupport multiPathSupport) throws BGPDocumentedException {
         final MessageParser parser = this.handlers.getParser(type);
         if (parser == null) {
             return null;
         }
-
+        if (multiPathSupport != null && parser instanceof MultiPathMessageParser) {
+            return ((MultiPathMessageParser) parser).parseMultiPathMessageBody(body, messageLength, multiPathSupport);
+        }
         return parser.parseMessageBody(body, messageLength);
     }
 
