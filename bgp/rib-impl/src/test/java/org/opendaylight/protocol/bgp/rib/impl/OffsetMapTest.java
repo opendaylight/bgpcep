@@ -14,8 +14,7 @@ import org.junit.Test;
 
 public class OffsetMapTest {
 
-    private final String LOCAL_ADDRESS = "127.0.0.1";
-    private final int LOCAL_ADDRESS_DECIMAL = 0x7f000001;
+    private final String KEY = "testKey";
     private final Integer[] TESTED_VALUES = { 1, 2, 3, 4, 5, 6, 7 };
     private final Integer[] TESTED_VALUES_REMOVE = {2, 3, 4, 5, 6, 7 };
     private final int EXPECTED_ROUTER_OFFSET = 0;
@@ -24,14 +23,14 @@ public class OffsetMapTest {
 
     @Test
     public void testAllMethods() {
-        final OffsetMap offsetMap = OffsetMap.EMPTY.with(RouterIds.routerIdForAddress(LOCAL_ADDRESS));
-        assertEquals(EXPECTED_ROUTER_OFFSET, offsetMap.offsetOf(RouterIds.routerIdForAddress(LOCAL_ADDRESS)));
-        assertEquals(LOCAL_ADDRESS_DECIMAL, offsetMap.getRouterId(EXPECTED_ROUTER_OFFSET).intValue());
+        final OffsetMap offsetMap = OffsetMap.EMPTY.with(KEY);
+        assertEquals(EXPECTED_ROUTER_OFFSET, offsetMap.offsetOf(KEY));
+        assertEquals(KEY, offsetMap.getRouterKey(EXPECTED_ROUTER_OFFSET));
 
         assertEquals(EXPECTED_VALUE, (int) offsetMap.getValue(TESTED_VALUES, EXPECTED_ROUTER_OFFSET));
         offsetMap.setValue(TESTED_VALUES, EXPECTED_ROUTER_OFFSET, CHANGED_VALUE);
         assertEquals(CHANGED_VALUE, (int) offsetMap.getValue(TESTED_VALUES, EXPECTED_ROUTER_OFFSET));
         assertArrayEquals(TESTED_VALUES_REMOVE, offsetMap.removeValue(TESTED_VALUES, 0));
-        assertEquals(0, offsetMap.without(RouterIds.routerIdForAddress(LOCAL_ADDRESS)).size());
+        assertEquals(0, offsetMap.without(KEY).size());
     }
 }

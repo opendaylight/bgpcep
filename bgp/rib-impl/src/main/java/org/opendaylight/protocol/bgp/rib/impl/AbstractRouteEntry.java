@@ -8,9 +8,12 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.primitives.UnsignedInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -30,85 +33,139 @@ abstract class AbstractRouteEntry {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRouteEntry.class);
 
-    private static final ContainerNode[] EMPTY_ATTRIBUTES = new ContainerNode[0];
-
     private OffsetMap offsets = OffsetMap.EMPTY;
-    private ContainerNode[] values = EMPTY_ATTRIBUTES;
-    private BestPath bestPath;
+    private ContainerNode[] values = new ContainerNode[0];
+    private Long[] pathsId = new Long[0];
+    private UnsignedInteger[] routersId = new UnsignedInteger[0];
+    private String[] prefixes = new String[0];
+    private List<BestPath> bestPath = new ArrayList<>();
+    private ArrayList<BestPath> bestPathRemoved = new ArrayList<>();
+    private Long pathIdCounter = Long.valueOf(0);
 
-    private int addRoute(final UnsignedInteger routerId, final ContainerNode attributes) {
-        int offset = this.offsets.offsetOf(routerId);
+    private int addRoute(final String key, final UnsignedInteger routerId, final ContainerNode attributes, final String prefix) {
+        this.pathIdCounter += 1;
+        int offset = this.offsets.offsetOf(key);
         if (offset < 0) {
-            final OffsetMap newOffsets = this.offsets.with(routerId);
-            offset = newOffsets.offsetOf(routerId);
+            final OffsetMap newOffsets = this.offsets.with(key);
+            offset = newOffsets.offsetOf(key);
 
             final ContainerNode[] newAttributes = newOffsets.expand(this.offsets, this.values, offset);
+            final Long[] newPathsId = newOffsets.expand(this.offsets, this.pathsId, offset);
+            final UnsignedInteger[] newRoutersId = newOffsets.expand(this.offsets, this.routersId, offset);
+            final String[] newPrefixes = newOffsets.expand(this.offsets, this.prefixes, offset);
             this.values = newAttributes;
             this.offsets = newOffsets;
+            this.pathsId = newPathsId;
+            this.routersId = newRoutersId;
+            this.prefixes = newPrefixes;
         }
 
         this.offsets.setValue(this.values, offset, attributes);
+        this.offsets.setValue(this.pathsId, offset, this.pathIdCounter);
+        this.offsets.setValue(this.routersId, offset, routerId);
+        this.offsets.setValue(this.prefixes, offset, prefix);
+
         LOG.trace("Added route from {} attributes {}", routerId, attributes);
         return offset;
     }
 
-    protected int addRoute(final UnsignedInteger routerId, final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
+    protected int addRoute(final UnsignedInteger routerId, final String prefix, final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
         LOG.trace("Find {} in {}", attributesIdentifier, data);
         final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(data, attributesIdentifier).orNull();
-        return addRoute(routerId, advertisedAttrs);
+        String key = generateKey(routerId.toString(), prefix);
+        return addRoute(key, routerId, advertisedAttrs, prefix);
+    }
+
+    final String generateKey(final String routerId, final String prefix) {
+        return routerId + prefix;
     }
 
     /**
      * Remove route
-     * @param routerId
+     *
+     * @param key
      * @param offset
      * @return true if it was the last route
      */
-    protected final boolean removeRoute(final UnsignedInteger routerId, final int offset) {
-        if (this.offsets.size() != 1) {
-            this.values = this.offsets.removeValue(this.values, offset);
-            this.offsets = this.offsets.without(routerId);
-            return false;
-        } else {
+    protected final boolean removeRoute(final String key, final int offset) {
+        this.values = this.offsets.removeValue(this.values, offset);
+        this.routersId = this.offsets.removeValue(this.routersId, offset);
+        this.pathsId = this.offsets.removeValue(this.pathsId, offset);
+        this.prefixes = this.offsets.removeValue(this.prefixes, offset);
+        this.offsets = this.offsets.without(key);
+        if (this.offsets.size() == 0) {
             return true;
         }
+        return false;
     }
 
-    // Indicates whether best has changed
-    final boolean selectBest(final long localAs) {
+    final boolean selectBest(final long localAs, final long nBestPaths) {
+        List<BestPath> newBestPathList = new ArrayList<>();
+        final List<String> keyList = this.offsets.getRouteKeysList();
+        final long maxSearch = nBestPaths < this.offsets.size() ? nBestPaths : this.offsets.size();
+        for (long i = 0; i < maxSearch; ++i) {
+            final BestPath newBest = selectBest(localAs, keyList);
+            newBestPathList.add(newBest);
+            keyList.remove(newBest.getKey());
+        }
+
+        this.bestPathRemoved = new ArrayList<>(this.bestPath);
+        if (this.bestPathRemoved.removeAll(newBestPathList) || !this.bestPath.equals(newBestPathList)) {
+            this.bestPath = newBestPathList;
+            LOG.trace("Actual Best {}, removed best {}", this.bestPath, this.bestPathRemoved);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Process best path selection
+     *
+     * @param localAs
+     * @param keyList
+     * @return the best path inside offset map passed
+     */
+    final private BestPath selectBest(final long localAs, final List<String> keyList) {
         /*
          * FIXME: optimize flaps by making sure we consider stability of currently-selected route.
          */
         final BestPathSelector selector = new BestPathSelector(localAs);
-
-        // Select the best route.
-        for (int i = 0; i < this.offsets.size(); ++i) {
-            final UnsignedInteger routerId = this.offsets.getRouterId(i);
-            final ContainerNode attributes = this.offsets.getValue(this.values, i);
-            LOG.trace("Processing router id {} attributes {}", routerId, attributes);
-            selector.processPath(routerId, attributes);
-        }
-
-        // Get the newly-selected best path.
-        final BestPath newBestPath = selector.result();
-        final boolean ret = !newBestPath.equals(this.bestPath);
-        LOG.trace("Previous best {}, current best {}, result {}", this.bestPath, newBestPath, ret);
-        this.bestPath = newBestPath;
-        return ret;
+        keyList.forEach(key -> selectBest(key, selector));
+        LOG.trace("Best path selected {}", this.bestPath);
+        return selector.result();
     }
 
-    final ContainerNode attributes() {
-        return this.bestPath.getState().getAttributes();
+    final private void selectBest(final String key, final BestPathSelector selector) {
+        final int offset = this.offsets.offsetOf(key);
+        final UnsignedInteger routerId = this.offsets.getValue(this.routersId, offset);
+        final ContainerNode attributes = this.offsets.getValue(this.values, offset);
+        final Long pathId = this.offsets.getValue(this.pathsId, offset);
+        final String prefix = this.offsets.getValue(this.prefixes, offset);
+        LOG.trace("Processing router key {} attributes {}", key, attributes);
+        selector.processPath(routerId, attributes, key, offset, pathId, prefix);
     }
 
     protected final OffsetMap getOffsets() {
         return this.offsets;
     }
 
-    protected final UnsignedInteger getBestRouterId() {
-        return this.bestPath.getRouterId();
+    protected List<BestPath> getBestPathRemovedList() {
+        return Collections.unmodifiableList(this.bestPathRemoved);
     }
 
-    abstract boolean removeRoute(final UnsignedInteger routerId);
-    abstract MapEntryNode createValue(PathArgument routeId);
+    protected List<BestPath> getBestPathList() {
+        return Collections.unmodifiableList(this.bestPath);
+    }
+
+    protected final UnsignedInteger getBestRouterId(final int nPath) {
+        return this.routersId[this.bestPath.get(nPath).getOfssetPosition()];
+    }
+
+    protected final int size() {
+        return this.offsets.size();
+    }
+
+    abstract boolean removeRoute(final UnsignedInteger routerId, final String prefix);
+
+    abstract MapEntryNode createValue(final YangInstanceIdentifier.PathArgument routeId, final BestPath path);
 }
