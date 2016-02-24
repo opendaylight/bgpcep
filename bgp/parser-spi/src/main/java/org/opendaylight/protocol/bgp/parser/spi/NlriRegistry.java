@@ -8,14 +8,66 @@
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import io.netty.buffer.ByteBuf;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
 
+/**
+ * The codec registry for BGP NLRI, offers
+ * services for NLRI encoding/decoding.
+ *
+ */
 public interface NlriRegistry {
-    MpReachNlri parseMpReach(final ByteBuf buffer) throws BGPParsingException;
-    MpUnreachNlri parseMpUnreach(final ByteBuf buffer) throws BGPParsingException;
-    void serializeMpReach(final MpReachNlri mpReachNlri,final ByteBuf byteAggregator);
-    void serializeMpUnReach(final MpUnreachNlri mpUnreachNlri,final ByteBuf byteAggregator);
+
+    /**
+     * @deprecated Use {@link #parseMpReach(ByteBuf, PeerSpecificParserConstraint)}
+     */
+    @Deprecated
+    MpReachNlri parseMpReach(ByteBuf buffer) throws BGPParsingException;
+
+    /**
+     * @deprecated Use {@link #parseMpUnreach(ByteBuf, PeerSpecificParserConstraint)}
+     */
+    @Deprecated
+    MpUnreachNlri parseMpUnreach(ByteBuf buffer) throws BGPParsingException;
+
+    /**
+     * Decode MP REACH NLRI Attribute.
+     * @param buffer Input buffer.
+     * @param constraint Peer specific constraint.
+     * @return Parsed reach NLRI.
+     * @throws BGPParsingException
+     */
+    @Nonnull MpReachNlri parseMpReach(@Nonnull ByteBuf buffer, @Nullable PeerSpecificParserConstraint constraint) throws BGPParsingException;
+
+    /**
+     * Decode MP REACH NLRI Attribute.
+     * @param buffer Input buffer.
+     * @param constraint Peer specific constraint.
+     * @return Parsed unreach NLRI.
+     * @throws BGPParsingException
+     */
+    @Nonnull MpUnreachNlri parseMpUnreach(@Nonnull ByteBuf buffer, @Nullable PeerSpecificParserConstraint constraint) throws BGPParsingException;
+
+    /**
+     * Encode BGP MP REACH NLRI Attribute.
+     * @param mpReachNlri Input reach NLRI.
+     * @param byteAggregator Output buffer.
+     */
+    void serializeMpReach(@Nonnull MpReachNlri mpReachNlri, @Nonnull ByteBuf byteAggregator);
+
+    /**
+     * Encode BGP MP UNREACH NLRI Attribute.
+     * @param mpUnreachNlri Input unreach NLRI.
+     * @param byteAggregator Output buffer.
+     */
+    void serializeMpUnReach(@Nonnull MpUnreachNlri mpUnreachNlri, @Nonnull ByteBuf byteAggregator);
+
+    /**
+     * Get all available NLRI encoders.
+     * @return Iterable of NLRI serializers.
+     */
     Iterable<NlriSerializer> getSerializers();
 }
