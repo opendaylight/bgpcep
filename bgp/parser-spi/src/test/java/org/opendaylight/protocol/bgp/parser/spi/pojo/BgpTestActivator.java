@@ -87,6 +87,9 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
 
     protected NextHopParserSerializer nextHopParserSerializer;
 
+    @Mock
+    protected NlriParser multiPathNlriParser;
+
     @Override
     protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
         initMock();
@@ -127,6 +130,8 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
             .nlriParser, this.nextHopParserSerializer, Ipv6NextHopCase.class));
         regs.add(context.registerNlriSerializer(DataObject.class, this.nlriSerializer));
 
+        regs.add(context.registerMultiPathNlriParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, this.multiPathNlriParser));
+
         regs.add(context.registerExtendedCommunityParser(0, 0, this.exParser));
         regs.add(context.registerExtendedCommunitySerializer(RouteTargetIpv4Case.class, this.exSerializer));
 
@@ -159,6 +164,10 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
             Mockito.doNothing().when(this.nlriParser).parseNlri(Mockito.any(ByteBuf.class), Mockito.any(MpUnreachNlriBuilder.class));
             Mockito.doNothing().when(this.nlriParser).parseNlri(Mockito.any(ByteBuf.class), Mockito.any(MpReachNlriBuilder.class));
             Mockito.doReturn(EMPTY).when(this.nlriParser).toString();
+
+            Mockito.doNothing().when(this.multiPathNlriParser).parseNlri(Mockito.any(ByteBuf.class), Mockito.any(MpUnreachNlriBuilder.class));
+            Mockito.doNothing().when(this.multiPathNlriParser).parseNlri(Mockito.any(ByteBuf.class), Mockito.any(MpReachNlriBuilder.class));
+            Mockito.doReturn(EMPTY).when(this.multiPathNlriParser).toString();
         } catch (BGPDocumentedException | BGPParsingException e) {
             Assert.fail();
         }

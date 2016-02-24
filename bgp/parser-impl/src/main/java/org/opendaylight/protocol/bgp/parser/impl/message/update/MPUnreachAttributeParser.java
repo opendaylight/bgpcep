@@ -16,6 +16,8 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
+import org.opendaylight.protocol.bgp.parser.spi.MultiPathAttributeParser;
+import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
@@ -25,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
-public final class MPUnreachAttributeParser implements AttributeParser, AttributeSerializer {
+public final class MPUnreachAttributeParser implements AttributeParser, AttributeSerializer, MultiPathAttributeParser {
     public static final int TYPE = 15;
 
     private final NlriRegistry reg;
@@ -36,8 +38,20 @@ public final class MPUnreachAttributeParser implements AttributeParser, Attribut
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) throws BGPDocumentedException {
+        parseMultiPathAttribute(buffer, builder, null);
+    }
+
+    @Override
+    public void parseMultiPathAttribute(final ByteBuf buffer, final AttributesBuilder builder, final MultiPathSupport multiPathSupport)
+            throws BGPDocumentedException {
         try {
-            final Attributes2 a = new Attributes2Builder().setMpUnreachNlri(this.reg.parseMpUnreach(buffer)).build();
+            MpUnreachNlri mpUnreachNlri;
+            if (multiPathSupport != null) {
+                mpUnreachNlri = this.reg.parseMultiPathMpUnreach(buffer, multiPathSupport);
+            } else {
+                mpUnreachNlri = this.reg.parseMpUnreach(buffer);
+            }
+            final Attributes2 a = new Attributes2Builder().setMpUnreachNlri(mpUnreachNlri).build();
             builder.addAugmentation(Attributes2.class, a);
         } catch (final BGPParsingException e) {
             throw new BGPDocumentedException("Could not parse MP_UNREACH_NLRI", BGPError.OPT_ATTR_ERROR, e);

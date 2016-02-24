@@ -41,6 +41,12 @@ public class AbstractMessageRegistryTest {
         protected Notification parseBody(final int type, final ByteBuf body, final int messageLength) throws BGPDocumentedException {
             return new KeepaliveBuilder().build();
         }
+
+        @Override
+        protected Notification parseMultiPathBody(final int type, final ByteBuf body, final int messageLength,
+                final MultiPathSupport multiPathSupport) throws BGPDocumentedException {
+            return null;
+        }
     };
 
     @Test
