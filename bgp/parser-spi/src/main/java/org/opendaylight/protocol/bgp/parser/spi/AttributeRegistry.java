@@ -15,7 +15,9 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public interface AttributeRegistry {
 
-    Attributes parseAttributes(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException;
+    Attributes parseAttributes(ByteBuf buffer) throws BGPDocumentedException, BGPParsingException;
 
-    void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator);
+    Attributes parseMultiPathAttributes(ByteBuf buffer, MultiPathSupport multiPathSupport) throws BGPDocumentedException, BGPParsingException;
+
+    void serializeAttribute(DataObject attribute, ByteBuf byteAggregator);
 }

@@ -13,6 +13,7 @@ import java.util.Map;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
@@ -43,5 +44,11 @@ public class BGPMessageParserMock implements MessageRegistry {
     public void serializeMessage(final Notification msg, final ByteBuf buffer) {
         // no action needed, it's a mock for parsing, not serializing
         return;
+    }
+
+    @Override
+    public Notification parseMultiPathMessage(final ByteBuf bytes, final MultiPathSupport multiPathSupport)
+            throws BGPDocumentedException, BGPParsingException {
+        return parseMessage(bytes);
     }
 }
