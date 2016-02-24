@@ -99,11 +99,11 @@ abstract class AbstractRouteEntry {
         return false;
     }
 
-    final boolean selectBest(final long localAs, final int nBestPaths) {
+    final boolean selectBest(final long localAs, final long nBestPaths) {
         List<BestPath> newBestPathList = new ArrayList<>();
         final List<String> keyList = this.offsets.getRouteKeysList();
-        final int maxSearch = nBestPaths < this.offsets.size() ? nBestPaths : this.offsets.size();
-        for (int i = 0; i < maxSearch; ++i) {
+        final long maxSearch = nBestPaths < this.offsets.size() && nBestPaths != 0 ? nBestPaths : this.offsets.size();
+        for (long i = 0; i < maxSearch; ++i) {
             final BestPath newBest = selectBest(localAs, keyList);
             newBestPathList.add(newBest);
             keyList.remove(newBest.getKey());
@@ -155,10 +155,6 @@ abstract class AbstractRouteEntry {
 
     protected List<BestPath> getBestPathList() {
         return Collections.unmodifiableList(this.bestPath);
-    }
-
-    protected final UnsignedInteger getBestRouterId(final int nPath) {
-        return this.routersId[this.bestPath.get(nPath).getOfssetPosition()];
     }
 
     protected final int size() {
