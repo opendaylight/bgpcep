@@ -23,6 +23,9 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
 
     protected abstract Notification parseBody(final int type, final ByteBuf body, final int messageLength) throws BGPDocumentedException;
 
+    protected abstract Notification parseMultiPathBody(int type, ByteBuf body, int messageLength,
+            MultiPathSupport multiPathSupport) throws BGPDocumentedException;
+
     protected abstract void serializeMessageImpl(final Notification message, final ByteBuf buffer);
 
     static {
@@ -32,6 +35,12 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
 
     @Override
     public final Notification parseMessage(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+        return parseMultiPathMessage(buffer, null);
+    }
+
+    @Override
+    public Notification parseMultiPathMessage(final ByteBuf buffer, final MultiPathSupport multiPathSupport)
+            throws BGPDocumentedException, BGPParsingException {
         Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes cannot be null or empty.");
         Preconditions.checkArgument(buffer.readableBytes() >= MessageUtil.COMMON_HEADER_LENGTH,
                 "Too few bytes in passed array. Passed: %s. Expected: >= %s.", buffer.readableBytes(), MessageUtil.COMMON_HEADER_LENGTH);
@@ -56,7 +65,12 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
 
         final ByteBuf msgBody = buffer.readSlice(messageLength - MessageUtil.COMMON_HEADER_LENGTH);
 
-        final Notification msg = parseBody(messageType, msgBody, messageLength);
+        final Notification msg;
+        if (multiPathSupport != null) {
+            msg = parseMultiPathBody(messageType, msgBody, messageLength, multiPathSupport);
+        } else {
+            msg = parseBody(messageType, msgBody, messageLength);
+        }
         if (msg == null) {
             throw new BGPDocumentedException("Unhandled message type " + messageType, BGPError.BAD_MSG_TYPE, new byte[] { typeBytes });
         }

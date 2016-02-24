@@ -22,6 +22,8 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.MultiPathAttributeParser;
+import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.util.BitArray;
@@ -110,6 +112,12 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
 
     @Override
     public Attributes parseAttributes(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+        return parseMultiPathAttributes(buffer, null);
+    }
+
+    @Override
+    public Attributes parseMultiPathAttributes(final ByteBuf buffer, final MultiPathSupport multiPathSupport)
+            throws BGPDocumentedException, BGPParsingException {
         final Map<Integer, RawAttribute> attributes = new TreeMap<>();
         while (buffer.isReadable()) {
             addAttribute(buffer, attributes);
@@ -123,7 +131,11 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
             LOG.debug("Parsing attribute type {}", e.getKey());
 
             final RawAttribute a = e.getValue();
-            a.parser.parseAttribute(a.buffer, builder);
+            if (multiPathSupport != null && a.parser instanceof MultiPathAttributeParser) {
+                ((MultiPathAttributeParser) a.parser).parseMultiPathAttribute(a.buffer, builder, multiPathSupport);
+            } else {
+                a.parser.parseAttribute(a.buffer, builder);
+            }
         }
         builder.setUnrecognizedAttributes(this.unrecognizedAttributes);
         return builder.build();
