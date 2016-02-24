@@ -13,9 +13,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
 
 public interface NlriRegistry {
-    MpReachNlri parseMpReach(final ByteBuf buffer) throws BGPParsingException;
-    MpUnreachNlri parseMpUnreach(final ByteBuf buffer) throws BGPParsingException;
-    void serializeMpReach(final MpReachNlri mpReachNlri,final ByteBuf byteAggregator);
-    void serializeMpUnReach(final MpUnreachNlri mpUnreachNlri,final ByteBuf byteAggregator);
+
+    MpReachNlri parseMpReach(ByteBuf buffer) throws BGPParsingException;
+
+    MpUnreachNlri parseMpUnreach(ByteBuf buffer) throws BGPParsingException;
+
+    MpReachNlri parseMultiPathMpReach(ByteBuf buffer, MultiPathSupport multiPathSupport) throws BGPParsingException;
+
+    MpUnreachNlri parseMultiPathMpUnreach(ByteBuf buffer, MultiPathSupport multiPathSupport) throws BGPParsingException;
+
+    void serializeMpReach(MpReachNlri mpReachNlri, ByteBuf byteAggregator);
+
+    void serializeMpUnReach(MpUnreachNlri mpUnreachNlri, ByteBuf byteAggregator);
+
     Iterable<NlriSerializer> getSerializers();
 }
