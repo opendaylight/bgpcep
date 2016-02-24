@@ -10,9 +10,11 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.UnsignedInteger;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nonnull;
@@ -28,6 +30,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
@@ -64,6 +67,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     private static final NodeIdentifier ROUTES_IDENTIFIER = new NodeIdentifier(Routes.QNAME);
     private static final NodeIdentifier EFFRIBIN_NID = new NodeIdentifier(EffectiveRibIn.QNAME);
     private static final NodeIdentifier TABLES_NID = new NodeIdentifier(Tables.QNAME);
+    private static final NodeIdentifier PREFIX = new YangInstanceIdentifier.NodeIdentifier(AdjRibOutListener.PREFIX_QNAME);
 
     private final Map<PathArgument, AbstractRouteEntry> routeEntries = new HashMap<>();
     private final YangInstanceIdentifier locRibTarget;
@@ -177,7 +181,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         if (tablesChange != null) {
             final NodeIdentifierWithPredicates supTablesKey = RibSupportUtils.toYangKey(SupportedTables.QNAME, this.localTablesKey);
             final DataTreeCandidateNode containsLocalKeyTable = tablesChange.getModifiedChild(supTablesKey);
-            if(containsLocalKeyTable != null) {
+            if (containsLocalKeyTable != null) {
                 this.peerPolicyTracker.onTablesChanged(peerIdOfNewPeer, containsLocalKeyTable);
             }
         }
@@ -192,21 +196,29 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             for (Map.Entry<PathArgument, AbstractRouteEntry> entry : this.routeEntries.entrySet()) {
                 final AbstractRouteEntry routeEntry = entry.getValue();
                 final PathArgument routeId = entry.getKey();
-                final YangInstanceIdentifier routeTarget = getRouteTarget(rootPath, routeId);
-                final NormalizedNode<?, ?> value = routeEntry.createValue(routeId);
-                final PeerId routePeerId = RouterIds.createPeerId(routeEntry.getBestRouterId());
-                final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(routePeerId, routeEntry.attributes());
-                if (effectiveAttributes != null && value != null) {
-                    LOG.debug("Write route {} to peer AdjRibsOut {}", value, peerIdOfNewPeer);
-                    tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
-                    tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(this.attributesIdentifier), effectiveAttributes);
+
+                final List<BestPath> bestPath = routeEntry.getBestPathList();
+                for (BestPath path : bestPath) {
+                    final PathArgument routeIdPathTarget = getRouteIdAddPath(path.getPathId(), path.getPrefix());
+                    final YangInstanceIdentifier routeTarget = getRouteTarget(rootPath, routeId, routeIdPathTarget);
+                    final NormalizedNode<?, ?> value = routeEntry.createValue(routeIdPathTarget, path);
+                    final PeerId routePeerId = RouterIds.createPeerId(path.getBestRouterId());
+                    final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(routePeerId, path.getState().getAttributes());
+                    if (effectiveAttributes != null && value != null) {
+                        LOG.debug("Write route {} to peer AdjRibsOut {}", value, peerIdOfNewPeer);
+                        tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
+                        tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget.node(this.attributesIdentifier), effectiveAttributes);
+                    }
                 }
             }
         }
     }
 
-    private YangInstanceIdentifier getRouteTarget(final YangInstanceIdentifier rootPath, final PathArgument routeId) {
-        return this.ribSupport.routePath(rootPath.node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey).node(ROUTES_IDENTIFIER), routeId);
+    private YangInstanceIdentifier getRouteTarget(final YangInstanceIdentifier rootPath, final PathArgument routeId, final PathArgument routeIdAddPath) {
+        if (!isAddPathSupportedAndInsideTheNbestPaths()) {
+            return this.ribSupport.routePath(rootPath.node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey).node(ROUTES_IDENTIFIER), routeId);
+        }
+        return this.ribSupport.routePath(rootPath.node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey).node(ROUTES_IDENTIFIER), routeIdAddPath);
     }
 
     private void filterOutPeerRole(final PeerId peerId, final DataTreeCandidateNode rootNode, final YangInstanceIdentifier rootPath) {
@@ -241,19 +253,19 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         for (final DataTreeCandidateNode route : modifiedRoutes) {
             final PathArgument routeId = route.getIdentifier();
             AbstractRouteEntry entry = this.routeEntries.get(routeId);
+            final String prefix = getPrefix(route);
 
             final Optional<NormalizedNode<?, ?>> maybeData = route.getDataAfter();
-            final RouteUpdateKey routeUpdateKey = new RouteUpdateKey(peerId, routeId);
             if (maybeData.isPresent()) {
                 if (entry == null) {
                     entry = createEntry(routeId);
                 }
-                entry.addRoute(routerId, this.attributesIdentifier, maybeData.get());
-            } else if (entry != null && entry.removeRoute(routerId)) {
+                entry.addRoute(routerId, prefix, this.attributesIdentifier, maybeData.get());
+            } else if (entry != null && entry.removeRoute(routerId, prefix)) {
                 this.routeEntries.remove(routeId);
                 LOG.trace("Removed route from {}", routerId);
-                entry = null;
             }
+            final RouteUpdateKey routeUpdateKey = new RouteUpdateKey(peerId, routeId);
             LOG.debug("Updated route {} entry {}", routeId, entry);
             routes.put(routeUpdateKey, entry);
         }
@@ -263,41 +275,55 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         for (final Entry<RouteUpdateKey, AbstractRouteEntry> e : toUpdate.entrySet()) {
             LOG.trace("Walking through {}", e);
             final AbstractRouteEntry entry = e.getValue();
-            final RouteUpdateKey key = e.getKey();
-            final NormalizedNode<?, ?> value;
-            final PathArgument routeId = key.getRouteId();
-            PeerId routePeerId = key.getPeerId();
-            if (entry != null) {
-                if (!entry.selectBest(this.ourAs)) {
-                    // Best path has not changed, no need to do anything else. Proceed to next route.
-                    LOG.trace("Continuing");
-                    continue;
-                }
-                routePeerId = RouterIds.createPeerId(entry.getBestRouterId());
-                value = entry.createValue(routeId);
-                LOG.trace("Selected best value {}", value);
-            } else {
-                value = null;
+            final RouteUpdateKey routeUpdateKey = e.getKey();
+            final PathArgument routeId = routeUpdateKey.getRouteId();
+
+            if (!entry.selectBest(this.ourAs, getNBestPaths())) {
+                // Best path has not changed, no need to do anything else. Proceed to next route.
+                LOG.trace("Continuing");
+                continue;
             }
-            fillLocRib(tx, entry, value, routeId);
-            fillAdjRibsOut(tx, entry, value, routeId, routePeerId);
+
+            final List<BestPath> bestPathRemoved = entry.getBestPathRemovedList();
+            bestPathRemoved.forEach(path -> removePathFromDataStore(path, routeUpdateKey.getPeerId(), routeId, tx));
+
+            final List<BestPath> bestPath = entry.getBestPathList();
+            bestPath.forEach(path -> addPathToDataStore(path, entry, routeId, tx));
         }
     }
 
-    private void fillLocRib(final DOMDataWriteTransaction tx, final AbstractRouteEntry entry, final NormalizedNode<?, ?> value, final PathArgument routeId) {
+    private void addPathToDataStore(final BestPath path, final AbstractRouteEntry abstractRouteEntry, final PathArgument routeId,
+        final DOMDataWriteTransaction tx) {
+        final PeerId routePeerId = RouterIds.createPeerId(path.getBestRouterId());
+        final PathArgument routeIdPathTarget = getRouteIdAddPath(path.getPathId(), path.getPrefix());
+        final NormalizedNode<?, ?> value = abstractRouteEntry.createValue(routeIdPathTarget, path);
+        LOG.trace("Selected best value {}", value);
+        fillLocRib(tx, value, routeIdPathTarget);
+        fillAdjRibsOut(tx, path.getState().getAttributes(), value, routeId, routePeerId, routeIdPathTarget);
+    }
+
+    private void removePathFromDataStore(final BestPath path, final PeerId peerId, final PathArgument routeId,
+        final DOMDataWriteTransaction tx) {
+        final PathArgument routeIdAddPath = getRouteIdAddPath(path.getPathId(), path.getPrefix());
+        LOG.trace("Best Path removed {}", path);
+        fillLocRib(tx, null, routeIdAddPath);
+        fillAdjRibsOut(tx, path.getState().getAttributes(), null, routeId, peerId, routeIdAddPath);
+    }
+
+    private void fillLocRib(final DOMDataWriteTransaction tx, final NormalizedNode<?, ?> value, final PathArgument routeId) {
         final YangInstanceIdentifier writePath = this.ribSupport.routePath(this.locRibTarget.node(ROUTES_IDENTIFIER), routeId);
         if (value != null) {
             LOG.debug("Write route to LocRib {}", value);
             tx.put(LogicalDatastoreType.OPERATIONAL, writePath, value);
         } else {
-            LOG.debug("Delete route from LocRib {}", entry);
+            LOG.debug("Delete route from LocRib {}", writePath);
             tx.delete(LogicalDatastoreType.OPERATIONAL, writePath);
         }
     }
 
     @VisibleForTesting
-    private void fillAdjRibsOut(final DOMDataWriteTransaction tx, final AbstractRouteEntry entry, final NormalizedNode<?, ?> value,
-        final PathArgument routeId, final PeerId routePeerId) {
+    private void fillAdjRibsOut(final DOMDataWriteTransaction tx, final ContainerNode attributes, final NormalizedNode<?, ?> value,
+        final PathArgument routeId, final PeerId routePeerId, final PathArgument routeIdAddPath) {
         /*
          * We need to keep track of routers and populate adj-ribs-out, too. If we do not, we need to
          * expose from which client a particular route was learned from in the local RIB, and have
@@ -307,9 +333,8 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
          * if we have two eBGP peers, for example, there is no reason why we should perform the translation
          * multiple times.
          */
-        final ContainerNode attributes = entry == null ? null : entry.attributes();
         for (final PeerRole role : PeerRole.values()) {
-            if(PeerRole.Internal.equals(role)) {
+            if (PeerRole.Internal.equals(role)) {
                 continue;
             }
             final PeerExportGroup peerGroup = this.peerPolicyTracker.getPeerGroup(role);
@@ -318,7 +343,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
                 for (final Entry<PeerId, YangInstanceIdentifier> pid : peerGroup.getPeers()) {
                     final PeerId peerDestiny = pid.getKey();
                     if (!routePeerId.equals(peerDestiny) && isTableSupported(peerDestiny) && !this.cacheDisconnectedPeers.isPeerDisconnected(peerDestiny)) {
-                        final YangInstanceIdentifier routeTarget = getRouteTarget(pid.getValue(), routeId);
+                        final YangInstanceIdentifier routeTarget = getRouteTarget(pid.getValue(), routeId, routeIdAddPath);
                         if (value != null && effectiveAttributes != null) {
                             LOG.debug("Write route {} to peers AdjRibsOut {}", value, peerDestiny);
                             tx.put(LogicalDatastoreType.OPERATIONAL, routeTarget, value);
@@ -333,11 +358,43 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         }
     }
 
+    private boolean isAddPathSupportedAndInsideTheNbestPaths() {
+        //TODO
+        //final boolean supportAddPath = isAddPathsupported(peerDestiny);
+        final boolean supportAddPath = true;
+        if (supportAddPath) {
+            return true;
+        }
+        return false;
+    }
+
     private boolean isTableSupported(final PeerId key) {
         if (!this.peerPolicyTracker.isTableSupported(key, this.localTablesKey)) {
             LOG.trace("Route rejected, peer {} does not support this table type {}", key, this.localTablesKey);
             return false;
         }
         return true;
+    }
+
+    private String getPrefix(final DataTreeCandidateNode route) {
+        if (route.getDataAfter().isPresent()) {
+            return (String) route.getModifiedChild(PREFIX).getDataAfter().get().getValue();
+        }
+        return (String) route.getModifiedChild(PREFIX).getDataBefore().get().getValue();
+    }
+
+    //TODO
+    private int getNBestPaths() {
+        return 2;
+    }
+
+    private static PathArgument getRouteIdAddPath(final Long pathId, final String prefix) {
+        final ImmutableMap<QName, Object> keyValues = ImmutableMap.<QName, Object>of(
+            QName.create(Ipv4Route.QNAME, "path-id").intern(), pathId,
+            QName.create(Ipv4Route.QNAME, "prefix").intern(), prefix);
+
+        final YangInstanceIdentifier.NodeIdentifierWithPredicates nid = new YangInstanceIdentifier.NodeIdentifierWithPredicates(Ipv4Route.QNAME, keyValues);
+
+        return nid;
     }
 }

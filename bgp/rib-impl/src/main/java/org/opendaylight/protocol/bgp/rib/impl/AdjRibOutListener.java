@@ -83,17 +83,13 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
         LOG.debug("Data change received for AdjRibOut {}", changes);
         for (final DataTreeCandidate tc : changes) {
             LOG.trace("Change {} type {}", tc.getRootNode(), tc.getRootNode().getModificationType());
-            for (final DataTreeCandidateNode child : tc.getRootNode().getChildNodes()) {
-                processSupportedFamilyRoutes(child);
-            }
+            tc.getRootNode().getChildNodes().forEach(child->processSupportedFamilyRoutes(child));
         }
         this.session.flush();
     }
 
     private void processSupportedFamilyRoutes(final DataTreeCandidateNode child) {
-        for (final DataTreeCandidateNode route : this.support.changedRoutes(child)) {
-            processRouteChange(route);
-        }
+        this.support.changedRoutes(child).forEach(route->processRouteChange(route));
     }
 
     private void processRouteChange(final DataTreeCandidateNode route) {
