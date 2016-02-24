@@ -746,6 +746,12 @@ module odl-bgp-rib-impl-cfg {
                 reference "https://tools.ietf.org/html/rfc4456#section-7";
                 type inet:ipv4-address;
             }
+
+            leaf n-best-paths {
+                description "Expected n best path selection. By default 1, 0 represents All paths";
+                type uint32;
+                default 1;
+            }
         }
     }
 }

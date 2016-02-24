@@ -157,10 +157,6 @@ abstract class AbstractRouteEntry {
         return Collections.unmodifiableList(this.bestPath);
     }
 
-    protected final UnsignedInteger getBestRouterId(final int nPath) {
-        return this.routersId[this.bestPath.get(nPath).getOfssetPosition()];
-    }
-
     protected final int size() {
         return this.offsets.size();
     }

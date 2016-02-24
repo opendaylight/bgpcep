@@ -118,6 +118,8 @@ public class AddPathTest extends AbstractDataBrokerTest {
     private static final String NH1 = "3.3.3.3";
     private static final String NH2 = "2.2.2.2";
 
+    private final Long nBestPaths = Long.valueOf(2);
+
     private RIBActivator ribActivator;
     private BGPActivator bgpActivator;
     private ReconnectStrategyFactory neverReconnectStrategyFactory;
@@ -192,7 +194,7 @@ public class AddPathTest extends AbstractDataBrokerTest {
         //FIXME support add-path
         final RIBImpl ribImpl = new RIBImpl(new RibId("test-rib"), AS_NUMBER, new Ipv4Address(RIB_ID), new Ipv4Address(RIB_ID), this.ribExtension,
                 this.dispatcher, this.neverReconnectStrategyFactory, this.mappingService.getCodecFactory(), this.neverReconnectStrategyFactory,
-                getDataBroker(), getDomBroker(), tables, this.ribExtension.getClassLoadingStrategy());
+                getDataBroker(), getDomBroker(), tables, this.ribExtension.getClassLoadingStrategy(), nBestPaths);
         ribImpl.onGlobalContextUpdated(this.schemaContext);
 
         this.dispatcher.createServer(StrictBGPPeerRegistry.GLOBAL, new InetSocketAddress(RIB_ID, PORT)).sync();
