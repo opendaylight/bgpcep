@@ -38,7 +38,8 @@ public class AbstractMessageRegistryTest {
         }
 
         @Override
-        protected Notification parseBody(final int type, final ByteBuf body, final int messageLength) throws BGPDocumentedException {
+        protected Notification parseBody(final int type, final ByteBuf body, final int messageLength,
+                final PeerSpecificParserConstraint constraint) throws BGPDocumentedException {
             return new KeepaliveBuilder().build();
         }
     };

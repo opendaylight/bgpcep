@@ -23,6 +23,7 @@ import org.opendaylight.protocol.bgp.parser.spi.NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
@@ -140,13 +141,20 @@ final class SimpleNlriRegistry implements NlriRegistry {
 
     @Override
     public MpUnreachNlri parseMpUnreach(final ByteBuf buffer) throws BGPParsingException {
+        return parseMpUnreach(buffer, null);
+    }
+
+    @Override
+    public MpUnreachNlri parseMpUnreach(final ByteBuf buffer, final PeerSpecificParserConstraint constraint)
+            throws BGPParsingException {
         final MpUnreachNlriBuilder builder = new MpUnreachNlriBuilder();
         builder.setAfi(getAfi(buffer));
         builder.setSafi(getSafi(buffer));
 
-        final NlriParser parser = this.handlers.get(createKey(builder.getAfi(), builder.getSafi()));
         final ByteBuf nlri = buffer.slice();
-        parser.parseNlri(nlri, builder);
+        final BgpTableType key = createKey(builder.getAfi(), builder.getSafi());
+        final NlriParser parser = this.handlers.get(key);
+        parser.parseNlri(nlri, builder, constraint);
         return builder.build();
     }
 
@@ -192,6 +200,12 @@ final class SimpleNlriRegistry implements NlriRegistry {
 
     @Override
     public MpReachNlri parseMpReach(final ByteBuf buffer) throws BGPParsingException {
+        return parseMpReach(buffer, null);
+    }
+
+    @Override
+    public MpReachNlri parseMpReach(final ByteBuf buffer, final PeerSpecificParserConstraint constraint)
+            throws BGPParsingException {
         final MpReachNlriBuilder builder = new MpReachNlriBuilder();
         final Class<? extends AddressFamily> afi = getAfi(buffer);
         final Class<? extends SubsequentAddressFamily> safi = getSafi(buffer);
@@ -199,7 +213,6 @@ final class SimpleNlriRegistry implements NlriRegistry {
         builder.setSafi(safi);
 
         final BgpTableType key = createKey(builder.getAfi(), builder.getSafi());
-        final NlriParser parser = this.handlers.get(key);
 
         final int nextHopLength = buffer.readUnsignedByte();
         if (nextHopLength != 0) {
@@ -214,7 +227,8 @@ final class SimpleNlriRegistry implements NlriRegistry {
         buffer.skipBytes(RESERVED);
 
         final ByteBuf nlri = buffer.slice();
-        parser.parseNlri(nlri, builder);
+        final NlriParser parser = this.handlers.get(key);
+        parser.parseNlri(nlri, builder, constraint);
         return builder.build();
     }
 }

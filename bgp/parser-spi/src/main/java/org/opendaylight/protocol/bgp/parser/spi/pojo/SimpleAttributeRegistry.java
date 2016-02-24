@@ -22,6 +22,7 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.util.BitArray;
@@ -82,24 +83,15 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
         };
     }
 
-    private void addAttribute(final ByteBuf buffer, final Map<Integer, RawAttribute> attributes) throws BGPDocumentedException {
+    private void addAttribute(final ByteBuf buffer, final Map<Integer, RawAttribute> attributes)
+            throws BGPDocumentedException {
         final BitArray flags = BitArray.valueOf(buffer.readByte());
         final int type = buffer.readUnsignedByte();
         final int len = (flags.get(EXTENDED_LENGTH_BIT)) ? buffer.readUnsignedShort() : buffer.readUnsignedByte();
         if (!attributes.containsKey(type)) {
             final AttributeParser parser = this.handlers.getParser(type);
             if (parser == null) {
-                if (!flags.get(OPTIONAL_BIT)) {
-                    throw new BGPDocumentedException("Well known attribute not recognized.", BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED);
-                }
-                final UnrecognizedAttributes unrecognizedAttribute = new UnrecognizedAttributesBuilder()
-                    .setKey(new UnrecognizedAttributesKey((short)type))
-                    .setPartial(flags.get(PARTIAL_BIT))
-                    .setTransitive(flags.get(TRANSITIVE_BIT))
-                    .setType((short)type)
-                    .setValue(ByteArray.readBytes(buffer, len)).build();
-                this.unrecognizedAttributes.add(unrecognizedAttribute);
-                LOG.debug("Unrecognized attribute were parsed: {}", unrecognizedAttribute);
+                processUnrecognized(flags, type, buffer, len);
             } else {
                 attributes.put(type, new RawAttribute(parser, buffer.readSlice(len)));
             }
@@ -108,8 +100,28 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
         }
     }
 
+    private void processUnrecognized(final BitArray flags, final int type, final ByteBuf buffer, final int len) throws BGPDocumentedException {
+        if (!flags.get(OPTIONAL_BIT)) {
+            throw new BGPDocumentedException("Well known attribute not recognized.", BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED);
+        }
+        final UnrecognizedAttributes unrecognizedAttribute = new UnrecognizedAttributesBuilder()
+            .setKey(new UnrecognizedAttributesKey((short) type))
+            .setPartial(flags.get(PARTIAL_BIT))
+            .setTransitive(flags.get(TRANSITIVE_BIT))
+            .setType((short) type)
+            .setValue(ByteArray.readBytes(buffer, len)).build();
+        this.unrecognizedAttributes.add(unrecognizedAttribute);
+        LOG.debug("Unrecognized attribute were parsed: {}", unrecognizedAttribute);
+    }
+
     @Override
     public Attributes parseAttributes(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+        return parseAttributes(buffer, null);
+    }
+
+    @Override
+    public Attributes parseAttributes(final ByteBuf buffer, final PeerSpecificParserConstraint constraint)
+            throws BGPDocumentedException, BGPParsingException {
         final Map<Integer, RawAttribute> attributes = new TreeMap<>();
         while (buffer.isReadable()) {
             addAttribute(buffer, attributes);
@@ -123,7 +135,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
             LOG.debug("Parsing attribute type {}", e.getKey());
 
             final RawAttribute a = e.getValue();
-            a.parser.parseAttribute(a.buffer, builder);
+            a.parser.parseAttribute(a.buffer, builder, constraint);
         }
         builder.setUnrecognizedAttributes(this.unrecognizedAttributes);
         return builder.build();

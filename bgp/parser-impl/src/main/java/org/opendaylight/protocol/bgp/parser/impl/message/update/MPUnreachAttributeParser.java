@@ -18,6 +18,7 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
@@ -36,8 +37,15 @@ public final class MPUnreachAttributeParser implements AttributeParser, Attribut
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder) throws BGPDocumentedException {
+        parseAttribute(buffer, builder, null);
+    }
+
+    @Override
+    public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder, final PeerSpecificParserConstraint constraint)
+            throws BGPDocumentedException {
         try {
-            final Attributes2 a = new Attributes2Builder().setMpUnreachNlri(this.reg.parseMpUnreach(buffer)).build();
+            final MpUnreachNlri mpUnreachNlri = this.reg.parseMpUnreach(buffer, constraint);
+            final Attributes2 a = new Attributes2Builder().setMpUnreachNlri(mpUnreachNlri).build();
             builder.addAugmentation(Attributes2.class, a);
         } catch (final BGPParsingException e) {
             throw new BGPDocumentedException("Could not parse MP_UNREACH_NLRI", BGPError.OPT_ATTR_ERROR, e);

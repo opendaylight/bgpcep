@@ -8,11 +8,11 @@
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractMessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -22,13 +22,13 @@ final class SimpleMessageRegistry extends AbstractMessageRegistry {
     private final HandlerRegistry<DataContainer, MessageParser, MessageSerializer> handlers = new HandlerRegistry<>();
 
     @Override
-    protected Notification parseBody(final int type, final ByteBuf body, final int messageLength) throws BGPDocumentedException {
+    protected Notification parseBody(final int type, final ByteBuf body, final int messageLength,
+            final PeerSpecificParserConstraint constraint) throws BGPDocumentedException {
         final MessageParser parser = this.handlers.getParser(type);
         if (parser == null) {
             return null;
         }
-
-        return parser.parseMessageBody(body, messageLength);
+        return parser.parseMessageBody(body, messageLength, constraint);
     }
 
     @Override
