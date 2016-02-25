@@ -105,7 +105,14 @@ public final class Ipv6Util {
      */
     public static Ipv6Prefix prefixForBytes(final byte[] bytes, final int length) {
         Preconditions.checkArgument(length <= bytes.length * Byte.SIZE);
-        final byte[] tmp = Arrays.copyOfRange(bytes, 0, IPV6_LENGTH);
+
+        final byte[] tmp;
+        if (bytes.length != IPV6_LENGTH) {
+            tmp = Arrays.copyOfRange(bytes, 0, IPV6_LENGTH);
+        } else {
+            tmp = bytes;
+        }
+
         return IetfInetUtil.INSTANCE.ipv6PrefixFor(tmp, length);
     }
 
@@ -113,16 +120,19 @@ public final class Ipv6Util {
      * Creates an Ipv6Prefix object from given ByteBuf. Prefix length is assumed to
      * be in the left most byte of the buffer.
      *
-     * @param bytes IPv6 address
+     * @param buf IPv6 address
      * @return Ipv6Prefix object
      */
-    public static Ipv6Prefix prefixForByteBuf(final ByteBuf bytes) {
-        final int prefixLength = bytes.readByte();
+    public static Ipv6Prefix prefixForByteBuf(final ByteBuf buf) {
+        final int prefixLength = buf.readByte();
         final int size = prefixLength / Byte.SIZE + ((prefixLength % Byte.SIZE == 0) ? 0 : 1);
-        Preconditions.checkArgument(size <= bytes.readableBytes(), "Illegal length of IP prefix: %s", bytes.readableBytes());
-        return prefixForBytes(ByteArray.readBytes(bytes, size), prefixLength);
-    }
+        final int readable = buf.readableBytes();
+        Preconditions.checkArgument(size <= readable, "Illegal length of IP prefix: %s/%s", size, readable);
 
+        final byte[] bytes = new byte[IPV6_LENGTH];
+        buf.readBytes(bytes, 0, size);
+        return IetfInetUtil.INSTANCE.ipv6PrefixFor(bytes, prefixLength);
+    }
 
     /**
      * Creates a list of Ipv6 Prefixes from given byte array.
