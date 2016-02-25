@@ -42,7 +42,7 @@ public final class Ipv4NlriParser implements NlriParser, NlriSerializer {
 
     private DestinationIpv4 prefixes(final ByteBuf nlri) {
         final List<Ipv4Prefix> prefs = Ipv4Util.prefixListForBytes(ByteArray.readAllBytes(nlri));
-        final List<Ipv4Prefixes> prefixes = new ArrayList<>();
+        final List<Ipv4Prefixes> prefixes = new ArrayList<>(prefs.size());
         for (final Ipv4Prefix p : prefs) {
             prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
         }
