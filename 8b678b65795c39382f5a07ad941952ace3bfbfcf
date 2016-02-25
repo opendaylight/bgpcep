@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_6c3eb98d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractRouteEntry.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-25T23:28:17Z",
+      "side": 1,
+      "message": "The PathId is represented by uint32 \u003d UnsignedInteger.",
+      "range": {
+        "startLine": 38,
+        "startChar": 12,
+        "endLine": 38,
+        "endChar": 16
+      },
+      "revId": "8b678b65795c39382f5a07ad941952ace3bfbfcf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_ecf769d1",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-25T23:28:17Z",
+      "side": 1,
+      "message": "Why do we care about the route NLRI content? In fact, it is uniquily identifiable via instance identifier key of the route, we just need to stip-off the path-id from the key.",
+      "range": {
+        "startLine": 379,
+        "startChar": 0,
+        "endLine": 384,
+        "endChar": 5
+      },
+      "revId": "8b678b65795c39382f5a07ad941952ace3bfbfcf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_ac128106",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-25T23:28:17Z",
+      "side": 1,
+      "message": "Needs to be general purpose. Probably, each MP extension (NLRI) has to implement its own functionality.",
+      "range": {
+        "startLine": 391,
+        "startChar": 0,
+        "endLine": 399,
+        "endChar": 5
+      },
+      "revId": "8b678b65795c39382f5a07ad941952ace3bfbfcf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
