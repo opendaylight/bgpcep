@@ -27,9 +27,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 
 public final class Ipv6NlriParser implements NlriParser {
 
-    private DestinationIpv6 prefixes(final ByteBuf nlri) {
+    private static DestinationIpv6 prefixes(final ByteBuf nlri) {
         final List<Ipv6Prefix> prefs = Ipv6Util.prefixListForBytes(ByteArray.readAllBytes(nlri));
-        final List<Ipv6Prefixes> prefixes = new ArrayList<>();
+        final List<Ipv6Prefixes> prefixes = new ArrayList<>(prefs.size());
         for (final Ipv6Prefix p : prefs) {
             prefixes.add(new Ipv6PrefixesBuilder().setPrefix(p).build());
         }
