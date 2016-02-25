@@ -181,9 +181,12 @@ public final class Ipv4Util {
                 list.add(new Ipv4Prefix("0.0.0.0/0"));
                 continue;
             }
-            final int byteCount = (bitLength % Byte.SIZE != 0) ? (bitLength / Byte.SIZE) + 1 : bitLength / Byte.SIZE;
-            list.add(prefixForBytes(ByteArray.subByte(bytes, byteOffset, byteCount), bitLength));
-            byteOffset += byteCount;
+
+            list.add(IetfInetUtil.INSTANCE.ipv4PrefixForShort(bytes, byteOffset, bitLength));
+            byteOffset += bitLength / Byte.SIZE;
+            if (bitLength % Byte.SIZE != 0) {
+                byteOffset++;
+            }
 
         }
         return list;

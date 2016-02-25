@@ -174,10 +174,11 @@ public final class Ipv6Util {
                 list.add(new Ipv6Prefix("::/0"));
                 continue;
             }
-            final int byteCount = (bitLength % Byte.SIZE != 0) ? (bitLength / Byte.SIZE) + 1 : bitLength / Byte.SIZE;
-            list.add(prefixForBytes(ByteArray.subByte(bytes, byteOffset, byteCount), bitLength));
-            byteOffset += byteCount;
-
+            list.add(IetfInetUtil.INSTANCE.ipv6PrefixForShort(bytes, byteOffset, bitLength));
+            byteOffset += bitLength / Byte.SIZE;
+            if (bitLength % Byte.SIZE != 0) {
+                byteOffset++;
+            }
         }
         return list;
     }
