@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.util;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.UnsignedBytes;
@@ -17,6 +16,7 @@ import io.netty.buffer.Unpooled;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -164,7 +164,7 @@ public final class Ipv6Util {
         if (bytes.length == 0) {
             return Collections.emptyList();
         }
-        final List<Ipv6Prefix> list = Lists.newArrayList();
+        final List<Ipv6Prefix> list = new ArrayList<>();
         int byteOffset = 0;
         while (byteOffset < bytes.length) {
             final int bitLength = UnsignedBytes.toInt(ByteArray.subByte(bytes, byteOffset, 1)[0]);
