@@ -128,7 +128,14 @@ public final class Ipv4Util {
      */
     public static Ipv4Prefix prefixForBytes(final byte[] bytes, final int length) {
         Preconditions.checkArgument(length <= bytes.length * Byte.SIZE);
-        final byte[] tmp = Arrays.copyOfRange(bytes, 0, IP4_LENGTH);
+
+        final byte[] tmp;
+        if (bytes.length != IP4_LENGTH) {
+            tmp = Arrays.copyOfRange(bytes, 0, IP4_LENGTH);
+        } else {
+            tmp = bytes;
+        }
+
         return IetfInetUtil.INSTANCE.ipv4PrefixFor(tmp, length);
     }
 
@@ -136,14 +143,18 @@ public final class Ipv4Util {
      * Creates an Ipv4Prefix object from given ByteBuf. Prefix length is assumed to
      * be in the left most byte of the buffer.
      *
-     * @param bytes IPv4 address
+     * @param buf Buffer containing serialized prefix
      * @return Ipv4Prefix object
      */
-    public static Ipv4Prefix prefixForByteBuf(final ByteBuf bytes) {
-        final int prefixLength = bytes.readByte();
+    public static Ipv4Prefix prefixForByteBuf(final ByteBuf buf) {
+        final int prefixLength = buf.readByte();
         final int size = prefixLength / Byte.SIZE + ((prefixLength % Byte.SIZE == 0) ? 0 : 1);
-        Preconditions.checkArgument(size <= bytes.readableBytes(), "Illegal length of IP prefix: %s", bytes.readableBytes());
-        return prefixForBytes(ByteArray.readBytes(bytes, size), prefixLength);
+        final int readable = buf.readableBytes();
+        Preconditions.checkArgument(size <= readable, "Illegal length of IP prefix: %s/%s", size, readable);
+
+        final byte[] bytes = new byte[IP4_LENGTH];
+        buf.readBytes(bytes, 0, size);
+        return IetfInetUtil.INSTANCE.ipv4PrefixFor(bytes, prefixLength);
     }
 
     /**
