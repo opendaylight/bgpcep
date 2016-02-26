@@ -368,6 +368,7 @@ module odl-bgp-rib-impl-cfg {
                 key "type name";
                 uses config:service-ref {
                     refine type {
+                        mandatory false;
                         config:required-identity add-path;
                     }
                 }
