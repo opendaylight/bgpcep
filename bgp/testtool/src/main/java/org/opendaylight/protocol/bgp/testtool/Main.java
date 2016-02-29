@@ -7,16 +7,17 @@
  */
 package org.opendaylight.protocol.bgp.testtool;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
+import java.util.List;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
-import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
@@ -25,6 +26,14 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParametersBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.OptionalCapabilities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.OptionalCapabilitiesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
@@ -72,7 +81,7 @@ public final class Main {
         }
 
         InetSocketAddress address = null;
-        short holdTimerValue = INITIAL_HOLD_TIME;
+        int holdTimerValue = INITIAL_HOLD_TIME;
         AsNumber as = null;
 
         int i = 0;
@@ -82,7 +91,7 @@ public final class Main {
                 address = new InetSocketAddress(InetAddress.getByName(ip[0]), Integer.parseInt(ip[1]));
                 i++;
             } else if (args[i].equalsIgnoreCase("-h") || args[i].equalsIgnoreCase("--holdtimer")) {
-                holdTimerValue = Short.valueOf(args[i + 1]);
+                holdTimerValue = Integer.valueOf(args[i + 1]);
                 i++;
             } else if (args[i].equalsIgnoreCase("-as")) {
                 as = new AsNumber(Long.valueOf(args[i + 1]));
@@ -97,13 +106,12 @@ public final class Main {
 
         final BGPSessionListener sessionListener = new TestingListener();
 
-        final Map<Class<? extends AddressFamily>, Class<? extends SubsequentAddressFamily>> tables = new HashMap<>();
-        tables.put(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-        tables.put(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
+        final BgpParameters bgpParameters = createBgpParameters(Lists.newArrayList(
+                createMPCapability(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class),
+                createMPCapability(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class)));
 
-        final BGPSessionProposalImpl prop = new BGPSessionProposalImpl(holdTimerValue, as, new Ipv4Address("25.25.25.2"), tables, as);
-
-        final BGPSessionPreferences proposal = prop.getProposal();
+        final BGPSessionPreferences proposal = new BGPSessionPreferences(as, holdTimerValue, new Ipv4Address("25.25.25.2"), as,
+                Collections.singletonList(bgpParameters));
 
         LOG.debug("{} {} {}", address, sessionListener, proposal);
 
@@ -113,5 +121,17 @@ public final class Main {
 
         m.dispatcher.createClient(addr, strictBGPPeerRegistry,
             new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_MILLIS));
+    }
+
+    @VisibleForTesting
+    protected static BgpParameters createBgpParameters(final List<OptionalCapabilities> optionalCapabilities) {
+        return new BgpParametersBuilder().setOptionalCapabilities(optionalCapabilities).build();
+    }
+
+    @VisibleForTesting
+    protected static OptionalCapabilities createMPCapability(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
+        return new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
+                new CParameters1Builder().setMultiprotocolCapability(
+                        new MultiprotocolCapabilityBuilder().setAfi(afi).setSafi(safi).build()).build()).build()).build();
     }
 }
