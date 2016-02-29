@@ -179,10 +179,18 @@ final class BGPSessionStats {
                                 att.setSafi(mc.getSafi().getSimpleName());
                                 tt.add(att);
                             }
-                            pref.setGrCapability(cParam.getAugmentation(CParameters1.class).getGracefulRestartCapability() != null);
-                            pref.setFourOctetAsCapability(cParam.getAs4BytesCapability() != null);
-                            pref.setAddPathCapability(cParam.getAugmentation(CParameters1.class).getAddPathCapability() != null);
-                            if (cParam.getBgpExtendedMessageCapability() !=null) {
+                            if (cParam.getAs4BytesCapability() != null) {
+                                pref.setFourOctetAsCapability(true);
+                            }
+                            if (cParam.getAugmentation(CParameters1.class) != null &&
+                                    cParam.getAugmentation(CParameters1.class).getGracefulRestartCapability() != null) {
+                                pref.setGrCapability(true);
+                            }
+                            if (cParam.getAugmentation(CParameters1.class) != null &&
+                                    cParam.getAugmentation(CParameters1.class).getAddPathCapability() != null) {
+                                pref.setAddPathCapability(true);
+                            }
+                            if (cParam.getBgpExtendedMessageCapability() != null) {
                                 pref.setBgpExtendedMessageCapability(true);
                             }
                         }
@@ -212,12 +220,18 @@ final class BGPSessionStats {
             for (final BgpParameters param : remoteOpen.getBgpParameters()) {
                 for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
                     final CParameters cParam = capa.getCParameters();
-                    pref.setFourOctetAsCapability(cParam.getAs4BytesCapability() != null);
-                    pref.setGrCapability(cParam.getAugmentation(CParameters1.class) != null &&
-                        cParam.getAugmentation(CParameters1.class).getGracefulRestartCapability() != null);
-                    pref.setAddPathCapability(cParam.getAugmentation(CParameters1.class) != null &&
-                        cParam.getAugmentation(CParameters1.class).getAddPathCapability() != null);
-                    if (cParam.getBgpExtendedMessageCapability() !=null) {
+                    if (cParam.getAs4BytesCapability() != null) {
+                        pref.setFourOctetAsCapability(true);
+                    }
+                    if (cParam.getAugmentation(CParameters1.class) != null &&
+                            cParam.getAugmentation(CParameters1.class).getGracefulRestartCapability() != null) {
+                        pref.setGrCapability(true);
+                    }
+                    if (cParam.getAugmentation(CParameters1.class) != null &&
+                            cParam.getAugmentation(CParameters1.class).getAddPathCapability() != null) {
+                        pref.setAddPathCapability(true);
+                    }
+                    if (cParam.getBgpExtendedMessageCapability() != null) {
                         pref.setBgpExtendedMessageCapability(true);
                     }
                 }
