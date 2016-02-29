@@ -11,6 +11,7 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisher;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisherBuilder;
 
 /**
  * Utility class for of RouteDistinguisher serialization and parsing.
@@ -34,7 +35,12 @@ public final class RouteDistinguisherUtil {
      * @param byteAggregator
      */
     public static void serializeRouteDistinquisher(final RouteDistinguisher distinquisher, final ByteBuf byteAggregator) {
-        final String value = distinquisher.getString();
+        String value = null;
+        if (distinquisher.getRdAs() != null) {
+            value = distinquisher.getRdAs().getValue();
+        } else if (distinquisher.getRdIpv4() != null) {
+            value = distinquisher.getRdIpv4().getValue();
+        }
         final String[] values = value.split(":");
         try {
             // type 1
@@ -76,6 +82,6 @@ public final class RouteDistinguisherUtil {
         default:
             break;
         }
-        return new RouteDistinguisher(routeDistiguisher.toString());
+        return RouteDistinguisherBuilder.getDefaultInstance(routeDistiguisher.toString());
     }
 }
