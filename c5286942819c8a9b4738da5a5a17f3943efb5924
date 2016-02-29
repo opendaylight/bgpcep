@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_3ae33aa5",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/bgp/concepts/RouteDistinguisherUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-29T19:04:14Z",
+      "side": 1,
+      "message": "As now there are two distinguish types in a union, you do not need to use this try-catch approach.",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 9
+      },
+      "revId": "c5286942819c8a9b4738da5a5a17f3943efb5924",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_9aeb6677",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/bgp/concepts/RouteDistinguisherUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-02-29T19:04:14Z",
+      "side": 1,
+      "message": "Unnecessary to use this constructor - use new RouteDistinguisher(...)",
+      "range": {
+        "startLine": 85,
+        "startChar": 15,
+        "endLine": 85,
+        "endChar": 59
+      },
+      "revId": "c5286942819c8a9b4738da5a5a17f3943efb5924",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
