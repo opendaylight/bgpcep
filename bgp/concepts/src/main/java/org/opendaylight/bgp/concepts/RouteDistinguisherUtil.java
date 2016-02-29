@@ -8,8 +8,11 @@
 package org.opendaylight.bgp.concepts;
 
 import io.netty.buffer.ByteBuf;
+import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RdAs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RdIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisher;
 
 /**
@@ -20,7 +23,7 @@ public final class RouteDistinguisherUtil {
 
     private static final int IPV4_TYPE = 1;
     private static final int AS_4BYTE_TYPE = 2;
-    private static final char SEPARATOR = ':';
+    private static final String SEPARATOR = ":";
     public static final int RD_LENGTH = 8;
 
     private RouteDistinguisherUtil() {
@@ -34,22 +37,18 @@ public final class RouteDistinguisherUtil {
      * @param byteAggregator
      */
     public static void serializeRouteDistinquisher(final RouteDistinguisher distinquisher, final ByteBuf byteAggregator) {
-        final String value = distinquisher.getString();
-        final String[] values = value.split(":");
-        try {
-            // type 1
+        if (distinquisher.getRdAs() != null) {
+            final String[] values = distinquisher.getRdAs().getValue().split(SEPARATOR);
+            byteAggregator.writeShort(AS_4BYTE_TYPE);
+            final long admin = Integer.parseUnsignedInt(values[0]);
+            ByteBufWriteUtil.writeUnsignedInt(admin, byteAggregator);
+            ByteBufWriteUtil.writeUnsignedShort(Integer.parseInt(values[1]), byteAggregator);
+        } else if (distinquisher.getRdIpv4() != null) {
+            final String[] values = distinquisher.getRdIpv4().getValue().split(SEPARATOR);
             final Ipv4Address ip = new Ipv4Address(values[0]);
             byteAggregator.writeShort(IPV4_TYPE);
-            byteAggregator.writeBytes(Ipv4Util.byteBufForAddress(ip));
-            final int assignedNumber = Integer.parseInt(values[1]);
-            byteAggregator.writeShort(assignedNumber);
-        } catch(final IllegalArgumentException e) {
-            // type 2
-            byteAggregator.writeShort(AS_4BYTE_TYPE);
-            final int admin = Integer.parseInt(values[0]);
-            byteAggregator.writeInt(admin);
-            final int assignedNumber = Integer.parseInt(values[1]);
-            byteAggregator.writeShort(assignedNumber);
+            ByteBufWriteUtil.writeIpv4Address(ip, byteAggregator);
+            ByteBufWriteUtil.writeUnsignedShort(Integer.parseInt(values[1]), byteAggregator);
         }
     }
 
@@ -67,15 +66,15 @@ public final class RouteDistinguisherUtil {
             routeDistiguisher.append(Ipv4Util.addressForByteBuf(buffer).getValue());
             routeDistiguisher.append(SEPARATOR);
             routeDistiguisher.append(buffer.readUnsignedShort());
-            break;
+            return new RouteDistinguisher(new RdIpv4(routeDistiguisher.toString()));
         case AS_4BYTE_TYPE:
             routeDistiguisher.append(buffer.readUnsignedInt());
             routeDistiguisher.append(SEPARATOR);
             routeDistiguisher.append(buffer.readUnsignedShort());
-            break;
+            return new RouteDistinguisher(new RdAs(routeDistiguisher.toString()));
         default:
             break;
         }
-        return new RouteDistinguisher(routeDistiguisher.toString());
+        return null;
     }
 }
