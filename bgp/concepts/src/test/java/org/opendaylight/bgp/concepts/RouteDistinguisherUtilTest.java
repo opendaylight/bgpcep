@@ -15,6 +15,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisher;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisherBuilder;
 
 public class RouteDistinguisherUtilTest {
 
@@ -28,7 +29,7 @@ public class RouteDistinguisherUtilTest {
     public void testIpv4RouteDistinguisher() {
         final RouteDistinguisher expected = createRouteDistinguisher(1, 10L, IP_ADDRESS);
         final RouteDistinguisher parsed = RouteDistinguisherUtil.parseRouteDistinguisher(Unpooled.copiedBuffer(IP_BYTES));
-        assertEquals(expected.getString(), parsed.getString());
+        assertEquals(expected.getRdIpv4(), parsed.getRdIpv4());
         final ByteBuf byteAggregator = Unpooled.buffer(IP_BYTES.length);
         RouteDistinguisherUtil.serializeRouteDistinquisher(expected, byteAggregator);
         assertArrayEquals(IP_BYTES, byteAggregator.array());
@@ -38,7 +39,7 @@ public class RouteDistinguisherUtilTest {
     public void testAs4BRouteDistinguisher() {
         final RouteDistinguisher expected = createRouteDistinguisher(2, 8L, ADMIN);
         final RouteDistinguisher parsed = RouteDistinguisherUtil.parseRouteDistinguisher(Unpooled.copiedBuffer(AS_4B_BYTES));
-        assertEquals(expected.getString(), parsed.getString());
+        assertEquals(expected.getRdAs(), parsed.getRdAs());
         final ByteBuf byteAggregator = Unpooled.buffer(AS_4B_BYTES.length);
         RouteDistinguisherUtil.serializeRouteDistinquisher(expected, byteAggregator);
         assertArrayEquals(AS_4B_BYTES, byteAggregator.array());
@@ -60,7 +61,7 @@ public class RouteDistinguisherUtilTest {
         routeDistiguisher.append(administratorSubfield);
         routeDistiguisher.append(SEPARATOR);
         routeDistiguisher.append(assignedNumberSubfield);
-        return new RouteDistinguisher(routeDistiguisher.toString());
+        return RouteDistinguisherBuilder.getDefaultInstance(routeDistiguisher.toString());
     }
 
 }
