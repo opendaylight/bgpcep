@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_95d4d9bd",
+        "filename": "features/bgp/src/main/features/features.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-01T12:01:00Z",
+      "side": 1,
+      "message": "missing dependency on BGP-LU bundle",
+      "revId": "667a20eee5f0b42120c1b7331851242236682c69",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
