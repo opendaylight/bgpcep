@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_553371aa",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/bgp/concepts/RouteDistinguisherUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-01T09:22:25Z",
+      "side": 1,
+      "message": "Magic string",
+      "range": {
+        "startLine": 40,
+        "startChar": 77,
+        "endLine": 40,
+        "endChar": 80
+      },
+      "revId": "909c5def5ae8aec394b54ea93482edc63225cb82",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_b5247d60",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/bgp/concepts/RouteDistinguisherUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-01T09:22:25Z",
+      "side": 1,
+      "message": "should be an unsigned integer",
+      "range": {
+        "startLine": 42,
+        "startChar": 12,
+        "endLine": 42,
+        "endChar": 58
+      },
+      "revId": "909c5def5ae8aec394b54ea93482edc63225cb82",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_d51e610b",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/bgp/concepts/RouteDistinguisherUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-01T09:22:25Z",
+      "side": 1,
+      "message": "should be an unsigned short",
+      "range": {
+        "startLine": 44,
+        "startChar": 12,
+        "endLine": 44,
+        "endChar": 67
+      },
+      "revId": "909c5def5ae8aec394b54ea93482edc63225cb82",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_75d5d51a",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/bgp/concepts/RouteDistinguisherUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-01T09:22:25Z",
+      "side": 1,
+      "message": "I guess ByteBufWritter has some utility for writing IPv4 address.",
+      "range": {
+        "startLine": 50,
+        "startChar": 12,
+        "endLine": 50,
+        "endChar": 70
+      },
+      "revId": "909c5def5ae8aec394b54ea93482edc63225cb82",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_95297939",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/bgp/concepts/RouteDistinguisherUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-01T09:22:25Z",
+      "side": 1,
+      "message": "should be an unsigned short",
+      "range": {
+        "startLine": 51,
+        "startChar": 12,
+        "endLine": 51,
+        "endChar": 67
+      },
+      "revId": "909c5def5ae8aec394b54ea93482edc63225cb82",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
