@@ -11,10 +11,12 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupportUtil;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
@@ -28,6 +30,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class Ipv4NlriParser implements NlriParser, NlriSerializer {
@@ -41,23 +45,40 @@ public final class Ipv4NlriParser implements NlriParser, NlriSerializer {
         }
     }
 
-    private static DestinationIpv4 prefixes(final ByteBuf nlri) {
-        final List<Ipv4Prefix> prefs = Ipv4Util.prefixListForBytes(ByteArray.readAllBytes(nlri));
-        final List<Ipv4Prefixes> prefixes = new ArrayList<>(prefs.size());
-        for (final Ipv4Prefix p : prefs) {
-            prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
+    private static DestinationIpv4 prefixes(final ByteBuf nlri, final PeerSpecificParserConstraint constraints,
+            final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
+        final List<Ipv4Prefixes> prefixes = new ArrayList<>();
+        final boolean isAddPath = MultiPathSupportUtil.isTableTypeSupported(constraints, new BgpTableTypeImpl(afi, safi));
+        while (nlri.isReadable()) {
+            final Ipv4PrefixesBuilder prefixesBuilder = new Ipv4PrefixesBuilder();
+            if (isAddPath) {
+                prefixesBuilder.setPathId(PathIdUtil.readPathId(nlri));
+            }
+            prefixesBuilder.setPrefix(Ipv4Util.prefixForByteBuf(nlri));
+            prefixes.add(prefixesBuilder.build());
         }
         return new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build();
     }
 
     @Override
     public void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder) {
-        builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
-            prefixes(nlri)).build()).build());
+        parseNlri(nlri, builder, null);
     }
 
     @Override
-    public void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder) throws BGPParsingException {
-        builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(new DestinationIpv4CaseBuilder().setDestinationIpv4(prefixes(nlri)).build()).build());
+    public void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder) {
+        parseNlri(nlri, builder, null);
+    }
+
+    @Override
+    public void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder, final PeerSpecificParserConstraint constraint) {
+        builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
+                new DestinationIpv4CaseBuilder().setDestinationIpv4(prefixes(nlri, constraint, builder.getAfi(), builder.getSafi())).build()).build());
+    }
+
+    @Override
+    public void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder, final PeerSpecificParserConstraint constraint) {
+        builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
+                prefixes(nlri, constraint, builder.getAfi(), builder.getSafi())).build()).build());
     }
 }
