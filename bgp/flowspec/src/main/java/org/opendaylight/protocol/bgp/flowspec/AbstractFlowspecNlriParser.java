@@ -79,7 +79,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgum
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 
@@ -201,7 +200,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     }
 
     public final String stringNlri(final DataContainerNode<?> flowspec) {
-        return stringNlri(extractFlowspec((MapEntryNode) flowspec));
+        return stringNlri(extractFlowspec(flowspec));
     }
 
     public final List<Flowspec> extractFlowspec(final DataContainerNode<?> route) {
@@ -269,11 +268,9 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
         for (final UnkeyedListEntryNode node : destinationPortsData.getValue()) {
             final DestinationPortsBuilder destPortsBuilder = new DestinationPortsBuilder();
-            if (node.getNodeType().getLocalName().equals("op")) {
-                final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
-                if (opValue.isPresent()) {
-                    destPortsBuilder.setOp(NumericTwoByteOperandParser.INSTANCE.create((Set<String>) opValue.get().getValue()));
-                }
+            final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
+            if (opValue.isPresent()) {
+                destPortsBuilder.setOp(NumericTwoByteOperandParser.INSTANCE.create((Set<String>) opValue.get().getValue()));
             }
             final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
             if (valueNode.isPresent()) {
