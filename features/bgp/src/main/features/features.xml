@@ -79,6 +79,7 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-dependencies</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-inet</feature>
         <feature version='${config.version}'>odl-config-api</feature>
+        <feature version='${yangtools.version}'>odl-yangtools-yang-data</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-spi/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-impl/{{VERSION}}</bundle>
