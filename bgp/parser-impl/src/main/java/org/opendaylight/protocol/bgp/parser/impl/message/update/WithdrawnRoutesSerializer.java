@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.destination.ipv4.Ipv4Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.prefixes.destination.ipv6.Ipv6Prefixes;
@@ -45,6 +46,7 @@ public class WithdrawnRoutesSerializer implements NlriSerializer {
             final DestinationIpv4Case destinationIpv4Case = (DestinationIpv4Case) routes.getDestinationType();
             if (destinationIpv4Case.getDestinationIpv4().getIpv4Prefixes() != null) {
                 for (final Ipv4Prefixes ipv4Prefix : destinationIpv4Case.getDestinationIpv4().getIpv4Prefixes()) {
+                    PathIdUtil.writePathId(ipv4Prefix.getPathId(), byteAggregator);
                     ByteBufWriteUtil.writeMinimalPrefix(ipv4Prefix.getPrefix(), byteAggregator);
                 }
             }
