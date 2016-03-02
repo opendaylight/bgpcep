@@ -31,6 +31,7 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.AtomicAggregateA
 import org.opendaylight.protocol.bgp.parser.impl.message.update.ClusterIdAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunitiesAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.ExtendedCommunitiesAttributeParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.Ipv4MultiPathNlriParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.Ipv4NlriParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.Ipv6NlriParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.LocalPreferenceAttributeParser;
@@ -121,6 +122,9 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         final Ipv4NextHopParserSerializer ipv4NextHopParser = new Ipv4NextHopParserSerializer();
         regs.add(context.registerNlriParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class,
             new Ipv4NlriParser(), ipv4NextHopParser, Ipv4NextHopCase.class));
+
+        regs.add(context.registerMultiPathNlriParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class,
+                new Ipv4MultiPathNlriParser()));
 
         final Ipv6NextHopParserSerializer ipv6NextHopParser = new Ipv6NextHopParserSerializer();
         regs.add(context.registerNlriParser(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, new
