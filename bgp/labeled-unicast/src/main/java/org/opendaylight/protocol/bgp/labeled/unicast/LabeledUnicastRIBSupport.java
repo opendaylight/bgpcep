@@ -249,7 +249,7 @@ final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
             for(final UnkeyedListEntryNode label : ((UnkeyedListNode)labelStacks.get()).getValue()) {
                 final Optional<DataContainerChild<? extends PathArgument, ?>> labelStack = label.getChild(LV_NID);
                 if (labelStack.isPresent()) {
-                    labelStackbuilder.setLabelValue((MplsLabel) labelStack.get());
+                    labelStackbuilder.setLabelValue(new MplsLabel((long) labelStack.get().getValue()));
                 }
             }
         }
