@@ -185,7 +185,7 @@ def get_prefixes(odl_ip, port, uri, auth, prefix_base=None, prefix_len=None,
             if "prefix" in item:
                 prefixes += item + ","
                 prefix_count += 1
-        prefixes = prefixes[:len(prefixes)-1]
+        prefixes = prefixes[:len(prefixes) - 1]
         logger.debug("prefix_list=%s", prefixes)
         logger.info("prefix_count=%s", prefix_count)
 

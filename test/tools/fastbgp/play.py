@@ -1360,13 +1360,13 @@ class ReadTracker(object):
                 logger.debug("withdrawn_prefix_received: %s", prefix)
             # total path attribute length
             total_pa_length_offset = 21 + wdr_length
-            total_pa_length_hex = msg[total_pa_length_offset:total_pa_length_offset+2]
+            total_pa_length_hex = msg[total_pa_length_offset:total_pa_length_offset + 2]
             total_pa_length = int(binascii.b2a_hex(total_pa_length_hex), 16)
             logger.debug("Total path attribute lenght: 0x%s (%s)",
                          binascii.b2a_hex(total_pa_length_hex), total_pa_length)
             # path attributes
             pa_offset = total_pa_length_offset + 2
-            pa_hex = msg[pa_offset:pa_offset+total_pa_length]
+            pa_hex = msg[pa_offset:pa_offset + total_pa_length]
             logger.debug("Path attributes: 0x%s", binascii.b2a_hex(pa_hex))
             self.decode_path_attributes(pa_hex)
             # network layer reachability information length
@@ -1374,7 +1374,7 @@ class ReadTracker(object):
             logger.debug("Calculated NLRI length: %s", nlri_length)
             # network layer reachability information
             nlri_offset = pa_offset + total_pa_length
-            nlri_hex = msg[nlri_offset:nlri_offset+nlri_length]
+            nlri_hex = msg[nlri_offset:nlri_offset + nlri_length]
             logger.debug("NLRI: 0x%s", binascii.b2a_hex(nlri_hex))
             nlri_prefix_list = get_prefix_list_from_hex(nlri_hex)
             logger.debug("NLRI prefix list: %s", nlri_prefix_list)
