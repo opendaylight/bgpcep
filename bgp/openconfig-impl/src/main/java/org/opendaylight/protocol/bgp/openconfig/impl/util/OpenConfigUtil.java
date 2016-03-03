@@ -22,6 +22,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV6LABELLEDUNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV6UNICAST;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.L3VPNIPV4UNICAST;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.LabeledUnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
@@ -32,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev150930.Linkstate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -46,19 +48,21 @@ public final class OpenConfigUtil {
     static {
         final Builder<BgpTableType, AfiSafi> b = ImmutableMap.builder();
         b.put(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class),
-                new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build());
+            new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build());
         b.put(new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class),
-                new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class).build());
+            new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class).build());
         b.put(new BgpTableTypeImpl(Ipv4AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class),
-                new AfiSafiBuilder().setAfiSafiName(IPV4LABELLEDUNICAST.class).build());
+            new AfiSafiBuilder().setAfiSafiName(IPV4LABELLEDUNICAST.class).build());
         b.put(new BgpTableTypeImpl(Ipv6AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class),
-                new AfiSafiBuilder().setAfiSafiName(IPV6LABELLEDUNICAST.class).build());
+            new AfiSafiBuilder().setAfiSafiName(IPV6LABELLEDUNICAST.class).build());
+        b.put(new BgpTableTypeImpl(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class),
+            new AfiSafiBuilder().setAfiSafiName(L3VPNIPV4UNICAST.class).build());
         b.put(new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class),
-                new AfiSafiBuilder().setAfiSafiName(Linkstate.class).build());
+            new AfiSafiBuilder().setAfiSafiName(Linkstate.class).build());
         b.put(new BgpTableTypeImpl(Ipv4AddressFamily.class, FlowspecSubsequentAddressFamily.class),
-                new AfiSafiBuilder().setAfiSafiName(Ipv4Flow.class).build());
+            new AfiSafiBuilder().setAfiSafiName(Ipv4Flow.class).build());
         b.put(new BgpTableTypeImpl(Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class),
-                new AfiSafiBuilder().setAfiSafiName(Ipv6Flow.class).build());
+            new AfiSafiBuilder().setAfiSafiName(Ipv6Flow.class).build());
         TABLETYPE_TO_AFISAFI = b.build();
     }
 
