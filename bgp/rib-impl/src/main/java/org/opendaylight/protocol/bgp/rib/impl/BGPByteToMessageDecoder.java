@@ -16,6 +16,9 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.PeerConstraint;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraintProvider;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.PeerSpecificParserConstraintImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,9 +28,15 @@ import org.slf4j.LoggerFactory;
 final class BGPByteToMessageDecoder extends ByteToMessageDecoder {
     private static final Logger LOG = LoggerFactory.getLogger(BGPByteToMessageDecoder.class);
     private final MessageRegistry registry;
+    private final PeerSpecificParserConstraintProvider constraints;
 
     public BGPByteToMessageDecoder(final MessageRegistry registry) {
+        this.constraints = new PeerSpecificParserConstraintImpl();
         this.registry = Preconditions.checkNotNull(registry);
+    }
+
+    public <T extends PeerConstraint> boolean addDecoderConstraint(final Class<T> classType, final T peerConstraint) {
+        return this.constraints.addPeerConstraint(classType, peerConstraint);
     }
 
     @Override
@@ -37,7 +46,7 @@ final class BGPByteToMessageDecoder extends ByteToMessageDecoder {
             if (LOG.isTraceEnabled()) {
                 LOG.trace("Received to decode: {}", ByteBufUtil.hexDump(in));
             }
-            out.add(this.registry.parseMessage(in));
+            out.add(this.registry.parseMessage(in, this.constraints));
         } else {
             LOG.trace("No more content in incoming buffer.");
         }
