@@ -16,6 +16,7 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,9 +26,19 @@ import org.slf4j.LoggerFactory;
 final class BGPByteToMessageDecoder extends ByteToMessageDecoder {
     private static final Logger LOG = LoggerFactory.getLogger(BGPByteToMessageDecoder.class);
     private final MessageRegistry registry;
+    private final MultiPathSupport multiPathSupport;
+
+    private BGPByteToMessageDecoder(final MessageRegistry registry, final MultiPathSupport multiPathSupport) {
+        this.multiPathSupport = multiPathSupport;
+        this.registry = Preconditions.checkNotNull(registry);
+    }
 
     public BGPByteToMessageDecoder(final MessageRegistry registry) {
-        this.registry = Preconditions.checkNotNull(registry);
+        this(registry, null);
+    }
+
+    public static BGPByteToMessageDecoder toAddPathDecoder(final BGPByteToMessageDecoder original, final MultiPathSupport multiPathSupport) {
+        return new BGPByteToMessageDecoder(original.registry, multiPathSupport);
     }
 
     @Override
@@ -37,7 +48,7 @@ final class BGPByteToMessageDecoder extends ByteToMessageDecoder {
             if (LOG.isTraceEnabled()) {
                 LOG.trace("Received to decode: {}", ByteBufUtil.hexDump(in));
             }
-            out.add(this.registry.parseMessage(in));
+            out.add(this.registry.parseMultiPathMessage(in, this.multiPathSupport));
         } else {
             LOG.trace("No more content in incoming buffer.");
         }

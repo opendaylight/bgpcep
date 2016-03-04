@@ -18,6 +18,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
 import java.io.IOException;
 import java.util.Date;
@@ -30,6 +31,7 @@ import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupportImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionStatistics;
@@ -68,6 +70,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     private static final int KA_TO_DEADTIMER_RATIO = 3;
 
     private static final String EXTENDED_MSG_DECODER = "EXTENDED_MSG_DECODER";
+
+    private static final String ADD_PATH_DECODER = "ADD_PATH_DECODER";
 
     static final String END_OF_INPUT = "End of input detected. Close the session.";
 
@@ -173,6 +177,14 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         this.sync = new BGPSynchronization(this.listener, tts);
         this.tableTypes = tats;
         this.addPathTypes = addPathCapabilitiesList;
+
+        if (! this.addPathTypes.isEmpty()) {
+            final ChannelPipeline pipeline = this.channel.pipeline();
+            final BGPByteToMessageDecoder original = pipeline.get(BGPByteToMessageDecoder.class);
+            final BGPByteToMessageDecoder addPathDecoder = BGPByteToMessageDecoder.toAddPathDecoder(original,
+                    MultiPathSupportImpl.createReceiveMultiPathSupport(this.addPathTypes));
+            pipeline.replace(original, ADD_PATH_DECODER, addPathDecoder);
+        }
 
         if (this.holdTimerValue != 0) {
             channel.eventLoop().schedule(new Runnable() {
