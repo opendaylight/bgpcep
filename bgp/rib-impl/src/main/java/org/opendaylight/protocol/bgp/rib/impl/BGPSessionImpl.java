@@ -18,6 +18,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
 import java.io.IOException;
 import java.util.Date;
@@ -30,6 +31,8 @@ import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.MultiPathSupportImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionStatistics;
@@ -173,6 +176,12 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         this.sync = new BGPSynchronization(this.listener, tts);
         this.tableTypes = tats;
         this.addPathTypes = addPathCapabilitiesList;
+
+        if (! this.addPathTypes.isEmpty()) {
+            final ChannelPipeline pipeline = this.channel.pipeline();
+            final BGPByteToMessageDecoder decoder = pipeline.get(BGPByteToMessageDecoder.class);
+            BGPByteToMessageDecoder.addDecoderConstraint(decoder, MultiPathSupport.class, MultiPathSupportImpl.createReceiveMultiPathSupport(this.addPathTypes));
+        }
 
         if (this.holdTimerValue != 0) {
             channel.eventLoop().schedule(new Runnable() {
