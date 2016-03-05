@@ -190,7 +190,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             final PeerRole newPeerRole = this.peerPolicyTracker.getRole(IdentifierUtils.peerPath(rootPath));
             final PeerExportGroup peerGroup = this.peerPolicyTracker.getPeerGroup(newPeerRole);
             this.routeEntries.entrySet().forEach(entry -> entry.getValue().writeRoute(peerIdOfNewPeer, entry.getKey(), rootPath, peerGroup,
-                this.localTablesKey, this.ribSupport, tx));
+                this.localTablesKey, this.peerPolicyTracker, this.ribSupport, this.cacheDisconnectedPeers, tx));
         }
     }
 
@@ -227,12 +227,13 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             final PathArgument routeId = route.getIdentifier();
             RouteEntry entry = this.routeEntries.get(routeId);
             final Optional<NormalizedNode<?, ?>> maybeData = route.getDataAfter();
+            final Optional<NormalizedNode<?, ?>> maybeDataBefore = route.getDataBefore();
             if (maybeData.isPresent()) {
                 if (entry == null) {
                     entry = createEntry(routeId);
                 }
-                entry.addRoute(routerId, this.attributesIdentifier, maybeData.get());
-            } else if (entry != null && entry.removeRoute(routerId)) {
+                entry.addRoute(routerId, this.ribSupport.extractPathId(maybeData.get()), this.attributesIdentifier, maybeData.get());
+            } else if (entry != null && entry.removeRoute(routerId, this.ribSupport.extractPathId(maybeDataBefore.get()))) {
                 this.routeEntries.remove(routeId);
                 LOG.trace("Removed route from {}", routerId);
             }
