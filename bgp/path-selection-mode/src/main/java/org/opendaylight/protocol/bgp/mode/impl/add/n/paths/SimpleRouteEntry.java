@@ -5,20 +5,28 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.mode.impl.base;
+package org.opendaylight.protocol.bgp.mode.impl.add.n.paths;
 
 import com.google.common.primitives.UnsignedInteger;
 import org.opendaylight.protocol.bgp.mode.api.BestPath;
+import org.opendaylight.protocol.bgp.mode.impl.add.RouteKey;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
 
-final class BaseSimpleRouteEntry extends BaseAbstractRouteEntry {
+final class SimpleRouteEntry extends AbstractNPathsRouteEntry {
+    public SimpleRouteEntry(final Long nBestPaths) {
+        super(nBestPaths);
+    }
+
     @Override
-    public boolean removeRoute(UnsignedInteger routerId, final long remotePathId) {
-        return removeRoute(routerId, getOffsets().offsetOf(routerId));
+    public boolean removeRoute(final UnsignedInteger routerId, final long remotePathId) {
+        final RouteKey key = new RouteKey(routerId, remotePathId);
+        return removeRoute(key, getOffsets().offsetOf(key));
     }
 
     @Override
@@ -27,5 +35,10 @@ final class BaseSimpleRouteEntry extends BaseAbstractRouteEntry {
         b.withNodeIdentifier((NodeIdentifierWithPredicates) routeId);
         b.addChild(path.getAttributes());
         return b.build();
+    }
+
+    @Override
+    public int addRoute(final UnsignedInteger routerId, final Long remotePathId, final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
+        return addRoute(new RouteKey(routerId, remotePathId), attributesIdentifier, data);
     }
 }

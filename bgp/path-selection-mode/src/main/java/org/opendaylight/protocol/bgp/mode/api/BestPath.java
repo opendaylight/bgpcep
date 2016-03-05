@@ -31,6 +31,7 @@ public interface BestPath {
      * @return the path attributes
      */
     ContainerNode getAttributes();
+
     /**
      *
      * @return pathId

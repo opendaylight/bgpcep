@@ -34,9 +34,10 @@ public interface RouteEntry {
      * Remove route
      *
      * @param routerId router ID in unsigned integer format from an Ipv4Address
+     * @param remotePathId remote path Id received
      * @return return true if it was the last route on entry
      */
-    boolean removeRoute(UnsignedInteger routerId);
+    boolean removeRoute(UnsignedInteger routerId, long remotePathId);
 
     /**
      * Create value
@@ -57,11 +58,12 @@ public interface RouteEntry {
 
     /**
      * @param routerId router ID in unsigned integer format from an Ipv4Address
+     * @param remotePathId remote path Id received
      * @param attrII route Attributes Identifier
      * @param data route Data change
      * @return returns the offset
      */
-    int addRoute(UnsignedInteger routerId, NodeIdentifier attrII, NormalizedNode<?, ?> data);
+    int addRoute(UnsignedInteger routerId, Long remotePathId, NodeIdentifier attrII, NormalizedNode<?, ?> data);
 
     /**
      * Update LocRibOut and AdjRibsOut by removing stale best path and writing new best
@@ -88,5 +90,5 @@ public interface RouteEntry {
      * @param tx DOM transaction
      */
     void writeRoute(PeerId peerId, PathArgument routeId, YangInstanceIdentifier rootPath, PeerExportGroup peerGroup, TablesKey localTK,
-        RIBSupport ribSupport, DOMDataWriteTransaction tx);
+        ExportPolicyPeerTracker peerPT, RIBSupport ribSupport, CacheDisconnectedPeers discPeers, DOMDataWriteTransaction tx);
 }
