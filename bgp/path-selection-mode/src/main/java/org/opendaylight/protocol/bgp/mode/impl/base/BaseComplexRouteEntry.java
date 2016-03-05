@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import com.google.common.primitives.UnsignedInteger;
 import org.opendaylight.protocol.bgp.mode.api.BestPath;
+import org.opendaylight.protocol.bgp.mode.impl.OffsetMap;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
@@ -19,10 +20,10 @@ final class BaseComplexRouteEntry extends BaseAbstractRouteEntry {
     private MapEntryNode[] values = EMPTY_VALUES;
 
     @Override
-    public int addRoute(final UnsignedInteger routerId, final NodeIdentifier attrII, final NormalizedNode<?, ?> data) {
-        final OffsetMap oldMap = getOffsets();
-        final int offset = super.addRoute(routerId, attrII, data);
-        final OffsetMap newMap = getOffsets();
+    public int addRoute(final UnsignedInteger routerId, final Long remotePathId, final NodeIdentifier attrII, final NormalizedNode<?, ?> data) {
+        final OffsetMap<UnsignedInteger> oldMap = getOffsets();
+        final int offset = super.addRoute(routerId, remotePathId, attrII, data);
+        final OffsetMap<UnsignedInteger> newMap = getOffsets();
 
         if (!newMap.equals(oldMap)) {
             this.values = newMap.expand(oldMap, this.values, offset);
@@ -34,14 +35,14 @@ final class BaseComplexRouteEntry extends BaseAbstractRouteEntry {
 
     @Override
     public MapEntryNode createValue(final PathArgument routeId, final BestPath path) {
-        final OffsetMap map = getOffsets();
+        final OffsetMap<UnsignedInteger> map = getOffsets();
         final int offset = map.offsetOf(path.getRouterId());
         return map.getValue(this.values, offset);
     }
 
     @Override
-    public boolean removeRoute(final UnsignedInteger routerId) {
-        final OffsetMap map = getOffsets();
+    public boolean removeRoute(final UnsignedInteger routerId, final long remotePathId) {
+        final OffsetMap<UnsignedInteger> map = getOffsets();
         final int offset = map.offsetOf(routerId);
         final boolean ret = removeRoute(routerId, offset);
         this.values = map.removeValue(this.values, offset);

@@ -33,4 +33,21 @@ module odl-bgp-path-selection-mode {
         base "config:service-type";
         config:java-class "org.opendaylight.protocol.bgp.mode.api.PathSelectionMode";
     }
+
+    identity advertise-n-paths {
+         base config:module-type;
+         config:provided-service path-selection-mode-factory;
+         config:java-name-prefix AdvertiseNPaths;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case advertise-n-paths {
+            when "/config:modules/config:module/config:type = 'advertise-n-paths'";
+            leaf n-best-paths {
+                description "Expected n best path selection.";
+                type uint32;
+                default 2;
+            }
+        }
+    }
 }
