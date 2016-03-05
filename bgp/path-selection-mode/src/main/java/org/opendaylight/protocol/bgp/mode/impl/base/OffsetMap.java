@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
@@ -24,33 +24,25 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A map of Router identifier to an offset. Used to maintain a simple
- * offset-based lookup across multiple {@link AbstractRouteEntry} objects,
+ * offset-based lookup across multiple {@link BaseAbstractRouteEntry} objects,
  * which share either contributors or consumers.
- * <p/>
  * We also provide utility reformat methods, which provide access to
  * array members and array management features.
  */
 final class OffsetMap {
-    private static final Logger LOG = LoggerFactory.getLogger(OffsetMap.class);
     static final OffsetMap EMPTY = new OffsetMap(Collections.<UnsignedInteger>emptySet());
+    private static final Logger LOG = LoggerFactory.getLogger(OffsetMap.class);
     private static final LoadingCache<Set<UnsignedInteger>, OffsetMap> OFFSETMAPS = CacheBuilder.newBuilder().weakValues().build(new CacheLoader<Set<UnsignedInteger>, OffsetMap>() {
         @Override
         public OffsetMap load(final Set<UnsignedInteger> key) throws Exception {
             return new OffsetMap(key);
         }
     });
-    private static final Comparator<UnsignedInteger> IPV4_COMPARATOR = new Comparator<UnsignedInteger>() {
-        @Override
-        public int compare(final UnsignedInteger o1, final UnsignedInteger o2) {
-            return o1.compareTo(o2);
-        }
-    };
+    private static final Comparator<UnsignedInteger> IPV4_COMPARATOR = UnsignedInteger::compareTo;
     private final UnsignedInteger[] routerIds;
 
     private OffsetMap(final Set<UnsignedInteger> routerIds) {
-        final UnsignedInteger[] array = routerIds.toArray(new UnsignedInteger[0]);
-        Arrays.sort(array, IPV4_COMPARATOR);
-        this.routerIds = array;
+        this.routerIds = routerIds.isEmpty() ? new UnsignedInteger[0] : routerIds.stream().sorted(IPV4_COMPARATOR).toArray(UnsignedInteger[]::new);
     }
 
     UnsignedInteger getRouterId(final int offset) {
@@ -64,6 +56,10 @@ final class OffsetMap {
 
     int size() {
         return this.routerIds.length;
+    }
+
+    boolean isEmty() {
+        return this.routerIds.length == 0;
     }
 
     OffsetMap with(final UnsignedInteger routerId) {

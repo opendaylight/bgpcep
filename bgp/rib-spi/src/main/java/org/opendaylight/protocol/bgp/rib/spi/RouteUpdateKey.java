@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.base.Preconditions;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
@@ -15,20 +15,20 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgum
  * Combined key formed as a concatenation of source peer and route identifiers.
  * This is used to internally track updates which need to be processed.
  */
-final class RouteUpdateKey {
+public final class RouteUpdateKey {
     private final PeerId peerId;
     private final PathArgument routeId;
 
-    RouteUpdateKey(final PeerId peerId, final PathArgument routeId) {
+    public RouteUpdateKey(final PeerId peerId, final PathArgument routeId) {
         this.peerId = Preconditions.checkNotNull(peerId);
         this.routeId = Preconditions.checkNotNull(routeId);
     }
 
-    PeerId getPeerId() {
+    public PeerId getPeerId() {
         return peerId;
     }
 
-    PathArgument getRouteId() {
+    public PathArgument getRouteId() {
         return routeId;
     }
 

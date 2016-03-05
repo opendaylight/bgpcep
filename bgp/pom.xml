@@ -55,5 +55,6 @@
         <module>openconfig-api</module>
         <module>openconfig-spi</module>
         <module>openconfig-impl</module>
+        <module>path-selection-mode</module>
   </modules>
 </project>

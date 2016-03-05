@@ -8,9 +8,7 @@
 package org.opendaylight.controller.config.yang.bgp.rib.spi;
 
 import java.util.List;
-
 import javax.management.ObjectName;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;

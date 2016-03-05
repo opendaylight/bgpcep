@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -13,6 +13,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.UnsignedInteger;
 import java.util.Collection;
 import javax.annotation.Nonnull;
+import org.opendaylight.protocol.bgp.mode.api.BestPathState;
+import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.OriginatorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
@@ -20,14 +22,13 @@ import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class BestPathSelector {
-    private static final Logger LOG = LoggerFactory.getLogger(BestPathSelector.class);
+final class BasePathSelector {
+    private static final Logger LOG = LoggerFactory.getLogger(BasePathSelector.class);
     private static final Collection<PathArgument> ORIGINATOR_ID = ImmutableList.<PathArgument>of(new NodeIdentifier(OriginatorId.QNAME), new NodeIdentifier(QName.create(OriginatorId.QNAME, "originator")));
 
     private final Long ourAs;
@@ -35,7 +36,7 @@ final class BestPathSelector {
     private UnsignedInteger bestRouterId = null;
     private BestPathState bestState = null;
 
-    BestPathSelector(final Long ourAs) {
+    BasePathSelector(final Long ourAs) {
         this.ourAs = Preconditions.checkNotNull(ourAs);
     }
 
@@ -51,7 +52,7 @@ final class BestPathSelector {
             final Optional<NormalizedNode<?, ?>> maybeOriginatorId = NormalizedNodes.findNode(attrs, ORIGINATOR_ID);
             final UnsignedInteger originatorId;
             if (maybeOriginatorId.isPresent()) {
-                originatorId = RouterIds.routerIdForAddress((String) ((LeafNode<?>)maybeOriginatorId.get()).getValue());
+                originatorId = RouterIds.routerIdForAddress((String) maybeOriginatorId.get().getValue());
             } else {
                 originatorId = routerId;
             }
@@ -60,7 +61,7 @@ final class BestPathSelector {
              * Store the new details if we have nothing stored or when the selection algorithm indicates new details
              * are better.
              */
-            final BestPathState state = new BestPathState(attrs);
+            final BestPathState state = new BestPathStateImpl(attrs);
             if (this.bestOriginatorId == null || !isExistingPathBetter(state)) {
                 LOG.trace("Selecting path from router {}", routerId);
                 this.bestOriginatorId = originatorId;
@@ -70,8 +71,8 @@ final class BestPathSelector {
         }
     }
 
-    BestPath result() {
-        return this.bestRouterId == null ? null : new BestPath(this.bestRouterId, this.bestState);
+    BaseBestPath result() {
+        return this.bestRouterId == null ? null : new BaseBestPath(this.bestRouterId, this.bestState);
     }
 
     /**

@@ -12,6 +12,7 @@ import com.google.common.base.Throwables;
 import com.google.common.util.concurrent.CheckedFuture;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,6 +37,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
@@ -139,11 +141,14 @@ public class AbstractRIBTestSetup {
         this.codecFactory = createCodecFactory(strategy,schemaContext);
         final List<BgpTableType> localTables = new ArrayList<>();
         localTables.add(new BgpTableTypeImpl(AFI, SAFI));
+
         this.a1 = new RIBActivator();
         this.a1.startRIBExtensionProvider(context);
         mockedMethods();
         this.rib = new RIBImpl(new RibId("test"), new AsNumber(5L), this.ribId,
-            this.clusterId, context , this.dispatcher, this.tcpStrategyFactory, this.codecFactory, this.tcpStrategyFactory, this.dps, this.dom, localTables, GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
+            this.clusterId, context , this.dispatcher, this.tcpStrategyFactory, this.codecFactory, this.tcpStrategyFactory, this.dps, this.dom,
+            localTables, Collections.singletonMap(new TablesKey(AFI, SAFI), BasePathSelectionModeFactory.createBestPathSelectionStrategy()),
+            GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         this.rib.onGlobalContextUpdated(schemaContext);
         this.ribSupport = getRib().getRibSupportContext().getRIBSupportContext(KEY).getRibSupport();
     }

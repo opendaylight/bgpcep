@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.base.Preconditions;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;

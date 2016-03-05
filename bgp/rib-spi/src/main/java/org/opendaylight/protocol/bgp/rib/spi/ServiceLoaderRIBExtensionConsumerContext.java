@@ -8,9 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.base.Preconditions;
-
 import java.util.ServiceLoader;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

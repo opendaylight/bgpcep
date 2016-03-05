@@ -1,33 +1,37 @@
 /*
- * Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
 import javax.annotation.Nonnull;
+import org.opendaylight.protocol.bgp.mode.api.BestPathState;
+import org.opendaylight.protocol.bgp.mode.spi.AbstractBestPath;
+import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 
-final class BestPath {
+final class BaseBestPath extends AbstractBestPath {
     private final UnsignedInteger routerId;
-    private final BestPathState state;
-
-    BestPath(@Nonnull final UnsignedInteger routerId, @Nonnull final BestPathState state) {
+    BaseBestPath(@Nonnull final UnsignedInteger routerId, @Nonnull final BestPathState state) {
+        super(state);
         this.routerId = Preconditions.checkNotNull(routerId);
-        this.state = Preconditions.checkNotNull(state);
     }
 
-    UnsignedInteger getRouterId() {
+    @Override
+    public UnsignedInteger getRouterId() {
         return this.routerId;
     }
 
-    BestPathState getState() {
-        return this.state;
+    @Override
+    public PeerId getPeerId() {
+        return RouterIds.createPeerId(this.routerId);
     }
 
     private ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
@@ -55,16 +59,13 @@ final class BestPath {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof BestPath)) {
+        if (!(obj instanceof BaseBestPath)) {
             return false;
         }
-        final BestPath other = (BestPath) obj;
+        final BaseBestPath other = (BaseBestPath) obj;
         if (!this.routerId.equals(other.routerId)) {
             return false;
         }
-        if (!this.state.equals(other.state)) {
-            return false;
-        }
-        return true;
+        return this.state.equals(other.state);
     }
 }
