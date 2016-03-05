@@ -215,7 +215,7 @@ abstract class BaseAbstractRouteEntry implements RouteEntry {
     }
 
     private boolean isTableSupported(final PeerId destPeer, final ExportPolicyPeerTracker peerPT, final TablesKey localTK) {
-        if (!peerPT.isTableSupported(destPeer, localTK)) {
+        if (!peerPT.isTableSupported(destPeer)) {
             LOG.trace("Route rejected, peer {} does not support this table type {}", destPeer, localTK);
             return false;
         }

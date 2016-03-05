@@ -50,6 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.RouteRefresh;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.add.path.capability.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
@@ -220,13 +221,15 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
 
     @Override
     public synchronized void onSessionUp(final BGPSession session) {
-        LOG.info("Session with peer {} went up with tables: {}", this.name, session.getAdvertisedTableTypes());
+        final List<AddressFamilies> addPathTablesType = session.getAdvertisedAddPathTableTypes();
+        LOG.info("Session with peer {} went up with tables {} and Add Path tables {}", this.name, addPathTablesType,
+            session.getAdvertisedAddPathTableTypes());
         this.session = session;
         this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
         final PeerId peerId = RouterIds.createPeerId(session.getBgpId());
         createAdjRibOutListener(peerId);
 
-        this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, false);
+        this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, addPathTablesType, false);
         this.sessionEstablishedCounter++;
         if (this.registrator != null) {
             this.runtimeReg = this.registrator.register(this);

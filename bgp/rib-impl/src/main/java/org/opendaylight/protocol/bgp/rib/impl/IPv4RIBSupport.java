@@ -9,10 +9,12 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.DestinationIpv4;
@@ -35,8 +37,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 
@@ -46,6 +52,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 final class IPv4RIBSupport extends AbstractIPRIBSupport {
     @VisibleForTesting
     static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
+    private static final QName PATHID_QNAME = QName.create(Ipv4Route.QNAME, "path-id").intern();
     private static final IPv4RIBSupport SINGLETON = new IPv4RIBSupport();
     private static final ImmutableCollection<Class<? extends DataObject>> CACHEABLE_NLRI_OBJECTS =
             ImmutableSet.<Class<? extends DataObject>>of(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.Ipv4Prefix.class);
@@ -58,6 +65,7 @@ final class IPv4RIBSupport extends AbstractIPRIBSupport {
     private final NodeIdentifier ipv4Route = new NodeIdentifier(Ipv4Route.QNAME);
     private final NodeIdentifier nlriRoutesList = new NodeIdentifier(Ipv4Prefixes.QNAME);
     private final NodeIdentifier routeKeyLeaf = new NodeIdentifier(PREFIX_QNAME);
+    private final NodeIdentifier pathIdLeaf = new NodeIdentifier(PATHID_QNAME);
 
     private IPv4RIBSupport() {
         super(Ipv4RoutesCase.class, Ipv4Routes.class, Ipv4Route.class);
@@ -105,6 +113,24 @@ final class IPv4RIBSupport extends AbstractIPRIBSupport {
     @Override
     public ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
         return CACHEABLE_NLRI_OBJECTS;
+    }
+
+    @Nonnull
+    @Override
+    public PathArgument getRouteIdAddPath(final long pathId, final PathArgument routeId) {
+        final String prefix = (String) (((NodeIdentifierWithPredicates) routeId).getKeyValues()).get(PREFIX_QNAME);
+        final ImmutableMap<QName, Object> keyValues = ImmutableMap.of(PATHID_QNAME, pathId, PREFIX_QNAME, prefix);
+
+        return new NodeIdentifierWithPredicates(Ipv4Route.QNAME, keyValues);
+    }
+
+    @Override
+    public long extractPathId(final NormalizedNode<?, ?> data) {
+        final NormalizedNode<?, ?> pathId = NormalizedNodes.findNode(data, pathIdLeaf).orNull();
+        if (pathId == null) {
+            return 0;
+        }
+        return (Long) pathId.getValue();
     }
 
     private List<Ipv4Prefixes> extractPrefixes(final Collection<MapEntryNode> routes) {
