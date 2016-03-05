@@ -7,10 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.rib.mock;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import io.netty.channel.ChannelHandlerContext;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -25,7 +27,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.AddPathCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.add.path.capability.AddressFamilies;
 import org.opendaylight.yangtools.concepts.AbstractListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
@@ -71,15 +75,22 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
             listener.onSessionTerminated(null, null);
         } else if (message instanceof Open) {
             final Set<BgpTableType> tts = Sets.newHashSet();
+            final List<AddressFamilies> addPathCapabilitiesList = Lists.newArrayList();
             for (final BgpParameters param : ((Open) message).getBgpParameters()) {
                 for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
                     final CParameters cParam = capa.getCParameters();
-                    if (cParam.getAugmentation(CParameters1.class) != null && cParam.getAugmentation(CParameters1.class)
-                        .getMultiprotocolCapability() != null) {
+                    if (cParam.getAugmentation(CParameters1.class) == null) {
+                        continue;
+                    }
+                    if (cParam.getAugmentation(CParameters1.class).getMultiprotocolCapability() != null) {
                         final MultiprotocolCapability p = cParam.getAugmentation(CParameters1.class).getMultiprotocolCapability();
                         LOG.debug("Adding open parameter {}", p);
                         final BgpTableType type = new BgpTableTypeImpl(p.getAfi(), p.getSafi());
                         tts.add(type);
+                    }
+                    if(cParam.getAugmentation(CParameters1.class).getAddPathCapability() != null) {
+                        final AddPathCapability addPathCap = cParam.getAugmentation(CParameters1.class).getAddPathCapability();
+                        addPathCapabilitiesList.addAll(addPathCap.getAddressFamilies());
                     }
                 }
             }
@@ -155,6 +166,11 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
             @Override
             public AsNumber getAsNumber() {
                 return new AsNumber(AS);
+            }
+
+            @Override
+            public List<AddressFamilies> getAdvertisedAddPathTableTypes() {
+                return Collections.emptyList();
             }
 
         });

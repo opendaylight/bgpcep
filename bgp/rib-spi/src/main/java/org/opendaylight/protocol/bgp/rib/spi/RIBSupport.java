@@ -22,6 +22,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgum
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 
 /**
@@ -145,6 +146,16 @@ public interface RIBSupport {
     @Nonnull YangInstanceIdentifier routePath(@Nonnull YangInstanceIdentifier routesPath, @Nonnull PathArgument routeId);
 
     /**
+     * Construct a PathArgument to an AddPathRoute
+     *
+     * @param pathId
+     * @param routeId
+     * @return routeId PathArgument + pathId
+     */
+    @Nonnull
+    PathArgument getRouteIdAddPath(Long pathId, PathArgument routeId);
+
+    /**
      * Indicate whether this AFI/SAFI combination is a complex route. Simple routes are those which
      * only have their key and attributes, complex routes are those which include more structured data.
      *
@@ -164,4 +175,11 @@ public interface RIBSupport {
      * @return Update message ready to be sent out
      */
     @Nonnull Update buildUpdate(@Nonnull Collection<MapEntryNode> advertised, @Nonnull Collection<MapEntryNode> withdrawn, @Nonnull Attributes attr);
+
+    /**
+     * Extract PathId from route change received
+     * @param normalizedNode
+     * @return pathId
+     */
+    long extractPathId(NormalizedNode<?, ?> normalizedNode);
 }

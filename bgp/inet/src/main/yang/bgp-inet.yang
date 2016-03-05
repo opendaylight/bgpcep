@@ -41,6 +41,9 @@ module bgp-inet {
         leaf prefix {
             type inet:ipv6-prefix;
         }
+        leaf path-id {
+            type bgp-msg:path-id;
+        }
     }
 
     grouping ipv4-prefixes {

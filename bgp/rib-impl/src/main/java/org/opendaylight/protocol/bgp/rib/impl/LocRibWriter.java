@@ -40,7 +40,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.EffectiveRibIn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.SupportedTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes;
@@ -93,7 +92,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         this.ourAs = Preconditions.checkNotNull(ourAs);
         this.ribSupport = registry.getRIBSupportContext(tablesKey).getRibSupport();
         this.attributesIdentifier = this.ribSupport.routeAttributesIdentifier();
-        this.peerPolicyTracker = new ExportPolicyPeerTracker(pd);
+        this.peerPolicyTracker = new ExportPolicyPeerTracker(pd, this.localTablesKey);
         this.cacheDisconnectedPeers = cacheDisconnectedPeers;
         this.pathSelectionStrategy = pathSelectionStrategy;
 
@@ -179,28 +178,24 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             LOG.trace("Skipping change {}", rootNode.getIdentifier());
             return;
         }
-        initializeTableWithExistenRoutes(table, peerId, rootPath, tx);
+        initializeTableWithExistentRoutes(table, peerId, rootPath, tx);
         updateNodes(table, peerId, tx, ret);
     }
 
     private void filterOutChangesToSupportedTables(final PeerId peerIdOfNewPeer, final DataTreeCandidateNode rootNode) {
         final DataTreeCandidateNode tablesChange = rootNode.getModifiedChild(AbstractPeerRoleTracker.PEER_TABLES);
         if (tablesChange != null) {
-            final NodeIdentifierWithPredicates supTablesKey = RibSupportUtils.toYangKey(SupportedTables.QNAME, this.localTablesKey);
-            final DataTreeCandidateNode containsLocalKeyTable = tablesChange.getModifiedChild(supTablesKey);
-            if (containsLocalKeyTable != null) {
-                this.peerPolicyTracker.onTablesChanged(peerIdOfNewPeer, containsLocalKeyTable);
-            }
+            this.peerPolicyTracker.onTablesChanged(peerIdOfNewPeer, tablesChange);
         }
     }
 
-    private void initializeTableWithExistenRoutes(final DataTreeCandidateNode table, final PeerId peerIdOfNewPeer, final YangInstanceIdentifier rootPath,
+    private void initializeTableWithExistentRoutes(final DataTreeCandidateNode table, final PeerId peerDestiny, final YangInstanceIdentifier rootPath,
         final DOMDataWriteTransaction tx) {
-        if (!table.getDataBefore().isPresent() && this.peerPolicyTracker.isTableSupported(peerIdOfNewPeer, this.localTablesKey)) {
-            LOG.debug("Peer {} table has been created, inserting existent routes", peerIdOfNewPeer);
+        if (!table.getDataBefore().isPresent() && this.peerPolicyTracker.isTableSupported(peerDestiny, this.localTablesKey)) {
+            LOG.debug("Peer {} table has been created, inserting existent routes", peerDestiny);
             final PeerRole newPeerRole = this.peerPolicyTracker.getRole(IdentifierUtils.peerPath(rootPath));
             final PeerExportGroup peerGroup = this.peerPolicyTracker.getPeerGroup(newPeerRole);
-            this.routeEntries.entrySet().forEach(entry -> entry.getValue().writeRoute(peerIdOfNewPeer, entry.getKey(), rootPath, peerGroup, tx));
+            this.routeEntries.entrySet().forEach(entry -> entry.getValue().writeRoute(peerDestiny, entry.getKey(), rootPath, peerGroup, tx));
         }
     }
 

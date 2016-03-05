@@ -112,6 +112,10 @@
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
                         <name>ipv4-l3vpn</name>
                     </advertized-table>
+                    <add-path>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:add-path</type>
+                        <name>ipv4-unicast-both</name>
+                    </add-path>
                 </module>
                 -->
 

@@ -526,6 +526,25 @@ module odl-bgp-rib-impl-cfg {
                 default "";
             }
         }
+
+        list advertised-add-path-table-types {
+            description "The BGP Table-type capabilities advertized by the BGP peer.";
+            leaf afi {
+                description "Address Family Identifier.";
+                type string;
+                default "";
+            }
+            leaf safi {
+                description "Subsequent Address Family Identifier.";
+                type string;
+                default "";
+            }
+            leaf send-receive {
+                description "Send Receive Add Path Configuration.";
+                type string;
+                default "";
+            }
+        }
     }
 
     identity peer-rpc;

@@ -12,6 +12,7 @@ import com.google.common.base.Verify;
 import com.google.common.net.InetAddresses;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
@@ -60,7 +61,6 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     private final DOMTransactionChain chain;
     private final DOMTransactionChain writerChain;
     private final BGPConfigModuleTracker moduleTracker;
-
     private AdjRibInWriter writer;
 
     public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIBImpl rib, final BGPConfigModuleTracker
@@ -73,7 +73,8 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         this.chain = targetRib.createPeerChain(this);
         this.writerChain = targetRib.createPeerChain(this);
         this.writer = AdjRibInWriter.create(targetRib.getYangRibId(), PeerRole.Internal, this.writerChain);
-        this.writer = this.writer.transform(RouterIds.createPeerId(ipAddress), targetRib.getRibSupportContext(), targetRib.getLocalTablesKeys(), true);
+        this.writer = this.writer.transform(RouterIds.createPeerId(ipAddress), targetRib.getRibSupportContext(), targetRib.getLocalTablesKeys(),
+            Collections.emptyList(), true);
         this.moduleTracker = moduleTracker;
         if (moduleTracker != null) {
             moduleTracker.onInstanceCreate();

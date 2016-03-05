@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.collect.ImmutableMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpAddPathTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.SupportedTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
@@ -20,6 +22,8 @@ public final class RibSupportUtils {
 
     private static final QName AFI_QNAME = QName.create(Tables.QNAME, "afi").intern();
     private static final QName SAFI_QNAME = QName.create(Tables.QNAME, "safi").intern();
+    private static final QName ADD_PATH_AFI_QNAME = QName.create(BgpAddPathTableType.QNAME, "afi").intern();
+    private static final QName ADD_PATH_SAFI_QNAME = QName.create(BgpAddPathTableType.QNAME, "safi").intern();
 
     private RibSupportUtils() {
         throw new UnsupportedOperationException("Utility class");
@@ -52,6 +56,23 @@ public final class RibSupportUtils {
         return new NodeIdentifierWithPredicates(id, keyValues);
     }
 
+
+    /**
+     * Creates Yang Instance Identifier path argument from supplied AFI and SAFI
+     *
+     * @param id QNAME representing node
+     * @param afi Class representing AFI
+     * @param safi Class representing SAFI
+     * @return NodeIdentifierWithPredicates of 'id' for specified AFI, SAFI combination.
+     */
+    public static NodeIdentifierWithPredicates toYangPathKey(final QName id, final Class<? extends AddressFamily> afi,
+        final Class<? extends SubsequentAddressFamily> safi) {
+        final ImmutableMap<QName, Object> keyValues = ImmutableMap.<QName, Object>of(
+            ADD_PATH_AFI_QNAME, BindingReflections.findQName(afi),
+            ADD_PATH_SAFI_QNAME, BindingReflections.findQName(safi));
+        return new NodeIdentifierWithPredicates(id, keyValues);
+    }
+
     /**
      * Creates Yang Instance Identifier path argument from supplied {@link TablesKey}
      *
@@ -61,6 +82,17 @@ public final class RibSupportUtils {
      */
     public static NodeIdentifierWithPredicates toYangKey(final QName id, final TablesKey k) {
         return toYangKey(id, k.getAfi(), k.getSafi());
+    }
+
+    /**
+     * Creates Yang Instance Identifier path argument from supplied {@link TablesKey}
+     *
+     * @param id QNAME representing node
+     * @param k  Add PAth Tables key representing table.
+     * @return NodeIdentifierWithPredicates of 'id' for specified AFI, SAFI combination.
+     */
+    public static NodeIdentifierWithPredicates toYangKey(final QName id, final SupportedTablesKey k) {
+        return toYangPathKey(id, k.getAfi(), k.getSafi());
     }
 
     /**
