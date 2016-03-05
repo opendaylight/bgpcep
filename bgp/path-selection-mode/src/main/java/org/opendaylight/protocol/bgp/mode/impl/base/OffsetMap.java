@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
@@ -24,15 +24,14 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A map of Router identifier to an offset. Used to maintain a simple
- * offset-based lookup across multiple {@link AbstractRouteEntry} objects,
+ * offset-based lookup across multiple {@link BaseAbstractRouteEntry} objects,
  * which share either contributors or consumers.
- * <p/>
  * We also provide utility reformat methods, which provide access to
  * array members and array management features.
  */
 final class OffsetMap {
-    private static final Logger LOG = LoggerFactory.getLogger(OffsetMap.class);
     static final OffsetMap EMPTY = new OffsetMap(Collections.<UnsignedInteger>emptySet());
+    private static final Logger LOG = LoggerFactory.getLogger(OffsetMap.class);
     private static final LoadingCache<Set<UnsignedInteger>, OffsetMap> OFFSETMAPS = CacheBuilder.newBuilder().weakValues().build(new CacheLoader<Set<UnsignedInteger>, OffsetMap>() {
         @Override
         public OffsetMap load(final Set<UnsignedInteger> key) throws Exception {
@@ -48,7 +47,7 @@ final class OffsetMap {
     private final UnsignedInteger[] routerIds;
 
     private OffsetMap(final Set<UnsignedInteger> routerIds) {
-        final UnsignedInteger[] array = routerIds.toArray(new UnsignedInteger[0]);
+        final UnsignedInteger[] array = routerIds.toArray(new UnsignedInteger[routerIds.size()]);
         Arrays.sort(array, IPV4_COMPARATOR);
         this.routerIds = array;
     }
@@ -64,6 +63,10 @@ final class OffsetMap {
 
     int size() {
         return this.routerIds.length;
+    }
+
+    boolean isEmty() {
+        return this.routerIds.length == 0;
     }
 
     OffsetMap with(final UnsignedInteger routerId) {

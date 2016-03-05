@@ -25,6 +25,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeersImpl;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupportContextRegistry;
@@ -124,7 +125,7 @@ public class LocRibWriterTest {
         Mockito.doReturn(null).when(this.service).registerDataTreeChangeListener(Mockito.any(DOMDataTreeIdentifier.class), Mockito.any(DOMDataTreeChangeListener.class));
         Mockito.doReturn(Builders.choiceBuilder().withNodeIdentifier(new NodeIdentifier(Routes.QNAME)).addChild(Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(Ipv4Routes.QNAME)).withChild(ImmutableNodes.mapNodeBuilder(Ipv4Route.QNAME).build()).build()).build()).when(this.ribSupport).emptyRoutes();
         this.locRibWriter = LocRibWriter.create(this.registry, this.tablesKey, this.chain, YangInstanceIdentifier.of(BgpRib.QNAME),
-            new AsNumber((long) 35), this.service, this.pd, new CacheDisconnectedPeersImpl());
+            new AsNumber((long) 35), this.service, this.pd, new CacheDisconnectedPeersImpl(), BasePathSelectionModeFactory.createBestPathSelectionStrategy());
     }
 
     private DataTreeCandidate prepareUpdate() {

@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -15,6 +15,7 @@ import com.google.common.primitives.UnsignedInteger;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.as.path.Segments;
@@ -36,7 +37,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableUn
 
 public class BestPathSelectorTest {
 
-    static final QName ATTRS_EXTENSION_Q = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2015-03-05", "attributes");
+    private static final QName ATTRS_EXTENSION_Q = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2015-03-05", "attributes");
     private final QName localPrefQName = QName.create(ATTRS_EXTENSION_Q, "local-pref");
     private final QName multiExitDiscQName = QName.create(ATTRS_EXTENSION_Q, "multi-exit-disc");
     private final QName originQName = QName.create(ATTRS_EXTENSION_Q, "origin");
@@ -44,30 +45,30 @@ public class BestPathSelectorTest {
     private final UnsignedInteger ROUTER_ID = RouterIds.routerIdForAddress("127.0.0.1");
     private final UnsignedInteger ROUTER_ID2 = RouterIds.routerIdForPeerId(new PeerId("bgp://127.0.0.1"));
     private final UnsignedInteger ROUTER_ID3 = RouterIds.routerIdForPeerId(new PeerId("bgp://127.0.0.2"));
-    private final BestPathState state = new BestPathState(createStateFromPrefMedOriginASPath());
-    private final BestPath originBestPath = new BestPath(this.ROUTER_ID, this.state);
-    private final BestPathSelector selector = new BestPathSelector(20L);
+    private final BestPathStateImpl state = new BestPathStateImpl(createStateFromPrefMedOriginASPath());
+    private final BaseBestPath originBestPath = new BaseBestPath(this.ROUTER_ID, this.state);
+    private final BasePathSelector selector = new BasePathSelector(20L);
     private DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> dataContBuilder;
 
-    static final QName AS_NUMBER_Q = QName.create(ATTRS_EXTENSION_Q, "as-number");
-    static final NodeIdentifier SEGMENTS_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, Segments.QNAME.getLocalName()));
-    static final NodeIdentifier SET_LEAFLIST_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "as-set"));
-    static final NodeIdentifier SEQ_LEAFLIST_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "as-sequence"));
+    private static final QName AS_NUMBER_Q = QName.create(ATTRS_EXTENSION_Q, "as-number");
+    private static final NodeIdentifier SEGMENTS_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, Segments.QNAME.getLocalName()));
+    private static final NodeIdentifier SET_LEAFLIST_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "as-set"));
+    private static final NodeIdentifier SEQ_LEAFLIST_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "as-sequence"));
 
-    static final UnkeyedListEntryNode SET_SEGMENT = Builders.unkeyedListEntryBuilder().withNodeIdentifier(SEGMENTS_NID)
+    private static final UnkeyedListEntryNode SET_SEGMENT = Builders.unkeyedListEntryBuilder().withNodeIdentifier(SEGMENTS_NID)
         .addChild(Builders.leafSetBuilder().withNodeIdentifier(SET_LEAFLIST_NID)
             .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, 10L)).withValue(10L).build())
             .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, 11L)).withValue(11L).build())
             .build()).build();
 
-    static final UnkeyedListEntryNode SEQ_SEGMENT = Builders.unkeyedListEntryBuilder().withNodeIdentifier(SEGMENTS_NID)
+    private static final UnkeyedListEntryNode SEQ_SEGMENT = Builders.unkeyedListEntryBuilder().withNodeIdentifier(SEGMENTS_NID)
         .addChild(Builders.orderedLeafSetBuilder().withNodeIdentifier(SEQ_LEAFLIST_NID)
             .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, 1L)).withValue(1L).build())
             .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, 2L)).withValue(2L).build())
             .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, 3L)).withValue(3L).build())
             .build()).build();
 
-    static final UnkeyedListEntryNode SEQ_SEGMENT2 = Builders.unkeyedListEntryBuilder().withNodeIdentifier(SEGMENTS_NID)
+    private static final UnkeyedListEntryNode SEQ_SEGMENT2 = Builders.unkeyedListEntryBuilder().withNodeIdentifier(SEGMENTS_NID)
         .addChild(Builders.orderedLeafSetBuilder().withNodeIdentifier(SEQ_LEAFLIST_NID)
             .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, 20L)).withValue(20L).build())
             .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, 2L)).withValue(2L).build())
@@ -77,7 +78,7 @@ public class BestPathSelectorTest {
     @Test
     public void testBestPathForEquality() {
         this.selector.processPath(this.ROUTER_ID2, createStateFromPrefMedOriginASPath());
-        final BestPath processedPath = this.selector.result();
+        final BaseBestPath processedPath = this.selector.result();
 
         assertEquals(this.originBestPath.getRouterId(), processedPath.getRouterId());
         assertEquals(this.originBestPath.getState().getLocalPref(), processedPath.getState().getLocalPref());
@@ -90,7 +91,7 @@ public class BestPathSelectorTest {
     @Test
     public void testBestPathWithHigherLocalPref() {
         this.selector.processPath(this.ROUTER_ID2, createStateFromPrefMedOrigin());   // local-pref 123
-        BestPath processedPath = this.selector.result();
+        BaseBestPath processedPath = this.selector.result();
         assertEquals(123L, processedPath.getState().getLocalPref().longValue());
 
         this.selector.processPath(this.ROUTER_ID2, createStateFromPrefMedOriginASPath());   // local-pref 321
@@ -106,7 +107,7 @@ public class BestPathSelectorTest {
     @Test
     public void testBestPathSelectionOptions() {
         this.selector.processPath(this.ROUTER_ID2, createStateFromPrefMedOriginASPath());
-        BestPath processedPath = this.selector.result();
+        BaseBestPath processedPath = this.selector.result();
         assertEquals(1, processedPath.getState().getOrigin().getIntValue());
 
         addIgpOrigin(); // prefer the path with the lowest origin type
@@ -145,9 +146,9 @@ public class BestPathSelectorTest {
     @Test
     public void testBestPathForNonEquality() {
         this.selector.processPath(this.ROUTER_ID3, createStateFromPrefMedOrigin());
-        final BestPath processedPath = this.selector.result();
+        final BaseBestPath processedPath = this.selector.result();
 
-        assertNotEquals(this.originBestPath.getRouterId(), processedPath.getRouterId());
+        assertNotEquals(this.originBestPath.getPeerId(), processedPath.getPeerId());
         assertNotEquals(this.originBestPath.getState().getLocalPref(), processedPath.getState().getLocalPref());
         assertNotEquals(this.originBestPath.getState().getMultiExitDisc(), processedPath.getState().getMultiExitDisc());
         assertNotEquals(this.originBestPath.getState().getOrigin(), processedPath.getState().getOrigin());
@@ -237,7 +238,7 @@ public class BestPathSelectorTest {
         // test
         final List<Segments> actual = this.state.extractSegments(builder.build());
         assertEquals(expected.size(), actual.size());
-        assertEquals(Sets.newHashSet(1,2,3), Sets.newHashSet(1,3,2));
+        assertEquals(Sets.newHashSet(1, 2, 3), Sets.newHashSet(1, 3, 2));
         assertEquals(Sets.newHashSet(expected.get(0).getAsSet()), Sets.newHashSet(actual.get(0).getAsSet()));
         assertEquals(expected.get(1), actual.get(1));
     }
@@ -246,12 +247,12 @@ public class BestPathSelectorTest {
     public void testBgpOrigin() {
         final ContainerNode containerIncom = this.dataContBuilder.addChild(createContBuilder(this.originQName).addChild(createValueBuilder("incomplete", this.originQName, "value").build()).build()).build();
         this.selector.processPath(this.ROUTER_ID3, containerIncom);
-        final BestPath processedPathIncom = this.selector.result();
+        final BaseBestPath processedPathIncom = this.selector.result();
         assertEquals(BgpOrigin.Incomplete, processedPathIncom.getState().getOrigin());
 
         final ContainerNode containerException = this.dataContBuilder.addChild(createContBuilder(this.originQName).addChild(createValueBuilder("LOL", this.originQName, "value").build()).build()).build();
         this.selector.processPath(this.ROUTER_ID3, containerException);
-        final BestPath processedPathException = this.selector.result();
+        final BaseBestPath processedPathException = this.selector.result();
         processedPathException.getState().getOrigin();
     }
 }

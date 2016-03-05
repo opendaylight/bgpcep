@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -17,8 +17,8 @@ public class OffsetMapTest {
 
     private final String LOCAL_ADDRESS = "127.0.0.1";
     private final int LOCAL_ADDRESS_DECIMAL = 0x7f000001;
-    private final Integer[] TESTED_VALUES = { 1, 2, 3, 4, 5, 6, 7 };
-    private final Integer[] TESTED_VALUES_REMOVE = {2, 3, 4, 5, 6, 7 };
+    private final Integer[] TESTED_VALUES = {1, 2, 3, 4, 5, 6, 7};
+    private final Integer[] TESTED_VALUES_REMOVE = {2, 3, 4, 5, 6, 7};
     private final int EXPECTED_ROUTER_OFFSET = 0;
     private final int EXPECTED_VALUE = 1;
     private final int CHANGED_VALUE = 111;

@@ -5,20 +5,31 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import com.google.common.primitives.UnsignedInteger;
+import org.opendaylight.protocol.bgp.mode.api.BestPath;
+import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
+import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.protocol.bgp.rib.spi.policy.ExportPolicyPeerTracker;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
-final class ComplexRouteEntry extends AbstractRouteEntry {
+final class BaseComplexRouteEntry extends BaseAbstractRouteEntry {
     private static final MapEntryNode[] EMPTY_VALUES = new MapEntryNode[0];
     private MapEntryNode[] values = EMPTY_VALUES;
 
+    public BaseComplexRouteEntry(final YangInstanceIdentifier writePath, final RIBSupport ribSupport, final ExportPolicyPeerTracker exportPolicyPeerTracker, final TablesKey localTablesKey,
+        final CacheDisconnectedPeers cacheDisconnectedPeers) {
+        super(writePath, ribSupport, exportPolicyPeerTracker, localTablesKey, cacheDisconnectedPeers);
+    }
+
     @Override
-    protected int addRoute(final UnsignedInteger routerId, final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
+    public int addRoute(final UnsignedInteger routerId, final NodeIdentifier attributesIdentifier, final NormalizedNode<?, ?> data) {
         final OffsetMap oldMap = getOffsets();
         final int offset = super.addRoute(routerId, attributesIdentifier, data);
         final OffsetMap newMap = getOffsets();
@@ -32,14 +43,14 @@ final class ComplexRouteEntry extends AbstractRouteEntry {
     }
 
     @Override
-    protected MapEntryNode createValue(final PathArgument routeId) {
+    public MapEntryNode createValue(final PathArgument routeId, final BestPath path) {
         final OffsetMap map = getOffsets();
-        final int offset = map.offsetOf(getBestRouterId());
+        final int offset = map.offsetOf(path.getRouterId());
         return map.getValue(this.values, offset);
     }
 
     @Override
-    boolean removeRoute(final UnsignedInteger routerId) {
+    public boolean removeRoute(final UnsignedInteger routerId) {
         final OffsetMap map = getOffsets();
         final int offset = map.offsetOf(routerId);
         final boolean ret = removeRoute(routerId, offset);

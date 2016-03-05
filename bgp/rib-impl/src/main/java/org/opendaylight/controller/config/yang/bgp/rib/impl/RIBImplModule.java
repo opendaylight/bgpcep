@@ -16,19 +16,25 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
+import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenconfigMapper;
 import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfigurationIdentifier;
 import org.opendaylight.protocol.bgp.openconfig.spi.pojo.BGPRibInstanceConfiguration;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPBestPathSelection;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
 import org.osgi.framework.BundleContext;
@@ -66,9 +72,10 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
     @Override
     public java.lang.AutoCloseable createInstance() {
         final AsNumber asNumber = new AsNumber(getLocalAs());
+        final Map<TablesKey, PathSelectionMode> pathSelectionStrategies = mapBestPathSelectionStrategyByFamily(getPathSelectionModeDependency());
         final RIBImpl rib = new RIBImpl(getRibId(), asNumber, getBgpRibId(), getClusterId(), getExtensionsDependency(),
             getBgpDispatcherDependency(), getTcpReconnectStrategyDependency(), getCodecTreeFactoryDependency(), getSessionReconnectStrategyDependency(),
-            getDataProviderDependency(), getDomDataProviderDependency(), getLocalTableDependency(), classLoadingStrategy(),
+            getDataProviderDependency(), getDomDataProviderDependency(), getLocalTableDependency(), pathSelectionStrategies, classLoadingStrategy(),
             new RIBImplModuleTracker(getGlobalWriter()), getOpenconfigProviderDependency());
         registerSchemaContextListener(rib);
         return rib;
@@ -87,6 +94,11 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
             // context.
             bundleContext.registerService(SchemaContextListener.class, rib, new Hashtable<String,String>());
         }
+    }
+
+    private Map<TablesKey, PathSelectionMode> mapBestPathSelectionStrategyByFamily(final List<BGPBestPathSelection> bestPathSelectionDependency) {
+        return Collections.unmodifiableMap(bestPathSelectionDependency.stream().collect(
+            Collectors.toMap(st -> new TablesKey(st.getAfi(), st.getSafi()), st -> st.getStrategy())));
     }
 
     public void setBundleContext(final BundleContext bundleContext) {
