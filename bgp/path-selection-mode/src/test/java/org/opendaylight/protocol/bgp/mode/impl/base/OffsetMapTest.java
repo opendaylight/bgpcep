@@ -10,7 +10,9 @@ package org.opendaylight.protocol.bgp.mode.impl.base;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import com.google.common.primitives.UnsignedInteger;
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.mode.impl.OffsetMap;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 
 public class OffsetMapTest {
@@ -25,14 +27,15 @@ public class OffsetMapTest {
 
     @Test
     public void testAllMethods() {
-        final OffsetMap offsetMap = OffsetMap.EMPTY.with(RouterIds.routerIdForAddress(LOCAL_ADDRESS));
-        assertEquals(EXPECTED_ROUTER_OFFSET, offsetMap.offsetOf(RouterIds.routerIdForAddress(LOCAL_ADDRESS)));
-        assertEquals(LOCAL_ADDRESS_DECIMAL, offsetMap.getRouterId(EXPECTED_ROUTER_OFFSET).intValue());
+        final OffsetMap<UnsignedInteger> offsetMap = new OffsetMap<>(UnsignedInteger.class);
+        final OffsetMap<UnsignedInteger> newOffsets = offsetMap.with(RouterIds.routerIdForAddress(LOCAL_ADDRESS));
+        assertEquals(EXPECTED_ROUTER_OFFSET, newOffsets.offsetOf(RouterIds.routerIdForAddress(LOCAL_ADDRESS)));
+        assertEquals(LOCAL_ADDRESS_DECIMAL, newOffsets.getRouterKey(EXPECTED_ROUTER_OFFSET).intValue());
 
-        assertEquals(EXPECTED_VALUE, (int) offsetMap.getValue(TESTED_VALUES, EXPECTED_ROUTER_OFFSET));
-        offsetMap.setValue(TESTED_VALUES, EXPECTED_ROUTER_OFFSET, CHANGED_VALUE);
-        assertEquals(CHANGED_VALUE, (int) offsetMap.getValue(TESTED_VALUES, EXPECTED_ROUTER_OFFSET));
-        assertArrayEquals(TESTED_VALUES_REMOVE, offsetMap.removeValue(TESTED_VALUES, 0));
-        assertEquals(0, offsetMap.without(RouterIds.routerIdForAddress(LOCAL_ADDRESS)).size());
+        assertEquals(EXPECTED_VALUE, (int) newOffsets.getValue(TESTED_VALUES, EXPECTED_ROUTER_OFFSET));
+        newOffsets.setValue(TESTED_VALUES, EXPECTED_ROUTER_OFFSET, CHANGED_VALUE);
+        assertEquals(CHANGED_VALUE, (int) newOffsets.getValue(TESTED_VALUES, EXPECTED_ROUTER_OFFSET));
+        assertArrayEquals(TESTED_VALUES_REMOVE, newOffsets.removeValue(TESTED_VALUES, 0));
+        assertEquals(0, newOffsets.without(RouterIds.routerIdForAddress(LOCAL_ADDRESS)).size());
     }
 }
