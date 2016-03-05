@@ -12,6 +12,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -20,6 +21,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
@@ -47,7 +49,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.AddPathCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.add.path.capability.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
@@ -109,6 +113,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     private State state = State.OPEN_CONFIRM;
 
     private final Set<BgpTableType> tableTypes;
+    private final List<AddressFamilies> addPathTypes;
     private final int holdTimerValue;
     private final int keepAlive;
     private final AsNumber asNumber;
@@ -121,7 +126,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen, final BGPSessionPreferences localPreferences,
             final BGPPeerRegistry peerRegistry) {
         this(listener, channel, remoteOpen, localPreferences.getHoldTime(), peerRegistry);
-        this.sessionStats = new BGPSessionStats(remoteOpen, this.holdTimerValue, this.keepAlive, channel, Optional.of(localPreferences), this.tableTypes);
+        this.sessionStats = new BGPSessionStats(remoteOpen, this.holdTimerValue, this.keepAlive, channel, Optional.of(localPreferences), this.tableTypes, this.addPathTypes);
     }
 
     public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen, final int localHoldTimer,
@@ -142,25 +147,31 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
 
         final Set<TablesKey> tts = Sets.newHashSet();
         final Set<BgpTableType> tats = Sets.newHashSet();
+        final List<AddressFamilies> addPathCapabilitiesList = Lists.newArrayList();
         if (remoteOpen.getBgpParameters() != null) {
             for (final BgpParameters param : remoteOpen.getBgpParameters()) {
                 for (final OptionalCapabilities optCapa : param.getOptionalCapabilities()) {
                     final CParameters cParam = optCapa.getCParameters();
-                    if ( cParam.getAugmentation(CParameters1.class) == null ||
-                            cParam.getAugmentation(CParameters1.class).getMultiprotocolCapability() == null ) {
+                    if ( cParam.getAugmentation(CParameters1.class) == null) {
                         continue;
                     }
-                    final MultiprotocolCapability multi = cParam.getAugmentation(CParameters1.class).getMultiprotocolCapability();
-                    final TablesKey tt = new TablesKey(multi.getAfi(), multi.getSafi());
-                    LOG.trace("Added table type to sync {}", tt);
-                    tts.add(tt);
-                    tats.add(new BgpTableTypeImpl(tt.getAfi(), tt.getSafi()));
+                    if(cParam.getAugmentation(CParameters1.class).getMultiprotocolCapability() != null) {
+                        final MultiprotocolCapability multi = cParam.getAugmentation(CParameters1.class).getMultiprotocolCapability();
+                        final TablesKey tt = new TablesKey(multi.getAfi(), multi.getSafi());
+                        LOG.trace("Added table type to sync {}", tt);
+                        tts.add(tt);
+                        tats.add(new BgpTableTypeImpl(tt.getAfi(), tt.getSafi()));
+                    } else if (cParam.getAugmentation(CParameters1.class).getAddPathCapability() != null) {
+                        final AddPathCapability addPathCap = cParam.getAugmentation(CParameters1.class).getAddPathCapability();
+                        addPathCapabilitiesList.addAll(addPathCap.getAddressFamilies());
+                    }
                 }
             }
         }
 
         this.sync = new BGPSynchronization(this.listener, tts);
         this.tableTypes = tats;
+        this.addPathTypes = addPathCapabilitiesList;
 
         if (this.holdTimerValue != 0) {
             channel.eventLoop().schedule(new Runnable() {
@@ -179,7 +190,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         }
         this.bgpId = remoteOpen.getBgpIdentifier();
         this.sessionStats = new BGPSessionStats(remoteOpen, this.holdTimerValue, this.keepAlive, channel, Optional.<BGPSessionPreferences>absent(),
-                this.tableTypes);
+                this.tableTypes, this.addPathTypes);
     }
 
     @Override
@@ -367,6 +378,11 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     @Override
     public Set<BgpTableType> getAdvertisedTableTypes() {
         return this.tableTypes;
+    }
+
+    @Override
+    public List<AddressFamilies> getAdvertisedAddPathTableTypes() {
+        return this.addPathTypes;
     }
 
     protected synchronized void sessionUp() {

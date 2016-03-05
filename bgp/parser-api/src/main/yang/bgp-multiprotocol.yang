@@ -55,6 +55,13 @@ module bgp-multiprotocol {
         }
     }
 
+    grouping bgp-add-path-table-type {
+        uses bgp-table-type;
+        leaf send-receive {
+            type send-receive;
+        }
+    }
+
     grouping destination {
         choice destination-type {
             // to be augmented
@@ -103,10 +110,7 @@ module bgp-multiprotocol {
         container add-path-capability {
             reference "http://tools.ietf.org/html/draft-ietf-idr-add-paths-13#section-4";
             list address-families {
-                uses bgp-table-type;
-                leaf send-receive {
-                    type send-receive;
-                }
+                uses bgp-add-path-table-type;
             }
         }
         container route-refresh-capability {

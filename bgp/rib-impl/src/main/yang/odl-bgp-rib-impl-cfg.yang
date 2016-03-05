@@ -453,6 +453,19 @@ module odl-bgp-rib-impl-cfg {
         }
     }
 
+    grouping afi-safi {
+        leaf afi {
+            description "Address Family Identifier.";
+            type string;
+            default "";
+        }
+        leaf safi {
+            description "Subsequent Address Family Identifier.";
+            type string;
+            default "";
+        }
+    }
+
     grouping preferences {
         leaf bgp-id {
             description "The BGP Identifier.";
@@ -515,13 +528,14 @@ module odl-bgp-rib-impl-cfg {
 
         list advertized-table-types {
             description "The BGP Table-type capabilities advertized by the BGP peer.";
-            leaf afi {
-                description "Address Family Identifier.";
-                type string;
-                default "";
-            }
-            leaf safi {
-                description "Subsequent Address Family Identifier.";
+            uses afi-safi;
+        }
+
+        list advertised-add-path-table-types {
+            description "The BGP Table-type capabilities advertized by the BGP peer.";
+            uses afi-safi;
+            leaf send-receive {
+                description "Send Receive Add Path Configuration.";
                 type string;
                 default "";
             }

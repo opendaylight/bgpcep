@@ -10,6 +10,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertNotNull;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.CheckedFuture;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +25,9 @@ import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.SendReceive;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.add.path.capability.AddressFamilies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.add.path.capability.AddressFamiliesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Rib;
@@ -55,6 +60,10 @@ public class AdjRibsInWriterTest {
 
     private static final TablesKey k4 = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     private final Set<TablesKey> tableTypes = Sets.newHashSet(k4);
+
+    private static final AddressFamilies addressFamilies = new AddressFamiliesBuilder().setAfi(Ipv4AddressFamily.class)
+        .setSafi(UnicastSubsequentAddressFamily.class).setSendReceive(SendReceive.Both).build();
+    private final List<AddressFamilies> addPathTablesType = Collections.singletonList(addressFamilies);
     private final String peerIp = "12.34.56.78";
 
     @Before
@@ -75,7 +84,7 @@ public class AdjRibsInWriterTest {
         Mockito.doReturn(this.context).when(this.registry).getRIBSupportContext(Mockito.any(TablesKey.class));
         Mockito.doNothing().when(this.context).createEmptyTableStructure(Mockito.eq(this.tx), Mockito.any(YangInstanceIdentifier.class));
 
-        this.writer.transform(new PeerId(this.peerIp), this.registry, this.tableTypes, false);
+        this.writer.transform(new PeerId(this.peerIp), this.registry, this.tableTypes, this.addPathTablesType, false);
 
         // verify peer skeleton was inserted correctly
         Mockito.verify(this.tx).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.eq(peerPath), Mockito.eq(this.writer.peerSkeleton(IdentifierUtils.peerKey(peerPath), this.peerIp, false)));

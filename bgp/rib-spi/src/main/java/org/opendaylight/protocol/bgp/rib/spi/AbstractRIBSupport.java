@@ -40,6 +40,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -277,4 +278,14 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         }
     }
 
+    @Nonnull
+    @Override
+    public PathArgument getRouteIdAddPath(final long pathId, final PathArgument routeId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long extractPathId(final NormalizedNode<?, ?> data) {
+        throw new UnsupportedOperationException();
+    }
 }

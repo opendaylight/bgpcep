@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import org.opendaylight.controller.config.yang.bgp.rib.impl.AdvertisedAddPathTableTypes;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.AdvertizedTableTypes;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.ErrorMsgs;
@@ -41,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.add.path.capability.AddressFamilies;
 
 final class BGPSessionStats {
     private final Stopwatch sessionStopwatch;
@@ -51,12 +54,12 @@ final class BGPSessionStats {
     private final ErrorMsgs errMsgs = new ErrorMsgs();
 
     public BGPSessionStats(final Open remoteOpen, final int holdTimerValue, final int keepAlive, final Channel channel,
-            final Optional<BGPSessionPreferences> localPreferences, final Collection<BgpTableType> tableTypes) {
+        final Optional<BGPSessionPreferences> localPreferences, final Collection<BgpTableType> tableTypes, final List<AddressFamilies> addPathTypes) {
         this.sessionStopwatch = Stopwatch.createUnstarted();
         this.stats = new BgpSessionState();
         this.stats.setHoldtimeCurrent(holdTimerValue);
         this.stats.setKeepaliveCurrent(keepAlive);
-        this.stats.setPeerPreferences(setPeerPref(remoteOpen, channel, tableTypes));
+        this.stats.setPeerPreferences(setPeerPref(remoteOpen, channel, tableTypes, addPathTypes));
         this.stats.setSpeakerPreferences(setSpeakerPref(channel, localPreferences));
         initMsgs();
     }
@@ -155,6 +158,15 @@ final class BGPSessionStats {
         return att;
     }
 
+    private static AdvertisedAddPathTableTypes addAddPathTableType(final AddressFamilies addressFamilies) {
+        Preconditions.checkNotNull(addressFamilies);
+        final AdvertisedAddPathTableTypes att = new AdvertisedAddPathTableTypes();
+        att.setAfi(addressFamilies.getAfi().getSimpleName());
+        att.setSafi(addressFamilies.getSafi().getSimpleName());
+        att.setSendReceive(addressFamilies.getSendReceive().toString());
+        return att;
+    }
+
     private static SpeakerPreferences setSpeakerPref(final Channel channel, final Optional<BGPSessionPreferences> localPreferences) {
         Preconditions.checkNotNull(channel);
         final SpeakerPreferences pref = new SpeakerPreferences();
@@ -206,7 +218,8 @@ final class BGPSessionStats {
         return pref;
     }
 
-    private static PeerPreferences setPeerPref(final Open remoteOpen, final Channel channel, final Collection<BgpTableType> tableTypes) {
+    private static PeerPreferences setPeerPref(final Open remoteOpen, final Channel channel, final Collection<BgpTableType> tableTypes,
+        final List<AddressFamilies> addPathTypes) {
         Preconditions.checkNotNull(remoteOpen);
         Preconditions.checkNotNull(channel);
         final PeerPreferences pref = new PeerPreferences();
@@ -216,10 +229,11 @@ final class BGPSessionStats {
         pref.setBgpId(remoteOpen.getBgpIdentifier().getValue());
         pref.setAs(remoteOpen.getMyAsNumber().longValue());
         pref.setHoldtime(remoteOpen.getHoldTimer());
-        final List<AdvertizedTableTypes> tt = new ArrayList<>();
-        for (final BgpTableType t : tableTypes) {
-            tt.add(addTableType(t));
-        }
+
+        final List<AdvertizedTableTypes> tt = tableTypes.stream().map(BGPSessionStats::addTableType).collect(Collectors.toList());
+        final List<AdvertisedAddPathTableTypes> addPathTableTypeList = addPathTypes.stream().map(BGPSessionStats::addAddPathTableType)
+            .collect(Collectors.toList());
+
         if (remoteOpen.getBgpParameters() != null) {
             for (final BgpParameters param : remoteOpen.getBgpParameters()) {
                 for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
@@ -247,6 +261,7 @@ final class BGPSessionStats {
             }
         }
         pref.setAdvertizedTableTypes(tt);
+        pref.setAdvertisedAddPathTableTypes(addPathTableTypeList);
         return pref;
     }
 }

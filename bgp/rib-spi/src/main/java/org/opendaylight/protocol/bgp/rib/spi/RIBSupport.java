@@ -29,7 +29,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNod
  * to register an implementation of this class and the RIB core then calls into it
  * to inquire about details specific to that particular model.
  */
-public interface RIBSupport {
+public interface RIBSupport extends AddPathRibSupport {
     /**
      * Return the table-type-specific empty routes container, as augmented into the
      * bgp-rib model under /rib/tables/routes choice node. This needs to include all

@@ -12,9 +12,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -25,6 +27,8 @@ import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.SendReceive;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.add.path.capability.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
@@ -73,6 +77,7 @@ final class AdjRibInWriter {
     private static final NodeIdentifier PEER_ROLE = new NodeIdentifier(PEER_ROLE_QNAME);
     private static final NodeIdentifier PEER_TABLES = new NodeIdentifier(SupportedTables.QNAME);
     private static final NodeIdentifier TABLES = new NodeIdentifier(Tables.QNAME);
+    private static final QName SEND_RECEIVE = QName.create(SupportedTables.QNAME, "send-receive").intern();
 
     // FIXME: is there a utility method to construct this?
     private static final ContainerNode EMPTY_ADJRIBIN = Builders.containerBuilder().withNodeIdentifier(ADJRIBIN).addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build()).build();
@@ -130,14 +135,16 @@ final class AdjRibInWriter {
      * @param newPeerId new peer BGP identifier
      * @param registry RIB extension registry
      * @param tableTypes New tables, must not be null
+     * @param addPathTablesType
      * @return New writer
      */
-    AdjRibInWriter transform(final PeerId newPeerId, final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes, final boolean isAppPeer) {
+    AdjRibInWriter transform(final PeerId newPeerId, final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes,
+        final List<AddressFamilies> addPathTablesType, final boolean isAppPeer) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
 
         final YangInstanceIdentifier newPeerPath;
         newPeerPath = createEmptyPeerStructure(newPeerId, isAppPeer, tx);
-        final ImmutableMap<TablesKey, TableContext> tb = createNewTableInstances(newPeerPath, isAppPeer, registry, tableTypes, tx);
+        final ImmutableMap<TablesKey, TableContext> tb = createNewTableInstances(newPeerPath, isAppPeer, registry, tableTypes, addPathTablesType, tx);
         tx.submit();
 
         return new AdjRibInWriter(this.ribPath, this.chain, newPeerId, this.role, newPeerPath, tb);
@@ -149,12 +156,14 @@ final class AdjRibInWriter {
      * @param isAppPeer
      * @param registry
      * @param tableTypes
-     * @param tx
-     * @return
+     * @param addPathTablesType
+     *@param tx  @return
      */
     private ImmutableMap<TablesKey, TableContext> createNewTableInstances(final YangInstanceIdentifier newPeerPath, final boolean isAppPeer,
-        final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes, final DOMDataWriteTransaction tx) {
+        final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes, final List<AddressFamilies> addPathTablesType,
+        final DOMDataWriteTransaction tx) {
 
+        final Map<TablesKey, SendReceive> addPathTableMaps = mapTableTypesFamilies(addPathTablesType);
         final Builder<TablesKey, TableContext> tb = ImmutableMap.builder();
         for (final TablesKey tableKey : tableTypes) {
             final RIBSupportContext rs = registry.getRIBSupportContext(tableKey);
@@ -164,10 +173,15 @@ final class AdjRibInWriter {
                 LOG.warn("No support for table type {}, skipping it", tableKey);
                 continue;
             }
-            installAdjRibsOutTables(isAppPeer, newPeerPath, rs, instanceIdentifierKey, tableKey, tx);
+            installAdjRibsOutTables(isAppPeer, newPeerPath, rs, instanceIdentifierKey, tableKey, addPathTableMaps.get(tableKey), tx);
             installAdjRibInTables(newPeerPath, tableKey, rs, instanceIdentifierKey, tx, tb);
         }
         return tb.build();
+    }
+
+    private Map<TablesKey, SendReceive> mapTableTypesFamilies(final List<AddressFamilies> addPathTablesType) {
+        return Collections.unmodifiableMap(addPathTablesType.stream().collect(Collectors.toMap(af -> new TablesKey(af.getAfi(), af.getSafi()),
+            af -> af.getSendReceive())));
     }
 
     private void installAdjRibInTables(final YangInstanceIdentifier newPeerPath, final TablesKey tableKey, final RIBSupportContext rs,
@@ -185,12 +199,16 @@ final class AdjRibInWriter {
     }
 
     private void installAdjRibsOutTables(final boolean isAppPeer, final YangInstanceIdentifier newPeerPath, final RIBSupportContext rs,
-        final NodeIdentifierWithPredicates instanceIdentifierKey, final TablesKey tableKey, final DOMDataWriteTransaction tx) {
+        final NodeIdentifierWithPredicates instanceIdentifierKey, final TablesKey tableKey, final SendReceive sendReceive,
+        final DOMDataWriteTransaction tx) {
         if (!isAppPeer) {
             final NodeIdentifierWithPredicates supTablesKey = RibSupportUtils.toYangKey(SupportedTables.QNAME, tableKey);
             final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> tt = Builders.mapEntryBuilder().withNodeIdentifier(supTablesKey);
             for (final Entry<QName, Object> e : supTablesKey.getKeyValues().entrySet()) {
                 tt.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
+            }
+            if(sendReceive != null) {
+                tt.withChild(ImmutableNodes.leafNode(SEND_RECEIVE, sendReceive.toString().toLowerCase()));
             }
             tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath.node(PEER_TABLES).node(supTablesKey), tt.build());
             rs.createEmptyTableStructure(tx, newPeerPath.node(EMPTY_ADJRIBOUT.getIdentifier()).node(TABLES).node(instanceIdentifierKey));
