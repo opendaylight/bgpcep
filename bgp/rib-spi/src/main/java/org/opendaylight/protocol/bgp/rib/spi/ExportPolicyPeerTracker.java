@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 
@@ -35,10 +34,9 @@ public interface ExportPolicyPeerTracker {
     /**
      * check whether the peer supports the table
      * @param peerId of peer
-     * @param tablesKey to be checked
      * @return true if peer supports table
      */
-    boolean isTableSupported(PeerId peerId, TablesKey tablesKey);
+    boolean isTableSupported(PeerId peerId);
 
     /**
      * @param peerId of peer
@@ -51,4 +49,11 @@ public interface ExportPolicyPeerTracker {
      * @param peerPath YII of peer
      */
     void onDataTreeChanged(DataTreeCandidateNode change, YangInstanceIdentifier peerPath);
+
+    /**
+     * Check whether Peer supports Add Path
+     * @param peerId
+     * @return true if add-path is supported
+     */
+    boolean isAddPathSupportedByPeer(PeerId peerId);
 }

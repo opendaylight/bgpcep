@@ -33,11 +33,13 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.LeafSetEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.LeafSetNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
@@ -70,6 +72,11 @@ public class AbstractRIBSupportTest {
         }
 
         @Override
+        public PathArgument getRouteIdAddPath(final long pathId, final PathArgument routeId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         protected NodeIdentifier destinationContainerIdentifier() {
             return new NodeIdentifier(DestinationIpv4.QNAME);
         }
@@ -89,6 +96,11 @@ public class AbstractRIBSupportTest {
         @Override
         public boolean isComplexRoute() {
             return false;
+        }
+
+        @Override
+        public long extractPathId(final NormalizedNode<?, ?> normalizedNode) {
+            throw new UnsupportedOperationException();
         }
 
         @Override

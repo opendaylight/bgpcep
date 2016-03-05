@@ -8,10 +8,12 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import io.netty.channel.ChannelInboundHandler;
+import java.util.List;
 import java.util.Set;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.add.path.capability.AddressFamilies;
 
 /**
  * BGP Session represents the finite state machine in BGP, including timers and its purpose is to create a BGP
@@ -41,4 +43,11 @@ public interface BGPSession extends AutoCloseable, ChannelInboundHandler {
      * @return Peer's AS Number
      */
     AsNumber getAsNumber();
+    /**
+     * Return a list with Add Path tables supported advertised and corresponding SendReceive mode.
+     *
+     * @return AddPathTables supported
+     */
+    List<AddressFamilies> getAdvertisedAddPathTableTypes();
+
 }

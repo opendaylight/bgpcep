@@ -106,7 +106,7 @@ module bgp-rib {
                 }
                 list supported-tables {
                     key "afi safi";
-                    uses bgp-mp:bgp-table-type;
+                    uses bgp-mp:bgp-add-path-table-type;
                 }
                 container adj-rib-in {
                     description "Routes as we have received them from the peer.";
