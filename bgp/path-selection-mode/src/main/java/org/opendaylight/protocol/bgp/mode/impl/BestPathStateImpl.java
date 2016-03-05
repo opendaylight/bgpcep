@@ -5,9 +5,8 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.mode.impl;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Optional;
@@ -21,6 +20,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.concurrent.NotThreadSafe;
+import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.AsPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.LocalPref;
@@ -45,7 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @NotThreadSafe
-final class BestPathState {
+public final class BestPathStateImpl implements BestPathState {
     private static final class NamespaceSpecificIds {
         private final Collection<PathArgument> asPath;
         private final Collection<PathArgument> locPref;
@@ -100,7 +100,7 @@ final class BestPathState {
         }
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(BestPathState.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BestPathStateImpl.class);
     private static final Cache<QNameModule, NamespaceSpecificIds> PATH_CACHE = CacheBuilder.newBuilder().weakKeys().weakValues().build();
 
     private long peerAs = 0L;
@@ -113,7 +113,7 @@ final class BestPathState {
     private BgpOrigin origin;
     private boolean resolved;
 
-    BestPathState(final ContainerNode attributes) {
+    public BestPathStateImpl(final ContainerNode attributes) {
         final NamespaceSpecificIds col;
         try {
             col = PATH_CACHE.get(attributes.getNodeType().getModule(), new Callable<NamespaceSpecificIds>() {
@@ -175,7 +175,7 @@ final class BestPathState {
         if (maybeSegments.isPresent()) {
             final UnkeyedListNode segments = (UnkeyedListNode) maybeSegments.get();
             final List<Segments> segs = extractSegments(segments);
-            if (segs.size() != 0) {
+            if (!segs.isEmpty()) {
                 this.peerAs = getPeerAs(segs).getValue();
                 this.asPathLength = countAsPath(segs);
             }
@@ -183,27 +183,32 @@ final class BestPathState {
         this.resolved = true;
     }
 
-    Long getLocalPref() {
+    @Override
+    public Long getLocalPref() {
         resolveValues();
         return this.localPref;
     }
 
-    Long getMultiExitDisc() {
+    @Override
+    public Long getMultiExitDisc() {
         resolveValues();
         return this.multiExitDisc;
     }
 
-    BgpOrigin getOrigin() {
+    @Override
+    public BgpOrigin getOrigin() {
         resolveValues();
         return this.origin;
     }
 
-    Long getPeerAs() {
+    @Override
+    public Long getPeerAs() {
         resolveValues();
         return this.peerAs;
     }
 
-    int getAsPathLength() {
+    @Override
+    public int getAsPathLength() {
         resolveValues();
         return this.asPathLength;
     }
@@ -235,7 +240,6 @@ final class BestPathState {
         return new AsNumber(0L);
     }
 
-    @VisibleForTesting
     public List<Segments> extractSegments(final UnkeyedListNode segments) {
         // list segments
         final List<Segments> extracted = new ArrayList<>();
@@ -261,7 +265,8 @@ final class BestPathState {
         return null;
     }
 
-    ContainerNode getAttributes() {
+    @Override
+    public ContainerNode getAttributes() {
         return this.attributes;
     }
 
@@ -295,10 +300,10 @@ final class BestPathState {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof BestPathState)) {
+        if (!(obj instanceof BestPathStateImpl)) {
             return false;
         }
-        final BestPathState other = (BestPathState) obj;
+        final BestPathStateImpl other = (BestPathStateImpl) obj;
         if (!this.attributes.equals(other.attributes)) {
             return false;
         }

@@ -20,6 +20,7 @@ module odl-bgp-rib-impl-cfg {
     import odl-tcpmd5-netty-cfg { prefix tcpmd5n; revision-date 2014-04-27; }
     import rpc-context { prefix rpcx; revision-date 2013-06-17; }
     import odl-bgp-openconfig-spi-cfg { prefix bgp-oc-spi; revision-date 2015-09-25; }
+    import odl-bgp-path-selection-mode { prefix bps; revision-date 2016-03-01;}
 
     organization "Cisco Systems, Inc.";
 
@@ -172,7 +173,7 @@ module odl-bgp-rib-impl-cfg {
 
     identity bgp-peer-acceptor {
         description
-            "BGP peer acceptor that handles incomming bgp connections. Uses BGP peer registry to accept or decline incomming connections";
+            "BGP peer acceptor that handles incoming bgp connections. Uses BGP peer registry to accept or decline incoming connections";
 
         base config:module-type;
         config:java-name-prefix BGPPeerAcceptor;
@@ -653,6 +654,42 @@ module odl-bgp-rib-impl-cfg {
         }
      }
 
+    identity bgp-path-selection-mode {
+        description
+            "Service representing an address family + path selection mode.";
+
+        base "config:service-type";
+        config:java-class "org.opendaylight.protocol.bgp.rib.impl.spi.BGPBestPathSelection";
+    }
+
+    identity bgp-psm-impl {
+        base config:module-type;
+        config:provided-service bgp-path-selection-mode;
+        config:java-name-prefix BGPPSMImpl;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case bgp-psm-impl {
+            when "/config:modules/config:module/config:type = 'bgp-psm-impl'";
+            container path-address-family {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity bgp-table-type;
+                    }
+                }
+            }
+            container path-selection-mode {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity bps:path-selection-mode-factory;
+                    }
+                }
+            }
+        }
+    }
+
     identity rib-impl {
         base config:module-type;
         config:provided-service bgprib:rib;
@@ -767,6 +804,14 @@ module odl-bgp-rib-impl-cfg {
                 description "IBGP identifier. Needed by route reflection.";
                 reference "https://tools.ietf.org/html/rfc4456#section-7";
                 type inet:ipv4-address;
+            }
+
+            list path-selection-mode {
+                uses config:service-ref {
+                    refine type {
+                        config:required-identity bgp-path-selection-mode;
+                    }
+                }
             }
         }
     }

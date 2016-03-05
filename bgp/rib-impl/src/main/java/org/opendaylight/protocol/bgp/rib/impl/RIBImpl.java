@@ -16,9 +16,11 @@ import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -33,6 +35,8 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataBrokerExtension;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
+import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
@@ -107,11 +111,13 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final BGPConfigModuleTracker configModuleTracker;
     private final BGPOpenConfigProvider openConfigProvider;
     private final CacheDisconnectedPeers cacheDisconnectedPeers;
+    private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
 
     public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final Ipv4Address clusterId, final RIBExtensionConsumerContext extensions,
         final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory, final BindingCodecTreeFactory codecFactory,
         final ReconnectStrategyFactory sessionStrategyFactory, final DataBroker dps, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
-        final GeneratedClassLoadingStrategy classStrategy, final BGPConfigModuleTracker moduleTracker, final BGPOpenConfigProvider openConfigProvider) {
+        @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy,
+        final BGPConfigModuleTracker moduleTracker, final BGPOpenConfigProvider openConfigProvider) {
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))));
         this.domChain = domDataBroker.createTransactionChain(this);
         this.localAs = Preconditions.checkNotNull(localAs);
@@ -120,7 +126,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.sessionStrategyFactory = Preconditions.checkNotNull(sessionStrategyFactory);
         this.tcpStrategyFactory = Preconditions.checkNotNull(tcpStrategyFactory);
         this.localTables = ImmutableSet.copyOf(localTables);
-        this.localTablesKeys = new HashSet<TablesKey>();
+        this.localTablesKeys = new HashSet<>();
         this.dataBroker = dps;
         this.domDataBroker = Preconditions.checkNotNull(domDataBroker);
         this.extensions = Preconditions.checkNotNull(extensions);
@@ -131,6 +137,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.configModuleTracker = moduleTracker;
         this.openConfigProvider = openConfigProvider;
         this.cacheDisconnectedPeers = new CacheDisconnectedPeersImpl();
+        this.bestPathSelectionStrategies = Preconditions.checkNotNull(bestPathSelectionStrategies);
 
         LOG.debug("Instantiating RIB table {} at {}", ribId, this.yangRibId);
 
@@ -180,9 +187,9 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final Ipv4Address clusterId, final RIBExtensionConsumerContext extensions,
             final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory, final BindingCodecTreeFactory codecFactory,
             final ReconnectStrategyFactory sessionStrategyFactory, final DataBroker dps, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
-            final GeneratedClassLoadingStrategy classStrategy) {
+            final Map<TablesKey, PathSelectionMode> bestPathSelectionstrategies, final GeneratedClassLoadingStrategy classStrategy) {
         this(ribId, localAs, localBgpId, clusterId, extensions, dispatcher, tcpStrategyFactory, codecFactory, sessionStrategyFactory,
-                dps, domDataBroker, localTables, classStrategy, null, null);
+                dps, domDataBroker, localTables, bestPathSelectionstrategies, classStrategy, null, null);
     }
 
     private void startLocRib(final TablesKey key, final PolicyDatabase pd) {
@@ -210,8 +217,13 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         } catch (final TransactionCommitFailedException e1) {
             LOG.error("Failed to initiate LocRIB for key {}", key, e1);
         }
+
+        PathSelectionMode pathSelectionStrategy = this.bestPathSelectionStrategies.get(key);
+        if (pathSelectionStrategy == null) {
+            pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy();
+        }
         this.locRibs.add(LocRibWriter.create(this.ribContextRegistry, key, createPeerChain(this), getYangRibId(), this.localAs, getService(), pd,
-            this.cacheDisconnectedPeers));
+            this.cacheDisconnectedPeers, pathSelectionStrategy));
     }
 
     @Override

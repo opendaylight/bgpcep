@@ -10,6 +10,11 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.opendaylight.protocol.bgp.mode.impl.base.BestPathSelectorTest.ATTRS_EXTENSION_Q;
+import static org.opendaylight.protocol.bgp.mode.impl.base.BestPathSelectorTest.SEGMENTS_NID;
+import static org.opendaylight.protocol.bgp.mode.impl.base.BestPathSelectorTest.SEQ_SEGMENT;
+import static org.opendaylight.protocol.bgp.mode.impl.base.BestPathSelectorTest.SET_SEGMENT;
+
 import java.util.Collection;
 import java.util.Iterator;
 import org.junit.Test;
@@ -36,23 +41,23 @@ import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 
 public class AttributeOperationsTest {
 
-    static final NodeIdentifier ORIGIN_NID = new NodeIdentifier(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, Origin.QNAME.getLocalName()).intern());
-    static final NodeIdentifier ORIGIN_VALUE_NID = new NodeIdentifier(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "value").intern());
-    static final NodeIdentifier AS_PATH_NID = new NodeIdentifier(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, AsPath.QNAME.getLocalName()).intern());
-    static final NodeIdentifier ATOMIC_NID = new NodeIdentifier(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, AtomicAggregate.QNAME.getLocalName()));
-    static final NodeIdentifier CLUSTER_C_NID = new NodeIdentifier(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, ClusterId.QNAME.getLocalName()));
-    static final NodeIdentifier CLUSTER_NID = new NodeIdentifier(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "cluster"));
-    static final NodeIdentifier ORIGINATOR_C_NID = new NodeIdentifier(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, OriginatorId.QNAME.getLocalName()));
-    static final NodeIdentifier ORIGINATOR_NID = new NodeIdentifier(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "originator"));
+    static final NodeIdentifier ORIGIN_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, Origin.QNAME.getLocalName()).intern());
+    static final NodeIdentifier ORIGIN_VALUE_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "value").intern());
+    static final NodeIdentifier AS_PATH_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, AsPath.QNAME.getLocalName()).intern());
+    static final NodeIdentifier ATOMIC_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, AtomicAggregate.QNAME.getLocalName()));
+    static final NodeIdentifier CLUSTER_C_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, ClusterId.QNAME.getLocalName()));
+    static final NodeIdentifier CLUSTER_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "cluster"));
+    static final NodeIdentifier ORIGINATOR_C_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, OriginatorId.QNAME.getLocalName()));
+    static final NodeIdentifier ORIGINATOR_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "originator"));
 
     @Test
     public void testExportedAttributesSetFirst() {
         final Long ourAs = 72L;
-        final ContainerNode attributesSetBefore = Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(BestPathSelectorTest.ATTRS_EXTENSION_Q))
+        final ContainerNode attributesSetBefore = Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(ATTRS_EXTENSION_Q))
             .addChild(Builders.containerBuilder().withNodeIdentifier(AS_PATH_NID)
-                .addChild(Builders.unkeyedListBuilder().withNodeIdentifier(BestPathSelectorTest.SEGMENTS_NID)
-                    .addChild(BestPathSelectorTest.SET_SEGMENT)
-                    .addChild(BestPathSelectorTest.SEQ_SEGMENT)
+                .addChild(Builders.unkeyedListBuilder().withNodeIdentifier(SEGMENTS_NID)
+                    .addChild(SET_SEGMENT)
+                    .addChild(SEQ_SEGMENT)
                     .build())
             .build())
             .build();
@@ -67,11 +72,11 @@ public class AttributeOperationsTest {
     @Test
     public void testExportedAttributesListFirst() {
         final Long ourAs = 72L;
-        final ContainerNode attributesListBefore = Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(BestPathSelectorTest.ATTRS_EXTENSION_Q))
+        final ContainerNode attributesListBefore = Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(ATTRS_EXTENSION_Q))
             .addChild(Builders.containerBuilder().withNodeIdentifier(AS_PATH_NID)
-                .addChild(Builders.unkeyedListBuilder().withNodeIdentifier(BestPathSelectorTest.SEGMENTS_NID)
-                    .addChild(BestPathSelectorTest.SEQ_SEGMENT)
-                    .addChild(BestPathSelectorTest.SET_SEGMENT)
+                .addChild(Builders.unkeyedListBuilder().withNodeIdentifier(SEGMENTS_NID)
+                    .addChild(SEQ_SEGMENT)
+                    .addChild(SET_SEGMENT)
                     .build())
             .build())
             .build();
@@ -90,12 +95,12 @@ public class AttributeOperationsTest {
     @Test
     public void testExportedAttributesEmptyWithTransitive() {
         final Long ourAs = 72L;
-        final ContainerNode attributesSetBefore = Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(BestPathSelectorTest.ATTRS_EXTENSION_Q))
+        final ContainerNode attributesSetBefore = Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(ATTRS_EXTENSION_Q))
             .addChild(Builders.containerBuilder().withNodeIdentifier(ORIGIN_NID)
                 .addChild(Builders.leafBuilder().withNodeIdentifier(ORIGIN_VALUE_NID).withValue(BgpOrigin.Egp).build())
             .build())
             .addChild(Builders.containerBuilder().withNodeIdentifier(AS_PATH_NID)
-                .addChild(Builders.unkeyedListBuilder().withNodeIdentifier(BestPathSelectorTest.SEGMENTS_NID).build())
+                .addChild(Builders.unkeyedListBuilder().withNodeIdentifier(SEGMENTS_NID).build())
             .build())
             .addChild(Builders.containerBuilder().withNodeIdentifier(ATOMIC_NID).build())
             .build();
@@ -115,8 +120,8 @@ public class AttributeOperationsTest {
     }
 
     private LeafSetNode<?> checkFirstLeafList(final ContainerNode exportedAttributes) {
-        assertTrue(NormalizedNodes.findNode(exportedAttributes, AS_PATH_NID, BestPathSelectorTest.SEGMENTS_NID).isPresent());
-        final UnkeyedListNode segments = (UnkeyedListNode) NormalizedNodes.findNode(exportedAttributes, AS_PATH_NID, BestPathSelectorTest.SEGMENTS_NID).get();
+        assertTrue(NormalizedNodes.findNode(exportedAttributes, AS_PATH_NID, SEGMENTS_NID).isPresent());
+        final UnkeyedListNode segments = (UnkeyedListNode) NormalizedNodes.findNode(exportedAttributes, AS_PATH_NID, SEGMENTS_NID).get();
         final UnkeyedListEntryNode seg = segments.getValue().iterator().next();
         final DataContainerChild<? extends PathArgument, ?> firstLeafList = seg.getValue().iterator().next();
         return (LeafSetNode<?>) firstLeafList;
@@ -126,7 +131,7 @@ public class AttributeOperationsTest {
     public void testReflectedAttributesOriginatorAndClusterNotPresent() {
         final Ipv4Address originatorId = new Ipv4Address("127.0.0.2");
         final ClusterIdentifier clusterId = new ClusterIdentifier("10.10.10.10");
-        final ContainerNode attributes = Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(BestPathSelectorTest.ATTRS_EXTENSION_Q))
+        final ContainerNode attributes = Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(ATTRS_EXTENSION_Q))
             .addChild(Builders.containerBuilder().withNodeIdentifier(ORIGIN_NID)
                 .addChild(Builders.leafBuilder().withNodeIdentifier(ORIGIN_VALUE_NID).withValue(BgpOrigin.Egp).build())
             .build())
@@ -153,7 +158,7 @@ public class AttributeOperationsTest {
         final ClusterIdentifier ourClusterId = new ClusterIdentifier("1.1.1.1");
         final ClusterIdentifier clusterId1 = new ClusterIdentifier("10.10.10.10");
         final ClusterIdentifier clusterId2 = new ClusterIdentifier("11.11.11.11");
-        final ContainerNode attributes = Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(BestPathSelectorTest.ATTRS_EXTENSION_Q))
+        final ContainerNode attributes = Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(ATTRS_EXTENSION_Q))
             .addChild(Builders.containerBuilder().withNodeIdentifier(ORIGINATOR_C_NID)
                 .addChild(Builders.leafBuilder().withNodeIdentifier(ORIGINATOR_NID).withValue("127.0.0.2").build())
             .build())
