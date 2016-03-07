@@ -109,6 +109,10 @@ module bgp-multiprotocol {
                 }
             }
         }
+        container route-refresh-capability {
+            reference "http://tools.ietf.org/html/rfc2918";
+            uses bgp-table-type;
+        }
     }
 
     augment "/bgp-msg:update/bgp-msg:attributes" {
