@@ -32,6 +32,7 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenconfigMapper;
 import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfigurationIdentifier;
 import org.opendaylight.protocol.bgp.openconfig.spi.pojo.BGPPeerInstanceConfiguration;
+import org.opendaylight.protocol.bgp.parser.impl.message.open.RouteRefreshCapabilityHandler;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -192,6 +193,10 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
             new As4BytesCapabilityBuilder().setAsNumber(r.getLocalAs()).build()).build()).build());
         caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
             new CParameters1Builder().setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build()).build()).build());
+
+        if (getRouteRefresh()) {
+            caps.add(new OptionalCapabilitiesBuilder().setCParameters(RouteRefreshCapabilityHandler.RR_CAPABILITY).build());
+        }
 
         if (!getAddPathDependency().isEmpty()) {
             final List<AddressFamilies> addPathFamilies = filterAddPathDependency(getAddPathDependency());
