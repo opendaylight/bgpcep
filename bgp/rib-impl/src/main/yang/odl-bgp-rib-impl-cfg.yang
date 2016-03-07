@@ -373,6 +373,11 @@ module odl-bgp-rib-impl-cfg {
                 }
             }
 
+            leaf route-refresh {
+                type boolean;
+                default "false";
+            }
+
             leaf remote-as {
                 description
                     "Expected remote AS number. If not present, it is assumed
@@ -497,6 +502,12 @@ module odl-bgp-rib-impl-cfg {
         }
 
         leaf add-path-capability {
+            type boolean;
+            default "false";
+        }
+
+        leaf route-refresh-capability {
+            reference "https://tools.ietf.org/html/rfc2918";
             type boolean;
             default "false";
         }

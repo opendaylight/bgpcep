@@ -193,6 +193,10 @@ final class BGPSessionStats {
                             if (cParam.getBgpExtendedMessageCapability() != null) {
                                 pref.setBgpExtendedMessageCapability(true);
                             }
+                            if (cParam.getAugmentation(CParameters1.class) != null &&
+                                cParam.getAugmentation(CParameters1.class).getRouteRefreshCapability() != null) {
+                                pref.setRouteRefreshCapability(true);
+                            }
                         }
                     }
                 }
@@ -230,6 +234,10 @@ final class BGPSessionStats {
                     if (cParam.getAugmentation(CParameters1.class) != null &&
                             cParam.getAugmentation(CParameters1.class).getAddPathCapability() != null) {
                         pref.setAddPathCapability(true);
+                    }
+                    if (cParam.getAugmentation(CParameters1.class) != null &&
+                        cParam.getAugmentation(CParameters1.class).getRouteRefreshCapability() != null) {
+                        pref.setRouteRefreshCapability(true);
                     }
                     if (cParam.getBgpExtendedMessageCapability() != null) {
                         pref.setBgpExtendedMessageCapability(true);
