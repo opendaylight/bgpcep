@@ -109,6 +109,9 @@ module bgp-multiprotocol {
                 }
             }
         }
+        container route-refresh-capability {
+            reference "http://tools.ietf.org/html/rfc2918";
+        }
     }
 
     augment "/bgp-msg:update/bgp-msg:attributes" {
