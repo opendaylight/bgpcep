@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_d9ccc9bd",
+        "filename": "bgp/parser-api/src/main/yang/bgp-multiprotocol.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-07T22:20:35Z",
+      "side": 1,
+      "message": "Does not follow https://tools.ietf.org/html/rfc2918#section-2",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 9
+      },
+      "revId": "efa0b8af56e1bc886adb075391b3d7947825dc63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
