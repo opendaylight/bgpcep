@@ -63,8 +63,12 @@
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:path:selection:mode">prefix:advertise-n-paths</type>
                     <name>n-paths</name>
                     <n-best-paths>2</n-best-paths>
-                </module>
-                <module>
+                </module>-->
+                <!--<module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:path:selection:mode">prefix:advertise-all-paths</type>
+                    <name>all-paths</name>
+                </module>-->
+                <!--<module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-psm-impl</type>
                     <name>ipv4-unicast-path-selection-mode</name>
                     <path-address-family>
@@ -76,6 +80,7 @@
                         <name>n-paths</name>
                     </path-selection-mode>
                 </module>-->
+
 
                 <!--
                      A single BGP peer. Note this section is deactivated because a misconfigured peer
@@ -299,8 +304,15 @@
                         <name>n-paths</name>
                         <provider>/config/modules/module[name='advertise-n-paths']/instance[name='n-paths']</provider>
                     </instance>
-                </service>
-                <service>
+                </service>-->
+                <!--<service>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:path:selection:mode">prefix:path-selection-mode-factory</type>
+                    <instance>
+                        <name>all-paths</name>
+                        <provider>/config/modules/module[name='advertise-all-paths']/instance[name='all-paths']</provider>
+                    </instance>
+                </service>-->
+                <!--<service>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-path-selection-mode</type>
                     <instance>
                         <name>ipv4-unicast-path-selection-mode</name>
