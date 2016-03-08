@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_fc6c1b0a",
+        "filename": "bgp/parser-api/src/main/yang/bgp-message.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-08T12:05:40Z",
+      "side": 1,
+      "message": "I am pretty sure some groping already exists for this.",
+      "range": {
+        "startLine": 232,
+        "startChar": 0,
+        "endLine": 241,
+        "endChar": 9
+      },
+      "revId": "22e5beb8bf90e210a69cedea8847464490bc50b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_dc6f97fa",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPRouteRefreshMessageParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-08T12:05:40Z",
+      "side": 1,
+      "message": "Looks familiar...https://tools.ietf.org/html/rfc4760#section-8\nDRY!",
+      "revId": "22e5beb8bf90e210a69cedea8847464490bc50b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
