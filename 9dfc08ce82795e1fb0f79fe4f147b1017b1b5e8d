@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_fcfd3b6f",
+        "filename": "bgp/parser-api/src/main/yang/bgp-multiprotocol.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-08T10:58:08Z",
+      "side": 1,
+      "message": "Make it a \"presence\" container.",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 114,
+        "endChar": 9
+      },
+      "revId": "9dfc08ce82795e1fb0f79fe4f147b1017b1b5e8d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_7cf12b94",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/RouteRefreshCapabilityHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-08T10:58:08Z",
+      "side": 1,
+      "message": "Watchout NPE!",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 9
+      },
+      "revId": "9dfc08ce82795e1fb0f79fe4f147b1017b1b5e8d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_7c480bcc",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/RouteRefreshCapabilityHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-08T10:58:08Z",
+      "side": 1,
+      "message": "Utility exists for this.",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 47
+      },
+      "revId": "9dfc08ce82795e1fb0f79fe4f147b1017b1b5e8d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_3c2963e6",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/RouteRefreshCapabilityHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-08T10:58:08Z",
+      "side": 1,
+      "message": "In fact, an empty buffer is expected - length field has been already read.",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 34
+      },
+      "revId": "9dfc08ce82795e1fb0f79fe4f147b1017b1b5e8d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_bc7c53ed",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/RouteRefreshCapabilityHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-08T10:58:08Z",
+      "side": 1,
+      "message": "Constant.",
+      "range": {
+        "startLine": 44,
+        "startChar": 75,
+        "endLine": 45,
+        "endChar": 64
+      },
+      "revId": "9dfc08ce82795e1fb0f79fe4f147b1017b1b5e8d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_3c70430a",
+        "filename": "bgp/rib-impl/src/main/yang/odl-bgp-rib-impl-cfg.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-08T10:58:08Z",
+      "side": 1,
+      "message": "Better to have a default value.",
+      "revId": "9dfc08ce82795e1fb0f79fe4f147b1017b1b5e8d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
