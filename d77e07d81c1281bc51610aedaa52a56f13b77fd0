@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_7c92cbf6",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/RouteRefreshCapabilityHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-08T11:59:13Z",
+      "side": 1,
+      "message": "Use constant whenever it can be used. CParameters can be even more useful.",
+      "range": {
+        "startLine": 27,
+        "startChar": 38,
+        "endLine": 27,
+        "endChar": 44
+      },
+      "revId": "d77e07d81c1281bc51610aedaa52a56f13b77fd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_5c8d47d2",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/RouteRefreshCapabilityHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-08T11:59:13Z",
+      "side": 1,
+      "message": "Possible NPE!",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 9
+      },
+      "revId": "d77e07d81c1281bc51610aedaa52a56f13b77fd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_1cae1f2e",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPPeerModule.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-08T11:59:13Z",
+      "side": 1,
+      "message": "The capability is allways added no matter what the configuration is.",
+      "range": {
+        "startLine": 197,
+        "startChar": 8,
+        "endLine": 198,
+        "endChar": 123
+      },
+      "revId": "d77e07d81c1281bc51610aedaa52a56f13b77fd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_bc661328",
+        "filename": "bgp/rib-impl/src/main/yang/odl-bgp-rib-impl-cfg.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-08T11:59:13Z",
+      "side": 1,
+      "message": "Why not true?",
+      "range": {
+        "startLine": 378,
+        "startChar": 25,
+        "endLine": 378,
+        "endChar": 30
+      },
+      "revId": "d77e07d81c1281bc51610aedaa52a56f13b77fd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
