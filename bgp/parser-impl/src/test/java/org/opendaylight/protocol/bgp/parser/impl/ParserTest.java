@@ -14,7 +14,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.net.UnknownHostException;
@@ -34,6 +33,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.ProtocolVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.RouteRefresh;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.RouteRefreshBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class ParserTest {
@@ -62,6 +65,10 @@ public class ParserTest {
         (byte) 0x00, (byte) 0x63, (byte) 0x19, (byte) 0x04, (byte) 0x02, (byte) 0x00, (byte) 0x08, (byte) 0x4f, (byte) 0x66, (byte) 0x2d, (byte) 0x39, (byte) 0x6b, (byte) 0x2d, (byte) 0x30, (byte)0x33,
         (byte) 0x04, (byte) 0x03, (byte) 0x00, (byte) 0x01, (byte) 0x72, (byte) 0x04, (byte) 0x04, (byte) 0x00, (byte) 0x04, (byte) 0x2b, (byte) 0x2b, (byte) 0x2b, (byte) 0x2b
     };
+
+    private static final byte[] RR_MSG = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0x00, (byte) 0x17, (byte) 0x05, (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x01 };
 
     static MessageRegistry reg;
 
@@ -131,7 +138,7 @@ public class ParserTest {
     @Test
     public void testOpenMessage() throws UnknownHostException, BGPParsingException, BGPDocumentedException {
         final Notification open = new OpenBuilder().setMyAsNumber(100).setHoldTimer(180).setBgpIdentifier(new Ipv4Address("20.20.20.20")).setVersion(
-                new ProtocolVersion((short) 4)).build();
+            new ProtocolVersion((short) 4)).build();
         final ByteBuf bytes = Unpooled.buffer();
         ParserTest.reg.serializeMessage(open, bytes);
         assertArrayEquals(openBMsg, ByteArray.getAllBytes(bytes));
@@ -200,7 +207,7 @@ public class ParserTest {
     @Test
     public void testNotificationMsg() throws BGPParsingException, BGPDocumentedException {
         Notification notMsg = new NotifyBuilder().setErrorCode(BGPError.OPT_PARAM_NOT_SUPPORTED.getCode()).setErrorSubcode(
-                BGPError.OPT_PARAM_NOT_SUPPORTED.getSubcode()).setData(new byte[] { 4, 9 }).build();
+            BGPError.OPT_PARAM_NOT_SUPPORTED.getSubcode()).setData(new byte[] { 4, 9 }).build();
         final ByteBuf bytes = Unpooled.buffer();
         ParserTest.reg.serializeMessage(notMsg, bytes);
         assertArrayEquals(notificationBMsg, ByteArray.subByte(bytes.array(),0,bytes.writerIndex()));
@@ -269,5 +276,17 @@ public class ParserTest {
             return;
         }
         fail();
+    }
+
+    @Test
+    public void testRouteRefreshMsg() throws BGPDocumentedException, BGPParsingException {
+        final Notification rrMsg = new RouteRefreshBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build();
+        final ByteBuf buffer = Unpooled.buffer();
+        ParserTest.reg.serializeMessage(rrMsg, buffer);
+        assertArrayEquals(RR_MSG, ByteArray.getAllBytes(buffer));
+
+        final Notification m = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(ByteArray.getAllBytes(buffer)));
+
+        assertTrue(m instanceof RouteRefresh);
     }
 }

@@ -68,16 +68,23 @@ public final class MultiProtocolCapabilityHandler implements CapabilityParser, C
 
         final ByteBuf capBuffer = Unpooled.buffer();
         final Class<? extends AddressFamily> afi = mp.getAfi();
+        final Class<? extends SubsequentAddressFamily> safi = mp.getSafi();
+        serializeMPAfiSafi(afi, safi, capBuffer);
+
+        CapabilityUtil.formatCapability(CODE, capBuffer, byteAggregator);
+    }
+
+    public void serializeMPAfiSafi(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi,
+        final ByteBuf capBuffer) {
         final Integer afival = this.afiReg.numberForClass(afi);
         Preconditions.checkArgument(afival != null, "Unhandled address family " + afi);
         capBuffer.writeShort(afival);
 
-        final Class<? extends SubsequentAddressFamily> safi = mp.getSafi();
+        capBuffer.writeZero(RESERVED);
+
         final Integer safival = this.safiReg.numberForClass(safi);
         Preconditions.checkArgument(safival != null, "Unhandled subsequent address family " + safi);
-        capBuffer.writeZero(RESERVED);
         capBuffer.writeByte(safival);
-
-        CapabilityUtil.formatCapability(CODE, capBuffer, byteAggregator);
     }
+
 }
