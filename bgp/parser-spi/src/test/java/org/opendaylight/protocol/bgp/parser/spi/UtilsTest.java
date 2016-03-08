@@ -8,22 +8,43 @@
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import static org.junit.Assert.assertArrayEquals;
-
+import static org.junit.Assert.assertEquals;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
 public class UtilsTest {
+
+    @Mock private AddressFamilyRegistry afiReg;
+    @Mock private SubsequentAddressFamilyRegistry safiReg;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+        Mockito.doReturn(1).when(this.afiReg).numberForClass(Ipv4AddressFamily.class);
+        Mockito.doReturn(Ipv4AddressFamily.class).when(this.afiReg).classForFamily(1);
+
+        Mockito.doReturn(1).when(this.safiReg).numberForClass(UnicastSubsequentAddressFamily.class);
+        Mockito.doReturn(UnicastSubsequentAddressFamily.class).when(this.safiReg).classForFamily(1);
+    }
 
     @Test
     public void testCapabilityUtil() {
         final byte[] result = new byte[] { 1, 2, 4, 8 };
-        ByteBuf aggregator = Unpooled.buffer();
+        final ByteBuf aggregator = Unpooled.buffer();
         CapabilityUtil.formatCapability(1, Unpooled.wrappedBuffer(new byte[] { 4, 8 }),aggregator);
         assertArrayEquals(result, ByteArray.getAllBytes(aggregator));
     }
@@ -34,7 +55,7 @@ public class UtilsTest {
             UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE,
             UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE,
             UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, 0, 23, 3, 32, 5, 14, 21 };
-        ByteBuf formattedMessage = Unpooled.buffer();
+        final ByteBuf formattedMessage = Unpooled.buffer();
         MessageUtil.formatMessage(3, Unpooled.wrappedBuffer(new byte[] { 32, 5, 14, 21 }), formattedMessage);
         assertArrayEquals(result, ByteArray.getAllBytes(formattedMessage));
     }
@@ -42,7 +63,7 @@ public class UtilsTest {
     @Test
     public void testParameterUtil() {
         final byte[] result = new byte[] { 1, 2, 4, 8 };
-        ByteBuf aggregator = Unpooled.buffer();
+        final ByteBuf aggregator = Unpooled.buffer();
         ParameterUtil.formatParameter(1, Unpooled.wrappedBuffer(new byte[] { 4, 8 }), aggregator);
         assertArrayEquals(result, ByteArray.getAllBytes(aggregator));
     }
@@ -50,7 +71,7 @@ public class UtilsTest {
     @Test
     public void testAttributeUtil() {
         final byte[] result = new byte[] { 0x40, 03, 04, 10, 00, 00, 02 };
-        ByteBuf aggregator = Unpooled.buffer();
+        final ByteBuf aggregator = Unpooled.buffer();
         AttributeUtil.formatAttribute(64 , 3 , Unpooled.wrappedBuffer(new byte[] { 10, 0, 0, 2 }), aggregator);
         assertArrayEquals(result, ByteArray.getAllBytes(aggregator));
     }
@@ -63,9 +84,22 @@ public class UtilsTest {
         final byte[] result = new byte[262];
         System.arraycopy(header, 0, result, 0, header.length);
         System.arraycopy(value, 0, result, 4, value.length);
-        ByteBuf aggregator = Unpooled.buffer();
+        final ByteBuf aggregator = Unpooled.buffer();
         AttributeUtil.formatAttribute(AttributeUtil.TRANSITIVE , 3 , Unpooled.wrappedBuffer(value), aggregator);
         assertArrayEquals(result, ByteArray.getAllBytes(aggregator));
+    }
+
+    @Test
+    public void testMultiprotocolCapabilitiesUtil() throws BGPParsingException {
+        final byte[] bytes = new byte[] {0, 1, 0, 1};
+        final ByteBuf bytesBuf = Unpooled.copiedBuffer(bytes);
+        final BgpTableType parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, this.afiReg, this.safiReg);
+        assertEquals(Ipv4AddressFamily.class, parsedAfiSafi.getAfi());
+        assertEquals(UnicastSubsequentAddressFamily.class, parsedAfiSafi.getSafi());
+
+        final ByteBuf serializedAfiSafi = Unpooled.buffer(4);
+        MultiprotocolCapabilitiesUtil.serializeMPAfiSafi(this.afiReg, this.safiReg, Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, serializedAfiSafi);
+        assertArrayEquals(bytes, serializedAfiSafi.array());
     }
 
     @Test(expected=UnsupportedOperationException.class)
@@ -74,7 +108,7 @@ public class UtilsTest {
         c.setAccessible(true);
         try {
             c.newInstance();
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw e.getCause();
         }
     }
@@ -85,7 +119,7 @@ public class UtilsTest {
         c.setAccessible(true);
         try {
             c.newInstance();
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw e.getCause();
         }
     }
@@ -96,7 +130,7 @@ public class UtilsTest {
         c.setAccessible(true);
         try {
             c.newInstance();
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw e.getCause();
         }
     }
@@ -107,7 +141,7 @@ public class UtilsTest {
         c.setAccessible(true);
         try {
             c.newInstance();
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw e.getCause();
         }
     }
