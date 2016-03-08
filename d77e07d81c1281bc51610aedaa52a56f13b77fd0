@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "9a3d3df0_fc3a5be5",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/RouteRefreshCapabilityHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-08T12:45:52Z",
+      "side": 1,
+      "message": "What happens when capability \u003d\u003d null?",
+      "parentUuid": "9a3d3df0_fc437b69",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 9
+      },
+      "revId": "d77e07d81c1281bc51610aedaa52a56f13b77fd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3d3df0_1cae1f2e",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPPeerModule.java",
         "patchSetId": 3
