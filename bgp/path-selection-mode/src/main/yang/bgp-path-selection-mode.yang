@@ -50,4 +50,16 @@ module odl-bgp-path-selection-mode {
             }
         }
     }
+
+    identity advertise-all-paths {
+         base config:module-type;
+         config:provided-service path-selection-mode-factory;
+         config:java-name-prefix AdvertiseAllPaths;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case advertise-all-paths {
+            when "/config:modules/config:module/config:type = 'advertise-all-paths'";
+        }
+    }
 }
