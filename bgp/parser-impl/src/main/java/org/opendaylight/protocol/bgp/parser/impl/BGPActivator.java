@@ -12,6 +12,7 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPKeepAliveMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPNotificationMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPOpenMessageParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.BGPRouteRefreshMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.AddPathCapabilityHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.As4CapabilityHandler;
@@ -56,6 +57,7 @@ import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.RouteRefresh;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapability;
@@ -237,6 +239,12 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         final BGPKeepAliveMessageParser kamp = new BGPKeepAliveMessageParser();
         regs.add(context.registerMessageParser(BGPKeepAliveMessageParser.TYPE, kamp));
         regs.add(context.registerMessageSerializer(Keepalive.class, kamp));
+
+        final AddressFamilyRegistry afiReg = context.getAddressFamilyRegistry();
+        final SubsequentAddressFamilyRegistry safiReg = context.getSubsequentAddressFamilyRegistry();
+        final BGPRouteRefreshMessageParser rrmp = new BGPRouteRefreshMessageParser(afiReg, safiReg);
+        regs.add(context.registerMessageParser(BGPRouteRefreshMessageParser.TYPE, rrmp));
+        regs.add(context.registerMessageSerializer(RouteRefresh.class, rrmp));
     }
 
     private void registerExtendedCommunities(final List<AutoCloseable> regs, final BGPExtensionProviderContext context) {

@@ -225,4 +225,19 @@ module bgp-message {
             type binary;
         }
     }
+
+    notification route-refresh {
+        description "ROUTE-REFRESH message";
+        reference "https://tools.ietf.org/html/rfc2918#section-3";
+        leaf afi {
+            type identityref {
+                base bgp-t:address-family;
+            }
+        }
+        leaf safi {
+            type identityref {
+                base bgp-t:subsequent-address-family;
+            }
+        }
+    }
 }
