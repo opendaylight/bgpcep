@@ -150,4 +150,11 @@
         <feature version='${protocol-framework.version}'>odl-protocol-framework</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-topology-provider/{{VERSION}}</bundle>
     </feature>
+
+    <feature name='odl-bgpcep-bgp-benchmark' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-bgp-inet</feature>
+        <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-benchmark-app/{{VERSION}}</bundle>
+        <configfile finalname="etc/opendaylight/karaf/bgp-app-peer-benchmark.xml">mvn:org.opendaylight.bgpcep/bgp-benchmark-app/{{VERSION}}/xml/app-peer-benchmark-config</configfile>
+    </feature>
 </features>
