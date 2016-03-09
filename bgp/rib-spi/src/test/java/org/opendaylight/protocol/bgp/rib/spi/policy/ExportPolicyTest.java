@@ -5,13 +5,14 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.rib.spi.policy;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -35,6 +36,25 @@ public class ExportPolicyTest {
     private static final ToExternalExportPolicy EXT_POLICY = new ToExternalExportPolicy(LOCAL_AS);
     private static final ToInternalExportPolicy INT_POLICY = new ToInternalExportPolicy(IPV4, CLUSTER);
     private static final ToInternalReflectorClientExportPolicy INTERNAL_POLICY = new ToInternalReflectorClientExportPolicy(IPV4, CLUSTER);
+    static final QName ATTRS_EXTENSION_Q = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet", "2015-03-05", "attributes");
+
+    static final QName AS_NUMBER_Q = QName.create(ATTRS_EXTENSION_Q, "as-number");
+    static final NodeIdentifier SEGMENTS_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, Segments.QNAME.getLocalName()));
+    static final NodeIdentifier SET_LEAFLIST_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "as-set"));
+    static final NodeIdentifier SEQ_LEAFLIST_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "as-sequence"));
+
+    static final UnkeyedListEntryNode SET_SEGMENT = Builders.unkeyedListEntryBuilder().withNodeIdentifier(SEGMENTS_NID)
+        .addChild(Builders.leafSetBuilder().withNodeIdentifier(SET_LEAFLIST_NID)
+            .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, 10L)).withValue(10L).build())
+            .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, 11L)).withValue(11L).build())
+            .build()).build();
+
+    static final UnkeyedListEntryNode SEQ_SEGMENT = Builders.unkeyedListEntryBuilder().withNodeIdentifier(SEGMENTS_NID)
+        .addChild(Builders.orderedLeafSetBuilder().withNodeIdentifier(SEQ_LEAFLIST_NID)
+            .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, 1L)).withValue(1L).build())
+            .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, 2L)).withValue(2L).build())
+            .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, 3L)).withValue(3L).build())
+            .build()).build();
 
     @Test
     public void testEbgpEffectiveAttributes() {
@@ -101,7 +121,7 @@ public class ExportPolicyTest {
      */
     private static ContainerNode createInputWithOriginator() {
         final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> b = Builders.containerBuilder();
-        b.withNodeIdentifier(new NodeIdentifier(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "attribute-container").intern()));
+        b.withNodeIdentifier(new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "attribute-container").intern()));
         b.withChild(createClusterId());
         b.withChild(createOriginatorId());
         return b.build();
@@ -109,21 +129,21 @@ public class ExportPolicyTest {
 
     private static ContainerNode createInternalOutput() {
         final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> b = Builders.containerBuilder();
-        b.withNodeIdentifier(new NodeIdentifier(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "attribute-container").intern()));
+        b.withNodeIdentifier(new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "attribute-container").intern()));
         b.withChild(createWithoutInternalClusterId());
         return b.build();
     }
 
     private static ContainerNode createClusterInput() {
         final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> b = Builders.containerBuilder();
-        b.withNodeIdentifier(new NodeIdentifier(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "attribute-container").intern()));
+        b.withNodeIdentifier(new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "attribute-container").intern()));
         b.withChild(createClusterIdInput());
         return b.build();
     }
 
     private static ContainerNode createWithoutInternalClusterId() {
-        final QName clusterContQName = QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "cluster-id").intern();
-        final QName clusterQName = QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "cluster").intern();
+        final QName clusterContQName = QName.create(ATTRS_EXTENSION_Q, "cluster-id").intern();
+        final QName clusterQName = QName.create(ATTRS_EXTENSION_Q, "cluster").intern();
         final NodeIdentifier clusterContNid = new NodeIdentifier(clusterContQName);
         final NodeIdentifier clusterNid = new NodeIdentifier(clusterQName);
 
@@ -136,8 +156,8 @@ public class ExportPolicyTest {
     }
 
     private static ContainerNode createClusterId() {
-        final QName clusterContQName = QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "cluster-id").intern();
-        final QName clusterQName = QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "cluster").intern();
+        final QName clusterContQName = QName.create(ATTRS_EXTENSION_Q, "cluster-id").intern();
+        final QName clusterQName = QName.create(ATTRS_EXTENSION_Q, "cluster").intern();
         final NodeIdentifier clusterContNid = new NodeIdentifier(clusterContQName);
         final NodeIdentifier clusterNid = new NodeIdentifier(clusterQName);
 
@@ -152,8 +172,8 @@ public class ExportPolicyTest {
     }
 
     private static ContainerNode createClusterIdInput() {
-        final QName clusterContQName = QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "cluster-id").intern();
-        final QName clusterQName = QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "cluster").intern();
+        final QName clusterContQName = QName.create(ATTRS_EXTENSION_Q, "cluster-id").intern();
+        final QName clusterQName = QName.create(ATTRS_EXTENSION_Q, "cluster").intern();
         final NodeIdentifier clusterContNid = new NodeIdentifier(clusterContQName);
         final NodeIdentifier clusterNid = new NodeIdentifier(clusterQName);
 
@@ -167,8 +187,8 @@ public class ExportPolicyTest {
     }
 
     private static ContainerNode createOriginatorId() {
-        final QName originatorContQName = QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "originator-id").intern();
-        final QName originatorQName = QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "originator").intern();
+        final QName originatorContQName = QName.create(ATTRS_EXTENSION_Q, "originator-id").intern();
+        final QName originatorQName = QName.create(ATTRS_EXTENSION_Q, "originator").intern();
         final NodeIdentifier originatorContNid = new NodeIdentifier(originatorContQName);
         final NodeIdentifier originatorNid = new NodeIdentifier(originatorQName);
 
@@ -185,20 +205,20 @@ public class ExportPolicyTest {
 
     private static ContainerNode createPathInput(final UnkeyedListEntryNode child) {
         final CollectionNodeBuilder<UnkeyedListEntryNode, UnkeyedListNode> segB = Builders.unkeyedListBuilder();
-        segB.withNodeIdentifier(BestPathSelectorTest.SEGMENTS_NID);
+        segB.withNodeIdentifier(SEGMENTS_NID);
         if (child != null) {
             segB.addChild(child);
         }
-        segB.addChild(BestPathSelectorTest.SET_SEGMENT).addChild(BestPathSelectorTest.SEQ_SEGMENT);
-        return Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(BestPathSelectorTest.ATTRS_EXTENSION_Q))
-            .addChild(Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(QName.create(BestPathSelectorTest.ATTRS_EXTENSION_Q, "as-path").intern()))
+        segB.addChild(SET_SEGMENT).addChild(SEQ_SEGMENT);
+        return Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(ATTRS_EXTENSION_Q))
+            .addChild(Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "as-path").intern()))
                 .addChild(segB.build()).build()).build();
     }
 
     private static UnkeyedListEntryNode createSequenceWithLocalAs() {
-        return Builders.unkeyedListEntryBuilder().withNodeIdentifier(BestPathSelectorTest.SEGMENTS_NID)
-            .addChild(Builders.orderedLeafSetBuilder().withNodeIdentifier(BestPathSelectorTest.SEQ_LEAFLIST_NID)
-                .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(BestPathSelectorTest.AS_NUMBER_Q, LOCAL_AS)).withValue(LOCAL_AS).build())
+        return Builders.unkeyedListEntryBuilder().withNodeIdentifier(SEGMENTS_NID)
+            .addChild(Builders.orderedLeafSetBuilder().withNodeIdentifier(SEQ_LEAFLIST_NID)
+                .addChild(Builders.leafSetEntryBuilder().withNodeIdentifier(new NodeWithValue(AS_NUMBER_Q, LOCAL_AS)).withValue(LOCAL_AS).build())
                 .build()).build();
     }
 }

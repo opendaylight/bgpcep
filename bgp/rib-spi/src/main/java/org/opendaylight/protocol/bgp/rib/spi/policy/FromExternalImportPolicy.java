@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.rib.spi.policy;
 
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
@@ -14,7 +14,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
  */
 final class FromExternalImportPolicy extends AbstractImportPolicy {
     @Override
-    ContainerNode effectiveAttributes(final ContainerNode attributes) {
+    public ContainerNode effectiveAttributes(final ContainerNode attributes) {
         /*
          * Filter out non-transitive attributes, so they do not cross inter-AS
          * boundaries.

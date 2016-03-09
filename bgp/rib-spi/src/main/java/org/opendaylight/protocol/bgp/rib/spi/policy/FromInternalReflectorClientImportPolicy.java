@@ -5,23 +5,23 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.rib.spi.policy;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
- * Invoked on routes which we get from our reflector peers. This is a special-case of
+ * Invoked on routes which we get from our Internal peers. This is a special-case of
  * FromInternalImportPolicy.
  */
-final class FromReflectorClientImportPolicy extends FromInternalImportPolicy {
-    FromReflectorClientImportPolicy(final Ipv4Address bgpIdentifier, final ClusterIdentifier clusterIdentifier) {
+final class FromInternalReflectorClientImportPolicy extends FromInternalImportPolicy {
+    FromInternalReflectorClientImportPolicy(final Ipv4Address bgpIdentifier, final ClusterIdentifier clusterIdentifier) {
         super(bgpIdentifier, clusterIdentifier);
     }
 
     @Override
-    ContainerNode effectiveAttributes(final ContainerNode attributes) {
+    public ContainerNode effectiveAttributes(final ContainerNode attributes) {
         // TODO: (defensiveness) verify ORIGINATOR_ID (should have been set)
 
         return super.effectiveAttributes(attributes);

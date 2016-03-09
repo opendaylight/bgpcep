@@ -14,6 +14,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
