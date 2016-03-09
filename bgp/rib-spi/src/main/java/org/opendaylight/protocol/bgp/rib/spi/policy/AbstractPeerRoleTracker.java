@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.rib.spi.policy;
 
 import com.google.common.base.Optional;
 import javax.annotation.Nonnull;
@@ -24,10 +24,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Maintains the mapping of PeerId -> Role. Subclasses get notified of changes and can do their
+ * Maintains the mapping of PeerId - Role. Subclasses get notified of changes and can do their
  * own thing.
  */
-abstract class AbstractPeerRoleTracker {
+public abstract class AbstractPeerRoleTracker {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPeerRoleTracker.class);
 
@@ -48,17 +48,11 @@ abstract class AbstractPeerRoleTracker {
         peerRoleChanged(peerPath, role);
     }
 
-    static final NodeIdentifier PEER_ROLE_NID = new NodeIdentifier(QName.create(Peer.QNAME, "peer-role").intern());
-    static final NodeIdentifier PEER_TABLES = new NodeIdentifier(SupportedTables.QNAME);
+    public static final NodeIdentifier PEER_ROLE_NID = new NodeIdentifier(QName.create(Peer.QNAME, "peer-role").intern());
+    public static final NodeIdentifier PEER_TABLES = new NodeIdentifier(SupportedTables.QNAME);
 
     protected AbstractPeerRoleTracker() {
     }
 
-    /**
-     * Invoked whenever a peer role changes.
-     *
-     * @param peerPath Peer's path
-     * @param role Peer's new role, null indicates the peer has disappeared.
-     */
     protected abstract void peerRoleChanged(@Nonnull YangInstanceIdentifier peerPath, @Nullable PeerRole role);
 }

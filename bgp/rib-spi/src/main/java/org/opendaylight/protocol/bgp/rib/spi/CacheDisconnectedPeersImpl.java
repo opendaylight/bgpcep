@@ -5,19 +5,19 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+
+package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import java.util.concurrent.TimeUnit;
-import org.opendaylight.protocol.bgp.rib.impl.spi.CacheDisconnectedPeers;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 
 public final class CacheDisconnectedPeersImpl implements CacheDisconnectedPeers {
     private static Cache<PeerId, Boolean> cache = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.SECONDS).build();
 
-    CacheDisconnectedPeersImpl() {
+    public CacheDisconnectedPeersImpl() {
     }
 
     @Override

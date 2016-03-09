@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.rib.spi.policy;
 
 import com.google.common.base.Preconditions;
 import java.util.Collection;
@@ -19,7 +19,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 /**
  * A collection of peers sharing the same export policy.
  */
-final class PeerExportGroup {
+public final class PeerExportGroup {
     private final Collection<Entry<PeerId, YangInstanceIdentifier>> peers;
     private final Map<PeerId, PeerRole> peerRoles;
     private final AbstractExportPolicy policy;
@@ -30,12 +30,12 @@ final class PeerExportGroup {
         this.policy = Preconditions.checkNotNull(policy);
     }
 
-    ContainerNode effectiveAttributes(final PeerId sourcePeerId, final ContainerNode attributes) {
+    public ContainerNode effectiveAttributes(final PeerId sourcePeerId, final ContainerNode attributes) {
         final PeerRole peerRole = peerRoles.get(sourcePeerId);
         return attributes == null || peerRole == null ? null :  policy.effectiveAttributes(peerRole, attributes);
     }
 
-    Collection<Entry<PeerId, YangInstanceIdentifier>> getPeers() {
+    public Collection<Entry<PeerId, YangInstanceIdentifier>> getPeers() {
         return peers;
     }
 }
