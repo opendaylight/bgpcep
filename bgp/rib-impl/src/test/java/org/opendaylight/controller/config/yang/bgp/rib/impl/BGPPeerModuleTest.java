@@ -10,6 +10,7 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
+
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collections;

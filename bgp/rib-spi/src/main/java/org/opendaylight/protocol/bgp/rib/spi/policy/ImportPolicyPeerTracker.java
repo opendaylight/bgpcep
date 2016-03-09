@@ -5,11 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.rib.spi.policy;
 
 import com.google.common.base.Preconditions;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -20,13 +21,13 @@ import org.slf4j.LoggerFactory;
 /**
  * Tracks import policy corresponding to a particular peer.
  */
-final class ImportPolicyPeerTracker extends AbstractPeerRoleTracker {
+public final class ImportPolicyPeerTracker extends AbstractPeerRoleTracker {
     private static final Logger LOG = LoggerFactory.getLogger(ImportPolicyPeerTracker.class);
 
     private final Map<PeerId, AbstractImportPolicy> policies = new ConcurrentHashMap<>();
     private final PolicyDatabase policyDatabase;
 
-    protected ImportPolicyPeerTracker(final PolicyDatabase policyDatabase) {
+    public ImportPolicyPeerTracker(final PolicyDatabase policyDatabase) {
         super();
         this.policyDatabase = Preconditions.checkNotNull(policyDatabase);
     }
@@ -47,7 +48,7 @@ final class ImportPolicyPeerTracker extends AbstractPeerRoleTracker {
         }
     }
 
-    AbstractImportPolicy policyFor(final PeerId peerId) {
+    public AbstractImportPolicy policyFor(final PeerId peerId) {
         LOG.trace("Peer ID : {}", peerId);
         return new CachingImportPolicy(this.policies.get(peerId));
     }

@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.rib.spi.policy;
 
 import com.google.common.base.Preconditions;
 import java.util.IdentityHashMap;
@@ -28,7 +28,7 @@ final class CachingImportPolicy extends AbstractImportPolicy {
     }
 
     @Override
-    ContainerNode effectiveAttributes(final ContainerNode attributes) {
+    public ContainerNode effectiveAttributes(final ContainerNode attributes) {
         ContainerNode ret = this.cache.get(attributes);
         if (ret == null) {
             ret = this.delegate.effectiveAttributes(attributes);

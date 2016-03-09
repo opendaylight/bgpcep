@@ -8,10 +8,8 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOutboundHandler;
-
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 
 /**

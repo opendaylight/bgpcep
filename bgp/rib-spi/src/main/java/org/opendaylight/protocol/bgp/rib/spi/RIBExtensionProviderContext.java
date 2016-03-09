@@ -23,6 +23,7 @@ public interface RIBExtensionProviderContext extends RIBExtensionConsumerContext
      * @param afi Address Family identifier
      * @param safi Subsequent Address Family identifier
      * @param support T RIBSupport instance
+     * @param <T> RIBSupport instance
      * @return Registration handle. Call {@link RIBSupportRegistration#close()} method to remove it.
      * @throws NullPointerException if any of the arguments is null
      */
