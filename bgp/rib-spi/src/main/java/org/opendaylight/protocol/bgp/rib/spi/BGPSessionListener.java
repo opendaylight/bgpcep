@@ -49,6 +49,7 @@ public interface BGPSessionListener extends EventListener {
      * Fired when the session is terminated locally. The session has already been closed and transitioned to IDLE state.
      * Any outstanding queued messages were not sent. The user should not attempt to make any use of the session.
      *
+     * @param session that terminated
      * @param reason the cause why the session went down
      */
     void onSessionTerminated(BGPSession session, BGPTerminationReason reason);
@@ -56,6 +57,7 @@ public interface BGPSessionListener extends EventListener {
     /**
      * Fired when a normal protocol message is received.
      *
+     * @param session that received the notification
      * @param notification Protocol message
      */
     void onMessage(BGPSession session, Notification notification);

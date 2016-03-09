@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Optional;
@@ -19,9 +20,14 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
-import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
-import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
+import org.opendaylight.protocol.bgp.rib.spi.policy.AbstractImportPolicy;
+import org.opendaylight.protocol.bgp.rib.spi.policy.AbstractPeerRoleTracker;
+import org.opendaylight.protocol.bgp.rib.spi.policy.IdentifierUtils;
+import org.opendaylight.protocol.bgp.rib.spi.policy.ImportPolicyPeerTracker;
+import org.opendaylight.protocol.bgp.rib.spi.policy.PolicyDatabase;
+import org.opendaylight.protocol.bgp.rib.spi.policy.RIBSupportContext;
+import org.opendaylight.protocol.bgp.rib.spi.policy.RIBSupportContextRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.AdjRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.EffectiveRibIn;
@@ -56,7 +62,7 @@ import org.slf4j.LoggerFactory;
  * structures. This is done so we maintain causality and loose coupling.
  */
 @NotThreadSafe
-final class EffectiveRibInWriter implements AutoCloseable {
+public final class EffectiveRibInWriter implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(EffectiveRibInWriter.class);
     protected static final NodeIdentifier TABLE_ROUTES = new NodeIdentifier(Routes.QNAME);
     private static final NodeIdentifier ADJRIBIN_NID = new NodeIdentifier(AdjRibIn.QNAME);
