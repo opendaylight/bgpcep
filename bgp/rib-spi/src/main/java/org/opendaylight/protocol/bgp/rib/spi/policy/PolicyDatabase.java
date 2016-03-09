@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.rib.spi.policy;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -17,11 +17,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  * Policy database attached to a particular RIB instance. Acts as the unified
  * lookup point.
  */
-final class PolicyDatabase {
+public final class PolicyDatabase {
     private final Map<PeerRole, AbstractExportPolicy> exportPolicies = new EnumMap<>(PeerRole.class);
     private final Map<PeerRole, AbstractImportPolicy> importPolicies = new EnumMap<>(PeerRole.class);
 
-    PolicyDatabase(final Long localAs, final Ipv4Address bgpId, final ClusterIdentifier clusterId) {
+    public PolicyDatabase(final Long localAs, final Ipv4Address bgpId, final ClusterIdentifier clusterId) {
         exportPolicies.put(PeerRole.Ebgp, new ToExternalExportPolicy(localAs));
         exportPolicies.put(PeerRole.Ibgp, new ToInternalExportPolicy(bgpId, clusterId));
         exportPolicies.put(PeerRole.RrClient, new ToReflectorClientExportPolicy(bgpId, clusterId));

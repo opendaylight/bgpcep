@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.rib.spi.policy;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
@@ -22,6 +22,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
@@ -36,7 +37,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Tracks peers for adj-rib-out writeout.
  */
-final class ExportPolicyPeerTracker extends AbstractPeerRoleTracker {
+public final class ExportPolicyPeerTracker extends AbstractPeerRoleTracker {
     private static final Logger LOG = LoggerFactory.getLogger(ExportPolicyPeerTracker.class);
     private static final Function<YangInstanceIdentifier, Entry<PeerId, YangInstanceIdentifier>> GENERATE_PEERID = new Function<YangInstanceIdentifier, Entry<PeerId, YangInstanceIdentifier>>() {
         @Override
@@ -51,7 +52,7 @@ final class ExportPolicyPeerTracker extends AbstractPeerRoleTracker {
     private volatile Map<PeerRole, PeerExportGroup> groups = Collections.emptyMap();
     private final PolicyDatabase policyDatabase;
 
-    ExportPolicyPeerTracker(final PolicyDatabase policyDatabase) {
+    public ExportPolicyPeerTracker(final PolicyDatabase policyDatabase) {
         this.policyDatabase = Preconditions.checkNotNull(policyDatabase);
     }
 
@@ -101,11 +102,11 @@ final class ExportPolicyPeerTracker extends AbstractPeerRoleTracker {
         }
     }
 
-    PeerExportGroup getPeerGroup(final PeerRole role) {
+    public PeerExportGroup getPeerGroup(final PeerRole role) {
         return this.groups.get(Preconditions.checkNotNull(role));
     }
 
-    void onTablesChanged(final PeerId peerId, final DataTreeCandidateNode node) {
+    public void onTablesChanged(final PeerId peerId, final DataTreeCandidateNode node) {
         if (node.getDataAfter().isPresent()) {
             final NodeIdentifierWithPredicates value = (NodeIdentifierWithPredicates) node.getDataAfter().get().getIdentifier();
             final boolean added = this.peerTables.put(peerId, value);
@@ -119,7 +120,7 @@ final class ExportPolicyPeerTracker extends AbstractPeerRoleTracker {
         }
     }
 
-    boolean isTableSupported(final PeerId peerId, final TablesKey tablesKey) {
+    public boolean isTableSupported(final PeerId peerId, final TablesKey tablesKey) {
         return this.peerTables.get(peerId).contains(RibSupportUtils.toYangKey(SupportedTables.QNAME, tablesKey));
     }
 

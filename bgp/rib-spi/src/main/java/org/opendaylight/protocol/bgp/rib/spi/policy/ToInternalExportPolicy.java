@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.rib.spi.policy;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
@@ -13,12 +13,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
- * Invoked on routes which we send to our reflector peers. This is a special-case of
- * FromInternalImportPolicy.
+ *  Invoked on routes which we send to our normal home AS peers.
  */
-final class ToReflectorClientExportPolicy extends AbstractReflectingExportPolicy {
-
-    ToReflectorClientExportPolicy(final Ipv4Address originatorId, final ClusterIdentifier clusterId) {
+final class ToInternalExportPolicy extends AbstractReflectingExportPolicy {
+    ToInternalExportPolicy(final Ipv4Address originatorId, final ClusterIdentifier clusterId) {
         super(originatorId, clusterId);
     }
 
@@ -26,16 +24,16 @@ final class ToReflectorClientExportPolicy extends AbstractReflectingExportPolicy
     ContainerNode effectiveAttributes(final PeerRole sourceRole, final ContainerNode attributes) {
         switch (sourceRole) {
         case Ebgp:
-            // eBGP -> Client iBGP, propagate
+            // eBGP -> Non-Client iBGP, propagate
             return attributes;
         case Ibgp:
-            // Non-Client iBGP -> Client iBGP, reflect
-            return reflectedAttributes(attributes);
+            // Non-Client iBGP -> Non-Client iBGP, block
+            return null;
         case RrClient:
-            // Client iBGP -> Client iBGP, reflect
+            // Client iBGP -> Non-Client iBGP, reflect
             return reflectedAttributes(attributes);
         case Internal:
-            // Internal Client iBGP -> Client iBGP, reflect
+            // Internal iBGP -> Non-Client iBGP, reflect
             return reflectedFromInternalAttributes(attributes);
         default:
             throw new IllegalArgumentException("Unhandled source role " + sourceRole);
