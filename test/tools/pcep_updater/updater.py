@@ -39,7 +39,7 @@ import time
 try:
     from collections import Counter
 except ImportError:  # Python 2.6 does not have Counter in collections.
-    import Counter  # Assumes that user copies Counter.py around.
+    from Counter import Counter  # Assumes that user copies Counter.py around.
 import AuthStandalone
 
 
@@ -89,7 +89,7 @@ class CounterDown(object):
     """Counter which also knows how many items are left to be added."""
 
     def __init__(self, tasks):
-        self.counter = Counter.Counter()
+        self.counter = Counter()
         self.opened = tasks
 
     def add(self, result):
