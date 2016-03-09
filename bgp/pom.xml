@@ -54,5 +54,6 @@
         <module>openconfig-api</module>
         <module>openconfig-spi</module>
         <module>openconfig-impl</module>
-  </modules>
+        <module>benchmark-app</module>
+    </modules>
 </project>
