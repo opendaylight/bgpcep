@@ -1645,10 +1645,12 @@ def job(arguments):
     # Using exact keepalive length to not to see possible updates.
     msg_in = bgp_socket.recv(19)
     if msg_in != generator.keepalive_message():
-        logger.error("Open not confirmed by keepalive, instead got " +
-                     binascii.hexlify(msg_in))
-        raise MessageError("Open not confirmed by keepalive, instead got",
-                           msg_in)
+        error_msg = (
+            "Open not confirmed by keepalive, instead got " +
+            binascii.hexlify(msg_in)
+        )
+        logger.error(error_msg)
+        raise MessageError(error_msg)
     timer.reset_peer_hold_time()
     # Send the keepalive to indicate the connection is accepted.
     timer.snapshot()  # Remember this time.
