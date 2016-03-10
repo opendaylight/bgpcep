@@ -236,17 +236,22 @@ def read_open_message(bgp_socket):
     # Some validation.
     if len(msg_in) < 37:
         # 37 is minimal length of open message with 4-byte AS number.
-        logger.error("Got something else than open with 4-byte AS number: " +
-                     binascii.hexlify(msg_in))
-        raise MessageError("Got something else than open with 4-byte AS number", msg_in)
+        error_msg = (
+            "Message length (" + str(len(msg_in)) + ") is smaller than "
+            "minimal length of OPEN message with 4-byte AS number (37)"
+        )
+        logger.error(error_msg + ": " + binascii.hexlify(msg_in))
+        raise MessageError(error_msg, msg_in)
     # TODO: We could check BGP marker, but it is defined only later;
     # decide what to do.
     reported_length = get_short_int_from_message(msg_in)
     if len(msg_in) != reported_length:
-        logger.error("Message length is not " + str(reported_length) +
-                     " as stated in " + binascii.hexlify(msg_in))
-        raise MessageError("Message length is not " + reported_length +
-                           " as stated in ", msg_in)
+        error_msg = (
+            "Expected message length (" + reported_length +
+            ") does not match actual length (" + str(len(msg_in)) + ")"
+        )
+        logger.error(error_msg + binascii.hexlify(msg_in))
+        raise MessageError(error_msg, msg_in)
     logger.info("Open message received.")
     return msg_in
 
@@ -1645,12 +1650,9 @@ def job(arguments):
     # Using exact keepalive length to not to see possible updates.
     msg_in = bgp_socket.recv(19)
     if msg_in != generator.keepalive_message():
-        error_msg = (
-            "Open not confirmed by keepalive, instead got " +
-            binascii.hexlify(msg_in)
-        )
-        logger.error(error_msg)
-        raise MessageError(error_msg)
+        error_msg = "Open not confirmed by keepalive, instead got"
+        logger.error(error_msg + ": " + binascii.hexlify(msg_in))
+        raise MessageError(error_msg, msg_in)
     timer.reset_peer_hold_time()
     # Send the keepalive to indicate the connection is accepted.
     timer.snapshot()  # Remember this time.
