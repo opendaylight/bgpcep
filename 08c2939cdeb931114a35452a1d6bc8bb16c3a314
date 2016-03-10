@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_e5e0fbce",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/MultiProtocolCapabilityHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-10T12:27:24Z",
+      "side": 1,
+      "message": "Rather use BgpTableType -\u003e instantiate via BgpTableTypeImpl(...) from bgp-parser-api",
+      "range": {
+        "startLine": 42,
+        "startChar": 14,
+        "endLine": 42,
+        "endChar": 24
+      },
+      "revId": "08c2939cdeb931114a35452a1d6bc8bb16c3a314",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
