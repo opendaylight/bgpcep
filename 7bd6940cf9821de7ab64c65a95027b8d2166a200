@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_e54d9b9b",
+        "filename": "bgp/benchmark-app/src/main/java/org/opendaylight/protocol/bgp/benchmark/app/AppPeerBenchmark.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2016-03-10T14:07:54Z",
+      "side": 1,
+      "message": "ipv4NextHop",
+      "range": {
+        "startLine": 169,
+        "startChar": 73,
+        "endLine": 169,
+        "endChar": 84
+      },
+      "revId": "7bd6940cf9821de7ab64c65a95027b8d2166a200",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_85000f03",
+        "filename": "bgp/benchmark-app/src/main/java/org/opendaylight/protocol/bgp/benchmark/app/AppPeerBenchmark.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2016-03-10T14:07:54Z",
+      "side": 1,
+      "message": "This is reasonable only for /32 prefix (which is not a reasonable subnet itself). Most test suites assume non-overlapping prefixes, so for example /28 should increment by 16.",
+      "range": {
+        "startLine": 222,
+        "startChar": 29,
+        "endLine": 222,
+        "endChar": 38
+      },
+      "revId": "7bd6940cf9821de7ab64c65a95027b8d2166a200",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
