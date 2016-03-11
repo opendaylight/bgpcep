@@ -9,6 +9,7 @@
 package org.opendaylight.protocol.bgp.mode.spi;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import org.opendaylight.protocol.bgp.mode.api.BestPath;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
@@ -21,6 +22,8 @@ public abstract class AbstractBestPath implements BestPath {
         this.state = Preconditions.checkNotNull(state);
     }
 
+    protected abstract MoreObjects.ToStringHelper addToStringAttributes(final MoreObjects.ToStringHelper toStringHelper);
+
     @VisibleForTesting
     public final BestPathState getState() {
         return this.state;
@@ -29,5 +32,10 @@ public abstract class AbstractBestPath implements BestPath {
     @Override
     public final ContainerNode getAttributes() {
         return this.state.getAttributes();
+    }
+
+    @Override
+    public final String toString() {
+        return addToStringAttributes(MoreObjects.toStringHelper(this)).toString();
     }
 }
