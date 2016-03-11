@@ -39,7 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controll
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.Module;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.ModuleBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.ModuleKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.tcpmd5.cfg.rev140427.Rfc2385Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -195,7 +194,7 @@ final class BGPPeerProvider {
         }
         if (neighbor.getConfig() != null) {
             if (neighbor.getConfig().getAuthPassword() != null) {
-                bgpPeerBuilder.setPassword(new Rfc2385Key(neighbor.getConfig().getAuthPassword()));
+                bgpPeerBuilder.setPassword(neighbor.getConfig().getAuthPassword());
             }
             if (neighbor.getConfig().getPeerAs() != null) {
                 bgpPeerBuilder.setRemoteAs(neighbor.getConfig().getPeerAs().getValue());

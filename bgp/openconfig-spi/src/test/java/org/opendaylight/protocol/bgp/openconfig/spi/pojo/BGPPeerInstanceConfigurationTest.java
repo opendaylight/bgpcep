@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.openconfig.spi.pojo;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.base.Optional;
 import java.util.Collections;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfigurationIdentifier;
@@ -20,7 +19,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.tcpmd5.cfg.rev140427.Rfc2385Key;
 
 public class BGPPeerInstanceConfigurationTest {
 
@@ -29,9 +27,10 @@ public class BGPPeerInstanceConfigurationTest {
     private static final PortNumber PORT = new PortNumber(1234);
     private static final short HOLD_TIMER = 180;
     private static final AsNumber AS_NUMBER = new AsNumber(72L);
+    private static final String PASSWORD = new String("PASSWORD");
 
     private final BGPPeerInstanceConfiguration config = new BGPPeerInstanceConfiguration(INSTANCE_NAME, HOST, PORT, HOLD_TIMER, PeerRole.Ibgp,
-            Boolean.FALSE, Collections.<BgpTableType>emptyList(), AS_NUMBER, Optional.<Rfc2385Key>absent());
+            Boolean.FALSE, Collections.<BgpTableType>emptyList(), AS_NUMBER, PASSWORD);
 
     @Test
     public final void testGetHost() {
@@ -70,7 +69,7 @@ public class BGPPeerInstanceConfigurationTest {
 
     @Test
     public final void testGetPassword() {
-        assertEquals(Optional.absent(), config.getPassword());
+        assertEquals(PASSWORD, config.getPassword());
     }
 
     @Test

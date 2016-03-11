@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.openconfig.impl.openconfig;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import java.math.BigDecimal;
 import java.util.List;
@@ -47,7 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.BgpPeer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.ModuleKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.tcpmd5.cfg.rev140427.Rfc2385Key;
 
 public class BGPNeighborProviderImplTest {
 
@@ -85,9 +83,9 @@ public class BGPNeighborProviderImplTest {
         final Neighbor neighbor = this.neighborProvider.apply(createConfiguration(new InstanceConfigurationIdentifier("instanceName"),
             IP, PORT, TIMER, role, active,
             Lists.<BgpTableType>newArrayList(new BgpTableTypeImpl(Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class)),
-            AS, Optional.<Rfc2385Key>absent()));
+            AS, PASSWORD));
         final Neighbor expectedNeighbor = createNeighbor(Lists.<AfiSafi>newArrayList(new AfiSafiBuilder().setAfiSafiName(Ipv6Flow.class).build()),
-            IP, null, AS, PeerType.INTERNAL, role, TIMER, !active);
+            IP, PASSWORD, AS, PeerType.INTERNAL, role, TIMER, !active);
         assertEquals(expectedNeighbor, neighbor);
     }
 
@@ -98,7 +96,7 @@ public class BGPNeighborProviderImplTest {
         final Neighbor neighbor = this.neighborProvider.apply(createConfiguration(new InstanceConfigurationIdentifier("instanceName"),
             IP, PORT, TIMER, role, active,
             Lists.<BgpTableType>newArrayList(new BgpTableTypeImpl(Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class)),
-            AS, Optional.of(new Rfc2385Key(PASSWORD)) ));
+            AS, PASSWORD));
         final Neighbor expectedNeighbor = createNeighbor(Lists.<AfiSafi>newArrayList(new AfiSafiBuilder().setAfiSafiName(Ipv6Flow.class).build()),
             IP, PASSWORD, AS, PeerType.EXTERNAL, role, TIMER, !active);
         assertEquals(expectedNeighbor, neighbor);
@@ -111,14 +109,14 @@ public class BGPNeighborProviderImplTest {
         final Neighbor neighbor = this.neighborProvider.apply(createConfiguration(new InstanceConfigurationIdentifier("instanceName"),
             IP, PORT, TIMER, role, active,
             Lists.<BgpTableType>newArrayList(new BgpTableTypeImpl(Ipv4AddressFamily.class, FlowspecSubsequentAddressFamily.class)),
-            AS, Optional.of(new Rfc2385Key(PASSWORD)) ));
+            AS, PASSWORD));
         final Neighbor expectedNeighbor = createNeighbor(Lists.<AfiSafi>newArrayList(new AfiSafiBuilder().setAfiSafiName(Ipv4Flow.class).build()),
             IP, PASSWORD, AS, null, role, TIMER, !active);
         assertEquals(expectedNeighbor, neighbor);
     }
 
     private BGPPeerInstanceConfiguration createConfiguration(final InstanceConfigurationIdentifier confId, final IpAddress ip, final PortNumber port,
-        final short holdTimer, final PeerRole role, final boolean active, final List<BgpTableType> advertized, final AsNumber as, final Optional<Rfc2385Key> passwd) {
+        final short holdTimer, final PeerRole role, final boolean active, final List<BgpTableType> advertized, final AsNumber as, final String  passwd) {
         return new BGPPeerInstanceConfiguration(confId, ip, port, holdTimer, role, active, advertized, as, passwd);
     }
 

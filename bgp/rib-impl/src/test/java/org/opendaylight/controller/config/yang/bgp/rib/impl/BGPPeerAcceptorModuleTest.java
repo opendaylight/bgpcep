@@ -14,6 +14,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
@@ -161,21 +162,9 @@ public class BGPPeerAcceptorModuleTest extends AbstractConfigTest {
         public void setBgpExtensions(final ObjectName bgpExtensions) {}
 
         @Override
-        public ObjectName getMd5ChannelFactory() {return null;}
-
-        @Override
-        public void setMd5ChannelFactory(final ObjectName md5ChannelFactory) {}
-
-        @Override
         public ObjectName getBossGroup() {return null;}
 
         @Override
         public void setBossGroup(final ObjectName bossGroup) {}
-
-        @Override
-        public ObjectName getMd5ServerChannelFactory() {return null;}
-
-        @Override
-        public void setMd5ServerChannelFactory(final ObjectName md5ServerChannelFactory) {}
     }
 }

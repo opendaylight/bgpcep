@@ -21,6 +21,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import io.netty.util.concurrent.Future;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,7 +40,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.util.Ipv6Util;
-import org.opendaylight.tcpmd5.api.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
@@ -57,7 +57,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.add.path.capability.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.afi.safi.route.counter.AfiSafiKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.tcpmd5.cfg.rev140427.Rfc2385Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,26 +86,6 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
             "Unexpected host", hostJmxAttribute);
 
         JmxAttributeValidationException.checkNotNull(getPort(), "value is not set.", portJmxAttribute);
-
-        if (getOptionaPassword(getPassword()).isPresent()) {
-            /*
-             *  This is a nasty hack, but we don't have another clean solution. We cannot allow
-             *  password being set if the injected dispatcher does not have the optional
-             *  md5-server-channel-factory set.
-             *
-             *  FIXME: this is a use case for Module interfaces, e.g. RibImplModule
-             *         should something like isMd5ServerSupported()
-             */
-
-            final RIBImplModuleMXBean ribProxy = this.dependencyResolver.newMXBeanProxy(getRib(), RIBImplModuleMXBean.class);
-            final BGPDispatcherImplModuleMXBean bgpDispatcherProxy = this.dependencyResolver.newMXBeanProxy(
-                ribProxy.getBgpDispatcher(), BGPDispatcherImplModuleMXBean.class);
-            final boolean isMd5Supported = bgpDispatcherProxy.getMd5ChannelFactory() != null;
-
-            JmxAttributeValidationException.checkCondition(isMd5Supported,
-                "Underlying dispatcher does not support MD5 clients", passwordJmxAttribute);
-
-        }
 
         if (getPeerRole() != null) {
             final boolean isNotPeerRoleInternal= getPeerRole() != PeerRole.Internal;
@@ -157,7 +136,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
         // Initiate connection
         if(getInitiateConnection()) {
-            final Future<Void> cf = initiateConnection(createAddress(), getOptionaPassword(getPassword()), getPeerRegistryBackwards());
+            final Future<Void> cf = initiateConnection(createAddress(), getPassword(getPassword()), getPeerRegistryBackwards());
             return new CloseableNoEx() {
                 @Override
                 public void close() {
@@ -237,16 +216,15 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         return host;
     }
 
-    private io.netty.util.concurrent.Future<Void> initiateConnection(final InetSocketAddress address, final Optional<Rfc2385Key> password, final BGPPeerRegistry registry) {
-        KeyMapping keys = null;
-        if (password.isPresent()) {
-            keys = new KeyMapping();
-            keys.put(address.getAddress(), password.get().getValue().getBytes(Charsets.US_ASCII));
+    private io.netty.util.concurrent.Future<Void> initiateConnection(final InetSocketAddress address, final String password, final BGPPeerRegistry registry) {
+        Map<InetAddress, byte[]> keys = null;
+        if (password !=null) {
+            keys = new HashMap<>();
+            keys.put(address.getAddress(), password.getBytes(Charsets.US_ASCII));
         }
-
         final RIB rib = getRibDependency();
-        final Optional<KeyMapping> optionalKey = Optional.fromNullable(keys);
-        return rib.getDispatcher().createReconnectingClient(address, registry, rib.getTcpStrategyFactory(), optionalKey);
+
+        return rib.getDispatcher().createReconnectingClient(address, registry, rib.getTcpStrategyFactory(), keys);
     }
 
     private BGPPeerRegistry getPeerRegistryBackwards() {
@@ -279,7 +257,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
             this.bgpPeerInstanceConfiguration = new BGPPeerInstanceConfiguration(identifier, Rev130715Util.getIpvAddress(getNormalizedHost()),
                     Rev130715Util.getPort(getPort().getValue()), getHoldtimer(), getPeerRole(), getInitiateConnection(),
                         getAdvertizedTableDependency(), Rev130715Util.getASNumber(getAsOrDefault(getRibDependency()).getValue()),
-                        getOptionaPassword(getPassword()));
+                        getPassword());
         }
 
         @Override
@@ -298,8 +276,8 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
     }
 
-    private Optional<Rfc2385Key> getOptionaPassword(final Rfc2385Key password) {
-        return password != null && ! password.getValue().isEmpty() ? Optional.of(password) : Optional.<Rfc2385Key>absent();
+    private String getPassword(final String password) {
+        return password != null ? password : null;
     }
 
 }

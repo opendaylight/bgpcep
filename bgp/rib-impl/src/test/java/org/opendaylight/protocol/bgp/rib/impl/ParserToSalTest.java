@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
@@ -18,9 +19,12 @@ import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nullable;
 import org.junit.After;
@@ -74,6 +78,7 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
     private BGPMock mock;
     private AbstractRIBExtensionProviderActivator baseact, lsact;
     private RIBExtensionProviderContext ext1, ext2;
+    private Map<InetAddress, byte[]> keys;
 
     @Mock
     BGPDispatcher dispatcher;
@@ -111,9 +116,10 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
             throw Throwables.propagate(e);
         }
         this.mock = new BGPMock(new EventBus("test"), ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(), Lists.newArrayList(fixMessages(bgpMessages)));
+        this.keys=new HashMap<>();
 
         Mockito.doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(this.dispatcher).createReconnectingClient(
-                Mockito.any(InetSocketAddress.class), Mockito.any(BGPPeerRegistry.class), Mockito.eq(this.tcpStrategyFactory), Mockito.any(Optional.class));
+                Mockito.any(InetSocketAddress.class), Mockito.any(BGPPeerRegistry.class), Mockito.eq(this.tcpStrategyFactory),this.keys );
 
         this.ext1 = new SimpleRIBExtensionProviderContext();
         this.ext2 = new SimpleRIBExtensionProviderContext();
