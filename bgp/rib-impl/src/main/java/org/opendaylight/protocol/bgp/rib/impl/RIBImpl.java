@@ -101,12 +101,12 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final YangInstanceIdentifier yangRibId;
     private final RIBSupportContextRegistryImpl ribContextRegistry;
     private final CodecsRegistryImpl codecsRegistry;
-    private final EffectiveRibInWriter efWriter;
     private final DOMDataBrokerExtension service;
     private final List<LocRibWriter> locRibs = new ArrayList<>();
     private final BGPConfigModuleTracker configModuleTracker;
     private final BGPOpenConfigProvider openConfigProvider;
     private final CacheDisconnectedPeers cacheDisconnectedPeers;
+    private final ImportPolicyPeerTracker importPolicyPeerTracker;
 
     public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final Ipv4Address clusterId, final RIBExtensionConsumerContext extensions,
         final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory, final BindingCodecTreeFactory codecFactory,
@@ -159,17 +159,17 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             LOG.error("Failed to initiate RIB {}", this.yangRibId, e);
         }
         final ClusterIdentifier cId = (clusterId == null) ? new ClusterIdentifier(localBgpId) : new ClusterIdentifier(clusterId);
-        final PolicyDatabase pd  = new PolicyDatabase(localAs.getValue(), localBgpId, cId);
+        final PolicyDatabase policyDatabase  = new PolicyDatabase(localAs.getValue(), localBgpId, cId);
+        this.importPolicyPeerTracker = new ImportPolicyPeerTracker(policyDatabase);
 
         final DOMDataBrokerExtension domDatatreeChangeService = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
         this.service = domDatatreeChangeService;
-        this.efWriter = EffectiveRibInWriter.create(getService(), createPeerChain(this), getYangRibId(), pd, this.ribContextRegistry);
         LOG.debug("Effective RIB created.");
 
         for (final BgpTableType t : this.localTables) {
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
             this.localTablesKeys.add(key);
-            startLocRib(key, pd);
+            startLocRib(key, policyDatabase);
         }
 
         if (this.configModuleTracker != null) {
@@ -229,7 +229,6 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         t.delete(LogicalDatastoreType.OPERATIONAL, getYangRibId());
         t.submit().get();
         this.domChain.close();
-        this.efWriter.close();
         for (final LocRibWriter locRib : this.locRibs) {
             try {
                 locRib.close();
@@ -316,6 +315,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         return this.localTablesKeys;
     }
 
+    @Override
     public DOMDataTreeChangeService getService() {
         return (DOMDataTreeChangeService) this.service;
     }
@@ -358,5 +358,9 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     @Override
     public CacheDisconnectedPeers getCacheDisconnectedPeers() {
         return this.cacheDisconnectedPeers;
+    }
+
+    public ImportPolicyPeerTracker getImportPolicyPeerTracker() {
+        return importPolicyPeerTracker;
     }
 }
