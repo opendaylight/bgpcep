@@ -8,7 +8,7 @@
 
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
@@ -30,7 +30,7 @@ public interface AddPathRibSupport {
      *
      * @param pathId  The path identifier
      * @param routeId PathArgument leaf path
-     * @return routeId PathArgument + pathId
+     * @return routeId PathArgument + pathId or Null in case Add-path is not supported
      */
-    @Nonnull PathArgument getRouteIdAddPath(long pathId, PathArgument routeId);
+    @Nullable PathArgument getRouteIdAddPath(long pathId, PathArgument routeId);
 }

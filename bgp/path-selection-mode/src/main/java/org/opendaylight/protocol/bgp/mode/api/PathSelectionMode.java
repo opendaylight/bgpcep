@@ -12,17 +12,19 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.policy.ExportPolicyPeerTracker;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 
 public interface PathSelectionMode extends AutoCloseable {
     /**
      * Create a RouteEntry
      *
+     * @param routeId
      * @param writePath
      * @param isComplexRoute true if route is complex
      * @param localTablesKey
      * @param cacheDisconnectedPeers
      * @return ComplexRouteEntry if is complex otherwise a SimpleRouteEntry
      */
-    RouteEntry createRouteEntry(YangInstanceIdentifier writePath, RIBSupport isComplexRoute, ExportPolicyPeerTracker exportPolicyPeerTracker,
+    RouteEntry createRouteEntry(final PathArgument routeId, YangInstanceIdentifier writePath, RIBSupport isComplexRoute, ExportPolicyPeerTracker exportPolicyPeerTracker,
         TablesKey localTablesKey, CacheDisconnectedPeers cacheDisconnectedPeers);
 }

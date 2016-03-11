@@ -13,6 +13,7 @@ import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.Collections;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
@@ -278,10 +279,13 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         }
     }
 
-    @Nonnull
+    @Nullable
     @Override
+    /**
+     * Return null for non supporting Add path models
+     */
     public PathArgument getRouteIdAddPath(final long pathId, final PathArgument routeId) {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override

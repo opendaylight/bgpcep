@@ -62,9 +62,8 @@ public interface RouteEntry {
     /**
      * Update LocRibOut and AdjRibsOut by removing stale best path and writing new best
      * @param tx
-     * @param routeIdPathArgument router ID pathArgument
      */
-    void updateRoute(DOMDataWriteTransaction tx, PathArgument routeIdPathArgument);
+    void updateRoute(DOMDataWriteTransaction tx);
 
     /**
      * Write Route on LocRibOut and AdjRibsOut

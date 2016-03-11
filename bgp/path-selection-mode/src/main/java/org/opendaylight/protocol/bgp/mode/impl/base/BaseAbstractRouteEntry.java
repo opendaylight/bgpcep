@@ -49,20 +49,22 @@ abstract class BaseAbstractRouteEntry implements RouteEntry {
     private final NodeIdentifierWithPredicates tableKey;
     private final NodeIdentifier attributesIdentifier;
     private final RIBSupport ribSupport;
-    private final YangInstanceIdentifier writePath;
+    private final YangInstanceIdentifier routesYangId;
+    private final PathArgument routeId;
 
     private OffsetMap offsets = OffsetMap.EMPTY;
     private ContainerNode[] values = EMPTY_ATTRIBUTES;
     private Optional<BaseBestPath> bestPath = Optional.empty();
     private Optional<BaseBestPath> removedBestPath = Optional.empty();
 
-    BaseAbstractRouteEntry(final YangInstanceIdentifier writePath, final RIBSupport ribSupport, final ExportPolicyPeerTracker exportPolicyPeerTracker, final TablesKey tablesKey,
-        final CacheDisconnectedPeers cacheDisconnectedPeers) {
-        this.writePath = writePath;
-        this.peerPolicyTracker = exportPolicyPeerTracker;
-        this.tableKey = RibSupportUtils.toYangTablesKey(tablesKey);
-        this.localTablesKey = tablesKey;
-        this.cacheDisconnectedPeers = cacheDisconnectedPeers;
+    BaseAbstractRouteEntry(final PathArgument routeId, final YangInstanceIdentifier routesYangId, final RIBSupport ribSupport, final ExportPolicyPeerTracker exportPPT,
+        final TablesKey localTK, final CacheDisconnectedPeers cacheDP) {
+        this.routeId = routeId;
+        this.routesYangId = routesYangId;
+        this.peerPolicyTracker = exportPPT;
+        this.tableKey = RibSupportUtils.toYangTablesKey(localTK);
+        this.localTablesKey = localTK;
+        this.cacheDisconnectedPeers = cacheDP;
         this.ribSupport = ribSupport;
         this.attributesIdentifier = this.ribSupport.routeAttributesIdentifier();
     }
@@ -86,7 +88,7 @@ abstract class BaseAbstractRouteEntry implements RouteEntry {
      * Remove route
      *
      * @param routerId router ID in unsigned integer
-     * @param offset   offset Offset of removed route
+     * @param offset offset Offset of removed route
      * @return true if its the last route
      */
     final boolean removeRoute(final UnsignedInteger routerId, final int offset) {
@@ -130,14 +132,14 @@ abstract class BaseAbstractRouteEntry implements RouteEntry {
     }
 
     @Override
-    public void updateRoute(final DOMDataWriteTransaction tx, final PathArgument routeIdPathArgument) {
+    public void updateRoute(final DOMDataWriteTransaction tx) {
         if (this.removedBestPath.isPresent()) {
-            removePathFromDataStore(this.removedBestPath.get(), routeIdPathArgument, tx);
+            removePathFromDataStore(this.removedBestPath.get(), tx);
             this.removedBestPath = Optional.empty();
         }
 
         if (this.bestPath.isPresent()) {
-            addPathToDataStore(this.bestPath.get(), routeIdPathArgument, tx);
+            addPathToDataStore(this.bestPath.get(), tx);
         }
     }
 
@@ -146,20 +148,36 @@ abstract class BaseAbstractRouteEntry implements RouteEntry {
         final PeerExportGroup peerGroup, final DOMDataWriteTransaction tx) {
         final BaseBestPath path = this.bestPath.get();
         final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(path.getPeerId(), path.getAttributes());
-        writeRoute(destinyPeer, getRouteTarget(rootPath, routeId), effectiveAttributes, createValue(routeId, path), tx);
+        writeRoute(destinyPeer, getAdjRibOutYII(rootPath, routeId), effectiveAttributes, createValue(routeId, path), tx);
     }
 
-    private void removePathFromDataStore(final BestPath path, final PathArgument routeIdPathArgument, final DOMDataWriteTransaction tx) {
+    private void removePathFromDataStore(final BestPath path, final DOMDataWriteTransaction tx) {
         LOG.trace("Best Path removed {}", path);
-        fillLocRib(tx, null);
-        fillAdjRibsOut(tx, null, null, routeIdPathArgument, path.getPeerId());
+        final PathArgument routeIdAddPath = this.ribSupport.getRouteIdAddPath(path.getPathId(), this.routeId);
+        final YangInstanceIdentifier pathTarget = this.ribSupport.routePath(this.routesYangId, this.routeId);
+        YangInstanceIdentifier pathAddPathTarget = null;
+        if (routeIdAddPath != null) {
+            pathAddPathTarget = this.ribSupport.routePath(this.routesYangId, routeIdAddPath);
+        }
+        fillLocRib(pathAddPathTarget == null ? pathTarget : pathAddPathTarget, null, tx);
+        fillAdjRibsOut(path.getPeerId(), null, null, tx);
     }
 
-    private void addPathToDataStore(final BestPath path, final PathArgument routeIdPathArgument, final DOMDataWriteTransaction tx) {
-        final NormalizedNode<?, ?> value = createValue(routeIdPathArgument, path);
-        LOG.trace("Selected best value {}", value);
-        fillLocRib(tx, value);
-        fillAdjRibsOut(tx, path.getAttributes(), value, routeIdPathArgument, path.getPeerId());
+    private void addPathToDataStore(final BestPath path, final DOMDataWriteTransaction tx) {
+        final PathArgument routeIdAddPath = this.ribSupport.getRouteIdAddPath(path.getPathId(), this.routeId);
+        final YangInstanceIdentifier pathTarget = this.ribSupport.routePath(this.routesYangId, this.routeId);
+        final NormalizedNode<?, ?> value = createValue(this.routeId, path);
+        NormalizedNode<?, ?> addPathValue = null;
+        YangInstanceIdentifier pathAddPathTarget = null;
+        if (routeIdAddPath == null) {
+            LOG.trace("Selected best value {}", value);
+        } else {
+            pathAddPathTarget = this.ribSupport.routePath(this.routesYangId, routeIdAddPath);
+            addPathValue = createValue(routeIdAddPath, path);
+            LOG.trace("Selected best value {}", addPathValue);
+        }
+        fillLocRib(pathAddPathTarget == null ? pathTarget : pathAddPathTarget, addPathValue == null ? value : addPathValue, tx);
+        fillAdjRibsOut(path.getPeerId(), path.getAttributes(), value, tx);
     }
 
     private boolean writeRoute(final PeerId destinyPeer, final YangInstanceIdentifier routeTarget, final ContainerNode effectiveAttributes,
@@ -177,19 +195,19 @@ abstract class BaseAbstractRouteEntry implements RouteEntry {
         return this.offsets;
     }
 
-    private void fillLocRib(final DOMDataWriteTransaction tx, final NormalizedNode<?, ?> value) {
+    private void fillLocRib(final YangInstanceIdentifier writePath, final NormalizedNode<?, ?> value, final DOMDataWriteTransaction tx) {
         if (value != null) {
             LOG.debug("Write route to LocRib {}", value);
-            tx.put(LogicalDatastoreType.OPERATIONAL, this.writePath, value);
+            tx.put(LogicalDatastoreType.OPERATIONAL, writePath, value);
         } else {
-            LOG.debug("Delete route from LocRib {}", this.writePath);
-            tx.delete(LogicalDatastoreType.OPERATIONAL, this.writePath);
+            LOG.debug("Delete route from LocRib {}", writePath);
+            tx.delete(LogicalDatastoreType.OPERATIONAL, writePath);
         }
     }
 
     @VisibleForTesting
-    private void fillAdjRibsOut(final DOMDataWriteTransaction tx, final ContainerNode attributes, final NormalizedNode<?, ?> value,
-        final PathArgument routeId, final PeerId routePeerId) {
+    private void fillAdjRibsOut(final PeerId routePeerId, final ContainerNode attributes, final NormalizedNode<?, ?> value,
+        final DOMDataWriteTransaction tx) {
         /*
          * We need to keep track of routers and populate adj-ribs-out, too. If we do not, we need to
          * expose from which client a particular route was learned from in the local RIB, and have
@@ -208,7 +226,7 @@ abstract class BaseAbstractRouteEntry implements RouteEntry {
                 final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(routePeerId, attributes);
                 peerGroup.getPeers().stream()
                     .filter(pid -> filterRoutes(pid, routePeerId))
-                    .forEach(pid -> update(pid.getKey(), getRouteTarget(pid.getValue(), routeId), effectiveAttributes, value, tx));
+                    .forEach(pid -> update(pid.getKey(), getAdjRibOutYII(pid.getValue(), this.routeId), effectiveAttributes, value, tx));
             }
         }
     }
@@ -235,7 +253,7 @@ abstract class BaseAbstractRouteEntry implements RouteEntry {
     }
 
 
-    private YangInstanceIdentifier getRouteTarget(final YangInstanceIdentifier rootPath, final PathArgument routeId) {
+    private YangInstanceIdentifier getAdjRibOutYII(final YangInstanceIdentifier rootPath, final PathArgument routeId) {
         return this.ribSupport.routePath(rootPath.node(AdjRibOut.QNAME).node(Tables.QNAME).node(this.tableKey).node(ROUTES_IDENTIFIER), routeId);
     }
 }

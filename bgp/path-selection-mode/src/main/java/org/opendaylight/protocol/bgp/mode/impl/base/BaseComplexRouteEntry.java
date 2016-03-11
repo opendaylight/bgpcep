@@ -23,9 +23,9 @@ final class BaseComplexRouteEntry extends BaseAbstractRouteEntry {
     private static final MapEntryNode[] EMPTY_VALUES = new MapEntryNode[0];
     private MapEntryNode[] values = EMPTY_VALUES;
 
-    public BaseComplexRouteEntry(final YangInstanceIdentifier writePath, final RIBSupport ribSupport, final ExportPolicyPeerTracker exportPolicyPeerTracker, final TablesKey localTablesKey,
-        final CacheDisconnectedPeers cacheDisconnectedPeers) {
-        super(writePath, ribSupport, exportPolicyPeerTracker, localTablesKey, cacheDisconnectedPeers);
+    public BaseComplexRouteEntry(final PathArgument routeId, final YangInstanceIdentifier routesYangId, final RIBSupport ribSupport,
+        final ExportPolicyPeerTracker exportPPT, final TablesKey localTK, final CacheDisconnectedPeers cacheDP) {
+        super(routeId, routesYangId, ribSupport, exportPPT, localTK, cacheDP);
     }
 
     @Override

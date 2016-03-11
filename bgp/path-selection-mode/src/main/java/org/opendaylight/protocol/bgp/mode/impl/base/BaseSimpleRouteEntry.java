@@ -21,9 +21,9 @@ import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
 
 final class BaseSimpleRouteEntry extends BaseAbstractRouteEntry {
-    public BaseSimpleRouteEntry(final YangInstanceIdentifier writePath, final RIBSupport ribSupport, final ExportPolicyPeerTracker exportPolicyPeerTracker, final TablesKey localTablesKey,
-        final CacheDisconnectedPeers cacheDisconnectedPeers) {
-        super(writePath, ribSupport, exportPolicyPeerTracker, localTablesKey, cacheDisconnectedPeers);
+    public BaseSimpleRouteEntry(final PathArgument routeId, final YangInstanceIdentifier routesYangId, final RIBSupport ribSupport,
+        final ExportPolicyPeerTracker exportPPT, final TablesKey localTK, final CacheDisconnectedPeers cacheDP) {
+        super(routeId, routesYangId, ribSupport, exportPPT, localTK, cacheDP);
     }
 
     @Override

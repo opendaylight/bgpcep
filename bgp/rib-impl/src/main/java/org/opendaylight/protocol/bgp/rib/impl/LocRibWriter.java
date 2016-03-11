@@ -120,9 +120,8 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
 
     @Nonnull
     private RouteEntry createEntry(final PathArgument routeId) {
-        final YangInstanceIdentifier writePath = this.ribSupport.routePath(this.locRibTarget.node(ROUTES_IDENTIFIER), routeId);
-        final RouteEntry ret = this.pathSelectionStrategy.createRouteEntry(writePath, this.ribSupport, this.peerPolicyTracker,
-            this.localTablesKey, this.cacheDisconnectedPeers);
+        final RouteEntry ret = this.pathSelectionStrategy.createRouteEntry(routeId, this.locRibTarget.node(ROUTES_IDENTIFIER), this.ribSupport,
+            this.peerPolicyTracker, this.localTablesKey, this.cacheDisconnectedPeers);
         this.routeEntries.put(routeId, ret);
         LOG.trace("Created new entry for {}", routeId);
         return ret;
@@ -255,7 +254,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
                 LOG.trace("Best path has not changed, continuing");
                 continue;
             }
-            entry.updateRoute(tx, e.getKey().getRouteId());
+            entry.updateRoute(tx);
         }
     }
 }
