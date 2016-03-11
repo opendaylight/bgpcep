@@ -61,6 +61,7 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     private final DOMTransactionChain chain;
     private final DOMTransactionChain writerChain;
     private final BGPConfigModuleTracker moduleTracker;
+    private final EffectiveRibInWriter effectiveRibInWriter;
     private AdjRibInWriter writer;
 
     public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIBImpl rib, final BGPConfigModuleTracker
@@ -69,8 +70,11 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         final RIBImpl targetRib = Preconditions.checkNotNull(rib);
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
         final NodeIdentifierWithPredicates peerId = IdentifierUtils.domPeerId(RouterIds.createPeerId(ipAddress));
-        this.adjRibsInId = targetRib.getYangRibId().node(Peer.QNAME).node(peerId).node(AdjRibIn.QNAME).node(Tables.QNAME);
+        final YangInstanceIdentifier peerIId = targetRib.getYangRibId().node(Peer.QNAME).node(peerId);
+        this.adjRibsInId = peerIId.node(AdjRibIn.QNAME).node(Tables.QNAME);
         this.chain = targetRib.createPeerChain(this);
+        this.effectiveRibInWriter = EffectiveRibInWriter.create(targetRib.getService(), targetRib.createPeerChain(this), peerIId,
+            targetRib.getImportPolicyPeerTracker(), targetRib.getRibSupportContext(), PeerRole.Internal);
         this.writerChain = targetRib.createPeerChain(this);
         this.writer = AdjRibInWriter.create(targetRib.getYangRibId(), PeerRole.Internal, this.writerChain);
         this.writer = this.writer.transform(RouterIds.createPeerId(ipAddress), targetRib.getRibSupportContext(), targetRib.getLocalTablesKeys(),
@@ -180,6 +184,7 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
 
     @Override
     public void close() {
+        this.effectiveRibInWriter.close();
         this.writer.removePeer();
         this.chain.close();
         this.writerChain.close();

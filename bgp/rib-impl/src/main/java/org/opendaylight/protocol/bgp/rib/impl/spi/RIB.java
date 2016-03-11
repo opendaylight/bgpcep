@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
 import org.opendaylight.protocol.bgp.rib.RibReference;
@@ -90,4 +91,11 @@ public interface RIB  extends RibReference {
      * @return
      */
     CacheDisconnectedPeers getCacheDisconnectedPeers();
+
+    /**
+     * Return instance of DOMDataTreeChangeService, where consumer can register to
+     * listen on DOM data changes.
+     * @return DOMDataTreeChangeService
+     */
+    DOMDataTreeChangeService getService();
 }
