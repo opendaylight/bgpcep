@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4RouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4RouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
@@ -39,6 +40,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilderTest {
 
     private static final String ROUTE_IP4PREFIX = "127.1.0.0/32";
+    private static final long ROUTE_IP4PATH_ID= 1;
     private static final String NEXT_HOP = "127.1.0.1";
     private static final String NEW_NEXT_HOP = "127.1.0.2";
 
@@ -51,7 +53,8 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         this.ipv4TopoBuilder = new Ipv4ReachabilityTopologyBuilder(dataBroker, LOC_RIB_REF, TEST_TOPOLOGY_ID);
         this.ipv4TopoBuilder.start(dataBroker, Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
         final InstanceIdentifier<Tables> path = this.ipv4TopoBuilder.tableInstanceIdentifier(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-        this.ipv4RouteIID = path.builder().child((Class)Ipv4Routes.class).child(Ipv4Route.class, new Ipv4RouteKey(new Ipv4Prefix(ROUTE_IP4PREFIX))).build();
+        this.ipv4RouteIID = path.builder().child((Class)Ipv4Routes.class).child(Ipv4Route.class, new Ipv4RouteKey(new PathId(ROUTE_IP4PATH_ID),
+            new Ipv4Prefix(ROUTE_IP4PREFIX))).build();
     }
 
     @Test
@@ -95,7 +98,8 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         final Attributes attribute = new AttributesBuilder()
             .setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(new Ipv4Address(nextHop)).build()).build())
             .build();
-        return new Ipv4RouteBuilder().setKey(new Ipv4RouteKey(new Ipv4Prefix(ROUTE_IP4PREFIX))).setPrefix(new Ipv4Prefix(ROUTE_IP4PREFIX)).setAttributes(attribute).build();
+        return new Ipv4RouteBuilder().setKey(new Ipv4RouteKey(new PathId(ROUTE_IP4PATH_ID), new Ipv4Prefix(ROUTE_IP4PREFIX)))
+            .setPrefix(new Ipv4Prefix(ROUTE_IP4PREFIX)).setAttributes(attribute).build();
     }
 
 }
