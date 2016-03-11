@@ -18,7 +18,9 @@ import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 
 final class BaseBestPath extends AbstractBestPath {
+    private static final long PATH_ID = 0;
     private final UnsignedInteger routerId;
+
     BaseBestPath(@Nonnull final UnsignedInteger routerId, @Nonnull final BestPathState state) {
         super(state);
         this.routerId = Preconditions.checkNotNull(routerId);
@@ -34,15 +36,15 @@ final class BaseBestPath extends AbstractBestPath {
         return RouterIds.createPeerId(this.routerId);
     }
 
+    @Override
+    public long getPathId() {
+        return PATH_ID;
+    }
+
     private ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
         toStringHelper.add("routerId", this.routerId);
         toStringHelper.add("state", this.state);
         return toStringHelper;
-    }
-
-    @Override
-    public String toString() {
-        return addToStringAttributes(MoreObjects.toStringHelper(this)).toString();
     }
 
     @Override
@@ -70,5 +72,10 @@ final class BaseBestPath extends AbstractBestPath {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return addToStringAttributes(MoreObjects.toStringHelper(this)).toString();
     }
 }
