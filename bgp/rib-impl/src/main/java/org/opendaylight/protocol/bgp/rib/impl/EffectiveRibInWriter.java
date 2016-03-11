@@ -23,7 +23,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.AdjRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.EffectiveRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
@@ -43,7 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Implementation of the BGP import policy. Listens on all Adj-RIB-In, inspects all inbound
+ * Implementation of the BGP import policy. Listens on peer's Adj-RIB-In, inspects all inbound
  * routes in the context of the advertising peer's role and applies the inbound policy.
  *
  * Inbound policy is applied as follows:
@@ -53,30 +53,27 @@ import org.slf4j.LoggerFactory;
  *    advertising peer's role
  * 3) output admitting routes with edited attributes into /bgp-rib/rib/peer/effective-rib-in/tables/routes
  *
- * Note that we maintain the peer roles using a DCL, even if we could look up our internal
- * structures. This is done so we maintain causality and loose coupling.
  */
 @NotThreadSafe
 final class EffectiveRibInWriter implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(EffectiveRibInWriter.class);
     protected static final NodeIdentifier TABLE_ROUTES = new NodeIdentifier(Routes.QNAME);
-    private static final NodeIdentifier ADJRIBIN_NID = new NodeIdentifier(AdjRibIn.QNAME);
-    private static final NodeIdentifier TABLES_NID = new NodeIdentifier(Tables.QNAME);
 
     private final class AdjInTracker implements AutoCloseable, DOMDataTreeChangeListener {
         private final RIBSupportContextRegistry registry;
-        private final YangInstanceIdentifier ribId;
+        private final YangInstanceIdentifier peerIId;
+        private final YangInstanceIdentifier effRibTables;
         private final ListenerRegistration<?> reg;
         private final DOMTransactionChain chain;
 
-        AdjInTracker(final DOMDataTreeChangeService service, final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier ribId) {
+        AdjInTracker(final DOMDataTreeChangeService service, final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier peerIId) {
             this.registry = Preconditions.checkNotNull(registry);
             this.chain = Preconditions.checkNotNull(chain);
-            this.ribId = Preconditions.checkNotNull(ribId);
+            this.peerIId = Preconditions.checkNotNull(peerIId);
+            this.effRibTables = this.peerIId.node(EffectiveRibIn.QNAME).node(Tables.QNAME);
 
-            final YangInstanceIdentifier tableId = ribId.node(Peer.QNAME).node(Peer.QNAME);
-            final DOMDataTreeIdentifier treeId = new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, tableId);
-            LOG.debug("Registered Effective RIB on {}", tableId);
+            final DOMDataTreeIdentifier treeId = new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, this.peerIId.node(AdjRibIn.QNAME).node(Tables.QNAME));
+            LOG.debug("Registered Effective RIB on {}", this.peerIId);
             this.reg = service.registerDataTreeChangeListener(treeId, this);
         }
 
@@ -120,8 +117,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
             }
         }
 
-        private void processTableChildren(final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final NodeIdentifierWithPredicates peerKey, final YangInstanceIdentifier tablePath, final Collection<DataTreeCandidateNode> children) {
-            final AbstractImportPolicy policy = EffectiveRibInWriter.this.peerPolicyTracker.policyFor(IdentifierUtils.peerId(peerKey));
+        private void processTableChildren(final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final YangInstanceIdentifier tablePath, final Collection<DataTreeCandidateNode> children) {
 
             for (final DataTreeCandidateNode child : children) {
                 final PathArgument childIdentifier = child.getIdentifier();
@@ -138,11 +134,11 @@ final class EffectiveRibInWriter implements AutoCloseable {
                     // No-op
                     break;
                 case SUBTREE_MODIFIED:
-                    processModifiedRouteTables(child, childIdentifier,tx, ribSupport, policy, childPath, childDataAfter);
+                    processModifiedRouteTables(child, childIdentifier,tx, ribSupport, importPolicy, childPath, childDataAfter);
                     break;
                 case APPEARED:
                 case WRITE:
-                    writeRouteTables(child, childIdentifier,tx, ribSupport, policy, childPath, childDataAfter);
+                    writeRouteTables(child, childIdentifier,tx, ribSupport, importPolicy, childPath, childDataAfter);
 
                     break;
                 default:
@@ -181,26 +177,26 @@ final class EffectiveRibInWriter implements AutoCloseable {
             return this.registry.getRIBSupportContext(tableKey);
         }
 
-        private YangInstanceIdentifier effectiveTablePath(final NodeIdentifierWithPredicates peerKey, final NodeIdentifierWithPredicates tableKey) {
-            return this.ribId.node(Peer.QNAME).node(peerKey).node(EffectiveRibIn.QNAME).node(Tables.QNAME).node(tableKey);
+        private YangInstanceIdentifier effectiveTablePath(final NodeIdentifierWithPredicates tableKey) {
+            return this.effRibTables.node(tableKey);
         }
 
-        private void modifyTable(final DOMDataWriteTransaction tx, final NodeIdentifierWithPredicates peerKey, final NodeIdentifierWithPredicates tableKey, final DataTreeCandidateNode table) {
+        private void modifyTable(final DOMDataWriteTransaction tx, final NodeIdentifierWithPredicates tableKey, final DataTreeCandidateNode table) {
             final RIBSupportContext ribSupport = getRibSupport(tableKey);
-            final YangInstanceIdentifier tablePath = effectiveTablePath(peerKey, tableKey);
+            final YangInstanceIdentifier tablePath = effectiveTablePath(tableKey);
 
-            processTableChildren(tx, ribSupport.getRibSupport(), peerKey, tablePath, table.getChildNodes());
+            processTableChildren(tx, ribSupport.getRibSupport(), tablePath, table.getChildNodes());
         }
 
-        private void writeTable(final DOMDataWriteTransaction tx, final NodeIdentifierWithPredicates peerKey, final NodeIdentifierWithPredicates tableKey, final DataTreeCandidateNode table) {
+        private void writeTable(final DOMDataWriteTransaction tx, final NodeIdentifierWithPredicates tableKey, final DataTreeCandidateNode table) {
             final RIBSupportContext ribSupport = getRibSupport(tableKey);
-            final YangInstanceIdentifier tablePath = effectiveTablePath(peerKey, tableKey);
+            final YangInstanceIdentifier tablePath = effectiveTablePath(tableKey);
 
             // Create an empty table
             LOG.trace("Create Empty table", tablePath);
             ribSupport.createEmptyTableStructure(tx, tablePath);
 
-            processTableChildren(tx, ribSupport.getRibSupport(), peerKey, tablePath, table.getChildNodes());
+            processTableChildren(tx, ribSupport.getRibSupport(), tablePath, table.getChildNodes());
         }
 
         @Override
@@ -213,32 +209,12 @@ final class EffectiveRibInWriter implements AutoCloseable {
             for (final DataTreeCandidate tc : changes) {
                 final YangInstanceIdentifier rootPath = tc.getRootPath();
 
-                // Obtain the peer's key
-                final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(rootPath);
                 final DataTreeCandidateNode root = tc.getRootNode();
-
-                //Perform first PeerRoleChange, since it will remove peer from policy if peer session is close
-                peerRoleChange(root, rootPath);
-
-                if (tc.getRootNode().getModificationType().equals(ModificationType.DELETE)) {
-                    continue;
-                }
-                    // filter out any change outside AdjRibsIn
-                final DataTreeCandidateNode ribIn =  root.getModifiedChild(ADJRIBIN_NID);
-                if (ribIn == null) {
-                    LOG.debug("Skipping change {}", root.getIdentifier());
-                    continue;
-                }
-                final DataTreeCandidateNode tables = ribIn.getModifiedChild(TABLES_NID);
-                if (tables == null) {
-                    LOG.debug("Skipping change {}", root.getIdentifier());
-                    continue;
-                }
-                for (final DataTreeCandidateNode table : tables.getChildNodes()) {
+                for (final DataTreeCandidateNode table : root.getChildNodes()) {
                     if (tx == null) {
                         tx = this.chain.newWriteOnlyTransaction();
                     }
-                    changeDataTree(tx, rootPath, root, peerKey, table);
+                    changeDataTree(tx, rootPath, root, table);
                 }
             }
             if (tx != null) {
@@ -247,7 +223,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
         }
 
         private void changeDataTree(final DOMDataWriteTransaction tx, final YangInstanceIdentifier rootPath,
-            final DataTreeCandidateNode root, final NodeIdentifierWithPredicates peerKey, final DataTreeCandidateNode table) {
+            final DataTreeCandidateNode root, final DataTreeCandidateNode table) {
             final PathArgument lastArg = table.getIdentifier();
             Verify.verify(lastArg instanceof NodeIdentifierWithPredicates, "Unexpected type %s in path %s", lastArg.getClass(), rootPath);
             final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) lastArg;
@@ -255,20 +231,20 @@ final class EffectiveRibInWriter implements AutoCloseable {
             switch (modificationType) {
             case DELETE:
             case DISAPPEARED:
-                final YangInstanceIdentifier effectiveTablePath = effectiveTablePath(peerKey, tableKey);
+                final YangInstanceIdentifier effectiveTablePath = effectiveTablePath(tableKey);
                 LOG.debug("Delete Effective Table {} modification type {}, ", effectiveTablePath, modificationType);
                 // delete the corresponding effective table
                 tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath);
                 break;
             case SUBTREE_MODIFIED:
-                modifyTable(tx, peerKey, tableKey, table);
+                modifyTable(tx, tableKey, table);
                 break;
             case UNMODIFIED:
                 LOG.info("Ignoring spurious notification on {} data {}", rootPath, table);
                 break;
             case APPEARED:
             case WRITE:
-                writeTable(tx, peerKey, tableKey, table);
+                writeTable(tx, tableKey, table);
                 break;
             default:
                 LOG.warn("Ignoring unhandled root {}", root);
@@ -278,30 +254,23 @@ final class EffectiveRibInWriter implements AutoCloseable {
 
         @Override
         public void close() {
-            // FIXME: wipe all effective routes?
             this.reg.close();
         }
     }
 
-    private void peerRoleChange(final DataTreeCandidateNode root, final YangInstanceIdentifier rootPath) {
-        final DataTreeCandidateNode roleChange =  root.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
-        if (roleChange != null) {
-            EffectiveRibInWriter.this.peerPolicyTracker.onDataTreeChanged(roleChange, IdentifierUtils.peerPath(rootPath));
-        }
-    }
-
-    private final ImportPolicyPeerTracker peerPolicyTracker;
     private final AdjInTracker adjInTracker;
+    private final AbstractImportPolicy importPolicy;
 
     static EffectiveRibInWriter create(@Nonnull final DOMDataTreeChangeService service, @Nonnull final DOMTransactionChain chain,
-        @Nonnull final YangInstanceIdentifier ribId, @Nonnull final PolicyDatabase pd, @Nonnull final RIBSupportContextRegistry registry) {
-        return new EffectiveRibInWriter(service, chain, ribId, pd, registry);
+        @Nonnull final YangInstanceIdentifier peerIId, @Nonnull final ImportPolicyPeerTracker importPolicyPeerTracker, @Nonnull final RIBSupportContextRegistry registry, final PeerRole peerRole) {
+        return new EffectiveRibInWriter(service, chain, peerIId, importPolicyPeerTracker, registry, peerRole);
     }
 
-    private EffectiveRibInWriter(final DOMDataTreeChangeService service, final DOMTransactionChain chain, final YangInstanceIdentifier ribId,
-        final PolicyDatabase pd, final RIBSupportContextRegistry registry) {
-        this.peerPolicyTracker = new ImportPolicyPeerTracker(pd);
-        this.adjInTracker = new AdjInTracker(service, registry, chain, ribId);
+    private EffectiveRibInWriter(final DOMDataTreeChangeService service, final DOMTransactionChain chain, final YangInstanceIdentifier peerIId,
+        final ImportPolicyPeerTracker importPolicyPeerTracker, final RIBSupportContextRegistry registry, final PeerRole peerRole) {
+        importPolicyPeerTracker.peerRoleChanged(peerIId, peerRole);
+        this.importPolicy = importPolicyPeerTracker.policyFor(IdentifierUtils.peerId((NodeIdentifierWithPredicates) peerIId.getLastPathArgument()));
+        this.adjInTracker = new AdjInTracker(service, registry, chain, peerIId);
     }
 
     @Override
