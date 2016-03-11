@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.base;
 
-import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
@@ -18,7 +17,9 @@ import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 
 final class BaseBestPath extends AbstractBestPath {
+    private static final long PATH_ID = 0;
     private final UnsignedInteger routerId;
+
     BaseBestPath(@Nonnull final UnsignedInteger routerId, @Nonnull final BestPathState state) {
         super(state);
         this.routerId = Preconditions.checkNotNull(routerId);
@@ -34,15 +35,16 @@ final class BaseBestPath extends AbstractBestPath {
         return RouterIds.createPeerId(this.routerId);
     }
 
-    private ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-        toStringHelper.add("routerId", this.routerId);
-        toStringHelper.add("state", this.state);
-        return toStringHelper;
+    @Override
+    public long getPathId() {
+        return PATH_ID;
     }
 
     @Override
-    public String toString() {
-        return addToStringAttributes(MoreObjects.toStringHelper(this)).toString();
+    protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
+        toStringHelper.add("routerId", this.routerId);
+        toStringHelper.add("state", this.state);
+        return toStringHelper;
     }
 
     @Override
