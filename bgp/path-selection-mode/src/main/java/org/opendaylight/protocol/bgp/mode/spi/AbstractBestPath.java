@@ -15,6 +15,7 @@ import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 public abstract class AbstractBestPath implements BestPath {
+    private static final long PATH_ID = 0;
     protected final BestPathState state;
 
     protected AbstractBestPath(final BestPathState state) {
@@ -29,5 +30,10 @@ public abstract class AbstractBestPath implements BestPath {
     @Override
     public final ContainerNode getAttributes() {
         return this.state.getAttributes();
+    }
+
+    @Override
+    public long getPathId() {
+        return PATH_ID;
     }
 }
