@@ -115,21 +115,6 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
         this.isVpn = isVpn;
     }
 
-    private static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier parseLink(final CLinkstateDestinationBuilder builder, final ByteBuf buffer, final LocalNodeDescriptors localDescriptors)
-        throws BGPParsingException {
-        final int type = buffer.readUnsignedShort();
-        final int length = buffer.readUnsignedShort();
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier remote = null;
-        RemoteNodeDescriptors remoteDescriptors = null;
-        if (type == REMOTE_NODE_DESCRIPTORS_TYPE) {
-            remoteDescriptors = (RemoteNodeDescriptors) NodeNlriParser.parseNodeDescriptors(buffer.readSlice(length), NlriType.Link, false);
-        }
-        builder.setObjectType(new LinkCaseBuilder()
-            .setLocalNodeDescriptors(localDescriptors)
-            .setRemoteNodeDescriptors(remoteDescriptors)
-            .setLinkDescriptors(LinkNlriParser.parseLinkDescriptors(buffer.slice())).build());
-        return remote;
-    }
 
     /**
      * Parses common parts for Link State Nodes, Links and Prefixes, that includes protocol ID and identifier tlv.
@@ -185,21 +170,21 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     private static void setObjectType(final ByteBuf nlri, final CLinkstateDestinationBuilder builder, final NlriType type, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier localDescriptor, final ByteBuf rest) throws BGPParsingException {
         switch (type) {
         case Link:
-            parseLink(builder, rest, (LocalNodeDescriptors) localDescriptor);
+            SimpleNlriTypeRegistry.getInstance().registerNlriTypeParser(type, new LinkNlriParser());
+            builder.setObjectType(SimpleNlriTypeRegistry.getInstance().parseNlriLink(rest, type, localDescriptor));
             break;
         case Ipv4Prefix:
-            builder.setObjectType(new PrefixCaseBuilder()
-                .setAdvertisingNodeDescriptors((AdvertisingNodeDescriptors) localDescriptor)
-                .setPrefixDescriptors(PrefixNlriParser.parsePrefixDescriptors(rest, true)).build());
+            SimpleNlriTypeRegistry.getInstance().registerNlriTypeParser(type, new PrefixNlriParser());
+            builder.setObjectType(SimpleNlriTypeRegistry.getInstance().parseNlriPrefix(rest, type, localDescriptor));
             break;
         case Ipv6Prefix:
-            builder.setObjectType(new PrefixCaseBuilder()
-                .setAdvertisingNodeDescriptors((AdvertisingNodeDescriptors) localDescriptor)
-                .setPrefixDescriptors(PrefixNlriParser.parsePrefixDescriptors(rest, false)).build());
+            SimpleNlriTypeRegistry.getInstance().registerNlriTypeParser(type, new PrefixNlriParser());
+            builder.setObjectType(SimpleNlriTypeRegistry.getInstance().parseNlriPrefix(rest, type, localDescriptor));
             break;
         case Node:
             // node nlri is already parsed as it contains only the common fields for node and link nlri
-            builder.setObjectType(new NodeCaseBuilder().setNodeDescriptors((NodeDescriptors) localDescriptor).build());
+            SimpleNlriTypeRegistry.getInstance().registerNlriTypeParser(type, new NodeNlriParser());
+            builder.setObjectType(SimpleNlriTypeRegistry.getInstance().parseNlriNode(nlri, type, localDescriptor));
             break;
         case Ipv4TeLsp:
             builder.setObjectType(parseIpv4TeLsp(nlri));
@@ -272,35 +257,20 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
         final ObjectType ot = destination.getObjectType();
         NlriType nlriType = null;
         if (ot instanceof PrefixCase) {
-            final PrefixCase pCase = (PrefixCase) destination.getObjectType();
-            NodeNlriParser.serializeNodeIdentifier(pCase.getAdvertisingNodeDescriptors(), ldescs);
-            TlvUtil.writeTLV(LOCAL_NODE_DESCRIPTORS_TYPE, ldescs, nlriByteBuf);
-            if (pCase.getPrefixDescriptors() != null) {
-                PrefixNlriParser.serializePrefixDescriptors(pCase.getPrefixDescriptors(), nlriByteBuf);
-                if (pCase.getPrefixDescriptors().getIpReachabilityInformation().getIpv4Prefix() != null) {
-                    nlriType = NlriType.Ipv4Prefix;
-                } else {
-                    nlriType = NlriType.Ipv6Prefix;
-                }
-            }
+
+            SimpleNlriTypeRegistry.getInstance().registerNlriTypeSerializer(PrefixCase.class, new PrefixNlriParser());
+            nlriType = SimpleNlriTypeRegistry.getInstance().serializeNlriPrefix(destination, ldescs, nlriByteBuf);
+
         } else if (ot instanceof LinkCase) {
-            final LinkCase lCase = (LinkCase) destination.getObjectType();
-            NodeNlriParser.serializeNodeIdentifier(lCase.getLocalNodeDescriptors(), ldescs);
-            NodeNlriParser.serializeEpeNodeDescriptors(lCase.getLocalNodeDescriptors(), ldescs);
-            TlvUtil.writeTLV(LOCAL_NODE_DESCRIPTORS_TYPE, ldescs, nlriByteBuf);
-            final ByteBuf rdescs = Unpooled.buffer();
-            NodeNlriParser.serializeNodeIdentifier(lCase.getRemoteNodeDescriptors(), rdescs);
-            NodeNlriParser.serializeEpeNodeDescriptors(lCase.getRemoteNodeDescriptors(), rdescs);
-            TlvUtil.writeTLV(REMOTE_NODE_DESCRIPTORS_TYPE, rdescs, nlriByteBuf);
-            if (lCase.getLinkDescriptors() != null) {
-                LinkNlriParser.serializeLinkDescriptors(lCase.getLinkDescriptors(), nlriByteBuf);
-            }
-            nlriType = NlriType.Link;
+
+            SimpleNlriTypeRegistry.getInstance().registerNlriTypeSerializer(LinkCase.class, new LinkNlriParser());
+            nlriType = SimpleNlriTypeRegistry.getInstance().serializeNlriLink(destination, ldescs, nlriByteBuf);
+
         } else if (ot instanceof NodeCase) {
-            final NodeCase nCase = (NodeCase) destination.getObjectType();
-            NodeNlriParser.serializeNodeIdentifier(nCase.getNodeDescriptors(), ldescs);
-            TlvUtil.writeTLV(LOCAL_NODE_DESCRIPTORS_TYPE, ldescs, nlriByteBuf);
-            nlriType = NlriType.Node;
+
+            SimpleNlriTypeRegistry.getInstance().registerNlriTypeSerializer(NodeCase.class, new NodeNlriParser());
+            nlriType = SimpleNlriTypeRegistry.getInstance().serializeNlriNode(destination, ldescs, nlriByteBuf);
+
         } else if (ot instanceof TeLspCase) {
             final TeLspCase teLSP = ((TeLspCase) destination.getObjectType());
             final AddressFamily afi = teLSP.getAddressFamily();

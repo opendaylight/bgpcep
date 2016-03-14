@@ -584,38 +584,6 @@ public class LinkstateNlriParserTest {
         assertArrayEquals(this.nodeNlri, ByteArray.getAllBytes(result));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testLinkNlriPrivateConstructor() throws Throwable {
-        final Constructor<LinkNlriParser> c = LinkNlriParser.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testNodeNlriPrivateConstructor() throws Throwable {
-        final Constructor<NodeNlriParser> c = NodeNlriParser.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testPrefixNlriPrivateConstructor() throws Throwable {
-        final Constructor<PrefixNlriParser> c = PrefixNlriParser.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testTeLspNlriPrivateConstructor() throws Throwable {
