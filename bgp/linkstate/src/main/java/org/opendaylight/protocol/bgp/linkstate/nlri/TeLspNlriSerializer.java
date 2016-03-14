@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.linkstate.nlri;
 
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
@@ -34,7 +33,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 
 @VisibleForTesting
-public final class TeLspNlriParser {
+public final class TeLspNlriSerializer implements NlriTypeCaseSerializer {
 
     @VisibleForTesting
     public static final YangInstanceIdentifier.NodeIdentifier LSP_ID = new YangInstanceIdentifier.NodeIdentifier(
@@ -57,10 +56,6 @@ public final class TeLspNlriParser {
 
     @VisibleForTesting
     public static final YangInstanceIdentifier.NodeIdentifier ADDRESS_FAMILY = new YangInstanceIdentifier.NodeIdentifier(AddressFamily.QNAME);
-
-    private TeLspNlriParser() {
-        throw new UnsupportedOperationException();
-    }
 
     public static NlriType serializeIpvTSA(final AddressFamily addressFamily, final ByteBuf body) {
         if (addressFamily.equals(Ipv6Case.class)) {
@@ -128,4 +123,18 @@ public final class TeLspNlriParser {
             .setIpv6TunnelEndpointAddress(new Ipv6Address((String) addressFamily.getChild(IPV6_TUNNEL_ENDPOINT_ADDRESS).get().getValue()))
             .build();
     }
+
+    @Override
+    public NlriType serializeTypeNlri(final CLinkstateDestination destination, final ByteBuf localdescs, final ByteBuf byteAggregator) {
+
+        final TeLspCase teLSP = ((TeLspCase) destination.getObjectType());
+        final AddressFamily afi = teLSP.getAddressFamily();
+        NlriType nlriType = serializeIpvTSA(afi, localdescs);
+        serializeTunnelID(teLSP.getTunnelId(), localdescs);
+        serializeLspID(teLSP.getLspId(), localdescs);
+        serializeTEA(afi, localdescs);
+
+        return nlriType;
+    }
+
 }
