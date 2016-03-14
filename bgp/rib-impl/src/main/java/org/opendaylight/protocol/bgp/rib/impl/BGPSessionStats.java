@@ -26,6 +26,7 @@ import org.opendaylight.controller.config.yang.bgp.rib.impl.KeepAliveMsgs;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.MessagesStats;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.PeerPreferences;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.Received;
+import org.opendaylight.controller.config.yang.bgp.rib.impl.RouteRefreshMsgs;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.Sent;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.SpeakerPreferences;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.TotalMsgs;
@@ -48,6 +49,7 @@ final class BGPSessionStats {
     private final TotalMsgs totalMsgs = new TotalMsgs();
     private final KeepAliveMsgs kaMsgs = new KeepAliveMsgs();
     private final UpdateMsgs updMsgs = new UpdateMsgs();
+    private final RouteRefreshMsgs rrMsgs = new RouteRefreshMsgs();
     private final ErrorMsgs errMsgs = new ErrorMsgs();
 
     public BGPSessionStats(final Open remoteOpen, final int holdTimerValue, final int keepAlive, final Channel channel,
@@ -68,6 +70,8 @@ final class BGPSessionStats {
         this.kaMsgs.setSent(new Sent());
         this.updMsgs.setReceived(new Received());
         this.updMsgs.setSent(new Sent());
+        this.rrMsgs.setReceived(new Received());
+        this.rrMsgs.setSent(new Sent());
         this.errMsgs.setErrorReceived(new ErrorReceived());
         this.errMsgs.setErrorSent(new ErrorSent());
     }
@@ -100,6 +104,14 @@ final class BGPSessionStats {
         updateReceivedMsg(this.updMsgs.getReceived());
     }
 
+    public void updateSentMsgRR() {
+        updateSentMsg(this.rrMsgs.getSent());
+    }
+
+    public void updateReceivedMsgRR() {
+        updateReceivedMsg(this.rrMsgs.getReceived());
+    }
+
     public void updateReceivedMsgErr(final Notify error) {
         Preconditions.checkNotNull(error);
         final ErrorReceived received = this.errMsgs.getErrorReceived();
@@ -125,6 +137,7 @@ final class BGPSessionStats {
         msgs.setErrorMsgs(this.errMsgs);
         msgs.setKeepAliveMsgs(this.kaMsgs);
         msgs.setUpdateMsgs(this.updMsgs);
+        msgs.setRouteRefreshMsgs(this.rrMsgs);
         this.stats.setSessionDuration(StatisticsUtil.formatElapsedTime(this.sessionStopwatch.elapsed(TimeUnit.SECONDS)));
         this.stats.setSessionState(state.toString());
         this.stats.setMessagesStats(msgs);
