@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_464d68c3",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/policy/ExportPolicyPeerTracker.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-03-14T09:03:12Z",
+      "side": 0,
+      "message": "Do you know what was the reason for have a Multimap here?",
+      "range": {
+        "startLine": 51,
+        "startChar": 18,
+        "endLine": 51,
+        "endChar": 80
+      },
+      "revId": "9de5fd1c80c65f671f15f252bc2d377788369c64",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
