@@ -445,6 +445,14 @@ module bmp-message {
         }
     }
 
+    grouping open-msg {
+        uses bgp-msg:open-message {
+            augment "bgp-parameters/optional-capabilities/c-parameters" {
+                uses bgp-mp:mp-capabilities;
+            }
+        }
+    }
+
     grouping peer-up {
         leaf local-address {
             type inet:ip-address;
@@ -468,13 +476,13 @@ module bmp-message {
                  TCP session.";
         }
         container sent-open {
-            uses bgp-msg:open-message;
+            uses open-msg;
             description
                 "The full OPEN message transmitted by the
                  monitored router to its peer.";
         }
         container received-open {
-            uses bgp-msg:open-message;
+            uses open-msg;
             description
                 "The full OPEN message received by the
                  monitored router from its peer.";
