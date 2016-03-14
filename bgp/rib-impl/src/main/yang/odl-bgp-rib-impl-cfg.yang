@@ -608,6 +608,11 @@ module odl-bgp-rib-impl-cfg {
                         uses message-stats;
                     }
 
+                    container route-refresh-msgs {
+                        description "The statistics for received/sent BGP Route Refresh messages.";
+                        uses message-stats;
+                    }
+
                     container error-msgs {
                         container error-received {
                             description "The received BGP Error (notification) messages statistics.";
