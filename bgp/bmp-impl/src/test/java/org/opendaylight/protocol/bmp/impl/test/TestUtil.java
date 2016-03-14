@@ -51,7 +51,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
@@ -173,7 +173,7 @@ public final class TestUtil {
         return createPeerHeader(IPV4_ADDRESS_10);
     }
 
-    public static PeerUpNotification createPeerUpNotification(final Ipv4Address bgpId, boolean multiprotocol) {
+    public static PeerUpNotification createPeerUpNotification(final Ipv4Address bgpId, final boolean multiprotocol) {
         final PeerUpNotificationBuilder peerUpNotifBuilder = new PeerUpNotificationBuilder()
             .setLocalAddress(new IpAddress(IPV4_ADDRESS_10))
             .setLocalPort(PEER_LOCAL_PORT)
@@ -230,7 +230,7 @@ public final class TestUtil {
     private static List<OptionalCapabilities> createOptionalCapabilities(final boolean multiprotocol) {
         final OptionalCapabilitiesBuilder optCapabilitiesBuilder = new OptionalCapabilitiesBuilder()
             .setCParameters(new CParametersBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(70L)).build()).build());
-        CParametersBuilder paramsBuilder = new CParametersBuilder();
+        final CParametersBuilder paramsBuilder = new CParametersBuilder();
         if (multiprotocol) {
             final CParameters1Builder params1Builder = new CParameters1Builder();
             params1Builder.setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
