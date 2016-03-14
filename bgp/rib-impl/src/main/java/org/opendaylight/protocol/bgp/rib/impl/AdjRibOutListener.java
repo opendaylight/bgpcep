@@ -62,6 +62,7 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
     private final RIBSupport support;
     private final boolean mpSupport;
     private final ListenerRegistration<AdjRibOutListener> registerDataTreeChangeListener;
+    private final TablesKey tablesKey;
 
     private AdjRibOutListener(final PeerId peerId, final TablesKey tablesKey, final YangInstanceIdentifier ribId,
         final CodecsRegistry registry, final RIBSupport support, final DOMDataTreeChangeService service,
@@ -70,6 +71,7 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
         this.support = Preconditions.checkNotNull(support);
         this.codecs = registry.getCodecs(this.support);
         this.mpSupport = mpSupport;
+        this.tablesKey = tablesKey;
         final YangInstanceIdentifier adjRibOutId =  ribId.node(Peer.QNAME).node(IdentifierUtils.domPeerId(peerId)).node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(tablesKey));
         this.registerDataTreeChangeListener = service.registerDataTreeChangeListener(new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, adjRibOutId), this);
     }
@@ -162,5 +164,13 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
 
     public void close() {
         this.registerDataTreeChangeListener.close();
+    }
+
+    public TablesKey getTablesKey() {
+        return this.tablesKey;
+    }
+
+    public AdjRibOutListener getInstance() {
+        return this;
     }
 }
