@@ -11,18 +11,19 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.OspfRouteType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.TopologyIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.CLinkstateDestination;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.PrefixCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.PrefixDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.PrefixDescriptorsBuilder;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -33,61 +34,23 @@ import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@VisibleForTesting
-public final class PrefixNlriParser {
+public final class PrefixNlriSerializer implements NlriTypeCaseSerializer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PrefixNlriParser.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PrefixNlriSerializer.class);
 
-    private PrefixNlriParser() {
-        throw new UnsupportedOperationException();
-    }
 
     /* Prefix Descriptor TLVs */
     private static final int OSPF_ROUTE_TYPE = 264;
     private static final int IP_REACHABILITY = 265;
+
+    /* Node Descriptor Type */
+    private static final int LOCAL_NODE_DESCRIPTORS_TYPE = 256;
 
     /* Prefix Descriptor QNames */
     @VisibleForTesting
     public static final NodeIdentifier OSPF_ROUTE_NID = new NodeIdentifier(QName.create(PrefixDescriptors.QNAME, "ospf-route-type").intern());
     @VisibleForTesting
     public static final NodeIdentifier IP_REACH_NID = new NodeIdentifier(QName.create(PrefixDescriptors.QNAME, "ip-reachability-information").intern());
-
-    static PrefixDescriptors parsePrefixDescriptors(final ByteBuf buffer, final boolean ipv4) throws BGPParsingException {
-        final PrefixDescriptorsBuilder builder = new PrefixDescriptorsBuilder();
-        while (buffer.isReadable()) {
-            final int type = buffer.readUnsignedShort();
-            final int length = buffer.readUnsignedShort();
-            final ByteBuf value = buffer.readSlice(length);
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Parsing Prefix Descriptor: {}", ByteBufUtil.hexDump(value));
-            }
-            switch (type) {
-            case TlvUtil.MULTI_TOPOLOGY_ID:
-                final TopologyIdentifier topologyId = new TopologyIdentifier(value.readShort() & TlvUtil.TOPOLOGY_ID_OFFSET);
-                builder.setMultiTopologyId(topologyId);
-                LOG.trace("Parsed Topology Identifier: {}", topologyId);
-                break;
-            case OSPF_ROUTE_TYPE:
-                final int rt = value.readByte();
-                final OspfRouteType routeType = OspfRouteType.forValue(rt);
-                if (routeType == null) {
-                    throw new BGPParsingException("Unknown OSPF Route Type: " + rt);
-                }
-                builder.setOspfRouteType(routeType);
-                LOG.trace("Parser RouteType: {}", routeType);
-                break;
-            case IP_REACHABILITY:
-                final IpPrefix prefix = (ipv4) ? new IpPrefix(Ipv4Util.prefixForByteBuf(value)) : new IpPrefix(Ipv6Util.prefixForByteBuf(value));
-                builder.setIpReachabilityInformation(prefix);
-                LOG.trace("Parsed IP reachability info: {}", prefix);
-                break;
-            default:
-                throw new BGPParsingException("Prefix Descriptor not recognized, type: " + type);
-            }
-        }
-        LOG.debug("Finished parsing Prefix descriptors.");
-        return builder.build();
-    }
 
     static void serializePrefixDescriptors(final PrefixDescriptors descriptors, final ByteBuf buffer) {
         if (descriptors.getMultiTopologyId() != null) {
@@ -156,4 +119,21 @@ public final class PrefixNlriParser {
         }
         return prefixDescBuilder.build();
     }
+
+    @Override
+    public NlriType serializeTypeNlri(final CLinkstateDestination destination, final ByteBuf localdescs, final ByteBuf byteAggregator)  {
+        final PrefixCase pCase = ((PrefixCase)destination.getObjectType());
+        NodeNlriParser.serializeNodeIdentifier(pCase.getAdvertisingNodeDescriptors(), localdescs);
+        TlvUtil.writeTLV(LOCAL_NODE_DESCRIPTORS_TYPE, localdescs, byteAggregator);
+        if (pCase.getPrefixDescriptors() != null) {
+            serializePrefixDescriptors(pCase.getPrefixDescriptors(), byteAggregator);
+            if (pCase.getPrefixDescriptors().getIpReachabilityInformation().getIpv4Prefix() != null) {
+                return NlriType.Ipv4Prefix;
+            } else {
+                return NlriType.Ipv6Prefix;
+            }
+        }
+        return null;
+    }
+
 }
