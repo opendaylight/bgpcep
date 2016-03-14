@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_867c90ed",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-14T09:27:03Z",
+      "side": 1,
+      "message": "I think, we do not need this global variable.",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 42
+      },
+      "revId": "b7f710f8a936ba77700d907185859e00ec6da01c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_264304b0",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-14T09:27:03Z",
+      "side": 1,
+      "message": "You need to verify whether epoll socket can be used, as the usage is limited to Linux with 64-bit kernel.\nProbably, it should be used whenever possible as better performance and lower latency is stated - http://netty.io/news/2014/02/25/4-0-17-Final.html",
+      "range": {
+        "startLine": 79,
+        "startChar": 8,
+        "endLine": 79,
+        "endChar": 52
+      },
+      "revId": "b7f710f8a936ba77700d907185859e00ec6da01c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_8615b09d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-14T09:27:03Z",
+      "side": 1,
+      "message": "Check whether native transport can be used.",
+      "range": {
+        "startLine": 127,
+        "startChar": 8,
+        "endLine": 127,
+        "endChar": 64
+      },
+      "revId": "b7f710f8a936ba77700d907185859e00ec6da01c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_a6d394d3",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-14T09:27:03Z",
+      "side": 1,
+      "message": "Here all \"passwords\" need to be set, but they might change during runtime (new peer/modified peer configuration).\nWould it be possible to set MD5SIG option when initiating child\u0027s channel?",
+      "range": {
+        "startLine": 136,
+        "startChar": 66,
+        "endLine": 136,
+        "endChar": 75
+      },
+      "revId": "b7f710f8a936ba77700d907185859e00ec6da01c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_e6863cb8",
+        "filename": "bgp/rib-impl/src/main/yang/odl-bgp-rib-impl-cfg.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-14T09:27:03Z",
+      "side": 1,
+      "message": "Would be better to define a new type which will represent a password and use it across the bgpcep project.",
+      "range": {
+        "startLine": 368,
+        "startChar": 12,
+        "endLine": 368,
+        "endChar": 25
+      },
+      "revId": "b7f710f8a936ba77700d907185859e00ec6da01c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_8698101d",
+        "filename": "bgp/rib-impl/src/main/yang/odl-bgp-rib-impl-cfg.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-14T09:27:03Z",
+      "side": 1,
+      "message": "Restrict the length as stated in a description.",
+      "range": {
+        "startLine": 369,
+        "startChar": 21,
+        "endLine": 369,
+        "endChar": 27
+      },
+      "revId": "b7f710f8a936ba77700d907185859e00ec6da01c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
