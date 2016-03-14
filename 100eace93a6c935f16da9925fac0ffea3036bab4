@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_897ca1ed",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-14T12:49:40Z",
+      "side": 1,
+      "message": "1. \"If a BGP speaker receives from its peer a ROUTE-REFRESH message with the \u003cAFI, SAFI\u003e that the speaker didn\u0027t advertise to the peer at the session establishment time via capability advertisement, the speaker shall ignore such a message.\"\nFor example: log info message in such case.\n\n2. The last \"boolean\" argument - are you sure it is always \"true\"?",
+      "range": {
+        "startLine": 136,
+        "startChar": 8,
+        "endLine": 136,
+        "endChar": 87
+      },
+      "revId": "100eace93a6c935f16da9925fac0ffea3036bab4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_49761907",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-14T12:49:40Z",
+      "side": 1,
+      "message": "Iterate over values only.",
+      "range": {
+        "startLine": 265,
+        "startChar": 0,
+        "endLine": 267,
+        "endChar": 9
+      },
+      "revId": "100eace93a6c935f16da9925fac0ffea3036bab4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
