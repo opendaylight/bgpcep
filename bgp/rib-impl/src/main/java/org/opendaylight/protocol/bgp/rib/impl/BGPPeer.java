@@ -46,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.RouteRefresh;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
@@ -106,12 +107,23 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
 
     @Override
     public void onMessage(final BGPSession session, final Notification msg) {
-        if (!(msg instanceof Update)) {
+        if (!(msg instanceof Update) && !(msg instanceof RouteRefresh)) {
             LOG.info("Ignoring unhandled message class {}", msg.getClass());
             return;
         }
-        final Update message = (Update) msg;
+        if (msg instanceof Update) {
+            onUpdateMessage((Update) msg);
+        } else {
+            onRouteRefreshMessage((RouteRefresh) msg);
+        }
+    }
 
+    private void onRouteRefreshMessage(final RouteRefresh message) {
+        final MpReachNlri mpReach = new MpReachNlriBuilder().setAfi(message.getAfi()).setSafi(message.getSafi()).build();
+        this.ribWriter.updateRoutes(mpReach, null);
+    }
+
+    private void onUpdateMessage(final Update message) {
         // update AdjRibs
         final Attributes attrs = message.getAttributes();
         MpReachNlri mpReach = null;
@@ -207,7 +219,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     }
 
     private void createAdjRibOutListener(final PeerId peerId) {
-        for (final BgpTableType t : session.getAdvertisedTableTypes()) {
+        for (final BgpTableType t : this.session.getAdvertisedTableTypes()) {
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
             if (this.tables.add(key)) {
                 createAdjRibOutListener(peerId, key, true);
