@@ -267,7 +267,7 @@ module odl-bgp-rib-impl-cfg {
 
     identity add-path {
         base "config:service-type";
-        config:java-class "org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.add.path.capability.AddressFamilies";
+        config:java-class "org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamilies";
     }
 
     identity add-path-impl {
