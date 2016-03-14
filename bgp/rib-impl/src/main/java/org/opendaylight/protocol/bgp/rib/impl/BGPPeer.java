@@ -14,8 +14,11 @@ import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeMXBean;
@@ -46,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.RouteRefresh;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
@@ -55,7 +59,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
@@ -85,7 +91,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     private BGPPeerRuntimeRegistrator registrator;
     private BGPPeerRuntimeRegistration runtimeReg;
     private long sessionEstablishedCounter = 0L;
-    private final Set<AdjRibOutListener> adjRibOutListenerSet = new HashSet<>();
+    private final Map<TablesKey, AdjRibOutListener> adjRibOutListenerSet = new HashMap();
 
     public BGPPeer(final String name, final RIB rib) {
         this(name, rib, PeerRole.Ibgp);
@@ -106,12 +112,37 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
 
     @Override
     public void onMessage(final BGPSession session, final Notification msg) {
-        if (!(msg instanceof Update)) {
+        if (!(msg instanceof Update) && !(msg instanceof RouteRefresh)) {
             LOG.info("Ignoring unhandled message class {}", msg.getClass());
             return;
         }
-        final Update message = (Update) msg;
+        if (msg instanceof Update) {
+            onUpdateMessage((Update) msg);
+        } else {
+            onRouteRefreshMessage((RouteRefresh) msg, session);
+        }
+    }
 
+    private void onRouteRefreshMessage(final RouteRefresh message, final BGPSession session) {
+        final Class<? extends AddressFamily> rrAfi = message.getAfi();
+        final Class<? extends SubsequentAddressFamily> rrSafi = message.getSafi();
+
+        final TablesKey key = new TablesKey(rrAfi, rrSafi);
+        final AdjRibOutListener listener = this.adjRibOutListenerSet.get(key);
+        if (listener != null) {
+            listener.close();
+            this.adjRibOutListenerSet.remove(listener);
+            boolean mpSupport = true;
+            if (rrAfi.equals(Ipv4AddressFamily.class) && rrSafi.equals(UnicastSubsequentAddressFamily.class)) {
+                mpSupport = false;
+            }
+            createAdjRibOutListener(RouterIds.createPeerId(session.getBgpId()), key, mpSupport);
+        } else {
+            LOG.info("Ignoring RouteRefresh message. Afi/Safi is not supported: {}, {}.", rrAfi, rrSafi);
+        }
+    }
+
+    private void onUpdateMessage(final Update message) {
         // update AdjRibs
         final Attributes attrs = message.getAttributes();
         MpReachNlri mpReach = null;
@@ -207,7 +238,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     }
 
     private void createAdjRibOutListener(final PeerId peerId) {
-        for (final BgpTableType t : session.getAdvertisedTableTypes()) {
+        for (final BgpTableType t : this.session.getAdvertisedTableTypes()) {
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
             if (this.tables.add(key)) {
                 createAdjRibOutListener(peerId, key, true);
@@ -230,15 +261,15 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
 
         // not particularly nice
         if (context != null && this.session instanceof BGPSessionImpl) {
-            this.adjRibOutListenerSet.add(AdjRibOutListener.create(peerId, key, this.rib.getYangRibId(), this.rib.getCodecsRegistry(),
+            this.adjRibOutListenerSet.put(key, AdjRibOutListener.create(peerId, key, this.rib.getYangRibId(), this.rib.getCodecsRegistry(),
                 context.getRibSupport(), ((RIBImpl) this.rib).getService(), ((BGPSessionImpl) this.session).getLimiter(), mpSupport));
         }
     }
 
     private synchronized void cleanup() {
         // FIXME: BUG-196: support graceful
-        for (final AdjRibOutListener adjRibOutListener : this.adjRibOutListenerSet) {
-            adjRibOutListener.close();
+        for (final Entry<TablesKey, AdjRibOutListener> adjRibOutListener : this.adjRibOutListenerSet.entrySet()) {
+            adjRibOutListener.getValue().close();
         }
         this.adjRibOutListenerSet.clear();
         this.ribWriter.removePeer();
