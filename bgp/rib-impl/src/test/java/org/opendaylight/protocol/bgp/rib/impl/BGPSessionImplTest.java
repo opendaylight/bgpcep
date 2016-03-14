@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import com.google.common.collect.Lists;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
@@ -48,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.RouteRefreshBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.GracefulRestartCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
@@ -138,9 +138,14 @@ public class BGPSessionImplTest {
         assertEquals(1, state.getMessagesStats().getUpdateMsgs().getReceived().getCount().longValue());
         assertEquals(0, state.getMessagesStats().getUpdateMsgs().getSent().getCount().longValue());
 
+        this.bgpSession.handleMessage(new RouteRefreshBuilder().build());
+        assertEquals(2, this.listener.getListMsg().size());
+        assertEquals(1, state.getMessagesStats().getRouteRefreshMsgs().getReceived().getCount().longValue());
+        assertEquals(0, state.getMessagesStats().getRouteRefreshMsgs().getSent().getCount().longValue());
+
         this.bgpSession.handleMessage(new KeepaliveBuilder().build());
         this.bgpSession.handleMessage(new KeepaliveBuilder().build());
-        assertEquals(3, state.getMessagesStats().getTotalMsgs().getReceived().getCount().longValue());
+        assertEquals(4, state.getMessagesStats().getTotalMsgs().getReceived().getCount().longValue());
         assertEquals(2, state.getMessagesStats().getKeepAliveMsgs().getReceived().getCount().longValue());
         assertEquals(0, state.getMessagesStats().getKeepAliveMsgs().getSent().getCount().longValue());
 
@@ -152,7 +157,7 @@ public class BGPSessionImplTest {
         assertEquals(BGPError.CEASE.getCode(), error.getErrorCode().shortValue());
         assertEquals(BGPError.CEASE.getSubcode(), error.getErrorSubcode().shortValue());
         Mockito.verify(this.embeddedChannel).close();
-        assertEquals(3, state.getMessagesStats().getTotalMsgs().getReceived().getCount().longValue());
+        assertEquals(4, state.getMessagesStats().getTotalMsgs().getReceived().getCount().longValue());
         assertEquals(1, state.getMessagesStats().getTotalMsgs().getSent().getCount().longValue());
         assertEquals(1, state.getMessagesStats().getErrorMsgs().getErrorSent().getCount().longValue());
         assertEquals(BGPError.CEASE.getCode(), state.getMessagesStats().getErrorMsgs().getErrorSent().getCode().shortValue());
