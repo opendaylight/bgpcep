@@ -11,13 +11,23 @@ import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.bgp.linkstate.attribute.LinkstateAttributeParser;
 import org.opendaylight.protocol.bgp.linkstate.attribute.next.hop.LinkstateNextHopParser;
+import org.opendaylight.protocol.bgp.linkstate.nlri.LinkNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.nlri.LinkstateNlriParser;
+import org.opendaylight.protocol.bgp.linkstate.nlri.NodeNlriParser;
+import org.opendaylight.protocol.bgp.linkstate.nlri.PrefixNlriParser;
+import org.opendaylight.protocol.bgp.linkstate.nlri.SimpleNlriTypeRegistry;
+import org.opendaylight.protocol.bgp.linkstate.nlri.TeLspNlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPTeObjectRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.LinkCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.NodeCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.PrefixCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.TeLspCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.LinkstateRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
@@ -66,6 +76,28 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerAttributeSerializer(Attributes1.class, new LinkstateAttributeParser(this.ianaLinkstateAttributeType, this.rsvpTeObjectRegistry)));
         final LinkstateAttributeParser linkstateAttributeParser = new LinkstateAttributeParser(this.ianaLinkstateAttributeType, this.rsvpTeObjectRegistry);
         regs.add(context.registerAttributeParser(linkstateAttributeParser.getType(), linkstateAttributeParser));
+
+        final NodeNlriParser nodeParser = new NodeNlriParser();
+        SimpleNlriTypeRegistry.getInstance().registerNlriTypeParser(NlriType.Node, nodeParser);
+        SimpleNlriTypeRegistry.getInstance().registerNlriTypeSerializer(NodeCase.class, nodeParser);
+
+        final LinkNlriParser linkParser = new LinkNlriParser();
+        SimpleNlriTypeRegistry.getInstance().registerNlriTypeParser(NlriType.Link, linkParser);
+        SimpleNlriTypeRegistry.getInstance().registerNlriTypeSerializer(LinkCase.class, linkParser);
+
+        final PrefixNlriParser ipv4PrefParser = new PrefixNlriParser();
+        SimpleNlriTypeRegistry.getInstance().registerNlriTypeParser(NlriType.Ipv4Prefix, ipv4PrefParser);
+        SimpleNlriTypeRegistry.getInstance().registerNlriTypeSerializer(PrefixCase.class, ipv4PrefParser);
+
+        final PrefixNlriParser ipv6PrefParser = new PrefixNlriParser();
+        SimpleNlriTypeRegistry.getInstance().registerNlriTypeParser(NlriType.Ipv6Prefix, ipv6PrefParser);
+
+        final TeLspNlriParser telSPipv4Parser = new TeLspNlriParser();
+        SimpleNlriTypeRegistry.getInstance().registerNlriTypeParser(NlriType.Ipv4TeLsp, telSPipv4Parser);
+        SimpleNlriTypeRegistry.getInstance().registerNlriTypeSerializer(TeLspCase.class, telSPipv4Parser);
+
+        final TeLspNlriParser telSPipv6Parser = new TeLspNlriParser();
+        SimpleNlriTypeRegistry.getInstance().registerNlriTypeParser(NlriType.Ipv6TeLsp, telSPipv6Parser);
 
         return regs;
     }

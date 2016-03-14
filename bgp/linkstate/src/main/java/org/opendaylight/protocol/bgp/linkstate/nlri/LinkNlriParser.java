@@ -17,9 +17,16 @@ import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Ipv4InterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Ipv6InterfaceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.TopologyIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.ObjectType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.CLinkstateDestination;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.LinkCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.LinkCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LinkDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LinkDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LocalNodeDescriptors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.RemoteNodeDescriptors;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -27,19 +34,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @VisibleForTesting
-public final class LinkNlriParser {
+public final class LinkNlriParser implements NlriTypeCaseParser, NlriTypeCaseSerializer {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinkNlriParser.class);
 
-    private LinkNlriParser() {
-        throw new UnsupportedOperationException();
+    public LinkNlriParser() {
     }
+
     /* Link Descriptor TLVs */
     private static final int LINK_LR_IDENTIFIERS = 258;
     private static final int IPV4_IFACE_ADDRESS = 259;
     private static final int IPV4_NEIGHBOR_ADDRESS = 260;
     private static final int IPV6_IFACE_ADDRESS = 261;
     private static final int IPV6_NEIGHBOR_ADDRESS = 262;
+
+    /* Node Descriptor Type */
+    private static final int LOCAL_NODE_DESCRIPTORS_TYPE = 256;
+    private static final int REMOTE_NODE_DESCRIPTORS_TYPE = 257;
+
 
     /* Link Descriptor QNames */
     @VisibleForTesting
@@ -148,4 +160,42 @@ public final class LinkNlriParser {
         }
         return linkDescBuilder.build();
     }
+
+
+    @Override
+    public ObjectType parseTypeNlri(final ByteBuf nlri, final NlriType type, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier localdescriptor, final ByteBuf restNlri) throws BGPParsingException {
+
+        final int nodetype = restNlri.readUnsignedShort();
+        final int length = restNlri.readUnsignedShort();
+
+        RemoteNodeDescriptors remoteDescriptors = null;
+
+        if (nodetype == REMOTE_NODE_DESCRIPTORS_TYPE) {
+            remoteDescriptors = (RemoteNodeDescriptors) NodeNlriParser.parseNodeDescriptors(restNlri.readSlice(length), type, false);
+        }
+        LinkDescriptors linkdescriptor = parseLinkDescriptors(restNlri.slice());
+        LinkCaseBuilder linkbuilder = new LinkCaseBuilder();
+        LinkCase linkcase = linkbuilder.setLocalNodeDescriptors((LocalNodeDescriptors) localdescriptor).setRemoteNodeDescriptors(remoteDescriptors).setLinkDescriptors(linkdescriptor).build();
+        return linkcase;
+    }
+
+    @Override
+    public NlriType serializeTypeNlri(final CLinkstateDestination destination, final ByteBuf localdescs, final ByteBuf byteAggregator) {
+
+        final LinkCase lCase = ((LinkCase)destination.getObjectType());
+        NodeNlriParser.serializeNodeIdentifier(lCase.getLocalNodeDescriptors(), localdescs);
+        NodeNlriParser.serializeEpeNodeDescriptors(lCase.getLocalNodeDescriptors(), localdescs);
+        TlvUtil.writeTLV(LOCAL_NODE_DESCRIPTORS_TYPE, localdescs, byteAggregator);
+        final ByteBuf rdescs = Unpooled.buffer();
+        NodeNlriParser.serializeNodeIdentifier(lCase.getRemoteNodeDescriptors(), rdescs);
+        NodeNlriParser.serializeEpeNodeDescriptors(lCase.getRemoteNodeDescriptors(), rdescs);
+        TlvUtil.writeTLV(REMOTE_NODE_DESCRIPTORS_TYPE, rdescs, byteAggregator);
+        if (lCase.getLinkDescriptors() != null) {
+            LinkNlriParser.serializeLinkDescriptors(lCase.getLinkDescriptors(), byteAggregator);
+        }
+        return NlriType.Link;
+    }
+
+
+
 }

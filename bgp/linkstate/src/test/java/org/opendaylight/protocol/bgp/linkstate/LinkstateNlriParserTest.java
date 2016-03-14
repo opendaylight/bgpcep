@@ -14,8 +14,6 @@ import static org.junit.Assert.assertNull;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.util.List;
 import org.junit.Test;
@@ -23,6 +21,7 @@ import org.opendaylight.protocol.bgp.linkstate.nlri.LinkNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.nlri.LinkstateNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.nlri.NodeNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.nlri.PrefixNlriParser;
+import org.opendaylight.protocol.bgp.linkstate.nlri.SimpleNlriTypeRegistry;
 import org.opendaylight.protocol.bgp.linkstate.nlri.TeLspNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -31,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.DomainIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.OspfRouteType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.TopologyIdentifier;
@@ -140,6 +140,29 @@ public class LinkstateNlriParserTest {
     private void setUp(final byte[] data) throws BGPParsingException {
         final LinkstateNlriParser parser = new LinkstateNlriParser(false);
         final MpReachNlriBuilder builder = new MpReachNlriBuilder();
+
+        final NodeNlriParser nodeParser = new NodeNlriParser();
+        SimpleNlriTypeRegistry.getInstance().registerNlriTypeParser(NlriType.Node, nodeParser);
+        SimpleNlriTypeRegistry.getInstance().registerNlriTypeSerializer(NodeCase.class, nodeParser);
+
+        final LinkNlriParser linkParser = new LinkNlriParser();
+        SimpleNlriTypeRegistry.getInstance().registerNlriTypeParser(NlriType.Link, linkParser);
+        SimpleNlriTypeRegistry.getInstance().registerNlriTypeSerializer(LinkCase.class, linkParser);
+
+        final PrefixNlriParser ipv4PrefParser = new PrefixNlriParser();
+        SimpleNlriTypeRegistry.getInstance().registerNlriTypeParser(NlriType.Ipv4Prefix, ipv4PrefParser);
+        SimpleNlriTypeRegistry.getInstance().registerNlriTypeSerializer(PrefixCase.class, ipv4PrefParser);
+
+        final PrefixNlriParser ipv6PrefParser = new PrefixNlriParser();
+        SimpleNlriTypeRegistry.getInstance().registerNlriTypeParser(NlriType.Ipv6Prefix, ipv6PrefParser);
+
+        final TeLspNlriParser telSPipv4Parser = new TeLspNlriParser();
+        SimpleNlriTypeRegistry.getInstance().registerNlriTypeParser(NlriType.Ipv4TeLsp, telSPipv4Parser);
+        SimpleNlriTypeRegistry.getInstance().registerNlriTypeSerializer(TeLspCase.class, telSPipv4Parser);
+
+        final TeLspNlriParser telSPipv6Parser = new TeLspNlriParser();
+        SimpleNlriTypeRegistry.getInstance().registerNlriTypeParser(NlriType.Ipv6TeLsp, telSPipv6Parser);
+
         parser.parseNlri(Unpooled.copiedBuffer(data), builder);
 
         final DestinationLinkstate ls = ((DestinationLinkstateCase) builder.getAdvertizedRoutes().getDestinationType()).getDestinationLinkstate();
@@ -584,47 +607,4 @@ public class LinkstateNlriParserTest {
         assertArrayEquals(this.nodeNlri, ByteArray.getAllBytes(result));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testLinkNlriPrivateConstructor() throws Throwable {
-        final Constructor<LinkNlriParser> c = LinkNlriParser.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testNodeNlriPrivateConstructor() throws Throwable {
-        final Constructor<NodeNlriParser> c = NodeNlriParser.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testPrefixNlriPrivateConstructor() throws Throwable {
-        final Constructor<PrefixNlriParser> c = PrefixNlriParser.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testTeLspNlriPrivateConstructor() throws Throwable {
-        final Constructor<TeLspNlriParser> c = TeLspNlriParser.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        try {
-            c.newInstance();
-        } catch (final InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
 }
