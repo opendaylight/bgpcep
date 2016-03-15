@@ -11,6 +11,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 
 public class OffsetMapTest {
 
