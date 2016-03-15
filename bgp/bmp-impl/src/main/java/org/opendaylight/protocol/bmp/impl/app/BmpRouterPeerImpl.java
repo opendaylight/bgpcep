@@ -104,20 +104,15 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
 
     private static final TablesKey DEFAULT_TABLE = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
 
-    private static final InstanceIdentifier<SentOpen> SENT_OPEN_IID = InstanceIdentifier.builder(BmpMonitor.class)
+    private static final InstanceIdentifier<PeerSession> PEER_SESSION_ID = InstanceIdentifier.builder(BmpMonitor.class)
             .child(Monitor.class)
             .child(Router.class)
             .child(Peer.class)
-            .child(PeerSession.class)
-            .child(SentOpen.class)
-            .build();
-    private static final InstanceIdentifier<ReceivedOpen> RECEIVED_OPEN_IID = InstanceIdentifier.builder(BmpMonitor.class)
-            .child(Monitor.class)
-            .child(Router.class)
-            .child(Peer.class)
-            .child(PeerSession.class)
-            .child(ReceivedOpen.class)
-            .build();
+            .child(PeerSession.class).build();
+
+    private static final InstanceIdentifier<SentOpen> SENT_OPEN_IID = PEER_SESSION_ID.child(SentOpen.class);
+
+    private static final InstanceIdentifier<ReceivedOpen> RECEIVED_OPEN_IID = PEER_SESSION_ID.child(ReceivedOpen.class);
 
     private final DOMTransactionChain domTxChain;
     private final PeerId peerId;
@@ -134,6 +129,8 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
         this.domTxChain = Preconditions.checkNotNull(domTxChain);
         this.peerId = peerId;
         this.peerYangIId = YangInstanceIdentifier.builder(peersYangIId).nodeWithKey(Peer.QNAME, PEER_ID_QNAME, this.peerId.getValue()).build();
+        this.sentOpenCodec = tree.getSubtreeCodec(SENT_OPEN_IID);
+        this.receivedOpenCodec = tree.getSubtreeCodec(RECEIVED_OPEN_IID);
 
         final Set<TablesKey> peerTables = setPeerTables(peerUp.getReceivedOpen());
         final DOMDataWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
@@ -143,8 +140,6 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
                 this.domTxChain, extensions, peerTables, tree);
         this.postPolicyWriter = BmpRibInWriter.create(this.peerYangIId.node(PostPolicyRib.QNAME).node(BMP_TABLES_QNAME),
                 this.domTxChain, extensions, peerTables, tree);
-        this.sentOpenCodec = tree.getSubtreeCodec(SENT_OPEN_IID);
-        this.receivedOpenCodec = tree.getSubtreeCodec(RECEIVED_OPEN_IID);
     }
 
     public static BmpRouterPeer createRouterPeer(final DOMTransactionChain domTxChain,
@@ -254,14 +249,10 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
                         ImmutableNodes.leafNode(PEER_UP_TIMESTAMP_QNAME,
                                 timestamp.getValue()));
         if (this.receivedOpenCodec != null) {
-            builder.withChild(Builders.containerBuilder(
-                    (ContainerNode) this.receivedOpenCodec.serialize(peerUp
-                            .getReceivedOpen())).build());
+            builder.withChild((ContainerNode) this.receivedOpenCodec.serialize(peerUp.getReceivedOpen()));
         }
         if (this.sentOpenCodec != null) {
-            builder.withChild(Builders.containerBuilder(
-                    (ContainerNode) this.sentOpenCodec.serialize(peerUp
-                            .getSentOpen())).build());
+            builder.withChild((ContainerNode) this.sentOpenCodec.serialize(peerUp.getSentOpen()));
         }
         return builder.build();
     }
