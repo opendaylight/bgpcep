@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_528fde74",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/LinkstateNlriParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-15T10:50:28Z",
+      "side": 1,
+      "message": "Registration should be done in i.e. BGPActivator.\nThe goal is to get rid of this \"switch\".",
+      "range": {
+        "startLine": 173,
+        "startChar": 0,
+        "endLine": 187,
+        "endChar": 96
+      },
+      "revId": "79aa6362ba15586dfff0e465c67509948e93debe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_328a1a64",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/LinkstateNlriParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-15T10:50:28Z",
+      "side": 1,
+      "message": "Please, add codec implementations for those two types too.",
+      "range": {
+        "startLine": 189,
+        "startChar": 0,
+        "endLine": 194,
+        "endChar": 18
+      },
+      "revId": "79aa6362ba15586dfff0e465c67509948e93debe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_92ecc62b",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/LinkstateNlriParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-15T10:50:28Z",
+      "side": 1,
+      "message": "The same as mentioned above.\nThe goal is to get rid of those \"if-else\" branches.",
+      "range": {
+        "startLine": 260,
+        "startChar": 0,
+        "endLine": 272,
+        "endChar": 92
+      },
+      "revId": "79aa6362ba15586dfff0e465c67509948e93debe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_d27bee78",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/NlriTypeCaseParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-15T10:50:28Z",
+      "side": 1,
+      "message": "Remove unnecessary \"final\" modifiers from interfaces.",
+      "range": {
+        "startLine": 21,
+        "startChar": 29,
+        "endLine": 21,
+        "endChar": 34
+      },
+      "revId": "79aa6362ba15586dfff0e465c67509948e93debe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_32b33a4e",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/SimpleNlriTypeRegistry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-15T10:50:28Z",
+      "side": 1,
+      "message": "ObjectType",
+      "range": {
+        "startLine": 32,
+        "startChar": 38,
+        "endLine": 32,
+        "endChar": 48
+      },
+      "revId": "79aa6362ba15586dfff0e465c67509948e93debe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_52b87e29",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/SimpleNlriTypeRegistry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-15T10:50:28Z",
+      "side": 1,
+      "message": "Here I would expect two methods only:\n1. Serialize NLRI Type - get ObjectType from destination and look-up serializer, execute serialization. \n2. Parse NLRI Type - return ObjectType, look-up parser, execute parsing.",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 5
+      },
+      "revId": "79aa6362ba15586dfff0e465c67509948e93debe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
