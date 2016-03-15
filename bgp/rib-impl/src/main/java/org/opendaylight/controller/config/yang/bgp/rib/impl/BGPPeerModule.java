@@ -32,6 +32,7 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenconfigMapper;
 import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfigurationIdentifier;
 import org.opendaylight.protocol.bgp.openconfig.spi.pojo.BGPPeerInstanceConfiguration;
+import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.MultiprotocolCapabilitiesUtil;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
@@ -56,7 +57,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.optional.capabilities.c.parameters.add.path.capability.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev150512.afi.safi.route.counter.AfiSafiKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.tcpmd5.cfg.rev140427.Rfc2385Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -217,9 +217,9 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
     }
 
     private List<AddressFamilies> filterAddPathDependency(final List<AddressFamilies> addPathDependency) {
-        final Map<AfiSafiKey, AddressFamilies> filteredFamilies = new HashMap<AfiSafiKey, AddressFamilies>();
+        final Map<BgpTableType, AddressFamilies> filteredFamilies = new HashMap<BgpTableType, AddressFamilies>();
         for (final AddressFamilies family : addPathDependency) {
-            final AfiSafiKey key = new AfiSafiKey(family.getAfi(), family.getSafi());
+            final BgpTableType key = new BgpTableTypeImpl(family.getAfi(), family.getSafi());
             if (!filteredFamilies.containsKey(key)) {
                 filteredFamilies.put(key, family);
             } else {
