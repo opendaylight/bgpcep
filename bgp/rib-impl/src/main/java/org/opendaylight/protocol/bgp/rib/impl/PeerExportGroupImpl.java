@@ -11,31 +11,31 @@ import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
-/**
- * A collection of peers sharing the same export policy.
- */
-final class PeerExportGroup {
+final class PeerExportGroupImpl implements PeerExportGroup {
     private final Collection<Entry<PeerId, YangInstanceIdentifier>> peers;
     private final Map<PeerId, PeerRole> peerRoles;
     private final AbstractExportPolicy policy;
 
-    PeerExportGroup(final Collection<Entry<PeerId, YangInstanceIdentifier>> peers, final Map<PeerId, PeerRole> peerRoles, final AbstractExportPolicy policy) {
+    PeerExportGroupImpl(final Collection<Entry<PeerId, YangInstanceIdentifier>> peers, final Map<PeerId, PeerRole> peerRoles, final AbstractExportPolicy policy) {
         this.peers = Preconditions.checkNotNull(peers);
         this.peerRoles = Preconditions.checkNotNull(peerRoles);
         this.policy = Preconditions.checkNotNull(policy);
     }
 
-    ContainerNode effectiveAttributes(final PeerId sourcePeerId, final ContainerNode attributes) {
+    @Override
+    public ContainerNode effectiveAttributes(final PeerId sourcePeerId, final ContainerNode attributes) {
         final PeerRole peerRole = peerRoles.get(sourcePeerId);
         return attributes == null || peerRole == null ? null :  policy.effectiveAttributes(peerRole, attributes);
     }
 
-    Collection<Entry<PeerId, YangInstanceIdentifier>> getPeers() {
+    @Override
+    public Collection<Entry<PeerId, YangInstanceIdentifier>> getPeers() {
         return peers;
     }
 }

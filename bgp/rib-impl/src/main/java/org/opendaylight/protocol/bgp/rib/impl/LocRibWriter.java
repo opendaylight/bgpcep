@@ -23,10 +23,14 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
-import org.opendaylight.protocol.bgp.rib.impl.spi.CacheDisconnectedPeers;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
+import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
+import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
+import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
+import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
+import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
@@ -86,7 +90,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         this.ourAs = Preconditions.checkNotNull(ourAs);
         this.ribSupport = registry.getRIBSupportContext(tablesKey).getRibSupport();
         this.attributesIdentifier = this.ribSupport.routeAttributesIdentifier();
-        this.peerPolicyTracker = new ExportPolicyPeerTracker(pd);
+        this.peerPolicyTracker = new ExportPolicyPeerTrackerImpl(pd);
         this.cacheDisconnectedPeers = cacheDisconnectedPeers;
 
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
