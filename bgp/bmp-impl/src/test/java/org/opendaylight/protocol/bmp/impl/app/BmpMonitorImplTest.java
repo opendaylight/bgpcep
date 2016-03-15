@@ -262,6 +262,8 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             assertEquals(TestUtil.PEER_LOCAL_PORT, peerSession.getLocalPort());
             assertEquals(TestUtil.PEER_REMOTE_PORT, peerSession.getRemotePort());
             assertEquals(Status.Up, peerSession.getStatus());
+            assertNotNull(peerSession.getReceivedOpen());
+            assertNotNull(peerSession.getSentOpen());
 
             final StatsReportsMessage statsMsg = TestUtil.createStatsReportMsg(PEER1);
             channel.writeAndFlush(statsMsg);
