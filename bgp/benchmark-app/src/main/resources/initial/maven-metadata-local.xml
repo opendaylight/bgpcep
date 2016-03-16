@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata modelVersion="1.1.0">
+  <groupId>org.opendaylight.bgpcep</groupId>
+  <artifactId>bgp-benchmark-app</artifactId>
+  <version>0.6.0-SNAPSHOT</version>
+  <versioning>
+    <snapshot>
+      <localCopy>true</localCopy>
+    </snapshot>
+    <lastUpdated>20160328223414</lastUpdated>
+    <snapshotVersions>
+      <snapshotVersion>
+        <classifier>app-peer-benchmark-config</classifier>
+        <extension>xml</extension>
+        <value>0.6.0-SNAPSHOT</value>
+        <updated>20160328223414</updated>
+      </snapshotVersion>
+    </snapshotVersions>
+  </versioning>
+</metadata>
