@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a42497e_21874863",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-16T22:21:14Z",
+      "side": 1,
+      "message": "Please, expand commit message - i.e. briefly describe changes and motivation for doing them.",
+      "revId": "2e249227954d9350f1c409579d8fd33993d94e04",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
