@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a42497e_6181504a",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/BGPActivator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-16T22:43:41Z",
+      "side": 1,
+      "message": "Shorthand - create local variable with registry instance reference.\nAlso registration should return ticket which can be used to remove codec from registry when activator is being closed.",
+      "range": {
+        "startLine": 81,
+        "startChar": 8,
+        "endLine": 81,
+        "endChar": 44
+      },
+      "revId": "e220ffb532be9dca9b49d5d2e2f7677dfdb7d323",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a42497e_a147d81c",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/LinkNlriParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-16T22:43:41Z",
+      "side": 1,
+      "message": "Remove default constructor.",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 5
+      },
+      "revId": "e220ffb532be9dca9b49d5d2e2f7677dfdb7d323",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a42497e_a192389d",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/NlriTypeCaseParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-16T22:43:41Z",
+      "side": 1,
+      "message": "Remove unnecessary \"final\" keyword from interface method definitions.",
+      "range": {
+        "startLine": 21,
+        "startChar": 43,
+        "endLine": 21,
+        "endChar": 48
+      },
+      "revId": "e220ffb532be9dca9b49d5d2e2f7677dfdb7d323",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a42497e_21d8e852",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/PrefixNlriParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-16T22:43:41Z",
+      "side": 1,
+      "message": "Might be better to slit in two classes - one for IPv4 and another for IPv6.",
+      "revId": "e220ffb532be9dca9b49d5d2e2f7677dfdb7d323",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a42497e_c1e66416",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/TeLspNlriParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-16T22:43:41Z",
+      "side": 1,
+      "message": "Might be better to slit.",
+      "revId": "e220ffb532be9dca9b49d5d2e2f7677dfdb7d323",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
