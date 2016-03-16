@@ -17,16 +17,29 @@ module data-change-counter {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision "2016-03-15" {
+        description
+            "Updated to support multiple instances.";
+    }
     revision "2014-08-15" {
         description
             "Initial revision.";
     }
 
     container data-change-counter {
-        leaf count {
-            type uint32;
-            description
-                "The number of data changes.";
+        config false;
+
+        list counter {
+            leaf id {
+                type string;
+            }
+            key id;
+
+            leaf count {
+                type uint32;
+                description
+                    "The number of data changes.";
+            }
         }
     }
  }
