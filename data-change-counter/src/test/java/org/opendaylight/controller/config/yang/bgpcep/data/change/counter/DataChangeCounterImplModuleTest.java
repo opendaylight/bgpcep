@@ -32,7 +32,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev140815.DataChangeCounter;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev160315.DataChangeCounter;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
@@ -40,9 +40,11 @@ import org.osgi.framework.BundleContext;
 public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
 
     private static final String FACTORY_NAME = DataChangeCounterImplModuleFactory.NAME;
-    private static final String INSTANCE_NAME = DataChangeCounterImplModuleFactory.SINGLETON_NAME;
+    private static final String INSTANCE_NAME = "data-change-counter";
     private static final String DATA_BROKER_INSTANCE_NAME = "data-broker-instance";
 
+    private static final String COUNTER_ID = "counter";
+    private static final String NEW_COUNTER_ID = "new-counter";
     private static final String TOPOLOGY_NAME = "test";
     private static final String NEW_TOPOLOGY_NAME = "new-test";
 
@@ -72,14 +74,14 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
 
     @Test
     public void testCreateBean() throws Exception {
-        final CommitStatus status = createInstance(TOPOLOGY_NAME);
+        final CommitStatus status = createInstance(COUNTER_ID, TOPOLOGY_NAME);
         assertBeanCount(1, FACTORY_NAME);
         assertStatus(status, 2, 0, 0);
     }
 
     @Test
     public void testReusingOldInstance() throws Exception {
-        createInstance(TOPOLOGY_NAME);
+        createInstance(COUNTER_ID, TOPOLOGY_NAME);
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
         final CommitStatus status = transaction.commit();
@@ -89,10 +91,11 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
 
     @Test
     public void testReconfigureBean() throws Exception {
-        createInstance(TOPOLOGY_NAME);
+        createInstance(COUNTER_ID, TOPOLOGY_NAME);
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         final DataChangeCounterImplModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME),
                 DataChangeCounterImplModuleMXBean.class);
+        mxBean.setCounterId(NEW_COUNTER_ID);
         mxBean.setTopologyName(NEW_TOPOLOGY_NAME);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
@@ -101,14 +104,16 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
         final ConfigTransactionJMXClient transaction2 = this.configRegistryClient.createTransaction();
         final DataChangeCounterImplModuleMXBean mxBean2 = transaction2.newMXBeanProxy(transaction2.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME),
                 DataChangeCounterImplModuleMXBean.class);
+        Assert.assertEquals(NEW_COUNTER_ID, mxBean2.getCounterId());
         Assert.assertEquals(NEW_TOPOLOGY_NAME, mxBean2.getTopologyName());
     }
 
-    private CommitStatus createInstance(final String topologyName) throws Exception {
+    private CommitStatus createInstance(final String counterId, final String topologyName) throws Exception {
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         final ObjectName on = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final ObjectName dbOn = transaction.createModule(MockDataBrokerModuleFct.INSTANCE_NAME, DATA_BROKER_INSTANCE_NAME);
         final DataChangeCounterImplModuleMXBean mxBean = transaction.newMXBeanProxy(on, DataChangeCounterImplModuleMXBean.class);
+        mxBean.setCounterId(counterId);
         mxBean.setTopologyName(topologyName);
         mxBean.setDataProvider(dbOn);
         return transaction.commit();
