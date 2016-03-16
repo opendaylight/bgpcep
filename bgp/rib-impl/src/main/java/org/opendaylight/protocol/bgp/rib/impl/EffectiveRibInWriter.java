@@ -163,12 +163,15 @@ final class EffectiveRibInWriter implements AutoCloseable {
         }
 
         private void writeRouteTables(final DataTreeCandidateNode child, final PathArgument childIdentifier, final DOMDataWriteTransaction tx, final RIBSupport ribSupport, final AbstractImportPolicy policy, final YangInstanceIdentifier childPath, final Optional<NormalizedNode<?, ?>> childDataAfter) {
-            tx.put(LogicalDatastoreType.OPERATIONAL, childPath, childDataAfter.get());
-            // Routes are special, as they may end up being filtered. The previous put conveniently
-            // ensured that we have them in at target, so a subsequent delete will not fail :)
             if (TABLE_ROUTES.equals(childIdentifier)) {
-                for (final DataTreeCandidateNode route : ribSupport.changedRoutes(child)) {
-                    processRoute(tx, ribSupport, policy, childPath, route);
+                final Collection<DataTreeCandidateNode> changedRoutes = ribSupport.changedRoutes(child);
+                if (!changedRoutes.isEmpty()) {
+                    tx.put(LogicalDatastoreType.OPERATIONAL, childPath, childDataAfter.get());
+                    // Routes are special, as they may end up being filtered. The previous put conveniently
+                    // ensured that we have them in at target, so a subsequent delete will not fail :)
+                    for (final DataTreeCandidateNode route : changedRoutes) {
+                        processRoute(tx, ribSupport, policy, childPath, route);
+                    }
                 }
             }
         }
