@@ -36,12 +36,13 @@ public class DataChangeCounterImplModule extends org.opendaylight.controller.con
 
     @Override
     public void customValidation() {
+        JmxAttributeValidationException.checkNotNull(getCounterId(), "value is not set.", counterIdJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getTopologyName(), "value is not set.", topologyNameJmxAttribute);
     }
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final TopologyDataChangeCounter counter = new TopologyDataChangeCounter(getDataProviderDependency());
+        final TopologyDataChangeCounter counter = new TopologyDataChangeCounter(getDataProviderDependency(), getCounterId());
         final InstanceIdentifier<Topology> topoIId = InstanceIdentifier.builder(NetworkTopology.class)
                 .child(Topology.class, new TopologyKey(new TopologyId(getTopologyName()))).build();
         final ListenerRegistration<DataChangeListener> registration = getDataProviderDependency().registerDataChangeListener(

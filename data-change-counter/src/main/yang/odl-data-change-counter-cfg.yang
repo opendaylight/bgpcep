@@ -22,6 +22,10 @@ module odl-data-change-counter-cfg {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision "2016-03-15" {
+        description
+            "Updated to support multiple instances";
+    }
     revision "2014-08-15" {
         description
             "Initial revision";
@@ -35,6 +39,10 @@ module odl-data-change-counter-cfg {
     augment "/config:modules/config:module/config:configuration" {
         case data-change-counter-impl {
             when "/config:modules/config:module/config:type = 'data-change-counter-impl'";
+
+            leaf counter-id {
+                type string;
+            }
 
             leaf topology-name {
                 type string;

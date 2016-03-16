@@ -19,8 +19,10 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev140815.DataChangeCounter;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev140815.DataChangeCounterBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev160315.DataChangeCounter;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev160315.data.change.counter.Counter;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev160315.data.change.counter.CounterBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev160315.data.change.counter.CounterKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -30,42 +32,45 @@ public class TopologyDataChangeCounter implements DataChangeListener, Transactio
 
     private static final Logger LOG = LoggerFactory.getLogger(TopologyDataChangeCounter.class);
 
-    protected static final InstanceIdentifier<DataChangeCounter> IID = InstanceIdentifier
-            .builder(DataChangeCounter.class).build();
-
     private final DataBroker dataBroker;
+    private final String counterId;
+    private final InstanceIdentifier<Counter> counterInstanceId;
     private final BindingTransactionChain chain;
     private final AtomicLong count;
 
-    public TopologyDataChangeCounter(final DataBroker dataBroker) {
+    public TopologyDataChangeCounter(final DataBroker dataBroker, final String counterId) {
         this.dataBroker = dataBroker;
         this.chain = this.dataBroker.createTransactionChain(this);
+        this.counterId = counterId;
+        this.counterInstanceId = InstanceIdentifier.builder(DataChangeCounter.class)
+                .child(Counter.class, new CounterKey(this.counterId)).build();
         this.count = new AtomicLong(0);
         putCount(this.count.get());
-        LOG.debug("Data change counter initiated");
+        LOG.debug("Data change counter {} initiated", this.counterId);
     }
 
     @Override
     public void onDataChanged(final AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
         putCount(this.count.incrementAndGet());
-        LOG.debug("Data change #{}", this.count.get());
+        LOG.debug("Data change #{} for counter {}", this.count.get(), this.counterId);
     }
 
     public void close() {
         final WriteTransaction wTx = this.dataBroker.newWriteOnlyTransaction();
-        wTx.delete(LogicalDatastoreType.OPERATIONAL, IID);
+        wTx.delete(LogicalDatastoreType.OPERATIONAL, this.counterInstanceId);
         try {
             wTx.submit().checkedGet();
         } catch (TransactionCommitFailedException except) {
-            LOG.warn("Error on remove  data change counter{}", IID.toString(), except);
+            LOG.warn("Error on remove data change counter {}", this.counterId, except);
         }
         this.chain.close();
-        LOG.debug("Data change counter removed");
+        LOG.debug("Data change counter {} removed", this.counterId);
     }
 
     private void putCount(final long count) {
         final WriteTransaction wTx = this.chain.newWriteOnlyTransaction();
-        wTx.put(LogicalDatastoreType.OPERATIONAL, IID, new DataChangeCounterBuilder().setCount(count).build());
+        Counter counter = new CounterBuilder().setId(this.counterId).setCount(count).build();
+        wTx.put(LogicalDatastoreType.OPERATIONAL, this.counterInstanceId, counter);
         wTx.submit();
     }
 
