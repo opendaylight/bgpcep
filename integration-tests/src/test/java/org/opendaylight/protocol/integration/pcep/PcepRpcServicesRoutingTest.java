@@ -14,7 +14,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-
+import static org.ops4j.pax.exam.CoreOptions.frameworkProperty;
+import static org.ops4j.pax.exam.CoreOptions.junitBundles;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.options;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.lang.reflect.Method;
@@ -57,12 +60,62 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
+import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerClass;
 
 @RunWith(PaxExam.class)
-@ExamReactorStrategy(org.ops4j.pax.exam.spi.reactors.PerClass.class)
+@ExamReactorStrategy(PerClass.class)
 public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
+
+    @Override
+    protected Option[] getAdditionalOptions() {
+        // register option to provide Mockito as a bundle dependency
+        return options(
+                new DefaultCompositeOption(
+                        // Repository required to load harmcrest (OSGi-fied version).
+                        // Mockito
+                        mavenBundle("org.mockito", "mockito-core", "1.10.19"),
+                        mavenBundle("org.objenesis", "objenesis", "2.2"),
+                        junitBundles(),
+
+                /*
+                 * Felix has implicit boot delegation enabled by default. It
+                 * conflicts with Mockito: java.lang.LinkageError: loader
+                 * constraint violation in interface itable initialization: when
+                 * resolving method
+                 * "org.osgi.service.useradmin.User$$EnhancerByMockitoWithCGLIB$$dd2f81dc
+                 * .
+                 * newInstance(Lorg/mockito/cglib/proxy/Callback;)Ljava/lang/Object
+                 * ;" the class loader (instance of
+                 * org/mockito/internal/creation/jmock/SearchingClassLoader) of
+                 * the current class, org/osgi/service/useradmin/
+                 * User$$EnhancerByMockitoWithCGLIB$$dd2f81dc, and the class
+                 * loader (instance of org/apache/felix/framework/
+                 * BundleWiringImpl$BundleClassLoaderJava5) for interface
+                 * org/mockito/cglib/proxy/Factory have different Class objects
+                 * for the type org/mockito/cglib/ proxy/Callback used in the
+                 * signature
+                 *
+                 * So we disable the bootdelegation. this property has no effect
+                 * on the other OSGi implementation.
+                 */
+                        frameworkProperty("felix.bootdelegation.implicit").value("false"))
+        );
+    }
+
+    private static <T> T getInputForRpc(final InstanceIdentifier<Topology> topology, final Class<?> builderClass, final Class<T> builtObjectClass) {
+        try {
+            final Object builderInstance = builderClass.newInstance();
+            final Method method = builderClass.getMethod("setNetworkTopologyRef", NetworkTopologyRef.class);
+            method.invoke(builderInstance, new NetworkTopologyRef(topology));
+            return builtObjectClass.cast(builderClass.getMethod("build").invoke(builderInstance));
+        } catch (final Exception e) {
+            throw new RuntimeException("Unable to create instance from " + builderClass, e);
+        }
+    }
 
     @Test
     public void testRoutedRpcNetworkTopologyPcepService() throws Exception {
@@ -89,7 +142,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
             }
         };
 
-        broker.registerProvider(provider1, getBundleContext());
+        broker.registerProvider(provider1);
 
         final InstanceIdentifier<Topology> topology2 = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
                 new TopologyKey(getTopologyId("Topo2"))).build();
@@ -105,7 +158,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
             }
         };
 
-        broker.registerProvider(provider2, getBundleContext());
+        broker.registerProvider(provider2);
 
         final BindingAwareConsumer consumer = new BindingAwareConsumer() {
             @Override
@@ -138,7 +191,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
 
             private void testTriggerSyncRpce(final NetworkTopologyPcepService consumerPcepService) {
                 TriggerSyncInput triggerInput = getInputForRpc(topology, TriggerSyncInputBuilder.class,
-                    TriggerSyncInput.class);
+                        TriggerSyncInput.class);
                 consumerPcepService.triggerSync(triggerInput);
 
                 verify(pcepService1).triggerSync(triggerInput);
@@ -169,12 +222,11 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
                 verify(pcepService2).ensureLspOperational(ensureInput);
             }
         };
-        broker.registerConsumer(consumer, getBundleContext());
+        broker.registerConsumer(consumer);
     }
 
     @SuppressWarnings("unchecked")
     private void initMock(final NetworkTopologyPcepService pcepService) {
-
         @SuppressWarnings("rawtypes")
         final ListenableFuture future = Futures.immediateFuture(RpcResultBuilder.<AddLspOutput>success().build());
         final ListenableFuture futureSyncTrigger = Futures.immediateFuture(RpcResultBuilder.<TriggerSyncOutput>success().build());
@@ -185,17 +237,6 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
         when(pcepService.ensureLspOperational(Mockito.<EnsureLspOperationalInput>any())).thenReturn(future);
         when(pcepService.updateLsp(Mockito.<UpdateLspInput>any())).thenReturn(future);
 
-    }
-
-    private static <T> T getInputForRpc(final InstanceIdentifier<Topology> topology, final Class<?> builderClass, final Class<T> builtObjectClass) {
-        try {
-            final Object builderInstance = builderClass.newInstance();
-            final Method method = builderClass.getMethod("setNetworkTopologyRef", NetworkTopologyRef.class);
-            method.invoke(builderInstance, new NetworkTopologyRef(topology));
-            return builtObjectClass.cast(builderClass.getMethod("build").invoke(builderInstance));
-        } catch (final Exception e) {
-            throw new RuntimeException("Unable to create instance from " + builderClass, e);
-        }
     }
 
     @Test
@@ -212,7 +253,6 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
                 new TopologyKey(getTopologyId("Topo1"))).build();
 
         final BindingAwareProvider provider1 = new AbstractTestProvider() {
-
             @Override
             public void onSessionInitiated(final BindingAwareBroker.ProviderContext session) {
                 assertNotNull(session);
@@ -225,13 +265,12 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
             }
         };
 
-        broker.registerProvider(provider1, getBundleContext());
+        broker.registerProvider(provider1);
 
         final InstanceIdentifier<Topology> topology2 = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
                 new TopologyKey(getTopologyId("Topo2"))).build();
 
         final BindingAwareProvider provider2 = new AbstractTestProvider() {
-
             @Override
             public void onSessionInitiated(final BindingAwareBroker.ProviderContext session) {
                 assertNotNull(session);
@@ -241,7 +280,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
             }
         };
 
-        broker.registerProvider(provider2, getBundleContext());
+        broker.registerProvider(provider2);
 
         final BindingAwareConsumer consumer = new BindingAwareConsumer() {
             @Override
@@ -290,15 +329,15 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
 
             private void testTriggerSyncRpc(final NetworkTopologyPcepProgrammingService consumerPcepService) {
                 SubmitTriggerSyncInput submitTriggerSyncInput = getInputForRpc(topology,
-                    SubmitTriggerSyncInputBuilder.class,
-                    SubmitTriggerSyncInput.class);
+                        SubmitTriggerSyncInputBuilder.class,
+                        SubmitTriggerSyncInput.class);
                 consumerPcepService.submitTriggerSync(submitTriggerSyncInput);
 
                 verify(pcepService1).submitTriggerSync(submitTriggerSyncInput);
                 verifyZeroInteractions(pcepService2);
 
                 submitTriggerSyncInput = getInputForRpc(topology2, SubmitTriggerSyncInputBuilder.class,
-                    SubmitTriggerSyncInput.class);
+                        SubmitTriggerSyncInput.class);
 
                 consumerPcepService.submitTriggerSync(submitTriggerSyncInput);
 
@@ -306,7 +345,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
                 verify(pcepService2).submitTriggerSync(submitTriggerSyncInput);
             }
         };
-        broker.registerConsumer(consumer, getBundleContext());
+        broker.registerConsumer(consumer);
     }
 
     @SuppressWarnings("unchecked")
@@ -335,7 +374,6 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
                 new TopologyKey(getTopologyId("Topo1"))).build();
 
         final BindingAwareProvider provider1 = new AbstractTestProvider() {
-
             @Override
             public void onSessionInitiated(final BindingAwareBroker.ProviderContext session) {
                 assertNotNull(session);
@@ -348,13 +386,12 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
             }
         };
 
-        broker.registerProvider(provider1, getBundleContext());
+        broker.registerProvider(provider1);
 
         final InstanceIdentifier<Topology> topology2 = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
                 new TopologyKey(getTopologyId("Topo2"))).build();
 
         final BindingAwareProvider provider2 = new AbstractTestProvider() {
-
             @Override
             public void onSessionInitiated(final BindingAwareBroker.ProviderContext session) {
                 assertNotNull(session);
@@ -364,7 +401,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
             }
         };
 
-        broker.registerProvider(provider2, getBundleContext());
+        broker.registerProvider(provider2);
 
         final BindingAwareConsumer consumer = new BindingAwareConsumer() {
             @Override
@@ -381,7 +418,7 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
 
             private void testCreateP2pTunnel(final TopologyTunnelPcepProgrammingService consumerPcepService) {
                 PcepCreateP2pTunnelInput addLspInput = getInputForRpc(topology, PcepCreateP2pTunnelInputBuilder.class,
-                    PcepCreateP2pTunnelInput.class);
+                        PcepCreateP2pTunnelInput.class);
                 consumerPcepService.pcepCreateP2pTunnel(addLspInput);
 
                 verify(pcepService1).pcepCreateP2pTunnel(addLspInput);
@@ -411,11 +448,10 @@ public class PcepRpcServicesRoutingTest extends AbstractPcepOsgiTest {
                 verify(pcepService2).pcepDestroyTunnel(addLspInput);
             }
         };
-        broker.registerConsumer(consumer, getBundleContext());
+        broker.registerConsumer(consumer);
     }
 
     private void initMock(final TopologyTunnelPcepProgrammingService pcepService) {
-
         @SuppressWarnings("rawtypes")
         final ListenableFuture future = Futures.immediateFuture(RpcResultBuilder.<AddLspOutput>success().build());
         when(pcepService.pcepCreateP2pTunnel(Mockito.<PcepCreateP2pTunnelInput>any())).thenReturn(future);
