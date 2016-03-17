@@ -224,11 +224,13 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         } else if (msg instanceof RouteRefresh) {
             this.listener.onMessage(this, msg);
             this.sessionStats.updateReceivedMsgRR();
-        } else {
+        } else if (msg instanceof Update) {
             // All others are passed up
             this.listener.onMessage(this, msg);
             this.sync.updReceived((Update) msg);
             this.sessionStats.updateReceivedMsgUpd();
+        } else {
+            LOG.info("Ignoring unhandled message.");
         }
     }
 
