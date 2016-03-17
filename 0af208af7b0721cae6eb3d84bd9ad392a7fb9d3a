@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a42497e_67468025",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-17T13:01:41Z",
+      "side": 1,
+      "message": "Printout the unhandled message in a log message. May be it should be warning severity.",
+      "revId": "0af208af7b0721cae6eb3d84bd9ad392a7fb9d3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
