@@ -53,6 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -151,6 +152,7 @@ public class PeerTest extends AbstractRIBTestSetup {
                     new Attributes2Builder().setMpUnreachNlri(
                             new MpUnreachNlriBuilder().setAfi(AFI).setSafi(SAFI).build()).build()).build()).build());
         this.classic.onMessage(this.session, new RouteRefreshBuilder().setAfi(AFI).setSafi(SAFI).build());
+        this.classic.onMessage(this.session, new RouteRefreshBuilder().setAfi(Ipv6AddressFamily.class).setSafi(SAFI).build());
         assertEquals(2, this.routes.size());
         this.classic.releaseConnection();
     }
