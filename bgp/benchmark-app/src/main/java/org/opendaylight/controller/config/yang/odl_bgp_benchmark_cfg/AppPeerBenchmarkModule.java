@@ -9,6 +9,7 @@
 package org.opendaylight.controller.config.yang.odl_bgp_benchmark_cfg;
 
 import org.opendaylight.controller.config.api.DependencyResolver;
+import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.config.api.ModuleIdentifier;
 import org.opendaylight.protocol.bgp.benchmark.app.AppPeerBenchmark;
 
@@ -23,7 +24,7 @@ public class AppPeerBenchmarkModule extends AbstractAppPeerBenchmarkModule {
 
     @Override
     public void customValidation() {
-        // add custom validation form module attributes here.
+        JmxAttributeValidationException.checkNotNull(getAppRibId(), "value is not set.", appRibIdJmxAttribute);
     }
 
     @Override

@@ -102,6 +102,7 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
             final Throwable cause) {
         LOG.error("Broken chain {} in DatastoreBaAbstractWrite, transaction {}, cause {}", chain,
                 transaction.getIdentifier(), cause);
+        close();
     }
 
     @Override
@@ -166,10 +167,10 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
         LOG.info("BGP Application Peer Benchmark Application closed.");
     }
 
-    private long addRoute(final Ipv4Prefix ipv4Prefix, final Ipv4Address ipv4Address, final long count, final long batch) {
+    private long addRoute(final Ipv4Prefix ipv4Prefix, final Ipv4Address nextHop, final long count, final long batch) {
         final AttributesBuilder attributesBuilder = new AttributesBuilder();
         attributesBuilder.setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(
-                new Ipv4NextHopBuilder().setGlobal(new Ipv4Address(ipv4Address)).build()).build());
+                new Ipv4NextHopBuilder().setGlobal(new Ipv4Address(nextHop)).build()).build());
         attributesBuilder.setMultiExitDisc(MED);
         attributesBuilder.setLocalPref(LOC_PREF);
         attributesBuilder.setOrigin(ORIGIN);
