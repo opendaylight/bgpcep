@@ -123,9 +123,11 @@ abstract class BaseAbstractRouteEntry implements RouteEntry {
     @Override
     public void writeRoute(final PeerId destPeer, final PathArgument routeId, final YangInstanceIdentifier rootPath,
         final PeerExportGroup peerGroup, final TablesKey localTK, final RIBSupport ribSup, final DOMDataWriteTransaction tx) {
-        final BaseBestPath path = this.bestPath.get();
-        final ContainerNode effAttrib = peerGroup.effectiveAttributes(path.getPeerId(), path.getAttributes());
-        writeRoute(destPeer, getAdjRibOutYII(ribSup, rootPath, routeId, localTK), effAttrib, createValue(routeId, path), ribSup, tx);
+        if (this.bestPath.isPresent()) {
+            final BaseBestPath path = this.bestPath.get();
+            final ContainerNode effAttrib = peerGroup.effectiveAttributes(path.getPeerId(), path.getAttributes());
+            writeRoute(destPeer, getAdjRibOutYII(ribSup, rootPath, routeId, localTK), effAttrib, createValue(routeId, path), ribSup, tx);
+        }
     }
 
     private void removePathFromDataStore(final BestPath path, final PathArgument routeIdPA, final YangInstanceIdentifier locRibTarget,
