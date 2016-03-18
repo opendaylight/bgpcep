@@ -68,7 +68,7 @@ abstract class BaseAbstractRouteEntry implements RouteEntry {
      * @param offset of removed route
      * @return true if its the last route
      */
-    final boolean removeRoute(final UnsignedInteger routerId, final int offset) {
+    protected final boolean removeRoute(final UnsignedInteger routerId, final int offset) {
         this.values = this.offsets.removeValue(this.values, offset);
         this.offsets = this.offsets.without(routerId);
         return this.offsets.isEmty();
@@ -94,10 +94,9 @@ abstract class BaseAbstractRouteEntry implements RouteEntry {
         final boolean modified = !newBestPath.equals(this.bestPath);
         if (modified) {
             this.removedBestPath = this.bestPath;
+            LOG.trace("Previous best {}, current best {}, result {}", this.bestPath, newBestPath, modified);
+            this.bestPath = newBestPath;
         }
-
-        LOG.trace("Previous best {}, current best {}, result {}", this.bestPath, newBestPath, modified);
-        this.bestPath = newBestPath;
         return modified;
     }
 
@@ -123,9 +122,11 @@ abstract class BaseAbstractRouteEntry implements RouteEntry {
     @Override
     public void writeRoute(final PeerId destPeer, final PathArgument routeId, final YangInstanceIdentifier rootPath,
         final PeerExportGroup peerGroup, final TablesKey localTK, final RIBSupport ribSup, final DOMDataWriteTransaction tx) {
-        final BaseBestPath path = this.bestPath.get();
-        final ContainerNode effAttrib = peerGroup.effectiveAttributes(path.getPeerId(), path.getAttributes());
-        writeRoute(destPeer, getAdjRibOutYII(ribSup, rootPath, routeId, localTK), effAttrib, createValue(routeId, path), ribSup, tx);
+        if (this.bestPath.isPresent()) {
+            final BaseBestPath path = this.bestPath.get();
+            final ContainerNode effAttrib = peerGroup.effectiveAttributes(path.getPeerId(), path.getAttributes());
+            writeRoute(destPeer, getAdjRibOutYII(ribSup, rootPath, routeId, localTK), effAttrib, createValue(routeId, path), ribSup, tx);
+        }
     }
 
     private void removePathFromDataStore(final BestPath path, final PathArgument routeIdPA, final YangInstanceIdentifier locRibTarget,
@@ -172,7 +173,7 @@ abstract class BaseAbstractRouteEntry implements RouteEntry {
         return false;
     }
 
-    final OffsetMap getOffsets() {
+    protected final OffsetMap getOffsets() {
         return this.offsets;
     }
 

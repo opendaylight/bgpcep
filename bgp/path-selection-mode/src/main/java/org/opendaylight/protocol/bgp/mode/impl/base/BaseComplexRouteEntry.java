@@ -35,8 +35,7 @@ final class BaseComplexRouteEntry extends BaseAbstractRouteEntry {
     @Override
     public MapEntryNode createValue(final PathArgument routeId, final BestPath path) {
         final OffsetMap map = getOffsets();
-        final int offset = map.offsetOf(path.getRouterId());
-        return map.getValue(this.values, offset);
+        return map.getValue(this.values, map.offsetOf(path.getRouterId()));
     }
 
     @Override
