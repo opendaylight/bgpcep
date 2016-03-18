@@ -252,16 +252,16 @@ public final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
     public static List<LabelStack> extractLabel(final DataContainerNode<? extends PathArgument> route, final NodeIdentifier labelStackNid, final NodeIdentifier labelValueNid) {
         final List<LabelStack> labels = new ArrayList<>();
         final Optional<DataContainerChild<? extends PathArgument, ?>> labelStacks = route.getChild(labelStackNid);
-        final LabelStackBuilder labelStackbuilder = new LabelStackBuilder();
         if (labelStacks.isPresent()) {
             for(final UnkeyedListEntryNode label : ((UnkeyedListNode)labelStacks.get()).getValue()) {
                 final Optional<DataContainerChild<? extends PathArgument, ?>> labelStack = label.getChild(labelValueNid);
                 if (labelStack.isPresent()) {
+                    final LabelStackBuilder labelStackbuilder = new LabelStackBuilder();
                     labelStackbuilder.setLabelValue(new MplsLabel((Long) labelStack.get().getValue()));
+                    labels.add(labelStackbuilder.build());
                 }
             }
         }
-        labels.add(labelStackbuilder.build());
         return labels;
     }
 }
