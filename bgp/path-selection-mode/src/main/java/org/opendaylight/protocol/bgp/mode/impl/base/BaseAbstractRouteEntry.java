@@ -120,10 +120,12 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
     public void writeRoute(final PeerId destPeer, final PathArgument routeId, final YangInstanceIdentifier rootPath, final PeerExportGroup peerGroup,
         final TablesKey localTK, final ExportPolicyPeerTracker peerPT, final RIBSupport ribSup, final CacheDisconnectedPeers discPeers,
         final DOMDataWriteTransaction tx) {
-        final BaseBestPath path = this.bestPath.get();
-        if (filterRoutes(path.getPeerId(), destPeer, peerPT, localTK, discPeers)) {
-            final ContainerNode effAttrib = peerGroup.effectiveAttributes(path.getPeerId(), path.getAttributes());
-            writeRoute(destPeer, getAdjRibOutYII(ribSup, rootPath, routeId, localTK), effAttrib, createValue(routeId, path), ribSup, tx);
+        if (this.bestPath.isPresent()) {
+            final BaseBestPath path = this.bestPath.get();
+            if (filterRoutes(path.getPeerId(), destPeer, peerPT, localTK, discPeers)) {
+                final ContainerNode effAttrib = peerGroup.effectiveAttributes(path.getPeerId(), path.getAttributes());
+                writeRoute(destPeer, getAdjRibOutYII(ribSup, rootPath, routeId, localTK), effAttrib, createValue(routeId, path), ribSup, tx);
+            }
         }
     }
 
