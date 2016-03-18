@@ -619,12 +619,16 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
             b.setIsoSystemId(new IsoSystemId(systemId));
             b.setIsoPseudonodeId(new IsoPseudonodeId(BaseEncoding.base16().encode(new byte[] {pn.getPsn().byteValue()})));
             ab.setIso(b.build());
-            ab.setNet(toIsoNetIds(na.getIsisAreaId(), systemId));
+            if (na != null) {
+                ab.setNet(toIsoNetIds(na.getIsisAreaId(), systemId));
+            }
         } else if (ri instanceof IsisNodeCase) {
             final IsisNode in = ((IsisNodeCase) ri).getIsisNode();
             final String systemId = UriBuilder.isoId(in.getIsoSystemId());
             ab.setIso(new IsoBuilder().setIsoSystemId(new IsoSystemId(systemId)).build());
-            ab.setNet(toIsoNetIds(na.getIsisAreaId(), systemId));
+            if (na != null) {
+                ab.setNet(toIsoNetIds(na.getIsisAreaId(), systemId));
+            }
         }
 
         ab.setTed(tb.build());
