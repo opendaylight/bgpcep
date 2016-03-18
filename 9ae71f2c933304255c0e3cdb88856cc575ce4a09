@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a42497e_2d8d7932",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/EffectiveRibInWriter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-18T10:57:13Z",
+      "side": 1,
+      "message": "This save unnecessary repeated objects creation, because the base Yang Path Identifier is always the same, only table-key varies.",
+      "parentUuid": "7a42497e_8d200d9d",
+      "range": {
+        "startLine": 177,
+        "startChar": 24,
+        "endLine": 177,
+        "endChar": 36
+      },
+      "revId": "9ae71f2c933304255c0e3cdb88856cc575ce4a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a42497e_2d2bb983",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
         "patchSetId": 2
@@ -36,6 +60,24 @@
       "writtenOn": "2016-03-18T07:37:48Z",
       "side": 1,
       "message": "this.",
+      "revId": "9ae71f2c933304255c0e3cdb88856cc575ce4a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a42497e_8d82cdfe",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-18T10:57:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a42497e_2d2bb983",
       "revId": "9ae71f2c933304255c0e3cdb88856cc575ce4a09",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
