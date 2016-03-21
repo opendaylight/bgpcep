@@ -10,10 +10,10 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.opendaylight.protocol.bgp.mode.impl.base.BestPathSelectorTest.ATTRS_EXTENSION_Q;
-import static org.opendaylight.protocol.bgp.mode.impl.base.BestPathSelectorTest.SEGMENTS_NID;
-import static org.opendaylight.protocol.bgp.mode.impl.base.BestPathSelectorTest.SEQ_SEGMENT;
-import static org.opendaylight.protocol.bgp.mode.impl.base.BestPathSelectorTest.SET_SEGMENT;
+import static org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectorTest.ATTRS_EXTENSION_Q;
+import static org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectorTest.SEGMENTS_NID;
+import static org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectorTest.SEQ_SEGMENT;
+import static org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectorTest.SET_SEGMENT;
 
 import java.util.Collection;
 import java.util.Iterator;
