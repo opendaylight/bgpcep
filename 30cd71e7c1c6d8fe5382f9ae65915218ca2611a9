@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a42497e_65a155a9",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/LinkstateNlriParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-21T10:20:16Z",
+      "side": 1,
+      "message": "Returned value can be \"null\" - add handling for such case.",
+      "range": {
+        "startLine": 196,
+        "startChar": 17,
+        "endLine": 196,
+        "endChar": 25
+      },
+      "revId": "30cd71e7c1c6d8fe5382f9ae65915218ca2611a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a42497e_a5999d70",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/SimpleNlriTypeRegistry.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-21T10:20:16Z",
+      "side": 1,
+      "message": "Pleas format the code, to be consistent with a rest of the project.",
+      "revId": "30cd71e7c1c6d8fe5382f9ae65915218ca2611a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a42497e_25c46d3f",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/SimpleNlriTypeRegistry.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-21T10:20:16Z",
+      "side": 1,
+      "message": "Rather use:\nhttps://google-collections.googlecode.com/svn/trunk/javadoc/com/google/common/base/Preconditions.html#checkNotNull%28T,%20java.lang.String,%20java.lang.Object...%29\n\nwith error messages arguments.",
+      "range": {
+        "startLine": 83,
+        "startChar": 8,
+        "endLine": 83,
+        "endChar": 86
+      },
+      "revId": "30cd71e7c1c6d8fe5382f9ae65915218ca2611a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a42497e_a5b07dde",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/SimpleNlriTypeRegistry.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-21T10:20:16Z",
+      "side": 1,
+      "message": "Include unknown NLRI type value in the log message.",
+      "range": {
+        "startLine": 98,
+        "startChar": 12,
+        "endLine": 98,
+        "endChar": 43
+      },
+      "revId": "30cd71e7c1c6d8fe5382f9ae65915218ca2611a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
