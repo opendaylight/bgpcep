@@ -11,6 +11,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import org.opendaylight.bgp.concepts.NextHopUtil;
@@ -44,7 +46,7 @@ final class SimpleNlriRegistry implements NlriRegistry {
     private final ConcurrentMap<BgpTableType, NlriParser> handlers = new ConcurrentHashMap<>();
     private final ConcurrentMap<Class<? extends DataObject>, NlriSerializer> serializers = new ConcurrentHashMap<>();
     private final ConcurrentMap<BgpTableType, NextHopParserSerializer> nextHopParsers = new ConcurrentHashMap<>();
-    private final ConcurrentMap<Class<? extends CNextHop>, NextHopParserSerializer> nextHopSerializers = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Map<Class<? extends CNextHop>, BgpTableType>, NextHopParserSerializer> nextHopSerializers = new ConcurrentHashMap<>();
     private final SubsequentAddressFamilyRegistry safiReg;
     private final AddressFamilyRegistry afiReg;
 
@@ -54,7 +56,7 @@ final class SimpleNlriRegistry implements NlriRegistry {
     }
 
     private static BgpTableType createKey(final Class<? extends AddressFamily> afi,
-            final Class<? extends SubsequentAddressFamily> safi) {
+        final Class<? extends SubsequentAddressFamily> safi) {
         Preconditions.checkNotNull(afi);
         Preconditions.checkNotNull(safi);
         return new BgpTableTypeImpl(afi, safi);
@@ -79,9 +81,9 @@ final class SimpleNlriRegistry implements NlriRegistry {
     }
 
     synchronized AutoCloseable registerNlriParser(final Class<? extends AddressFamily> afi,
-                                                         final Class<? extends SubsequentAddressFamily> safi, final NlriParser parser,
-                                                         final NextHopParserSerializer nextHopSerializer, final Class<? extends CNextHop> cNextHopClass,
-                                                         final Class<? extends CNextHop>... cNextHopClassList) {
+        final Class<? extends SubsequentAddressFamily> safi, final NlriParser parser,
+        final NextHopParserSerializer nextHopSerializer, final Class<? extends CNextHop> cNextHopClass,
+        final Class<? extends CNextHop>... cNextHopClassList) {
         final BgpTableType key = createKey(afi, safi);
         final NlriParser prev = this.handlers.get(key);
         Preconditions.checkState(prev == null, "AFI/SAFI is already bound to parser " + prev);
@@ -90,9 +92,13 @@ final class SimpleNlriRegistry implements NlriRegistry {
         this.nextHopParsers.put(key,nextHopSerializer);
 
         if (cNextHopClass != null) {
-            this.nextHopSerializers.put(cNextHopClass, nextHopSerializer);
-            for (Class<? extends CNextHop> cNextHop : cNextHopClassList) {
-                this.nextHopSerializers.put(cNextHop, nextHopSerializer);
+            final Map nhKey = new HashMap();
+            nhKey.put(cNextHopClass, key);
+            this.nextHopSerializers.put(nhKey, nextHopSerializer);
+            for (final Class<? extends CNextHop> cNextHop : cNextHopClassList) {
+                final Map nhKeys = new HashMap();
+                nhKey.put(cNextHop, key);
+                this.nextHopSerializers.put(nhKeys, nextHopSerializer);
             }
         }
 
@@ -105,7 +111,7 @@ final class SimpleNlriRegistry implements NlriRegistry {
                     SimpleNlriRegistry.this.nextHopParsers.remove(key);
                     if (cNextHopClass != null) {
                         SimpleNlriRegistry.this.nextHopSerializers.remove(cNextHopClass);
-                        for (Class<? extends CNextHop> cNextHop : cNextHopClassList) {
+                        for (final Class<? extends CNextHop> cNextHop : cNextHopClassList) {
                             SimpleNlriRegistry.this.nextHopSerializers.remove(cNextHop);
                         }
                     }
