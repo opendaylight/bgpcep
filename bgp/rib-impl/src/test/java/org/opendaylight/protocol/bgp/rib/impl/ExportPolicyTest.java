@@ -9,12 +9,12 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.opendaylight.protocol.bgp.mode.impl.base.BestPathSelectorTest.AS_NUMBER_Q;
-import static org.opendaylight.protocol.bgp.mode.impl.base.BestPathSelectorTest.ATTRS_EXTENSION_Q;
-import static org.opendaylight.protocol.bgp.mode.impl.base.BestPathSelectorTest.SEGMENTS_NID;
-import static org.opendaylight.protocol.bgp.mode.impl.base.BestPathSelectorTest.SEQ_LEAFLIST_NID;
-import static org.opendaylight.protocol.bgp.mode.impl.base.BestPathSelectorTest.SEQ_SEGMENT;
-import static org.opendaylight.protocol.bgp.mode.impl.base.BestPathSelectorTest.SET_SEGMENT;
+import static org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectorTest.AS_NUMBER_Q;
+import static org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectorTest.ATTRS_EXTENSION_Q;
+import static org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectorTest.SEGMENTS_NID;
+import static org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectorTest.SEQ_LEAFLIST_NID;
+import static org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectorTest.SEQ_SEGMENT;
+import static org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectorTest.SET_SEGMENT;
 
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
