@@ -42,6 +42,29 @@
     },
     {
       "key": {
+        "uuid": "7a42497e_e52445c8",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/SimpleNlriTypeRegistry.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-21T12:08:56Z",
+      "side": 1,
+      "message": "Is it necessary to expose those two methods?",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 5
+      },
+      "revId": "30cd71e7c1c6d8fe5382f9ae65915218ca2611a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a42497e_25c46d3f",
         "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/SimpleNlriTypeRegistry.java",
         "patchSetId": 4
