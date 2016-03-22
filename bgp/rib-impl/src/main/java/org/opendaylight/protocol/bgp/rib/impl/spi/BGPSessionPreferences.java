@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
+import com.google.common.base.Optional;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -27,6 +28,8 @@ public final class BGPSessionPreferences {
 
     private final AsNumber remoteAs;
 
+    private final Optional<byte[]> md5Password;
+
     /**
      * Creates a new DTO for Open message.
      *
@@ -37,12 +40,13 @@ public final class BGPSessionPreferences {
      * @param params list of advertised parameters
      */
     public BGPSessionPreferences(final AsNumber as, final int hold, final Ipv4Address bgpId, final AsNumber remoteAs,
-        final List<BgpParameters> params) {
+        final List<BgpParameters> params, final Optional<byte[]> md5Password) {
         this.as = as;
         this.hold = hold;
         this.bgpId = bgpId;
         this.remoteAs = remoteAs;
         this.params = params;
+        this.md5Password = md5Password;
     }
 
     /**
@@ -88,5 +92,13 @@ public final class BGPSessionPreferences {
      */
     public List<BgpParameters> getParams() {
         return this.params;
+    }
+
+    /**
+     * Optionally returns peer's MD5 password.
+     * @return Encoded MD5 password.
+     */
+    public Optional<byte[]> getMd5Password() {
+        return this.md5Password;
     }
 }

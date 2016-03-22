@@ -19,6 +19,7 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
+import org.opendaylight.tcpmd5.api.KeyMapping;
 
 public class TestClientDispatcher {
 
@@ -31,7 +32,7 @@ public class TestClientDispatcher {
                                    final InetSocketAddress locaAddress) {
         this.disp = new BGPDispatcherImpl(messageRegistry, bossGroup, workerGroup) {
             @Override
-            protected Bootstrap createClientBootStrap() {
+            protected Bootstrap createClientBootStrap(final Optional<KeyMapping> keys) {
                 final Bootstrap bootstrap = new Bootstrap();
                 bootstrap.channel(NioSocketChannel.class);
                 // Make sure we are doing round-robin processing
