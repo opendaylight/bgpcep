@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a3f45e8_c325ca0b",
+        "filename": "bgp/rib-api/src/main/yang/bgp-rib-rpc.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-22T14:56:50Z",
+      "side": 1,
+      "message": "Related to the RIB in general.",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 5
+      },
+      "revId": "a3b789408363ee56ec70ab547b82213d5932768b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a3f45e8_4379bafb",
+        "filename": "bgp/rib-api/src/main/yang/bgp-rib-rpc.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-22T14:56:50Z",
+      "side": 1,
+      "message": "Rib is identified by the context reference.",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 9
+      },
+      "revId": "a3b789408363ee56ec70ab547b82213d5932768b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a3f45e8_e31c46c4",
+        "filename": "bgp/rib-api/src/main/yang/bgp-rib-rpc.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-22T14:56:50Z",
+      "side": 1,
+      "message": "The Output message might not be needed.",
+      "range": {
+        "startLine": 58,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 9
+      },
+      "revId": "a3b789408363ee56ec70ab547b82213d5932768b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
