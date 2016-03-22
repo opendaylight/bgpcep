@@ -252,7 +252,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     }
 
     @GuardedBy("this")
-    private void writeEpilogue(final ChannelFuture future, final Notification msg) {
+    private ChannelFuture writeEpilogue(final ChannelFuture future, final Notification msg) {
         future.addListener(
                 new ChannelFutureListener() {
                     @Override
@@ -271,6 +271,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         } else if (msg instanceof Notify) {
             this.sessionStats.updateSentMsgErr((Notify) msg);
         }
+        return future;
     }
 
     void flush() {
@@ -285,8 +286,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         }
     }
 
-    synchronized void writeAndFlush(final Notification msg) {
-        writeEpilogue(this.channel.writeAndFlush(msg), msg);
+    synchronized ChannelFuture writeAndFlush(final Notification msg) {
+        return writeEpilogue(this.channel.writeAndFlush(msg), msg);
     }
 
     private synchronized void closeWithoutMessage() {

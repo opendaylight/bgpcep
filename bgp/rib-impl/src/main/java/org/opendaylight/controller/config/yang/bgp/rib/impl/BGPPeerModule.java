@@ -134,9 +134,9 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         final BGPPeer bgpClientPeer;
         final IpAddress host = getNormalizedHost();
         if (getPeerRole() != null) {
-            bgpClientPeer = new BGPPeer(peerName(host), r, getPeerRole());
+            bgpClientPeer = new BGPPeer(peerName(host), r, getPeerRole(), getRpcRegistryDependency());
         } else {
-            bgpClientPeer = new BGPPeer(peerName(host), r, PeerRole.Ibgp);
+            bgpClientPeer = new BGPPeer(peerName(host), r, PeerRole.Ibgp, getRpcRegistryDependency());
         }
 
         bgpClientPeer.registerRootRuntimeBean(getRootRuntimeBeanRegistratorWrapper());
