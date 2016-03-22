@@ -8,19 +8,17 @@
 
 package org.opendaylight.protocol.bgp.testtool;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import java.net.InetSocketAddress;
 import java.util.Collections;
-import java.util.concurrent.ExecutionException;
 import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.slf4j.Logger;
@@ -35,10 +33,10 @@ final class BGPPeerBuilder {
     }
 
     static void createPeer(final BGPDispatcher dispatcher, final Arguments arguments, final InetSocketAddress localAddress,
-        final BGPSessionListener sessionListener, final BgpParameters bgpParameters) {
+            final BGPSessionListener sessionListener, final BgpParameters bgpParameters) {
         final AsNumber as = arguments.getAs();
         final BGPSessionPreferences proposal = new BGPSessionPreferences(as, arguments.getHoldTimer(), new BgpId(localAddress.getAddress().getHostAddress()),
-            as, Collections.singletonList(bgpParameters));
+                as, Collections.singletonList(bgpParameters), Optional.absent());
         final StrictBGPPeerRegistry strictBGPPeerRegistry = new StrictBGPPeerRegistry();
         if (arguments.getInitiateConnection()) {
             for (final InetSocketAddress remoteAddress : arguments.getRemoteAddresses()) {
@@ -55,11 +53,6 @@ final class BGPPeerBuilder {
     }
 
     private static <T> void addFutureListener(final InetSocketAddress localAddress, final Future<T> future) {
-        future.addListener(new GenericFutureListener<Future<T>>() {
-            @Override
-            public void operationComplete(final Future<T> future) throws ExecutionException, InterruptedException {
-                Preconditions.checkArgument(future.isSuccess(), "Unable to start bgp session on %s", localAddress, future.cause());
-            }
-        });
+        future.addListener(future1 -> Preconditions.checkArgument(future1.isSuccess(), "Unable to start bgp session on %s", localAddress, future1.cause()));
     }
 }

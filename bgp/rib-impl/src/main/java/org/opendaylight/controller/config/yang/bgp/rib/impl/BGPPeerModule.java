@@ -16,6 +16,7 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
@@ -43,7 +44,6 @@ import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.OptionalCapabilities;
@@ -69,13 +69,13 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeerModule.class);
 
     public BGPPeerModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-        final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
     public BGPPeerModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-        final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final BGPPeerModule oldModule,
-        final java.lang.AutoCloseable oldInstance) {
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final BGPPeerModule oldModule,
+            final java.lang.AutoCloseable oldInstance) {
 
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
@@ -85,14 +85,14 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         final IpAddress host = getHost();
         JmxAttributeValidationException.checkNotNull(host, "value is not set.", hostJmxAttribute);
         JmxAttributeValidationException.checkCondition(host.getIpv4Address() != null || host.getIpv6Address() != null,
-            "Unexpected host", hostJmxAttribute);
+                "Unexpected host", hostJmxAttribute);
 
         JmxAttributeValidationException.checkNotNull(getPort(), "value is not set.", portJmxAttribute);
 
         if (getPeerRole() != null) {
             final boolean isNotPeerRoleInternal= getPeerRole() != PeerRole.Internal;
             JmxAttributeValidationException.checkCondition(isNotPeerRoleInternal,
-                "Internal Peer Role is reserved for Application Peer use.", peerRoleJmxAttribute);
+                    "Internal Peer Role is reserved for Application Peer use.", peerRoleJmxAttribute);
         }
 
         if (getOptionalPassword(getPassword()).isPresent()) {
@@ -117,7 +117,8 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
         final List<BgpParameters> tlvs = getTlvs(r);
         final AsNumber remoteAs = getAsOrDefault(r);
-        final BGPSessionPreferences prefs = new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), remoteAs, tlvs);
+        final BGPSessionPreferences prefs = new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), remoteAs, tlvs,
+                getMD5Password(getPassword()));
         final BGPPeer bgpClientPeer;
         final IpAddress host = getNormalizedHost();
         if (getPeerRole() != null) {
@@ -133,24 +134,18 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         final BGPPeerModuleTracker moduleTracker = new BGPPeerModuleTracker(r.getOpenConfigProvider());
         moduleTracker.onInstanceCreate();
 
-        final CloseableNoEx peerCloseable = new CloseableNoEx() {
-            @Override
-            public void close() {
-                bgpClientPeer.close();
-                getPeerRegistryBackwards().removePeer(host);
-                moduleTracker.onInstanceClose();
-            }
+        final CloseableNoEx peerCloseable = () -> {
+            bgpClientPeer.close();
+            getPeerRegistryBackwards().removePeer(host);
+            moduleTracker.onInstanceClose();
         };
 
         // Initiate connection
         if(getInitiateConnection()) {
             final Future<Void> cf = initiateConnection(createAddress(), getOptionalPassword(getPassword()), getPeerRegistryBackwards());
-            return new CloseableNoEx() {
-                @Override
-                public void close() {
-                    cf.cancel(true);
-                    peerCloseable.close();
-                }
+            return () -> {
+                cf.cancel(true);
+                peerCloseable.close();
             };
         } else {
             return peerCloseable;
@@ -177,9 +172,9 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         final List<BgpParameters> tlvs = new ArrayList<>();
         final List<OptionalCapabilities> caps = new ArrayList<>();
         caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().setAs4BytesCapability(
-            new As4BytesCapabilityBuilder().setAsNumber(r.getLocalAs()).build()).build()).build());
+                new As4BytesCapabilityBuilder().setAsNumber(r.getLocalAs()).build()).build()).build());
         caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
-            new CParameters1Builder().setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build()).build()).build());
+                new CParameters1Builder().setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build()).build()).build());
 
         if (getRouteRefresh()) {
             caps.add(new OptionalCapabilitiesBuilder().setCParameters(MultiprotocolCapabilitiesUtil.RR_CAPABILITY).build());
@@ -188,7 +183,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         if (!getAddPathDependency().isEmpty()) {
             final List<AddressFamilies> addPathFamilies = filterAddPathDependency(getAddPathDependency());
             caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
-                new CParameters1Builder().setAddPathCapability(new AddPathCapabilityBuilder().setAddressFamilies(addPathFamilies).build()).build()).build()).build());
+                    new CParameters1Builder().setAddPathCapability(new AddPathCapabilityBuilder().setAddressFamilies(addPathFamilies).build()).build()).build()).build());
         }
 
         for (final BgpTableType t : getAdvertizedTableDependency()) {
@@ -197,7 +192,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
             }
 
             caps.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
-                new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder(t).build()).build()).build()).build());
+                    new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder(t).build()).build()).build()).build());
         }
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(caps).build());
         return tlvs;
@@ -225,7 +220,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
     }
 
     private io.netty.util.concurrent.Future<Void> initiateConnection(final InetSocketAddress address, final Optional<Rfc2385Key> password, final BGPPeerRegistry registry) {
-        KeyMapping keys = KeyMapping.getKeyMapping(address.getAddress(), password);
+        final KeyMapping keys = KeyMapping.getKeyMapping(address.getAddress(), password);
         final RIB rib = getRibDependency();
         final Optional<KeyMapping> optionalKey = Optional.fromNullable(keys);
         return rib.getDispatcher().createReconnectingClient(address, registry, getRetrytimer(), optionalKey);
@@ -259,9 +254,9 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
             }
             final InstanceConfigurationIdentifier identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
             this.bgpPeerInstanceConfiguration = new BGPPeerInstanceConfiguration(identifier, getNormalizedHost(),
-                        getPort(), getHoldtimer(), getPeerRole(), getInitiateConnection(),
-                        getAdvertizedTableDependency(), getAsOrDefault(getRibDependency()),
-                        getOptionalPassword(getPassword()), getAddPathDependency());
+                    getPort(), getHoldtimer(), getPeerRole(), getInitiateConnection(),
+                    getAdvertizedTableDependency(), getAsOrDefault(getRibDependency()),
+                    getOptionalPassword(getPassword()), getAddPathDependency());
         }
 
         @Override
@@ -280,8 +275,12 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
     }
 
-    private Optional<Rfc2385Key> getOptionalPassword(final Rfc2385Key password) {
+    private static Optional<Rfc2385Key> getOptionalPassword(final Rfc2385Key password) {
         return password != null && ! password.getValue().isEmpty() ? Optional.of(password) : Optional.<Rfc2385Key>absent();
+    }
+
+    private static Optional<byte[]> getMD5Password(final Rfc2385Key password) {
+        return getOptionalPassword(password).isPresent() ? Optional.of(password.getValue().getBytes(Charsets.US_ASCII)) : Optional.absent();
     }
 
 }

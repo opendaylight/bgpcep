@@ -12,6 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import java.net.InetSocketAddress;
 import java.util.Collections;
@@ -50,16 +51,17 @@ public class StrictBGPPeerRegistryTest {
 
     private Open createOpen(final Ipv4Address bgpId, final AsNumber as) {
         final List<BgpParameters> params = Lists.newArrayList(new BgpParametersBuilder()
-            .setOptionalCapabilities(Lists.newArrayList(new OptionalCapabilitiesBuilder()
-                .setCParameters(new CParametersBuilder()
-                    .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(as).build()).build()).build())).build());
+        .setOptionalCapabilities(Lists.newArrayList(new OptionalCapabilitiesBuilder()
+        .setCParameters(new CParametersBuilder()
+        .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(as).build()).build()).build())).build());
         return new OpenBuilder().setBgpIdentifier(bgpId).setBgpParameters(params).build();
     }
 
     @Before
     public void setUp() throws Exception {
         this.peerRegistry = new StrictBGPPeerRegistry();
-        this.mockPreferences =  new BGPSessionPreferences(LOCAL_AS, 1, new BgpId("0.0.0.1"), LOCAL_AS, Collections.<BgpParameters> emptyList());
+        this.mockPreferences =  new BGPSessionPreferences(LOCAL_AS, 1, new BgpId("0.0.0.1"), LOCAL_AS, Collections.<BgpParameters> emptyList(),
+                Optional.<byte[]>absent());
     }
 
     private static BGPSessionListener getMockSession() {

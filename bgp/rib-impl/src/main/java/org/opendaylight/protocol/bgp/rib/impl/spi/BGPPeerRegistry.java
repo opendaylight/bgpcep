@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
+import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -72,5 +73,15 @@ public interface BGPPeerRegistry extends AutoCloseable {
      * @throws java.lang.IllegalStateException if there is no peer configured for provided ip address
      */
     BGPSessionPreferences getPeerPreferences(IpAddress ip);
+
+    /**
+     * Register PeerRegistryListener, which listens to the changes in peer
+     * registry (add peer, remove peer). After registration, an initial
+     * drop is provided by calling onPeerAdded().
+     *
+     * @param listener The PeerRegistryListener to be registered.
+     * @return Registration ticked, used for closing of registration.
+     */
+    @Nonnull AutoCloseable registerPeerRegisterListener(@Nonnull PeerRegistryListener listener);
 
 }

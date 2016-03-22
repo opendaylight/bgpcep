@@ -19,7 +19,6 @@ import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -97,12 +96,7 @@ public class BGPDispatcherImplTest {
         this.registry.addPeer(new IpAddress(new Ipv4Address(serverAddress.getAddress().getHostAddress())), this.serverListener, createPreferences(serverAddress));
         LoggerFactory.getLogger(BGPDispatcherImplTest.class).info("createServer");
         final ChannelFuture future = this.serverDispatcher.createServer(this.registry, serverAddress);
-        future.addListener(new GenericFutureListener<Future<Void>>() {
-            @Override
-            public void operationComplete(final Future<Void> future) {
-                Preconditions.checkArgument(future.isSuccess(), "Unable to start bgp server on %s", future.cause());
-            }
-        });
+        future.addListener(future1 -> Preconditions.checkArgument(future1.isSuccess(), "Unable to start bgp server on %s", future1.cause()));
         return future.channel();
     }
 
@@ -149,13 +143,13 @@ public class BGPDispatcherImplTest {
         final List<BgpParameters> tlvs = Lists.newArrayList();
         final List<OptionalCapabilities> capas = Lists.newArrayList();
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(
-            CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                CParameters1.class, new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
                 .setAfi(IPV_4_TT.getAfi()).setSafi(IPV_4_TT.getSafi()).build()).build())
-            .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(30L)).build())
-            .build()).build());
+                .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(30L)).build())
+                .build()).build());
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
-        return new BGPSessionPreferences(AS_NUMBER, (short) 4, new BgpId(socketAddress.getAddress().getHostAddress()), AS_NUMBER, tlvs);
+        return new BGPSessionPreferences(AS_NUMBER, (short) 4, new BgpId(socketAddress.getAddress().getHostAddress()), AS_NUMBER, tlvs, Optional.absent());
     }
 
 }

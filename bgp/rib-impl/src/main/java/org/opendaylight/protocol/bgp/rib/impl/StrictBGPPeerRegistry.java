@@ -21,8 +21,11 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
@@ -31,6 +34,7 @@ import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.As4CapabilityHandler;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
+import org.opendaylight.protocol.bgp.rib.impl.spi.PeerRegistryListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
@@ -42,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapability;
+import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +69,8 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     private final Map<IpAddress, BGPSessionId> sessionIds = Maps.newHashMap();
     @GuardedBy("this")
     private final Map<IpAddress, BGPSessionPreferences> peerPreferences = Maps.newHashMap();
+    @GuardedBy("this")
+    private final Set<PeerRegistryListener> listeners = new HashSet<>();
 
     public static BGPPeerRegistry instance() {
         return GLOBAL;
@@ -79,12 +86,18 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         Preconditions.checkNotNull(preferences.getParams());
         Preconditions.checkNotNull(preferences.getBgpId());
         this.peerPreferences.put(ip, preferences);
+        for (final PeerRegistryListener peerRegistryListener : this.listeners) {
+            peerRegistryListener.onPeerAdded(ip, preferences);
+        }
     }
 
     @Override
     public synchronized void removePeer(final IpAddress ip) {
         Preconditions.checkNotNull(ip);
         this.peers.remove(ip);
+        for (final PeerRegistryListener peerRegistryListener : this.listeners) {
+            peerRegistryListener.onPeerRemoved(ip);
+        }
     }
 
     @Override
@@ -322,5 +335,21 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
                 .add("to", this.to)
                 .toString();
         }
+    }
+
+    @Override
+    public synchronized AutoCloseable registerPeerRegisterListener(final PeerRegistryListener listener) {
+        this.listeners.add(listener);
+        for (final Entry<IpAddress, BGPSessionPreferences> entry : this.peerPreferences.entrySet()) {
+            listener.onPeerAdded(entry.getKey(), entry.getValue());
+        }
+        return new AbstractRegistration() {
+            @Override
+            protected void removeRegistration() {
+                synchronized (StrictBGPPeerRegistry.this) {
+                    StrictBGPPeerRegistry.this.listeners.remove(listener);
+                }
+            }
+        };
     }
 }
