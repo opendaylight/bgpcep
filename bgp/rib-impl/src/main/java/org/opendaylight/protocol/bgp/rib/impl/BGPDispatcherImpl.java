@@ -56,7 +56,6 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     private final BGPHandlerFactory handlerFactory;
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
-    private Optional<KeyMapping> keys;
 
     public BGPDispatcherImpl(final MessageRegistry messageRegistry, final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
         this(messageRegistry, bossGroup, workerGroup, null, null);
@@ -68,7 +67,6 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         this.handlerFactory = new BGPHandlerFactory(messageRegistry);
         this.channelFactory = cf;
         this.serverChannelFactory = scf;
-        this.keys = Optional.absent();
     }
 
     @Override
@@ -76,7 +74,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(listener);
         final ChannelPipelineInitializer initializer = BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.handlerFactory, snf);
 
-        final Bootstrap bootstrap = createClientBootStrap();
+        final Bootstrap bootstrap = createClientBootStrap(Optional.<KeyMapping>absent());
         final BGPProtocolSessionPromise sessionPromise = new BGPProtocolSessionPromise(address, strategy, bootstrap);
         bootstrap.handler(BGPChannel.createClientChannelHandler(initializer, sessionPromise));
         sessionPromise.connect();
@@ -84,14 +82,14 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         return sessionPromise;
     }
 
-    protected Bootstrap createClientBootStrap() {
+    protected Bootstrap createClientBootStrap(final Optional<KeyMapping> keys) {
         final Bootstrap bootstrap = new Bootstrap();
-        if (this.keys.isPresent()) {
+        if (keys.isPresent()) {
             if (this.channelFactory == null) {
                 throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
             }
             bootstrap.channelFactory(this.channelFactory);
-            bootstrap.option(MD5ChannelOption.TCP_MD5SIG, this.keys.get());
+            bootstrap.option(MD5ChannelOption.TCP_MD5SIG, keys.get());
         } else {
             bootstrap.channel(NioSocketChannel.class);
         }
@@ -117,12 +115,10 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     public synchronized Future<Void> createReconnectingClient(final InetSocketAddress address, final BGPPeerRegistry peerRegistry,
         final ReconnectStrategyFactory connectStrategyFactory, final Optional<KeyMapping> keys) {
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(peerRegistry);
-        this.keys = keys;
-        final Bootstrap bootstrap = createClientBootStrap();
+        final Bootstrap bootstrap = createClientBootStrap(keys);
         final BGPReconnectPromise reconnectPromise = new BGPReconnectPromise(GlobalEventExecutor.INSTANCE, address,
             connectStrategyFactory, bootstrap, BGPChannel.createChannelPipelineInitializer(BGPDispatcherImpl.this.handlerFactory, snf));
         reconnectPromise.connect();
-        this.keys = Optional.absent();
         return reconnectPromise;
     }
 
@@ -138,6 +134,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
 
     private ServerBootstrap createServerBootstrap(final ChannelPipelineInitializer initializer) {
         final ServerBootstrap serverBootstrap = new ServerBootstrap();
+        final boolean md5Supported = this.serverChannelFactory != null;
         final ChannelHandler serverChannelHandler = BGPChannel.createServerChannelHandler(initializer);
         serverBootstrap.childHandler(serverChannelHandler);
 
@@ -145,12 +142,8 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         serverBootstrap.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
         serverBootstrap.childOption(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, HIGH_WATER_MARK);
         serverBootstrap.childOption(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, LOW_WATER_MARK);
-        if (this.keys.isPresent()) {
-            if (this.serverChannelFactory == null) {
-                throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
-            }
+        if (md5Supported) {
             serverBootstrap.channelFactory(this.serverChannelFactory);
-            serverBootstrap.option(MD5ChannelOption.TCP_MD5SIG, this.keys.get());
         } else {
             serverBootstrap.channel(NioServerSocketChannel.class);
         }

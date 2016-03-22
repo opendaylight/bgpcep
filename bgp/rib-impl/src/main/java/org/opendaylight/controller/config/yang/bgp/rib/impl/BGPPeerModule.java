@@ -124,7 +124,8 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
         final List<BgpParameters> tlvs = getTlvs(r);
         final AsNumber remoteAs = getAsOrDefault(r);
-        final BGPSessionPreferences prefs = new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), remoteAs, tlvs);
+        final BGPSessionPreferences prefs = new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), remoteAs, tlvs,
+                getMD5Password(getPassword()));
         final BGPPeer bgpClientPeer;
         final IpAddress host = getNormalizedHost();
         if (getPeerRole() != null) {
@@ -271,6 +272,10 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
     private Optional<Rfc2385Key> getOptionaPassword(final Rfc2385Key password) {
         return password != null && ! password.getValue().isEmpty() ? Optional.of(password) : Optional.<Rfc2385Key>absent();
+    }
+
+    private static Optional<byte[]> getMD5Password(final Rfc2385Key password) {
+        return password != null && ! password.getValue().isEmpty() ? Optional.of(password.getValue().getBytes(Charsets.US_ASCII)) : Optional.<byte[]>absent();
     }
 
 }

@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.testtool;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -22,6 +23,7 @@ import org.opendaylight.protocol.bgp.rib.impl.BGPServerSessionNegotiatorFactory;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
+import org.opendaylight.protocol.bgp.rib.impl.spi.PeerRegistryListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -71,7 +73,8 @@ public class BGPSpeakerMock {
                 final BgpParameters bgpParameters = Main.createBgpParameters(Lists.newArrayList(
                         Main.createMPCapability(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class),
                         Main.createMPCapability(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class)));
-                return new BGPSessionPreferences(new AsNumber(72L), (short) 90, new Ipv4Address("127.0.0.2"), new AsNumber(72L), Collections.singletonList(bgpParameters));
+                return new BGPSessionPreferences(new AsNumber(72L), (short) 90, new Ipv4Address("127.0.0.2"), new AsNumber(72L),
+                        Collections.singletonList(bgpParameters), Optional.<byte[]>absent());
             }
 
             @Override
@@ -81,6 +84,11 @@ public class BGPSpeakerMock {
 
             @Override
             public void removePeerSession(final IpAddress ip) {
+            }
+
+            @Override
+            public AutoCloseable registerPeerRegisterListener(final PeerRegistryListener listener) {
+                return null;
             }
         };
     }

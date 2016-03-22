@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.testtool;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
@@ -111,7 +112,7 @@ public final class Main {
                 createMPCapability(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class)));
 
         final BGPSessionPreferences proposal = new BGPSessionPreferences(as, holdTimerValue, new Ipv4Address("25.25.25.2"), as,
-                Collections.singletonList(bgpParameters));
+                Collections.singletonList(bgpParameters), Optional.<byte[]>absent());
 
         LOG.debug("{} {} {}", address, sessionListener, proposal);
 
