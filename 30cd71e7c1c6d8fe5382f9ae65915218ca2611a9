@@ -42,6 +42,23 @@
     },
     {
       "key": {
+        "uuid": "5a3f45e8_e08c3c82",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/SimpleNlriTypeRegistry.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-22T07:01:01Z",
+      "side": 1,
+      "message": "no space",
+      "revId": "30cd71e7c1c6d8fe5382f9ae65915218ca2611a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a42497e_e52445c8",
         "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/SimpleNlriTypeRegistry.java",
         "patchSetId": 4
@@ -81,6 +98,75 @@
         "startChar": 8,
         "endLine": 83,
         "endChar": 86
+      },
+      "revId": "30cd71e7c1c6d8fe5382f9ae65915218ca2611a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a3f45e8_a092349d",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/SimpleNlriTypeRegistry.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-22T07:01:01Z",
+      "side": 1,
+      "message": "no space",
+      "range": {
+        "startLine": 90,
+        "startChar": 37,
+        "endLine": 90,
+        "endChar": 38
+      },
+      "revId": "30cd71e7c1c6d8fe5382f9ae65915218ca2611a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a3f45e8_00904894",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/SimpleNlriTypeRegistry.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-22T07:01:01Z",
+      "side": 1,
+      "message": "Use \"final\" whenever possible.",
+      "range": {
+        "startLine": 90,
+        "startChar": 39,
+        "endLine": 90,
+        "endChar": 72
+      },
+      "revId": "30cd71e7c1c6d8fe5382f9ae65915218ca2611a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a3f45e8_40e9b019",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/SimpleNlriTypeRegistry.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-22T07:01:01Z",
+      "side": 1,
+      "message": "no space here",
+      "range": {
+        "startLine": 97,
+        "startChar": 12,
+        "endLine": 97,
+        "endChar": 13
       },
       "revId": "30cd71e7c1c6d8fe5382f9ae65915218ca2611a9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
