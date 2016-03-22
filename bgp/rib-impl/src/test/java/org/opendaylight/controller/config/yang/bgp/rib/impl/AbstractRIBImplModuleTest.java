@@ -9,7 +9,6 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
@@ -44,8 +43,14 @@ import org.opendaylight.controller.config.yang.bgp.rib.spi.RIBExtensionsImplModu
 import org.opendaylight.controller.config.yang.bgp.rib.spi.RIBExtensionsImplModuleMXBean;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.BindingAsyncDataBrokerImplModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.BindingAsyncDataBrokerImplModuleMXBean;
+import org.opendaylight.controller.config.yang.md.sal.binding.impl.BindingBrokerImplModuleFactory;
+import org.opendaylight.controller.config.yang.md.sal.binding.impl.BindingBrokerImplModuleMXBean;
+import org.opendaylight.controller.config.yang.md.sal.binding.impl.ForwardedCompatibleDataBrokerImplModuleFactory;
+import org.opendaylight.controller.config.yang.md.sal.binding.impl.ForwardedCompatibleDataBrokerImplModuleMXBean;
+import org.opendaylight.controller.config.yang.md.sal.binding.impl.NotificationBrokerImplModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.RuntimeMappingModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomBrokerImplModuleFactory;
+import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomBrokerImplModuleMXBean;
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomInmemoryDataBrokerModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomInmemoryDataBrokerModuleMXBean;
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.SchemaServiceImplSingletonModuleFactory;
@@ -92,6 +97,9 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     private static final String DOM_BROKER_INSTANCE_NAME = "dom-broker-impl";
     private static final String BINDING_ASYNC_BROKER_INSTANCE_NAME = "binding-async-broker-instance";
     private static final String DOM_ASYNC_DATA_BROKER_INSTANCE = "dom-inmemory-data-broker";
+    private static final String BINDING_BROKER_INSTANCE_NAME = "binding-broker-impl";
+    private static final String COMPATIBLE_DATA_BROKER_INSTANCE_NAME = "binding-data-compatible-broker-instance";
+    private static final String NOTIFICATION_BROKER_INSTANCE_NAME = "notification-broker-impl";
 
     @Mock
     private ReadWriteTransaction mockedTransaction;
@@ -323,5 +331,56 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         Assert.assertEquals("Some files were not found", Collections.<String> emptyList(), failedToFind);
 
         return resources;
+    }
+
+    public ObjectName createBindingBrokerImpl(final ConfigTransactionJMXClient transaction, final ObjectName dataBrokerON,
+        final ObjectName notificationBrokerON) throws Exception {
+        final ObjectName objectName = transaction.createModule(BindingBrokerImplModuleFactory.NAME, BINDING_BROKER_INSTANCE_NAME);
+        final BindingBrokerImplModuleMXBean mxBean = transaction.newMXBeanProxy(objectName, BindingBrokerImplModuleMXBean.class);
+        mxBean.setDataBroker(dataBrokerON);
+        mxBean.setNotificationService(notificationBrokerON);
+        mxBean.setBindingMappingService(lookupMappingServiceInstance(transaction));
+        mxBean.setDomAsyncBroker(lookupDomBrokerInstance(transaction));
+        return objectName;
+    }
+
+    public static ObjectName lookupDomBrokerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
+        try {
+            return transaction.lookupConfigBean(DomBrokerImplModuleFactory.NAME, DOM_BROKER_INSTANCE_NAME);
+        } catch (final InstanceNotFoundException e) {
+            try {
+                final ObjectName nameCreated = transaction.createModule(DomBrokerImplModuleFactory.NAME, DOM_BROKER_INSTANCE_NAME);
+                final DomBrokerImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, DomBrokerImplModuleMXBean.class);
+                mxBean.setAsyncDataBroker(lookupDomAsyncDataBroker(transaction));
+                return nameCreated;
+            } catch (final InstanceAlreadyExistsException e1) {
+                throw new IllegalStateException(e1);
+            }
+        }
+    }
+
+    public ObjectName createCompatibleDataBrokerInstance(final ConfigTransactionJMXClient transaction)
+        throws InstanceAlreadyExistsException, InstanceNotFoundException {
+        final ObjectName nameCreated = transaction.createModule(ForwardedCompatibleDataBrokerImplModuleFactory.NAME, COMPATIBLE_DATA_BROKER_INSTANCE_NAME);
+        final ForwardedCompatibleDataBrokerImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, ForwardedCompatibleDataBrokerImplModuleMXBean.class);
+        mxBean.setDataBroker(lookupDataBrokerInstance(transaction));
+        return nameCreated;
+    }
+
+    private static ObjectName lookupDataBrokerInstance(final ConfigTransactionJMXClient transaction) {
+        try {
+            return transaction.lookupConfigBean(BindingAsyncDataBrokerImplModuleFactory.NAME, BINDING_ASYNC_BROKER_INSTANCE_NAME);
+        } catch (final InstanceNotFoundException e) {
+            try {
+                return transaction.createModule(RuntimeMappingModuleFactory.NAME, RuntimeMappingModuleFactory.SINGLETON_NAME);
+            } catch (final InstanceAlreadyExistsException e1) {
+                throw new IllegalStateException(e1);
+            }
+        }
+    }
+
+    public ObjectName createNotificationBrokerInstance(final ConfigTransactionJMXClient transaction) throws Exception {
+        final ObjectName objectName = transaction.createModule(NotificationBrokerImplModuleFactory.NAME, NOTIFICATION_BROKER_INSTANCE_NAME);
+        return objectName;
     }
 }

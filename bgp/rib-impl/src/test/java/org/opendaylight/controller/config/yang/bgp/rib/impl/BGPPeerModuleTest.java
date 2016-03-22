@@ -160,6 +160,9 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         mxBean.setPort(port);
         mxBean.setAdvertizedTable(Collections.<ObjectName>emptyList());
         mxBean.setRouteRefresh(false);
+        final ObjectName notificationBrokerON = createNotificationBrokerInstance(transaction);
+        final ObjectName bindingBrokerON = createBindingBrokerImpl(transaction, createCompatibleDataBrokerInstance(transaction), notificationBrokerON);
+        mxBean.setRpcRegistry(bindingBrokerON);
         {
             final ObjectName ribON = createRIBImplModuleInstance(transaction);
             mxBean.setRib(ribON);
