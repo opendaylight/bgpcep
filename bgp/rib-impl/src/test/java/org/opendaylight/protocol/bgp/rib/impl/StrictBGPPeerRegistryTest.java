@@ -11,6 +11,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
+
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import java.net.InetSocketAddress;
 import java.util.Collections;
@@ -57,7 +59,8 @@ public class StrictBGPPeerRegistryTest {
     @Before
     public void setUp() throws Exception {
         this.peerRegistry = new StrictBGPPeerRegistry();
-        this.mockPreferences =  new BGPSessionPreferences(LOCAL_AS, 1, new Ipv4Address("0.0.0.1"), LOCAL_AS, Collections.<BgpParameters> emptyList());
+        this.mockPreferences =  new BGPSessionPreferences(LOCAL_AS, 1, new Ipv4Address("0.0.0.1"), LOCAL_AS, Collections.<BgpParameters> emptyList(),
+                Optional.<byte[]>absent());
     }
 
     private static BGPSessionListener getMockSession() {
