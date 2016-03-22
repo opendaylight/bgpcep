@@ -108,9 +108,11 @@ final class SimpleNlriRegistry implements NlriRegistry {
                     SimpleNlriRegistry.this.handlers.remove(key);
                     SimpleNlriRegistry.this.nextHopParsers.remove(key);
                     if (cNextHopClass != null) {
-                        SimpleNlriRegistry.this.nextHopSerializers.remove(cNextHopClass);
+                        final Map.Entry<Class<? extends CNextHop>, BgpTableType> nhKey = new AbstractMap.SimpleEntry(cNextHopClass, key);
+                        SimpleNlriRegistry.this.nextHopSerializers.remove(nhKey);
                         for (final Class<? extends CNextHop> cNextHop : cNextHopClassList) {
-                            SimpleNlriRegistry.this.nextHopSerializers.remove(cNextHop);
+                            final Map.Entry<Class<? extends CNextHop>, BgpTableType> nhKeys = new AbstractMap.SimpleEntry(cNextHop, key);
+                            SimpleNlriRegistry.this.nextHopSerializers.remove(nhKeys);
                         }
                     }
                 }
