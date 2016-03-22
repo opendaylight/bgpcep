@@ -30,6 +30,8 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RoutedRpcRegistration;
+import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionStatistics;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
@@ -60,6 +62,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rpc.rev160322.BgpRibRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rpc.rev160322.PeerContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
@@ -93,16 +97,19 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     private BGPPeerRuntimeRegistration runtimeReg;
     private long sessionEstablishedCounter = 0L;
     private final Map<TablesKey, AdjRibOutListener> adjRibOutListenerSet = new HashMap();
+    private BgpRibRpc rrRpc;
+    RpcProviderRegistry rpcRegistry;
 
     public BGPPeer(final String name, final RIB rib) {
-        this(name, rib, PeerRole.Ibgp);
+        this(name, rib, PeerRole.Ibgp, null); // TODO null?
     }
 
-    public BGPPeer(final String name, final RIB rib, final PeerRole role) {
+    public BGPPeer(final String name, final RIB rib, final PeerRole role, final RpcProviderRegistry rpcRegistry) {
         this.rib = Preconditions.checkNotNull(rib);
         this.name = name;
         this.chain = rib.createPeerChain(this);
         this.ribWriter = AdjRibInWriter.create(rib.getYangRibId(), role, this.chain);
+        this.rpcRegistry = rpcRegistry;
     }
 
     @Override
@@ -225,6 +232,8 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         LOG.info("Session with peer {} went up with tables {} and Add Path tables {}", this.name, addPathTablesType,
             session.getAdvertisedAddPathTableTypes());
         this.session = session;
+        final RoutedRpcRegistration<BgpRibRpcService> element = this.rpcRegistry.addRoutedRpcImplementation(BgpRibRpcService.class, new BgpRibRpc(session));
+        element.registerPath(PeerContext.class, path); // TODO path?
         this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
         final PeerId peerId = RouterIds.createPeerId(session.getBgpId());
         createAdjRibOutListener(peerId);
@@ -309,6 +318,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
 
     @Override
     public void releaseConnection() {
+        // TODO rrRpc close registration
         addPeerToDisconnectedSharedList();
         cleanup();
         dropConnection();
