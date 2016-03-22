@@ -79,7 +79,7 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
         final RIB r = getTargetRibDependency();
 
         final IpAddress bgpPeerId = new IpAddress(getBgpPeerId());
-        final BGPPeer bgpClientPeer = new BGPPeer(bgpPeerId.getIpv4Address().getValue(), r, PeerRole.Internal);
+        final BGPPeer bgpClientPeer = new BGPPeer(bgpPeerId.getIpv4Address().getValue(), r, PeerRole.Internal, null);
 
         final BGPSessionPreferences prefs = new BGPSessionPreferences(r.getLocalAs(), 0, r.getBgpIdentifier(),
             r.getLocalAs(), Collections.emptyList());
@@ -105,26 +105,26 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
 
         public AppPeerModuleTracker(final Optional<BGPOpenConfigProvider> openConfigProvider) {
             if (openConfigProvider.isPresent()) {
-                appProvider = openConfigProvider.get().getOpenConfigMapper(BGPAppPeerInstanceConfiguration.class);
+                this.appProvider = openConfigProvider.get().getOpenConfigMapper(BGPAppPeerInstanceConfiguration.class);
             } else {
-                appProvider = null;
+                this.appProvider = null;
             }
             final InstanceConfigurationIdentifier identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
-            bgpAppPeerInstanceConfiguration = new BGPAppPeerInstanceConfiguration(identifier, getApplicationRibId().getValue(),
+            this.bgpAppPeerInstanceConfiguration = new BGPAppPeerInstanceConfiguration(identifier, getApplicationRibId().getValue(),
                     Rev130715Util.getIpv4Address(getBgpPeerId()));
         }
 
         @Override
         public void onInstanceCreate() {
-            if (appProvider != null) {
-                appProvider.writeConfiguration(this.bgpAppPeerInstanceConfiguration);
+            if (this.appProvider != null) {
+                this.appProvider.writeConfiguration(this.bgpAppPeerInstanceConfiguration);
             }
         }
 
         @Override
         public void onInstanceClose() {
-            if (appProvider != null) {
-                appProvider.removeConfiguration(this.bgpAppPeerInstanceConfiguration);
+            if (this.appProvider != null) {
+                this.appProvider.removeConfiguration(this.bgpAppPeerInstanceConfiguration);
             }
         }
 

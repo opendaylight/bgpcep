@@ -98,7 +98,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
     public void testCreateBean() throws Exception {
         final CommitStatus status = createBgpPeerInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 17, 0, 0);
+        assertStatus(status, 21, 0, 0);
     }
 
     @Test
@@ -106,7 +106,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         NativeTestSupport.assumeSupportedPlatform();
         final CommitStatus status = createBgpPeerInstance(true);
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 19, 0, 0);
+        assertStatus(status, 23, 0, 0);
     }
 
     @Test
@@ -134,7 +134,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         assertBeanCount(1, FACTORY_NAME);
         status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 17);
+        assertStatus(status, 0, 0, 21);
     }
 
     @Test
@@ -147,7 +147,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         mxBean.setPort(new PortNumber(10));
         status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, 16);
+        assertStatus(status, 0, 1, 20);
     }
 
     private ObjectName createBgpPeerInstance(final ConfigTransactionJMXClient transaction, final IpAddress host,
@@ -187,6 +187,10 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         mxBean.setAdvertizedTable(Lists.newArrayList(BGPTableTypeImplModuleTest.createTableInstance(transaction,
             new IdentityAttributeRef(Ipv4AddressFamily.QNAME.toString()),
             new IdentityAttributeRef(MplsLabeledVpnSubsequentAddressFamily.QNAME.toString()))));
+
+        final ObjectName notificationBrokerON = createNotificationBrokerInstance(transaction);
+        final ObjectName bindingBrokerON = createBindingBrokerImpl(transaction, createCompatibleDataBrokerInstance(transaction), notificationBrokerON);
+        mxBean.setRpcRegistry(bindingBrokerON);
         return nameCreated;
     }
 
