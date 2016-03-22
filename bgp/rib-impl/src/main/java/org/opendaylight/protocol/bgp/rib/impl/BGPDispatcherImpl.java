@@ -17,6 +17,10 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollChannelOption;
+import io.netty.channel.epoll.EpollServerSocketChannel;
+import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -86,14 +90,22 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
 
     protected Bootstrap createClientBootStrap() {
         final Bootstrap bootstrap = new Bootstrap();
-        if (this.keys.isPresent()) {
-            if (this.channelFactory == null) {
-                throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
+        if(Epoll.isAvailable()){
+            bootstrap.channel(EpollSocketChannel.class);
+            if (this.keys.isPresent()) {
+                bootstrap.option(EpollChannelOption.TCP_MD5SIG, this.keys.get());
             }
-            bootstrap.channelFactory(this.channelFactory);
-            bootstrap.option(MD5ChannelOption.TCP_MD5SIG, this.keys.get());
-        } else {
-            bootstrap.channel(NioSocketChannel.class);
+        }
+        else{
+            if (this.keys.isPresent()) {
+                if (this.channelFactory == null) {
+                    throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
+                }
+                bootstrap.channelFactory(this.channelFactory);
+                bootstrap.option(MD5ChannelOption.TCP_MD5SIG, this.keys.get());
+            } else {
+                bootstrap.channel(NioSocketChannel.class);
+            }
         }
 
         // Make sure we are doing round-robin processing
@@ -145,7 +157,13 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         serverBootstrap.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
         serverBootstrap.childOption(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, HIGH_WATER_MARK);
         serverBootstrap.childOption(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, LOW_WATER_MARK);
-        if (this.keys.isPresent()) {
+        if(Epoll.isAvailable()){
+            serverBootstrap.channel(EpollServerSocketChannel.class);
+            if (this.keys.isPresent()) {
+                serverBootstrap.option(EpollChannelOption.TCP_MD5SIG, this.keys.get());
+            }
+        }
+        else if (this.keys.isPresent()) {
             if (this.serverChannelFactory == null) {
                 throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
             }
