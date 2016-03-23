@@ -13,7 +13,7 @@
     <parent>
         <artifactId>rsvp-parent</artifactId>
         <groupId>org.opendaylight.bgpcep</groupId>
-        <version>0.5.1-Beryllium-SR1</version>
+        <version>0.5.2-SNAPSHOT</version>
     </parent>
 
 
