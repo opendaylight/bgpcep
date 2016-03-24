@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a3f45e8_dacda45f",
+        "filename": "bgp/rib-api/src/main/yang/bgp-rib-rpc.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-24T12:34:57Z",
+      "side": 1,
+      "message": "One thing is missing - RIB needs to be aware of the context.\nLook for an analogy in https://ask.opendaylight.org/question/99/how-does-request-routing-works/ or odl-network-topology.yang",
+      "revId": "73296f54629dfbe1ffaf52b7d3532eefa844ac5a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a3f45e8_da9f644f",
+        "filename": "bgp/rib-api/src/main/yang/bgp-rib-rpc.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-24T12:34:57Z",
+      "side": 1,
+      "message": "RIB",
+      "range": {
+        "startLine": 27,
+        "startChar": 47,
+        "endLine": 27,
+        "endChar": 60
+      },
+      "revId": "73296f54629dfbe1ffaf52b7d3532eefa844ac5a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a3f45e8_3adbe81c",
+        "filename": "bgp/rib-api/src/main/yang/bgp-rib-rpc.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-24T12:34:57Z",
+      "side": 1,
+      "message": "mandatory",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 9
+      },
+      "revId": "73296f54629dfbe1ffaf52b7d3532eefa844ac5a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
