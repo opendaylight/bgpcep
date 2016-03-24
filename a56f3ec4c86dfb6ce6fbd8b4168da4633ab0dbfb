@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a3f45e8_ff5172d9",
+        "filename": "bgp/parser-impl/src/test/java/org/opendaylight/protocol/bgp/parser/impl/message/update/Ipv4MultiPathNlriCodecTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-03-24T07:52:42Z",
+      "side": 1,
+      "message": "repeated code, static list would be better",
+      "range": {
+        "startLine": 51,
+        "startChar": 40,
+        "endLine": 53,
+        "endChar": 82
+      },
+      "revId": "a56f3ec4c86dfb6ce6fbd8b4168da4633ab0dbfb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a3f45e8_7f5d62e9",
+        "filename": "bgp/parser-impl/src/test/java/org/opendaylight/protocol/bgp/parser/impl/message/update/Ipv4MultiPathNlriCodecTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-03-24T07:52:42Z",
+      "side": 1,
+      "message": "repeated code",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 64
+      },
+      "revId": "a56f3ec4c86dfb6ce6fbd8b4168da4633ab0dbfb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
