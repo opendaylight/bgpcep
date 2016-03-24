@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a3f45e8_7588e322",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BgpRibRpc.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-24T15:29:25Z",
+      "side": 1,
+      "message": "TODO:\n-inject BGPSession\n-construct RR message\n-send message\n-transform send future to rpcresult future\n-handle failure scenarios (AFI/SAFI not supported, etc)\n-create instance of this class in BGPPeer and register it to RPC provider registry when session goes up (close registration when session goes down)",
+      "revId": "243e59fb30cc1ba373183b1a3a4729b824a5b9fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
