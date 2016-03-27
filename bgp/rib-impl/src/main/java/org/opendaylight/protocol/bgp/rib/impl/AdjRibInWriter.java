@@ -81,9 +81,10 @@ final class AdjRibInWriter {
     private final Map<TablesKey, TableContext> tables;
     private final YangInstanceIdentifier peerPath;
     private final YangInstanceIdentifier ribPath;
-    private final DOMTransactionChain chain;
     private final PeerId peerId;
     private final String role;
+
+    private DOMTransactionChain chain;
 
     private AdjRibInWriter(final YangInstanceIdentifier ribPath, final DOMTransactionChain chain, final PeerId peerId, final String role, final YangInstanceIdentifier peerPath, final Map<TablesKey, TableContext> tables) {
         this.ribPath = Preconditions.checkNotNull(ribPath);
@@ -140,6 +141,11 @@ final class AdjRibInWriter {
         tx.submit();
 
         return new AdjRibInWriter(this.ribPath, this.chain, newPeerId, this.role, newPeerPath, tb);
+    }
+
+    public void setChain(@Nonnull final DOMTransactionChain chain)
+    {
+        this.chain = Preconditions.checkNotNull(chain);
     }
 
     /**

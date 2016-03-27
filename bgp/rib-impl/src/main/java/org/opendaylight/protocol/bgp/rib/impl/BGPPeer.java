@@ -368,9 +368,10 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     @Override
     public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
         LOG.error("Transaction chain failed.", cause);
-        releaseConnection();
         this.chain.close();
         this.chain = this.rib.createPeerChain(this);
+        this.ribWriter.setChain(this.chain);
+        releaseConnection();
     }
 
     @Override
