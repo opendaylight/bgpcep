@@ -157,7 +157,7 @@ module odl-bgp-rib-impl-cfg {
     }
 
 
-     augment "/config:modules/config:module/config:configuration" {
+    augment "/config:modules/config:module/config:configuration" {
         case strict-bgp-peer-registry {
             when "/config:modules/config:module/config:type = 'strict-bgp-peer-registry'";
         }
@@ -241,6 +241,17 @@ module odl-bgp-rib-impl-cfg {
                     refine type {
                         mandatory true;
                         config:required-identity rib-instance;
+                    }
+                }
+            }
+
+            container peer-registry {
+                description "BGP peer registry where current instance of BGP peer will be registered.";
+                uses config:service-ref {
+                    refine type {
+                        // FIXME backwards compatibility. If not configured, GLOBAL instance is used
+                        mandatory false;
+                        config:required-identity bgp-peer-registry;
                     }
                 }
             }
