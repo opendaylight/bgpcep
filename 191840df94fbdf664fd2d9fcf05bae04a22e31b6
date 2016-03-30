@@ -16,6 +16,24 @@
       "revId": "191840df94fbdf664fd2d9fcf05bae04a22e31b6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a4c51b2_e3944146",
+        "filename": "bgp/parser-spi/src/test/java/org/opendaylight/protocol/bgp/parser/spi/PathIdUtilTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-30T13:00:04Z",
+      "side": 1,
+      "message": "The 2 out of 3 tests are not writing into the buffer.",
+      "parentUuid": "5a3f45e8_ff685289",
+      "revId": "191840df94fbdf664fd2d9fcf05bae04a22e31b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
