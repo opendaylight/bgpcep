@@ -46,19 +46,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.MultiprotocolCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamilies;
 
-final class BGPSessionStats {
+public final class BGPSessionStats {
     private final Stopwatch sessionStopwatch;
-    private final BgpSessionState stats;
-    private final TotalMsgs totalMsgs = new TotalMsgs();
-    private final KeepAliveMsgs kaMsgs = new KeepAliveMsgs();
-    private final UpdateMsgs updMsgs = new UpdateMsgs();
-    private final RouteRefreshMsgs rrMsgs = new RouteRefreshMsgs();
-    private final ErrorMsgs errMsgs = new ErrorMsgs();
+
+    private static final BgpSessionState stats = new BgpSessionState();
+    private static final TotalMsgs totalMsgs = new TotalMsgs();
+    private static final KeepAliveMsgs kaMsgs = new KeepAliveMsgs();
+    private static final UpdateMsgs updMsgs = new UpdateMsgs();
+    private static final RouteRefreshMsgs rrMsgs = new RouteRefreshMsgs();
+    private static final ErrorMsgs errMsgs = new ErrorMsgs();
+
 
     public BGPSessionStats(final Open remoteOpen, final int holdTimerValue, final int keepAlive, final Channel channel,
         final Optional<BGPSessionPreferences> localPreferences, final Collection<BgpTableType> tableTypes, final List<AddressFamilies> addPathTypes) {
         this.sessionStopwatch = Stopwatch.createUnstarted();
-        this.stats = new BgpSessionState();
         this.stats.setHoldtimeCurrent(holdTimerValue);
         this.stats.setKeepaliveCurrent(keepAlive);
         this.stats.setPeerPreferences(setPeerPref(remoteOpen, channel, tableTypes, addPathTypes));
@@ -66,17 +67,15 @@ final class BGPSessionStats {
         initMsgs();
     }
 
-    private void initMsgs() {
-        this.totalMsgs.setReceived(new Received());
-        this.totalMsgs.setSent(new Sent());
-        this.kaMsgs.setReceived(new Received());
-        this.kaMsgs.setSent(new Sent());
-        this.updMsgs.setReceived(new Received());
-        this.updMsgs.setSent(new Sent());
-        this.rrMsgs.setReceived(new Received());
-        this.rrMsgs.setSent(new Sent());
-        this.errMsgs.setErrorReceived(new ErrorReceived());
-        this.errMsgs.setErrorSent(new ErrorSent());
+    private static void initMsgs() {
+        totalMsgs.setReceived(new Received());
+        totalMsgs.setSent(new Sent());
+        kaMsgs.setReceived(new Received());
+        kaMsgs.setSent(new Sent());
+        updMsgs.setReceived(new Received());
+        updMsgs.setSent(new Sent());
+        errMsgs.setErrorReceived(new ErrorReceived());
+        errMsgs.setErrorSent(new ErrorSent());
     }
 
     public void startSessionStopwatch() {
@@ -147,7 +146,7 @@ final class BGPSessionStats {
         return this.stats;
     }
 
-    public void resetStats() {
+    public static void resetStats() {
         initMsgs();
     }
 
@@ -276,5 +275,9 @@ final class BGPSessionStats {
         pref.setAdvertizedTableTypes(tt);
         pref.setAdvertisedAddPathTableTypes(addPathTableTypeList);
         return pref;
+    }
+
+    public static BgpSessionState getBgpSessionState(){
+        return stats;
     }
 }
