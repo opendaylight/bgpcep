@@ -71,6 +71,30 @@
     },
     {
       "key": {
+        "uuid": "3a4c51b2_43a095f4",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-30T12:02:07Z",
+      "side": 1,
+      "message": "Or can we get rpcRegistry from RIB instance?",
+      "parentUuid": "3a4c51b2_512cde4a",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 105,
+        "endChar": 5
+      },
+      "revId": "da3830f27093eb1df6be688123af8479bedb8911",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a4c51b2_712bda30",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
         "patchSetId": 6
