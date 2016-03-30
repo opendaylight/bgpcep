@@ -16,8 +16,7 @@ module odl-bgp-rib-impl-cfg {
     import netty { prefix netty; revision-date 2013-11-19; }
     import config { prefix config; revision-date 2013-04-05; }
     import protocol-framework { prefix pf; revision-date 2014-03-13; }
-    import odl-tcpmd5-cfg { prefix tcpmd5; revision-date 2014-04-27; }
-    import odl-tcpmd5-netty-cfg { prefix tcpmd5n; revision-date 2014-04-27; }
+    import odl-netty-cfg { prefix nettykey; revision-date 2016-03-24; }
     import rpc-context { prefix rpcx; revision-date 2013-06-17; }
     import odl-bgp-openconfig-spi-cfg { prefix bgp-oc-spi; revision-date 2015-09-25; }
     import odl-bgp-path-selection-mode { prefix bps; revision-date 2016-03-01;}
@@ -95,24 +94,6 @@ module odl-bgp-rib-impl-cfg {
                     refine type {
                         mandatory true;
                         config:required-identity netty:netty-threadgroup;
-                    }
-                }
-            }
-
-            container md5-channel-factory {
-                uses config:service-ref {
-                    refine type {
-                        mandatory false;
-                        config:required-identity tcpmd5n:md5-channel-factory;
-                    }
-                }
-            }
-
-            container md5-server-channel-factory {
-                uses config:service-ref {
-                    refine type {
-                        mandatory false;
-                        config:required-identity tcpmd5n:md5-server-channel-factory;
                     }
                 }
             }
@@ -398,7 +379,7 @@ module odl-bgp-rib-impl-cfg {
             }
 
             leaf password {
-                type tcpmd5:rfc2385-key;
+                type nettykey:rfc2385-key;
                 description "RFC2385 shared secret";
             }
 
