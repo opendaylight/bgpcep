@@ -15,7 +15,9 @@ import io.netty.channel.Channel;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.AdvertisedAddPathTableTypes;
@@ -35,6 +37,7 @@ import org.opendaylight.controller.config.yang.bgp.rib.impl.TotalMsgs;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.UpdateMsgs;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl.State;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionStatistics;
 import org.opendaylight.protocol.util.StatisticsUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
@@ -46,7 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.MultiprotocolCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamilies;
 
-final class BGPSessionStats {
+public final class BGPSessionStats {
     private final Stopwatch sessionStopwatch;
     private final BgpSessionState stats;
     private final TotalMsgs totalMsgs = new TotalMsgs();
@@ -54,6 +57,7 @@ final class BGPSessionStats {
     private final UpdateMsgs updMsgs = new UpdateMsgs();
     private final RouteRefreshMsgs rrMsgs = new RouteRefreshMsgs();
     private final ErrorMsgs errMsgs = new ErrorMsgs();
+    private static final Map<String, BGPSessionStatistics> BGPSessionStatistic = new HashMap<>();
 
     public BGPSessionStats(final Open remoteOpen, final int holdTimerValue, final int keepAlive, final Channel channel,
         final Optional<BGPSessionPreferences> localPreferences, final Collection<BgpTableType> tableTypes, final List<AddressFamilies> addPathTypes) {
@@ -276,5 +280,22 @@ final class BGPSessionStats {
         pref.setAdvertizedTableTypes(tt);
         pref.setAdvertisedAddPathTableTypes(addPathTableTypeList);
         return pref;
+    }
+
+    public static void addBgpSession(BGPSessionStatistics bgpSessionStatistics){
+        BGPSessionStatistic.put(bgpSessionStatistics.getBgpSesionState().getPeerPreferences().getBgpId(), bgpSessionStatistics);
+    }
+
+    public static void removeBgpSession(String ip){
+        BGPSessionStatistic.remove(ip);
+    }
+
+    public static BGPSessionStatistics getBgpSession(String ip){
+        return BGPSessionStatistic.get(ip);
+    }
+
+    public static void resetStats(String ipAddress) {
+        BGPSessionStatistics statistics = BGPSessionStatistic.get(ipAddress);
+        statistics.resetSessionStats();
     }
 }
