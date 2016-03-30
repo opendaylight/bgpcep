@@ -1,0 +1,26 @@
+/*
+ * Copyright © 2016 Inocybe Technologies and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
+package org.opendaylight.protocol.bgp.cli.utils;
+
+import static org.mockito.Mockito.mock;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import javax.management.JMException;
+import org.junit.Test;
+import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
+
+public final class BgpCliUtilsTests{
+    @Test
+    public void displayAll() throws IOException, JMException {
+        BgpSessionState bgpSessionState = mock(BgpSessionState.class);
+        PrintStream printStream = mock(PrintStream.class);
+        BgpCliUtils.displayAll(bgpSessionState, printStream);
+    }
+}
