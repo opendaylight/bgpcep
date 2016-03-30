@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a4c51b2_51885e22",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPApplicationPeerModule.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-30T10:12:56Z",
+      "side": 1,
+      "message": "local variable",
+      "range": {
+        "startLine": 67,
+        "startChar": 8,
+        "endLine": 67,
+        "endChar": 33
+      },
+      "revId": "e2338f94d3130b06c6a2df81f990fd6ec0f54df0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a4c51b2_31bf92d2",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPApplicationPeerModule.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-30T10:12:56Z",
+      "side": 1,
+      "message": "return",
+      "range": {
+        "startLine": 69,
+        "startChar": 8,
+        "endLine": 69,
+        "endChar": 43
+      },
+      "revId": "e2338f94d3130b06c6a2df81f990fd6ec0f54df0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a4c51b2_91ab0689",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/BGPApplicationPeerModule.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-30T10:12:56Z",
+      "side": 1,
+      "message": "Collections.emptyList",
+      "range": {
+        "startLine": 93,
+        "startChar": 121,
+        "endLine": 93,
+        "endChar": 125
+      },
+      "revId": "e2338f94d3130b06c6a2df81f990fd6ec0f54df0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
