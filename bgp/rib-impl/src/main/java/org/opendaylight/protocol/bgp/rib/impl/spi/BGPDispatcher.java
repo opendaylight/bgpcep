@@ -11,10 +11,10 @@ import com.google.common.base.Optional;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
+import org.opendaylight.protocol.bgp.rib.impl.KeyMapping;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
-import org.opendaylight.tcpmd5.api.KeyMapping;
 
 /**
  * Dispatcher class for creating BGP clients.

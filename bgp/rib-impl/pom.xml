@@ -61,14 +61,6 @@
             <artifactId>bgp-rib-spi</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.tcpmd5</groupId>
-            <artifactId>tcpmd5-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.tcpmd5</groupId>
-            <artifactId>tcpmd5-netty</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
         </dependency>
@@ -79,18 +71,33 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec</artifactId>
+            <version>4.0.35.Final</version>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-buffer</artifactId>
+            <version>4.0.35.Final</version>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-common</artifactId>
+            <version>4.0.35.Final</version>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-transport</artifactId>
+            <version>4.0.35.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-native-epoll</artifactId>
+            <version>4.0.35.Final</version>
+            <classifier>linux-x86_64</classifier>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler</artifactId>
+            <version>4.0.35.Final</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -251,17 +258,6 @@
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>protocol-framework</artifactId>
             <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.tcpmd5</groupId>
-            <artifactId>tcpmd5-jni</artifactId>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.tcpmd5</groupId>
-            <artifactId>tcpmd5-jni</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
