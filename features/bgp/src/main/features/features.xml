@@ -57,6 +57,7 @@
     <feature name='odl-bgpcep-bgp-dependencies' version='${project.version}'>
         <!--  concepts -->
         <bundle>mvn:com.google.guava/guava/{{VERSION}}</bundle>
+        <bundle>mvn:io.netty/netty-transport-native-epoll/4.0.35.Final</bundle>
         <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
         <bundle>mvn:org.opendaylight.bgpcep/concepts/{{VERSION}}</bundle>
         <!-- util -->
