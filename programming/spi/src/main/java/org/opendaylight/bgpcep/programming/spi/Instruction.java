@@ -30,7 +30,7 @@ public interface Instruction {
      *
      * @param details Details which execution is held up
      * @return Indication whether the instruction execution should proceed. If this method returns false, all subsequent
-     *         calls to this method as well as {@link checkedExecutionStart()} will return false.
+     *         calls to this method as well as {@link #checkedExecutionStart()} will return false.
      */
     boolean executionHeldUp(Details details);
 
