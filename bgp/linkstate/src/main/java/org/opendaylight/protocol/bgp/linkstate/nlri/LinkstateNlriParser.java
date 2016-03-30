@@ -193,7 +193,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
         nlriByteBuf.writeByte(destination.getProtocolId().getIntValue());
         nlriByteBuf.writeLong(destination.getIdentifier().getValue().longValue());
         final ByteBuf ldescs = Unpooled.buffer();
-        NlriType nlriType = SimpleNlriTypeRegistry.getInstance().serializeNlriType(destination, ldescs, nlriByteBuf);
+        final NlriType nlriType = SimpleNlriTypeRegistry.getInstance().serializeNlriType(destination, ldescs, nlriByteBuf);
         Preconditions.checkNotNull(nlriType, "NLRI Type value should not be null.");
         TlvUtil.writeTLV(nlriType.getIntValue(), nlriByteBuf, buffer);
     }
@@ -259,18 +259,16 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
         serializeCommonParts(builder, linkstate);
 
         final ChoiceNode objectType = (ChoiceNode) linkstate.getChild(OBJECT_TYPE_NID).get();
-        if (!builder.getProtocolId().equals(ProtocolId.RsvpTe)) {
-            if (objectType.getChild(ADVERTISING_NODE_DESCRIPTORS_NID).isPresent()) {
-                serializeAdvertisedNodeDescriptor(builder, objectType);
-            } else if (objectType.getChild(LOCAL_NODE_DESCRIPTORS_NID).isPresent()) {
-                serializeLocalNodeDescriptor(builder, objectType);
-            } else if (objectType.getChild(NODE_DESCRIPTORS_NID).isPresent()) {
-                serializeNodeDescriptor(builder, objectType);
-            } else {
-                LOG.warn("Unknown Object Type.");
-            }
+        if (objectType.getChild(ADVERTISING_NODE_DESCRIPTORS_NID).isPresent()) {
+            serializeAdvertisedNodeDescriptor(builder, objectType);
+        } else if (objectType.getChild(LOCAL_NODE_DESCRIPTORS_NID).isPresent()) {
+            serializeLocalNodeDescriptor(builder, objectType);
+        } else if (objectType.getChild(NODE_DESCRIPTORS_NID).isPresent()) {
+            serializeNodeDescriptor(builder, objectType);
         } else if (TeLspNlriSerializer.isTeLsp(objectType)) {
             builder.setObjectType(TeLspNlriSerializer.serializeTeLsp(objectType));
+        } else {
+            LOG.warn("Unknown Object Type: {}.", objectType);
         }
         return builder.build();
     }
