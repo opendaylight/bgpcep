@@ -58,6 +58,7 @@
         <module>path-selection-mode</module>
         <module>benchmark-app</module>
         <module>evpn</module>
+        <module>cli</module>
     </modules>
 
   <!--
