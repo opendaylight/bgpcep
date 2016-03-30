@@ -312,6 +312,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     private void removePeerSession() {
         if (this.peerRegistry != null) {
             this.peerRegistry.removePeerSession(StrictBGPPeerRegistry.getIpAddress(this.channel.remoteAddress()));
+            BGPSessionStats.removeBgpSession(getBgpId().toString());
         }
     }
 
@@ -394,6 +395,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         this.sessionStats.startSessionStopwatch();
         this.state = State.UP;
         this.listener.onSessionUp(this);
+        BGPSessionStats.addBgpSession(this);
     }
 
     public synchronized State getState() {
