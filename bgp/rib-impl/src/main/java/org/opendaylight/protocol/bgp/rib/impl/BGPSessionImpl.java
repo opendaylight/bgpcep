@@ -247,6 +247,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     public synchronized void endOfInput() {
         if (this.state == State.UP) {
             LOG.info(END_OF_INPUT);
+            BGPSessionStats.removeBgpSession(getBgpId().toString());
             this.listener.onSessionDown(this, new IOException(END_OF_INPUT));
         }
     }
@@ -394,6 +395,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         this.sessionStats.startSessionStopwatch();
         this.state = State.UP;
         this.listener.onSessionUp(this);
+        BGPSessionStats.addBgpSession(this);
     }
 
     public synchronized State getState() {
