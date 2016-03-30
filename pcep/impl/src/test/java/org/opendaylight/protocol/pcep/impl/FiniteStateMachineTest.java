@@ -47,7 +47,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
      * Both PCEs accept session characteristics. Also tests KeepAliveTimer and error message and when pce attempts to
      * establish pce session for the 2nd time.
      *
-     * @throws Exception
+     * @throws Exception exception
      */
     @Test
     public void testSessionCharsAccBoth() throws Exception {
@@ -84,7 +84,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     /**
      * As Tls is not configured properly, PCE will send error PCEPErrors.NOT_POSSIBLE_WITHOUT_TLS
      *
-     * @throws Exception
+     * @throws Exception exception
      */
     @Test
     public void testFailedToEstablishTLS() throws Exception {
@@ -103,8 +103,6 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
 
     /**
      * As PCE does not receive expected message (StartTLS), error PCEPErrors.NON_STARTTLS_MSG_RCVD is send
-     *
-     * @throws Exception
      */
     @Test
     public void testTLSUnexpectedMessage() {
@@ -124,7 +122,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     /**
      * Mock PCE does not accept session characteristics the first time.
      *
-     * @throws Exception
+     * @throws Exception exception
      */
     @Test
     public void testSessionCharsAccMe() throws Exception {
@@ -145,7 +143,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     /**
      * Sending different PCEP Message than Open in session establishment phase.
      *
-     * @throws Exception
+     * @throws Exception exception
      */
     @Test
     public void testErrorOneOne() throws Exception {
@@ -165,7 +163,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     /**
      * KeepWaitTimer expired.
      *
-     * @throws Exception
+     * @throws Exception exception
      */
     @Test
     public void testErrorOneSeven() throws Exception {
@@ -188,7 +186,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     /**
      * OpenWait timer expired.
      *
-     * @throws InterruptedException
+     * @throws InterruptedException exception
      */
     @Test
     @Ignore
