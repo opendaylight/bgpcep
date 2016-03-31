@@ -47,7 +47,6 @@ import org.opendaylight.controller.config.yang.md.sal.dom.impl.SchemaServiceImpl
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.SchemaServiceImplSingletonModuleMXBean;
 import org.opendaylight.controller.config.yang.netty.eventexecutor.GlobalEventExecutorModuleFactory;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
-import org.opendaylight.controller.config.yang.protocol.framework.TimedReconnectStrategyFactoryModuleFactory;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
@@ -97,7 +96,6 @@ public class BmpMonitorImplModuleTest extends AbstractConfigTest {
             new BmpDispatcherImplModuleFactory(),
             new NettyThreadgroupModuleFactory(),
             new SimpleBmpExtensionProviderContextModuleFactory(),
-            new TimedReconnectStrategyFactoryModuleFactory(),
             new GlobalEventExecutorModuleFactory(),
             new SchemaServiceImplSingletonModuleFactory()));
 

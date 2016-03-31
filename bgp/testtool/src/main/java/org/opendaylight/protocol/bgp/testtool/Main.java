@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.testtool;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -21,7 +20,6 @@ import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
-import org.opendaylight.protocol.framework.NeverReconnectStrategy;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
@@ -68,7 +66,7 @@ public final class Main {
 
     private static final int INITIAL_HOLD_TIME = 90;
 
-    private static final int RECONNECT_MILLIS = 5000;
+    private static final int RETRY_TIMER = 10;
 
     private Main() {
         this.dispatcher = new BGPDispatcherImpl(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(), new NioEventLoopGroup(), new NioEventLoopGroup());
@@ -119,8 +117,7 @@ public final class Main {
         final StrictBGPPeerRegistry strictBGPPeerRegistry = new StrictBGPPeerRegistry();
         strictBGPPeerRegistry.addPeer(StrictBGPPeerRegistry.getIpAddress(address), sessionListener, proposal);
 
-        m.dispatcher.createClient(addr, strictBGPPeerRegistry,
-            new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_MILLIS));
+        m.dispatcher.createClient(addr, strictBGPPeerRegistry, RETRY_TIMER);
     }
 
     @VisibleForTesting

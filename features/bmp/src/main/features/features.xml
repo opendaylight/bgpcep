@@ -23,7 +23,7 @@
         <feature version='${tcpmd5.version}'>odl-tcpmd5-netty</feature>
         <feature version='${controller.mdsal.version}'>odl-mdsal-broker</feature>
         <feature version='${config.version}'>odl-config-netty</feature>
-        <feature version='${protocol-framework.version}'>odl-protocol-framework</feature>
+        <feature version='${config.version}'>odl-config-netty-config-api</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-impl</feature>

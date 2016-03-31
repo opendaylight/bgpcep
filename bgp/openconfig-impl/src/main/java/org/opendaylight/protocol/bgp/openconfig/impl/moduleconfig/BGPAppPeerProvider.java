@@ -21,12 +21,12 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.n
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.RibInstance;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.modules.module.configuration.BgpApplicationPeer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.modules.module.configuration.BgpApplicationPeerBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.modules.module.configuration.bgp.application.peer.DataBrokerBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.modules.module.configuration.bgp.application.peer.TargetRib;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.modules.module.configuration.bgp.application.peer.TargetRibBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.RibInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.BgpApplicationPeer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.BgpApplicationPeerBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.bgp.application.peer.DataBrokerBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.bgp.application.peer.TargetRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.bgp.application.peer.TargetRibBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.Module;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.ModuleBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.ModuleKey;
@@ -49,11 +49,11 @@ final class BGPAppPeerProvider {
         }
     };
 
-    private static final Function<String, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.modules.
+    private static final Function<String, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.
         module.configuration.bgp.application.peer.DataBroker> TO_DATABROKER_FUNCTION = new Function<String, org.opendaylight.yang.gen.v1.urn.opendaylight.
-        params.xml.ns.yang.controller.bgp.rib.impl.rev130409.modules.module.configuration.bgp.application.peer.DataBroker>() {
+        params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.bgp.application.peer.DataBroker>() {
             @Override
-            public org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.modules.module.configuration.bgp.application.peer.DataBroker apply(final String name) {
+            public org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.bgp.application.peer.DataBroker apply(final String name) {
                 return new DataBrokerBuilder().setName(name).setType(DomAsyncDataBroker.class).build();
             }
         };
@@ -110,7 +110,7 @@ final class BGPAppPeerProvider {
                 try {
                     final String ribImplName = ribImplKey.getName();
                     final TargetRib rib = RibInstanceFunction.getRibInstance(this.configModuleOp, this.TO_RIB_FUNCTION, ribImplName, rTx);
-                    final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.modules.module.
+                    final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.
                         configuration.bgp.application.peer.DataBroker moduleDataBroker = DataBrokerFunction.getRibInstance(this.configModuleOp,
                         this.TO_DATABROKER_FUNCTION, ribImplName, rTx);
 
@@ -136,10 +136,10 @@ final class BGPAppPeerProvider {
     }
 
     private static Module toPeerConfigModule(final Neighbor neighbor, final TargetRib rib, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.
-        xml.ns.yang.controller.bgp.rib.impl.rev130409.modules.module.configuration.bgp.application.peer.DataBroker moduleDataBroker) {
+        xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.bgp.application.peer.DataBroker moduleDataBroker) {
         final ModuleBuilder mBuilder = new ModuleBuilder();
         mBuilder.setName(createAppPeerName(neighbor.getNeighborAddress().getIpv4Address()));
-        mBuilder.setType(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev130409.BgpApplicationPeer.class);
+        mBuilder.setType(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.BgpApplicationPeer.class);
         final BgpApplicationPeerBuilder bgpPeerConfigBuilder = toBgpPeerConfig(neighbor, rib);
         bgpPeerConfigBuilder.setDataBroker(moduleDataBroker);
         mBuilder.setConfiguration(bgpPeerConfigBuilder.build());
