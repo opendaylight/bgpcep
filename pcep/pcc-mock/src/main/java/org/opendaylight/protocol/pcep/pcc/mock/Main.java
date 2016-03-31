@@ -25,7 +25,6 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.ietf.stateful07.PCEPStatefulCapability;
 import org.slf4j.Logger;
@@ -89,7 +88,7 @@ public final class Main {
             } else if (args[argIdx].equals("--password")) {
                 password = args[++argIdx];
             } else if (args[argIdx].equals("--reconnect")) {
-                reconnectTime = TimeUnit.SECONDS.toMillis(Integer.valueOf(args[++argIdx]).intValue());
+                reconnectTime = Integer.valueOf(args[++argIdx]).intValue();
             } else if (args[argIdx].equals("--redelegation-timeout")) {
                 redelegationTimeout = Integer.valueOf(args[++argIdx]);
             } else if (args[argIdx].equals("--state-timeout")) {

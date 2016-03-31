@@ -43,7 +43,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
-import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
@@ -100,9 +99,6 @@ public class AbstractRIBTestSetup {
     private BGPDispatcher dispatcher;
 
     @Mock
-    private ReconnectStrategyFactory tcpStrategyFactory;
-
-    @Mock
     private DataBroker dps;
 
     @Mock
@@ -146,7 +142,7 @@ public class AbstractRIBTestSetup {
         this.a1.startRIBExtensionProvider(context);
         mockedMethods();
         this.rib = new RIBImpl(new RibId("test"), new AsNumber(5L), this.ribId,
-            this.clusterId, context , this.dispatcher, this.tcpStrategyFactory, this.codecFactory, this.tcpStrategyFactory, this.dps, this.dom,
+            this.clusterId, context , this.dispatcher, this.codecFactory, this.dps, this.dom,
             localTables, Collections.singletonMap(new TablesKey(AFI, SAFI), BasePathSelectionModeFactory.createBestPathSelectionStrategy()),
             GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         this.rib.onGlobalContextUpdated(schemaContext);

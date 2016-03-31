@@ -60,7 +60,7 @@ public class Ipv4ReachabilityTopologyBuilderModuleTest extends AbstractRIBImplMo
     public void testCreateBean() throws Exception {
         final CommitStatus status = createIpv4ReachabilityTopoBuilderModuleInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 14, 0, 0);
+        assertStatus(status, 11, 0, 0);
     }
 
     @Test
@@ -70,7 +70,7 @@ public class Ipv4ReachabilityTopologyBuilderModuleTest extends AbstractRIBImplMo
         assertBeanCount(1, FACTORY_NAME);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 14);
+        assertStatus(status, 0, 0, 11);
     }
 
     @Test
@@ -83,7 +83,7 @@ public class Ipv4ReachabilityTopologyBuilderModuleTest extends AbstractRIBImplMo
         mxBean.setTopologyId(new TopologyId("new-bgp-topology"));
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, 13);
+        assertStatus(status, 0, 1, 10);
     }
 
     private CommitStatus createIpv4ReachabilityTopoBuilderModuleInstance() throws Exception {

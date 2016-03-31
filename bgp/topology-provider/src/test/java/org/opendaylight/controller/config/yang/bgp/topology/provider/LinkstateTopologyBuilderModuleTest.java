@@ -62,7 +62,7 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
     public void testCreateBean() throws Exception {
         final CommitStatus status = createLinkstateTopologyBuilderModuleInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 14, 0, 0);
+        assertStatus(status, 11, 0, 0);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
         assertBeanCount(1, FACTORY_NAME);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 14);
+        assertStatus(status, 0, 0, 11);
     }
 
     @Test
@@ -85,7 +85,7 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
         mxBean.setTopologyId(new TopologyId("new-bgp-topology"));
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, 13);
+        assertStatus(status, 0, 1, 10);
     }
 
     private CommitStatus createLinkstateTopologyBuilderModuleInstance() throws Exception {

@@ -65,7 +65,7 @@ public class PCCDispatcherImplTest {
 
     @Test
     public void testClientReconnect() throws Exception {
-        final Future<PCEPSession> futureSession = this.dispatcher.createClient(this.serverAddress, 500, new TestingSessionListenerFactory(),
+        final Future<PCEPSession> futureSession = this.dispatcher.createClient(this.serverAddress, 1, new TestingSessionListenerFactory(),
                 this.nf, null, this.clientAddress);
 
         final TestingSessionListenerFactory slf = new TestingSessionListenerFactory();
@@ -86,7 +86,8 @@ public class PCCDispatcherImplTest {
 
         final TestingSessionListenerFactory slf2 = new TestingSessionListenerFactory();
         this.pcepDispatcher.createServer(this.serverAddress, slf2, null).channel();
-        Thread.sleep(500);
+        // sleep for bit more than retry time of 1 sec.
+        Thread.sleep(1500);
 
         final TestingSessionListener sl2 = slf2.getSessionListenerByRemoteAddress(this.clientAddress.getAddress());
         Assert.assertNotNull(sl2);
