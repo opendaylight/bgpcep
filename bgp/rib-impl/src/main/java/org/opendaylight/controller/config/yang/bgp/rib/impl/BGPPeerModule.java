@@ -246,7 +246,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
         final RIB rib = getRibDependency();
         final Optional<KeyMapping> optionalKey = Optional.fromNullable(keys);
-        return rib.getDispatcher().createReconnectingClient(address, registry, rib.getTcpStrategyFactory(), optionalKey);
+        return rib.getDispatcher().createReconnectingClient(address, registry, getRetrytimer(), optionalKey);
     }
 
     private BGPPeerRegistry getPeerRegistryBackwards() {

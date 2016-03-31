@@ -26,7 +26,6 @@
     <properties>
         <mdsal.binding.base>0.9.0-SNAPSHOT</mdsal.binding.base>
         <config.version>0.5.0-SNAPSHOT</config.version>
-        <protocol-framework.version>0.8.0-SNAPSHOT</protocol-framework.version>
     </properties>
 
     <dependencyManagement>

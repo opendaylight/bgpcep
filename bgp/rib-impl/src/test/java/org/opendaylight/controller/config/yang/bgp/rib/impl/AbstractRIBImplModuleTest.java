@@ -52,8 +52,6 @@ import org.opendaylight.controller.config.yang.md.sal.dom.impl.SchemaServiceImpl
 import org.opendaylight.controller.config.yang.netty.eventexecutor.GlobalEventExecutorModuleFactory;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
 import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleFactory;
-import org.opendaylight.controller.config.yang.protocol.framework.TimedReconnectStrategyFactoryModuleFactory;
-import org.opendaylight.controller.config.yang.protocol.framework.TimedReconnectStrategyModuleTest;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
@@ -176,7 +174,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     protected List<ModuleFactory> getModuleFactories() {
         return Lists.newArrayList(new RIBImplModuleFactory(), new GlobalEventExecutorModuleFactory(),
                 new BGPDispatcherImplModuleFactory(), new NettyThreadgroupModuleFactory(),
-                new TimedReconnectStrategyFactoryModuleFactory(), new SimpleBGPExtensionProviderContextModuleFactory(),
+                new SimpleBGPExtensionProviderContextModuleFactory(),
                 new RIBExtensionsImplModuleFactory(), new DomBrokerImplModuleFactory(), new RuntimeMappingModuleFactory(),
                 new HashedWheelTimerModuleFactory(), new BindingAsyncDataBrokerImplModuleFactory(),
                 new DomInmemoryDataBrokerModuleFactory(), new SchemaServiceImplSingletonModuleFactory());
@@ -227,13 +225,9 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
             final Ipv4Address bgpId, final Ipv4Address clusterId, final ObjectName dataBroker) throws Exception {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final RIBImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, RIBImplModuleMXBean.class);
-        final ObjectName reconnectObjectName = TimedReconnectStrategyModuleTest.createInstance(transaction, SESSION_RS_INSTANCE_NAME);
-        mxBean.setSessionReconnectStrategy(reconnectObjectName);
         mxBean.setDataProvider(dataBroker);
         mxBean.setDomDataProvider(lookupDomAsyncDataBroker(transaction));
         mxBean.setCodecTreeFactory(lookupMappingServiceInstance(transaction));
-        final ObjectName reconnectStrategyON = TimedReconnectStrategyModuleTest.createInstance(transaction, TCP_RS_INSTANCE_NAME);
-        mxBean.setTcpReconnectStrategy(reconnectStrategyON);
         mxBean.setBgpDispatcher(BGPDispatcherImplModuleTest.createInstance(transaction));
         mxBean.setExtensions(createRibExtensionsInstance(transaction));
         mxBean.setRibId(ribId);

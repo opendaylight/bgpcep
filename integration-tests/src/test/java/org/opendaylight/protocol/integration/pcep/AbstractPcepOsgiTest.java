@@ -63,10 +63,17 @@ public class AbstractPcepOsgiTest {
                 mavenBundle("openexi", "nagasena").versionAsInProject(),
                 mavenBundle("com.github.romix", "java-concurrent-hash-trie-map").versionAsInProject(),
 
+                mavenBundle("io.netty", "netty-common").versionAsInProject(), //
+                mavenBundle("io.netty", "netty-buffer").versionAsInProject(), //
+                mavenBundle("io.netty", "netty-handler").versionAsInProject(), //
+                mavenBundle("io.netty", "netty-codec").versionAsInProject(), //
+                mavenBundle("io.netty", "netty-transport").versionAsInProject(), //
+                mavenBundle("org.opendaylight.controller", "netty-config-api").versionAsInProject(), //
+
                 TestHelper.mdSalCoreBundles(),
 
-                TestHelper.bindingAwareSalBundles(), TestHelper.configMinumumBundles(), TestHelper.baseModelBundles(),
-                TestHelper.junitAndMockitoBundles(), TestHelper.protocolFrameworkBundles());
+                TestHelper.bindingAwareSalBundles(), TestHelper.configMinumumBundles(),
+                TestHelper.baseModelBundles(), TestHelper.junitAndMockitoBundles());
     }
 
     private Option pcepModules() {
