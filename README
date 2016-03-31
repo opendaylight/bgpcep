@@ -19,9 +19,6 @@ concepts:
 util:
 	Common utility classes
 
-framework:
-	Common framework for integrating protocol parsers with Netty
-
 bgp:
 	BGP-related artifacts
 

@@ -17,7 +17,7 @@
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:vpn:ipv4?module=odl-bgp-vpn-ipv4-cfg&amp;revision=2016-02-19</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi?module=odl-bgp-parser-spi-cfg&amp;revision=2013-11-15</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi?module=odl-bgp-rib-spi-cfg&amp;revision=2013-11-15</capability>
-        <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl?module=odl-bgp-rib-impl-cfg&amp;revision=2013-04-09</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl?module=odl-bgp-rib-impl-cfg&amp;revision=2016-03-30</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:netty?module=netty&amp;revision=2013-11-19</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:rsvp:spi?module=odl-rsvp-parser-spi-cfg&amp;revision=2015-08-26</capability>

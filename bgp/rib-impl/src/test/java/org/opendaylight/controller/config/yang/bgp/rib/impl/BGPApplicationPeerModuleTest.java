@@ -46,7 +46,7 @@ public class BGPApplicationPeerModuleTest extends AbstractRIBImplModuleTest {
     public void testCreateInstance() throws Exception {
         final CommitStatus status = createApplicationPeerInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 14, 0, 0);
+        assertStatus(status, 11, 0, 0);
     }
 
     @Test
@@ -56,7 +56,7 @@ public class BGPApplicationPeerModuleTest extends AbstractRIBImplModuleTest {
         assertBeanCount(1, FACTORY_NAME);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 14);
+        assertStatus(status, 0, 0, 11);
     }
 
     @Test
@@ -69,7 +69,7 @@ public class BGPApplicationPeerModuleTest extends AbstractRIBImplModuleTest {
         mxBean.setApplicationRibId(new ApplicationRibId(NEW_APP_RIB_ID));
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, 13);
+        assertStatus(status, 0, 1, 10);
         assertEquals(NEW_APP_RIB_ID, getApplicationRibId());
     }
 

@@ -17,8 +17,6 @@ import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
-import org.opendaylight.protocol.framework.ReconnectStrategy;
-import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 
 public class TestClientDispatcher {
 
@@ -52,15 +50,15 @@ public class TestClientDispatcher {
     }
 
     public synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress remoteAddress,
-        final BGPPeerRegistry listener, final ReconnectStrategy strategy, final Optional<InetSocketAddress> localAddress) {
+        final BGPPeerRegistry listener, final int retryTimer, final Optional<InetSocketAddress> localAddress) {
         setLocalAddress(localAddress);
-        return this.disp.createClient(remoteAddress, listener, strategy);
+        return this.disp.createClient(remoteAddress, listener, retryTimer);
     }
 
     public synchronized Future<Void> createReconnectingClient(final InetSocketAddress address, final BGPPeerRegistry peerRegistry,
-        final ReconnectStrategyFactory reconnectStrategyFactory, final Optional<InetSocketAddress> localAddress) {
+        final int retryTimer, final Optional<InetSocketAddress> localAddress) {
         setLocalAddress(localAddress);
-        return this.disp.createReconnectingClient(address, peerRegistry, reconnectStrategyFactory, null);
+        return this.disp.createReconnectingClient(address, peerRegistry, retryTimer, null);
     }
 
     private synchronized void setLocalAddress(final Optional<InetSocketAddress> localAddress) {
