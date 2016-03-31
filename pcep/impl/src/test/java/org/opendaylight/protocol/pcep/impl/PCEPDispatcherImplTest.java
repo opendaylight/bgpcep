@@ -35,8 +35,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.protocol.framework.NeverReconnectStrategy;
-import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
@@ -57,6 +55,8 @@ public class PCEPDispatcherImplTest {
     private static final InetSocketAddress CLIENT2_ADDRESS = new InetSocketAddress("127.0.0.11", PORT);
     private static final short DEAD_TIMER = 120;
     private static final short KEEP_ALIVE = 30;
+    private static final int RETRY_TIMER = 0;
+    private static final int CONNECT_TIMEOUT = 500;
 
     private PCEPDispatcherImpl dispatcher;
     private PCEPDispatcherImpl disp2Spy;
@@ -99,7 +99,7 @@ public class PCEPDispatcherImplTest {
                     }
                 }, null);
         final PCEPSessionImpl session1 = (PCEPSessionImpl) this.pccMock.createClient(CLIENT1_ADDRESS,
-                new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 500),
+                RETRY_TIMER, CONNECT_TIMEOUT,
                 new PCEPSessionListenerFactory() {
                     @Override
                     public PCEPSessionListener getSessionListener() {
@@ -108,7 +108,7 @@ public class PCEPDispatcherImplTest {
                 }).get();
 
         final PCEPSessionImpl session2 = (PCEPSessionImpl) this.pccMock.createClient(CLIENT2_ADDRESS,
-                new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 500),
+                RETRY_TIMER, CONNECT_TIMEOUT,
                 new PCEPSessionListenerFactory() {
                     @Override
                     public PCEPSessionListener getSessionListener() {
@@ -140,7 +140,7 @@ public class PCEPDispatcherImplTest {
                     }
                 }, null);
         final PCEPSessionImpl session1 = (PCEPSessionImpl) this.pccMock.createClient(CLIENT1_ADDRESS,
-            new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 500),
+            RETRY_TIMER, CONNECT_TIMEOUT,
             new PCEPSessionListenerFactory() {
                 @Override
                 public PCEPSessionListener getSessionListener() {
@@ -149,8 +149,7 @@ public class PCEPDispatcherImplTest {
             }).get();
 
         try {
-            this.pccMock.createClient(CLIENT1_ADDRESS,
-                new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 500),
+            this.pccMock.createClient(CLIENT1_ADDRESS, RETRY_TIMER, CONNECT_TIMEOUT,
                 new PCEPSessionListenerFactory() {
                     @Override
                     public PCEPSessionListener getSessionListener() {
@@ -175,7 +174,7 @@ public class PCEPDispatcherImplTest {
                     }
                 }, null);
         final PCEPSessionImpl session1 = (PCEPSessionImpl) this.pccMock.createClient(CLIENT1_ADDRESS,
-                new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 500),
+                RETRY_TIMER, CONNECT_TIMEOUT,
                 new PCEPSessionListenerFactory() {
                     @Override
                     public PCEPSessionListener getSessionListener() {
@@ -189,7 +188,7 @@ public class PCEPDispatcherImplTest {
         session1.close();
 
         final PCEPSessionImpl session2 = (PCEPSessionImpl) this.pccMock.createClient(CLIENT1_ADDRESS,
-                new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 500),
+                RETRY_TIMER, CONNECT_TIMEOUT,
                 new PCEPSessionListenerFactory() {
                     @Override
                     public PCEPSessionListener getSessionListener() {
@@ -242,9 +241,9 @@ public class PCEPDispatcherImplTest {
             this.executor = Preconditions.checkNotNull(GlobalEventExecutor.INSTANCE);
         }
 
-        public Future<PCEPSession> createClient(final InetSocketAddress address, final ReconnectStrategy strategy,
-                                                final PCEPSessionListenerFactory listenerFactory) {
-            return createClient(address, strategy, new PCEPDispatcherImpl.ChannelPipelineInitializer() {
+        public Future<PCEPSession> createClient(final InetSocketAddress address, final int retryTimer,
+                                                final int connectTimeout, final PCEPSessionListenerFactory listenerFactory) {
+            return createClient(address, retryTimer, connectTimeout, new PCEPDispatcherImpl.ChannelPipelineInitializer() {
                 @Override
                 public void initializeChannel(final SocketChannel ch, final Promise promise) {
                     ch.pipeline().addLast(PCCMock.this.factory.getDecoders());
@@ -254,9 +253,10 @@ public class PCEPDispatcherImplTest {
             });
         }
 
-        Future<PCEPSession> createClient(final InetSocketAddress address, final ReconnectStrategy strategy, final PCEPDispatcherImpl.ChannelPipelineInitializer initializer) {
+        Future<PCEPSession> createClient(final InetSocketAddress address, final int retryTimer, final int connectTimeout,
+                final PCEPDispatcherImpl.ChannelPipelineInitializer initializer) {
             final Bootstrap b = new Bootstrap();
-            final PCEPProtocolSessionPromise p = new PCEPProtocolSessionPromise(this.executor, address, strategy, b);
+            final PCEPProtocolSessionPromise p = new PCEPProtocolSessionPromise(this.executor, address, retryTimer, connectTimeout, b);
             (b.option(ChannelOption.SO_KEEPALIVE, Boolean.valueOf(true))).handler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 protected void initChannel(final SocketChannel ch) {

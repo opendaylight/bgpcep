@@ -17,7 +17,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -31,9 +30,6 @@ import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.framework.NeverReconnectStrategy;
-import org.opendaylight.protocol.framework.ReconnectStrategy;
-import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -57,6 +53,7 @@ public class BGPDispatcherImplTest {
     private static final InetSocketAddress CLIENT_ADDRESS2 = new InetSocketAddress("127.0.12.0", 1792);
     private static final AsNumber AS_NUMBER = new AsNumber(30L);
     private static final int TIMEOUT = 5000;
+    private static final int RETRY_TIMER = 120;
 
     private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
 
@@ -94,7 +91,7 @@ public class BGPDispatcherImplTest {
     @Test
     public void testCreateClient() throws InterruptedException, ExecutionException {
         final BGPSessionImpl session = this.clientDispatcher.createClient(ADDRESS, this.registry,
-                new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, TIMEOUT), Optional.<InetSocketAddress>absent()).get();
+                0, Optional.<InetSocketAddress>absent()).get();
         Assert.assertEquals(BGPSessionImpl.State.UP, session.getState());
         Assert.assertEquals(AS_NUMBER, session.getAsNumber());
         Assert.assertEquals(Sets.newHashSet(this.ipv4tt), session.getAdvertisedTableTypes());
@@ -113,21 +110,13 @@ public class BGPDispatcherImplTest {
         final SimpleSessionListener listener = new SimpleSessionListener();
         this.registry.addPeer(new IpAddress(new Ipv4Address(CLIENT_ADDRESS2.getAddress().getHostAddress())), listener, createPreferences(CLIENT_ADDRESS2));
         final Future<Void> cf = this.clientDispatcher.createReconnectingClient(CLIENT_ADDRESS2, this.registry,
-                new ReconnectStrategyFctImpl(), Optional.<InetSocketAddress>absent());
+                RETRY_TIMER, Optional.<InetSocketAddress>absent());
         final Channel channel2 = this.dispatcher.createServer(this.registry, CLIENT_ADDRESS2).channel();
         Thread.sleep(1000);
         Assert.assertTrue(listener.up);
         Assert.assertTrue(channel2.isActive());
         cf.cancel(true);
         listener.releaseConnection();
-    }
-
-    private static final class ReconnectStrategyFctImpl implements ReconnectStrategyFactory {
-        @Override
-        public ReconnectStrategy createReconnectStrategy() {
-            return new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, TIMEOUT);
-        }
-
     }
 
     private BGPSessionPreferences createPreferences(final InetSocketAddress socketAddress) {

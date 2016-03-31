@@ -12,8 +12,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
-import org.opendaylight.protocol.framework.ReconnectStrategy;
-import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.tcpmd5.api.KeyMapping;
 
 /**
@@ -29,7 +27,7 @@ public interface BGPDispatcher{
      * @param strategy reconnection strategy
      * @return Future promising a client session
      */
-    Future<? extends BGPSession> createClient(InetSocketAddress address, BGPPeerRegistry peerRegistry, ReconnectStrategy strategy);
+    Future<? extends BGPSession> createClient(InetSocketAddress address, BGPPeerRegistry peerRegistry, int retryTimer);
 
     /**
      * Creates Reconnecting client.
@@ -41,7 +39,7 @@ public interface BGPDispatcher{
      * @return Future promising a client session
      */
     Future<Void> createReconnectingClient(InetSocketAddress address,
-        BGPPeerRegistry peerRegistry, ReconnectStrategyFactory connectStrategyFactory, Optional<KeyMapping> keys);
+        BGPPeerRegistry peerRegistry, int retryTimer, Optional<KeyMapping> keys);
 
     /**
      * Create new BGP server to accept incoming bgp connections (bound to provided socket address).
