@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a4c51b2_5c7992fb",
+        "filename": "bgp/path-selection-mode/src/test/java/org/opendaylight/protocol/bgp/mode/impl/AbstractRouteEntryTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-03-31T06:52:27Z",
+      "side": 1,
+      "message": "Does not follow variables naming convention.",
+      "range": {
+        "startLine": 112,
+        "startChar": 35,
+        "endLine": 112,
+        "endChar": 53
+      },
+      "revId": "ed12e0641f8d43b42fa7e69a0eed99d1f70bacb1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
