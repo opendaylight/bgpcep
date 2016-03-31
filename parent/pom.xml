@@ -125,18 +125,6 @@
                 <type>pom</type>
             </dependency>
 
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>protocol-framework</artifactId>
-                <version>${controller.framework.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>protocol-framework</artifactId>
-                <version>${controller.framework.version}</version>
-                <type>test-jar</type>
-                <scope>test</scope>
-            </dependency>
             <!-- Netconf -->
             <dependency>
                 <groupId>org.opendaylight.netconf</groupId>
