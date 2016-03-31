@@ -64,8 +64,6 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
         JmxAttributeValidationException.checkNotNull(getRibId(), IS_NOT_SET, ribIdJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getLocalAs(), IS_NOT_SET, localAsJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getBgpRibId(), IS_NOT_SET, bgpRibIdJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getTcpReconnectStrategy(), IS_NOT_SET, tcpReconnectStrategyJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getSessionReconnectStrategy(), IS_NOT_SET, sessionReconnectStrategyJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getLocalTable(), IS_NOT_SET, localTableJmxAttribute);
     }
 
@@ -74,7 +72,7 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
         final AsNumber asNumber = new AsNumber(getLocalAs());
         final Map<TablesKey, PathSelectionMode> pathSelectionStrategies = mapBestPathSelectionStrategyByFamily(getPathSelectionModeDependency());
         final RIBImpl rib = new RIBImpl(getRibId(), asNumber, getBgpRibId(), getClusterId(), getExtensionsDependency(),
-            getBgpDispatcherDependency(), getTcpReconnectStrategyDependency(), getCodecTreeFactoryDependency(), getSessionReconnectStrategyDependency(),
+            getBgpDispatcherDependency(), getCodecTreeFactoryDependency(),
             getDataProviderDependency(), getDomDataProviderDependency(), getLocalTableDependency(), pathSelectionStrategies, classLoadingStrategy(),
             new RIBImplModuleTracker(getGlobalWriter()), getOpenconfigProviderDependency());
         registerSchemaContextListener(rib);
