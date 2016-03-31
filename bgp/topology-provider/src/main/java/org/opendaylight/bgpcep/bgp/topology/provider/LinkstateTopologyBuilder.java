@@ -120,6 +120,8 @@ import org.slf4j.LoggerFactory;
 
 public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateRoute> {
 
+    private static final String UNHANDLED_OBJECT_CLASS = "Unhandled object class {}";
+
     private static final class TpHolder {
         private final Set<LinkId> local = new HashSet<>();
         private final Set<LinkId> remote = new HashSet<>();
@@ -856,7 +858,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         } else if (t instanceof PrefixCase) {
             createPrefix(trans, base, value, (PrefixCase) t, value.getAttributes());
         } else {
-            throw new IllegalStateException("Unhandled object class " + t.getImplementedInterface());
+            LOG.debug(UNHANDLED_OBJECT_CLASS, t.getImplementedInterface());
         }
     }
 
@@ -873,7 +875,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         } else if (t instanceof PrefixCase) {
             removePrefix(trans, base, (PrefixCase) t);
         } else {
-            throw new IllegalStateException("Unhandled object class " + t.getImplementedInterface());
+            LOG.debug(UNHANDLED_OBJECT_CLASS, t.getImplementedInterface());
         }
     }
 
