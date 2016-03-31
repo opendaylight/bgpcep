@@ -17,16 +17,11 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GlobalEventExecutor;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.opendaylight.protocol.framework.NeverReconnectStrategy;
-import org.opendaylight.protocol.framework.ReconnectStrategy;
-import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
-import org.opendaylight.protocol.framework.TimedReconnectStrategy;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
@@ -48,7 +43,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(PCCDispatcherImpl.class);
 
-    private static final int RECONNECT_STRATEGY_TIMEOUT = 2000;
+    private static final int CONNECT_TIMEOUT = 2000;
 
     private final PCEPHandlerFactory factory;
     private final MD5ChannelFactory<?> cf;
@@ -103,8 +98,8 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
         setChannelFactory(b, keys);
         b.option(ChannelOption.SO_KEEPALIVE, true);
         b.option(ChannelOption.MAX_MESSAGES_PER_READ, 1);
-        final ReconnectStrategyFactory reconnectStrategy = reconnectTime == -1 ? getNeverReconnectStrategyFactory() : getTimedReconnectStrategyFactory(reconnectTime);
-        final PCCReconnectPromise promise = new PCCReconnectPromise(remoteAddress, reconnectStrategy, b);
+        final long retryTimer = reconnectTime == -1 ? 0 : reconnectTime;
+        final PCCReconnectPromise promise = new PCCReconnectPromise(remoteAddress, (int) retryTimer, CONNECT_TIMEOUT, b);
         final ChannelInitializer<SocketChannel> channelInitializer = new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(final SocketChannel ch) throws Exception {
@@ -155,27 +150,5 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
         } catch (final InterruptedException | ExecutionException e) {
             LOG.warn("Failed to properly close dispatcher.", e);
         }
-    }
-
-    @SuppressWarnings("deprecation")
-    private static ReconnectStrategyFactory getNeverReconnectStrategyFactory() {
-        return new ReconnectStrategyFactory() {
-
-            @Override
-            public ReconnectStrategy createReconnectStrategy() {
-                return new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_STRATEGY_TIMEOUT);
-            }
-        };
-    }
-
-    @SuppressWarnings("deprecation")
-    private static ReconnectStrategyFactory getTimedReconnectStrategyFactory(final long reconnectTime) {
-        return new ReconnectStrategyFactory() {
-
-            @Override
-            public ReconnectStrategy createReconnectStrategy() {
-                return new TimedReconnectStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_STRATEGY_TIMEOUT, reconnectTime, 1.0, null, null, null);
-            }
-        };
     }
 }

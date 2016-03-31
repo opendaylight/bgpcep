@@ -47,7 +47,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
-import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
@@ -90,9 +89,6 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     @VisibleForTesting
     public static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes.QNAME);
 
-    private final ReconnectStrategyFactory tcpStrategyFactory;
-    private final ReconnectStrategyFactory sessionStrategyFactory;
-
     private final BGPDispatcher dispatcher;
     private final DOMTransactionChain domChain;
     private final AsNumber localAs;
@@ -114,8 +110,8 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
 
     public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final Ipv4Address clusterId, final RIBExtensionConsumerContext extensions,
-        final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory, final BindingCodecTreeFactory codecFactory,
-        final ReconnectStrategyFactory sessionStrategyFactory, final DataBroker dps, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
+        final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecFactory,
+        final DataBroker dps, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
         @Nonnull final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies, final GeneratedClassLoadingStrategy classStrategy,
         final BGPConfigModuleTracker moduleTracker, final BGPOpenConfigProvider openConfigProvider) {
         super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))));
@@ -123,8 +119,6 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.localAs = Preconditions.checkNotNull(localAs);
         this.bgpIdentifier = Preconditions.checkNotNull(localBgpId);
         this.dispatcher = Preconditions.checkNotNull(dispatcher);
-        this.sessionStrategyFactory = Preconditions.checkNotNull(sessionStrategyFactory);
-        this.tcpStrategyFactory = Preconditions.checkNotNull(tcpStrategyFactory);
         this.localTables = ImmutableSet.copyOf(localTables);
         this.localTablesKeys = new HashSet<>();
         this.dataBroker = dps;
@@ -185,10 +179,10 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     }
 
     public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final Ipv4Address clusterId, final RIBExtensionConsumerContext extensions,
-            final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory, final BindingCodecTreeFactory codecFactory,
-            final ReconnectStrategyFactory sessionStrategyFactory, final DataBroker dps, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
+            final BGPDispatcher dispatcher, final BindingCodecTreeFactory codecFactory,
+            final DataBroker dps, final DOMDataBroker domDataBroker, final List<BgpTableType> localTables,
             final Map<TablesKey, PathSelectionMode> bestPathSelectionstrategies, final GeneratedClassLoadingStrategy classStrategy) {
-        this(ribId, localAs, localBgpId, clusterId, extensions, dispatcher, tcpStrategyFactory, codecFactory, sessionStrategyFactory,
+        this(ribId, localAs, localBgpId, clusterId, extensions, dispatcher, codecFactory,
                 dps, domDataBroker, localTables, bestPathSelectionstrategies, classStrategy, null, null);
     }
 
@@ -267,16 +261,6 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     @Override
     public Set<? extends BgpTableType> getLocalTables() {
         return this.localTables;
-    }
-
-    @Override
-    public ReconnectStrategyFactory getTcpStrategyFactory() {
-        return this.tcpStrategyFactory;
-    }
-
-    @Override
-    public ReconnectStrategyFactory getSessionStrategyFactory() {
-        return this.sessionStrategyFactory;
     }
 
     @Override
