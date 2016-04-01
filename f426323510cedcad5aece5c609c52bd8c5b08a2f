@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a4c51b2_8eb63ddb",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/controller/config/yang/bgp/rib/impl/karaf/ShowBGPStatsCommandProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-04-01T12:57:58Z",
+      "side": 1,
+      "message": "please write something if stats is null, saying stats is null",
+      "range": {
+        "startLine": 26,
+        "startChar": 8,
+        "endLine": 26,
+        "endChar": 26
+      },
+      "revId": "f426323510cedcad5aece5c609c52bd8c5b08a2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a4c51b2_6ee2d1d6",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionStats.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-04-01T12:57:58Z",
+      "side": 1,
+      "message": "I doubt this will actually works. You need an instance of this class to retrieve the info, you can\u0027t just call the methods... this won\u0027t work. Moreover, I think this BGPSessionStats is something related to a session.\n\nSo maybe you could have those commands:\n\n- retrieve all the existing session (list-sessions)\n- retrieve one existing session per channel or IP or MAC (showSession) This is where you can retrieve the stat for the given session and print them",
+      "range": {
+        "startLine": 49,
+        "startChar": 19,
+        "endLine": 49,
+        "endChar": 34
+      },
+      "revId": "f426323510cedcad5aece5c609c52bd8c5b08a2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
