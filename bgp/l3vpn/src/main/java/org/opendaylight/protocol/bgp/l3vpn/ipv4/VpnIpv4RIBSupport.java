@@ -1,0 +1,39 @@
+/*
+ * Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+package org.opendaylight.protocol.bgp.l3vpn.ipv4;
+
+import java.util.List;
+import org.opendaylight.protocol.bgp.l3vpn.AbstractVpnRIBSupport;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.DestinationType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.bgp.rib.rib.loc.rib.tables.routes.VpnIpv4RoutesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev160413.l3vpn.destination.VpnDestination;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev160413.l3vpn.routes.VpnRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev160413.l3vpn.routes.vpn.routes.VpnRoute;
+
+final class VpnIpv4RIBSupport extends AbstractVpnRIBSupport {
+    /**
+     * Default constructor. Requires the QName of the container augmented under the routes choice
+     * node in instantiations of the rib grouping. It is assumed that this container is defined by
+     * the same model which populates it with route grouping instantiation, and by extension with
+     * the route attributes container.
+     */
+    protected VpnIpv4RIBSupport() {
+        super(VpnIpv4RoutesCase.class, VpnRoutes.class, VpnRoute.class, Ipv4AddressFamily.class);
+    }
+
+    @Override
+    protected DestinationType getAdvertizedDestinationType(List<VpnDestination> dests) {
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationVpnIpv4CaseBuilder().setVpnDestination(dests).build();
+    }
+
+    @Override
+    protected DestinationType getWithdrawnDestinationType(List<VpnDestination> dests) {
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv4CaseBuilder().setVpnDestination(dests).build();
+    }
+}

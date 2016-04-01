@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.l3vpn;
+package org.opendaylight.protocol.bgp.l3vpn.ipv4;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +14,9 @@ import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.vpn.ipv4.routes.VpnIpv4Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev160413.l3vpn.routes.VpnRoutes;
 
-public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
+public final class BgpIpv4Activator extends AbstractBGPExtensionProviderActivator {
 
     @Override
     protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
@@ -27,7 +27,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
         regs.add(context.registerNlriParser(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class,
             nlriParser, nextHopParser, Ipv4NextHopCase.class));
-        regs.add(context.registerNlriSerializer(VpnIpv4Routes.class, nlriParser));
+        regs.add(context.registerNlriSerializer(VpnRoutes.class, nlriParser));
 
         return regs;
     }
