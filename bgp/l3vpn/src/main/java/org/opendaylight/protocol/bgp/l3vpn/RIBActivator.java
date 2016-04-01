@@ -12,6 +12,7 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+//import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
 
 public class RIBActivator extends AbstractRIBExtensionProviderActivator {
@@ -20,6 +21,7 @@ public class RIBActivator extends AbstractRIBExtensionProviderActivator {
     protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
         final List<AutoCloseable> regs = new ArrayList<>();
         regs.add(context.registerRIBSupport(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class, new VpnIpv4RIBSupport()));
+//        regs.add(context.registerRIBSupport(Ipv6AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class, new VpnIpv6RIBSupport()));
         return regs;
     }
 
