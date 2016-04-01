@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2016 Brocade Communications Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -13,24 +13,31 @@ import org.opendaylight.bgp.concepts.NextHopUtil;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.NextHopParserSerializer;
-import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
 
-public final class VpnIpv4NextHopParserSerializer implements NextHopParserSerializer {
+/**
+ * @author Kevin Wang
+ */
+public abstract class AbstractVpnNextHopParserSerializer implements NextHopParserSerializer {
+    private final int IP_ADDR_LENGTH;
+    private final Class<?> IP_NEXT_HOP_CASE_CLAZZ;
+
+    protected AbstractVpnNextHopParserSerializer(final int ipAddrLength, final Class<?> ipNextHopCaseClazz) {
+        IP_ADDR_LENGTH = ipAddrLength;
+        IP_NEXT_HOP_CASE_CLAZZ = ipNextHopCaseClazz;
+    }
 
     @Override
     public CNextHop parseNextHop(final ByteBuf buffer) throws BGPParsingException {
-        Preconditions.checkArgument(buffer.readableBytes() == (Ipv4Util.IP4_LENGTH + RouteDistinguisherUtil.RD_LENGTH), "Length of byte array for NEXT_HOP should be %s, but is %s", Ipv4Util.IP4_LENGTH + RouteDistinguisherUtil.RD_LENGTH, buffer.readableBytes());
+        Preconditions.checkArgument(buffer.readableBytes() == (IP_ADDR_LENGTH + RouteDistinguisherUtil.RD_LENGTH), "Length of byte array for NEXT_HOP should be %s, but is %s", IP_ADDR_LENGTH + RouteDistinguisherUtil.RD_LENGTH, buffer.readableBytes());
         buffer.readBytes(RouteDistinguisherUtil.RD_LENGTH);
-        return NextHopUtil.parseNextHop(buffer.readBytes(Ipv4Util.IP4_LENGTH));
+        return NextHopUtil.parseNextHop(buffer.readBytes(IP_ADDR_LENGTH));
     }
 
     @Override
     public void serializeNextHop(final CNextHop cNextHop, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(cNextHop instanceof Ipv4NextHopCase, "cNextHop is not a VPN Ipv4 NextHop object.");
+        Preconditions.checkArgument(IP_NEXT_HOP_CASE_CLAZZ.isInstance(cNextHop), "cNextHop is not a VPN %s NextHop object.", IP_NEXT_HOP_CASE_CLAZZ.getSimpleName());
         byteAggregator.writeZero(RouteDistinguisherUtil.RD_LENGTH);
         NextHopUtil.serializeNextHop(cNextHop, byteAggregator);
     }
-
 }

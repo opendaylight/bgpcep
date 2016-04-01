@@ -80,7 +80,11 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         this.cazeClass = Preconditions.checkNotNull(cazeClass);
         this.containerClass = Preconditions.checkNotNull(containerClass);
         this.listClass = Preconditions.checkNotNull(listClass);
-        this.routesListIdentifier = new NodeIdentifier(BindingReflections.findQName(listClass).intern());
+        this.routesListIdentifier = new NodeIdentifier(
+            QName.create(
+                qname.getNamespace(), qname.getRevision(), BindingReflections.findQName(listClass).intern().getLocalName()
+            )
+        );
     }
 
     @Override
