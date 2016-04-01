@@ -71,6 +71,30 @@
     },
     {
       "key": {
+        "uuid": "3a4c51b2_f192409e",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BgpPeerRpc.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-01T14:54:30Z",
+      "side": 1,
+      "message": "In fact, there is a set \"tables\" in BGPPeer.",
+      "parentUuid": "3a4c51b2_0e77cdd5",
+      "range": {
+        "startLine": 27,
+        "startChar": 41,
+        "endLine": 27,
+        "endChar": 101
+      },
+      "revId": "ce1c4723ef875e3ab880472e5ccee5bcffa8f528",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a4c51b2_5134d4dd",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BgpPeerRpc.java",
         "patchSetId": 7
