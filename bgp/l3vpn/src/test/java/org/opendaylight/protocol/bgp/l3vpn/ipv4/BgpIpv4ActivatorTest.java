@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.l3vpn;
+package org.opendaylight.protocol.bgp.l3vpn.ipv4;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -13,11 +13,11 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 
-public class BGPActivatorTest {
+public class BgpIpv4ActivatorTest {
 
     @Test
     public void testActivator() throws Exception {
-        final BGPActivator act = new BGPActivator();
+        final BgpIpv4Activator act = new BgpIpv4Activator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         assertFalse(context.getNlriRegistry().getSerializers().iterator().hasNext());
         act.start(context);
