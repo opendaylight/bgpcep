@@ -64,22 +64,19 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableCo
 
 public class AbstractRouteEntryTest {
     protected static final long REMOTE_PATH_ID = 1;
-    protected final static PeerId PEER_ID = new PeerId("bgp://42.42.42.42");
-    protected final static YangInstanceIdentifier PEER_YII2 = YangInstanceIdentifier.of(QName.create
-        ("urn:opendaylight:params:xml:ns:yang:bgp-inet:test", "2015-03-05", "peer2"));
+    protected static final PeerId PEER_ID = new PeerId("bgp://42.42.42.42");
+    protected static final YangInstanceIdentifier PEER_YII2 = YangInstanceIdentifier.of(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet:test", "2015-03-05", "peer2"));
     protected static final long AS = 64444;
     protected static final UnsignedInteger ROUTER_ID = UnsignedInteger.ONE;
     protected static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-    protected static final YangInstanceIdentifier LOC_RIB_TARGET = YangInstanceIdentifier.create(YangInstanceIdentifier.of(BgpRib.QNAME).node(LocRib
-        .QNAME).node(Tables.QNAME)
-        .node(RibSupportUtils.toYangTablesKey(TABLES_KEY)).getPathArguments());
-    private final static PeerId PEER_ID2 = new PeerId("bgp://43.43.43.43");
-    private final static PeerId PEER_DISCONNECTED = new PeerId("bgp://44.44.44.44");
-    private final static YangInstanceIdentifier PEER_YII = YangInstanceIdentifier.of(QName.create
-        ("urn:opendaylight:params:xml:ns:yang:bgp-inet:test", "2015-03-05", "peer1"));
+    protected static final YangInstanceIdentifier LOC_RIB_TARGET = YangInstanceIdentifier.create(YangInstanceIdentifier.of(BgpRib.QNAME)
+        .node(LocRib.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(TABLES_KEY)).getPathArguments());
+    private static final long PATH_ID = 1;
+    private static final PeerId PEER_ID2 = new PeerId("bgp://43.43.43.43");
+    private static final PeerId PEER_DISCONNECTED = new PeerId("bgp://44.44.44.44");
     private static final String PREFIX = "1.2.3.4/32";
     private static final String PREFIX2 = "2.2.2.2/32";
-    private static final long PATH_ID = 1;
+    private static final YangInstanceIdentifier PEER_YII = YangInstanceIdentifier.of(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet:test", "2015-03-05", "peer1"));
     private static final NodeIdentifier ROUTES_IDENTIFIER = new NodeIdentifier(Routes.QNAME);
     private static final NodeIdentifier ORIGIN_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, Origin.QNAME.getLocalName()).intern());
     private static final NodeIdentifier ORIGIN_VALUE_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "value").intern());
@@ -87,15 +84,12 @@ public class AbstractRouteEntryTest {
     private static final NodeIdentifier ATOMIC_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, AtomicAggregate.QNAME.getLocalName()));
     private static final Function<YangInstanceIdentifier, Map.Entry<PeerId, YangInstanceIdentifier>> GENERATE_PEER_ID =
         input -> PEER_YII.equals(input) ? new AbstractMap.SimpleImmutableEntry<>(PEER_ID, input) : new AbstractMap.SimpleImmutableEntry<>(PEER_ID2, input);
-    private final static QName Q_NAME = BindingReflections.findQName(Ipv4Routes.class).intern();
+    private static final QName Q_NAME = BindingReflections.findQName(Ipv4Routes.class).intern();
     private static final NodeIdentifier ROUTE_ATTRIBUTES_IDENTIFIER = new NodeIdentifier(QName.create(Q_NAME, Attributes.QNAME.getLocalName().intern()));
-    private static final NodeIdentifier ROUTES_LIST_IDENTIFIER = new NodeIdentifier(BindingReflections.findQName(Ipv4Route.class).intern());
-    private static final NodeIdentifier ROUTES_CONTAINER_IDENTIFIER = new NodeIdentifier(Q_NAME);
     private static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
     protected static final NodeIdentifierWithPredicates ROUTE_ID_PA = new NodeIdentifierWithPredicates(Ipv4Route.QNAME, ImmutableMap.of(PREFIX_QNAME, PREFIX));
     private static final QName PATHID_QNAME = QName.create(Ipv4Route.QNAME, "path-id").intern();
-    protected static final NodeIdentifierWithPredicates ROUTE_ID_PA_ADD_PATH = new NodeIdentifierWithPredicates(Ipv4Route.QNAME,
-        ImmutableMap.of(PATHID_QNAME, PATH_ID, PREFIX_QNAME, PREFIX2));
+    protected static final NodeIdentifierWithPredicates ROUTE_ID_PA_ADD_PATH = new NodeIdentifierWithPredicates(Ipv4Route.QNAME, ImmutableMap.of(PATHID_QNAME, PATH_ID, PREFIX_QNAME, PREFIX2));
     @Mock
     protected RIBSupport ribSupport;
     @Mock
@@ -107,19 +101,20 @@ public class AbstractRouteEntryTest {
     protected CacheDisconnectedPeers discCache;
     protected List<YangInstanceIdentifier> yIIChanges;
     protected NormalizedNode<?, ?> attributes;
-    @Mock
-    private PeerExportGroup pegNot;
-    private YangInstanceIdentifier locRibTargetYii;
-    private YangInstanceIdentifier locRibOutTargetYii;
     protected YangInstanceIdentifier routePaYii;
     protected YangInstanceIdentifier routePaAddPathYii;
     protected YangInstanceIdentifier routeRiboutYii;
     protected YangInstanceIdentifier routeAddRiboutYii;
     protected YangInstanceIdentifier routeRiboutAttYii;
     protected YangInstanceIdentifier routeAddRiboutAttYii;
-    private YangInstanceIdentifier locRibOutTargetYiiPeer2;
     protected YangInstanceIdentifier routeRiboutAttYiiPeer2;
     protected YangInstanceIdentifier routeRiboutYiiPeer2;
+    protected YangInstanceIdentifier routeAddRiboutYiiPeer2;
+    @Mock
+    private PeerExportGroup pegNot;
+    private YangInstanceIdentifier locRibTargetYii;
+    private YangInstanceIdentifier locRibOutTargetYii;
+    private YangInstanceIdentifier locRibOutTargetYiiPeer2;
 
     protected void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -135,10 +130,10 @@ public class AbstractRouteEntryTest {
         this.routeAddRiboutYii = locRibOutTargetYii.node(ROUTE_ID_PA_ADD_PATH);
         this.routeRiboutAttYii = locRibOutTargetYii.node(ROUTE_ID_PA).node(ATTRS_EXTENSION_Q);
         this.routeAddRiboutAttYii = locRibOutTargetYii.node(ROUTE_ID_PA_ADD_PATH).node(ATTRS_EXTENSION_Q);
-
         this.locRibOutTargetYiiPeer2 = PEER_YII2.node(AdjRibOut.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(TABLES_KEY)).node(ROUTES_IDENTIFIER);
         this.routeRiboutYiiPeer2 = locRibOutTargetYiiPeer2.node(ROUTE_ID_PA);
         this.routeRiboutAttYiiPeer2 = locRibOutTargetYiiPeer2.node(ROUTE_ID_PA).node(ATTRS_EXTENSION_Q);
+        this.routeAddRiboutYiiPeer2 = locRibOutTargetYiiPeer2.node(ROUTE_ID_PA_ADD_PATH);
         mockRibSupport();
         mockExportPolicies();
         mockExportGroup();
@@ -167,10 +162,14 @@ public class AbstractRouteEntryTest {
                 final Object[] args = invocation.getArguments();
                 if (routePaYii.equals(args[1])) {
                     yIIChanges.remove(routePaYii);
-                } else if(routeRiboutYii.equals(args[1])) {
+                } else if (routePaAddPathYii.equals(args[1])) {
+                    yIIChanges.remove(routePaAddPathYii);
+                } else if (routeRiboutYii.equals(args[1])) {
                     yIIChanges.remove(routeRiboutYii);
                     yIIChanges.remove(routeAddRiboutAttYii);
-
+                } else if (routeAddRiboutYii.equals(args[1])) {
+                    yIIChanges.remove(routeAddRiboutYii);
+                    yIIChanges.remove(routeAddRiboutAttYii);
                 }
                 return args[1];
             }
@@ -203,6 +202,9 @@ public class AbstractRouteEntryTest {
                 }
             }
         }).when(this.peerPT).getPeerGroup(Mockito.any(PeerRole.class));
+
+        Mockito.doReturn(true).when(this.peerPT).isAddPathSupportedByPeer(PEER_ID);
+        Mockito.doReturn(false).when(this.peerPT).isAddPathSupportedByPeer(PEER_ID2);
     }
 
     private void mockRibSupport() {
@@ -216,18 +218,23 @@ public class AbstractRouteEntryTest {
                 final YangInstanceIdentifier yii = (YangInstanceIdentifier) args[0];
                 final PathArgument paa = (PathArgument) args[1];
 
-                if (ROUTE_ID_PA.equals(paa) && yii.equals(locRibTargetYii)) {
-                    return routePaYii;
-                } else if (ROUTE_ID_PA_ADD_PATH.equals(paa) && yii.equals(locRibTargetYii)) {
-                    return routePaAddPathYii;
-                } else if (ROUTE_ID_PA.equals(paa) && yii.equals(locRibOutTargetYii)) {
-                    return routeRiboutYii;
-                } else if (ROUTE_ID_PA_ADD_PATH.equals(paa) && yii.equals(locRibOutTargetYii)) {
-                    return routeAddRiboutYii;
-                } else if (ROUTE_ID_PA.equals(paa) && yii.equals(locRibOutTargetYiiPeer2)) {
-                    return routeRiboutYiiPeer2;
+                if (ROUTE_ID_PA.equals(paa)) {
+                    if (yii.equals(locRibTargetYii)) {
+                        return routePaYii;
+                    } else if (yii.equals(locRibOutTargetYii)) {
+                        return routeRiboutYii;
+                    } else if (yii.equals(locRibOutTargetYiiPeer2)) {
+                        return routeRiboutYiiPeer2;
+                    }
+                } else if (ROUTE_ID_PA_ADD_PATH.equals(paa)) {
+                    if (yii.equals(locRibTargetYii)) {
+                        return routePaAddPathYii;
+                    } else if (yii.equals(locRibOutTargetYii)) {
+                        return routeAddRiboutYii;
+                    } else if (yii.equals(locRibOutTargetYiiPeer2)) {
+                        return routeAddRiboutYiiPeer2;
+                    }
                 }
-
                 return null;
             }
         }).when(this.ribSupport).routePath(Mockito.any(YangInstanceIdentifier.class), Mockito.any(PathArgument.class));
@@ -236,13 +243,10 @@ public class AbstractRouteEntryTest {
     private NormalizedNode<?, ?> createAttr() {
         final ContainerNode attributes = Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(ATTRS_EXTENSION_Q))
             .addChild(Builders.containerBuilder().withNodeIdentifier(ORIGIN_NID)
-                .addChild(Builders.leafBuilder().withNodeIdentifier(ORIGIN_VALUE_NID).withValue("igp").build())
-                .build())
+                .addChild(Builders.leafBuilder().withNodeIdentifier(ORIGIN_VALUE_NID).withValue("igp").build()).build())
             .addChild(Builders.containerBuilder().withNodeIdentifier(AS_PATH_NID)
-                .addChild(Builders.unkeyedListBuilder().withNodeIdentifier(SEGMENTS_NID).build())
-                .build())
-            .addChild(Builders.containerBuilder().withNodeIdentifier(ATOMIC_NID).build())
-            .build();
+                .addChild(Builders.unkeyedListBuilder().withNodeIdentifier(SEGMENTS_NID).build()).build())
+            .addChild(Builders.containerBuilder().withNodeIdentifier(ATOMIC_NID).build()).build();
         return ImmutableContainerNodeBuilder.create().withNodeIdentifier(ROUTE_ATTRIBUTES_IDENTIFIER)
             .withChild(attributes).build();
     }
