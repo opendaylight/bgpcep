@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a4c51b2_6e877162",
+        "filename": "bgp/rib-impl/src/main/yang/odl-bgp-rib-impl-cfg.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-01T11:07:26Z",
+      "side": 1,
+      "message": "Waiting two minutes between reconnect attempts is too much. I think 1 or 2 seconds should be fine.\n\nIn fact, BGP-4\u0027s \"ConnectRetryTime\" has a different meaning.",
+      "range": {
+        "startLine": 362,
+        "startChar": 24,
+        "endLine": 362,
+        "endChar": 27
+      },
+      "revId": "ed558e6a8251d47403cd998d3cb4186fbf7265d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a4c51b2_0e686db9",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/protocol/PCCReconnectPromise.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-01T11:07:26Z",
+      "side": 1,
+      "message": "MILLISECONDS or another option is to modify the code in the main class - remove the seconds\u003c-\u003emilliseconds conversion.",
+      "range": {
+        "startLine": 119,
+        "startChar": 69,
+        "endLine": 119,
+        "endChar": 76
+      },
+      "revId": "ed558e6a8251d47403cd998d3cb4186fbf7265d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
