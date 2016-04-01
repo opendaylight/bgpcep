@@ -37,7 +37,7 @@ abstract class AbstractNPathsRouteEntry extends AddPathAbstractRouteEntry {
         }
 
         this.bestPathRemoved = new ArrayList<>(this.bestPath);
-        if (this.bestPathRemoved.removeAll(newBestPathList) || !this.bestPath.equals(newBestPathList)) {
+        if (this.bestPathRemoved.removeAll(newBestPathList) && !this.bestPathRemoved.isEmpty() || !this.bestPath.equals(newBestPathList)) {
             this.bestPath = newBestPathList;
             LOG.trace("Actual Best {}, removed best {}", this.bestPath, this.bestPathRemoved);
             return true;

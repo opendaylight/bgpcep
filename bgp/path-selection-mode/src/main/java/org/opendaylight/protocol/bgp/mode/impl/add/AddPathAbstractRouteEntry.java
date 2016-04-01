@@ -53,7 +53,6 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
     private long pathIdCounter = 0L;
 
     private int addRoute(final RouteKey key, final ContainerNode attributes) {
-        this.pathIdCounter++;
         int offset = this.offsets.offsetOf(key);
         if (offset < 0) {
             final OffsetMap<RouteKey> newOffsets = this.offsets.with(key);
@@ -63,10 +62,9 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
             this.values = newAttributes;
             this.offsets = newOffsets;
             this.pathsId = newPathsId;
+            this.offsets.setValue(this.pathsId, offset, this.pathIdCounter++);
         }
-
         this.offsets.setValue(this.values, offset, attributes);
-        this.offsets.setValue(this.pathsId, offset, this.pathIdCounter);
         LOG.trace("Added route from {} attributes {}", key.getRouteId(), attributes);
         return offset;
     }
@@ -88,7 +86,7 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
         this.values = this.offsets.removeValue(this.values, offset);
         this.pathsId = this.offsets.removeValue(this.pathsId, offset);
         this.offsets = this.offsets.without(key);
-        return this.offsets.size() == 0;
+        return this.offsets.isEmty();
     }
 
     @Override
@@ -192,6 +190,10 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
 
     protected final OffsetMap<RouteKey> getOffsets() {
         return this.offsets;
+    }
+
+    public final boolean isEmpty() {
+        return this.offsets.isEmty();
     }
 
     protected void selectBest(final RouteKey key, final AddPathSelector selector) {
