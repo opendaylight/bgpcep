@@ -28,7 +28,7 @@ abstract class AbstractAllPathsRouteEntry extends AddPathAbstractRouteEntry {
         final List<AddPathBestPath> newBestPathList = new ArrayList<>();
         final List<RouteKey> keyList = this.offsets.getRouteKeysList();
 
-        if(!keyList.isEmpty()) {
+        if (!keyList.isEmpty()) {
             /* we set the best path first on List for not supported Add path cases*/
             final AddPathBestPath newBest = selectBest(localAs, keyList);
             newBestPathList.add(newBest);
@@ -47,7 +47,7 @@ abstract class AbstractAllPathsRouteEntry extends AddPathAbstractRouteEntry {
         }
 
         this.bestPathRemoved = new ArrayList<>(this.bestPath);
-        if (this.bestPathRemoved.removeAll(newBestPathList) || !this.bestPath.equals(newBestPathList)) {
+        if (this.bestPathRemoved.removeAll(newBestPathList) && !this.bestPathRemoved.isEmpty() || !this.bestPath.equals(newBestPathList)) {
             this.bestPath = newBestPathList;
             LOG.trace("Actual Best {}, removed best {}", this.bestPath, this.bestPathRemoved);
             return true;
