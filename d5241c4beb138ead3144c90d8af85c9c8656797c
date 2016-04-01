@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a4c51b2_281a8017",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-04-01T07:35:05Z",
+      "side": 1,
+      "message": "is it a TODO? Or should it be removed",
+      "range": {
+        "startLine": 127,
+        "startChar": 16,
+        "endLine": 127,
+        "endChar": 82
+      },
+      "revId": "d5241c4beb138ead3144c90d8af85c9c8656797c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a4c51b2_0817c4ee",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-04-01T07:35:05Z",
+      "side": 1,
+      "message": "Remove, BGPDocumentedException will print Log.error anyway so no need of doing it twice",
+      "range": {
+        "startLine": 128,
+        "startChar": 16,
+        "endLine": 128,
+        "endChar": 62
+      },
+      "revId": "d5241c4beb138ead3144c90d8af85c9c8656797c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a4c51b2_c8e31c04",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPReachAttributeParser.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-04-01T07:35:05Z",
+      "side": 1,
+      "message": "parseMultiPathMpReach takes care whether multiPathSupport is null or not, so not need to to dot it in here.",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 13
+      },
+      "revId": "d5241c4beb138ead3144c90d8af85c9c8656797c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
