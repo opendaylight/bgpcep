@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.l3vpn;
+package org.opendaylight.protocol.bgp.l3vpn.ipv4;
 
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
@@ -33,18 +33,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisherBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationVpnIpv4CaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.vpn.ipv4._case.DestinationVpnIpv4Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.vpn.ipv4.destination.VpnIpv4Destination;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.vpn.ipv4.destination.VpnIpv4DestinationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.l3vpn.ipv4.destination.VpnIpv4DestinationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev160413.l3vpn.ip.destination.type.VpnDestination;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev160413.l3vpn.ip.destination.type.VpnDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
-
 
 public class VpnIpv4NlriParserTest {
 
     private static final VpnIpv4NlriParser PARSER = new VpnIpv4NlriParser();
 
-    private static final byte[] NLRI_TYPE1 = new byte[] {
+    private static final byte[] NLRI_TYPE1 = new byte[]{
         (byte) 0x70,
         (byte) 0x00, (byte) 0x16, (byte) 0x31,
         0, 1, 1, 2, 3, 4, 1, 2,
@@ -54,15 +52,19 @@ public class VpnIpv4NlriParserTest {
     private static final List<LabelStack> LABEL_STACK = Lists.newArrayList(
         new LabelStackBuilder().setLabelValue(new MplsLabel(355L)).build());
     private static final RouteDistinguisher DISTINGUISHER = RouteDistinguisherBuilder.getDefaultInstance("1.2.3.4:258");
-    private static final VpnIpv4Destination VPN = new VpnIpv4DestinationBuilder().setRouteDistinguisher(DISTINGUISHER).setPrefix(IPv4_PREFIX).setLabelStack(LABEL_STACK).build();
+    private static final VpnDestination VPN = new VpnDestinationBuilder().setRouteDistinguisher(DISTINGUISHER).setPrefix(IPv4_PREFIX).setLabelStack(LABEL_STACK).build();
 
     @Test
     public void testMpReachNlri() throws BGPParsingException {
         final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
         mpBuilder.setAfi(Ipv4AddressFamily.class);
-        mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-            new DestinationVpnIpv4CaseBuilder().setDestinationVpnIpv4(
-                new DestinationVpnIpv4Builder().setVpnIpv4Destination(Lists.newArrayList(VPN)).build()).build()).build());
+        mpBuilder.setAdvertizedRoutes(
+            new AdvertizedRoutesBuilder().setDestinationType(
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.update.attributes.mp.reach.nlri.advertized.routes.destination.type.VpnIpv4DestinationCaseBuilder().setVpnIpv4Destination(
+                    new VpnIpv4DestinationBuilder().setVpnDestination(Lists.newArrayList(VPN)).build()
+                ).build()
+            ).build()
+        ).build();
 
         final MpReachNlri mpReachExpected = mpBuilder.build();
 
@@ -72,8 +74,11 @@ public class VpnIpv4NlriParserTest {
         Assert.assertEquals(mpReachExpected, testBuilder.build());
 
         final ByteBuf output = Unpooled.buffer();
-        PARSER.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes1.class,
-            new Attributes1Builder().setMpReachNlri(mpReachExpected).build()).build(), output);
+        PARSER.serializeAttribute(
+            new AttributesBuilder().addAugmentation(Attributes1.class,
+                new Attributes1Builder().setMpReachNlri(mpReachExpected).build()
+            ).build(), output
+        );
         Assert.assertArrayEquals(NLRI_TYPE1, ByteArray.readAllBytes(output));
     }
 
@@ -81,9 +86,13 @@ public class VpnIpv4NlriParserTest {
     public void testMpUnreachNlri() throws BGPParsingException {
         final MpUnreachNlriBuilder mpBuilder = new MpUnreachNlriBuilder();
         mpBuilder.setAfi(Ipv4AddressFamily.class);
-        mpBuilder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv4CaseBuilder().setDestinationVpnIpv4(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.vpn.ipv4._case.DestinationVpnIpv4Builder().setVpnIpv4Destination(Lists.newArrayList(VPN)).build()).build()).build());
+        mpBuilder.setWithdrawnRoutes(
+            new WithdrawnRoutesBuilder().setDestinationType(
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.VpnIpv4DestinationCaseBuilder().setVpnIpv4Destination(
+                    new VpnIpv4DestinationBuilder().setVpnDestination(Lists.newArrayList(VPN)).build()
+                ).build()
+            ).build()
+        ).build();
 
         final MpUnreachNlri mpUnreachExpected = mpBuilder.build();
 
@@ -93,8 +102,11 @@ public class VpnIpv4NlriParserTest {
         Assert.assertEquals(mpUnreachExpected, testBuilder.build());
 
         final ByteBuf output = Unpooled.buffer();
-        PARSER.serializeAttribute(new AttributesBuilder().addAugmentation(Attributes2.class,
-            new Attributes2Builder().setMpUnreachNlri(mpUnreachExpected).build()).build(), output);
+        PARSER.serializeAttribute(
+            new AttributesBuilder().addAugmentation(Attributes2.class,
+                new Attributes2Builder().setMpUnreachNlri(mpUnreachExpected).build()
+            ).build(), output
+        );
         Assert.assertArrayEquals(NLRI_TYPE1, ByteArray.readAllBytes(output));
     }
 }
