@@ -65,6 +65,18 @@
                         <name>n-paths</name>
                     </path-selection-mode>
                 </module>-->
+                <!--<module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-psm-impl</type>
+                    <name>ipv6-unicast-path-selection-mode</name>
+                    <path-address-family>
+                        <type xmlns:ribimpl="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">ribimpl:bgp-table-type</type>
+                        <name>ipv6-unicast</name>
+                    </path-address-family>
+                    <path-selection-mode>
+                        <type xmlns:ribimpl="urn:opendaylight:params:xml:ns:yang:controller:bgp:path:selection:mode">ribimpl:path-selection-mode-factory</type>
+                        <name>n-paths</name>
+                    </path-selection-mode>
+                </module>-->
 
 
                 <!--
@@ -124,9 +136,17 @@
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
                         <name>ipv4-l3vpn</name>
                     </advertized-table>
+                    <advertized-table>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+                        <name>ipv6-l3vpn</name>
+                    </advertized-table>
                     <add-path>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:add-path</type>
                         <name>ipv4-unicast-both</name>
+                    </add-path>
+                    <add-path>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:add-path</type>
+                        <name>ipv6-unicast-both</name>
                     </add-path>
                 </module>
                 -->
@@ -167,9 +187,17 @@
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
                         <name>ipv4-l3vpn</name>
                     </local-table>
+                    <local-table>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+                        <name>ipv6-l3vpn</name>
+                    </local-table>
                     <!--<path-selection-mode>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-path-selection-mode</type>
                         <name>ipv4-unicast-path-selection-mode</name>
+                    </path-selection-mode>-->
+                    <!--<path-selection-mode>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-path-selection-mode</type>
+                        <name>ipv6-unicast-path-selection-mode</name>
                     </path-selection-mode>-->
                     <extensions>
                         <type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extensions</type>
@@ -292,6 +320,13 @@
                     <instance>
                         <name>ipv4-unicast-path-selection-mode</name>
                         <provider>/modules/module[type='bgp-psm-impl'][name='ipv4-unicast-path-selection-mode']</provider>
+                    </instance>
+                </service>-->
+                <!--<service>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-path-selection-mode</type>
+                    <instance>
+                        <name>ipv6-unicast-path-selection-mode</name>
+                        <provider>/modules/module[type='bgp-psm-impl'][name='ipv6-unicast-path-selection-mode']</provider>
                     </instance>
                 </service>-->
             </services>
