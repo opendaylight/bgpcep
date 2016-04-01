@@ -1,0 +1,115 @@
+module bgp-vpn-ipv6 {
+    namespace "urn:opendaylight:params:xml:ns:yang:bgp-vpn-ipv6";
+    prefix "bgp-vpn";
+
+    import bgp-labeled-unicast { prefix bgp-lu; revision-date 2015-05-25; }
+    import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
+    import bgp-message { prefix bgp-msg; revision-date 2013-09-19; }
+    import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import bgp-rib { prefix bgp-rib; revision-date 2013-09-25; }
+    import bmp-monitor { prefix bmp-mon; revision-date 2015-05-12; }
+
+    organization "Brocade Communications Systems, Inc.";
+    contact "Kevin Wang <kwang@brocade.com>";
+
+    description
+        "This module contains the base data model of a BGP message.
+        It rolls up the definitions contained in RFC4659.
+
+        Copyright (c) 2016 Brocade Communications Systems, Inc. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision 2016-03-31 {
+        description "Initial revision";
+    }
+
+    grouping vpn-ipv6 {
+        reference "https://tools.ietf.org/html/rfc4659#section-3.2";
+        uses bgp-lu:labeled-unicast;
+        leaf route-distinguisher {
+            type bgp-t:route-distinguisher;
+        }
+    }
+
+    grouping vpn-ipv6-destination {
+        list vpn-ipv6-destination {
+            uses vpn-ipv6;
+        }
+    }
+
+    grouping vpn-ipv6-routes {
+        container vpn-ipv6-routes {
+            list vpn-ipv6-route {
+                leaf route-key {
+                    type binary;
+                }
+                key "route-key";
+                uses vpn-ipv6;
+                uses bgp-rib:route;
+            }
+        }
+    }
+
+    augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
+        case destination-vpn-ipv6-case {
+            container destination-vpn-ipv6 {
+                uses vpn-ipv6-destination;
+            }
+        }
+    }
+
+    augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type" {
+        case destination-vpn-ipv6-case {
+            container destination-vpn-ipv6 {
+                uses vpn-ipv6-destination;
+            }
+        }
+    }
+
+    augment "/bgp-rib:application-rib/bgp-rib:tables/bgp-rib:routes" {
+        case vpn-ipv6-routes-case {
+            uses vpn-ipv6-routes;
+        }
+    }
+
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:loc-rib/bgp-rib:tables/bgp-rib:routes" {
+        case vpn-ipv6-routes-case {
+            uses vpn-ipv6-routes;
+        }
+    }
+
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:adj-rib-in/bgp-rib:tables/bgp-rib:routes" {
+        case vpn-ipv6-routes-case {
+            uses vpn-ipv6-routes;
+        }
+    }
+
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:effective-rib-in/bgp-rib:tables/bgp-rib:routes" {
+        case vpn-ipv6-routes-case {
+            uses vpn-ipv6-routes;
+        }
+    }
+
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:adj-rib-out/bgp-rib:tables/bgp-rib:routes" {
+        case vpn-ipv6-routes-case {
+            uses vpn-ipv6-routes;
+        }
+    }
+
+    augment "/bmp-mon:bmp-monitor/bmp-mon:monitor/bmp-mon:router/bmp-mon:peer/bmp-mon:pre-policy-rib/bmp-mon:tables/bmp-mon:routes" {
+        case vpn-ipv6-routes-case {
+            uses vpn-ipv6-routes;
+        }
+    }
+
+    augment "/bmp-mon:bmp-monitor/bmp-mon:monitor/bmp-mon:router/bmp-mon:peer/bmp-mon:post-policy-rib/bmp-mon:tables/bmp-mon:routes" {
+        case vpn-ipv6-routes-case {
+            uses vpn-ipv6-routes;
+        }
+    }
+}

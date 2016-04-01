@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.l3vpn;
+package org.opendaylight.protocol.bgp.l3vpn.ipv4;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.vpn.ipv4.routes.VpnIpv4Routes;
 
-public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
+public final class BgpIpv4Activator extends AbstractBGPExtensionProviderActivator {
 
     @Override
     protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
