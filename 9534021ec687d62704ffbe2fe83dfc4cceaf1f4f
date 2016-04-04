@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a4c51b2_37a77851",
+        "filename": "bgp/concepts/src/main/yang/odl-netty-cfg.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-04T09:47:30Z",
+      "side": 1,
+      "message": "Please, move to \"bgpcep/concepts\", so the model will be visible for pcep modules too.",
+      "revId": "9534021ec687d62704ffbe2fe83dfc4cceaf1f4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a4c51b2_b749c88d",
+        "filename": "bgp/concepts/src/main/yang/odl-netty-cfg.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-04T09:47:30Z",
+      "side": 1,
+      "message": "In fact, it has nothing to do with netty. Maybe \"rfc2385\" would be better name.",
+      "range": {
+        "startLine": 2,
+        "startChar": 7,
+        "endLine": 2,
+        "endChar": 20
+      },
+      "revId": "9534021ec687d62704ffbe2fe83dfc4cceaf1f4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a4c51b2_175ebc45",
+        "filename": "bgp/concepts/src/main/yang/odl-netty-cfg.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-04T09:47:30Z",
+      "side": 1,
+      "message": "reference https://tools.ietf.org/html/rfc2385#section-4.5",
+      "revId": "9534021ec687d62704ffbe2fe83dfc4cceaf1f4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a4c51b2_f75a304f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-04T09:47:30Z",
+      "side": 1,
+      "message": "We need to avoid situation when peer is configured with password but native transport is not available. Would it be possible to do such validation in BGPPeerModule#customValidation()?",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 90,
+        "endChar": 9
+      },
+      "revId": "9534021ec687d62704ffbe2fe83dfc4cceaf1f4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a4c51b2_3755b81d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-04T09:47:30Z",
+      "side": 1,
+      "message": "Please, leave here \"//FIXME Bug-5566\"",
+      "revId": "9534021ec687d62704ffbe2fe83dfc4cceaf1f4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
