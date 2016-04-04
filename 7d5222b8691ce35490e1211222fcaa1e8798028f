@@ -56,6 +56,23 @@
       "revId": "7d5222b8691ce35490e1211222fcaa1e8798028f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a4c51b2_979e5355",
+        "filename": "features/bgp/src/main/features/features.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-04T09:47:30Z",
+      "side": 1,
+      "message": "Bundle with \"linux-x86_64\" clasifier is needed here.",
+      "revId": "7d5222b8691ce35490e1211222fcaa1e8798028f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
