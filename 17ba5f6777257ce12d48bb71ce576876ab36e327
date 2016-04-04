@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3a4c51b2_9d730db1",
+        "filename": "bgp/path-selection-mode/src/test/java/org/opendaylight/controller/config/yang/bgp/path/selection/mode/AdvertiseAllPathsModuleTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-04-04T13:59:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a4c51b2_37c5b85b",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "17ba5f6777257ce12d48bb71ce576876ab36e327",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a4c51b2_97a12cac",
         "filename": "bgp/path-selection-mode/src/test/java/org/opendaylight/protocol/bgp/mode/impl/AbstractRouteEntryTest.java",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2016-04-04T07:03:05Z",
       "side": 1,
       "message": "static final",
+      "range": {
+        "startLine": 79,
+        "startChar": 12,
+        "endLine": 79,
+        "endChar": 24
+      },
+      "revId": "17ba5f6777257ce12d48bb71ce576876ab36e327",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a4c51b2_fd67b1e8",
+        "filename": "bgp/path-selection-mode/src/test/java/org/opendaylight/protocol/bgp/mode/impl/AbstractRouteEntryTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-04-04T13:59:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a4c51b2_97a12cac",
       "range": {
         "startLine": 79,
         "startChar": 12,
