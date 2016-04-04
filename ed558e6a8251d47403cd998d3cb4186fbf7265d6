@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "3a4c51b2_17b07c8a",
+        "filename": "bgp/controller-config/src/main/resources/initial/41-bgp-example.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-04T08:26:40Z",
+      "side": 1,
+      "message": "Please, rebase again. Seems like some changes from recent commits are removed here.",
+      "revId": "ed558e6a8251d47403cd998d3cb4186fbf7265d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a4c51b2_6e877162",
         "filename": "bgp/rib-impl/src/main/yang/odl-bgp-rib-impl-cfg.yang",
         "patchSetId": 5
@@ -37,6 +54,30 @@
       "side": 1,
       "message": "Found below when searching online. So it does look like ConnectRetryTime mentioned in RFC has different meaning i.e. time to wait before actively trying to establish connection to peer\n\nAs per the current change, the connect retry attempts don\u0027t have exponential back-of. So IMHO 1 or 2 seconds might be too frequent, esp. in case where peer is down. Can I set the default value to 10 secs?\n\n-----\n\nQ. What is the default BGP ConnectRetry timer, and is it possible to tune the BGP ConnectRetry timer?\n\nA. The default BGP ConnectRetry timer is 120 seconds. Only after this time passes does the BGP process check to see if the passive TCP session is established. If the passive TCP session is not established, then the BGP process starts a new active TCP attempt to connect to the remote BGP speaker. During this idle 120 seconds of the ConnectRetry timer, the remote BGP peer can establish a BGP session to it. Presently, the Cisco IOS ConnectRetry timer cannot be changed from its default of 120 seconds.",
       "parentUuid": "3a4c51b2_6e877162",
+      "range": {
+        "startLine": 362,
+        "startChar": 24,
+        "endLine": 362,
+        "endChar": 27
+      },
+      "revId": "ed558e6a8251d47403cd998d3cb4186fbf7265d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a4c51b2_b7bb8871",
+        "filename": "bgp/rib-impl/src/main/yang/odl-bgp-rib-impl-cfg.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-04T08:26:40Z",
+      "side": 1,
+      "message": "Alright, 10 seconds should be ok now.\nAnother enhancement should introduce some \"progressive\" re-connection method.",
+      "parentUuid": "3a4c51b2_f1c6c048",
       "range": {
         "startLine": 362,
         "startChar": 24,
