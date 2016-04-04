@@ -1,0 +1,472 @@
+// vi: set smarttab et sw=4 tabstop=4:
+module odl-bgp-evpn {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:bgp-evpn";
+    prefix "bgp-evpn";
+
+    import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import ietf-yang-types {prefix yang; revision-date "2010-09-24";}
+    import network-concepts { prefix netc; revision-date 2013-11-25; }
+    import bgp-rib { prefix bgp-rib; revision-date 2013-09-25; }
+    import bmp-monitor { prefix bmp-mon; revision-date 2015-05-12; }
+
+    organization "Cisco Systems, Inc.";
+
+    contact "Claudio D. Gasparini <cgaspari@cisco.com>";
+
+    description
+        "This module contains the base data model of a BGP flow specification.
+        It rolls up the definitions contained in RFC7432.
+
+        Copyright (c)2016 Cisco Systems, Inc. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2016-03-21" {
+         description
+             "Initial revision";
+         reference "https://tools.ietf.org/html/rfc7432";
+    }
+
+    identity l2vpn-address-family {
+        reference "https://tools.ietf.org/html/rfc7432#section-20";
+        base bgp-t:address-family;
+    }
+
+    identity evpn-subsequent-address-family {
+        reference "https://tools.ietf.org/html/rfc7432#section-20";
+        base bgp-t:subsequent-address-family;
+    }
+
+    typedef nlri-type {
+        reference "https://tools.ietf.org/html/rfc7432#section-7";
+        type enumeration {
+            enum eth-a-d-disc {
+                value 1;
+            }
+            enum mac-ip-adv {
+                value 2;
+            }
+            enum inc-mult-eth-tag {
+                value 3;
+            }
+            enum eth-seg {
+                value 4;
+            }
+        }
+    }
+
+    typedef esi-type {
+        reference "https://tools.ietf.org/html/rfc7432#section-5";
+        type enumeration {
+            enum arbitrary {
+                value 0;
+            }
+            enum lacp-auto-generated {
+                value 1;
+            }
+            enum lan-auto-generated {
+                value 2;
+            }
+            enum mac-auto-generated {
+                value 3;
+            }
+            enum router-id-generated {
+                value 4;
+            }
+            enum as-generated {
+                value 5;
+            }
+        }
+    }
+
+    typedef uint24 {
+        type uint32 {
+            range "0 .. 16777215";
+        }
+        description
+            "24-bit unsigned integer.";
+    }
+
+    grouping ethernet-tag-id {
+        reference "https://tools.ietf.org/html/rfc7432#section-7.1";
+        description "An Ethernet Tag ID is a 32-bit field containing either
+            a 12-bit or 24-bit identifier that identifies a particular
+            broadcast domain (e.g., a VLAN) in an EVPN instance";
+
+        container ethernet-tag-id {
+            leaf vlan-id {
+                type uint32;
+                mandatory true;
+            }
+        }
+    }
+
+    grouping local-discriminator {
+        leaf local-discriminator {
+            type uint32;
+            mandatory true;
+        }
+    }
+
+    grouping esi {
+        reference "https://tools.ietf.org/html/rfc7432#section-5";
+        description "Ethernet segment (ES) are identified by a unique non-zero identifier
+            called an Ethernet Segment Identifier (ESI). An ESI is encoded as a 10-octet
+            integer in line format with the most significant octet sent first";
+
+        choice esi {
+            case arbitrary-case {
+                container arbitrary {
+                    description "Type 0 indicates an arbitrary 9-octet ESI
+                        value, which is managed and configured by the operator";
+
+                    leaf arbitrary {
+                        type binary {
+                            length 9;
+                        }
+                        mandatory true;
+                    }
+                }
+            }
+            case lacp-auto-generated-case {
+                container lacp-auto-generated {
+                    description "When IEEE 802.1AX LACP is used between the PEs and CEs,
+                        ESI type 1 indicates an auto-generated ESI value determined from LACP";
+
+                    leaf ce-lacp-mac-address {
+                        type yang:mac-address;
+                        mandatory true;
+                    }
+                    leaf ce-lacp-port-key {
+                        type uint16;
+                        mandatory true;
+                    }
+                }
+            }
+            case lan-auto-generated-case {
+                container lan-auto-generated {
+                description "Type 2 is used in the case of indirectly connected hosts via a bridged
+                    LAN between the CEs and the PEs. The ESI Value is auto-generated and determined
+                    based on the Layer 2 bridge protocol";
+
+                    leaf root-bridge-mac-address {
+                        type yang:mac-address;
+                        mandatory true;
+                    }
+                    leaf root-bridge-priority {
+                        type uint16;
+                        mandatory true;
+                    }
+                }
+            }
+            case mac-auto-generated-case {
+                container mac-auto-generated {
+                    description "Type 3 indicates a MAC-based ESI Value that
+                        can be auto-generated or configured by the operator.";
+
+                    leaf system-mac-address {
+                        type yang:mac-address;
+                        mandatory true;
+                    }
+                    leaf local-discriminator {
+                        type uint24;
+                        mandatory true;
+                    }
+                }
+            }
+            case router-id-generated-case {
+                container router-id-generated {
+                    description "Type 4 indicates a router-ID ESI Value that
+                     can be auto-generated or configured by the operator";
+
+                    leaf router-id {
+                        type inet:ipv4-address;
+                        mandatory true;
+                    }
+                    uses local-discriminator;
+                }
+            }
+            case as-generated-case {
+                container as-generated {
+                    description "Type 5 indicates an Autonomous System (AS)-based ESI
+                    Value that can be auto-generated or configured by the operator";
+
+                    leaf as {
+                        type inet:as-number;
+                        mandatory true;
+                    }
+                    uses local-discriminator;
+                }
+            }
+        }
+    }
+
+    grouping route-distinguisher {
+        leaf route-distinguisher {
+            type bgp-t:route-distinguisher;
+            mandatory true;
+        }
+    }
+
+    grouping ethernet-a-d-route {
+        reference "https://tools.ietf.org/html/rfc7432#section-7.1";
+        description "Ethernet Auto-Discovery (A-D) route";
+
+        uses route-distinguisher;
+        uses esi;
+        uses ethernet-tag-id;
+        leaf mpls-label {
+            type netc:mpls-label;
+            mandatory true;
+        }
+    }
+
+    grouping mac-ip-adv-route {
+        reference "https://tools.ietf.org/html/rfc7432#section-7.2";
+        description "MAC/IP Advertisement route";
+
+        uses route-distinguisher;
+        uses esi;
+        uses ethernet-tag-id;
+        leaf mac-address {
+            type yang:mac-address;
+            mandatory true;
+        }
+        leaf ip-address {
+            type inet:ip-address;
+        }
+        leaf mpls-label1 {
+            type netc:mpls-label;
+            mandatory true;
+        }
+        leaf mpls-label2 {
+            type netc:mpls-label;
+        }
+    }
+
+    grouping inc-multi-ethernet-tag-res {
+        reference "https://tools.ietf.org/html/rfc7432#section-7.3";
+        description "Inclusive Multicast Ethernet Tag route";
+
+        uses route-distinguisher;
+        uses ethernet-tag-id;
+        leaf orig-route-ip {
+            type inet:ip-address;
+        }
+    }
+
+    grouping es-route {
+        reference "https://tools.ietf.org/html/rfc7432#section-7.4";
+        description "Ethernet Segment route";
+
+        leaf route-distinguisher {
+            type bgp-t:route-distinguisher;
+            mandatory true;
+        }
+        uses esi;
+        leaf orig-route-ip {
+            type inet:ip-address;
+            mandatory true;
+        }
+    }
+
+    grouping esi-label-extended-community {
+        container esi-label-extended-community {
+            reference "https://tools.ietf.org/html/rfc7432#section-7.5";
+            description "The ESI Label Extended Community is a transitive Extended
+                Community that may be advertised along with Ethernet Auto-discovery
+                routes, and it enables split-horizon procedures for multihomed sites";
+
+            leaf single-active-mode {
+                type boolean;
+                default false;
+            }
+            leaf esi-label {
+                type netc:mpls-label;
+                mandatory true;
+            }
+        }
+    }
+
+    grouping es-import-route-extended-community {
+        container es-import-route-extended-community {
+            reference "https://tools.ietf.org/html/rfc7432#section-7.6";
+            description
+                "New transitive Route Target extended community carried with
+                the Ethernet Segment route.  When used, it enables all the PEs
+                connected to the same multihomed site to import the Ethernet Segment
+                routes";
+
+            leaf es-import {
+                type yang:mac-address;
+                mandatory true;
+            }
+        }
+    }
+
+    grouping mac-mobility-extended-community {
+        container mac-mobility-extended-community {
+            reference "https://tools.ietf.org/html/rfc7432#section-7.7";
+            description
+                "The MAC Mobility Extended Community is a transitive Extended Community
+                that may be advertised along with MAC/IP Advertisement routes.";
+
+            leaf static {
+                type boolean;
+                default false;
+            }
+            leaf seq-number {
+                type uint32;
+                mandatory true;
+            }
+        }
+    }
+
+    grouping default-gateway-extended-community {
+        container default-gateway-extended-community {
+            presence
+                "The Default Gateway community is an Extended Community of an
+                Opaque Type";
+
+            reference "https://tools.ietf.org/html/rfc7432#section-7.8";
+
+            description
+                "The Default Gateway community is an Extended Community of an
+                 Opaque Type ";
+        }
+    }
+
+    grouping evpn-destination {
+        list evpn-destination {
+            uses evpn;
+        }
+    }
+
+    grouping evpn-routes {
+        container evpn-routes {
+            list evpn-route {
+                leaf route-key {
+                    type binary;
+                }
+                key "route-key";
+                uses evpn;
+                uses bgp-rib:route {
+                    augment "attributes/extended-communities/extended-community" {
+                        case esi-label-extended-community-case {
+                            uses esi-label-extended-community;
+                        }
+                        case es-import-route-extended-community-case {
+                            uses es-import-route-extended-community;
+                        }
+                        case mac-mobility-extended-community-case {
+                            uses mac-mobility-extended-community;
+                        }
+                        case default-gateway-extended-community-case {
+                            uses default-gateway-extended-community;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    grouping evpn {
+        reference "https://tools.ietf.org/html/rfc7432#section-7";
+        description "The EVPN NLRI is carried in BGP [RFC4271] using BGP Multiprotocol
+            Extensions [RFC4760] with an Address Family Identifier (AFI) of 25 (L2VPN)
+            and a Subsequent Address Family Identifier (SAFI) of 70 (EVPN)";
+
+        choice evpn {
+            case ethernet-a-d-route-case {
+                uses ethernet-a-d-route;
+            }
+            case mac-ip-adv-route-case {
+                uses mac-ip-adv-route;
+            }
+            case inc-multi-ethernet-tag-res-case {
+                uses inc-multi-ethernet-tag-res;
+            }
+            case es-route-case {
+                uses es-route;
+            }
+        }
+    }
+
+    augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
+        case destination-evpn-case {
+            container destination-evpn {
+                uses evpn-destination;
+            }
+        }
+    }
+
+    augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type" {
+        case destination-evpn-case {
+            container destination-evpn {
+                uses evpn-destination;
+            }
+        }
+    }
+
+    augment "/bgp-rib:application-rib/bgp-rib:tables/bgp-rib:routes" {
+        case evpn-routes-case {
+            uses evpn-routes;
+        }
+    }
+
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:loc-rib/bgp-rib:tables/bgp-rib:routes" {
+        case evpn-routes-case {
+            uses evpn-routes;
+        }
+    }
+
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:adj-rib-in/bgp-rib:tables/bgp-rib:routes" {
+        case evpn-routes-case {
+            uses evpn-routes;
+        }
+    }
+
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:effective-rib-in/bgp-rib:tables/bgp-rib:routes" {
+        case evpn-routes-case {
+            uses evpn-routes;
+        }
+    }
+
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:adj-rib-out/bgp-rib:tables/bgp-rib:routes" {
+        case evpn-routes-case {
+            uses evpn-routes;
+        }
+    }
+
+    augment "/bmp-mon:bmp-monitor/bmp-mon:monitor/bmp-mon:router/bmp-mon:peer/bmp-mon:pre-policy-rib/bmp-mon:tables/bmp-mon:routes" {
+        case evpn-routes-case {
+            uses evpn-routes;
+        }
+    }
+
+    augment "/bmp-mon:bmp-monitor/bmp-mon:monitor/bmp-mon:router/bmp-mon:peer/bmp-mon:post-policy-rib/bmp-mon:tables/bmp-mon:routes" {
+        case evpn-routes-case {
+            uses evpn-routes;
+        }
+    }
+
+    augment "/bgp-msg:update/bgp-msg:attributes/bgp-msg:extended-communities/bgp-msg:extended-community" {
+        case esi-label-extended-community-case {
+            uses esi-label-extended-community;
+        }
+        case es-import-route-extended-community-case {
+            uses es-import-route-extended-community;
+        }
+        case mac-mobility-extended-community-case {
+            uses mac-mobility-extended-community;
+        }
+        case default-gateway-extended-community-case {
+            uses default-gateway-extended-community;
+        }
+    }
+}
