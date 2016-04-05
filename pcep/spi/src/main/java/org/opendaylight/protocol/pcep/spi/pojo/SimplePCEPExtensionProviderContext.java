@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.spi.pojo;
 
 import javax.annotation.concurrent.ThreadSafe;
-
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
@@ -48,13 +47,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 public class SimplePCEPExtensionProviderContext implements PCEPExtensionProviderContext {
     private final SimpleLabelRegistry labelReg = new SimpleLabelRegistry();
     private final SimpleMessageRegistry msgReg = new SimpleMessageRegistry();
-    private final SimpleObjectRegistry objReg = new SimpleObjectRegistry();
+    private final SimpleVendorInformationObjectRegistry viObjReg = new SimpleVendorInformationObjectRegistry();
+    private final SimpleObjectRegistry objReg = new SimpleObjectRegistry(this.viObjReg);
     private final SimpleEROSubobjectRegistry eroSubReg = new SimpleEROSubobjectRegistry();
     private final SimpleRROSubobjectRegistry rroSubReg = new SimpleRROSubobjectRegistry();
     private final SimpleXROSubobjectRegistry xroSubReg = new SimpleXROSubobjectRegistry();
     private final SimpleTlvRegistry tlvReg = new SimpleTlvRegistry();
     private final SimpleVendorInformationTlvRegistry viTlvReg = new SimpleVendorInformationTlvRegistry();
-    private final SimpleVendorInformationObjectRegistry viObjReg = new SimpleVendorInformationObjectRegistry();
 
     @Override
     public final LabelRegistry getLabelHandlerRegistry() {

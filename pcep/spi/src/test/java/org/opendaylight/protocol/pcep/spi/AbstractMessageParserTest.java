@@ -45,17 +45,10 @@ public class AbstractMessageParserTest {
     @Mock
     private ObjectRegistry registry;
 
-    @Mock
-    private VendorInformationObjectRegistry viRegistry;
-
     private class Abs extends AbstractMessageParser {
 
         protected Abs(final ObjectRegistry registry) {
             super(registry);
-        }
-
-        protected Abs(final ObjectRegistry registry, final VendorInformationObjectRegistry viRegistry) {
-            super(registry, viRegistry);
         }
 
         @Override
@@ -84,8 +77,8 @@ public class AbstractMessageParserTest {
         MockitoAnnotations.initMocks(this);
         this.object = new ErrorObjectBuilder().setType((short) 1).setValue((short) 1).build();
         this.viObject = new VendorInformationObjectBuilder().setEnterpriseNumber(EN).build();
-        Mockito.doNothing().when(this.viRegistry).serializeVendorInformationObject(Mockito.any(VendorInformationObject.class), Mockito.any(ByteBuf.class));
-        Mockito.doReturn(Optional.of(this.viObject)).when(this.viRegistry).parseVendorInformationObject(Mockito.eq(EN), Mockito.eq(new ObjectHeaderImpl(true, true)), Mockito.any(ByteBuf.class));
+        Mockito.doNothing().when(this.registry).serializeVendorInformationObject(Mockito.any(VendorInformationObject.class), Mockito.any(ByteBuf.class));
+        Mockito.doReturn(Optional.of(this.viObject)).when(this.registry).parseVendorInformationObject(Mockito.eq(EN), Mockito.eq(new ObjectHeaderImpl(true, true)), Mockito.any(ByteBuf.class));
         Mockito.doNothing().when(this.registry).serializeObject(Mockito.any(Object.class), Mockito.any(ByteBuf.class));
         Mockito.doReturn(this.object).when(this.registry).parseObject(13, 1, new ObjectHeaderImpl(true, true), Unpooled.wrappedBuffer(new byte[] { 0, 0, 1, 1 }));
     }
@@ -105,11 +98,11 @@ public class AbstractMessageParserTest {
 
     @Test
     public void testParseVendorInformationObject() throws PCEPDeserializerException {
-        final Abs parser = new Abs(this.registry, this.viRegistry);
+        final Abs parser = new Abs(this.registry);
         final ByteBuf buffer = Unpooled.buffer();
 
         parser.serializeVendorInformationObjects(Lists.newArrayList(this.viObject), buffer);
-        Mockito.verify(this.viRegistry, Mockito.only()).serializeVendorInformationObject(Mockito.any(VendorInformationObject.class), Mockito.any(ByteBuf.class));
+        Mockito.verify(this.registry, Mockito.only()).serializeVendorInformationObject(Mockito.any(VendorInformationObject.class), Mockito.any(ByteBuf.class));
 
         final Message msg = parser.parseMessage(Unpooled.wrappedBuffer(new byte[] {0x22, 0x13, 0x00, 0x08, 0, 0, 0, 0 }), Collections.<Message> emptyList());
 
