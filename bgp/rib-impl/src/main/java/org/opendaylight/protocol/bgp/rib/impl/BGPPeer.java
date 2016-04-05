@@ -100,7 +100,6 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         this.name = name;
         this.chain = rib.createPeerChain(this);
         this.peerRole = role;
-        this.ribWriter = AdjRibInWriter.create(rib.getYangRibId(), role, this.chain);
     }
 
     @Override
@@ -206,7 +205,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         createAdjRibOutListener(peerId);
         this.effRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this), peerIId, ((RIBImpl)this.rib).getImportPolicyPeerTracker(),
                 this.rib.getRibSupportContext(), this.peerRole);
-        this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, false);
+        this.ribWriter = AdjRibInWriter.create(rib.getYangRibId(), this.peerRole, this.chain).transform(peerId, this.rib.getRibSupportContext(), this.tables, false);
         this.sessionEstablishedCounter++;
         if (this.registrator != null) {
             this.runtimeReg = this.registrator.register(this);
@@ -251,7 +250,9 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         if (this.effRibInWriter != null) {
             this.effRibInWriter.close();
         }
-        this.ribWriter.removePeer();
+        if (this.ribWriter != null) {
+            this.ribWriter.removePeer(this.chain);
+        }
         this.tables.clear();
     }
 
@@ -368,9 +369,9 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     @Override
     public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction, final Throwable cause) {
         LOG.error("Transaction chain failed.", cause);
-        releaseConnection();
         this.chain.close();
         this.chain = this.rib.createPeerChain(this);
+        releaseConnection();
     }
 
     @Override

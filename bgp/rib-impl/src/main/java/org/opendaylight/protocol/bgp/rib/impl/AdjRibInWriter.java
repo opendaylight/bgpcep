@@ -175,7 +175,7 @@ final class AdjRibInWriter {
         final InstanceIdentifierBuilder idb = YangInstanceIdentifier.builder(newPeerPath.node(EMPTY_ADJRIBIN.getIdentifier()).node(TABLES));
         idb.nodeWithKey(instanceIdentifierKey.getNodeType(), instanceIdentifierKey.getKeyValues());
 
-        TableContext ctx = new TableContext(rs, idb.build());
+        final TableContext ctx = new TableContext(rs, idb.build());
         ctx.clearTable(tx);
 
         tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME).node(ATTRIBUTES_UPTODATE_FALSE.getNodeType()), ATTRIBUTES_UPTODATE_FALSE);
@@ -220,9 +220,9 @@ final class AdjRibInWriter {
         return pb.build();
     }
 
-    void removePeer() {
+    void removePeer(final DOMTransactionChain chain) {
         if(this.peerPath != null) {
-            final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+            final DOMDataWriteTransaction tx = chain.newWriteOnlyTransaction();
             tx.delete(LogicalDatastoreType.OPERATIONAL, this.peerPath);
 
             try {
