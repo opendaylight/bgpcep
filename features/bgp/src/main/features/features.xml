@@ -34,6 +34,7 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-flowspec</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-labeled-unicast</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-l3vpn</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-evpn</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-path-selection-mode</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-topology</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-openconfig</feature>
@@ -119,6 +120,13 @@
         <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
         <feature version='${project.version}'>odl-bgpcep-bgp-labeled-unicast</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-l3vpn/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-api/{{VERSION}}</bundle>
+    </feature>
+
+    <feature name='odl-bgpcep-bgp-evpn' version='${project.version}'>
+        <feature version='${project.version}'>odl-bgpcep-bgp-parser</feature>
+        <feature version='${project.version}'>odl-bgpcep-bgp-rib-api</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-evpn/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-bmp-api/{{VERSION}}</bundle>
     </feature>
 

@@ -15,6 +15,7 @@
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:flowspec?module=odl-bgp-flowspec-cfg&amp;revision=2015-04-23</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:labeled:unicast?module=odl-bgp-labeled-unicast-cfg&amp;revision=2015-05-25</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:vpn:ipv4?module=odl-bgp-vpn-ipv4-cfg&amp;revision=2016-02-19</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:evpn?module=odl-bgp-evpn-cfg&amp;revision=2016-03-21</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi?module=odl-bgp-parser-spi-cfg&amp;revision=2013-11-15</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi?module=odl-bgp-rib-spi-cfg&amp;revision=2013-11-15</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl?module=odl-bgp-rib-impl-cfg&amp;revision=2016-03-30</capability>
@@ -49,6 +50,10 @@
                         <type xmlns:bgpspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi">bgpspi:extension</type>
                         <name>bgp-vpn-ipv4</name>
                     </extension>
+                    <extension>
+                        <type xmlns:bgpspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi">bgpspi:extension</type>
+                        <name>bgp-evpn</name>
+                    </extension>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:base-bgp-parser</type>
@@ -82,6 +87,10 @@
                         <type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extension</type>
                         <name>bgp-vpn-ipv4</name>
                     </extension>
+                    <extension>
+                        <type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extension</type>
+                        <name>bgp-evpn</name>
+                    </extension>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:base-bgp-rib</type>
@@ -110,6 +119,10 @@
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:vpn:ipv4">prefix:bgp-vpn-ipv4</type>
                     <name>bgp-vpn-ipv4</name>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:evpn">prefix:bgp-evpn</type>
+                    <name>bgp-evpn</name>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-dispatcher-impl</type>
@@ -347,6 +360,12 @@
                     <afi xmlns:bgp="urn:opendaylight:params:xml:ns:yang:bgp-types">bgp:ipv4-address-family</afi>
                     <safi xmlns:bgp-types="urn:opendaylight:params:xml:ns:yang:bgp-types">bgp-types:mpls-labeled-vpn-subsequent-address-family</safi>
                 </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type-impl</type>
+                    <name>evpn</name>
+                    <afi xmlns:bgp="urn:opendaylight:params:xml:ns:yang:bgp-evpn">bgp:l2vpn-address-family</afi>
+                    <safi xmlns:bgp-types="urn:opendaylight:params:xml:ns:yang:bgp-evpn">bgp-types:evpn-subsequent-address-family</safi>
+                </module>
             </modules>
 
             <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
@@ -386,6 +405,10 @@
                         <name>bgp-vpn-ipv4</name>
                         <provider>/modules/module[type='bgp-vpn-ipv4'][name='bgp-vpn-ipv4']</provider>
                     </instance>
+                    <instance>
+                        <name>bgp-evpn</name>
+                        <provider>/modules/module[type='bgp-evpn'][name='bgp-evpn']</provider>
+                    </instance>
                 </service>
                 <service>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
@@ -416,6 +439,10 @@
                     <instance>
                         <name>ipv4-l3vpn</name>
                         <provider>/modules/module[type='bgp-table-type-impl'][name='ipv4-l3vpn']</provider>
+                    </instance>
+                    <instance>
+                        <name>evpn</name>
+                        <provider>/modules/module[type='bgp-table-type-impl'][name='evpn']</provider>
                     </instance>
                 </service>
                 <service>
@@ -514,6 +541,10 @@
                     <instance>
                         <name>bgp-vpn-ipv4</name>
                         <provider>/modules/module[type='bgp-vpn-ipv4'][name='bgp-vpn-ipv4']</provider>
+                    </instance>
+                    <instance>
+                        <name>bgp-evpn</name>
+                        <provider>/modules/module[type='bgp-evpn'][name='bgp-evpn']</provider>
                     </instance>
                 </service>
                 <service>
