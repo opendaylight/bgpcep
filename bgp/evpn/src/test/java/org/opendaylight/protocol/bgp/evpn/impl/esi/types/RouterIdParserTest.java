@@ -64,7 +64,7 @@ public class RouterIdParserTest extends AbstractParserTest {
         return nextHop.addChild(createRouteContainer()).build();
     }
 
-    private static ContainerNode createRouteContainer() {
+    public static ContainerNode createRouteContainer() {
         return createContBuilder(RouterIdParser.ROUTER_ID_NID)
             .addChild(createValueBuilder(ROUTE_ID, RouterIdParser.RD_NID).build())
             .addChild(createValueBuilder(LD, AbstractEsiType.LD_NID).build())
