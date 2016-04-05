@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a4c51b2_8bf3c472",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-04-05T18:05:27Z",
+      "side": 1,
+      "message": "I would move that to the function #endOfInput of this class",
+      "range": {
+        "startLine": 315,
+        "startChar": 12,
+        "endLine": 315,
+        "endChar": 68
+      },
+      "revId": "93325b075fef1ca70f90d67bbdbaea370f09c1bb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
