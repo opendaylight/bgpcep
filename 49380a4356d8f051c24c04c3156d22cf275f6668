@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a4c51b2_d549e98c",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/MessageRegistry.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2016-04-05T10:10:05Z",
+      "side": 1,
+      "message": "I do not like this split of worlds: what is the reason for retaining the parseMessage() method here?\n\nSince you are touching this interface (and others), please add documentation.",
+      "range": {
+        "startLine": 17,
+        "startChar": 16,
+        "endLine": 17,
+        "endChar": 38
+      },
+      "revId": "49380a4356d8f051c24c04c3156d22cf275f6668",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
