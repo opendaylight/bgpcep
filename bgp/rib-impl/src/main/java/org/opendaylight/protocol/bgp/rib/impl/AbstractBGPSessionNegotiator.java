@@ -206,7 +206,9 @@ public abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandler
             // deliver the message, this method gets called with different exception (definitely not with BGPDocumentedException).
             sendMessage(buildErrorNotify(((BGPDocumentedException)e).getError(), ((BGPDocumentedException) e).getData()));
         }
-        this.registry.removePeerSession(getRemoteIp());
+        if (this.state == State.OPEN_CONFIRM) {
+            this.registry.removePeerSession(getRemoteIp());
+        }
         negotiationFailedCloseChannel(e);
         this.state = State.FINISHED;
     }
