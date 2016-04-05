@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a4c51b2_0b097431",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionStats.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-04-05T19:17:39Z",
+      "side": 1,
+      "message": "checkNotNull",
+      "revId": "ed04f9ccdb7958e16631c976070c3fa47e4adf34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
