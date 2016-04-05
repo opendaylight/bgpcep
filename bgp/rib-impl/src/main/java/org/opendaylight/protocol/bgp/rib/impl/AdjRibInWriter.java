@@ -122,6 +122,16 @@ final class AdjRibInWriter {
     }
 
     /**
+     * Recreate an instance of the writer with a new chain.
+     * @param oldInstance Old instance of the writer.
+     * @param chain Transaction chain used in a new writer.
+     * @return New instance of the writer.
+     */
+    static AdjRibInWriter reset(final AdjRibInWriter oldInstance, final DOMTransactionChain chain) {
+        return AdjRibInWriter.create(oldInstance.ribPath, PeerRole.valueOf(oldInstance.role), chain);
+    }
+
+    /**
      * Transform this writer to a new writer, which is in charge of specified tables.
      * Empty tables are created for new entries and old tables are deleted. Once this
      * method returns, the old instance must not be reasonably used.
@@ -175,7 +185,7 @@ final class AdjRibInWriter {
         final InstanceIdentifierBuilder idb = YangInstanceIdentifier.builder(newPeerPath.node(EMPTY_ADJRIBIN.getIdentifier()).node(TABLES));
         idb.nodeWithKey(instanceIdentifierKey.getNodeType(), instanceIdentifierKey.getKeyValues());
 
-        TableContext ctx = new TableContext(rs, idb.build());
+        final TableContext ctx = new TableContext(rs, idb.build());
         ctx.clearTable(tx);
 
         tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME).node(ATTRIBUTES_UPTODATE_FALSE.getNodeType()), ATTRIBUTES_UPTODATE_FALSE);
@@ -222,7 +232,7 @@ final class AdjRibInWriter {
 
     void removePeer() {
         if(this.peerPath != null) {
-            final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+            final DOMDataWriteTransaction tx = chain.newWriteOnlyTransaction();
             tx.delete(LogicalDatastoreType.OPERATIONAL, this.peerPath);
 
             try {
