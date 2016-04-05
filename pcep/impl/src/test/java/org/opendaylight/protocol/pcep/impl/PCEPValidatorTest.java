@@ -33,7 +33,6 @@ import org.opendaylight.protocol.pcep.impl.message.PCEPRequestMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPStartTLSMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.VendorInformationObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -142,7 +141,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 public class PCEPValidatorTest {
 
     private ObjectRegistry objectRegistry;
-    private VendorInformationObjectRegistry viObjRegistry;
 
     private Open open;
     private Rp rpTrue;
@@ -176,7 +174,6 @@ public class PCEPValidatorTest {
         this.act.start(this.ctx);
         this.viObjAct.start(this.ctx);
         this.objectRegistry = this.ctx.getObjectHandlerRegistry();
-        this.viObjRegistry = this.ctx.getVendorInformationObjectRegistry();
         final RpBuilder rpBuilder = new RpBuilder();
         rpBuilder.setProcessingRule(true);
         rpBuilder.setIgnore(false);
@@ -386,7 +383,7 @@ public class PCEPValidatorTest {
     public void testRequestMsg() throws IOException, PCEPDeserializerException {
         ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPRequestMessage1.bin"));
 
-        final PCEPRequestMessageParser parser = new PCEPRequestMessageParser(this.objectRegistry, this.viObjRegistry);
+        final PCEPRequestMessageParser parser = new PCEPRequestMessageParser(this.objectRegistry);
 
         final PcreqMessageBuilder builder = new PcreqMessageBuilder();
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.Requests> reqs1 = Lists.newArrayList();
@@ -443,7 +440,7 @@ public class PCEPValidatorTest {
         // only RP
         ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCRep.1.bin"));
 
-        final PCEPReplyMessageParser parser = new PCEPReplyMessageParser(this.objectRegistry, this.viObjRegistry);
+        final PCEPReplyMessageParser parser = new PCEPReplyMessageParser(this.objectRegistry);
 
         final PcrepMessageBuilder builder = new PcrepMessageBuilder();
         RepliesBuilder rBuilder = new RepliesBuilder();
@@ -633,7 +630,7 @@ public class PCEPValidatorTest {
     @Test
     public void testReqMsgWithVendorInfoObjects() throws IOException, PCEPDeserializerException {
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCReq.7.bin"));
-        final PCEPRequestMessageParser parser = new PCEPRequestMessageParser(this.objectRegistry, this.viObjRegistry);
+        final PCEPRequestMessageParser parser = new PCEPRequestMessageParser(this.objectRegistry);
 
         final PcreqMessageBuilder builder = new PcreqMessageBuilder();
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.Requests> reqs1 = Lists.newArrayList();
@@ -658,7 +655,7 @@ public class PCEPValidatorTest {
 
     @Test
     public void testRepMsgWithVendorInforObjects() throws IOException, PCEPDeserializerException {
-        final PCEPReplyMessageParser parser = new PCEPReplyMessageParser(this.objectRegistry, this.viObjRegistry);
+        final PCEPReplyMessageParser parser = new PCEPReplyMessageParser(this.objectRegistry);
 
         final PcrepMessageBuilder builder = new PcrepMessageBuilder();
         RepliesBuilder rBuilder = new RepliesBuilder();
@@ -729,7 +726,7 @@ public class PCEPValidatorTest {
 
     @Test
     public void testRepWithMonitoring() throws IOException, PCEPDeserializerException {
-        final PCEPReplyMessageParser parser = new PCEPReplyMessageParser(this.objectRegistry, this.viObjRegistry);
+        final PCEPReplyMessageParser parser = new PCEPReplyMessageParser(this.objectRegistry);
 
         final PcrepMessageBuilder builder = new PcrepMessageBuilder();
         RepliesBuilder rBuilder = new RepliesBuilder();
@@ -764,7 +761,7 @@ public class PCEPValidatorTest {
     public void testReqWithMonitoring() throws IOException, PCEPDeserializerException {
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCReq.8.bin"));
 
-        final PCEPRequestMessageParser parser = new PCEPRequestMessageParser(this.objectRegistry, this.viObjRegistry);
+        final PCEPRequestMessageParser parser = new PCEPRequestMessageParser(this.objectRegistry);
 
         final PcreqMessageBuilder builder = new PcreqMessageBuilder();
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.Requests> reqs1 = Lists.newArrayList();
@@ -789,7 +786,7 @@ public class PCEPValidatorTest {
 
     @Test
     public void testMonReqMsg() throws PCEPDeserializerException, IOException {
-        final PCEPMonitoringRequestMessageParser parser = new PCEPMonitoringRequestMessageParser(this.objectRegistry, this.viObjRegistry);
+        final PCEPMonitoringRequestMessageParser parser = new PCEPMonitoringRequestMessageParser(this.objectRegistry);
 
         final PcreqMessageBuilder builder = new PcreqMessageBuilder();
         final MonitoringRequestBuilder monReqBuilder = new MonitoringRequestBuilder();

@@ -18,7 +18,6 @@ import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
-import org.opendaylight.protocol.pcep.spi.VendorInformationObjectRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcreq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcreqBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -67,8 +66,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 
     public static final int TYPE = 3;
 
-    public PCEPRequestMessageParser(final ObjectRegistry registry, final VendorInformationObjectRegistry viRegistry) {
-        super(registry, viRegistry);
+    public PCEPRequestMessageParser(final ObjectRegistry registry) {
+        super(registry);
     }
 
     @Override

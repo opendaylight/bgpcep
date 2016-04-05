@@ -17,7 +17,6 @@ import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
-import org.opendaylight.protocol.pcep.spi.VendorInformationObjectRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcmonreq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcmonreqBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -37,8 +36,8 @@ public class PCEPMonitoringRequestMessageParser extends PCEPRequestMessageParser
 
     public static final int TYPE = 8;
 
-    public PCEPMonitoringRequestMessageParser(final ObjectRegistry registry, final VendorInformationObjectRegistry viRegistry) {
-        super(registry, viRegistry);
+    public PCEPMonitoringRequestMessageParser(final ObjectRegistry registry) {
+        super(registry);
     }
 
     @Override

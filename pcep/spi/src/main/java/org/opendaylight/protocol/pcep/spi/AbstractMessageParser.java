@@ -48,16 +48,9 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
     private static final int IGNORED = 7;
 
     private final ObjectRegistry registry;
-    private final VendorInformationObjectRegistry viRegistry;
 
     protected AbstractMessageParser(final ObjectRegistry registry) {
         this.registry = Preconditions.checkNotNull(registry);
-        this.viRegistry = null;
-    }
-
-    protected AbstractMessageParser(final ObjectRegistry registry, final VendorInformationObjectRegistry viRegistry) {
-        this.registry = Preconditions.checkNotNull(registry);
-        this.viRegistry = Preconditions.checkNotNull(viRegistry);
     }
 
     /**
@@ -97,9 +90,8 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
             final ObjectHeader header = new ObjectHeaderImpl(flags.get(PROCESSED), flags.get(IGNORED));
 
             if (VendorInformationUtil.isVendorInformationObject(objClass, objType)) {
-                Preconditions.checkState(this.viRegistry != null);
                 final EnterpriseNumber enterpriseNumber = new EnterpriseNumber(bytesToPass.readUnsignedInt());
-                final Optional<? extends Object> obj = this.viRegistry.parseVendorInformationObject(enterpriseNumber, header, bytesToPass);
+                final Optional<? extends Object> obj = this.registry.parseVendorInformationObject(enterpriseNumber, header, bytesToPass);
                 if (obj.isPresent()) {
                     objs.add(obj.get());
                 }
@@ -143,7 +135,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
     protected final void serializeVendorInformationObjects(final List<VendorInformationObject> viObjects, final ByteBuf buffer) {
         if (viObjects != null) {
             for (final VendorInformationObject viObject : viObjects) {
-                this.viRegistry.serializeVendorInformationObject(viObject, buffer);
+                this.registry.serializeVendorInformationObject(viObject, buffer);
             }
         }
     }
