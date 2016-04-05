@@ -33,7 +33,7 @@ final class EsiModelUtil {
         throw new UnsupportedOperationException();
     }
 
-    static final Long extractLD(final ContainerNode cont) {
+    static Long extractLD(final ContainerNode cont) {
         return (Long) cont.getChild(LD_NID).get().getValue();
     }
 
