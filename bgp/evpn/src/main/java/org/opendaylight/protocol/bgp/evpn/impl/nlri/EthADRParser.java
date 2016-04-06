@@ -35,8 +35,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 public final class EthADRParser extends AbstractEvpnNlri {
     static final NodeIdentifier ETH_AD_ROUTE_CASE_NID = new NodeIdentifier(EthernetADRouteCase.QNAME);
     static final int CONTENT_LENGTH = 25;
-    private static final NodeIdentifier MPLS_NID = NodeIdentifier.create(QName.create(Evpn.QNAME, "mpls-label").intern());
-    private static final NodeIdentifier ETH_AD_ROUTE_NID = new NodeIdentifier(EthernetADRoute.QNAME);
+    protected static final NodeIdentifier ETH_AD_ROUTE_NID = new NodeIdentifier(EthernetADRoute.QNAME);
+    protected static final NodeIdentifier MPLS_NID = NodeIdentifier.create(QName.create(Evpn.QNAME, "mpls-label").intern());
 
     @Override
     public Evpn parseEvpn(final ByteBuf buffer) {
@@ -56,10 +56,11 @@ public final class EthADRParser extends AbstractEvpnNlri {
 
     @Override
     public Evpn serializeEvpnModel(final ChoiceNode evpnCase) {
-        final ContainerNode evpn = (ContainerNode) evpnCase.getChild(ETH_AD_ROUTE_NID);
+        final ContainerNode evpn = (ContainerNode) evpnCase.getChild(ETH_AD_ROUTE_NID).get();
         final EthernetADRouteCaseBuilder builder = new EthernetADRouteCaseBuilder();
         builder.setRouteDistinguisher(extractRouteDistinguisher(evpn));
-        builder.setEsi(serializeEsi((ChoiceNode) evpn.getChild(ESI_NID)));
+        final ChoiceNode esiCase = (ChoiceNode) evpn.getChild(ESI_NID).get().getValue();
+        builder.setEsi(serializeEsi(esiCase));
         builder.setEthernetTagId(extractETI(evpn));
         builder.setMplsLabel(extractMplsLabel(evpn, MPLS_NID));
         return builder.build();

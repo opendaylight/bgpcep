@@ -18,10 +18,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.esi.Esi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.ethernet.tag.id.EthernetTagId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.ethernet.tag.id.EthernetTagIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.evpn.Evpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisher;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisherBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -31,16 +29,16 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 
 abstract class AbstractEvpnNlri implements EvpnParser, EvpnSerializer {
+    protected static final NodeIdentifier RD_NID = NodeIdentifier.create(QName.create(Evpn.QNAME, "route-distinguisher").intern());
     static final int MAC_ADDRESS_LENGTH = 6;
     static final int ESI_SIZE = 10;
     static final NodeIdentifier ESI_NID = NodeIdentifier.create(Esi.QNAME);
     private static final int IPV6_LENGTH = Ipv6Util.IPV6_LENGTH * 8;
     private static final int ZERO_BYTE = 1;
-    private static final NodeIdentifier ETI_NID = NodeIdentifier.create(QName.create(Evpn.QNAME, "ethernet-tag-id").intern());
-    private static final NodeIdentifier RD_NID = NodeIdentifier.create(QName.create(Evpn.QNAME, "route-distinguisher").intern());
+    protected static final NodeIdentifier ETI_NID = NodeIdentifier.create(QName.create(Evpn.QNAME, "ethernet-tag-id").intern());
     private static final NodeIdentifier ORI_NID = NodeIdentifier.create(QName.create(Evpn.QNAME, "orig-route-ip").intern());
 
-    protected  final void serialize(final int nlriType, final ByteBuf body, final ByteBuf buffer) {
+    protected final void serialize(final int nlriType, final ByteBuf body, final ByteBuf buffer) {
         buffer.writeByte(nlriType);
         buffer.writeByte(body.readableBytes());
         buffer.writeBytes(body);
@@ -73,14 +71,14 @@ abstract class AbstractEvpnNlri implements EvpnParser, EvpnSerializer {
 
     protected static RouteDistinguisher extractRouteDistinguisher(final DataContainerNode<? extends PathArgument> evpn) {
         if (evpn.getChild(RD_NID).isPresent()) {
-            return RouteDistinguisherBuilder.getDefaultInstance((String) evpn.getChild(RD_NID).get().getValue());
+            return (RouteDistinguisher) evpn.getChild(RD_NID).get().getValue();
         }
         return null;
     }
 
     protected final MplsLabel extractMplsLabel(final DataContainerNode<? extends PathArgument> evpn, final NodeIdentifier mplsNid) {
         if (evpn.getChild(mplsNid).isPresent()) {
-            return new MplsLabel((Long) evpn.getChild(mplsNid).get().getValue());
+            return (MplsLabel) evpn.getChild(mplsNid).get().getValue();
         }
         return null;
     }
@@ -99,7 +97,7 @@ abstract class AbstractEvpnNlri implements EvpnParser, EvpnSerializer {
 
     protected final EthernetTagId extractETI(final ContainerNode evpn) {
         if (evpn.getChild(ETI_NID).isPresent()) {
-            return new EthernetTagIdBuilder().setVlanId((Long) evpn.getChild(ETI_NID).get().getValue()).build();
+            return (EthernetTagId) evpn.getChild(ETI_NID).get().getValue();
         }
         return null;
     }
