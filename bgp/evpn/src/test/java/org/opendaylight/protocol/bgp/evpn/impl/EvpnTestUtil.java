@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.evpn.impl;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
@@ -24,6 +25,8 @@ public final class EvpnTestUtil {
     public static final long AS_MODEL = 16843009;
     public static final AsNumber AS_NUMBER = new AsNumber(AS_MODEL);
     public static final Integer PORT = 514;
+    public static final MplsLabel MPLS_LABEL = new MplsLabel(24001L);
+    public static final int COMMUNITY_VALUE_SIZE = 6;
 
     public static DataContainerNodeAttrBuilder<YangInstanceIdentifier.NodeIdentifier, ContainerNode> createContBuilder(final YangInstanceIdentifier
         .NodeIdentifier nid) {
