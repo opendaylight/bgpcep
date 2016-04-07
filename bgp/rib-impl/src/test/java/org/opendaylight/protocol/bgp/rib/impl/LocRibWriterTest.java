@@ -20,7 +20,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeListener;
+import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -119,7 +119,7 @@ public class LocRibWriterTest {
         Mockito.doReturn(this.ribSupport).when(this.context).getRibSupport();
         Mockito.doReturn(this.domTransWrite).when(this.chain).newWriteOnlyTransaction();
         Mockito.doReturn(this.future).when(this.domTransWrite).submit();
-        Mockito.doReturn(null).when(this.service).registerDataTreeChangeListener(Mockito.any(DOMDataTreeIdentifier.class), Mockito.any(DOMDataTreeChangeListener.class));
+        Mockito.doReturn(null).when(this.service).registerDataTreeChangeListener(Mockito.any(DOMDataTreeIdentifier.class), Mockito.any(ClusteredDOMDataTreeChangeListener.class));
         Mockito.doReturn(Builders.choiceBuilder().withNodeIdentifier(new NodeIdentifier(Routes.QNAME)).addChild(Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(Ipv4Routes.QNAME)).withChild(ImmutableNodes.mapNodeBuilder(Ipv4Route.QNAME).build()).build()).build()).when(this.ribSupport).emptyRoutes();
         this.locRibWriter = LocRibWriter.create(this.registry, this.tablesKey, this.chain, YangInstanceIdentifier.of(BgpRib.QNAME),
             new AsNumber((long) 35), this.service, this.pd, new CacheDisconnectedPeersImpl(), BasePathSelectionModeFactory.createBestPathSelectionStrategy());

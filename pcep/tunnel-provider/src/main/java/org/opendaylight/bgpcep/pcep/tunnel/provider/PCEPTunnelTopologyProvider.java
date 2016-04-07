@@ -11,8 +11,7 @@ import com.google.common.base.Preconditions;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
@@ -23,10 +22,10 @@ import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class PCEPTunnelTopologyProvider implements AutoCloseable {
-    private final ListenerRegistration<DataChangeListener> reg;
+    private final ListenerRegistration<NodeChangedListener> reg;
     private final TopologyReference ref;
 
-    private PCEPTunnelTopologyProvider(final InstanceIdentifier<Topology> dst, final ListenerRegistration<DataChangeListener> reg) {
+    private PCEPTunnelTopologyProvider(final InstanceIdentifier<Topology> dst, final ListenerRegistration<NodeChangedListener> reg) {
         this.ref = new DefaultTopologyReference(dst);
         this.reg = Preconditions.checkNotNull(reg);
     }
@@ -35,10 +34,10 @@ public final class PCEPTunnelTopologyProvider implements AutoCloseable {
             final InstanceIdentifier<Topology> sourceTopology, final TopologyId targetTopology) {
         final InstanceIdentifier<Topology> dst = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
                 new TopologyKey(targetTopology)).build();
-        final NodeChangedListener ncl = new NodeChangedListener(dataProvider, sourceTopology.firstKeyOf(Topology.class, TopologyKey.class).getTopologyId(), dst);
+        final NodeChangedListener ncl = new NodeChangedListener(dataProvider, sourceTopology.firstKeyOf(Topology.class).getTopologyId(), dst);
 
         final InstanceIdentifier<Node> src = sourceTopology.child(Node.class);
-        final ListenerRegistration<DataChangeListener> reg = dataProvider.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, src, ncl, DataChangeScope.SUBTREE);
+        final ListenerRegistration<NodeChangedListener> reg = dataProvider.registerDataTreeChangeListener(new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, src), ncl);
 
         return new PCEPTunnelTopologyProvider(dst, reg);
     }

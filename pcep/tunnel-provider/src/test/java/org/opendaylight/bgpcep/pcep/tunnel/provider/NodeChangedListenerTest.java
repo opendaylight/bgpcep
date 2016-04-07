@@ -14,11 +14,10 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -78,7 +77,7 @@ public class NodeChangedListenerTest extends AbstractDataBrokerTest {
     private static final InstanceIdentifier<Topology> PCEP_TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, new TopologyKey(PCEP_TOPOLOGY_ID)).build();
     private static final InstanceIdentifier<Topology> TUNNEL_TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, new TopologyKey(TUNNEL_TOPOLOGY_ID)).build();
 
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
+    private ListenerRegistration<NodeChangedListener> listenerRegistration;
 
     @Before
     public void setUp() throws TransactionCommitFailedException {
@@ -87,7 +86,7 @@ public class NodeChangedListenerTest extends AbstractDataBrokerTest {
         wTx.put(LogicalDatastoreType.OPERATIONAL, TUNNEL_TOPO_IID, new TopologyBuilder().setKey(new TopologyKey(TUNNEL_TOPOLOGY_ID)).setTopologyId(TUNNEL_TOPOLOGY_ID).build(), true);
         wTx.submit().checkedGet();
         final NodeChangedListener nodeListener = new NodeChangedListener(getDataBroker(), PCEP_TOPOLOGY_ID, TUNNEL_TOPO_IID);
-        this.listenerRegistration = getDataBroker().registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID.child(Node.class), nodeListener, DataChangeScope.SUBTREE);
+        this.listenerRegistration = getDataBroker().registerDataTreeChangeListener(new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID.child(Node.class)), nodeListener);
     }
 
     @Test
