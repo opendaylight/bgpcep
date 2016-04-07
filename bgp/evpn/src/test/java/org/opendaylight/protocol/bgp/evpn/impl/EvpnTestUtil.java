@@ -9,7 +9,12 @@
 package org.opendaylight.protocol.bgp.evpn.impl;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisher;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisherBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -27,6 +32,16 @@ public final class EvpnTestUtil {
     public static final Integer PORT = 514;
     public static final MplsLabel MPLS_LABEL = new MplsLabel(24001L);
     public static final int COMMUNITY_VALUE_SIZE = 6;
+    public static final long VLAN = 10L;
+    public static final String IP_MODEL = "127.0.0.1";
+    public static final IpAddress IP = new IpAddress(new Ipv4Address(IP_MODEL));
+    public static final String IPV6_MODEL = "2001::1";
+    public static final IpAddress IPV6 = new IpAddress(new Ipv6Address(IPV6_MODEL));
+    public static final long MPLS_LABEL_MODEL = 24001L;
+    public static final MplsLabel MPLS_LABEL2 = new MplsLabel(24002L);
+    public static final long MPLS_LABEL2_MODEL = 24002L;
+    public static final String RD_MODEL = "1.2.3.4:258";
+    public static final RouteDistinguisher RD = RouteDistinguisherBuilder.getDefaultInstance(RD_MODEL);
 
     public static DataContainerNodeAttrBuilder<YangInstanceIdentifier.NodeIdentifier, ContainerNode> createContBuilder(final YangInstanceIdentifier
         .NodeIdentifier nid) {
