@@ -11,9 +11,9 @@ package org.opendaylight.protocol.bgp.openconfig.impl.moduleconfig;
 import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.List;
+import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.MountPoint;
@@ -30,7 +30,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class BGPOpenConfigListener implements DataTreeChangeListener<Bgp>, AutoCloseable {
+public final class BGPOpenConfigListener implements ClusteredDataTreeChangeListener<Bgp>, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(BGPOpenConfigListener.class);
 

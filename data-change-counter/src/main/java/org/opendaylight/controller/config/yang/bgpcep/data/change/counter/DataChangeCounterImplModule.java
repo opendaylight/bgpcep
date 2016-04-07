@@ -9,8 +9,7 @@
 package org.opendaylight.controller.config.yang.bgpcep.data.change.counter;
 
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.data.change.counter.TopologyDataChangeCounter;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
@@ -45,18 +44,18 @@ public class DataChangeCounterImplModule extends org.opendaylight.controller.con
         final TopologyDataChangeCounter counter = new TopologyDataChangeCounter(getDataProviderDependency(), getCounterId());
         final InstanceIdentifier<Topology> topoIId = InstanceIdentifier.builder(NetworkTopology.class)
                 .child(Topology.class, new TopologyKey(new TopologyId(getTopologyName()))).build();
-        final ListenerRegistration<DataChangeListener> registration = getDataProviderDependency().registerDataChangeListener(
-                LogicalDatastoreType.OPERATIONAL, topoIId, counter, DataBroker.DataChangeScope.SUBTREE);
+        final ListenerRegistration<TopologyDataChangeCounter> registration = getDataProviderDependency().registerDataTreeChangeListener(
+                new DataTreeIdentifier<Topology>(LogicalDatastoreType.OPERATIONAL, topoIId), counter);
         return new DataChangeCounterCloseable(counter, registration);
     }
 
     private static final class DataChangeCounterCloseable implements AutoCloseable {
 
         private final TopologyDataChangeCounter inner;
-        private final ListenerRegistration<DataChangeListener> registration;
+        private final ListenerRegistration<TopologyDataChangeCounter> registration;
 
         public DataChangeCounterCloseable(final TopologyDataChangeCounter inner,
-                final ListenerRegistration<DataChangeListener> registration) {
+                final ListenerRegistration<TopologyDataChangeCounter> registration) {
             this.inner = inner;
             this.registration = registration;
         }

@@ -16,8 +16,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
+import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.MountPoint;
 import org.opendaylight.controller.md.sal.binding.api.MountPointService;
@@ -52,7 +52,7 @@ public class BGPOpenConfigTest {
     public void setUp() throws Exception {
         Mockito.doReturn(this.dataBroker).when(this.session).getSALService(DataBroker.class);
         Mockito.doReturn(this.mountService).when(this.session).getSALService(MountPointService.class);
-        Mockito.doReturn(this.registration).when(this.dataBroker).registerDataTreeChangeListener(Mockito.any(DataTreeIdentifier.class), Mockito.any(DataTreeChangeListener.class));
+        Mockito.doReturn(this.registration).when(this.dataBroker).registerDataTreeChangeListener(Mockito.any(DataTreeIdentifier.class), Mockito.any(ClusteredDataTreeChangeListener.class));
         Mockito.doReturn(this.txChain).when(this.dataBroker).createTransactionChain(Mockito.any(TransactionChainListener.class));
         Mockito.doReturn(this.writeTx).when(this.txChain).newWriteOnlyTransaction();
         Mockito.doNothing().when(this.txChain).close();
@@ -87,7 +87,7 @@ public class BGPOpenConfigTest {
     public void testOnMountPoint() {
         this.bgpOpenConfig.onMountPointCreated(null);
         Mockito.verify(this.mountService).getMountPoint(Mockito.any(InstanceIdentifier.class));
-        Mockito.verify(this.dataBroker).registerDataTreeChangeListener(Mockito.any(DataTreeIdentifier.class), Mockito.any(DataTreeChangeListener.class));
+        Mockito.verify(this.dataBroker).registerDataTreeChangeListener(Mockito.any(DataTreeIdentifier.class), Mockito.any(ClusteredDataTreeChangeListener.class));
         this.bgpOpenConfig.onMountPointRemoved(null);
         Mockito.verify(this.registration).close();
     }
