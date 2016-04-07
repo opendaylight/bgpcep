@@ -1,17 +1,8 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<project name="${project.artifactId}">
-
-  <body>
-    <head>${project.artifactId}</head>
-    <links>
-      <item name="${project.artifactId}" href="index.html"/>
-    </links>
-
-    <menu ref="modules"/>
-
-    <menu ref="reports"/>
-
-
-  </body>
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="bgpcep">
+    <body>
+        <menu name="Overview">
+            <item name="Javadocs" href="apidocs/index.html" />
+        </menu>
+    </body>
 </project>
-
