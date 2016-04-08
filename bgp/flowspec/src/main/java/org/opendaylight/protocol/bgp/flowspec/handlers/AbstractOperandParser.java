@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.flowspec;
+package org.opendaylight.protocol.bgp.flowspec.handlers;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.netty.buffer.ByteBuf;
@@ -16,12 +16,12 @@ import java.util.Set;
  *
  * @param <T> operand Type
  */
-abstract class AbstractOperandParser<T> {
+abstract public class AbstractOperandParser<T> {
 
     @VisibleForTesting
-    static final String AND_BIT_VALUE = "and-bit";
+    public static final String AND_BIT_VALUE = "and-bit";
     @VisibleForTesting
-    static final String END_OF_LIST_VALUE = "end-of-list";
+    public static final String END_OF_LIST_VALUE = "end-of-list";
 
     protected static final int OPERAND_LENGTH = 8;
 
@@ -33,7 +33,7 @@ abstract class AbstractOperandParser<T> {
     private static final int LENGTH_BITMASK = 48;
 
     @VisibleForTesting
-    static final short parseLength(final byte op) {
+    public static final short parseLength(final byte op) {
         return (short) (1 << ((op & LENGTH_BITMASK) >> LENGTH_SHIFT));
     }
 

@@ -5,11 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.flowspec;
+package org.opendaylight.protocol.bgp.flowspec.handlers;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.netty.buffer.ByteBuf;
 import java.util.Set;
+
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.BitmaskOperand;
 
@@ -25,9 +26,9 @@ public final class BitmaskOperandParser extends AbstractOperandParser<BitmaskOpe
     }
 
     @VisibleForTesting
-    static final String MATCH_VALUE = "match";
+    public static final String MATCH_VALUE = "match";
     @VisibleForTesting
-    static final String NOT_VALUE = "not";
+    public static final String NOT_VALUE = "not";
 
     private static final int NOT = 6;
     private static final int MATCH = 7;
