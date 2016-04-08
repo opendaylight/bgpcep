@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.flowspec;
+package org.opendaylight.protocol.bgp.flowspec.handlers;
 
 import com.google.common.primitives.UnsignedBytes;
 import com.google.common.primitives.UnsignedInts;
@@ -27,7 +27,7 @@ public final class Util {
      * @param value integer to be written
      * @param buffer ByteBuf where the value will be written
      */
-    protected static void writeShortest(final int value, final ByteBuf buffer) {
+    public static void writeShortest(final int value, final ByteBuf buffer) {
         if (value <= Values.UNSIGNED_BYTE_MAX_VALUE) {
             buffer.writeByte(UnsignedBytes.checkedCast(value));
         } else if (value <= Values.UNSIGNED_SHORT_MAX_VALUE) {
