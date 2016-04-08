@@ -22,6 +22,30 @@
       "revId": "49380a4356d8f051c24c04c3156d22cf275f6668",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a4c51b2_a077b601",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/MessageRegistry.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-08T10:24:41Z",
+      "side": 1,
+      "message": "Reworked to be more generic (not only Add-path specific).\nJavadoc added.",
+      "parentUuid": "3a4c51b2_d549e98c",
+      "range": {
+        "startLine": 17,
+        "startChar": 16,
+        "endLine": 17,
+        "endChar": 38
+      },
+      "revId": "49380a4356d8f051c24c04c3156d22cf275f6668",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
