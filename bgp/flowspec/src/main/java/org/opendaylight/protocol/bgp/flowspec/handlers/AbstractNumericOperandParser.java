@@ -5,12 +5,13 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.flowspec;
+package org.opendaylight.protocol.bgp.flowspec.handlers;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.netty.buffer.ByteBuf;
 import java.util.List;
 import java.util.Set;
+
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.NumericOperand;
 
@@ -19,14 +20,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
  *
  * @param <N> numeric operand type
  */
-abstract class AbstractNumericOperandParser<N> extends AbstractOperandParser<NumericOperand> {
+abstract public class AbstractNumericOperandParser<N> extends AbstractOperandParser<NumericOperand> {
 
     @VisibleForTesting
-    static final String EQUALS_VALUE = "equals";
+    public static final String EQUALS_VALUE = "equals";
     @VisibleForTesting
-    static final String GREATER_THAN_VALUE = "greater-than";
+    public static final String GREATER_THAN_VALUE = "greater-than";
     @VisibleForTesting
-    static final String LESS_THAN_VALUE = "less-than";
+    public static final String LESS_THAN_VALUE = "less-than";
 
     protected static final int LESS_THAN = 5;
     protected static final int GREATER_THAN = 6;
@@ -43,7 +44,7 @@ abstract class AbstractNumericOperandParser<N> extends AbstractOperandParser<Num
     protected abstract <T extends N> String toString(final List<T> list);
 
     @Override
-    protected final NumericOperand create(final Set<String> operandValues) {
+    public final NumericOperand create(final Set<String> operandValues) {
         return new NumericOperand(operandValues.contains(AND_BIT_VALUE), operandValues.contains(END_OF_LIST_VALUE), operandValues.contains(EQUALS_VALUE), operandValues.contains(GREATER_THAN_VALUE), operandValues.contains(LESS_THAN_VALUE));
     }
 
@@ -60,13 +61,13 @@ abstract class AbstractNumericOperandParser<N> extends AbstractOperandParser<Num
     }
 
     @Override
-    protected final NumericOperand parse(final byte operand) {
+    public final NumericOperand parse(final byte operand) {
         final BitArray operandValues = BitArray.valueOf(operand);
         return new NumericOperand(operandValues.get(AND_BIT), operandValues.get(END_OF_LIST), operandValues.get(EQUAL), operandValues.get(GREATER_THAN), operandValues.get(LESS_THAN));
     }
 
     @Override
-    protected String toString(final NumericOperand operand, final boolean isFirst) {
+    public String toString(final NumericOperand operand, final boolean isFirst) {
         final StringBuilder buffer = new StringBuilder();
         if (operand.isAndBit()) {
             buffer.append("and ");
