@@ -8,7 +8,9 @@
 package org.opendaylight.protocol.bgp.flowspec;
 
 import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.flowspec.handlers.AbstractOperandParser;
 
 public class OperandsTest {
 
