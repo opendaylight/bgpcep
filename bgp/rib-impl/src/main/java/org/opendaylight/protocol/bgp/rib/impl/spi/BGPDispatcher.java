@@ -12,7 +12,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
-import org.opendaylight.tcpmd5.api.KeyMapping;
+import org.opendaylight.protocol.concepts.KeyMapping;
 
 /**
  * Dispatcher class for creating BGP clients.
