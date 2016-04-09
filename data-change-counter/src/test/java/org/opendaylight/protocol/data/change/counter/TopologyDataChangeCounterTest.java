@@ -35,7 +35,7 @@ public class TopologyDataChangeCounterTest extends AbstractDataBrokerTest {
         assertTrue(count.isPresent());
         assertEquals(0, count.get().longValue());
 
-        counter.onDataChanged(null);
+        counter.onDataTreeChanged(null);
         final Optional<Long> countAfterDataChange = getCount(COUNTER_ID1);
         assertTrue(countAfterDataChange.isPresent());
         assertEquals(1, countAfterDataChange.get().longValue());
@@ -57,7 +57,7 @@ public class TopologyDataChangeCounterTest extends AbstractDataBrokerTest {
         assertTrue(count2.isPresent());
         assertEquals(0, count2.get().longValue());
 
-        counter1.onDataChanged(null);
+        counter1.onDataTreeChanged(null);
         final Optional<Long> countAfterDataChange1 = getCount(COUNTER_ID1);
         assertTrue(countAfterDataChange1.isPresent());
         assertEquals(1, countAfterDataChange1.get().longValue());

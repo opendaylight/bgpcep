@@ -13,13 +13,18 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -66,10 +71,11 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.IpBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.PathArgument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class NodeChangedListener implements DataChangeListener {
+public final class NodeChangedListener implements DataTreeChangeListener<Node> {
     private static final Logger LOG = LoggerFactory.getLogger(NodeChangedListener.class);
     private final InstanceIdentifier<Topology> target;
     private final DataBroker dataProvider;
@@ -372,37 +378,31 @@ public final class NodeChangedListener implements DataChangeListener {
     }
 
     @Override
-    public void onDataChanged(final AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
+    public void onDataTreeChanged(final Collection<DataTreeModification<Node>> changes) {
         final ReadWriteTransaction trans = this.dataProvider.newReadWriteTransaction();
 
         final Set<InstanceIdentifier<ReportedLsp>> lsps = new HashSet<>();
         final Set<InstanceIdentifier<Node>> nodes = new HashSet<>();
 
-        // Categorize reported identifiers
-        for (final InstanceIdentifier<?> i : change.getRemovedPaths()) {
-            categorizeIdentifier(i, lsps, nodes);
-        }
-        for (final InstanceIdentifier<?> i : change.getUpdatedData().keySet()) {
-            categorizeIdentifier(i, lsps, nodes);
-        }
-        for (final InstanceIdentifier<?> i : change.getCreatedData().keySet()) {
-            categorizeIdentifier(i, lsps, nodes);
-        }
+        final Map<InstanceIdentifier<?>, DataObject> original = new HashMap<>();
+        final Map<InstanceIdentifier<?>, DataObject> updated = new HashMap<>();
+        final Map<InstanceIdentifier<?>, DataObject> created = new HashMap<>();
 
-        // Get the subtrees
-        final Map<InstanceIdentifier<?>, ? extends DataObject> o = change.getOriginalData();
-        final Map<InstanceIdentifier<?>, DataObject> u = change.getUpdatedData();
-        final Map<InstanceIdentifier<?>, DataObject> c = change.getCreatedData();
+        for (final DataTreeModification<?> change : changes) {
+            final InstanceIdentifier<?> iid = change.getRootPath().getRootIdentifier();
+            final DataObjectModification<?> rootNode = change.getRootNode();
+            handleChangedNode(rootNode, iid, lsps, nodes, original, updated, created);
+        }
 
         // Now walk all nodes, check for removals/additions and cascade them to LSPs
-        for (final InstanceIdentifier<Node> i : nodes) {
-            enumerateLsps(i, (Node) o.get(i), lsps);
-            enumerateLsps(i, (Node) u.get(i), lsps);
-            enumerateLsps(i, (Node) c.get(i), lsps);
+        for (final InstanceIdentifier<Node> iid : nodes) {
+            enumerateLsps(iid, (Node) original.get(iid), lsps);
+            enumerateLsps(iid, (Node) updated.get(iid), lsps);
+            enumerateLsps(iid, (Node) created.get(iid), lsps);
         }
 
         // We now have list of all affected LSPs. Walk them create/remove them
-        updateTransaction(trans, lsps, o, u, c);
+        updateTransaction(trans, lsps, original, updated, created);
 
         Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.submit()), new FutureCallback<Void>() {
             @Override
@@ -415,6 +415,41 @@ public final class NodeChangedListener implements DataChangeListener {
                 LOG.error("Failed to propagate a topology change, target topology became inconsistent", t);
             }
         });
+    }
+
+    private void handleChangedNode(final DataObjectModification<?> changedNode, final InstanceIdentifier<?> iid,
+            final Set<InstanceIdentifier<ReportedLsp>> lsps, final Set<InstanceIdentifier<Node>> nodes,
+            final Map<InstanceIdentifier<?>, DataObject> original, final Map<InstanceIdentifier<?>, DataObject> updated,
+            final Map<InstanceIdentifier<?>, DataObject> created) {
+
+        // Categorize reported identifiers
+        categorizeIdentifier(iid, lsps, nodes);
+
+        // Get the subtrees
+        switch (changedNode.getModificationType()) {
+        case DELETE:
+            original.put(iid, changedNode.getDataBefore());
+            break;
+        case SUBTREE_MODIFIED:
+            original.put(iid, changedNode.getDataBefore());
+            updated.put(iid, changedNode.getDataAfter());
+            break;
+        case WRITE:
+            created.put(iid, changedNode.getDataAfter());
+            break;
+        default:
+            throw new IllegalArgumentException("Unhandled modification type " + changedNode.getModificationType());
+        }
+
+        for (DataObjectModification<? extends DataObject> child : changedNode.getModifiedChildren()) {
+            final List<PathArgument> pathArguments = new ArrayList<>();
+            for (PathArgument pathArgument : iid.getPathArguments()) {
+                pathArguments.add(pathArgument);
+            }
+            pathArguments.add(child.getIdentifier());
+            final InstanceIdentifier<?> childIID = InstanceIdentifier.create(pathArguments);
+            handleChangedNode(child, childIID, lsps, nodes, original, updated, created);
+        }
     }
 
     private void updateTransaction(final ReadWriteTransaction trans, final Set<InstanceIdentifier<ReportedLsp>> lsps,
