@@ -12,11 +12,13 @@ import com.google.common.base.Optional;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
+import org.opendaylight.protocol.concepts.KeyMapping;
 
 public class TestClientDispatcher {
 
@@ -29,9 +31,12 @@ public class TestClientDispatcher {
                                    final InetSocketAddress locaAddress) {
         this.disp = new BGPDispatcherImpl(messageRegistry, bossGroup, workerGroup) {
             @Override
-            protected Bootstrap createClientBootStrap() {
+            protected Bootstrap createClientBootStrap(final Optional<KeyMapping> keys) {
                 final Bootstrap bootstrap = new Bootstrap();
-                bootstrap.channel(NioSocketChannel.class);
+                if(!Epoll.isAvailable()){
+                    throw new UnsupportedOperationException("Plateform is not Linux 64-bit OS, so cannot create ClientBootStrap");
+                }
+                bootstrap.channel(EpollSocketChannel.class);
                 // Make sure we are doing round-robin processing
                 bootstrap.option(ChannelOption.MAX_MESSAGES_PER_READ, 1);
                 bootstrap.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE);
