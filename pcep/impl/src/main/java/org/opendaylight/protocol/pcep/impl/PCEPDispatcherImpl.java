@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -15,6 +14,9 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.DefaultPromise;
@@ -28,9 +30,6 @@ import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
-import org.opendaylight.tcpmd5.api.KeyMapping;
-import org.opendaylight.tcpmd5.netty.MD5ChannelOption;
-import org.opendaylight.tcpmd5.netty.MD5ServerChannelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,8 +46,6 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
     private final EventExecutor executor;
-    private final MD5ServerChannelFactory<?> scf;
-    private Optional<KeyMapping> keys;
 
     /**
      * Creates an instance of PCEPDispatcherImpl, gets the default selector and opens it.
@@ -61,40 +58,21 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     public PCEPDispatcherImpl(final MessageRegistry registry,
                               final PCEPSessionNegotiatorFactory negotiatorFactory,
                               final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
-        this(registry, negotiatorFactory, bossGroup, workerGroup, null);
-    }
-
-    /**
-     * Creates an instance of PCEPDispatcherImpl, gets the default selector and opens it.
-     *
-     * @param registry a message registry
-     * @param negotiatorFactory a negotiation factory
-     * @param bossGroup accepts an incoming connection
-     * @param workerGroup handles the traffic of accepted connection
-     * @param scf MD5ServerChannelFactory
-     */
-    public PCEPDispatcherImpl(final MessageRegistry registry,
-                              final PCEPSessionNegotiatorFactory negotiatorFactory,
-                              final EventLoopGroup bossGroup, final EventLoopGroup workerGroup,
-                              final MD5ServerChannelFactory<?> scf) {
         this.snf = Preconditions.checkNotNull(negotiatorFactory);
         this.hf = new PCEPHandlerFactory(registry);
-        this.bossGroup = Preconditions.checkNotNull(bossGroup);
-        this.workerGroup = Preconditions.checkNotNull(workerGroup);
+        if(Epoll.isAvailable()){
+            this.bossGroup =new EpollEventLoopGroup();
+            this.workerGroup =new EpollEventLoopGroup();
+        } else {
+            this.bossGroup = Preconditions.checkNotNull(bossGroup);
+            this.workerGroup = Preconditions.checkNotNull(workerGroup);
+        }
         this.executor = Preconditions.checkNotNull(GlobalEventExecutor.INSTANCE);
-        this.scf = scf;
     }
 
     @Override
     public synchronized ChannelFuture createServer(final InetSocketAddress address,
                                                    final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
-        return createServer(address, Optional.<KeyMapping>absent(), listenerFactory, peerProposal);
-    }
-
-    @Override
-    public synchronized ChannelFuture createServer(final InetSocketAddress address, final Optional<KeyMapping> keys,
-                                                   final PCEPSessionListenerFactory listenerFactory, final PCEPPeerProposal peerProposal) {
-        this.keys = keys;
 
         final ChannelPipelineInitializer initializer = new ChannelPipelineInitializer() {
             @Override
@@ -108,8 +86,6 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
         final ServerBootstrap b = createServerBootstrap(initializer);
         final ChannelFuture f = b.bind(address);
         LOG.debug("Initiated server {} at {}.", f, address);
-
-        this.keys = Optional.absent();
         return f;
     }
 
@@ -125,14 +101,8 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
 
         b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
 
-        if (this.keys.isPresent()) {
-            if (this.scf == null) {
-                throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
-            }
-
-            LOG.debug("Adding MD5 keys {} to bootstrap {}", this.keys.get(), b);
-            b.channelFactory(this.scf);
-            b.option(MD5ChannelOption.TCP_MD5SIG, this.keys.get());
+        if(Epoll.isAvailable()) {
+            b.channel(EpollServerSocketChannel.class);
         } else {
             b.channel(NioServerSocketChannel.class);
         }
@@ -149,6 +119,10 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
 
     @Override
     public void close() {
+        if(Epoll.isAvailable()){
+            this.bossGroup.shutdownGracefully();
+            this.workerGroup.shutdownGracefully();
+        }
     }
 
     protected interface ChannelPipelineInitializer {
