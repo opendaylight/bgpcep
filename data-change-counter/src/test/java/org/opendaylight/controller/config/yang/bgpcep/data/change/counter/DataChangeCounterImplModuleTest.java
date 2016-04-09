@@ -10,7 +10,9 @@ package org.opendaylight.controller.config.yang.bgpcep.data.change.counter;
 
 import java.util.Collections;
 import java.util.Set;
+
 import javax.management.ObjectName;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +30,8 @@ import org.opendaylight.controller.config.spi.Module;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
@@ -49,26 +52,26 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
     private static final String NEW_TOPOLOGY_NAME = "new-test";
 
     @Mock
-    private CloseableDataBroker dataBorker;
+    private CloseableDataBroker dataBroker;
     @Mock
     private BindingTransactionChain chain;
     @Mock
     private WriteTransaction wTx;
     @Mock
-    private ListenerRegistration<DataChangeListener> registration;
+    private ListenerRegistration<DataTreeChangeListener<?>> registration;
 
     @Before
     public void setUp() throws Exception {
         Mockito.doNothing().when(this.registration).close();
         Mockito.doReturn(null).when(this.wTx).submit();
         Mockito.doNothing().when(this.wTx).put(Mockito.any(LogicalDatastoreType.class), Mockito.<InstanceIdentifier<DataChangeCounter>>any(), Mockito.any(DataChangeCounter.class));
-        Mockito.doReturn(this.registration).when(this.dataBorker).registerDataChangeListener(Mockito.any(LogicalDatastoreType.class), Mockito.<InstanceIdentifier<?>>any(), Mockito.any(DataChangeListener.class), Mockito.any(DataBroker.DataChangeScope.class));
+        Mockito.doReturn(this.registration).when(this.dataBroker).registerDataTreeChangeListener(Mockito.any(DataTreeIdentifier.class), Mockito.any(DataTreeChangeListener.class));
         Mockito.doNothing().when(this.wTx).delete(Mockito.any(LogicalDatastoreType.class), Mockito.<InstanceIdentifier<?>>any());
-        Mockito.doReturn(this.chain).when(this.dataBorker).createTransactionChain(Mockito.any(TransactionChainListener.class));
+        Mockito.doReturn(this.chain).when(this.dataBroker).createTransactionChain(Mockito.any(TransactionChainListener.class));
         Mockito.doReturn(this.wTx).when(this.chain).newWriteOnlyTransaction();
-        Mockito.doReturn(this.wTx).when(this.dataBorker).newWriteOnlyTransaction();
+        Mockito.doReturn(this.wTx).when(this.dataBroker).newWriteOnlyTransaction();
         Mockito.doNothing().when(this.chain).close();
-        Mockito.doNothing().when(this.dataBorker).close();
+        Mockito.doNothing().when(this.dataBroker).close();
         super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.mockedContext, new DataChangeCounterImplModuleFactory(), new MockDataBrokerModuleFct()));
     }
 
@@ -193,7 +196,7 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
 
         @Override
         public AutoCloseable getInstance() {
-            return DataChangeCounterImplModuleTest.this.dataBorker;
+            return DataChangeCounterImplModuleTest.this.dataBroker;
         }
 
         @Override
