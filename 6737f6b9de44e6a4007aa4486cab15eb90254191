@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a494da4_e4a61053",
+        "filename": "data-change-counter/src/main/java/org/opendaylight/protocol/data/change/counter/TopologyDataChangeCounter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2016-04-11T18:02:10Z",
+      "side": 1,
+      "message": "Done. Thx for sharing the wiki link",
+      "parentUuid": "1a494da4_012faea2",
+      "revId": "6737f6b9de44e6a4007aa4486cab15eb90254191",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a494da4_211d8a74",
         "filename": "pcep/tunnel-provider/src/main/java/org/opendaylight/bgpcep/pcep/tunnel/provider/NodeChangedListener.java",
         "patchSetId": 2
@@ -30,6 +48,30 @@
       "writtenOn": "2016-04-11T14:03:08Z",
       "side": 1,
       "message": "Please, use some more meaningful variable names.",
+      "range": {
+        "startLine": 389,
+        "startChar": 53,
+        "endLine": 389,
+        "endChar": 54
+      },
+      "revId": "6737f6b9de44e6a4007aa4486cab15eb90254191",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_241d9874",
+        "filename": "pcep/tunnel-provider/src/main/java/org/opendaylight/bgpcep/pcep/tunnel/provider/NodeChangedListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2016-04-11T18:02:10Z",
+      "side": 1,
+      "message": "These variable names come from existing code. But I see your point and have updated them to more meaningful names",
+      "parentUuid": "1a494da4_211d8a74",
       "range": {
         "startLine": 389,
         "startChar": 53,
