@@ -11,10 +11,13 @@ package org.opendaylight.protocol.bgp.openconfig.spi.pojo;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.util.List;
+import java.util.Map;
+import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfigurationIdentifier;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 
 /**
  * POJO for holding BGP RIB module instance configuration
@@ -26,10 +29,12 @@ public final class BGPRibInstanceConfiguration extends AbstractInstanceConfigura
     private final Ipv4Address bgpRibId;
     private final Ipv4Address clusterId;
     private final List<BgpTableType> tableTypes;
+    private final Map<TablesKey, PathSelectionMode> pathSelectionModes;
 
     public BGPRibInstanceConfiguration(final InstanceConfigurationIdentifier identifier, final AsNumber localAs, final Ipv4Address bgpRibId,
-            final Ipv4Address clusterId, final List<BgpTableType> tableTypes) {
+            final Ipv4Address clusterId, final List<BgpTableType> tableTypes, final Map<TablesKey, PathSelectionMode> pathSelectionModes) {
         super(identifier);
+        this.pathSelectionModes = pathSelectionModes;
         this.localAs = Preconditions.checkNotNull(localAs);
         this.bgpRibId = Preconditions.checkNotNull(bgpRibId);
         this.clusterId = clusterId;
@@ -50,6 +55,10 @@ public final class BGPRibInstanceConfiguration extends AbstractInstanceConfigura
 
     public List<BgpTableType> getTableTypes() {
         return tableTypes;
+    }
+
+    public Map<TablesKey, PathSelectionMode> getPathSelectionModes() {
+        return pathSelectionModes;
     }
 
 }

@@ -16,6 +16,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.tcpmd5.cfg.rev140427.Rfc2385Key;
 
@@ -33,10 +34,13 @@ public final class BGPPeerInstanceConfiguration extends AbstractInstanceConfigur
     private final List<BgpTableType> advertizedTables;
     private final AsNumber asNumber;
     private final Optional<Rfc2385Key> password;
+    private final List<AddressFamilies> addPathCapabilities;
 
     public BGPPeerInstanceConfiguration(final InstanceConfigurationIdentifier identifier, final IpAddress host, final PortNumber port, final short holdTimer, final PeerRole peerRole,
-            final boolean active, final List<BgpTableType> advertizedTables, final AsNumber asNumber, final Optional<Rfc2385Key> password) {
+            final boolean active, final List<BgpTableType> advertizedTables, final AsNumber asNumber, final Optional<Rfc2385Key> password,
+            final List<AddressFamilies> addPathCapabilities) {
         super(identifier);
+        this.addPathCapabilities = addPathCapabilities;
         this.host = Preconditions.checkNotNull(host);
         this.port = Preconditions.checkNotNull(port);
         this.holdTimer = Preconditions.checkNotNull(holdTimer);
@@ -77,6 +81,10 @@ public final class BGPPeerInstanceConfiguration extends AbstractInstanceConfigur
 
     public Optional<Rfc2385Key> getPassword() {
         return password;
+    }
+
+    public List<AddressFamilies> getAddPathCapabilities() {
+        return addPathCapabilities;
     }
 
 }
