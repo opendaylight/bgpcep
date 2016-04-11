@@ -63,7 +63,8 @@ final class BGPNeighborProviderImpl extends AbstractBGPNeighborProvider<BGPPeerI
                     .build())
             .setAfiSafis(
                     new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AfiSafisBuilder()
-                    .setAfiSafi(OpenConfigUtil.toAfiSafis(config.getAdvertizedTables()))
+                    .setAfiSafi(OpenConfigUtil.toAfiSafis(config.getAdvertizedTables(),
+                            (afiSAfi, tableType) -> OpenConfigUtil.toNeigborAfiSafiMultiPath(afiSAfi, tableType, config.getAddPathCapabilities())))
                     .build())
             .setTimers(new TimersBuilder().setConfig(
                     new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers.ConfigBuilder()

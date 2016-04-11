@@ -72,7 +72,8 @@ final class BGPGlobalProviderImpl extends AbstractBGPOpenConfigMapper<BGPRibInst
         bgpBuilder.setNeighbors(new NeighborsBuilder().build());
         bgpBuilder.setPeerGroups(new PeerGroupsBuilder().setPeerGroup(Collections.singletonList(APP_PEER_GROUP)).build());
         final Global global = new GlobalBuilder()
-            .setAfiSafis(new AfiSafisBuilder().setAfiSafi(OpenConfigUtil.toAfiSafis(config.getTableTypes())).build())
+            .setAfiSafis(new AfiSafisBuilder().setAfiSafi(OpenConfigUtil.toAfiSafis(config.getTableTypes(),
+                    (afiSafi, tableType) -> OpenConfigUtil.toGlobalAfiSafiMultiPath(afiSafi, tableType, config.getPathSelectionModes()))).build())
             .setConfig(new ConfigBuilder()
                 .setAs(config.getLocalAs())
                 .setRouterId(config.getBgpRibId()).build()).build();
