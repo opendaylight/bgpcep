@@ -13,6 +13,7 @@ import static org.junit.Assert.assertEquals;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -119,7 +120,7 @@ public class BGPNeighborProviderImplTest {
 
     private BGPPeerInstanceConfiguration createConfiguration(final InstanceConfigurationIdentifier confId, final IpAddress ip, final PortNumber port,
         final short holdTimer, final PeerRole role, final boolean active, final List<BgpTableType> advertized, final AsNumber as, final Optional<Rfc2385Key> passwd) {
-        return new BGPPeerInstanceConfiguration(confId, ip, port, holdTimer, role, active, advertized, as, passwd);
+        return new BGPPeerInstanceConfiguration(confId, ip, port, holdTimer, role, active, advertized, as, passwd, Collections.emptyList());
     }
 
     private Neighbor createNeighbor(final List<AfiSafi> families, final IpAddress ip, final String passwd, final AsNumber as, final PeerType peerType, final PeerRole role, final short timer, final boolean passive) {

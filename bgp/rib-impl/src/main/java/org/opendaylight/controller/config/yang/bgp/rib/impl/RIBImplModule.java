@@ -122,7 +122,8 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
             final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber as = Rev130715Util.getASNumber(getLocalAs());
             final Ipv4Address bgpRibId = Rev130715Util.getIpv4Address(getBgpRibId());
             final Ipv4Address clusterId = Rev130715Util.getIpv4Address(getClusterId());
-            this.bgpRibConfig = new BGPRibInstanceConfiguration(identifier, as, bgpRibId, clusterId, tableDependency);
+            this.bgpRibConfig = new BGPRibInstanceConfiguration(identifier, as, bgpRibId, clusterId, tableDependency,
+                    mapBestPathSelectionStrategyByFamily(getPathSelectionModeDependency()));
         }
 
         @Override

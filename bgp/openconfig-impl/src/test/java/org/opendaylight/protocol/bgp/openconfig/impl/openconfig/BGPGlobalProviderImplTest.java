@@ -65,7 +65,7 @@ public class BGPGlobalProviderImplTest {
     public void testApply() {
         final Bgp bgp = this.globalProvider.apply(new BGPRibInstanceConfiguration(new InstanceConfigurationIdentifier("instanceName"), new AsNumber(1L),
                 new Ipv4Address("1.2.3.4"), null,
-                Lists.<BgpTableType>newArrayList(new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class))));
+                Lists.<BgpTableType>newArrayList(new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class)), Collections.emptyMap()));
         final BgpBuilder bgpBuilder = new BgpBuilder();
         bgpBuilder.setNeighbors(new NeighborsBuilder().build());
         bgpBuilder.setPeerGroups(new PeerGroupsBuilder().setPeerGroup(

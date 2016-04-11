@@ -16,7 +16,6 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfigurationIdentifier;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 
 ;
 
@@ -28,7 +27,7 @@ public class BGPRibInstanceConfigurationTest {
     private static final AsNumber AS_NUMBER = new AsNumber(72L);
 
     private final BGPRibInstanceConfiguration config = new BGPRibInstanceConfiguration(INSTANCE_NAME, AS_NUMBER, BGP_ID, CLUSTER_ID,
-            Collections.<BgpTableType>emptyList());
+            Collections.emptyList(), Collections.emptyMap());
 
     @Test
     public final void testGetLocalAs() {
@@ -53,6 +52,11 @@ public class BGPRibInstanceConfigurationTest {
     @Test
     public final void testGetInstanceName() {
         assertEquals(INSTANCE_NAME, config.getIdentifier());
+    }
+
+    @Test
+    public final void testGetPathSelectionModes() {
+        assertEquals(Collections.EMPTY_MAP, config.getPathSelectionModes());
     }
 
 }

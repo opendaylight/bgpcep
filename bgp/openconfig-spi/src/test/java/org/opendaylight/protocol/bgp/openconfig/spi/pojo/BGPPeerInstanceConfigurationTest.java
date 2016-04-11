@@ -18,7 +18,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.tcpmd5.cfg.rev140427.Rfc2385Key;
 
@@ -31,7 +30,7 @@ public class BGPPeerInstanceConfigurationTest {
     private static final AsNumber AS_NUMBER = new AsNumber(72L);
 
     private final BGPPeerInstanceConfiguration config = new BGPPeerInstanceConfiguration(INSTANCE_NAME, HOST, PORT, HOLD_TIMER, PeerRole.Ibgp,
-            Boolean.FALSE, Collections.<BgpTableType>emptyList(), AS_NUMBER, Optional.<Rfc2385Key>absent());
+            Boolean.FALSE, Collections.emptyList(), AS_NUMBER, Optional.<Rfc2385Key>absent(), Collections.emptyList());
 
     @Test
     public final void testGetHost() {
@@ -76,6 +75,11 @@ public class BGPPeerInstanceConfigurationTest {
     @Test
     public final void testGetInstanceName() {
         assertEquals(INSTANCE_NAME, config.getIdentifier());
+    }
+
+    @Test
+    public final void testGetAddPathCapabilities() {
+        assertEquals(Collections.EMPTY_LIST, config.getAddPathCapabilities());
     }
 
 }
