@@ -127,7 +127,7 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>src/main/resources/initial/bgp-app-peer-benchmark.xml</file>
+                                    <file>${project.build.directory}/classes/initial/bgp-app-peer-benchmark.xml</file>
                                     <type>xml</type>
                                     <classifier>app-peer-benchmark-config</classifier>
                                 </artifact>
