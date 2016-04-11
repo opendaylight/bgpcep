@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a494da4_1e1d4974",
+        "filename": "bgp/rib-api/src/main/yang/bgp-peer-rpc.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-11T09:40:54Z",
+      "side": 1,
+      "message": "peer",
+      "range": {
+        "startLine": 2,
+        "startChar": 55,
+        "endLine": 2,
+        "endChar": 58
+      },
+      "revId": "1f034176a8468f624e7f99bc9b0018afb2e17bd6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_7e128d63",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-11T09:40:54Z",
+      "side": 1,
+      "message": "no need to assign null value",
+      "range": {
+        "startLine": 103,
+        "startChar": 68,
+        "endLine": 103,
+        "endChar": 75
+      },
+      "revId": "1f034176a8468f624e7f99bc9b0018afb2e17bd6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_de02c10a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BgpPeerRpc.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-11T09:40:54Z",
+      "side": 1,
+      "message": "Missing unit test for the implementation.",
+      "revId": "1f034176a8468f624e7f99bc9b0018afb2e17bd6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_be0b752a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BgpPeerRpc.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-11T09:40:54Z",
+      "side": 1,
+      "message": "duplicated string",
+      "range": {
+        "startLine": 56,
+        "startChar": 73,
+        "endLine": 56,
+        "endChar": 109
+      },
+      "revId": "1f034176a8468f624e7f99bc9b0018afb2e17bd6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
