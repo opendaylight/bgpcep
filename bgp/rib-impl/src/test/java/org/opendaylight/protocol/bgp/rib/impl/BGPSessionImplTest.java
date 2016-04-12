@@ -10,25 +10,38 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.Lists;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelOutboundHandlerAdapter;
-import io.netty.channel.ChannelPromise;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.EventLoop;
 import io.netty.channel.embedded.EmbeddedChannel;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
+import io.netty.util.concurrent.GlobalEventExecutor;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.KeepaliveBuilder;
@@ -48,7 +61,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.RouteRefreshBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.GracefulRestartCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
@@ -63,7 +75,18 @@ public class BGPSessionImplTest {
     private static final String LOCAL_IP = "1.1.1.4";
     private static final int LOCAL_PORT = 12345;
 
+    @Mock
+    private EventLoop eventLoop;
+
+    @Mock
+    private Channel speakerListener;
+
+    @Mock
+    private ChannelPipeline pipeline;
+
     private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+
+    private final List<Notification> receivedMsgs = Lists.newArrayList();
 
     private Open classicOpen;
 
@@ -71,43 +94,61 @@ public class BGPSessionImplTest {
 
     private SimpleSessionListener listener;
 
-    private EmbeddedChannel embeddedChannel;
-
-    private MessageCollector collector;
-
     @Before
     public void setUp() throws UnknownHostException {
-        this.collector = new MessageCollector();
-        this.embeddedChannel = Mockito.spy(new EmbeddedChannel());
-        final BGPHandlerFactory hf = new BGPHandlerFactory(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry());
-        this.embeddedChannel.pipeline().addLast(hf.getDecoders());
-        this.embeddedChannel.pipeline().addLast(this.collector);
-        Mockito.doReturn(new InetSocketAddress(BGP_ID.getValue(), LOCAL_PORT)).when(this.embeddedChannel).remoteAddress();
-        Mockito.doReturn(new InetSocketAddress(LOCAL_IP, LOCAL_PORT)).when(this.embeddedChannel).localAddress();
-
+        new EmbeddedChannel();
+        MockitoAnnotations.initMocks(this);
         final List<BgpParameters> tlvs = Lists.newArrayList();
-        final List<OptionalCapabilities> capa = Lists.newArrayList();
-        capa.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
-            new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build()).build()).build()).build());
-        capa.add(new OptionalCapabilitiesBuilder().setCParameters(
-                new CParametersBuilder().addAugmentation(
-                        CParameters1.class, new CParameters1Builder().setGracefulRestartCapability(
-                                new GracefulRestartCapabilityBuilder().build()).build()).build()).build());
-        capa.add(new OptionalCapabilitiesBuilder().setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
-        capa.add(new OptionalCapabilitiesBuilder().setCParameters(
-                new CParametersBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(AS_NUMBER).build()).build()).build());
-        tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capa).build());
         this.classicOpen = new OpenBuilder().setMyAsNumber(AS_NUMBER.getValue().intValue()).setHoldTimer(HOLD_TIMER)
                 .setVersion(new ProtocolVersion((short) 4)).setBgpParameters(tlvs).setBgpIdentifier(BGP_ID).build();
 
+        final List<OptionalCapabilities> capa = Lists.newArrayList();
+        capa.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder().addAugmentation(CParameters1.class,
+            new CParameters1Builder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build())
+                .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build())
+                .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(AS_NUMBER).build()).build()).build());
+        capa.add(new OptionalCapabilitiesBuilder().setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
+        tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capa).build());
+
+        final ChannelFuture f = mock(ChannelFuture.class);
+        doReturn(null).when(f).addListener(Mockito.<GenericFutureListener<? extends Future<? super Void>>>any());
+
+        doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(final InvocationOnMock invocation) {
+                final Object[] args = invocation.getArguments();
+                BGPSessionImplTest.this.receivedMsgs.add((Notification) args[0]);
+                return f;
+            }
+        }).when(this.speakerListener).writeAndFlush(Mockito.any(Notification.class));
+        doReturn(this.eventLoop).when(this.speakerListener).eventLoop();
+        doReturn(true).when(this.speakerListener).isActive();
+        doAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(final InvocationOnMock invocation) throws Throwable {
+                final Runnable command = (Runnable) invocation.getArguments()[0];
+                final long delay = (long) invocation.getArguments()[1];
+                final TimeUnit unit = (TimeUnit) invocation.getArguments()[2];
+                GlobalEventExecutor.INSTANCE.schedule(command, delay, unit);
+                return null;
+            }
+        }).when(this.eventLoop).schedule(Mockito.any(Runnable.class), Mockito.any(long.class), Mockito.any(TimeUnit.class));
+        doReturn("TestingChannel").when(this.speakerListener).toString();
+        doReturn(new InetSocketAddress(InetAddress.getByName(BGP_ID.getValue()), 179)).when(this.speakerListener).remoteAddress();
+        doReturn(new InetSocketAddress(InetAddress.getByName(LOCAL_IP), LOCAL_PORT)).when(this.speakerListener).localAddress();
+        doReturn(this.pipeline).when(this.speakerListener).pipeline();
+        doReturn(this.pipeline).when(this.pipeline).replace(Mockito.any(ChannelHandler.class), Mockito.any(String.class), Mockito.any(ChannelHandler.class));
+        doReturn(null).when(this.pipeline).replace(Matchers.<Class<ChannelHandler>>any(), Mockito.any(String.class), Mockito.any(ChannelHandler.class));
+        doReturn(this.pipeline).when(this.pipeline).addLast(Mockito.any(ChannelHandler.class));
+        doReturn(mock(ChannelFuture.class)).when(this.speakerListener).close();
         this.listener = new SimpleSessionListener();
-        this.bgpSession = new BGPSessionImpl(this.listener, this.embeddedChannel, this.classicOpen, this.classicOpen.getHoldTimer(), null);
-        this.embeddedChannel.pipeline().addFirst(this.bgpSession);
+        this.bgpSession = new BGPSessionImpl(this.listener, this.speakerListener, this.classicOpen, this.classicOpen.getHoldTimer(), null);
     }
 
     @Test
     public void testBGPSession() {
+        this.bgpSession.sessionUp();
         assertEquals(BGPSessionImpl.State.UP, this.bgpSession.getState());
         assertEquals(AS_NUMBER, this.bgpSession.getAsNumber());
         assertEquals(BGP_ID, this.bgpSession.getBgpId());
@@ -139,26 +180,21 @@ public class BGPSessionImplTest {
         assertEquals(1, state.getMessagesStats().getUpdateMsgs().getReceived().getCount().longValue());
         assertEquals(0, state.getMessagesStats().getUpdateMsgs().getSent().getCount().longValue());
 
-        this.bgpSession.handleMessage(new RouteRefreshBuilder().build());
-        assertEquals(2, this.listener.getListMsg().size());
-        assertEquals(1, state.getMessagesStats().getRouteRefreshMsgs().getReceived().getCount().longValue());
-        assertEquals(0, state.getMessagesStats().getRouteRefreshMsgs().getSent().getCount().longValue());
-
         this.bgpSession.handleMessage(new KeepaliveBuilder().build());
         this.bgpSession.handleMessage(new KeepaliveBuilder().build());
-        assertEquals(4, state.getMessagesStats().getTotalMsgs().getReceived().getCount().longValue());
+        assertEquals(3, state.getMessagesStats().getTotalMsgs().getReceived().getCount().longValue());
         assertEquals(2, state.getMessagesStats().getKeepAliveMsgs().getReceived().getCount().longValue());
         assertEquals(0, state.getMessagesStats().getKeepAliveMsgs().getSent().getCount().longValue());
 
         this.bgpSession.close();
         assertEquals(BGPSessionImpl.State.IDLE, this.bgpSession.getState());
-        assertEquals(1, this.collector.receivedMsgs.size());
-        assertTrue(this.collector.receivedMsgs.get(0) instanceof Notify);
-        final Notify error = (Notify) this.collector.receivedMsgs.get(0);
+        assertEquals(1, this.receivedMsgs.size());
+        assertTrue(this.receivedMsgs.get(0) instanceof Notify);
+        final Notify error = (Notify) this.receivedMsgs.get(0);
         assertEquals(BGPError.CEASE.getCode(), error.getErrorCode().shortValue());
         assertEquals(BGPError.CEASE.getSubcode(), error.getErrorSubcode().shortValue());
-        Mockito.verify(this.embeddedChannel).close();
-        assertEquals(4, state.getMessagesStats().getTotalMsgs().getReceived().getCount().longValue());
+        Mockito.verify(this.speakerListener).close();
+        assertEquals(3, state.getMessagesStats().getTotalMsgs().getReceived().getCount().longValue());
         assertEquals(1, state.getMessagesStats().getTotalMsgs().getSent().getCount().longValue());
         assertEquals(1, state.getMessagesStats().getErrorMsgs().getErrorSent().getCount().longValue());
         assertEquals(BGPError.CEASE.getCode(), state.getMessagesStats().getErrorMsgs().getErrorSent().getCode().shortValue());
@@ -174,12 +210,12 @@ public class BGPSessionImplTest {
     public void testHandleOpenMsg() {
         this.bgpSession.handleMessage(this.classicOpen);
         Assert.assertEquals(BGPSessionImpl.State.IDLE, this.bgpSession.getState());
-        Assert.assertEquals(1, this.collector.receivedMsgs.size());
-        Assert.assertTrue(this.collector.receivedMsgs.get(0) instanceof Notify);
-        final Notify error = (Notify) this.collector.receivedMsgs.get(0);
+        Assert.assertEquals(1, this.receivedMsgs.size());
+        Assert.assertTrue(this.receivedMsgs.get(0) instanceof Notify);
+        final Notify error = (Notify) this.receivedMsgs.get(0);
         Assert.assertEquals(BGPError.FSM_ERROR.getCode(), error.getErrorCode().shortValue());
         Assert.assertEquals(BGPError.FSM_ERROR.getSubcode(), error.getErrorSubcode().shortValue());
-        Mockito.verify(this.embeddedChannel).close();
+        Mockito.verify(this.speakerListener).close();
     }
 
     @Test
@@ -189,11 +225,12 @@ public class BGPSessionImplTest {
         assertEquals(BGPError.BAD_BGP_ID.getCode(), this.bgpSession.getBgpSesionState().getMessagesStats().getErrorMsgs().getErrorReceived().getCode().shortValue());
         assertEquals(BGPError.BAD_BGP_ID.getSubcode(), this.bgpSession.getBgpSesionState().getMessagesStats().getErrorMsgs().getErrorReceived().getSubCode().shortValue());
         Assert.assertEquals(BGPSessionImpl.State.IDLE, this.bgpSession.getState());
-        Mockito.verify(this.embeddedChannel).close();
+        Mockito.verify(this.speakerListener).close();
     }
 
     @Test
     public void testEndOfInput() {
+        this.bgpSession.sessionUp();
         Assert.assertFalse(this.listener.down);
         this.bgpSession.endOfInput();
         Assert.assertTrue(this.listener.down);
@@ -201,25 +238,14 @@ public class BGPSessionImplTest {
 
     @Test
     public void testHoldTimerExpire() throws InterruptedException {
-        while (this.embeddedChannel.runScheduledPendingTasks() != -1) {
-        }
+        this.bgpSession.sessionUp();
+        Thread.sleep(3500);
         Assert.assertEquals(BGPSessionImpl.State.IDLE, this.bgpSession.getState());
-        Assert.assertEquals(3, this.collector.receivedMsgs.size());
-        Assert.assertTrue(this.collector.receivedMsgs.get(2) instanceof Notify);
-        final Notify error = (Notify) this.collector.receivedMsgs.get(2);
+        Assert.assertEquals(3, this.receivedMsgs.size());
+        Assert.assertTrue(this.receivedMsgs.get(2) instanceof Notify);
+        final Notify error = (Notify) this.receivedMsgs.get(2);
         Assert.assertEquals(BGPError.HOLD_TIMER_EXPIRED.getCode(), error.getErrorCode().shortValue());
         Assert.assertEquals(BGPError.HOLD_TIMER_EXPIRED.getSubcode(), error.getErrorSubcode().shortValue());
-        Mockito.verify(this.embeddedChannel).close();
-    }
-
-    private static final class MessageCollector extends ChannelOutboundHandlerAdapter {
-
-        private final List<Notification> receivedMsgs = new ArrayList<>();
-
-        @Override
-        public void write(final ChannelHandlerContext ctx, final Object msg, final ChannelPromise promise) throws Exception {
-            this.receivedMsgs.add((Notification) msg);
-            super.write(ctx, msg, promise);
-        }
+        Mockito.verify(this.speakerListener).close();
     }
 }
