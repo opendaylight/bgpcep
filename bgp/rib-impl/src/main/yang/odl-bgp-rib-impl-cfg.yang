@@ -248,7 +248,7 @@ module odl-bgp-rib-impl-cfg {
                 }
             }
 
-            container peer-registry {
+            container bgp-peer-registry {
                 description "BGP peer registry where current instance of BGP peer will be registered.";
                 uses config:service-ref {
                     refine type {
