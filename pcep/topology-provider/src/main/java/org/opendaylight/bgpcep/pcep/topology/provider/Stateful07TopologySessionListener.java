@@ -575,7 +575,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
                 }
             }
             final Srp srp = srpBuilder.build();
-            final Lsp inputLsp = args.getLsp();
+            final Lsp inputLsp = (args != null) ? args.getLsp() : null;
             final Lsp lsp = (inputLsp != null) ?
                 new LspBuilder().setPlspId(reportedLsp.getPlspId()).setDelegate((inputLsp.isDelegate() != null) ? inputLsp.isDelegate() : false).setTlvs(inputLsp.getTlvs()).setAdministrative((inputLsp.isAdministrative() != null) ? inputLsp.isAdministrative() : false).build()
                 : new LspBuilder().setPlspId(reportedLsp.getPlspId()).build();
