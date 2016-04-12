@@ -14,15 +14,18 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelOutboundHandlerAdapter;
-import io.netty.channel.ChannelPromise;
-import io.netty.channel.embedded.EmbeddedChannel;
+import io.netty.channel.ChannelPipeline;
 import java.net.InetSocketAddress;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.InitiationMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.PeerUp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.RouteMonitoringMessage;
@@ -34,29 +37,37 @@ public class BmpMockSessionTest {
     private static final InetSocketAddress LOCAL_ADDRESS = new InetSocketAddress(InetAddresses.forString("127.0.0.2"), 0);
 
     private ChannelHandlerContext context;
-    private EmbeddedChannel channel;
+    private Channel channel;
     private BmpMockSession session;
+    private List<Notification> messages;
 
     @Before
     public void setUp() {
+        MockitoAnnotations.initMocks(this);
+        this.messages = Lists.newArrayList();
         this.session = new BmpMockSession(1, 1, 1);
-        this.channel = Mockito.spy(new EmbeddedChannel());
+        this.channel = Mockito.mock(Channel.class);
         Mockito.doReturn(REMOTE_ADDRESS).when(this.channel).remoteAddress();
         Mockito.doReturn(LOCAL_ADDRESS).when(this.channel).localAddress();
-        this.channel.pipeline().addLast(this.session);
+        final ChannelPipeline pipeline = Mockito.mock(ChannelPipeline.class);
+        Mockito.doReturn(pipeline).when(this.channel).pipeline();
+        Mockito.doAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(final InvocationOnMock invocation) throws Throwable {
+                messages.add((Notification) invocation.getArguments()[0]);
+                return null;
+            }
+        }).when(this.channel).writeAndFlush(Mockito.any());
+        final ChannelFuture channelFuture = Mockito.mock(ChannelFuture.class);
+        Mockito.doReturn(null).when(channelFuture).addListener(Mockito.any());
+        Mockito.doReturn(channelFuture).when(this.channel).closeFuture();
+        Mockito.doReturn(channelFuture).when(this.channel).close();
         this.context = Mockito.mock(ChannelHandlerContext.class);
         Mockito.doReturn(this.channel).when(this.context).channel();
     }
 
     @Test
     public void testBmpMockSession() throws Exception {
-        final List<Notification> messages = Lists.newArrayList();
-        this.channel.pipeline().addLast(new ChannelOutboundHandlerAdapter() {
-            @Override
-            public void write(final ChannelHandlerContext ctx, final Object msg, final ChannelPromise promise) throws Exception {
-                messages.add((Notification) msg);
-            }
-        });
         this.session.channelActive(this.context);
 
         assertEquals(REMOTE_ADDRESS.getAddress(), this.session.getRemoteAddress());
