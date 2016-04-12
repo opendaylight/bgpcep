@@ -36,9 +36,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controll
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.bgp.peer.AdvertizedTableBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.bgp.peer.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.bgp.peer.RibBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.bgp.peer.RpcRegistry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.bgp.peer.RpcRegistryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.Module;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.ModuleBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.ModuleKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.md.sal.binding.rev131028.BindingRpcRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.tcpmd5.cfg.rev140427.Rfc2385Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +66,13 @@ final class BGPPeerProvider {
         }
     };
 
+    private static final Function<String, RpcRegistry> RPC_REG_FUNCTION = new Function<String, RpcRegistry>() {
+        @Override
+        public RpcRegistry apply(final String name) {
+            return new RpcRegistryBuilder().setName(name).setType(BindingRpcRegistry.class).build();
+        }
+    };
+
     private final BGPConfigHolder<Neighbor> neighborState;
     private final BGPConfigHolder<Bgp> globalState;
     private final BGPConfigModuleProvider configModuleOp;
@@ -76,13 +86,13 @@ final class BGPPeerProvider {
     }
 
     public void onNeighborRemoved(final Neighbor removedNeighbor) {
-        final ModuleKey moduleKey = neighborState.getModuleKey(removedNeighbor.getKey());
+        final ModuleKey moduleKey = this.neighborState.getModuleKey(removedNeighbor.getKey());
         if (moduleKey != null) {
             try {
-                final ReadWriteTransaction rwTx = dataBroker.newReadWriteTransaction();
-                final Optional<Module> maybeModule = configModuleOp.readModuleConfiguration(moduleKey, rwTx);
-                if (maybeModule.isPresent() && neighborState.remove(moduleKey, removedNeighbor)) {
-                    configModuleOp.removeModuleConfiguration(moduleKey, rwTx);
+                final ReadWriteTransaction rwTx = this.dataBroker.newReadWriteTransaction();
+                final Optional<Module> maybeModule = this.configModuleOp.readModuleConfiguration(moduleKey, rwTx);
+                if (maybeModule.isPresent() && this.neighborState.remove(moduleKey, removedNeighbor)) {
+                    this.configModuleOp.removeModuleConfiguration(moduleKey, rwTx);
                 }
             } catch (ReadFailedException | TransactionCommitFailedException e) {
                 LOG.error("Failed to remove a configuration module: {}", moduleKey, e);
@@ -92,8 +102,8 @@ final class BGPPeerProvider {
     }
 
     public void onNeighborModified(final Neighbor modifiedNeighbor) {
-        final ModuleKey moduleKey = neighborState.getModuleKey(modifiedNeighbor.getKey());
-        final ReadOnlyTransaction rTx = dataBroker.newReadOnlyTransaction();
+        final ModuleKey moduleKey = this.neighborState.getModuleKey(modifiedNeighbor.getKey());
+        final ReadOnlyTransaction rTx = this.dataBroker.newReadOnlyTransaction();
         final List<AdvertizedTable> advertizedTables = getAdvertizedTables(modifiedNeighbor, rTx);
         if (moduleKey != null) {
             updateExistingPeerConfiguration(moduleKey, modifiedNeighbor, advertizedTables, rTx);
@@ -106,9 +116,8 @@ final class BGPPeerProvider {
         return TableTypesFunction.getLocalTables(rTx, this.configModuleOp, this.ADVERTIZED_TABLE_FUNCTION, modifiedNeighbor.getAfiSafis().getAfiSafi());
     }
 
-    private void updateExistingPeerConfiguration(final ModuleKey moduleKey, final Neighbor modifiedNeighbor, final List<AdvertizedTable>
-        advertizedTables, final ReadOnlyTransaction rTx) {
-        if (neighborState.addOrUpdate(moduleKey, modifiedNeighbor.getKey(), modifiedNeighbor)) {
+    private void updateExistingPeerConfiguration(final ModuleKey moduleKey, final Neighbor modifiedNeighbor, final List<AdvertizedTable> advertizedTables, final ReadOnlyTransaction rTx) {
+        if (this.neighborState.addOrUpdate(moduleKey, modifiedNeighbor.getKey(), modifiedNeighbor)) {
             final Optional<Module> maybeModule = getOldModuleConfiguration(moduleKey, rTx);
             if (maybeModule.isPresent()) {
                 final Module peerConfigModule = toPeerConfigModule(modifiedNeighbor, maybeModule.get(), advertizedTables);
@@ -119,7 +128,7 @@ final class BGPPeerProvider {
 
     private Optional<Module> getOldModuleConfiguration(final ModuleKey moduleKey, final ReadOnlyTransaction rTx) {
         try {
-            return configModuleOp.readModuleConfiguration(moduleKey, rTx);
+            return this.configModuleOp.readModuleConfiguration(moduleKey, rTx);
         } catch (final Exception e) {
             LOG.error("Failed to read module configuration: {}", moduleKey, e);
             throw new IllegalStateException(e);
@@ -128,22 +137,22 @@ final class BGPPeerProvider {
 
     private void putOldModuleConfigurationIntoNewModule(final Module peerConfigModule) {
         try {
-            configModuleOp.putModuleConfiguration(peerConfigModule, dataBroker.newWriteOnlyTransaction());
-        } catch (TransactionCommitFailedException e) {
+            this.configModuleOp.putModuleConfiguration(peerConfigModule, this.dataBroker.newWriteOnlyTransaction());
+        } catch (final TransactionCommitFailedException e) {
             LOG.error("Failed to update a configuration module: {}", peerConfigModule, e);
             throw new IllegalStateException(e);
         }
     }
 
-    private void createNewPeerConfiguration(final ModuleKey moduleKey, final Neighbor modifiedNeighbor, final List<AdvertizedTable>
-        advertizedTables, final ReadOnlyTransaction rTx) {
-        final ModuleKey ribImplKey = globalState.getModuleKey(GlobalIdentifier.GLOBAL_IDENTIFIER);
+    private void createNewPeerConfiguration(final ModuleKey moduleKey, final Neighbor modifiedNeighbor, final List<AdvertizedTable> advertizedTables, final ReadOnlyTransaction rTx) {
+        final ModuleKey ribImplKey = this.globalState.getModuleKey(GlobalIdentifier.GLOBAL_IDENTIFIER);
         if (ribImplKey != null) {
             try {
                 final Rib rib = RibInstanceFunction.getRibInstance(this.configModuleOp, this.TO_RIB_FUNCTION, ribImplKey.getName(), rTx);
-                final Module peerConfigModule = toPeerConfigModule(modifiedNeighbor, advertizedTables, rib);
-                configModuleOp.putModuleConfiguration(peerConfigModule, dataBroker.newWriteOnlyTransaction());
-                neighborState.addOrUpdate(peerConfigModule.getKey(), modifiedNeighbor.getKey(), modifiedNeighbor);
+                final RpcRegistry rpcReg = RpcRegistryFunction.getRpcRegistryInstance(rTx, this.configModuleOp, RPC_REG_FUNCTION);
+                final Module peerConfigModule = toPeerConfigModule(modifiedNeighbor, advertizedTables, rib, rpcReg);
+                this.configModuleOp.putModuleConfiguration(peerConfigModule, this.dataBroker.newWriteOnlyTransaction());
+                this.neighborState.addOrUpdate(peerConfigModule.getKey(), modifiedNeighbor.getKey(), modifiedNeighbor);
             } catch (final Exception e) {
                 LOG.error("Failed to create a configuration module: {}", moduleKey, e);
                 throw new IllegalStateException(e);
@@ -153,8 +162,8 @@ final class BGPPeerProvider {
 
     private static Module toPeerConfigModule(final Neighbor neighbor, final Module oldBgpPeer, final List<AdvertizedTable> tableTypes) {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.BgpPeer bgpPeer =
-                (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.BgpPeer) oldBgpPeer.getConfiguration();
-        final BgpPeerBuilder bgpPeerBuilder = toBgpPeerConfig(neighbor, tableTypes, bgpPeer.getRib());
+            (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.BgpPeer) oldBgpPeer.getConfiguration();
+        final BgpPeerBuilder bgpPeerBuilder = toBgpPeerConfig(neighbor, tableTypes, bgpPeer.getRib(), bgpPeer.getRpcRegistry());
         bgpPeerBuilder.setPeerRegistry(((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.BgpPeer) oldBgpPeer.getConfiguration()).getPeerRegistry());
         bgpPeerBuilder.setPort(((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.BgpPeer) oldBgpPeer.getConfiguration()).getPort());
 
@@ -163,17 +172,20 @@ final class BGPPeerProvider {
         return mBuilder.build();
     }
 
-    private static Module toPeerConfigModule(final Neighbor neighbor, final List<AdvertizedTable> tableTypes, final Rib rib) {
+    private static Module toPeerConfigModule(final Neighbor neighbor, final List<AdvertizedTable> tableTypes, final Rib rib, final RpcRegistry rpcReg) {
         final ModuleBuilder mBuilder = new ModuleBuilder();
         mBuilder.setName(createPeerName(neighbor.getNeighborAddress()));
         mBuilder.setType(BgpPeer.class);
-        mBuilder.setConfiguration(toBgpPeerConfig(neighbor, tableTypes, rib).build());
+        mBuilder.setConfiguration(toBgpPeerConfig(neighbor, tableTypes, rib, rpcReg).build());
         mBuilder.setKey(new ModuleKey(mBuilder.getName(), mBuilder.getType()));
         return mBuilder.build();
     }
 
-    private static BgpPeerBuilder toBgpPeerConfig(final Neighbor neighbor, final List<AdvertizedTable> tableTypes, final Rib rib) {
+    private static BgpPeerBuilder toBgpPeerConfig(final Neighbor neighbor, final List<AdvertizedTable> tableTypes, final Rib rib, final RpcRegistry rpcReg) {
         final BgpPeerBuilder bgpPeerBuilder = new BgpPeerBuilder();
+        if (rpcReg != null) {
+            bgpPeerBuilder.setRpcRegistry(rpcReg);
+        }
         bgpPeerBuilder.setAdvertizedTable(tableTypes);
         bgpPeerBuilder.setRib(rib);
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress ipAdress = null;
