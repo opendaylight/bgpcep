@@ -95,7 +95,7 @@ public class BGPApplicationPeerModule extends org.opendaylight.controller.config
     }
 
     private BGPPeerRegistry getPeerRegistryBackwards() {
-        return getPeerRegistry() == null ? StrictBGPPeerRegistry.GLOBAL : getPeerRegistryDependency();
+        return getBgpPeerRegistryDependency() == null ? StrictBGPPeerRegistry.GLOBAL : getBgpPeerRegistryDependency();
     }
 
     private final class AppPeerModuleTracker implements BGPConfigModuleTracker {
