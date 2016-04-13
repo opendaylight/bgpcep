@@ -13,21 +13,21 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.Uint24;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.esi.esi.arbitrary._case.Arbitrary;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.esi.esi.arbitrary._case.ArbitraryBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.evpn.Evpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.evpn.EvpnChoice;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 final class EsiModelUtil {
-    static final NodeIdentifier LD_NID = NodeIdentifier.create(QName.create(Evpn.QNAME, "local-discriminator").intern());
-    static final NodeIdentifier ARB_NID = NodeIdentifier.create(QName.create(Evpn.QNAME, "arbitrary").intern());
-    static final NodeIdentifier AS_NID = NodeIdentifier.create(QName.create(Evpn.QNAME, "as").intern());
-    static final NodeIdentifier LACP_MAC_NID = NodeIdentifier.create(QName.create(Evpn.QNAME, "ce-lacp-mac-address").intern());
-    static final NodeIdentifier PK_NID = NodeIdentifier.create(QName.create(Evpn.QNAME, "ce-lacp-port-key").intern());
-    static final NodeIdentifier BRIDGE_MAC_NID = NodeIdentifier.create(QName.create(Evpn.QNAME, "root-bridge-mac-address").intern());
-    static final NodeIdentifier RBP_NID = NodeIdentifier.create(QName.create(Evpn.QNAME, "root-bridge-priority").intern());
-    static final NodeIdentifier SYSTEM_MAC_NID = NodeIdentifier.create(QName.create(Evpn.QNAME, "system-mac-address").intern());
-    static final NodeIdentifier RD_NID = NodeIdentifier.create(QName.create(Evpn.QNAME, "router-id").intern());
+    static final NodeIdentifier LD_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "local-discriminator").intern());
+    static final NodeIdentifier ARB_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "arbitrary").intern());
+    static final NodeIdentifier AS_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "as").intern());
+    static final NodeIdentifier LACP_MAC_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "ce-lacp-mac-address").intern());
+    static final NodeIdentifier PK_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "ce-lacp-port-key").intern());
+    static final NodeIdentifier BRIDGE_MAC_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "root-bridge-mac-address").intern());
+    static final NodeIdentifier RBP_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "root-bridge-priority").intern());
+    static final NodeIdentifier SYSTEM_MAC_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "system-mac-address").intern());
+    static final NodeIdentifier RD_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME, "router-id").intern());
 
     private EsiModelUtil() {
         throw new UnsupportedOperationException();
@@ -53,11 +53,11 @@ final class EsiModelUtil {
     }
 
     static MacAddress extractLacpMac(final ContainerNode t1) {
-        return (MacAddress) t1.getChild(LACP_MAC_NID).get().getValue();
+        return new MacAddress((String) t1.getChild(LACP_MAC_NID).get().getValue());
     }
 
     static MacAddress extractBrigeMac(final ContainerNode lan) {
-        return (MacAddress) lan.getChild(BRIDGE_MAC_NID).get().getValue();
+        return new MacAddress((String) lan.getChild(BRIDGE_MAC_NID).get().getValue());
     }
 
     static Integer extractBP(final ContainerNode lan) {
@@ -65,15 +65,15 @@ final class EsiModelUtil {
     }
 
     static Uint24 extractUint24LD(final ContainerNode esiVal) {
-        return (Uint24) esiVal.getChild(LD_NID).get().getValue();
+        return new Uint24((Long) esiVal.getChild(LD_NID).get().getValue());
     }
 
     static MacAddress extractSystmeMac(final ContainerNode macGEn) {
-        return (MacAddress) macGEn.getChild(SYSTEM_MAC_NID).get().getValue();
+        return new MacAddress((String) macGEn.getChild(SYSTEM_MAC_NID).get().getValue());
     }
 
     static Ipv4Address extractRD(final ContainerNode t4) {
-        return (Ipv4Address) t4.getChild(RD_NID).get().getValue();
+        return new Ipv4Address((String) t4.getChild(RD_NID).get().getValue());
     }
 
 }
