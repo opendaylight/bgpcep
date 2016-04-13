@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a494da4_c72151b6",
+        "filename": "bgp/controller-config/src/main/resources/initial/41-bgp-example.xml",
+        "patchSetId": 9
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-13T06:52:52Z",
+      "side": 1,
+      "message": "This is not related to the IPv6 L3VPN feature.",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 79,
+        "endChar": 28
+      },
+      "revId": "ced1821f914998db1ce1cb756af6e49084343b91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a494da4_67183d85",
+        "filename": "bgp/l3vpn/src/main/yang/bgp-vpn-ipv6.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-13T06:52:52Z",
+      "side": 1,
+      "message": "The same grouping like in case of IPv4 L3VPN. Reuse grouping from ipv4 model here, then if it is possible reuse (or define common) encoding/decoding functions for this piece of NLRI.",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 5
+      },
+      "revId": "ced1821f914998db1ce1cb756af6e49084343b91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
