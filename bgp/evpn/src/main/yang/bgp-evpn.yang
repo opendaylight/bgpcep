@@ -120,6 +120,7 @@ module odl-bgp-evpn {
             integer in line format with the most significant octet sent first";
 
         choice esi {
+            mandatory true;
             case arbitrary-case {
                 container arbitrary {
                     description "Type 0 indicates an arbitrary 9-octet ESI
@@ -214,64 +215,65 @@ module odl-bgp-evpn {
     }
 
     grouping ethernet-a-d-route {
-        reference "https://tools.ietf.org/html/rfc7432#section-7.1";
-        description "Ethernet Auto-Discovery (A-D) route";
+        container ethernet-a-d-route {
+            reference "https://tools.ietf.org/html/rfc7432#section-7.1";
+            description "Ethernet Auto-Discovery (A-D) route";
 
-        uses route-distinguisher;
-        uses esi;
-        uses ethernet-tag-id;
-        leaf mpls-label {
-            type netc:mpls-label;
-            mandatory true;
+            uses esi;
+            uses ethernet-tag-id;
+            leaf mpls-label {
+                type netc:mpls-label;
+                mandatory true;
+            }
         }
     }
 
     grouping mac-ip-adv-route {
-        reference "https://tools.ietf.org/html/rfc7432#section-7.2";
-        description "MAC/IP Advertisement route";
+        container mac-ip-adv-route {
+            reference "https://tools.ietf.org/html/rfc7432#section-7.2";
+            description "MAC/IP Advertisement route";
 
-        uses route-distinguisher;
-        uses esi;
-        uses ethernet-tag-id;
-        leaf mac-address {
-            type yang:mac-address;
-            mandatory true;
-        }
-        leaf ip-address {
-            type inet:ip-address;
-        }
-        leaf mpls-label1 {
-            type netc:mpls-label;
-            mandatory true;
-        }
-        leaf mpls-label2 {
-            type netc:mpls-label;
+            uses esi;
+            uses ethernet-tag-id;
+            leaf mac-address {
+                type yang:mac-address;
+                mandatory true;
+            }
+            leaf ip-address {
+                type inet:ip-address;
+            }
+            leaf mpls-label1 {
+                type netc:mpls-label;
+                mandatory true;
+            }
+            leaf mpls-label2 {
+                type netc:mpls-label;
+            }
         }
     }
 
     grouping inc-multi-ethernet-tag-res {
-        reference "https://tools.ietf.org/html/rfc7432#section-7.3";
-        description "Inclusive Multicast Ethernet Tag route";
+        container inc-multi-ethernet-tag-res {
+            reference "https://tools.ietf.org/html/rfc7432#section-7.3";
+            description "Inclusive Multicast Ethernet Tag route";
 
-        uses route-distinguisher;
-        uses ethernet-tag-id;
-        leaf orig-route-ip {
-            type inet:ip-address;
+            uses ethernet-tag-id;
+            leaf orig-route-ip {
+                type inet:ip-address;
+            }
         }
     }
 
     grouping es-route {
-        reference "https://tools.ietf.org/html/rfc7432#section-7.4";
-        description "Ethernet Segment route";
+        container es-route {
+            reference "https://tools.ietf.org/html/rfc7432#section-7.4";
+            description "Ethernet Segment route";
 
-        leaf route-distinguisher {
-            type bgp-t:route-distinguisher;
-            mandatory true;
-        }
-        uses esi;
-        leaf orig-route-ip {
-            type inet:ip-address;
-            mandatory true;
+            uses esi;
+            leaf orig-route-ip {
+                type inet:ip-address;
+                mandatory true;
+            }
         }
     }
 
@@ -381,7 +383,7 @@ module odl-bgp-evpn {
             Extensions [RFC4760] with an Address Family Identifier (AFI) of 25 (L2VPN)
             and a Subsequent Address Family Identifier (SAFI) of 70 (EVPN)";
 
-        choice evpn {
+        choice evpn-choice {
             case ethernet-a-d-route-case {
                 uses ethernet-a-d-route;
             }
@@ -394,7 +396,10 @@ module odl-bgp-evpn {
             case es-route-case {
                 uses es-route;
             }
+            mandatory true;
         }
+
+        uses route-distinguisher;
     }
 
     augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
