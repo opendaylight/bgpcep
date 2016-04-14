@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a494da4_ae7cda73",
+        "filename": "bgp/l3vpn/src/main/yang/bgp-vpn-ipv4.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-14T09:04:43Z",
+      "side": 1,
+      "message": "I think this cause the YANG data model is not valid:\nBoth destination-vpn-ipv4-case and destination-vpn-ipv6-case\nhave the same child container, which is not allowed.\n\nRef.: https://tools.ietf.org/html/rfc6020#section-7.9.2",
+      "range": {
+        "startLine": 32,
+        "startChar": 12,
+        "endLine": 32,
+        "endChar": 43
+      },
+      "revId": "51d08761dda22fe07729e4fa25109b1e54f77feb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
