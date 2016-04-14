@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a494da4_d3210fb6",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/Ipv4NlriParser.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-04-14T07:32:25Z",
+      "side": 1,
+      "message": "extract from the while",
+      "range": {
+        "startLine": 53,
+        "startChar": 16,
+        "endLine": 53,
+        "endChar": 102
+      },
+      "revId": "52ce5835f18ee58835ee679fb58e5a8bd87536c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
