@@ -167,10 +167,10 @@
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
                         <name>ipv4-l3vpn</name>
                     </local-table>
-                    <!--<path-selection-mode>
+                    <!--<rib-path-selection-mode>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-path-selection-mode</type>
                         <name>ipv4-unicast-path-selection-mode</name>
-                    </path-selection-mode>-->
+                    </rib-path-selection-mode>-->
                     <extensions>
                         <type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extensions</type>
                         <name>global-rib-extensions</name>
