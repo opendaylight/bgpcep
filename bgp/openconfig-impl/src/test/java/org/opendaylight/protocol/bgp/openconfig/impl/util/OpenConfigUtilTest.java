@@ -12,6 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil.getModuleName;
 import static org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil.toAfiSafi;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -48,9 +49,21 @@ public class OpenConfigUtilTest {
     }
 
     @Test
+    public void testGetModuleType() {
+        final String moduleType = OpenConfigUtil.getModuleType(TEST);
+        assertEquals("dom-concurrent-data-broker", moduleType);
+    }
+
+    @Test
     public void testToAfiSafi() {
         assertEquals(toAfiSafi(BGP_TABLE_TYPE_IPV4).get(),
                 AFISAFI_IPV4);
+    }
+
+    @Test
+    public void testToBgpTableType() {
+        final Optional<BgpTableType> bgpTableType = OpenConfigUtil.toBgpTableType(IPV4UNICAST.class);
+        assertEquals(BGP_TABLE_TYPE_IPV4, bgpTableType.get());
     }
 
     @Test

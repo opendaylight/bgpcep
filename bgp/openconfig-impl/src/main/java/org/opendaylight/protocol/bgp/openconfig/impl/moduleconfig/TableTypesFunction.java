@@ -66,12 +66,24 @@ final class TableTypesFunction {
                         }
                     }).toList();
 
-                return toTableTypes(function, afiSafis, afiSafiToModuleName(afiSafis, modules), moduleNameToService);
+                return toServices(function, afiSafis, afiSafiToModuleName(afiSafis, modules), moduleNameToService);
             }
             throw new IllegalStateException("No BgpTableType service present in configuration.");
-        } catch (ReadFailedException e) {
+        } catch (final ReadFailedException e) {
             throw new IllegalStateException("Failed to read service.", e);
         }
+    }
+
+    public static <T extends ServiceRef & ChildOf<Module>> List<T> toServices(final Function<String, T> function, final List<AfiSafi> afiSafis,
+        final Map<Class<? extends AfiSafiType>, String> afiSafiToModuleName, final Map<String, String> moduleNameToService) {
+        final List<T> serives = new ArrayList<>(afiSafis.size());
+        for (final AfiSafi afiSafi : afiSafis) {
+            final String moduleName = afiSafiToModuleName.get(afiSafi.getAfiSafiName());
+            if (moduleName != null) {
+                serives.add(function.apply(moduleNameToService.get(moduleName)));
+            }
+        }
+        return serives;
     }
 
     private static Map<Class<? extends AfiSafiType>, String> afiSafiToModuleName(final List<AfiSafi> afiSafis, final List<Module> modules) {
@@ -85,17 +97,5 @@ final class TableTypesFunction {
             }
         }
         return afiSafiToModuleName;
-    }
-
-    private static <T extends ServiceRef & ChildOf<Module>> List<T> toTableTypes(final Function<String, T> function, final List<AfiSafi> afiSafis,
-        final Map<Class<? extends AfiSafiType>, String> afiSafiToModuleName, final Map<String, String> moduleNameToService) {
-        final List<T> tableTypes = new ArrayList<>(afiSafis.size());
-        for (final AfiSafi afiSafi : afiSafis) {
-            final String moduleName = afiSafiToModuleName.get(afiSafi.getAfiSafiName());
-            if (moduleName != null) {
-                tableTypes.add(function.apply(moduleNameToService.get(moduleName)));
-            }
-        }
-        return tableTypes;
     }
 }

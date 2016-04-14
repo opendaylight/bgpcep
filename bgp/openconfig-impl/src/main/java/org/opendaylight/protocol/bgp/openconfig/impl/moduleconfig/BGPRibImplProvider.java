@@ -22,11 +22,14 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.t
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.BgpBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.BgpPathSelectionMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.RibImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.RibImplBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.rib.impl.LocalTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.rib.impl.LocalTableBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.rib.impl.RibPathSelectionMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.rib.impl.RibPathSelectionModeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.Module;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.ModuleBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.ModuleKey;
@@ -41,6 +44,13 @@ final class BGPRibImplProvider {
         @Override
         public LocalTable apply(final String input) {
             return new LocalTableBuilder().setName(input).setType(BgpTableType.class).build();
+        }
+    };
+
+    private static final Function<String, RibPathSelectionMode> PATH_SELECTION_MODE_FUNCTION = new Function<String, RibPathSelectionMode>() {
+        @Override
+        public RibPathSelectionMode apply(final String input) {
+            return new RibPathSelectionModeBuilder().setName(input).setType(BgpPathSelectionMode.class).build();
         }
     };
 
@@ -78,7 +88,8 @@ final class BGPRibImplProvider {
                 final Optional<Module> maybeModule = this.configModuleWriter.readModuleConfiguration(moduleKey, rTx);
                 if (maybeModule.isPresent()) {
                     final List<LocalTable> localTables = getAdvertizedTables(modifiedGlobal, rTx);
-                    final Module newModule = toRibImplConfigModule(modifiedGlobal, maybeModule.get(), localTables);
+                    final List<RibPathSelectionMode> pathSelectionModes = getPathSelectionModes(modifiedGlobal, rTx);
+                    final Module newModule = toRibImplConfigModule(modifiedGlobal, maybeModule.get(), localTables, pathSelectionModes);
                     this.configModuleWriter.putModuleConfiguration(newModule, dataBroker.newWriteOnlyTransaction());
                 }
             } catch (final Exception e) {
@@ -92,7 +103,13 @@ final class BGPRibImplProvider {
         return TableTypesFunction.getLocalTables(rTx, this.configModuleWriter, this.LOCAL_TABLE_FUNCTION, modifiedGlobal.getAfiSafis().getAfiSafi());
     }
 
-    private static Module toRibImplConfigModule(final Global globalConfig, final Module module, final List<LocalTable> tableTypes) {
+    private List<RibPathSelectionMode> getPathSelectionModes(final Global modifiedGlobal, final ReadOnlyTransaction rTx) {
+        return PathSelectionModeFunction.getPathSelectionMode(rTx, this.configModuleWriter, PATH_SELECTION_MODE_FUNCTION,
+                modifiedGlobal.getAfiSafis().getAfiSafi());
+    }
+
+    private static Module toRibImplConfigModule(final Global globalConfig, final Module module, final List<LocalTable> tableTypes,
+            final List<RibPathSelectionMode> pathSelectionModes) {
         final RibImpl ribImpl = (RibImpl) module.getConfiguration();
         final RibImplBuilder ribImplBuilder = new RibImplBuilder();
         if (globalConfig.getConfig() != null) {
@@ -108,6 +125,7 @@ final class BGPRibImplProvider {
         ribImplBuilder.setExtensions(ribImpl.getExtensions());
         ribImplBuilder.setRibId(ribImpl.getRibId());
         ribImplBuilder.setOpenconfigProvider(ribImpl.getOpenconfigProvider());
+        ribImplBuilder.setRibPathSelectionMode(pathSelectionModes);
 
         final ModuleBuilder mBuilder = new ModuleBuilder(module);
         mBuilder.setConfiguration(ribImplBuilder.build());
