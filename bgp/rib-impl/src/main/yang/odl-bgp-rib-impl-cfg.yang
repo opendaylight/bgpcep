@@ -829,7 +829,7 @@ module odl-bgp-rib-impl-cfg {
                 type inet:ipv4-address;
             }
 
-            list path-selection-mode {
+            list rib-path-selection-mode {
                 uses config:service-ref {
                     refine type {
                         config:required-identity bgp-path-selection-mode;
