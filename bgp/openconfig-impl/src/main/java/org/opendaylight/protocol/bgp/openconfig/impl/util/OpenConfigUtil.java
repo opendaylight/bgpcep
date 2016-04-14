@@ -9,8 +9,8 @@
 package org.opendaylight.protocol.bgp.openconfig.impl.util;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.ImmutableBiMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -30,6 +30,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.AfiSa
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.AfiSafi2;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.AfiSafi2Builder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4LABELLEDUNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV6LABELLEDUNICAST;
@@ -53,30 +54,26 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class OpenConfigUtil {
 
+    private static final char EQUALS = '=';
+
     public static final InstanceIdentifier<Bgp> BGP_IID = InstanceIdentifier.create(Bgp.class);
 
     public static final String APPLICATION_PEER_GROUP_NAME = "application-peers";
 
-    private static final Map<BgpTableType, AfiSafi> TABLETYPE_TO_AFISAFI;
+    public static final String FAILED_TO_READ_SERVICE = "Failed to read service.";
+
+    private static final BiMap<BgpTableType, Class<? extends AfiSafiType>> TABLETYPE_TO_AFISAFI;
 
     static {
-        final Builder<BgpTableType, AfiSafi> b = ImmutableMap.builder();
-        b.put(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class),
-            new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build());
-        b.put(new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class),
-            new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class).build());
-        b.put(new BgpTableTypeImpl(Ipv4AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class),
-            new AfiSafiBuilder().setAfiSafiName(IPV4LABELLEDUNICAST.class).build());
-        b.put(new BgpTableTypeImpl(Ipv6AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class),
-            new AfiSafiBuilder().setAfiSafiName(IPV6LABELLEDUNICAST.class).build());
-        b.put(new BgpTableTypeImpl(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class),
-            new AfiSafiBuilder().setAfiSafiName(L3VPNIPV4UNICAST.class).build());
-        b.put(new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class),
-            new AfiSafiBuilder().setAfiSafiName(Linkstate.class).build());
-        b.put(new BgpTableTypeImpl(Ipv4AddressFamily.class, FlowspecSubsequentAddressFamily.class),
-            new AfiSafiBuilder().setAfiSafiName(Ipv4Flow.class).build());
-        b.put(new BgpTableTypeImpl(Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class),
-            new AfiSafiBuilder().setAfiSafiName(Ipv6Flow.class).build());
+        final ImmutableBiMap.Builder<BgpTableType, Class<? extends AfiSafiType>> b = ImmutableBiMap.builder();
+        b.put(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class), IPV4UNICAST.class);
+        b.put(new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class), IPV6UNICAST.class);
+        b.put(new BgpTableTypeImpl(Ipv4AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class), IPV4LABELLEDUNICAST.class);
+        b.put(new BgpTableTypeImpl(Ipv6AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class), IPV6LABELLEDUNICAST.class);
+        b.put(new BgpTableTypeImpl(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class), L3VPNIPV4UNICAST.class);
+        b.put(new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class), Linkstate.class);
+        b.put(new BgpTableTypeImpl(Ipv4AddressFamily.class, FlowspecSubsequentAddressFamily.class), Ipv4Flow.class);
+        b.put(new BgpTableTypeImpl(Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class), Ipv6Flow.class);
         TABLETYPE_TO_AFISAFI = b.build();
     }
 
@@ -85,7 +82,15 @@ public final class OpenConfigUtil {
     }
 
     public static Optional<AfiSafi> toAfiSafi(final BgpTableType tableType) {
-        return Optional.fromNullable(TABLETYPE_TO_AFISAFI.get(tableType));
+        final Class<? extends AfiSafiType> afiSafi = TABLETYPE_TO_AFISAFI.get(tableType);
+        if (afiSafi != null) {
+            return Optional.of(new AfiSafiBuilder().setAfiSafiName(afiSafi).build());
+        }
+        return Optional.absent();
+    }
+
+    public static Optional<BgpTableType> toBgpTableType(final Class<? extends AfiSafiType> afiSafi) {
+        return Optional.fromNullable(TABLETYPE_TO_AFISAFI.inverse().get(afiSafi));
     }
 
     public static List<AfiSafi> toAfiSafis(final List<BgpTableType> advertizedTables, final BiFunction<AfiSafi, BgpTableType, AfiSafi> function) {
@@ -101,7 +106,11 @@ public final class OpenConfigUtil {
     }
 
     public static String getModuleName(final String provider) {
-        return provider.substring(provider.lastIndexOf('=') + 2, provider.length() - 2);
+        return provider.substring(provider.lastIndexOf(EQUALS) + 2, provider.length() - 2);
+    }
+
+    public static String getModuleType(final String provider) {
+        return provider.substring(provider.indexOf(EQUALS) + 2, provider.indexOf("']"));
     }
 
     public static AfiSafi toNeigborAfiSafiMultiPath(final AfiSafi afiSafi, final BgpTableType tableType, final Collection<AddressFamilies> addPathCapabilities) {

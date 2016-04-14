@@ -123,7 +123,7 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
             final Ipv4Address bgpRibId = Rev130715Util.getIpv4Address(getBgpRibId());
             final Ipv4Address clusterId = Rev130715Util.getIpv4Address(getClusterId());
             this.bgpRibConfig = new BGPRibInstanceConfiguration(identifier, as, bgpRibId, clusterId, tableDependency,
-                    mapBestPathSelectionStrategyByFamily(getPathSelectionModeDependency()));
+                    mapBestPathSelectionStrategyByFamily(getRibPathSelectionModeDependency()));
         }
 
         @Override
