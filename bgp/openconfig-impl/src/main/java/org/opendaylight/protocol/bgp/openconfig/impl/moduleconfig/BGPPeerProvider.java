@@ -32,6 +32,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controll
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.RibInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.BgpPeerBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.bgp.peer.AddPath;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.bgp.peer.AddPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.bgp.peer.AdvertizedTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.bgp.peer.AdvertizedTableBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.bgp.peer.Rib;
@@ -73,6 +75,16 @@ final class BGPPeerProvider {
         }
     };
 
+    private static final Function<String, AddPath> ADD_PATH_FUNCTION = new Function<String, AddPath>() {
+        @Override
+        public AddPath apply(final String name) {
+            return new AddPathBuilder()
+                .setName(name)
+                .setType(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.AddPath.class)
+                .build();
+        }
+    };
+
     private final BGPConfigHolder<Neighbor> neighborState;
     private final BGPConfigHolder<Bgp> globalState;
     private final BGPConfigModuleProvider configModuleOp;
@@ -105,22 +117,28 @@ final class BGPPeerProvider {
         final ModuleKey moduleKey = this.neighborState.getModuleKey(modifiedNeighbor.getKey());
         final ReadOnlyTransaction rTx = this.dataBroker.newReadOnlyTransaction();
         final List<AdvertizedTable> advertizedTables = getAdvertizedTables(modifiedNeighbor, rTx);
+        final List<AddPath> addPathCapabilities = getAddPathCapabilities(modifiedNeighbor, rTx);
         if (moduleKey != null) {
-            updateExistingPeerConfiguration(moduleKey, modifiedNeighbor, advertizedTables, rTx);
+            updateExistingPeerConfiguration(moduleKey, modifiedNeighbor, advertizedTables, rTx, addPathCapabilities);
         } else {
-            createNewPeerConfiguration(moduleKey, modifiedNeighbor, advertizedTables, rTx);
+            createNewPeerConfiguration(moduleKey, modifiedNeighbor, advertizedTables, rTx, addPathCapabilities);
         }
     }
 
     private List<AdvertizedTable> getAdvertizedTables(final Neighbor modifiedNeighbor, final ReadOnlyTransaction rTx) {
-        return TableTypesFunction.getLocalTables(rTx, this.configModuleOp, this.ADVERTIZED_TABLE_FUNCTION, modifiedNeighbor.getAfiSafis().getAfiSafi());
+        return TableTypesFunction.getLocalTables(rTx, this.configModuleOp, ADVERTIZED_TABLE_FUNCTION, modifiedNeighbor.getAfiSafis().getAfiSafi());
     }
 
-    private void updateExistingPeerConfiguration(final ModuleKey moduleKey, final Neighbor modifiedNeighbor, final List<AdvertizedTable> advertizedTables, final ReadOnlyTransaction rTx) {
-        if (this.neighborState.addOrUpdate(moduleKey, modifiedNeighbor.getKey(), modifiedNeighbor)) {
+    private List<AddPath> getAddPathCapabilities(final Neighbor modifiedNeighbor, final ReadOnlyTransaction rTx) {
+        return AddPathFunction.getAddPath(rTx, this.configModuleOp, ADD_PATH_FUNCTION, modifiedNeighbor.getAfiSafis().getAfiSafi());
+    }
+
+    private void updateExistingPeerConfiguration(final ModuleKey moduleKey, final Neighbor modifiedNeighbor, final List<AdvertizedTable>
+        advertizedTables, final ReadOnlyTransaction rTx, final List<AddPath> addPathCapabilities) {
+        if (neighborState.addOrUpdate(moduleKey, modifiedNeighbor.getKey(), modifiedNeighbor)) {
             final Optional<Module> maybeModule = getOldModuleConfiguration(moduleKey, rTx);
             if (maybeModule.isPresent()) {
-                final Module peerConfigModule = toPeerConfigModule(modifiedNeighbor, maybeModule.get(), advertizedTables);
+                final Module peerConfigModule = toPeerConfigModule(modifiedNeighbor, maybeModule.get(), advertizedTables, addPathCapabilities);
                 putOldModuleConfigurationIntoNewModule(peerConfigModule);
             }
         }
@@ -144,13 +162,14 @@ final class BGPPeerProvider {
         }
     }
 
-    private void createNewPeerConfiguration(final ModuleKey moduleKey, final Neighbor modifiedNeighbor, final List<AdvertizedTable> advertizedTables, final ReadOnlyTransaction rTx) {
+    private void createNewPeerConfiguration(final ModuleKey moduleKey, final Neighbor modifiedNeighbor, final List<AdvertizedTable> advertizedTables,
+            final ReadOnlyTransaction rTx, final List<AddPath> addPathCapabilities) {
         final ModuleKey ribImplKey = this.globalState.getModuleKey(GlobalIdentifier.GLOBAL_IDENTIFIER);
         if (ribImplKey != null) {
             try {
-                final Rib rib = RibInstanceFunction.getRibInstance(this.configModuleOp, this.TO_RIB_FUNCTION, ribImplKey.getName(), rTx);
+                final Rib rib = RibInstanceFunction.getRibInstance(this.configModuleOp, TO_RIB_FUNCTION, ribImplKey.getName(), rTx);
                 final RpcRegistry rpcReg = RpcRegistryFunction.getRpcRegistryInstance(rTx, this.configModuleOp, RPC_REG_FUNCTION);
-                final Module peerConfigModule = toPeerConfigModule(modifiedNeighbor, advertizedTables, rib, rpcReg);
+                final Module peerConfigModule = toPeerConfigModule(modifiedNeighbor, advertizedTables, rib, rpcReg, addPathCapabilities);
                 this.configModuleOp.putModuleConfiguration(peerConfigModule, this.dataBroker.newWriteOnlyTransaction());
                 this.neighborState.addOrUpdate(peerConfigModule.getKey(), modifiedNeighbor.getKey(), modifiedNeighbor);
             } catch (final Exception e) {
@@ -160,10 +179,11 @@ final class BGPPeerProvider {
         }
     }
 
-    private static Module toPeerConfigModule(final Neighbor neighbor, final Module oldBgpPeer, final List<AdvertizedTable> tableTypes) {
+    private static Module toPeerConfigModule(final Neighbor neighbor, final Module oldBgpPeer, final List<AdvertizedTable> tableTypes,
+            final List<AddPath> addPathCapabilities) {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.BgpPeer bgpPeer =
             (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.BgpPeer) oldBgpPeer.getConfiguration();
-        final BgpPeerBuilder bgpPeerBuilder = toBgpPeerConfig(neighbor, tableTypes, bgpPeer.getRib(), bgpPeer.getRpcRegistry());
+        final BgpPeerBuilder bgpPeerBuilder = toBgpPeerConfig(neighbor, tableTypes, bgpPeer.getRib(), bgpPeer.getRpcRegistry(), addPathCapabilities);
         bgpPeerBuilder.setPeerRegistry(((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.BgpPeer) oldBgpPeer.getConfiguration()).getPeerRegistry());
         bgpPeerBuilder.setPort(((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.BgpPeer) oldBgpPeer.getConfiguration()).getPort());
 
@@ -172,21 +192,24 @@ final class BGPPeerProvider {
         return mBuilder.build();
     }
 
-    private static Module toPeerConfigModule(final Neighbor neighbor, final List<AdvertizedTable> tableTypes, final Rib rib, final RpcRegistry rpcReg) {
+    private static Module toPeerConfigModule(final Neighbor neighbor, final List<AdvertizedTable> tableTypes, final Rib rib, final RpcRegistry rpcReg,
+            final List<AddPath> addPathCapabilities) {
         final ModuleBuilder mBuilder = new ModuleBuilder();
         mBuilder.setName(createPeerName(neighbor.getNeighborAddress()));
         mBuilder.setType(BgpPeer.class);
-        mBuilder.setConfiguration(toBgpPeerConfig(neighbor, tableTypes, rib, rpcReg).build());
+        mBuilder.setConfiguration(toBgpPeerConfig(neighbor, tableTypes, rib, rpcReg, addPathCapabilities).build());
         mBuilder.setKey(new ModuleKey(mBuilder.getName(), mBuilder.getType()));
         return mBuilder.build();
     }
 
-    private static BgpPeerBuilder toBgpPeerConfig(final Neighbor neighbor, final List<AdvertizedTable> tableTypes, final Rib rib, final RpcRegistry rpcReg) {
+    private static BgpPeerBuilder toBgpPeerConfig(final Neighbor neighbor, final List<AdvertizedTable> tableTypes, final Rib rib, final RpcRegistry rpcReg,
+            final List<AddPath> addPathCapabilities) {
         final BgpPeerBuilder bgpPeerBuilder = new BgpPeerBuilder();
         if (rpcReg != null) {
             bgpPeerBuilder.setRpcRegistry(rpcReg);
         }
         bgpPeerBuilder.setAdvertizedTable(tableTypes);
+        bgpPeerBuilder.setAddPath(addPathCapabilities);
         bgpPeerBuilder.setRib(rib);
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress ipAdress = null;
         if (neighbor.getNeighborAddress().getIpv4Address() != null) {
