@@ -54,6 +54,7 @@ import org.opendaylight.controller.config.yang.md.sal.dom.impl.SchemaServiceImpl
 import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleFactory;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.sal.dom.broker.GlobalBundleScanningSchemaServiceImpl;
+import org.opendaylight.yangtools.sal.binding.generator.api.ClassLoadingStrategy;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
@@ -115,6 +116,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
 
         Mockito.doReturn(emptyServiceReference).when(mockedContext).getServiceReference(any(Class.class));
         Mockito.doReturn(classLoadingStrategySR).when(mockedContext).getServiceReference(GeneratedClassLoadingStrategy.class);
+        Mockito.doReturn(classLoadingStrategySR).when(this.mockedContext).getServiceReference(ClassLoadingStrategy.class);
 
         Mockito.doReturn(GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy()).when(mockedContext).getService(classLoadingStrategySR);
         Mockito.doReturn(null).when(mockedContext).getService(emptyServiceReference);
