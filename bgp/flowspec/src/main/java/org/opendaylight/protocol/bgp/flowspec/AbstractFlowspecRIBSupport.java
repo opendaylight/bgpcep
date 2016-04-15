@@ -11,11 +11,14 @@ import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import java.util.Collection;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.flowspec.ipv6.routes.FlowspecRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
@@ -36,12 +39,15 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 
 public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
+    private static final QName PATHID_QNAME = QName.create(FlowspecRoute.QNAME, "path-id").intern();
+    private static final NodeIdentifier PATH_ID_NII = new NodeIdentifier(PATHID_QNAME);
 
     protected abstract static class ApplyRoute {
         abstract void apply(DOMDataWriteTransaction tx, YangInstanceIdentifier base, NodeIdentifierWithPredicates routeKey, DataContainerNode<?> route, final ContainerNode attributes);
@@ -131,9 +137,11 @@ public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
         mb.setSafi(FlowspecSubsequentAddressFamily.class);
         mb.setCNextHop(hop);
 
-        mb.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-            getParser().createAdvertizedRoutesDestinationType(
-                getParser().extractFlowspec(Iterables.getOnlyElement(routes)))).build());
+        final MapEntryNode routesCont = Iterables.getOnlyElement(routes);
+        final PathId pathId = PathIdUtil.buildPathId(routesCont, PATH_ID_NII);
+
+        mb.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(getParser().createAdvertizedRoutesDestinationType(
+            getParser().extractFlowspec(routesCont), pathId)).build());
         return mb.build();
     }
 
@@ -143,9 +151,22 @@ public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
         mb.setAfi(getAfiClass());
         mb.setSafi(FlowspecSubsequentAddressFamily.class);
 
-        mb.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
-            getParser().createWithdrawnDestinationType(
-                getParser().extractFlowspec(Iterables.getOnlyElement(routes)))).build());
+        final MapEntryNode routesCont = Iterables.getOnlyElement(routes);
+        final PathId pathId = PathIdUtil.buildPathId(routesCont, PATH_ID_NII);
+
+        mb.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(getParser().createWithdrawnDestinationType(
+            getParser().extractFlowspec(Iterables.getOnlyElement(routes)), pathId)).build());
         return mb.build();
+    }
+
+    @Nullable
+    @Override
+    public PathArgument getRouteIdAddPath(final long pathId, final PathArgument routeId) {
+        return PathIdUtil.createNiiKey(pathId, routeId, FlowspecRoute.QNAME, PATHID_QNAME, ROUTE_KEY);
+    }
+
+    @Override
+    public Long extractPathId(final NormalizedNode<?, ?> data) {
+        return PathIdUtil.extractPathId(data, PATH_ID_NII);
     }
 }
