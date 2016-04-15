@@ -14,9 +14,15 @@ import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupportUtil;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -71,6 +77,8 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
     protected static void serializeNlri(final List<CLabeledUnicastDestination> dests, final ByteBuf buffer) {
         final ByteBuf nlriByteBuf = Unpooled.buffer();
         for (final CLabeledUnicastDestination dest: dests) {
+            PathIdUtil.writePathId(dest.getPathId(), buffer);
+
             final List<LabelStack> labelStack = dest.getLabelStack();
             final IpPrefix prefix = dest.getPrefix();
             // Serialize the length field
@@ -115,20 +123,11 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
     }
 
     @Override
-    public void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder)
-            throws BGPParsingException {
-        if (!nlri.isReadable()) {
-            return;
-        }
-        final List<CLabeledUnicastDestination> dst = parseNlri(nlri, builder.getAfi());
-
-        builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLabeledUnicastCaseBuilder().setDestinationLabeledUnicast(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.labeled.unicast._case.DestinationLabeledUnicastBuilder().setCLabeledUnicastDestination(
-                    dst).build()).build()).build());
+    public void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder) throws BGPParsingException {
+        parseNlri(nlri, builder, null);
     }
 
-    private static List<CLabeledUnicastDestination> parseNlri(final ByteBuf nlri, final Class<? extends AddressFamily> afi) {
+    private static List<CLabeledUnicastDestination> parseNlri(final ByteBuf nlri, final Class<? extends AddressFamily> afi, final boolean mPathSupported) {
         if (!nlri.isReadable()) {
             return null;
         }
@@ -136,6 +135,9 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
 
         while (nlri.isReadable()) {
             final CLabeledUnicastDestinationBuilder builder = new CLabeledUnicastDestinationBuilder();
+            if (mPathSupported) {
+                builder.setPathId(PathIdUtil.readPathId(nlri));
+            }
             final short length = nlri.readUnsignedByte();
             builder.setLabelStack(parseLabel(nlri));
             final int labelNum = builder.getLabelStack().size();
@@ -171,16 +173,35 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
     }
 
     @Override
-    public void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder)
-            throws BGPParsingException {
+    public void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder) throws BGPParsingException {
+        parseNlri(nlri, builder, null);
+    }
+
+    @Override
+    public void parseNlri(@Nonnull final ByteBuf nlri, @Nonnull final MpReachNlriBuilder builder, @Nullable final PeerSpecificParserConstraint constraint) throws BGPParsingException {
         if (!nlri.isReadable()) {
             return;
         }
-        final List<CLabeledUnicastDestination> dst = parseNlri(nlri, builder.getAfi());
+        final boolean mPathSupported = MultiPathSupportUtil.isTableTypeSupported(constraint, new BgpTableTypeImpl(builder.getAfi(), builder.getSafi()));
+        final List<CLabeledUnicastDestination> dst = parseNlri(nlri, builder.getAfi(), mPathSupported);
 
         builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
             new DestinationLabeledUnicastCaseBuilder().setDestinationLabeledUnicast(
                 new DestinationLabeledUnicastBuilder().setCLabeledUnicastDestination(
+                    dst).build()).build()).build());
+    }
+
+    @Override
+    public void parseNlri(@Nonnull final ByteBuf nlri, @Nonnull final MpUnreachNlriBuilder builder, @Nullable final PeerSpecificParserConstraint constraint) throws BGPParsingException {
+        if (!nlri.isReadable()) {
+            return;
+        }
+        final boolean mPathSupported = MultiPathSupportUtil.isTableTypeSupported(constraint, new BgpTableTypeImpl(builder.getAfi(), builder.getSafi()));
+        final List<CLabeledUnicastDestination> dst = parseNlri(nlri, builder.getAfi(), mPathSupported);
+
+        builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLabeledUnicastCaseBuilder().setDestinationLabeledUnicast(
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.labeled.unicast._case.DestinationLabeledUnicastBuilder().setCLabeledUnicastDestination(
                     dst).build()).build()).build());
     }
 }
