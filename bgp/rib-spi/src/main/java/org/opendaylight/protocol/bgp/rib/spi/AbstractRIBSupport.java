@@ -13,7 +13,6 @@ import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.Collections;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
@@ -41,7 +40,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -277,19 +275,5 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         } else {
             LOG.debug("Advertized routes are not present in NLRI {}", nlri);
         }
-    }
-
-    @Nullable
-    @Override
-    /**
-     * Return null for non supporting Add path models
-     */
-    public PathArgument getRouteIdAddPath(final long pathId, final PathArgument routeId) {
-        return null;
-    }
-
-    @Override
-    public long extractPathId(final NormalizedNode<?, ?> data) {
-        return 0;
     }
 }
