@@ -16,8 +16,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -56,6 +58,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
@@ -67,9 +70,11 @@ import org.slf4j.LoggerFactory;
 
 public final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
 
+    private static final QName PREFIX_QNAME = QName.create(LabeledUnicastRoute.QNAME, "prefix").intern();
+    private static final QName PATHID_QNAME = QName.create(LabeledUnicastRoute.QNAME, "path-id").intern();
     private static final Logger LOG = LoggerFactory.getLogger(LabeledUnicastRIBSupport.class);
-
     private static final NodeIdentifier PREFIX_TYPE_NID = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "prefix").intern());
+    private static final NodeIdentifier PATH_ID_LEAF = new NodeIdentifier(PATHID_QNAME);
     private static final NodeIdentifier LABEL_STACK_NID = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-stack").intern());
     private static final NodeIdentifier LV_NID = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-value").intern());
 
@@ -181,14 +186,14 @@ public final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
 
     @Override
     protected void deleteDestinationRoutes(final DOMDataWriteTransaction tx,
-        final YangInstanceIdentifier tablePath, final ContainerNode destination,final NodeIdentifier routesNodeId) {
+        final YangInstanceIdentifier tablePath, final ContainerNode destination, final NodeIdentifier routesNodeId) {
         processDestination(tx, tablePath.node(routesNodeId), destination, null, DELETE_ROUTE);
     }
 
     @Override
     protected void putDestinationRoutes(final DOMDataWriteTransaction tx,
         final YangInstanceIdentifier tablePath, final ContainerNode destination,
-        final ContainerNode attributes,final NodeIdentifier routesNodeId) {
+        final ContainerNode attributes, final NodeIdentifier routesNodeId) {
         processDestination(tx, tablePath.node(routesNodeId), destination, attributes, this.putRoute);
     }
 
@@ -232,6 +237,7 @@ public final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
         final CLabeledUnicastDestinationBuilder builder = new CLabeledUnicastDestinationBuilder();
         builder.setPrefix(extractPrefix(route, PREFIX_TYPE_NID));
         builder.setLabelStack(extractLabel(route, LABEL_STACK_NID, LV_NID));
+        builder.setPathId(PathIdUtil.buildPathId(route, PATH_ID_LEAF));
         return builder.build();
     }
 
@@ -253,7 +259,7 @@ public final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
         final List<LabelStack> labels = new ArrayList<>();
         final Optional<DataContainerChild<? extends PathArgument, ?>> labelStacks = route.getChild(labelStackNid);
         if (labelStacks.isPresent()) {
-            for(final UnkeyedListEntryNode label : ((UnkeyedListNode)labelStacks.get()).getValue()) {
+            for (final UnkeyedListEntryNode label : ((UnkeyedListNode) labelStacks.get()).getValue()) {
                 final Optional<DataContainerChild<? extends PathArgument, ?>> labelStack = label.getChild(labelValueNid);
                 if (labelStack.isPresent()) {
                     final LabelStackBuilder labelStackbuilder = new LabelStackBuilder();
@@ -263,5 +269,16 @@ public final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
             }
         }
         return labels;
+    }
+
+    @Nonnull
+    @Override
+    public PathArgument getRouteIdAddPath(final long pathId, final PathArgument routeId) {
+        return PathIdUtil.createNiiKey(pathId, routeId, LabeledUnicastRoute.QNAME, PATHID_QNAME, PREFIX_QNAME);
+    }
+
+    @Override
+    public Long extractPathId(final NormalizedNode<?, ?> data) {
+        return PathIdUtil.extractPathId(data, PATH_ID_LEAF);
     }
 }
