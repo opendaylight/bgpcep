@@ -59,6 +59,9 @@ module bgp-labeled-unicast {
         leaf prefix {
             type inet:ip-prefix;
         }
+        leaf path-id {
+            type bgp-msg:path-id;
+        }
     }
 
     grouping labeled-unicast-destination {
@@ -73,7 +76,7 @@ module bgp-labeled-unicast {
                 leaf route-key {
                     type binary;
                 }
-                key "route-key";
+                key "route-key path-id";
                 uses labeled-unicast;
                 uses bgp-rib:route;
             }
