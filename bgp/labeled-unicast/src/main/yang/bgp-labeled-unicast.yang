@@ -10,6 +10,7 @@ module bgp-labeled-unicast {
     import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
     import bmp-monitor { prefix bmp-mon; revision-date 2015-05-12; }
     import network-concepts { prefix netc; revision-date 2013-11-25; }
+    import bgp-inet { prefix bgp-inet; revision-date 2015-03-05; }
 
     organization "Cisco Systems, Inc.";
     contact "GE QU <gequ@cisco.com>"
@@ -59,6 +60,7 @@ module bgp-labeled-unicast {
         leaf prefix {
             type inet:ip-prefix;
         }
+        uses bgp-msg:path-id-grouping;
     }
 
     grouping labeled-unicast-destination {
@@ -73,7 +75,7 @@ module bgp-labeled-unicast {
                 leaf route-key {
                     type binary;
                 }
-                key "route-key";
+                key "route-key path-id";
                 uses labeled-unicast;
                 uses bgp-rib:route;
             }
