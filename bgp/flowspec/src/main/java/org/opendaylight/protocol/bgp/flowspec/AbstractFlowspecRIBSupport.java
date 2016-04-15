@@ -8,14 +8,18 @@
 package org.opendaylight.protocol.bgp.flowspec;
 
 import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import java.util.Collection;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.flowspec.ipv6.routes.FlowspecRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
@@ -42,6 +46,8 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContaine
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 
 public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
+    private static final QName PREFIX_QNAME = QName.create(FlowspecRoute.QNAME, "prefix").intern();
+
 
     protected abstract static class ApplyRoute {
         abstract void apply(DOMDataWriteTransaction tx, YangInstanceIdentifier base, NodeIdentifierWithPredicates routeKey, DataContainerNode<?> route, final ContainerNode attributes);
@@ -131,9 +137,12 @@ public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
         mb.setSafi(FlowspecSubsequentAddressFamily.class);
         mb.setCNextHop(hop);
 
-        mb.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-            getParser().createAdvertizedRoutesDestinationType(
-                getParser().extractFlowspec(Iterables.getOnlyElement(routes)))).build());
+        final MapEntryNode routesCont = Iterables.getOnlyElement(routes);
+        final Long pathIdVal = PathIdUtil.extractPathId(routesCont);
+        final PathId pathId = pathIdVal == 0 ? null :  new PathId(pathIdVal);
+
+        mb.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(getParser().createAdvertizedRoutesDestinationType(
+            getParser().extractFlowspec(routesCont), pathId)).build());
         return mb.build();
     }
 
@@ -143,9 +152,21 @@ public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
         mb.setAfi(getAfiClass());
         mb.setSafi(FlowspecSubsequentAddressFamily.class);
 
-        mb.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
-            getParser().createWithdrawnDestinationType(
-                getParser().extractFlowspec(Iterables.getOnlyElement(routes)))).build());
+        final MapEntryNode routesCont = Iterables.getOnlyElement(routes);
+        final Long pathIdVal = PathIdUtil.extractPathId(routesCont);
+        final PathId pathId = pathIdVal == 0 ? null :  new PathId(pathIdVal);
+
+        mb.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(getParser().createWithdrawnDestinationType(
+            getParser().extractFlowspec(Iterables.getOnlyElement(routes)), pathId)).build());
         return mb.build();
+    }
+
+    @Nullable
+    @Override
+    public PathArgument getRouteIdAddPath(final long pathId, final PathArgument routeId) {
+        final String prefix = (String) (((NodeIdentifierWithPredicates) routeId).getKeyValues()).get(PREFIX_QNAME);
+        final ImmutableMap<QName, Object> keyValues = ImmutableMap.of(PathIdUtil.QNAME, pathId, PREFIX_QNAME, prefix);
+
+        return new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, keyValues);
     }
 }
