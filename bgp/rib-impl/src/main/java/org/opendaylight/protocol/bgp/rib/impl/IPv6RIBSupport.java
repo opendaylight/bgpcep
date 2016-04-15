@@ -8,10 +8,13 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.annotation.Nullable;
+import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.bgp.rib.rib.loc.rib.tables.routes.Ipv6RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.prefixes.DestinationIpv6;
@@ -21,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.routes.Ipv6Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.routes.ipv6.routes.Ipv6Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv6CaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
@@ -34,6 +38,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
@@ -107,9 +113,11 @@ final class IPv6RIBSupport extends AbstractIPRIBSupport {
 
     private List<Ipv6Prefixes> extractPrefixes(final Collection<MapEntryNode> routes) {
         final List<Ipv6Prefixes> prefs = new ArrayList<>(routes.size());
-        for (final MapEntryNode ipv6Route : routes) {
-            final String prefix = (String) ipv6Route.getChild(this.routeKeyLeaf).get().getValue();
-            prefs.add(new Ipv6PrefixesBuilder().setPrefix(new Ipv6Prefix(prefix)).build());
+        for (final MapEntryNode route : routes) {
+            final String prefix = (String) route.getChild(this.routeKeyLeaf).get().getValue();
+            final Ipv6PrefixesBuilder prefixBuilder = new Ipv6PrefixesBuilder().setPrefix(new Ipv6Prefix(prefix));
+            prefixBuilder.setPathId(new PathId(PathIdUtil.extractPathId(route)));
+            prefs.add(prefixBuilder.build());
         }
         return prefs;
     }
@@ -135,5 +143,14 @@ final class IPv6RIBSupport extends AbstractIPRIBSupport {
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv6CaseBuilder().setDestinationIpv6(
                 new DestinationIpv6Builder().setIpv6Prefixes(extractPrefixes(routes)).build()).build()).build());
         return mb.build();
+    }
+
+    @Nullable
+    @Override
+    public PathArgument getRouteIdAddPath(final long pathId, final PathArgument routeId) {
+        final String prefix = (String) (((NodeIdentifierWithPredicates) routeId).getKeyValues()).get(PREFIX_QNAME);
+        final ImmutableMap<QName, Object> keyValues = ImmutableMap.of(PathIdUtil.QNAME, pathId, PREFIX_QNAME, prefix);
+
+        return new NodeIdentifierWithPredicates(Ipv6Route.QNAME, keyValues);
     }
 }

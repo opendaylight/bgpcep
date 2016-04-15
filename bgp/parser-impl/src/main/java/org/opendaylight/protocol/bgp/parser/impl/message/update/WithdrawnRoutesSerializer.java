@@ -54,6 +54,7 @@ public class WithdrawnRoutesSerializer implements NlriSerializer {
             final DestinationIpv6Case destinationIpv6Case = (DestinationIpv6Case) routes.getDestinationType();
             if (destinationIpv6Case.getDestinationIpv6().getIpv6Prefixes() != null) {
                 for (final Ipv6Prefixes ipv6Prefix : destinationIpv6Case.getDestinationIpv6().getIpv6Prefixes()) {
+                    PathIdUtil.writePathId(ipv6Prefix.getPathId(), byteAggregator);
                     ByteBufWriteUtil.writeMinimalPrefix(ipv6Prefix.getPrefix(), byteAggregator);
                 }
             }
