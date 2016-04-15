@@ -18,12 +18,18 @@ import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.flowspec.handlers.BitmaskOperandParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.NumericOneByteOperandParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.NumericTwoByteOperandParser;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupportUtil;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
+import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.Dscp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.Fragment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.Flowspec;
@@ -67,6 +73,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.flowspec.type.tcp.flags._case.TcpFlagsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.ipv4.flowspec.flowspec.type.DestinationPrefixCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.ipv4.flowspec.flowspec.type.SourcePrefixCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
@@ -75,6 +82,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -149,9 +158,9 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
     protected abstract void stringSpecificFSNlriType(final FlowspecType value, final StringBuilder buffer);
 
-    abstract DestinationType createWithdrawnDestinationType(final List<Flowspec> dst);
+    abstract DestinationType createWithdrawnDestinationType(final List<Flowspec> dst, @Nullable final PathId pathId);
 
-    abstract DestinationType createAdvertizedRoutesDestinationType(final List<Flowspec> dst);
+    abstract DestinationType createAdvertizedRoutesDestinationType(final List<Flowspec> dst, @Nullable final PathId pathId);
 
     @Override
     public final void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
@@ -165,31 +174,24 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
     @Override
     public final void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder) throws BGPParsingException {
-        if (!nlri.isReadable()) {
-            return;
-        }
-        final List<Flowspec> dst = parseNlri(nlri);
-
-        builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(createWithdrawnDestinationType(dst)).build());
+        parseNlri(nlri, builder, null);
     }
 
     @Override
     public final void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder) throws BGPParsingException {
-        if (!nlri.isReadable()) {
-            return;
-        }
-        final List<Flowspec> dst = parseNlri(nlri);
-        builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(createAdvertizedRoutesDestinationType(dst)).build());
+        parseNlri(nlri, builder, null);
     }
 
     /**
      * Serializes Flowspec NLRI to ByteBuf.
-     *
-     * @param flows flowspec NLRI to be serialized
+     *  @param flows flowspec NLRI to be serialized
+     * @param pathId
      * @param buffer where flowspec NLRI will be serialized
      */
-    public final void serializeNlri(final List<Flowspec> flows, final ByteBuf buffer) {
+    public final void serializeNlri(final List<Flowspec> flows, final PathId pathId, final ByteBuf buffer) {
         final ByteBuf nlriByteBuf = Unpooled.buffer();
+        PathIdUtil.writePathId(pathId, buffer);
+
         for (final Flowspec flow : flows) {
             this.flowspecTypeRegistry.serializeFlowspecType(flow.getFlowspecType(), nlriByteBuf);
         }
@@ -551,4 +553,34 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         return fss;
     }
 
+
+    @Override
+    public void parseNlri(@Nonnull final ByteBuf nlri, @Nonnull final MpReachNlriBuilder builder, @Nullable final PeerSpecificParserConstraint constraint) throws BGPParsingException {
+        if (!nlri.isReadable()) {
+            return;
+        }
+        final PathId pathId = readPathId(nlri, builder.getAfi(), builder.getSafi(), constraint);
+        final List<Flowspec> dst = parseNlri(nlri);
+        builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder()
+            .setDestinationType(createAdvertizedRoutesDestinationType(dst, pathId)).build());
+    }
+
+    private PathId readPathId(final ByteBuf nlri, final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi,
+        final PeerSpecificParserConstraint constraint) {
+        if (MultiPathSupportUtil.isTableTypeSupported(constraint, new BgpTableTypeImpl(afi, safi))) {
+            return PathIdUtil.readPathId(nlri);
+        }
+        return null;
+    }
+
+
+    @Override
+    public void parseNlri(@Nonnull final ByteBuf nlri, @Nonnull final MpUnreachNlriBuilder builder, @Nullable final PeerSpecificParserConstraint constraint) throws BGPParsingException {
+        if (!nlri.isReadable()) {
+            return;
+        }
+        final PathId pathId = readPathId(nlri, builder.getAfi(), builder.getSafi(), constraint);
+        final List<Flowspec> dst = parseNlri(nlri);
+        builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(createWithdrawnDestinationType(dst, pathId)).build());
+    }
 }
