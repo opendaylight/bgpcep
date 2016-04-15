@@ -11,6 +11,7 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.opendaylight.bgpcep.bgp.topology.provider.Ipv4ReachabilityTopologyBuilderTest.PATH_ID;
 
 import com.google.common.base.Optional;
 import org.junit.Test;
@@ -24,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.routes.ipv6.routes.Ipv6Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.routes.ipv6.routes.Ipv6RouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.routes.ipv6.routes.Ipv6RouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
@@ -51,7 +53,8 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         this.ipv6TopoBuilder = new Ipv6ReachabilityTopologyBuilder(dataBroker, LOC_RIB_REF, TEST_TOPOLOGY_ID);
         this.ipv6TopoBuilder.start(dataBroker, Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
         final InstanceIdentifier<Tables> path = this.ipv6TopoBuilder.tableInstanceIdentifier(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
-        this.ipv6RouteIID = path.builder().child((Class)Ipv6Routes.class).child(Ipv6Route.class, new Ipv6RouteKey(new Ipv6Prefix(ROUTE_IP6PREFIX))).build();
+        this.ipv6RouteIID = path.builder().child((Class) Ipv6Routes.class).child(Ipv6Route.class, new Ipv6RouteKey(new PathId(PATH_ID),
+            new Ipv6Prefix(ROUTE_IP6PREFIX))).build();
     }
 
     @Test
@@ -95,6 +98,7 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         final Attributes attribute = new AttributesBuilder()
             .setCNextHop(new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().setGlobal(new Ipv6Address(netxHop)).build()).build())
             .build();
-        return new Ipv6RouteBuilder().setKey(new Ipv6RouteKey(new Ipv6Prefix(ROUTE_IP6PREFIX))).setPrefix(new Ipv6Prefix(ROUTE_IP6PREFIX)).setAttributes(attribute).build();
+        return new Ipv6RouteBuilder().setKey(new Ipv6RouteKey(new PathId(PATH_ID), new Ipv6Prefix(ROUTE_IP6PREFIX)))
+            .setPrefix(new Ipv6Prefix(ROUTE_IP6PREFIX)).setAttributes(attribute).build();
     }
 }

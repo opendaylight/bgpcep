@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.bgp.rib.rib.loc.rib.tables.routes.Ipv6RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv6.prefixes.DestinationIpv6;
@@ -46,16 +47,14 @@ final class IPv6RIBSupport extends AbstractIPRIBSupport {
     private static final QName PREFIX_QNAME = QName.create(Ipv6Route.QNAME, "prefix").intern();
     private static final IPv6RIBSupport SINGLETON = new IPv6RIBSupport();
     private static final ImmutableCollection<Class<? extends DataObject>> CACHEABLE_NLRI_OBJECTS =
-            ImmutableSet.<Class<? extends DataObject>>of(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.Ipv6Prefix.class);
-    private final ChoiceNode emptyRoutes = Builders.choiceBuilder()
-            .withNodeIdentifier(new NodeIdentifier(Routes.QNAME))
-            .addChild(Builders.containerBuilder()
-                .withNodeIdentifier(new NodeIdentifier(Ipv6Routes.QNAME))
-                .withChild(ImmutableNodes.mapNodeBuilder(Ipv6Route.QNAME).build()).build()).build();
-    private final NodeIdentifier destination = new NodeIdentifier(DestinationIpv6.QNAME);
-    private final NodeIdentifier route = new NodeIdentifier(Ipv6Route.QNAME);
-    private final NodeIdentifier nlriRoutesList = new NodeIdentifier(Ipv6Prefixes.QNAME);
-    private final NodeIdentifier routeKeyLeaf = new NodeIdentifier(PREFIX_QNAME);
+        ImmutableSet.of(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.Ipv6Prefix.class);
+    private static final ChoiceNode EMPTY_ROUTES = Builders.choiceBuilder().withNodeIdentifier(new NodeIdentifier(Routes.QNAME))
+        .addChild(Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(Ipv6Routes.QNAME)).withChild(ImmutableNodes
+            .mapNodeBuilder(Ipv6Route.QNAME).build()).build()).build();
+    private static final NodeIdentifier DESTINATION = new NodeIdentifier(DestinationIpv6.QNAME);
+    private static final NodeIdentifier ROUTE = new NodeIdentifier(Ipv6Route.QNAME);
+    private static final NodeIdentifier NLRI_ROUTES_LIST = new NodeIdentifier(Ipv6Prefixes.QNAME);
+    private static final NodeIdentifier PATH_ID_LEAF = new NodeIdentifier(PREFIX_QNAME);
 
     private IPv6RIBSupport() {
         super(Ipv6RoutesCase.class, Ipv6Routes.class, Ipv6Route.class);
@@ -67,37 +66,7 @@ final class IPv6RIBSupport extends AbstractIPRIBSupport {
 
     @Override
     public ChoiceNode emptyRoutes() {
-        return this.emptyRoutes;
-    }
-
-    @Override
-    protected NodeIdentifier destinationContainerIdentifier() {
-        return this.destination;
-    }
-
-    @Override
-    protected NodeIdentifier routeIdentifier() {
-        return this.route;
-    }
-
-    @Override
-    protected NodeIdentifier routeKeyLeafIdentifier() {
-        return this.routeKeyLeaf;
-    }
-
-    @Override
-    protected NodeIdentifier nlriRoutesListIdentifier() {
-        return this.nlriRoutesList;
-    }
-
-    @Override
-    protected QName keyLeafQName() {
-        return PREFIX_QNAME;
-    }
-
-    @Override
-    protected QName routeQName() {
-        return Ipv6Route.QNAME;
+        return EMPTY_ROUTES;
     }
 
     @Override
@@ -105,13 +74,9 @@ final class IPv6RIBSupport extends AbstractIPRIBSupport {
         return CACHEABLE_NLRI_OBJECTS;
     }
 
-    private List<Ipv6Prefixes> extractPrefixes(final Collection<MapEntryNode> routes) {
-        final List<Ipv6Prefixes> prefs = new ArrayList<>(routes.size());
-        for (final MapEntryNode ipv6Route : routes) {
-            final String prefix = (String) ipv6Route.getChild(this.routeKeyLeaf).get().getValue();
-            prefs.add(new Ipv6PrefixesBuilder().setPrefix(new Ipv6Prefix(prefix)).build());
-        }
-        return prefs;
+    @Override
+    protected NodeIdentifier destinationContainerIdentifier() {
+        return DESTINATION;
     }
 
     @Override
@@ -135,5 +100,39 @@ final class IPv6RIBSupport extends AbstractIPRIBSupport {
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv6CaseBuilder().setDestinationIpv6(
                 new DestinationIpv6Builder().setIpv6Prefixes(extractPrefixes(routes)).build()).build()).build());
         return mb.build();
+    }
+
+    @Override
+    protected NodeIdentifier routeIdentifier() {
+        return ROUTE;
+    }
+
+    @Override
+    protected NodeIdentifier nlriRoutesListIdentifier() {
+        return NLRI_ROUTES_LIST;
+    }
+
+    @Override
+    protected NodeIdentifier routeKeyLeafIdentifier() {
+        return PATH_ID_LEAF;
+    }
+
+    @Override
+    protected QName keyLeafQName() {
+        return PREFIX_QNAME;
+    }
+
+    @Override
+    protected QName routeQName() {
+        return Ipv6Route.QNAME;
+    }
+
+    private List<Ipv6Prefixes> extractPrefixes(final Collection<MapEntryNode> routes) {
+        final List<Ipv6Prefixes> prefs = new ArrayList<>(routes.size());
+        for (final MapEntryNode ipv6Route : routes) {
+            final String prefix = (String) ipv6Route.getChild(PATH_ID_LEAF).get().getValue();
+            prefs.add(new Ipv6PrefixesBuilder().setPathId(PathIdUtil.buildPathId(ipv6Route, PATH_ID_LEAF)).setPrefix(new Ipv6Prefix(prefix)).build());
+        }
+        return prefs;
     }
 }

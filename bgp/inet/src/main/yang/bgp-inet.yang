@@ -39,6 +39,7 @@ module bgp-inet {
         leaf prefix {
             type inet:ipv6-prefix;
         }
+        uses bgp-msg:path-id-grouping;
     }
 
     grouping ipv4-prefixes {
@@ -84,7 +85,7 @@ module bgp-inet {
             list ipv6-route {
                 uses ipv6-prefix;
 
-                key prefix;
+                key "prefix path-id";
 
                 uses bgp-rib:route {
                     augment "attributes/bgp-prefix-sid/bgp-prefix-sid-tlvs/bgp-prefix-sid-tlv" {
