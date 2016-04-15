@@ -9,11 +9,16 @@
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import io.netty.buffer.ByteBuf;
 import javax.annotation.Nullable;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathId;
+import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 
@@ -50,7 +55,7 @@ public final class PathIdUtil {
     /**
      * Extract PathId from route change received
      *
-     * @param data
+     * @param data Data containing the path Id
      * @param pathNii Path Id NodeIdentifier specific per each Rib support
      * @return The path identifier from data change, in case its not provided or supported return null
      */
@@ -61,5 +66,35 @@ public final class PathIdUtil {
             return null;
         }
         return (Long) pathId.getValue();
+    }
+
+    /**
+     * Create a Add Path PathArgument Key(prefix+pathId)
+     *
+     * @param pathId Path Id value
+     * @param routeId Route Id value
+     * @param routeQname route QName provided per each RibSupport
+     * @param pathidQname Path Id QName provided per each RibSupport
+     * @param prefixQname Prefix QName provided per each RibSupport
+     * @return
+     */
+    public static PathArgument createNiiKey(final long pathId, final PathArgument routeId, final QName routeQname, final QName pathidQname,
+        final QName prefixQname) {
+        final String prefix = (String) (((NodeIdentifierWithPredicates) routeId).getKeyValues()).get(prefixQname);
+        final ImmutableMap<QName, Object> keyValues = ImmutableMap.of(pathidQname, pathId, prefixQname, prefix);
+
+        return new NodeIdentifierWithPredicates(routeQname, keyValues);
+    }
+
+    /**
+     * Build Path Id
+     *
+     * @param routesCont route container
+     * @param pathIdNii path Id node Identifier
+     * @return pathId or null whenever path is null or 0(Add Path  supported default value >2 )
+     */
+    public static PathId buildPathId(final DataContainerNode<? extends PathArgument> routesCont, final NodeIdentifier pathIdNii) {
+        final Long pathIdVal = PathIdUtil.extractPathId(routesCont, pathIdNii);
+        return pathIdVal == null ? null : new PathId(pathIdVal);
     }
 }
