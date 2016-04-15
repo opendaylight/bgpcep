@@ -9,11 +9,16 @@
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import io.netty.buffer.ByteBuf;
 import javax.annotation.Nullable;
 import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathId;
+import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 
@@ -61,5 +66,34 @@ public final class PathIdUtil {
             return null;
         }
         return (Long) pathId.getValue();
+    }
+
+    /**
+     * Create a Add Path PathArgument Key(prefix+pathId)
+     *
+     * @param pathId
+     * @param routeId
+     * @param routeQname
+     * @param pathidQname
+     * @param prefixQname
+     * @return
+     */
+    public static PathArgument createNiiKey(final long pathId, final PathArgument routeId, final QName routeQname, final QName pathidQname,
+        final QName prefixQname) {
+        final String prefix = (String) (((YangInstanceIdentifier.NodeIdentifierWithPredicates) routeId).getKeyValues()).get(prefixQname);
+        final ImmutableMap<QName, Object> keyValues = ImmutableMap.of(pathidQname, pathId, prefixQname, prefix);
+
+        return new YangInstanceIdentifier.NodeIdentifierWithPredicates(routeQname, keyValues);
+    }
+
+    /**
+     * Build Path Id
+     * @param routesCont route container
+     * @param pathIdNii path Id node Identifier
+     * @return pathId or null whenever path is null or 0(Add Path  supported default value >2 )
+     */
+    public static PathId buildPathId(final DataContainerNode<? extends PathArgument> routesCont, final NodeIdentifier pathIdNii) {
+        final Long pathIdVal = PathIdUtil.extractPathId(routesCont, pathIdNii);
+        return pathIdVal == null ? null :  new PathId(pathIdVal);
     }
 }
