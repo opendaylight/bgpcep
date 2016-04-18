@@ -29,4 +29,6 @@ public interface BGPExtensionConsumerContext {
     SubsequentAddressFamilyRegistry getSubsequentAddressFamilyRegistry();
 
     ExtendedCommunityRegistry getExtendedCommunityReistry();
+
+    BgpPrefixSidTlvRegistry getBgpPrefixSidTlvRegistry();
 }
