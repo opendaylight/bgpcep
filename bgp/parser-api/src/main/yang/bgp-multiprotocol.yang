@@ -155,4 +155,10 @@ module bgp-multiprotocol {
         reference "https://tools.ietf.org/html/rfc2918#section-3";
         uses bgp-table-type;
     }
+
+    augment "/bgp-msg:update/bgp-msg:attributes" {
+        container bgp-prefix-sid {
+            reference "https://tools.ietf.org/html/draft-ietf-idr-bgp-prefix-sid-02";
+        }
+    }
 }
