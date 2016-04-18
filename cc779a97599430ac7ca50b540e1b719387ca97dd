@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_635cb026",
+        "filename": "bgp/concepts/src/main/yang/bgp-types.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-18T15:04:31Z",
+      "side": 1,
+      "message": "Move to BGP-LU rename to \"srgb\".",
+      "range": {
+        "startLine": 120,
+        "startChar": 0,
+        "endLine": 124,
+        "endChar": 5
+      },
+      "revId": "cc779a97599430ac7ca50b540e1b719387ca97dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_c3401c38",
+        "filename": "bgp/inet/src/main/yang/bgp-inet.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-18T15:04:31Z",
+      "side": 1,
+      "message": "No need to augment IPv4.",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 82,
+        "endChar": 17
+      },
+      "revId": "cc779a97599430ac7ca50b540e1b719387ca97dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_034b345a",
+        "filename": "bgp/inet/src/main/yang/bgp-inet.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-18T15:04:31Z",
+      "side": 1,
+      "message": "Here the augmentation and update msg attributes augmentation must be the same.",
+      "range": {
+        "startLine": 95,
+        "startChar": 0,
+        "endLine": 99,
+        "endChar": 21
+      },
+      "revId": "cc779a97599430ac7ca50b540e1b719387ca97dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
