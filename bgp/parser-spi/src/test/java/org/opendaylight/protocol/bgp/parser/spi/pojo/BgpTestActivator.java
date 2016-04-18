@@ -21,6 +21,8 @@ import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActi
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.BgpPrefixSidTlvParser;
+import org.opendaylight.protocol.bgp.parser.spi.BgpPrefixSidTlvSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityParser;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
@@ -37,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.bgp.prefix.sid.bgp.prefix.sid.tlvs.BgpPrefixSidTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
@@ -88,6 +91,11 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
 
     protected NextHopParserSerializer nextHopParserSerializer;
 
+    @Mock
+    protected BgpPrefixSidTlvParser sidTlvParser;
+    @Mock
+    protected BgpPrefixSidTlvSerializer sidTlvSerializer;
+
     @Override
     protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
         initMock();
@@ -100,6 +108,9 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
 
         regs.add(context.registerCapabilityParser(TYPE, this.capaParser));
         regs.add(context.registerCapabilitySerializer(CParameters.class, this.capaSerializer));
+
+        regs.add(context.registerBgpPrefixSidTlvParser(TYPE, this.sidTlvParser));
+        regs.add(context.registerBgpPrefixSidTlvSerializer(BgpPrefixSidTlv.class, this.sidTlvSerializer));
 
         regs.add(context.registerMessageParser(TYPE, this.msgParser));
         regs.add(context.registerMessageSerializer(Notification.class, this.msgSerializer));
@@ -138,7 +149,7 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
         MockitoAnnotations.initMocks(this);
         try {
             Mockito.doNothing().when(this.attrParser).parseAttribute(Mockito.any(ByteBuf.class), Mockito.any(AttributesBuilder.class),
-                    Mockito.any(PeerSpecificParserConstraint.class));
+                Mockito.any(PeerSpecificParserConstraint.class));
             Mockito.doReturn(EMPTY).when(this.attrParser).toString();
             Mockito.doNothing().when(this.attrSerializer).serializeAttribute(Mockito.any(DataObject.class), Mockito.any(ByteBuf.class));
             Mockito.doReturn(EMPTY).when(this.attrSerializer).toString();
@@ -153,8 +164,13 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
             Mockito.doNothing().when(this.capaSerializer).serializeCapability(Mockito.any(CParameters.class), Mockito.any(ByteBuf.class));
             Mockito.doReturn(EMPTY).when(this.capaSerializer).toString();
 
+            Mockito.doReturn(null).when(this.sidTlvParser).parseBgpPrefixSidTlv(Mockito.any(ByteBuf.class));
+            Mockito.doReturn(EMPTY).when(this.sidTlvParser).toString();
+            Mockito.doNothing().when(this.sidTlvSerializer).serializeBgpPrefixSidTlv(Mockito.any(BgpPrefixSidTlv.class), Mockito.any(ByteBuf.class));
+            Mockito.doReturn(EMPTY).when(this.sidTlvSerializer).toString();
+
             Mockito.doReturn(Mockito.mock(Notification.class)).when(this.msgParser).parseMessageBody(Mockito.any(ByteBuf.class), Mockito.anyInt(),
-                    Mockito.any(PeerSpecificParserConstraint.class));
+                Mockito.any(PeerSpecificParserConstraint.class));
             Mockito.doReturn(EMPTY).when(this.msgParser).toString();
             Mockito.doNothing().when(this.msgSerializer).serializeMessage(Mockito.any(Notification.class), Mockito.any(ByteBuf.class));
             Mockito.doReturn(EMPTY).when(this.msgSerializer).toString();
