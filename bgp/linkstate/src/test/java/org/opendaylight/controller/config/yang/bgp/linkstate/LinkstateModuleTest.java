@@ -108,12 +108,12 @@ public class LinkstateModuleTest extends AbstractConfigTest {
     @Test
     public void testReconfigureInstance() throws Exception {
         createLinkstateModuleInstance(Optional.of(false));
-        ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
         final LinkstateModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME), LinkstateModuleMXBean.class);
         mxBean.setIanaLinkstateAttributeType(true);
         mxBean.setRsvpExtensions(rspvInstance);
-        CommitStatus status = transaction.commit();
+        final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
         assertStatus(status, 0, 3, 1);
     }
