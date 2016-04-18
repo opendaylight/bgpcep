@@ -174,5 +174,12 @@ module bgp-inet {
             uses ipv6-routes;
         }
     }
+
+    augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:bgp-prefix-sid" {
+        reference "https://tools.ietf.org/html/draft-ietf-idr-bgp-prefix-sid-02";
+        leaf process-ipv6-head-ability {
+            type boolean;
+        }
+    }
 }
 

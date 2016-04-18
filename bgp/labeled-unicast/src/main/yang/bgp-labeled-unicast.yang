@@ -137,4 +137,25 @@ module bgp-labeled-unicast {
             uses labeled-unicast-routes;
         }
     }
+
+    grouping originator-srgb-tlvs {
+        list srgb-value {
+            leaf base {
+                type bgp-t:uint24;
+            }
+            leaf range {
+                type bgp-t:uint24;
+            }
+        }
+    }
+
+    augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:bgp-prefix-sid" {
+        reference "https://tools.ietf.org/html/draft-ietf-idr-bgp-prefix-sid-02";
+        leaf label-index-tlv {
+            type uint32;
+        }
+        container originator-srgb-tlvs {
+            uses originator-srgb-tlvs;
+        }
+    }
 }
