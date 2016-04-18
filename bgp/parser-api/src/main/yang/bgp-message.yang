@@ -101,6 +101,35 @@ module bgp-message {
         }
     }
 
+    grouping label-index-tlv {
+        leaf label-index {
+            type uint32;
+            mandatory true;
+        }
+    }
+
+    grouping ipv6-sid-tlv {
+        leaf process-ipv6-head-ability {
+            type boolean;
+            mandatory true;
+        }
+    }
+
+    grouping originator-srgb-tlv {
+        list srgb-value {
+            leaf base {
+                type uint32 {
+                    range "0..16777215";
+                }
+            }
+            leaf range {
+                type uint32 {
+                    range "0..16777215";
+                }
+            }
+        }
+    }
+
     grouping path-attributes {
         reference "http://tools.ietf.org/html/rfc4271#section-5";
         container attributes {
@@ -175,6 +204,18 @@ module bgp-message {
                         length 0..65535;
                     }
                     mandatory true;
+                }
+            }
+            container bgp-prefix-sid {
+                reference "https://tools.ietf.org/html/draft-ietf-idr-bgp-prefix-sid-02";
+                container label-index-tlv {
+                    uses label-index-tlv;
+                }
+                container ipv6-sid-tlv {
+                    uses ipv6-sid-tlv;
+                }
+                container originator-srgb-tlv {
+                	uses originator-srgb-tlv;
                 }
             }
         }
