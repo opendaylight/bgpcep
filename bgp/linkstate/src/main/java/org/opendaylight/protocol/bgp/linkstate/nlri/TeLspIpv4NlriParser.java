@@ -8,29 +8,34 @@
 package org.opendaylight.protocol.bgp.linkstate.nlri;
 
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.ObjectType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.TeLspCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.TeLspCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.te.lsp._case.address.family.Ipv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.TunnelId;
 
-public final class TeLspIpv4NlriParser implements NlriTypeCaseParser {
+public final class TeLspIpv4NlriParser extends AbstractTeLspNlriCodec {
+
+    public TeLspIpv4NlriParser(final SimpleNlriTypeRegistry registry) {
+        super(registry);
+    }
 
     @Override
-    public ObjectType parseTypeNlri(final ByteBuf nlri, final NlriType type, final NodeIdentifier localdescriptor, final ByteBuf restNlri) throws BGPParsingException {
-        final TeLspCaseBuilder telspipv4builder = new TeLspCaseBuilder();
-        final Ipv4CaseBuilder ipv4Builder = new Ipv4CaseBuilder();
-        ipv4Builder.setIpv4TunnelSenderAddress(Ipv4Util.addressForByteBuf(nlri));
-        final TunnelId tunnelId = new TunnelId(nlri.readUnsignedShort());
-        final LspId lspId = new LspId((long)nlri.readUnsignedShort());
-        ipv4Builder.setIpv4TunnelEndpointAddress(Ipv4Util.addressForByteBuf(nlri));
-        TeLspCase telspipv4Case = telspipv4builder.setAddressFamily(ipv4Builder.build()).setLspId(lspId).setTunnelId(tunnelId).build();
-        return telspipv4Case;
+    protected ObjectType parseObjectType(final ByteBuf buffer) {
+        final TeLspCaseBuilder builder = new TeLspCaseBuilder();
+        final Ipv4CaseBuilder ipv4CaseBuilder = new Ipv4CaseBuilder();
+        ipv4CaseBuilder.setIpv4TunnelSenderAddress(Ipv4Util.addressForByteBuf(buffer));
+        builder.setTunnelId(new TunnelId(buffer.readUnsignedShort()));
+        builder.setLspId(new LspId((long) buffer.readUnsignedShort()));
+        ipv4CaseBuilder.setIpv4TunnelEndpointAddress(Ipv4Util.addressForByteBuf(buffer));
+        return builder.setAddressFamily(ipv4CaseBuilder.build()).build();
+    }
+
+    @Override
+    public int getNlriType() {
+        return NlriType.Ipv4TeLsp.getIntValue();
     }
 
 }

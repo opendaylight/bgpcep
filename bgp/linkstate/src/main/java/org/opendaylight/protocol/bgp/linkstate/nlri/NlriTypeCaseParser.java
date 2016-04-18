@@ -9,15 +9,13 @@ package org.opendaylight.protocol.bgp.linkstate.nlri;
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.ObjectType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.CLinkstateDestination;
 
 /**
  * Common interface for encoding different NLRI types.
  */
 public interface NlriTypeCaseParser {
 
-    ObjectType parseTypeNlri(ByteBuf nlri, NlriType type, NodeIdentifier localdescriptor, ByteBuf restNlri) throws BGPParsingException;
+    CLinkstateDestination parseTypeNlri(ByteBuf nlri) throws BGPParsingException;
 
 }
