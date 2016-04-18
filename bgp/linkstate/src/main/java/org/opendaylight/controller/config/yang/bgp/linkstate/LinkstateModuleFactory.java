@@ -19,6 +19,6 @@ package org.opendaylight.controller.config.yang.bgp.linkstate;
 /**
 *
 */
-public class LinkstateModuleFactory extends org.opendaylight.controller.config.yang.bgp.linkstate.AbstractLinkstateModuleFactory {
+public final class LinkstateModuleFactory extends org.opendaylight.controller.config.yang.bgp.linkstate.AbstractLinkstateModuleFactory {
 
 }

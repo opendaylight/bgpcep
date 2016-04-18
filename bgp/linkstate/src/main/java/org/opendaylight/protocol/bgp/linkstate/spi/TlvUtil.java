@@ -17,44 +17,26 @@ import org.slf4j.LoggerFactory;
 
 public final class TlvUtil {
 
-    private TlvUtil() {
-        throw new UnsupportedOperationException();
-    }
-
-    private static final Logger LOG = LoggerFactory.getLogger(TlvUtil.class);
-
     public static final int TOPOLOGY_ID_OFFSET = 0x3fff;
-
     public static final int MULTI_TOPOLOGY_ID = 263;
     public static final NodeIdentifier MULTI_TOPOLOGY_NID = new NodeIdentifier(QName.create(PrefixDescriptors.QNAME, "topology-identifier").intern());
     public static final int LOCAL_IPV4_ROUTER_ID = 1028;
     public static final int LOCAL_IPV6_ROUTER_ID = 1029;
+    private static final Logger LOG = LoggerFactory.getLogger(TlvUtil.class);
+    private TlvUtil() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Util method for writing TLV header.
+     *
      * @param type TLV type (2B)
      * @param value TLV value (2B)
      * @param byteAggregator final ByteBuf where the tlv should be serialized
      */
-    public static void writeTLV(final int type, final ByteBuf value, final ByteBuf byteAggregator){
+    public static void writeTLV(final int type, final ByteBuf value, final ByteBuf byteAggregator) {
         byteAggregator.writeShort(type);
         byteAggregator.writeShort(value.writerIndex());
-        byteAggregator.writeBytes(value);
-        if (LOG.isDebugEnabled()) {
-            value.readerIndex(0);
-            LOG.debug("Serialized tlv type {} to: {}", type, ByteBufUtil.hexDump(value));
-        }
-    }
-
-    /**
-     * Util method for writing Segment routing TLV header.
-     * @param type TLV type (1B)
-     * @param value TLV value (1B)
-     * @param byteAggregator final ByteBuf where the tlv should be serialized
-     */
-    public static void writeSrTLV(final int type, final ByteBuf value, final ByteBuf byteAggregator){
-        byteAggregator.writeByte(type);
-        byteAggregator.writeByte(value.writerIndex());
         byteAggregator.writeBytes(value);
         if (LOG.isDebugEnabled()) {
             value.readerIndex(0);
