@@ -10,17 +10,10 @@ package org.opendaylight.protocol.bgp.linkstate;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.linkstate.nlri.LinkNlriParser;
-import org.opendaylight.protocol.bgp.linkstate.nlri.NodeNlriParser;
-import org.opendaylight.protocol.bgp.linkstate.nlri.PrefixIpv4NlriParser;
-import org.opendaylight.protocol.bgp.linkstate.nlri.PrefixIpv6NlriParser;
-import org.opendaylight.protocol.bgp.linkstate.nlri.PrefixNlriSerializer;
-import org.opendaylight.protocol.bgp.linkstate.nlri.SimpleNlriTypeRegistry;
-import org.opendaylight.protocol.bgp.linkstate.nlri.TeLspIpv4NlriParser;
-import org.opendaylight.protocol.bgp.linkstate.nlri.TeLspIpv6NlriParser;
-import org.opendaylight.protocol.bgp.linkstate.nlri.TeLspNlriSerializer;
+import org.opendaylight.protocol.bgp.linkstate.impl.BGPActivator;
+import org.opendaylight.protocol.bgp.linkstate.impl.RIBActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
@@ -28,11 +21,6 @@ import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.protocol.rsvp.parser.spi.pojo.ServiceLoaderRSVPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.LinkCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.NodeCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.PrefixCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.TeLspCase;
 
 public class ActivatorTest {
 
@@ -40,8 +28,6 @@ public class ActivatorTest {
     public void testActivator() throws Exception {
         final BGPActivator act = new BGPActivator(true, ServiceLoaderRSVPExtensionProviderContext.getSingletonInstance().getRsvpRegistry());
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
-        final SimpleNlriTypeRegistry typeReg = SimpleNlriTypeRegistry.getInstance();
-
         assertNull(context.getAddressFamilyRegistry().classForFamily(16388));
         assertNull(context.getSubsequentAddressFamilyRegistry().classForFamily(71));
 
@@ -49,16 +35,6 @@ public class ActivatorTest {
 
         assertEquals(LinkstateAddressFamily.class, context.getAddressFamilyRegistry().classForFamily(16388));
         assertEquals(LinkstateSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry().classForFamily(71));
-        assertTrue(typeReg.getParser(NlriType.Node) instanceof NodeNlriParser);
-        assertTrue(typeReg.getParser(NlriType.Link) instanceof LinkNlriParser);
-        assertTrue(typeReg.getParser(NlriType.Ipv4Prefix) instanceof PrefixIpv4NlriParser);
-        assertTrue(typeReg.getParser(NlriType.Ipv6Prefix) instanceof PrefixIpv6NlriParser);
-        assertTrue(typeReg.getParser(NlriType.Ipv4TeLsp) instanceof TeLspIpv4NlriParser);
-        assertTrue(typeReg.getParser(NlriType.Ipv6TeLsp) instanceof TeLspIpv6NlriParser);
-        assertTrue(typeReg.getSerializer(NodeCase.class) instanceof NodeNlriParser);
-        assertTrue(typeReg.getSerializer(LinkCase.class) instanceof LinkNlriParser);
-        assertTrue(typeReg.getSerializer(PrefixCase.class) instanceof PrefixNlriSerializer);
-        assertTrue(typeReg.getSerializer(TeLspCase.class) instanceof TeLspNlriSerializer);
 
         act.close();
     }

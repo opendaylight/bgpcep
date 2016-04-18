@@ -18,14 +18,19 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.linkstate.attribute.sr.BindingSidLabelParser;
-import org.opendaylight.protocol.bgp.linkstate.attribute.sr.Ipv6SrPrefixAttributesParser;
-import org.opendaylight.protocol.bgp.linkstate.attribute.sr.RangeTlvParser;
-import org.opendaylight.protocol.bgp.linkstate.attribute.sr.SidLabelIndexParser;
-import org.opendaylight.protocol.bgp.linkstate.attribute.sr.SrLinkAttributesParser;
-import org.opendaylight.protocol.bgp.linkstate.attribute.sr.SrNodeAttributesParser;
-import org.opendaylight.protocol.bgp.linkstate.attribute.sr.SrPrefixAttributesParser;
+import org.opendaylight.protocol.bgp.linkstate.impl.BGPActivator;
+import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.BindingSidLabelParser;
+import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.Ipv6SrPrefixAttributesParser;
+import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.RangeTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SidLabelIndexParser;
+import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrLinkAttributesParser;
+import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrNodeAttributesParser;
+import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrPrefixAttributesParser;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
+import org.opendaylight.protocol.rsvp.parser.spi.pojo.ServiceLoaderRSVPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -107,6 +112,13 @@ public class SrAttributeParserTest {
     private static final OspfAdjFlagsCase OSPF_LAN_ADJ_FLAGS = new OspfAdjFlagsCaseBuilder()
         .setBackup(Boolean.FALSE)
         .setSet(Boolean.FALSE).build();
+
+    @Before
+    public void setUp() throws Exception {
+        final BGPActivator act = new BGPActivator(true, ServiceLoaderRSVPExtensionProviderContext.getSingletonInstance().getRsvpRegistry());
+        final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
+        act.start(context);
+    }
 
     @Test
     public void testSrAlgorithm() {
@@ -191,7 +203,7 @@ public class SrAttributeParserTest {
         };
         final SrRange parsedRange = RangeTlvParser.parseSrRange(Unpooled.wrappedBuffer(tested), ProtocolId.IsisLevel1);
 
-        final List<SubTlvs> rangeSubTlvs = new ArrayList<SubTlvs>();
+        final List<SubTlvs> rangeSubTlvs = new ArrayList<>();
         addSubTlvs(rangeSubTlvs);
         final SrRange expected = new SrRangeBuilder().setInterArea(Boolean.FALSE).setRangeSize(5).setSubTlvs(rangeSubTlvs).build();
 
@@ -211,7 +223,7 @@ public class SrAttributeParserTest {
                 .setFlags(ISIS_PREFIX_FLAGS)
                 .setAlgorithm(Algorithm.StrictShortestPathFirst)
                 .setSidLabelIndex(new LocalLabelCaseBuilder().setLocalLabel(new MplsLabel(66048L)).build()).build()).build());
-        final List<BindingSubTlvs> bindingSubTlvs = new ArrayList<BindingSubTlvs>();
+        final List<BindingSubTlvs> bindingSubTlvs = new ArrayList<>();
         addBindingSubTlvs(bindingSubTlvs);
         rangeSubTlvs.add(new SubTlvsBuilder().setRangeSubTlv(
             new BindingSidTlvCaseBuilder()
@@ -253,8 +265,8 @@ public class SrAttributeParserTest {
             );
         final SrRange parsedRange = RangeTlvParser.parseSrRange(Unpooled.wrappedBuffer(tested), ProtocolId.IsisLevel1);
 
-        final List<SubTlvs> rangeSubTlvs = new ArrayList<SubTlvs>();
-        final List<BindingSubTlvs> bindingSubTlvs = new ArrayList<BindingSubTlvs>();
+        final List<SubTlvs> rangeSubTlvs = new ArrayList<>();
+        final List<BindingSubTlvs> bindingSubTlvs = new ArrayList<>();
         bindingSubTlvs.add(new BindingSubTlvsBuilder().setBindingSubTlv(
             new Ipv6EroCaseBuilder().setLoose(Boolean.FALSE).setAddress(new Ipv6Address(IPV6_A)).build()).build());
         bindingSubTlvs.add(new BindingSubTlvsBuilder().setBindingSubTlv(

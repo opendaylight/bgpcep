@@ -115,7 +115,7 @@ public class ParserToSalTest extends AbstractDataBrokerTest {
         this.ext1 = new SimpleRIBExtensionProviderContext();
         this.ext2 = new SimpleRIBExtensionProviderContext();
         this.baseact = new RIBActivator();
-        this.lsact = new org.opendaylight.protocol.bgp.linkstate.RIBActivator();
+        this.lsact = new org.opendaylight.protocol.bgp.linkstate.impl.RIBActivator();
 
         this.baseact.startRIBExtensionProvider(this.ext1);
         this.lsact.startRIBExtensionProvider(this.ext2);

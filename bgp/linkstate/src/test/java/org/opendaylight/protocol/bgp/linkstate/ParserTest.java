@@ -98,11 +98,11 @@ public class ParserTest {
     /**
      * Used by other tests as well
      */
-    static final List<byte[]> inputBytes = new ArrayList<byte[]>();
+    private static final List<byte[]> inputBytes = new ArrayList<>();
 
-    private static int COUNTER = 4;
+    private static final int COUNTER = 4;
 
-    private static int MAX_SIZE = 300;
+    private static final int MAX_SIZE = 300;
 
     private static BGPUpdateMessageParser updateParser;
 
@@ -119,7 +119,7 @@ public class ParserTest {
                 }
                 final ByteArrayOutputStream bis = new ByteArrayOutputStream();
                 final byte[] data = new byte[MAX_SIZE];
-                int nRead = 0;
+                int nRead;
                 while ((nRead = is.read(data, 0, data.length)) != -1) {
                     bis.write(data, 0, nRead);
                 }
