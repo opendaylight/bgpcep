@@ -16,6 +16,24 @@
       "revId": "720ef4825f9a1a0ecbe7b98f442a66967e9d4227",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_ae3d0fbe",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/cli/utils/BgpCliUtils.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-18T20:32:40Z",
+      "side": 1,
+      "message": "Do not use System.out, rather pass PrintStream as an input parameter.",
+      "parentUuid": "fa57193c_23cc7835",
+      "revId": "720ef4825f9a1a0ecbe7b98f442a66967e9d4227",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
