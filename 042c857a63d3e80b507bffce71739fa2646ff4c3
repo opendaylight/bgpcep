@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_7d41f30a",
+        "filename": "bgp/inet/src/main/yang/bgp-inet.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-18T08:48:39Z",
+      "side": 1,
+      "message": "Consider future enhancement: leaf \"path-id\" is repeated over and over again, probably should be defined in grouping and reused, consequently it might bring some simplification in path-id handling.",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 9
+      },
+      "revId": "042c857a63d3e80b507bffce71739fa2646ff4c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_1d3c3793",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateRIBSupport.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-18T08:48:39Z",
+      "side": 1,
+      "message": "should be default behavior",
+      "range": {
+        "startLine": 214,
+        "startChar": 0,
+        "endLine": 223,
+        "endChar": 5
+      },
+      "revId": "042c857a63d3e80b507bffce71739fa2646ff4c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
