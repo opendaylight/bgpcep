@@ -22,6 +22,30 @@
       "revId": "5eb92634d680356514b7c0d0eea77a6e96294669",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_ba53916b",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/Ipv6NlriParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-18T05:54:04Z",
+      "side": 0,
+      "message": "Yes, we do - WithdrawnRoutesSerializer and AdvertizedRoutesSerializer.",
+      "parentUuid": "1a494da4_934ae281",
+      "range": {
+        "startLine": 28,
+        "startChar": 33,
+        "endLine": 28,
+        "endChar": 55
+      },
+      "revId": "5eb92634d680356514b7c0d0eea77a6e96294669",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
