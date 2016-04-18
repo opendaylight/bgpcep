@@ -20,7 +20,10 @@ import java.util.Collection;
 import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.linkstate.nlri.LinkstateNlriParser;
+import org.opendaylight.protocol.bgp.linkstate.impl.BGPActivator;
+import org.opendaylight.protocol.bgp.linkstate.impl.LinkstateRIBSupport;
+import org.opendaylight.protocol.bgp.linkstate.impl.nlri.LinkstateNlriParser;
+import org.opendaylight.protocol.bgp.linkstate.spi.pojo.SimpleNlriTypeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
@@ -101,7 +104,7 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest {
         assertEquals(LinkstateAddressFamily.class, context.getAddressFamilyRegistry().classForFamily(16388));
         assertEquals(LinkstateSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry().classForFamily(71));
         final ByteBuf buffer = Unpooled.buffer();
-        LinkstateNlriParser.serializeNlri(LINKSTATE_DESTINATION, buffer);
+        SimpleNlriTypeRegistry.getInstance().serializeNlriType(LINKSTATE_DESTINATION, buffer);
         final byte[] arrayKey = ByteArray.readAllBytes(buffer);
         ROUTE_KEY = new LinkstateRouteKey(arrayKey);
         ROUTE = new LinkstateRouteBuilder().setKey(ROUTE_KEY).setDistinguisher(RD).setIdentifier(ID).setObjectType(OBJECT_TYPE2)

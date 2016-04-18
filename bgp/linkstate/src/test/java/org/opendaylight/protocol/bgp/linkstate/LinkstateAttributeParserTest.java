@@ -20,10 +20,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.linkstate.attribute.LinkAttributesParser;
-import org.opendaylight.protocol.bgp.linkstate.attribute.LinkstateAttributeParser;
-import org.opendaylight.protocol.bgp.linkstate.attribute.NodeAttributesParser;
-import org.opendaylight.protocol.bgp.linkstate.attribute.PrefixAttributesParser;
+import org.opendaylight.protocol.bgp.linkstate.impl.attribute.LinkAttributesParser;
+import org.opendaylight.protocol.bgp.linkstate.impl.attribute.LinkstateAttributeParser;
+import org.opendaylight.protocol.bgp.linkstate.impl.attribute.NodeAttributesParser;
+import org.opendaylight.protocol.bgp.linkstate.impl.attribute.PrefixAttributesParser;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.rsvp.parser.impl.RSVPActivator;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionProviderContext;
@@ -65,13 +65,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.Weight;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.Flags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.IsisAdjFlagsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.adj.flags.flags.IsisAdjFlagsCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.sid.label.index.LocalLabelCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.sid.label.index.SidCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev151014.sid.label.index.sid.label.index.SidCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.AssociationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.association.object.AssociationObject;
@@ -79,7 +76,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 
 public class LinkstateAttributeParserTest {
 
-    static final byte[] TE_LSP_ATTR = {0x00, (byte) 0x63, 0x00, (byte) 0x30, // TE LSP Attribute Type, lenght, value
+    private static final byte[] TE_LSP_ATTR = {0x00, (byte) 0x63, 0x00, (byte) 0x30, // TE LSP Attribute Type, lenght, value
         0x00, (byte) 0x20, (byte) 0x0c, 0x02,  // Lenght, Class, Ctype
         0x00, 0x00, 0x00, 0x07,
         0x01, 0x00, 0x00, 0x06,
@@ -269,7 +266,8 @@ public class LinkstateAttributeParserTest {
 
     @Test
     public void testPositiveV4Prefixes() throws BGPParsingException {
-        final AttributesBuilder builder = createUnreachBuilder(new PrefixCaseBuilder().setPrefixDescriptors(new PrefixDescriptorsBuilder().setIpReachabilityInformation(new IpPrefix(new Ipv4Prefix("127.0.0.1/32"))).build()).build());
+        final AttributesBuilder builder = createUnreachBuilder(new PrefixCaseBuilder().setPrefixDescriptors(
+            new PrefixDescriptorsBuilder().setIpReachabilityInformation(new IpPrefix(new Ipv4Prefix("127.0.0.1/32"))).build()).build());
         this.parser.parseAttribute(Unpooled.copiedBuffer(P4_ATTR), builder);
 
         final Attributes1 attrs = builder.getAugmentation(Attributes1.class);

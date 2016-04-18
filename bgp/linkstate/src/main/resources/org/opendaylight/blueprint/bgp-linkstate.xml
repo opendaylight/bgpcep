@@ -7,7 +7,7 @@
   <odl:clustered-app-config id="linkStateAppConfig"
       binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.linkstate.app.config.rev160614.BgpLinkstateAppConfig"/>
 
-  <bean id="BGPActivator" class="org.opendaylight.protocol.bgp.linkstate.BGPActivator">
+  <bean id="BGPActivator" class="org.opendaylight.protocol.bgp.linkstate.impl.BGPActivator">
     <argument>
       <bean factory-ref="linkStateAppConfig" factory-method="isIanaLinkstateAttributeType"/>
     </argument>
@@ -16,11 +16,11 @@
     </argument>
   </bean>
 
-  <bean id="RIBActivator" class="org.opendaylight.protocol.bgp.linkstate.RIBActivator"/>
+  <bean id="RIBActivator" class="org.opendaylight.protocol.bgp.linkstate.impl.RIBActivator"/>
 
   <service ref="BGPActivator" interface="org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator"
-          odl:type="org.opendaylight.protocol.bgp.linkstate.BGPActivator"/>
+          odl:type="org.opendaylight.protocol.bgp.linkstate.impl.BGPActivator"/>
 
   <service ref="RIBActivator" interface="org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator"
-          odl:type="org.opendaylight.protocol.bgp.linkstate.RIBActivator"/>
+          odl:type="org.opendaylight.protocol.bgp.linkstate.impl.RIBActivator"/>
 </blueprint>

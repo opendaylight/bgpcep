@@ -10,6 +10,8 @@ package org.opendaylight.protocol.bgp.linkstate;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.opendaylight.protocol.bgp.linkstate.impl.tlvs.OspfRouteTlvParser.OSPF_ROUTE_NID;
+import static org.opendaylight.protocol.bgp.linkstate.impl.tlvs.ReachTlvParser.IP_REACH_NID;
 
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
@@ -17,24 +19,22 @@ import io.netty.buffer.Unpooled;
 import java.math.BigInteger;
 import java.util.List;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.linkstate.nlri.LinkNlriParser;
-import org.opendaylight.protocol.bgp.linkstate.nlri.LinkstateNlriParser;
-import org.opendaylight.protocol.bgp.linkstate.nlri.NodeNlriParser;
-import org.opendaylight.protocol.bgp.linkstate.nlri.PrefixIpv4NlriParser;
-import org.opendaylight.protocol.bgp.linkstate.nlri.PrefixIpv6NlriParser;
-import org.opendaylight.protocol.bgp.linkstate.nlri.PrefixNlriSerializer;
-import org.opendaylight.protocol.bgp.linkstate.nlri.SimpleNlriTypeRegistry;
-import org.opendaylight.protocol.bgp.linkstate.nlri.TeLspIpv4NlriParser;
-import org.opendaylight.protocol.bgp.linkstate.nlri.TeLspIpv6NlriParser;
-import org.opendaylight.protocol.bgp.linkstate.nlri.TeLspNlriSerializer;
+import org.opendaylight.protocol.bgp.linkstate.impl.BGPActivator;
+import org.opendaylight.protocol.bgp.linkstate.spi.AbstractTeLspNlriCodec;
+import org.opendaylight.protocol.bgp.linkstate.impl.nlri.LinkNlriParser;
+import org.opendaylight.protocol.bgp.linkstate.impl.nlri.LinkstateNlriParser;
+import org.opendaylight.protocol.bgp.linkstate.impl.nlri.NodeNlriParser;
+import org.opendaylight.protocol.bgp.linkstate.spi.pojo.SimpleNlriTypeRegistry;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
+import org.opendaylight.protocol.rsvp.parser.spi.pojo.ServiceLoaderRSVPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.DomainIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.OspfRouteType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.TopologyIdentifier;
@@ -131,7 +131,7 @@ public class LinkstateNlriParserTest {
         (byte) 0x00, (byte) 0x03, (byte) 0x10, (byte) 0xFF, (byte) 0xFF };
 
     private final byte[] teLspNlri = new byte[] { (byte) 0x00, (byte) 0x05, //NLRI Type Te-IPV4
-        (byte) 0x00, (byte) 0x12, // length
+        (byte) 0x00, (byte) 0x15, // length
         (byte) 0x08,    //Protocol-ID
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01, // Identifier
         (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, //IPv4 Tunnel Sender Address
@@ -140,37 +140,15 @@ public class LinkstateNlriParserTest {
         (byte) 0x04, (byte) 0x03, (byte) 0x02, (byte) 0x01 }; // IPv4 Tunnel End-point Address
 
     private CLinkstateDestination dest;
+    private SimpleNlriTypeRegistry registry;
 
     private void setUp(final byte[] data) throws BGPParsingException {
-        final LinkstateNlriParser parser = new LinkstateNlriParser(false);
+        final LinkstateNlriParser parser = new LinkstateNlriParser();
         final MpReachNlriBuilder builder = new MpReachNlriBuilder();
-        final SimpleNlriTypeRegistry testreg = SimpleNlriTypeRegistry.getInstance();
-
-        final NodeNlriParser nodeParser = new NodeNlriParser();
-        testreg.registerNlriTypeParser(NlriType.Node, nodeParser);
-        testreg.registerNlriTypeSerializer(NodeCase.class, nodeParser);
-
-        final LinkNlriParser linkParser = new LinkNlriParser();
-        testreg.registerNlriTypeParser(NlriType.Link, linkParser);
-        testreg.registerNlriTypeSerializer(LinkCase.class, linkParser);
-
-        final PrefixIpv4NlriParser ipv4PrefParser = new PrefixIpv4NlriParser();
-        testreg.registerNlriTypeParser(NlriType.Ipv4Prefix, ipv4PrefParser);
-
-        final PrefixIpv6NlriParser ipv6PrefParser = new PrefixIpv6NlriParser();
-        testreg.registerNlriTypeParser(NlriType.Ipv6Prefix, ipv6PrefParser);
-
-        final TeLspIpv4NlriParser telSPipv4Parser = new TeLspIpv4NlriParser();
-        testreg.registerNlriTypeParser(NlriType.Ipv4TeLsp, telSPipv4Parser);
-
-        final TeLspIpv6NlriParser telSPipv6Parser = new TeLspIpv6NlriParser();
-        testreg.registerNlriTypeParser(NlriType.Ipv6TeLsp, telSPipv6Parser);
-
-        final PrefixNlriSerializer prefixSerializer = new PrefixNlriSerializer();
-        testreg.registerNlriTypeSerializer(PrefixCase.class, prefixSerializer);
-
-        final TeLspNlriSerializer telSpSerializer = new TeLspNlriSerializer();
-        testreg.registerNlriTypeSerializer(TeLspCase.class, telSpSerializer);
+        this.registry = SimpleNlriTypeRegistry.getInstance();
+        final BGPActivator act = new BGPActivator(true, ServiceLoaderRSVPExtensionProviderContext.getSingletonInstance().getRsvpRegistry());
+        final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
+        act.start(context);
 
         parser.parseNlri(Unpooled.copiedBuffer(data), builder);
 
@@ -198,7 +176,7 @@ public class LinkstateNlriParserTest {
                new IsIsRouterIdentifierBuilder().setIsoSystemId(new IsoSystemIdentifier(new byte[] { 0, 0, 0, 0, 0, (byte) 0x39 })).build()).build()).build(), nodeD.getCRouterIdentifier());
 
         final ByteBuf buffer = Unpooled.buffer();
-        LinkstateNlriParser.serializeNlri(this.dest, buffer);
+        this.registry.serializeNlriType(this.dest, buffer);
         assertArrayEquals(this.nodeNlri, ByteArray.readAllBytes(buffer));
 
         // test BI form
@@ -296,7 +274,7 @@ public class LinkstateNlriParserTest {
         assertEquals("197.20.160.40", ld.getIpv4NeighborAddress().getValue());
 
         final ByteBuf buffer = Unpooled.buffer();
-        LinkstateNlriParser.serializeNlri(this.dest, buffer);
+        this.registry.serializeNlriType(this.dest, buffer);
         assertArrayEquals(this.linkNlri, ByteArray.readAllBytes(buffer));
 
         // test BI form
@@ -447,7 +425,7 @@ public class LinkstateNlriParserTest {
         assertEquals(new Ipv4Prefix("255.255.0.0/16"), pd.getIpReachabilityInformation().getIpv4Prefix());
 
         final ByteBuf buffer = Unpooled.buffer();
-        LinkstateNlriParser.serializeNlri(this.dest, buffer);
+        this.registry.serializeNlriType(this.dest, buffer);
         assertArrayEquals(this.prefixNlri, ByteArray.readAllBytes(buffer));
 
         // test BI form
@@ -508,13 +486,13 @@ public class LinkstateNlriParserTest {
         prefixDescriptors.addChild(multiTopologyId.build());
 
         final ImmutableLeafNodeBuilder<String> ipReachabilityInformation = new ImmutableLeafNodeBuilder<>();
-        ipReachabilityInformation.withNodeIdentifier(PrefixIpv4NlriParser.IP_REACH_NID);
+        ipReachabilityInformation.withNodeIdentifier(IP_REACH_NID);
         ipReachabilityInformation.withValue("255.255.0.0/16");
 
         prefixDescriptors.addChild(ipReachabilityInformation.build());
 
         final ImmutableLeafNodeBuilder<String> ospfRouteType = new ImmutableLeafNodeBuilder<>();
-        ospfRouteType.withNodeIdentifier(PrefixIpv4NlriParser.OSPF_ROUTE_NID);
+        ospfRouteType.withNodeIdentifier(OSPF_ROUTE_NID);
         ospfRouteType.withValue("external1");
 
         prefixDescriptors.addChild(ospfRouteType.build());
@@ -558,22 +536,22 @@ public class LinkstateNlriParserTest {
         objectType.withNodeIdentifier(LinkstateNlriParser.OBJECT_TYPE_NID);
 
         final ImmutableLeafNodeBuilder<Long> lspId = new ImmutableLeafNodeBuilder<>();
-        lspId.withNodeIdentifier(TeLspNlriSerializer.LSP_ID);
+        lspId.withNodeIdentifier(AbstractTeLspNlriCodec.LSP_ID);
         lspId.withValue(1L);
 
         final ImmutableLeafNodeBuilder<Integer> tunnelId = new ImmutableLeafNodeBuilder<>();
-        tunnelId.withNodeIdentifier(TeLspNlriSerializer.TUNNEL_ID);
+        tunnelId.withNodeIdentifier(AbstractTeLspNlriCodec.TUNNEL_ID);
         tunnelId.withValue(1);
 
         final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> addressFamily = Builders.choiceBuilder();
-        addressFamily.withNodeIdentifier(TeLspNlriSerializer.ADDRESS_FAMILY);
+        addressFamily.withNodeIdentifier(AbstractTeLspNlriCodec.ADDRESS_FAMILY);
 
         final ImmutableLeafNodeBuilder<String> ipv4TunnelSenderAddress = new ImmutableLeafNodeBuilder<>();
-        ipv4TunnelSenderAddress.withNodeIdentifier(TeLspNlriSerializer.IPV4_TUNNEL_SENDER_ADDRESS);
+        ipv4TunnelSenderAddress.withNodeIdentifier(AbstractTeLspNlriCodec.IPV4_TUNNEL_SENDER_ADDRESS);
         ipv4TunnelSenderAddress.withValue("1.2.3.4");
 
         final ImmutableLeafNodeBuilder<String> ipv4TunnelEndPointAddress = new ImmutableLeafNodeBuilder<>();
-        ipv4TunnelEndPointAddress.withNodeIdentifier(TeLspNlriSerializer.IPV4_TUNNEL_ENDPOINT_ADDRESS);
+        ipv4TunnelEndPointAddress.withNodeIdentifier(AbstractTeLspNlriCodec.IPV4_TUNNEL_ENDPOINT_ADDRESS);
         ipv4TunnelEndPointAddress.withValue("4.3.2.1");
 
         addressFamily.addChild(ipv4TunnelSenderAddress.build());
@@ -588,7 +566,7 @@ public class LinkstateNlriParserTest {
     }
     @Test
     public void testSerializeAttribute() throws BGPParsingException {
-        final LinkstateNlriParser parser = new LinkstateNlriParser(true);
+        final LinkstateNlriParser parser = new LinkstateNlriParser();
         setUp(this.prefixNlri);
         final List<CLinkstateDestination> dests = Lists.newArrayList(this.dest);
         final DestinationLinkstateCase dlc = new DestinationLinkstateCaseBuilder().setDestinationLinkstate(new DestinationLinkstateBuilder().setCLinkstateDestination(dests).build()).build();
