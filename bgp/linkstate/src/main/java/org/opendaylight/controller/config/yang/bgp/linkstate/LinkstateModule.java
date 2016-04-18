@@ -16,8 +16,8 @@
  */
 package org.opendaylight.controller.config.yang.bgp.linkstate;
 
-import org.opendaylight.protocol.bgp.linkstate.BGPActivator;
-import org.opendaylight.protocol.bgp.linkstate.RIBActivator;
+import org.opendaylight.protocol.bgp.linkstate.impl.BGPActivator;
+import org.opendaylight.protocol.bgp.linkstate.impl.RIBActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
