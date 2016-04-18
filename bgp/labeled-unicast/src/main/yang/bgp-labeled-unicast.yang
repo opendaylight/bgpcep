@@ -36,6 +36,12 @@ module bgp-labeled-unicast {
         base bgp-t:subsequent-address-family;
     }
 
+    typedef srgb {
+        type uint32 {
+            range "0..16777215";
+        }
+    }
+
     grouping label {
         reference "https://tools.ietf.org/html/rfc3032#section-2.1";
         description
@@ -75,7 +81,13 @@ module bgp-labeled-unicast {
                 }
                 key "route-key";
                 uses labeled-unicast;
-                uses bgp-rib:route;
+                uses bgp-rib:route {
+                    augment "attributes/bgp-prefix-sid" {
+                        case lu-bgp-prefix-sid {
+                            uses lu-bgp-prefix-sid;
+                        }
+                    }
+                }
             }
         }
     }
@@ -135,6 +147,33 @@ module bgp-labeled-unicast {
     augment "/bmp-mon:bmp-monitor/bmp-mon:monitor/bmp-mon:router/bmp-mon:peer/bmp-mon:post-policy-rib/bmp-mon:tables/bmp-mon:routes" {
         case labeled-unicast-routes-case {
             uses labeled-unicast-routes;
+        }
+    }
+
+    grouping originator-srgb-tlvs {
+        list srgb-value {
+            leaf base {
+                type srgb;
+            }
+            leaf range {
+                type srgb;
+            }
+        }
+    }
+
+    grouping lu-bgp-prefix-sid {
+        reference "https://tools.ietf.org/html/draft-ietf-idr-bgp-prefix-sid-02";
+        leaf label-index-tlv {
+            type uint32;
+        }
+        container originator-srgb-tlvs {
+            uses originator-srgb-tlvs;
+        }
+    }
+
+    augment "/bgp-msg:update/bgp-msg:attributes/bgp-msg:bgp-prefix-sid" {
+        case lu-bgp-prefix-sid {
+            uses lu-bgp-prefix-sid;
         }
     }
 }

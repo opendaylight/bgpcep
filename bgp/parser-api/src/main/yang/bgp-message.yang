@@ -177,6 +177,10 @@ module bgp-message {
                     mandatory true;
                 }
             }
+            choice bgp-prefix-sid {
+                reference "https://tools.ietf.org/html/draft-ietf-idr-bgp-prefix-sid-02";
+                // to be augmented
+            }
         }
     }
 
