@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_ae0fcf2d",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/NlriParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-04-18T19:10:13Z",
+      "side": 1,
+      "message": "Wouldn\u0027t be better to deprecate this methods, and made them default and call the other methods passing null constraint, since its already nullable.",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 106
+      },
+      "revId": "1f3e6d39f7e73cbf8f6ecf870abc58df12a49627",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
