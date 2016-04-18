@@ -9,21 +9,23 @@ package org.opendaylight.protocol.bgp.linkstate.nlri;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import java.util.Map;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
-import org.opendaylight.protocol.util.ByteBufWriteUtil;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.AbstractIpReachTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.MultiTopoIdTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.OspfRouteTlvParser;
 import org.opendaylight.protocol.util.Ipv4Util;
-import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.OspfRouteType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.TopologyIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.CLinkstateDestination;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.ObjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.PrefixCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.PrefixCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.AdvertisingNodeDescriptors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.AdvertisingNodeDescriptorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.PrefixDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.PrefixDescriptorsBuilder;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -34,47 +36,18 @@ import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class PrefixNlriSerializer implements NlriTypeCaseSerializer {
+public abstract class AbstractPrefixNlriParser extends AbstractNlriTypeCodec {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PrefixNlriSerializer.class);
-
-
-    /* Prefix Descriptor TLVs */
-    private static final int OSPF_ROUTE_TYPE = 264;
-    private static final int IP_REACHABILITY = 265;
-
-    /* Node Descriptor Type */
-    private static final int LOCAL_NODE_DESCRIPTORS_TYPE = 256;
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractPrefixNlriParser.class);
 
     /* Prefix Descriptor QNames */
     @VisibleForTesting
-    public static final NodeIdentifier OSPF_ROUTE_NID = new NodeIdentifier(QName.create(PrefixDescriptors.QNAME, "ospf-route-type").intern());
+    public static final NodeIdentifier OSPF_ROUTE_NID = new NodeIdentifier(OspfRouteTlvParser.OSPF_ROUTE_TYPE_QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier IP_REACH_NID = new NodeIdentifier(QName.create(PrefixDescriptors.QNAME, "ip-reachability-information").intern());
+    public static final NodeIdentifier IP_REACH_NID = new NodeIdentifier(AbstractIpReachTlvParser.IP_REACHABILITY_QNAME);
 
-    static void serializePrefixDescriptors(final PrefixDescriptors descriptors, final ByteBuf buffer) {
-        if (descriptors.getMultiTopologyId() != null) {
-            TlvUtil.writeTLV(TlvUtil.MULTI_TOPOLOGY_ID, Unpooled.copyShort(descriptors.getMultiTopologyId().getValue()), buffer);
-        }
-        if (descriptors.getOspfRouteType() != null) {
-            TlvUtil.writeTLV(OSPF_ROUTE_TYPE,
-                Unpooled.wrappedBuffer(new byte[] { UnsignedBytes.checkedCast(descriptors.getOspfRouteType().getIntValue()) }), buffer);
-        }
-        if (descriptors.getIpReachabilityInformation() != null) {
-            final IpPrefix prefix = descriptors.getIpReachabilityInformation();
-
-            final ByteBuf buf;
-            if (prefix.getIpv4Prefix() != null) {
-                buf = Unpooled.buffer(Ipv4Util.IP4_LENGTH + 1);
-                ByteBufWriteUtil.writeMinimalPrefix(prefix.getIpv4Prefix(), buf);
-            } else if (prefix.getIpv6Prefix() != null) {
-                buf = Unpooled.buffer(Ipv6Util.IPV6_LENGTH + 1);
-                ByteBufWriteUtil.writeMinimalPrefix(prefix.getIpv6Prefix(), buf);
-            } else {
-                buf = null;
-            }
-            TlvUtil.writeTLV(IP_REACHABILITY, buf, buffer);
-        }
+    public AbstractPrefixNlriParser(final SimpleNlriTypeRegistry registry) {
+        super(registry);
     }
 
     // FIXME : use codec
@@ -95,6 +68,38 @@ public final class PrefixNlriSerializer implements NlriTypeCaseSerializer {
         default:
             return 0;
         }
+    }
+
+    @Override
+    protected final ObjectType parseObjectType(final ByteBuf buffer) {
+        final PrefixCaseBuilder builder = new PrefixCaseBuilder();
+        builder.setAdvertisingNodeDescriptors(new AdvertisingNodeDescriptorsBuilder((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier)this.registry.parseTlv(buffer)).build());
+        builder.setPrefixDescriptors(parsePrefixDescriptor(buffer));
+        return builder.build();
+    }
+
+    @Override
+    protected final void serializeObjectType(final ObjectType objectType, final ByteBuf buffer) {
+        final PrefixCase prefix = (PrefixCase) objectType;
+        this.registry.serializeTlv(AdvertisingNodeDescriptors.QNAME, prefix.getAdvertisingNodeDescriptors(), buffer);
+        serializePrefixDescriptor(prefix.getPrefixDescriptors(), buffer);
+    }
+
+    protected abstract IpPrefix parseIpReachability(final Map<QName, Object> tlvs);
+
+    private PrefixDescriptors parsePrefixDescriptor(final ByteBuf buffer) {
+        final Map<QName, Object> tlvs = this.registry.parseSubTlvs(buffer);
+        final PrefixDescriptorsBuilder builder = new PrefixDescriptorsBuilder();
+        builder.setMultiTopologyId((TopologyIdentifier) tlvs.get(MultiTopoIdTlvParser.MULTI_TOPOLOGY_ID_QNAME));
+        builder.setOspfRouteType((OspfRouteType) tlvs.get(OspfRouteTlvParser.OSPF_ROUTE_TYPE_QNAME));
+        builder.setIpReachabilityInformation(parseIpReachability(tlvs));
+        return builder.build();
+    }
+
+    private void serializePrefixDescriptor(final PrefixDescriptors tlv, final ByteBuf buffer) {
+        this.registry.serializeTlv(MultiTopoIdTlvParser.MULTI_TOPOLOGY_ID_QNAME, tlv.getMultiTopologyId(), buffer);
+        this.registry.serializeTlv(OspfRouteTlvParser.OSPF_ROUTE_TYPE_QNAME, tlv.getOspfRouteType(), buffer);
+        this.registry.serializeTlv(AbstractIpReachTlvParser.IP_REACHABILITY_QNAME, tlv.getIpReachabilityInformation(), buffer);
     }
 
     public static PrefixDescriptors serializePrefixDescriptors(final ContainerNode prefixDesc) {
@@ -119,21 +124,4 @@ public final class PrefixNlriSerializer implements NlriTypeCaseSerializer {
         }
         return prefixDescBuilder.build();
     }
-
-    @Override
-    public NlriType serializeTypeNlri(final CLinkstateDestination destination, final ByteBuf localdescs, final ByteBuf byteAggregator)  {
-        final PrefixCase pCase = ((PrefixCase)destination.getObjectType());
-        NodeNlriParser.serializeNodeIdentifier(pCase.getAdvertisingNodeDescriptors(), localdescs);
-        TlvUtil.writeTLV(LOCAL_NODE_DESCRIPTORS_TYPE, localdescs, byteAggregator);
-        if (pCase.getPrefixDescriptors() != null) {
-            serializePrefixDescriptors(pCase.getPrefixDescriptors(), byteAggregator);
-            if (pCase.getPrefixDescriptors().getIpReachabilityInformation().getIpv4Prefix() != null) {
-                return NlriType.Ipv4Prefix;
-            } else {
-                return NlriType.Ipv6Prefix;
-            }
-        }
-        return null;
-    }
-
 }

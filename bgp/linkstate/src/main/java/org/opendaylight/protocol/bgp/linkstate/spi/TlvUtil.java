@@ -45,20 +45,4 @@ public final class TlvUtil {
             LOG.debug("Serialized tlv type {} to: {}", type, ByteBufUtil.hexDump(value));
         }
     }
-
-    /**
-     * Util method for writing Segment routing TLV header.
-     * @param type TLV type (1B)
-     * @param value TLV value (1B)
-     * @param byteAggregator final ByteBuf where the tlv should be serialized
-     */
-    public static void writeSrTLV(final int type, final ByteBuf value, final ByteBuf byteAggregator){
-        byteAggregator.writeByte(type);
-        byteAggregator.writeByte(value.writerIndex());
-        byteAggregator.writeBytes(value);
-        if (LOG.isDebugEnabled()) {
-            value.readerIndex(0);
-            LOG.debug("Serialized tlv type {} to: {}", type, ByteBufUtil.hexDump(value));
-        }
-    }
 }

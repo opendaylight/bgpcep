@@ -18,6 +18,7 @@ import java.util.List;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.linkstate.nlri.LinkstateNlriParser;
+import org.opendaylight.protocol.bgp.linkstate.nlri.SimpleNlriTypeRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
@@ -91,7 +92,7 @@ final class LinkstateRIBSupport extends AbstractRIBSupport {
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateRIBSupport.class);
 
     private static final QName ROUTE_KEY = QName.create(LinkstateRoute.QNAME, "route-key").intern();
-    private static final LinkstateRIBSupport SINGLETON = new LinkstateRIBSupport();
+    private static final LinkstateRIBSupport SINGLETON = new LinkstateRIBSupport(SimpleNlriTypeRegistry.getInstance());
     private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
 
     private final ChoiceNode emptyRoutes = Builders.choiceBuilder()
@@ -104,8 +105,11 @@ final class LinkstateRIBSupport extends AbstractRIBSupport {
     private final NodeIdentifier nlriRoutesList = new NodeIdentifier(CLinkstateDestination.QNAME);
     private final ApplyRoute putRoute = new PutRoute();
 
-    private LinkstateRIBSupport() {
-       super(LinkstateRoutesCase.class, LinkstateRoutes.class, LinkstateRoute.class);
+    private final SimpleNlriTypeRegistry registry;
+
+    private LinkstateRIBSupport(final SimpleNlriTypeRegistry registry) {
+        super(LinkstateRoutesCase.class, LinkstateRoutes.class, LinkstateRoute.class);
+        this.registry = registry;
     }
 
     static LinkstateRIBSupport getInstance() {
@@ -161,7 +165,7 @@ final class LinkstateRIBSupport extends AbstractRIBSupport {
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode linkstate) {
         final ByteBuf buffer = Unpooled.buffer();
         final CLinkstateDestination cLinkstateDestination = LinkstateNlriParser.extractLinkstateDestination(linkstate);
-        LinkstateNlriParser.serializeNlri(cLinkstateDestination, buffer);
+        this.registry.serializeNlriType(cLinkstateDestination, buffer);
 
         return new NodeIdentifierWithPredicates(LinkstateRoute.QNAME, ROUTE_KEY, ByteArray.readAllBytes(buffer));
     }

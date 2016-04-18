@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.linkstate.nlri;
 
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.CLinkstateDestination;
 
 /**
@@ -16,6 +15,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
  */
 public interface NlriTypeCaseSerializer {
 
-    NlriType serializeTypeNlri(CLinkstateDestination destination, ByteBuf localdescs, ByteBuf byteAggregator);
+    void serializeTypeNlri(CLinkstateDestination nlriType, ByteBuf byteAggregator);
+
+    int getNlriType();
 
 }
