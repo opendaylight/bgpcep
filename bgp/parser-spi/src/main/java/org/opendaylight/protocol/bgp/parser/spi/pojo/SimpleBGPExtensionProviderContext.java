@@ -14,6 +14,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.BgpPrefixSidTlvParser;
+import org.opendaylight.protocol.bgp.parser.spi.BgpPrefixSidTlvSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityParser;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
@@ -27,6 +29,7 @@ import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommu
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.bgp.prefix.sid.bgp.prefix.sid.tlvs.BgpPrefixSidTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
@@ -114,8 +117,8 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
 
     @Override
     public AutoCloseable registerNlriParser(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi,
-            final NlriParser parser, final NextHopParserSerializer nextHopParserSerializer, final Class<? extends
-        CNextHop> cNextHopClass, final Class<? extends CNextHop>... cNextHopClassList) {
+        final NlriParser parser, final NextHopParserSerializer nextHopParserSerializer, final Class<? extends
+            CNextHop> cNextHopClass, final Class<? extends CNextHop>... cNextHopClassList) {
         return this.getNlriRegistry().registerNlriParser(afi, safi, parser, nextHopParserSerializer, cNextHopClass);
     }
 
@@ -158,12 +161,22 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
 
     @Override
     public AutoCloseable registerExtendedCommunitySerializer(final Class<? extends ExtendedCommunity> extendedCommunityClass,
-            final ExtendedCommunitySerializer serializer) {
+        final ExtendedCommunitySerializer serializer) {
         return this.getExtendedCommunityReistry().registerExtendedCommunitySerializer(extendedCommunityClass, serializer);
     }
 
     @Override
     public AutoCloseable registerExtendedCommunityParser(final int type, final int subtype, final ExtendedCommunityParser parser) {
         return this.getExtendedCommunityReistry().registerExtendedCommunityParser(type, subtype, parser);
+    }
+
+    @Override
+    public AutoCloseable registerBgpPrefixSidTlvParser(final int tlvType, final BgpPrefixSidTlvParser parser) {
+        return this.getBgpPrefixSidTlvRegistry().registerBgpPrefixSidTlvParser(tlvType, parser);
+    }
+
+    @Override
+    public AutoCloseable registerBgpPrefixSidTlvSerializer(final Class<? extends BgpPrefixSidTlv> tlvClass, final BgpPrefixSidTlvSerializer serializer) {
+        return this.getBgpPrefixSidTlvRegistry().registerBgpPrefixSidTlvSerializer(tlvClass, serializer);
     }
 }

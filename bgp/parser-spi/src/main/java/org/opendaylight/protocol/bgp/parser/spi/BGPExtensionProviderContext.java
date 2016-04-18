@@ -9,9 +9,9 @@ package org.opendaylight.protocol.bgp.parser.spi;
 
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityParser;
 import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunitySerializer;
-
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.bgp.prefix.sid.bgp.prefix.sid.tlvs.BgpPrefixSidTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
@@ -41,6 +41,10 @@ public interface BGPExtensionProviderContext extends BGPExtensionConsumerContext
 
     AutoCloseable registerMessageSerializer(Class<? extends Notification> messageClass, MessageSerializer serializer);
 
+    AutoCloseable registerBgpPrefixSidTlvParser(int tlvType, BgpPrefixSidTlvParser parser);
+
+    AutoCloseable registerBgpPrefixSidTlvSerializer(Class<? extends BgpPrefixSidTlv> tlvClass, BgpPrefixSidTlvSerializer serializer);
+
     /**
      * Each extension requires a specific NextHop handler. Therefore this method has been deprecated  for
      * the method which enforce user to register it.
@@ -48,9 +52,9 @@ public interface BGPExtensionProviderContext extends BGPExtensionConsumerContext
     @Deprecated
     AutoCloseable registerNlriParser(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi, NlriParser parser);
 
-    AutoCloseable registerNlriParser(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily>
-        safi, NlriParser parser, final NextHopParserSerializer nextHopHandler, final Class<? extends CNextHop> cNextHopClass,
-                                     final Class<? extends CNextHop>... cNextHopClassList);
+    AutoCloseable registerNlriParser(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi,
+        NlriParser parser, final NextHopParserSerializer nextHopHandler, final Class<? extends CNextHop> cNextHopClass,
+        final Class<? extends CNextHop>... cNextHopClassList);
 
     AutoCloseable registerNlriSerializer(Class<? extends DataObject> nlriClass, NlriSerializer serializer);
 
@@ -59,7 +63,7 @@ public interface BGPExtensionProviderContext extends BGPExtensionConsumerContext
     AutoCloseable registerParameterSerializer(Class<? extends BgpParameters> paramClass, ParameterSerializer serializer);
 
     AutoCloseable registerExtendedCommunitySerializer(final Class<? extends ExtendedCommunity> extendedCommunityClass,
-            final ExtendedCommunitySerializer serializer);
+        final ExtendedCommunitySerializer serializer);
 
     AutoCloseable registerExtendedCommunityParser(final int type, final int subtype, final ExtendedCommunityParser parser);
 
