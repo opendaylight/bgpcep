@@ -117,6 +117,14 @@ module bgp-types {
         }
     }
 
+    typedef label-index-tlv {
+        type uint32;
+    }
+
+    typedef ipv6-sid-tlv {
+        type boolean;
+    }
+
     grouping bgp-aggregator {
         reference "http://tools.ietf.org/html/rfc4271#section-5.1.7";
         description "BGP Path Attribute AGGREGATOR.";
