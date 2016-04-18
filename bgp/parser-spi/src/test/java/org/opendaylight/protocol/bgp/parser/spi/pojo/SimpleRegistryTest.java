@@ -14,7 +14,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Optional;
@@ -27,6 +26,7 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.BgpPrefixSidTlvRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
@@ -38,6 +38,7 @@ import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.bgp.prefix.sid.bgp.prefix.sid.tlvs.BgpPrefixSidTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
@@ -92,7 +93,7 @@ public class SimpleRegistryTest {
         attrReg.serializeAttribute(Mockito.mock(DataObject.class), byteAggregator);
         attrReg.parseAttributes(Unpooled.wrappedBuffer(attributeBytes), CONSTRAINT);
         verify(this.activator.attrParser, times(1)).parseAttribute(Mockito.any(ByteBuf.class), Mockito.any(AttributesBuilder.class),
-                Mockito.any(PeerSpecificParserConstraint.class));
+            Mockito.any(PeerSpecificParserConstraint.class));
         verify(this.activator.attrSerializer, times(1)).serializeAttribute(Mockito.any(DataObject.class), Mockito.any(ByteBuf.class));
     }
 
@@ -122,6 +123,24 @@ public class SimpleRegistryTest {
     }
 
     @Test
+    public void testSimpleBgpPrefixSidTlvRegistry() {
+        final BgpPrefixSidTlvRegistry sidTlvReg = this.ctx.getBgpPrefixSidTlvRegistry();
+        final byte[] tlvBytes = {
+            0x00, 0x03, 0x00, 0x00, 0x00
+        };
+
+        final BgpPrefixSidTlv tlv = mock(BgpPrefixSidTlv.class);
+        doReturn(BgpPrefixSidTlv.class).when(tlv).getImplementedInterface();
+
+        final ByteBuf buffer = Unpooled.buffer(tlvBytes.length);
+        sidTlvReg.serializeBgpPrefixSidTlv(tlv, buffer);
+        verify(this.activator.sidTlvSerializer, times(1)).serializeBgpPrefixSidTlv(Mockito.any(BgpPrefixSidTlv.class), Mockito.any(ByteBuf.class));
+
+        sidTlvReg.parseBgpPrefixSidTlv(BgpTestActivator.TYPE, Unpooled.wrappedBuffer(tlvBytes));
+        verify(this.activator.sidTlvParser, times(1)).parseBgpPrefixSidTlv(Mockito.any(ByteBuf.class));
+    }
+
+    @Test
     public void testSimpleMessageRegistry() throws Exception {
         final MessageRegistry msgRegistry = this.ctx.getMessageRegistry();
 
@@ -139,7 +158,7 @@ public class SimpleRegistryTest {
         msgRegistry.serializeMessage(msg, buffer);
         msgRegistry.parseMessage(Unpooled.wrappedBuffer(msgBytes), CONSTRAINT);
         verify(this.activator.msgParser, times(1)).parseMessageBody(Mockito.any(ByteBuf.class), Mockito.anyInt(),
-                Mockito.any(PeerSpecificParserConstraint.class));
+            Mockito.any(PeerSpecificParserConstraint.class));
         verify(this.activator.msgSerializer, times(1)).serializeMessage(Mockito.any(Notification.class), Mockito.any(ByteBuf.class));
     }
 

@@ -18,6 +18,7 @@ class SimpleBGPExtensionConsumerContext implements BGPExtensionConsumerContext {
     private final SimpleParameterRegistry paramReg = new SimpleParameterRegistry();
     private final SimpleNlriRegistry nlriReg = new SimpleNlriRegistry(this.afiReg, this.safiReg);
     private final SimpleExtendedCommunityRegistry ecReg = new SimpleExtendedCommunityRegistry();
+    private final SimpleBgpPrefixSidTlvRegistry prefixSidTlvReg = new SimpleBgpPrefixSidTlvRegistry();
 
     @Override
     public final SimpleAddressFamilyRegistry getAddressFamilyRegistry() {
@@ -57,5 +58,10 @@ class SimpleBGPExtensionConsumerContext implements BGPExtensionConsumerContext {
     @Override
     public SimpleExtendedCommunityRegistry getExtendedCommunityReistry() {
         return this.ecReg;
+    }
+
+    @Override
+    public SimpleBgpPrefixSidTlvRegistry getBgpPrefixSidTlvRegistry() {
+        return this.prefixSidTlvReg;
     }
 }
