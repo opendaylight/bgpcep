@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_ddc0ff2c",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/BGPActivator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-18T13:12:09Z",
+      "side": 1,
+      "message": "Get TLVs type from codecs implementations.",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 89,
+        "endChar": 51
+      },
+      "revId": "b0114673e6ab00d5fda77c95d0edda17590696ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_bdd0abf8",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/BGPActivator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-18T13:12:09Z",
+      "side": 1,
+      "message": "The method is too big, move to separate function and call here.",
+      "range": {
+        "startLine": 154,
+        "startChar": 0,
+        "endLine": 220,
+        "endChar": 105
+      },
+      "revId": "b0114673e6ab00d5fda77c95d0edda17590696ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_9d220700",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/AreaIdTlvParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-18T13:12:09Z",
+      "side": 1,
+      "message": "Create separated package for TLVs and move all codecs there.",
+      "revId": "b0114673e6ab00d5fda77c95d0edda17590696ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_00620ad8",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/AreaIdTlvParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-18T13:12:09Z",
+      "side": 1,
+      "message": "Please, use \"CamelCase\" style for variable names.",
+      "range": {
+        "startLine": 45,
+        "startChar": 34,
+        "endLine": 45,
+        "endChar": 49
+      },
+      "revId": "b0114673e6ab00d5fda77c95d0edda17590696ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_60aae6d5",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/SimpleNlriTypeRegistry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-18T13:12:09Z",
+      "side": 1,
+      "message": "Registry and all codecs must be stateless.",
+      "range": {
+        "startLine": 51,
+        "startChar": 4,
+        "endLine": 51,
+        "endChar": 36
+      },
+      "revId": "b0114673e6ab00d5fda77c95d0edda17590696ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
