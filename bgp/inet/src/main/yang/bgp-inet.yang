@@ -59,6 +59,13 @@ module bgp-inet {
         }
     }
 
+    grouping ipv6-bgp-prefix-sid {
+        reference "https://tools.ietf.org/html/draft-ietf-idr-bgp-prefix-sid-02";
+        leaf process-ipv6-head-ability {
+            type boolean;
+        }
+    }
+
     grouping ipv4-routes {
         container ipv4-routes {
             list ipv4-route {
@@ -66,7 +73,13 @@ module bgp-inet {
 
                 key "prefix path-id";
 
-                uses bgp-rib:route;
+                uses bgp-rib:route {
+                    augment "attributes" {
+                        container bgp-prefix-sid {
+                            uses ipv6-bgp-prefix-sid;
+                        }
+                    }
+                }
             }
         }
     }
@@ -78,7 +91,13 @@ module bgp-inet {
 
                 key prefix;
 
-                uses bgp-rib:route;
+                uses bgp-rib:route {
+                    augment "attributes" {
+                        container bgp-prefix-sid {
+                            uses ipv6-bgp-prefix-sid;
+                        }
+                    }
+                }
             }
         }
     }
@@ -173,6 +192,10 @@ module bgp-inet {
         case ipv6-routes-case {
             uses ipv6-routes;
         }
+    }
+
+    augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:bgp-prefix-sid" {
+        uses ipv6-bgp-prefix-sid;
     }
 }
 

@@ -117,6 +117,12 @@ module bgp-types {
         }
     }
 
+    typedef uint24 {
+        type uint32 {
+            range "0..16777215";
+        }
+    }
+
     grouping bgp-aggregator {
         reference "http://tools.ietf.org/html/rfc4271#section-5.1.7";
         description "BGP Path Attribute AGGREGATOR.";
