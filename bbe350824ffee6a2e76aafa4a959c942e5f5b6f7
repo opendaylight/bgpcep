@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_e330c0ea",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/cli/utils/MBeanDataDisplay.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-18T14:52:33Z",
+      "side": 1,
+      "message": "Maybe you can use https://docs.oracle.com/javase/7/docs/api/javax/management/JMX.html#newMBeanProxy%28javax.management.MBeanServerConnection,%20javax.management.ObjectName,%20java.lang.Class%29\nwhere \"interfaceClass\" input is BGPPeerRuntimeMXBean.class",
+      "revId": "bbe350824ffee6a2e76aafa4a959c942e5f5b6f7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
