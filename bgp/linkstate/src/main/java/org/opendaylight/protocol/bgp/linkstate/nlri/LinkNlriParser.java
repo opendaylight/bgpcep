@@ -9,14 +9,19 @@ package org.opendaylight.protocol.bgp.linkstate.nlri;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.Ipv4IfaceAddTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.Ipv4NeighborAddTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.Ipv6IFaceAddTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.Ipv6NeighborAddTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.LocalNodeDescriptorTlvC;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.MultiTopoIdTlvParser;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.util.Ipv4Util;
-import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Ipv4InterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Ipv6InterfaceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkLrIdentifiers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.TopologyIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.ObjectType;
@@ -27,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LinkDescriptorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.LocalNodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.link._case.RemoteNodeDescriptors;
+import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -38,17 +44,7 @@ public final class LinkNlriParser implements NlriTypeCaseParser, NlriTypeCaseSer
 
     private static final Logger LOG = LoggerFactory.getLogger(LinkNlriParser.class);
 
-    /* Link Descriptor TLVs */
-    private static final int LINK_LR_IDENTIFIERS = 258;
-    private static final int IPV4_IFACE_ADDRESS = 259;
-    private static final int IPV4_NEIGHBOR_ADDRESS = 260;
-    private static final int IPV6_IFACE_ADDRESS = 261;
-    private static final int IPV6_NEIGHBOR_ADDRESS = 262;
-
-    /* Node Descriptor Type */
-    private static final int LOCAL_NODE_DESCRIPTORS_TYPE = 256;
-    private static final int REMOTE_NODE_DESCRIPTORS_TYPE = 257;
-
+    final SimpleNlriTypeRegistry nlriTypeReg = SimpleNlriTypeRegistry.getInstance();
 
     /* Link Descriptor QNames */
     @VisibleForTesting
@@ -61,77 +57,6 @@ public final class LinkNlriParser implements NlriTypeCaseParser, NlriTypeCaseSer
     public static final NodeIdentifier LINK_LOCAL_NID = new NodeIdentifier(QName.create(LinkDescriptors.QNAME, "link-local-identifier").intern());
     @VisibleForTesting
     public static final NodeIdentifier LINK_REMOTE_NID = new NodeIdentifier(QName.create(LinkDescriptors.QNAME, "link-remote-identifier").intern());
-
-    static LinkDescriptors parseLinkDescriptors(final ByteBuf buffer) throws BGPParsingException {
-        final LinkDescriptorsBuilder builder = new LinkDescriptorsBuilder();
-        while (buffer.isReadable()) {
-            final int type = buffer.readUnsignedShort();
-            final int length = buffer.readUnsignedShort();
-            final ByteBuf value = buffer.readSlice(length);
-            LOG.trace("Parsing Link Descriptor: {}", ByteBufUtil.hexDump(value));
-            switch (type) {
-            case LINK_LR_IDENTIFIERS:
-                builder.setLinkLocalIdentifier(value.readUnsignedInt());
-                builder.setLinkRemoteIdentifier(value.readUnsignedInt());
-                LOG.debug("Parsed link local {} remote {} Identifiers.", builder.getLinkLocalIdentifier(),
-                    builder.getLinkRemoteIdentifier());
-                break;
-            case IPV4_IFACE_ADDRESS:
-                final Ipv4InterfaceIdentifier lipv4 = new Ipv4InterfaceIdentifier(Ipv4Util.addressForByteBuf(value));
-                builder.setIpv4InterfaceAddress(lipv4);
-                LOG.debug("Parsed IPv4 interface address {}.", lipv4);
-                break;
-            case IPV4_NEIGHBOR_ADDRESS:
-                final Ipv4InterfaceIdentifier ripv4 = new Ipv4InterfaceIdentifier(Ipv4Util.addressForByteBuf(value));
-                builder.setIpv4NeighborAddress(ripv4);
-                LOG.debug("Parsed IPv4 neighbor address {}.", ripv4);
-                break;
-            case IPV6_IFACE_ADDRESS:
-                final Ipv6InterfaceIdentifier lipv6 = new Ipv6InterfaceIdentifier(Ipv6Util.addressForByteBuf(value));
-                builder.setIpv6InterfaceAddress(lipv6);
-                LOG.debug("Parsed IPv6 interface address {}.", lipv6);
-                break;
-            case IPV6_NEIGHBOR_ADDRESS:
-                final Ipv6InterfaceIdentifier ripv6 = new Ipv6InterfaceIdentifier(Ipv6Util.addressForByteBuf(value));
-                builder.setIpv6NeighborAddress(ripv6);
-                LOG.debug("Parsed IPv6 neighbor address {}.", ripv6);
-                break;
-            case TlvUtil.MULTI_TOPOLOGY_ID:
-                final TopologyIdentifier topId = new TopologyIdentifier(value.readUnsignedShort() & TlvUtil.TOPOLOGY_ID_OFFSET);
-                builder.setMultiTopologyId(topId);
-                LOG.debug("Parsed topology identifier {}.", topId);
-                break;
-            default:
-                throw new BGPParsingException("Link Descriptor not recognized, type: " + type);
-            }
-        }
-        LOG.trace("Finished parsing Link descriptors.");
-        return builder.build();
-    }
-
-    static void serializeLinkDescriptors(final LinkDescriptors descriptors, final ByteBuf buffer) {
-        if (descriptors.getLinkLocalIdentifier() != null && descriptors.getLinkRemoteIdentifier() != null) {
-            final ByteBuf identifierBuf = Unpooled.buffer();
-            identifierBuf.writeInt(descriptors.getLinkLocalIdentifier().intValue());
-            identifierBuf.writeInt(descriptors.getLinkRemoteIdentifier().intValue());
-            TlvUtil.writeTLV(LINK_LR_IDENTIFIERS, identifierBuf, buffer);
-        }
-        if (descriptors.getIpv4InterfaceAddress() != null) {
-            TlvUtil.writeTLV(IPV4_IFACE_ADDRESS, Ipv4Util.byteBufForAddress(descriptors.getIpv4InterfaceAddress()), buffer);
-        }
-        if (descriptors.getIpv4NeighborAddress() != null) {
-            TlvUtil.writeTLV(IPV4_NEIGHBOR_ADDRESS, Ipv4Util.byteBufForAddress(descriptors.getIpv4NeighborAddress()), buffer);
-        }
-        if (descriptors.getIpv6InterfaceAddress() != null) {
-            TlvUtil.writeTLV(IPV6_IFACE_ADDRESS, Ipv6Util.byteBufForAddress(descriptors.getIpv6InterfaceAddress()), buffer);
-        }
-        if (descriptors.getIpv6NeighborAddress() != null) {
-            TlvUtil.writeTLV(IPV6_NEIGHBOR_ADDRESS, Ipv6Util.byteBufForAddress(descriptors.getIpv6NeighborAddress()), buffer);
-        }
-        if (descriptors.getMultiTopologyId() != null) {
-            TlvUtil.writeTLV(TlvUtil.MULTI_TOPOLOGY_ID, Unpooled.copyShort(descriptors.getMultiTopologyId().getValue()), buffer);
-        }
-    }
 
     static LinkDescriptors serializeLinkDescriptors(final ContainerNode descriptors) {
         final LinkDescriptorsBuilder linkDescBuilder = new LinkDescriptorsBuilder();
@@ -158,41 +83,91 @@ public final class LinkNlriParser implements NlriTypeCaseParser, NlriTypeCaseSer
         return linkDescBuilder.build();
     }
 
+    private LinkIdentifier parseTlvBody(final ByteBuf value) throws BGPParsingException {
+        //parse Link sub-TLVs
+        final Long linkLocalIdentifier = value.readUnsignedInt();
+        final Long linkRemoteIdentifier = value.readUnsignedInt();
+        LOG.debug("Parsed link local {} remote {} Identifiers.", linkLocalIdentifier, linkRemoteIdentifier);
+        final Ipv4InterfaceIdentifier ipv4IntAdd = nlriTypeReg.parseSubTlv(value);
+        final Ipv4InterfaceIdentifier ipv4NeighborAdd = nlriTypeReg.parseSubTlv(value);
+        final Ipv6InterfaceIdentifier ipv6IntAdd = nlriTypeReg.parseSubTlv(value);
+        final Ipv6InterfaceIdentifier ipv6NeighborAdd = nlriTypeReg.parseSubTlv(value);
+        final TopologyIdentifier topoId = nlriTypeReg.parseSubTlv(value);
+        return new LinkIdentifier() {
+            @Override
+            public Class<? extends DataContainer> getImplementedInterface() {
+                return LinkIdentifier.class;
+            }
+            @Override
+            public Long getLinkLocalIdentifier() {
+                return linkLocalIdentifier;
+            }
+            @Override
+            public Long getLinkRemoteIdentifier() {
+                return linkRemoteIdentifier;
+            }
+            @Override
+            public Ipv4InterfaceIdentifier getIpv4InterfaceAddress() {
+                return ipv4IntAdd;
+            }
+            @Override
+            public Ipv4InterfaceIdentifier getIpv4NeighborAddress() {
+                return ipv4NeighborAdd;
+            }
+            @Override
+            public Ipv6InterfaceIdentifier getIpv6InterfaceAddress() {
+                return ipv6IntAdd;
+            }
+            @Override
+            public Ipv6InterfaceIdentifier getIpv6NeighborAddress() {
+                return ipv6NeighborAdd;
+            }
+            @Override
+            public TopologyIdentifier getMultiTopologyId() {
+                return topoId;
+            }
+        };
+    }
 
     @Override
-    public ObjectType parseTypeNlri(final ByteBuf nlri, final NlriType type, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier localdescriptor, final ByteBuf restNlri) throws BGPParsingException {
+    public ObjectType parseTypeNlri(final ByteBuf nlri, final NlriType type, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier localDescriptor, final ByteBuf restNlri) throws BGPParsingException {
 
         final int nodetype = restNlri.readUnsignedShort();
         final int length = restNlri.readUnsignedShort();
-
+        final SimpleNlriTypeRegistry nlriTypeReg = SimpleNlriTypeRegistry.getInstance();
         RemoteNodeDescriptors remoteDescriptors = null;
-
-        if (nodetype == REMOTE_NODE_DESCRIPTORS_TYPE) {
-            remoteDescriptors = (RemoteNodeDescriptors) NodeNlriParser.parseNodeDescriptors(restNlri.readSlice(length), type, false);
+        if (nodetype == LocalNodeDescriptorTlvC.REMOTE_NODE_DESCRIPTORS_TYPE) {
+            remoteDescriptors = nlriTypeReg.parseTlv(restNlri.readSlice(length), nodetype, type);
         }
-        LinkDescriptors linkdescriptor = parseLinkDescriptors(restNlri.slice());
+        LinkIdentifier linkDescriptor = parseTlvBody(restNlri.slice());
         LinkCaseBuilder linkbuilder = new LinkCaseBuilder();
-        LinkCase linkcase = linkbuilder.setLocalNodeDescriptors((LocalNodeDescriptors) localdescriptor).setRemoteNodeDescriptors(remoteDescriptors).setLinkDescriptors(linkdescriptor).build();
+        LinkCase linkcase = linkbuilder.setLocalNodeDescriptors((LocalNodeDescriptors) localDescriptor).setRemoteNodeDescriptors((RemoteNodeDescriptors) remoteDescriptors).setLinkDescriptors(new LinkDescriptorsBuilder(linkDescriptor).build()).build();
+
         return linkcase;
+    }
+
+    private void serializeLinkDescTlvBody(final LinkIdentifier tlv, final ByteBuf body) {
+        //serialize Link sub-TLVs
+        nlriTypeReg.serializeTlv(LinkLrIdentifiers.QNAME, tlv, body);
+        nlriTypeReg.serializeTlv(Ipv4IfaceAddTlvParser.IPV4_IFACE_ADDRESS_QNAME, tlv.getIpv4InterfaceAddress(), body);
+        nlriTypeReg.serializeTlv(Ipv4NeighborAddTlvParser.IPV4_NEIGHBOR_ADDRESS_QNAME, tlv.getIpv4NeighborAddress(), body);
+        nlriTypeReg.serializeTlv(Ipv6IFaceAddTlvParser.IPV6_IFACE_ADDRESS_QNAME, tlv.getIpv6InterfaceAddress(), body);
+        nlriTypeReg.serializeTlv(Ipv6NeighborAddTlvParser.IPV6_NEIGHBOR_ADDRESS_QNAME, tlv.getIpv6NeighborAddress(), body);
+        nlriTypeReg.serializeTlv(MultiTopoIdTlvParser.MULTI_TOPOLOGY_ID_QNAME, tlv.getMultiTopologyId(), body);
     }
 
     @Override
     public NlriType serializeTypeNlri(final CLinkstateDestination destination, final ByteBuf localdescs, final ByteBuf byteAggregator) {
 
         final LinkCase lCase = ((LinkCase)destination.getObjectType());
-        NodeNlriParser.serializeNodeIdentifier(lCase.getLocalNodeDescriptors(), localdescs);
-        NodeNlriParser.serializeEpeNodeDescriptors(lCase.getLocalNodeDescriptors(), localdescs);
-        TlvUtil.writeTLV(LOCAL_NODE_DESCRIPTORS_TYPE, localdescs, byteAggregator);
+        nlriTypeReg.serializeTlv(LocalNodeDescriptors.QNAME, lCase.getLocalNodeDescriptors(), localdescs);
+        TlvUtil.writeTLV(LocalNodeDescriptorTlvC.LOCAL_NODE_DESCRIPTORS_TYPE, localdescs, byteAggregator);
         final ByteBuf rdescs = Unpooled.buffer();
-        NodeNlriParser.serializeNodeIdentifier(lCase.getRemoteNodeDescriptors(), rdescs);
-        NodeNlriParser.serializeEpeNodeDescriptors(lCase.getRemoteNodeDescriptors(), rdescs);
-        TlvUtil.writeTLV(REMOTE_NODE_DESCRIPTORS_TYPE, rdescs, byteAggregator);
+        nlriTypeReg.serializeTlv(RemoteNodeDescriptors.QNAME, lCase.getRemoteNodeDescriptors(), rdescs);
+        TlvUtil.writeTLV(LocalNodeDescriptorTlvC.REMOTE_NODE_DESCRIPTORS_TYPE, rdescs, byteAggregator);
         if (lCase.getLinkDescriptors() != null) {
-            LinkNlriParser.serializeLinkDescriptors(lCase.getLinkDescriptors(), byteAggregator);
+            serializeLinkDescTlvBody(lCase.getLinkDescriptors(), byteAggregator);
         }
         return NlriType.Link;
     }
-
-
-
 }

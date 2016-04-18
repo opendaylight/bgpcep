@@ -20,20 +20,38 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.linkstate.nlri.LinkNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.nlri.LinkstateNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.nlri.NodeNlriParser;
-import org.opendaylight.protocol.bgp.linkstate.nlri.PrefixIpv4NlriParser;
-import org.opendaylight.protocol.bgp.linkstate.nlri.PrefixIpv6NlriParser;
-import org.opendaylight.protocol.bgp.linkstate.nlri.PrefixNlriSerializer;
+import org.opendaylight.protocol.bgp.linkstate.nlri.PrefixNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.nlri.SimpleNlriTypeRegistry;
 import org.opendaylight.protocol.bgp.linkstate.nlri.TeLspIpv4NlriParser;
 import org.opendaylight.protocol.bgp.linkstate.nlri.TeLspIpv6NlriParser;
 import org.opendaylight.protocol.bgp.linkstate.nlri.TeLspNlriSerializer;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.AreaIdTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.AsNumTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.BgpRouterIdTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.CrouterIdTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.DomainIdTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.IpReachTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.Ipv4IfaceAddTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.Ipv4NeighborAddTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.Ipv6IFaceAddTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.Ipv6NeighborAddTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.IsisNodeCaseSerializer;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.IsisPseudoNodeCaseSerializer;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.LinkLrIdTlvSerializer;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.LocalNodeDescriptorTlvC;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.MemAsNumTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.MultiTopoIdTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.OspfNodeCaseSerializer;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.OspfPseudoNodeCaseSerializer;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.OspfRTypeTlvParser;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.DomainIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkLrIdentifiers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.OspfRouteType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.ProtocolId;
@@ -52,9 +70,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.PrefixDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.te.lsp._case.address.family.Ipv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.CRouterIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.IsisNodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.IsisNodeCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.IsisPseudonodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.IsisPseudonodeCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.OspfNodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.OspfNodeCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.OspfPseudonodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.isis.node._case.IsisNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.isis.pseudonode._case.IsisPseudonodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.ospf.node._case.OspfNodeBuilder;
@@ -154,11 +176,10 @@ public class LinkstateNlriParserTest {
         testreg.registerNlriTypeParser(NlriType.Link, linkParser);
         testreg.registerNlriTypeSerializer(LinkCase.class, linkParser);
 
-        final PrefixIpv4NlriParser ipv4PrefParser = new PrefixIpv4NlriParser();
-        testreg.registerNlriTypeParser(NlriType.Ipv4Prefix, ipv4PrefParser);
-
-        final PrefixIpv6NlriParser ipv6PrefParser = new PrefixIpv6NlriParser();
-        testreg.registerNlriTypeParser(NlriType.Ipv6Prefix, ipv6PrefParser);
+        final PrefixNlriParser ipPrefParser = new PrefixNlriParser();
+        testreg.registerNlriTypeParser(NlriType.Ipv4Prefix, ipPrefParser);
+        testreg.registerNlriTypeParser(NlriType.Ipv6Prefix, ipPrefParser);
+        testreg.registerNlriTypeSerializer(PrefixCase.class, ipPrefParser);
 
         final TeLspIpv4NlriParser telSPipv4Parser = new TeLspIpv4NlriParser();
         testreg.registerNlriTypeParser(NlriType.Ipv4TeLsp, telSPipv4Parser);
@@ -166,11 +187,81 @@ public class LinkstateNlriParserTest {
         final TeLspIpv6NlriParser telSPipv6Parser = new TeLspIpv6NlriParser();
         testreg.registerNlriTypeParser(NlriType.Ipv6TeLsp, telSPipv6Parser);
 
-        final PrefixNlriSerializer prefixSerializer = new PrefixNlriSerializer();
-        testreg.registerNlriTypeSerializer(PrefixCase.class, prefixSerializer);
-
         final TeLspNlriSerializer telSpSerializer = new TeLspNlriSerializer();
         testreg.registerNlriTypeSerializer(TeLspCase.class, telSpSerializer);
+
+        final LocalNodeDescriptorTlvC localParser = new LocalNodeDescriptorTlvC();
+        testreg.registerMessageParser(LocalNodeDescriptorTlvC.LOCAL_NODE_DESCRIPTORS_TYPE, localParser);
+        testreg.registerMessageSerializer(NodeDescriptors.QNAME, localParser);
+        testreg.registerMessageSerializer(LocalNodeDescriptors.QNAME, localParser);
+        testreg.registerMessageSerializer(RemoteNodeDescriptors.QNAME, localParser);
+        testreg.registerMessageSerializer(AdvertisingNodeDescriptors.QNAME, localParser);
+
+        final CrouterIdTlvParser bgpCrouterIdParser = new CrouterIdTlvParser();
+        testreg.registerMessageParser(CrouterIdTlvParser.IGP_ROUTER_ID, bgpCrouterIdParser);
+        testreg.registerMessageSerializer(CRouterIdentifier.QNAME, bgpCrouterIdParser);
+
+        final AsNumTlvParser asNumParser = new AsNumTlvParser();
+        testreg.registerMessageParser(AsNumTlvParser.AS_NUMBER, asNumParser);
+        testreg.registerMessageSerializer(AsNumTlvParser.AS_NUMBER_QNAME, asNumParser);
+
+        final DomainIdTlvParser bgpDomainIdParser = new DomainIdTlvParser();
+        testreg.registerMessageParser(DomainIdTlvParser.BGP_LS_ID, bgpDomainIdParser);
+        testreg.registerMessageSerializer(DomainIdTlvParser.DOMAIN_ID_QNAME, bgpDomainIdParser);
+
+        final AreaIdTlvParser areaIdParser = new AreaIdTlvParser();
+        testreg.registerMessageParser(AreaIdTlvParser.AREA_ID, areaIdParser);
+        testreg.registerMessageSerializer(AreaIdTlvParser.AREA_ID_QNAME, areaIdParser);
+
+        final BgpRouterIdTlvParser bgpRIdParser = new BgpRouterIdTlvParser();
+        testreg.registerMessageParser(BgpRouterIdTlvParser.BGP_ROUTER_ID, bgpRIdParser);
+        testreg.registerMessageSerializer(BgpRouterIdTlvParser.BGP_ROUTER_ID_QNAME, bgpRIdParser);
+
+        final MemAsNumTlvParser memAsnParser = new MemAsNumTlvParser();
+        testreg.registerMessageParser(MemAsNumTlvParser.MEMBER_AS_NUMBER, memAsnParser);
+        testreg.registerMessageSerializer(MemAsNumTlvParser.MEMBER_AS_NUMBER_QNAME, memAsnParser);
+
+        final LinkLrIdTlvSerializer linkLrIdParser = new LinkLrIdTlvSerializer();
+        testreg.registerMessageSerializer(LinkLrIdentifiers.QNAME, linkLrIdParser);
+
+        final Ipv6NeighborAddTlvParser ipv6nbouraddParser = new Ipv6NeighborAddTlvParser();
+        testreg.registerMessageParser(Ipv6NeighborAddTlvParser.IPV6_NEIGHBOR_ADDRESS, ipv6nbouraddParser);
+        testreg.registerMessageSerializer(Ipv6NeighborAddTlvParser.IPV6_NEIGHBOR_ADDRESS_QNAME, ipv6nbouraddParser);
+
+        final Ipv4IfaceAddTlvParser ipv4ifaddParser = new Ipv4IfaceAddTlvParser();
+        testreg.registerMessageParser(Ipv4IfaceAddTlvParser.IPV4_IFACE_ADDRESS, ipv4ifaddParser);
+        testreg.registerMessageSerializer(Ipv4IfaceAddTlvParser.IPV4_IFACE_ADDRESS_QNAME, ipv4ifaddParser);
+
+        final Ipv4NeighborAddTlvParser ipv4nbouraddParser = new Ipv4NeighborAddTlvParser();
+        testreg.registerMessageParser(Ipv4NeighborAddTlvParser.IPV4_NEIGHBOR_ADDRESS, ipv4nbouraddParser);
+        testreg.registerMessageSerializer(Ipv4NeighborAddTlvParser.IPV4_NEIGHBOR_ADDRESS_QNAME, ipv4nbouraddParser);
+
+        final Ipv6IFaceAddTlvParser ipv6ifaddParser = new Ipv6IFaceAddTlvParser();
+        testreg.registerMessageParser(Ipv6IFaceAddTlvParser.IPV6_IFACE_ADDRESS, ipv6ifaddParser);
+        testreg.registerMessageSerializer(Ipv6IFaceAddTlvParser.IPV6_IFACE_ADDRESS_QNAME, ipv6ifaddParser);
+
+        final MultiTopoIdTlvParser multitopoidParser = new MultiTopoIdTlvParser();
+        testreg.registerMessageParser(TlvUtil.MULTI_TOPOLOGY_ID, multitopoidParser);
+        testreg.registerMessageSerializer(MultiTopoIdTlvParser.MULTI_TOPOLOGY_ID_QNAME, multitopoidParser);
+
+        final IpReachTlvParser ipreachParser = new IpReachTlvParser();
+        testreg.registerMessageSerializer(IpReachTlvParser.IP_REACHABILITY_QNAME, ipreachParser);
+
+        final OspfRTypeTlvParser ospfrtypeParser = new OspfRTypeTlvParser();
+        testreg.registerMessageParser(OspfRTypeTlvParser.OSPF_ROUTE_TYPE, ospfrtypeParser);
+        testreg.registerMessageSerializer(OspfRTypeTlvParser.OSPF_ROUTE_TYPE_QNAME, ospfrtypeParser);
+
+        final IsisNodeCaseSerializer isisNcaseSerializer = new IsisNodeCaseSerializer();
+        testreg.registerRouterIdSerializer(IsisNodeCase.class, isisNcaseSerializer);
+
+        final IsisPseudoNodeCaseSerializer isisPNcaseSerializer = new IsisPseudoNodeCaseSerializer();
+        testreg.registerRouterIdSerializer(IsisPseudonodeCase.class, isisPNcaseSerializer);
+
+        final OspfNodeCaseSerializer ospfNcaseSerializer = new OspfNodeCaseSerializer();
+        testreg.registerRouterIdSerializer(OspfNodeCase.class, ospfNcaseSerializer);
+
+        final OspfPseudoNodeCaseSerializer ospfPNcaseSerializer = new OspfPseudoNodeCaseSerializer();
+        testreg.registerRouterIdSerializer(OspfPseudonodeCase.class, ospfPNcaseSerializer);
 
         parser.parseNlri(Unpooled.copiedBuffer(data), builder);
 
@@ -508,13 +599,13 @@ public class LinkstateNlriParserTest {
         prefixDescriptors.addChild(multiTopologyId.build());
 
         final ImmutableLeafNodeBuilder<String> ipReachabilityInformation = new ImmutableLeafNodeBuilder<>();
-        ipReachabilityInformation.withNodeIdentifier(PrefixIpv4NlriParser.IP_REACH_NID);
+        ipReachabilityInformation.withNodeIdentifier(PrefixNlriParser.IP_REACH_NID);
         ipReachabilityInformation.withValue("255.255.0.0/16");
 
         prefixDescriptors.addChild(ipReachabilityInformation.build());
 
         final ImmutableLeafNodeBuilder<String> ospfRouteType = new ImmutableLeafNodeBuilder<>();
-        ospfRouteType.withNodeIdentifier(PrefixIpv4NlriParser.OSPF_ROUTE_NID);
+        ospfRouteType.withNodeIdentifier(PrefixNlriParser.OSPF_ROUTE_NID);
         ospfRouteType.withValue("external1");
 
         prefixDescriptors.addChild(ospfRouteType.build());

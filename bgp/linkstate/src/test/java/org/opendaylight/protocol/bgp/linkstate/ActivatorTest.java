@@ -14,9 +14,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.linkstate.nlri.LinkNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.nlri.NodeNlriParser;
-import org.opendaylight.protocol.bgp.linkstate.nlri.PrefixIpv4NlriParser;
-import org.opendaylight.protocol.bgp.linkstate.nlri.PrefixIpv6NlriParser;
-import org.opendaylight.protocol.bgp.linkstate.nlri.PrefixNlriSerializer;
+import org.opendaylight.protocol.bgp.linkstate.nlri.PrefixNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.nlri.SimpleNlriTypeRegistry;
 import org.opendaylight.protocol.bgp.linkstate.nlri.TeLspIpv4NlriParser;
 import org.opendaylight.protocol.bgp.linkstate.nlri.TeLspIpv6NlriParser;
@@ -51,13 +49,13 @@ public class ActivatorTest {
         assertEquals(LinkstateSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry().classForFamily(71));
         assertTrue(typeReg.getParser(NlriType.Node) instanceof NodeNlriParser);
         assertTrue(typeReg.getParser(NlriType.Link) instanceof LinkNlriParser);
-        assertTrue(typeReg.getParser(NlriType.Ipv4Prefix) instanceof PrefixIpv4NlriParser);
-        assertTrue(typeReg.getParser(NlriType.Ipv6Prefix) instanceof PrefixIpv6NlriParser);
+        assertTrue(typeReg.getParser(NlriType.Ipv4Prefix) instanceof PrefixNlriParser);
+        assertTrue(typeReg.getParser(NlriType.Ipv6Prefix) instanceof PrefixNlriParser);
         assertTrue(typeReg.getParser(NlriType.Ipv4TeLsp) instanceof TeLspIpv4NlriParser);
         assertTrue(typeReg.getParser(NlriType.Ipv6TeLsp) instanceof TeLspIpv6NlriParser);
         assertTrue(typeReg.getSerializer(NodeCase.class) instanceof NodeNlriParser);
         assertTrue(typeReg.getSerializer(LinkCase.class) instanceof LinkNlriParser);
-        assertTrue(typeReg.getSerializer(PrefixCase.class) instanceof PrefixNlriSerializer);
+        assertTrue(typeReg.getSerializer(PrefixCase.class) instanceof PrefixNlriParser);
         assertTrue(typeReg.getSerializer(TeLspCase.class) instanceof TeLspNlriSerializer);
 
         act.close();
