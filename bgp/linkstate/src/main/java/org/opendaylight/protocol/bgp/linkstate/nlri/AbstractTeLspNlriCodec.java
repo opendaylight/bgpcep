@@ -1,23 +1,20 @@
 /*
- * Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.linkstate.nlri;
 
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Address;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeShort;
-import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
+package org.opendaylight.protocol.bgp.linkstate.nlri;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.ObjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.CLinkstateDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.TeLspCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.TeLspCaseBuilder;
@@ -32,8 +29,7 @@ import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 
-@VisibleForTesting
-public final class TeLspNlriSerializer implements NlriTypeCaseSerializer {
+public abstract class AbstractTeLspNlriCodec extends AbstractNlriTypeCodec {
 
     @VisibleForTesting
     public static final YangInstanceIdentifier.NodeIdentifier LSP_ID = new YangInstanceIdentifier.NodeIdentifier(
@@ -57,43 +53,8 @@ public final class TeLspNlriSerializer implements NlriTypeCaseSerializer {
     @VisibleForTesting
     public static final YangInstanceIdentifier.NodeIdentifier ADDRESS_FAMILY = new YangInstanceIdentifier.NodeIdentifier(AddressFamily.QNAME);
 
-    public static NlriType serializeIpvTSA(final AddressFamily addressFamily, final ByteBuf body) {
-        if (addressFamily.equals(Ipv6Case.class)) {
-            final Ipv6Address ipv6 = ((Ipv6Case) addressFamily).getIpv6TunnelSenderAddress();
-            Preconditions.checkArgument(ipv6 != null, "Ipv6TunnelSenderAddress is mandatory.");
-            writeIpv6Address(ipv6, body);
-            return NlriType.Ipv6TeLsp;
-        }
-
-        final Ipv4Address ipv4 = ((Ipv4Case) addressFamily).getIpv4TunnelSenderAddress();
-        Preconditions.checkArgument(ipv4 != null, "Ipv4TunnelSenderAddress is mandatory.");
-        writeIpv4Address(ipv4, body);
-
-        return NlriType.Ipv4TeLsp;
-    }
-
-    public static void serializeTunnelID(final TunnelId tunnelID, final ByteBuf body) {
-        Preconditions.checkArgument(tunnelID != null, "TunnelId is mandatory.");
-        writeUnsignedShort(tunnelID.getValue(), body);
-    }
-
-    public static void serializeLspID(final LspId lspId, final ByteBuf body) {
-        Preconditions.checkArgument(lspId != null, "LspId is mandatory.");
-        writeShort(lspId.getValue().shortValue(), body);
-    }
-
-    public static void serializeTEA(final AddressFamily addressFamily, final ByteBuf body) {
-        if (addressFamily.equals(Ipv6Case.class)) {
-            final Ipv6Address ipv6 = ((Ipv6Case) addressFamily).getIpv6TunnelEndpointAddress();
-            Preconditions.checkArgument(ipv6 != null, "Ipv6TunnelEndpointAddress is mandatory.");
-            writeIpv6Address(ipv6, body);
-            return;
-        }
-
-        final Ipv4Address ipv4 = ((Ipv4Case) addressFamily).getIpv4TunnelEndpointAddress();
-        Preconditions.checkArgument(ipv4 != null, "Ipv4TunnelEndpointAddress is mandatory.");
-        Preconditions.checkArgument(ipv4 != null, "Ipv4TunnelEndpointAddress is mandatory.");
-        writeIpv4Address(ipv4, body);
+    protected AbstractTeLspNlriCodec(final SimpleNlriTypeRegistry registry) {
+        super(registry);
     }
 
     public static boolean isTeLsp(final ChoiceNode objectType) {
@@ -125,14 +86,32 @@ public final class TeLspNlriSerializer implements NlriTypeCaseSerializer {
     }
 
     @Override
-    public NlriType serializeTypeNlri(final CLinkstateDestination destination, final ByteBuf localdescs, final ByteBuf byteAggregator) {
-        final TeLspCase teLSP = ((TeLspCase) destination.getObjectType());
-        final AddressFamily afi = teLSP.getAddressFamily();
-        NlriType nlriType = serializeIpvTSA(afi, localdescs);
-        serializeTunnelID(teLSP.getTunnelId(), localdescs);
-        serializeLspID(teLSP.getLspId(), localdescs);
-        serializeTEA(afi, localdescs);
-        return nlriType;
+    protected final void serializeObjectType(final ObjectType objectType, final ByteBuf buffer) {
+        Preconditions.checkArgument(objectType instanceof TeLspCase);
+        final TeLspCase teLSP = (TeLspCase) objectType;
+        final AddressFamily addressFamily = teLSP.getAddressFamily();
+        if (addressFamily instanceof Ipv4Case) {
+            serializeIpv4Case(teLSP, (Ipv4Case) addressFamily, buffer);
+        } else {
+            serializeIpv6Case(teLSP, (Ipv6Case) addressFamily, buffer);
+        }
+    }
+
+    private static void serializeIpv4Case(final TeLspCase teLSP, final Ipv4Case ipv4Case, final ByteBuf buffer) {
+        ByteBufWriteUtil.writeIpv4Address(ipv4Case.getIpv4TunnelSenderAddress(), buffer);
+        serializeTunnelIdAndLspId(buffer, teLSP);
+        ByteBufWriteUtil.writeIpv4Address(ipv4Case.getIpv4TunnelEndpointAddress(), buffer);
+    }
+
+    private static void serializeIpv6Case(final TeLspCase teLSP, final Ipv6Case ipv6Case, final ByteBuf buffer) {
+        ByteBufWriteUtil.writeIpv6Address(ipv6Case.getIpv6TunnelSenderAddress(), buffer);
+        serializeTunnelIdAndLspId(buffer, teLSP);
+        ByteBufWriteUtil.writeIpv6Address(ipv6Case.getIpv6TunnelEndpointAddress(), buffer);
+    }
+
+    private static void serializeTunnelIdAndLspId(final ByteBuf buffer, final TeLspCase teLSP) {
+        ByteBufWriteUtil.writeUnsignedShort(teLSP.getTunnelId().getValue(), buffer);
+        ByteBufWriteUtil.writeUnsignedShort(teLSP.getLspId().getValue().intValue(), buffer);
     }
 
 }

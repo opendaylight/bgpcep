@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.linkstate.nlri.LinkstateNlriParser;
+import org.opendaylight.protocol.bgp.linkstate.nlri.SimpleNlriTypeRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
@@ -98,7 +99,7 @@ final class LinkstateRIBSupport extends AbstractRIBSupport {
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode linkstate) {
         final ByteBuf buffer = Unpooled.buffer();
         final CLinkstateDestination cLinkstateDestination = LinkstateNlriParser.extractLinkstateDestination(linkstate);
-        LinkstateNlriParser.serializeNlri(cLinkstateDestination, buffer);
+        SimpleNlriTypeRegistry.getInstance().serializeNlriType(cLinkstateDestination, buffer);
 
         return new NodeIdentifierWithPredicates(LinkstateRoute.QNAME, ROUTE_KEY, ByteArray.readAllBytes(buffer));
     }

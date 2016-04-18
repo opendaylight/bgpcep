@@ -7,17 +7,20 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.nlri;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import io.netty.buffer.Unpooled;
+import java.util.HashMap;
+import java.util.Map;
+import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.LinkstateTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.tlvs.LinkstateTlvSerializer;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.concepts.AbstractRegistration;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier;
+import org.opendaylight.protocol.concepts.HandlerRegistry;
+import org.opendaylight.protocol.concepts.MultiRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.ObjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.CLinkstateDestination;
+import org.opendaylight.yangtools.yang.common.QName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,73 +28,110 @@ public final class SimpleNlriTypeRegistry {
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleNlriTypeRegistry.class);
 
-    private final ConcurrentMap<NlriType, NlriTypeCaseParser> parsers = new ConcurrentHashMap<>();
-    private final ConcurrentMap<Class<? extends ObjectType>, NlriTypeCaseSerializer> serializers = new ConcurrentHashMap<>();
+    private final HandlerRegistry<ObjectType, NlriTypeCaseParser, NlriTypeCaseSerializer> nlriRegistry = new HandlerRegistry<>();
+    private final MultiRegistry<QName, LinkstateTlvSerializer<?>> tlvSerializers = new MultiRegistry<>();
+    private final MultiRegistry<Integer, LinkstateTlvParser<?>> tlvParsers = new MultiRegistry<>();
+
     private static final SimpleNlriTypeRegistry SINGLETON = new SimpleNlriTypeRegistry();
 
     private SimpleNlriTypeRegistry () {
-
     }
 
     public static SimpleNlriTypeRegistry getInstance() {
         return SINGLETON;
     }
 
-    public synchronized AutoCloseable registerNlriTypeSerializer(final Class<? extends ObjectType> classKey, final NlriTypeCaseSerializer serializer) {
-        this.serializers.put(classKey, serializer);
-
-        final Object lock = this;
-        return new AbstractRegistration() {
-            @Override
-            protected void removeRegistration() {
-                synchronized (lock) {
-                    SimpleNlriTypeRegistry.this.serializers.remove(classKey);
-                }
-            }
-        };
-
+    public AutoCloseable registerNlriParser(final int type, final NlriTypeCaseParser parser) {
+        return this.nlriRegistry.registerParser(type, parser);
     }
 
-    public synchronized AutoCloseable registerNlriTypeParser(final NlriType key, final NlriTypeCaseParser parser) {
-        this.parsers.put(key, parser);
-
-        final Object lock = this;
-        return new AbstractRegistration() {
-            @Override
-            protected void removeRegistration() {
-                synchronized (lock) {
-                    SimpleNlriTypeRegistry.this.parsers.remove(key);
-                }
-            }
-        };
-
+    public <T> AutoCloseable registerNlriSerializer(final Class<? extends ObjectType> clazzType, final NlriTypeCaseSerializer serializer) {
+        return this.nlriRegistry.registerSerializer(clazzType, serializer);
     }
 
-    @VisibleForTesting
-    public NlriTypeCaseSerializer getSerializer(Class<? extends ObjectType> objtyp) {
-        return this.serializers.get(objtyp);
+    public <T> AutoCloseable registerTlvParser(final int tlvType, final LinkstateTlvParser<T> parser) {
+        return this.tlvParsers.register(tlvType, parser);
     }
 
-    @VisibleForTesting
-    public NlriTypeCaseParser getParser(NlriType nlrityp) {
-        return this.parsers.get(nlrityp);
+    public <T> AutoCloseable registerTlvSerializer(final QName tlvQName, final LinkstateTlvSerializer<T> serializer) {
+        return this.tlvSerializers.register(tlvQName, serializer);
     }
 
-
-    public ObjectType parseNlriType (final ByteBuf buffer, final NlriType type, final NodeIdentifier localdescriptor, final ByteBuf restBuffer) throws BGPParsingException {
-        final NlriTypeCaseParser parser = this.parsers.get(type);
-        Preconditions.checkNotNull(parser, "Parser for Nlri type %s not found.", type);
-        ObjectType nlriObjectType = parser.parseTypeNlri(buffer, type, localdescriptor, restBuffer);
-        return nlriObjectType;
-    }
-
-    public NlriType serializeNlriType (final CLinkstateDestination destination, final ByteBuf localdesc, final ByteBuf byteAggregator) {
-        final NlriTypeCaseSerializer serializer = this.serializers.get(destination.getObjectType().getImplementedInterface());
-        Preconditions.checkNotNull(serializer, "Serializer for %s not found.", destination.getObjectType().getImplementedInterface().getSimpleName());
-        NlriType nlriTypeVal = serializer.serializeTypeNlri(destination, localdesc, byteAggregator);
-        if (nlriTypeVal == null) {
-            LOG.warn("NLRI Type value is null.");
+    public CLinkstateDestination parseNlriType (final ByteBuf buffer) throws BGPParsingException {
+        final int type = buffer.readUnsignedShort();
+        final int length = buffer.readUnsignedShort();
+        final NlriTypeCaseParser parser = this.nlriRegistry.getParser(type);
+        if (parser == null) {
+            LOG.warn("Linkstate NLRI parser for Type: {} was not found.", type);
+            return null;
         }
-        return nlriTypeVal;
+        return parser.parseTypeNlri(buffer.readSlice(length));
+    }
+
+    public void serializeNlriType(final CLinkstateDestination nlri, final ByteBuf byteAggregator) {
+        if (nlri == null) {
+            return;
+        }
+        Preconditions.checkNotNull(byteAggregator);
+        final ObjectType objectType = nlri.getObjectType();
+        final NlriTypeCaseSerializer serializer = this.nlriRegistry.getSerializer((Class<? extends ObjectType>) objectType.getImplementedInterface());
+        if (serializer  == null) {
+            LOG.warn("Linkstate NLRI serializer for Type: {} was not found.", objectType.getImplementedInterface());
+        }
+        final ByteBuf nlriType = Unpooled.buffer();
+        serializer.serializeTypeNlri(nlri, nlriType);
+        TlvUtil.writeTLV(serializer.getNlriType(), nlriType, byteAggregator);
+    }
+
+    public <T> T parseTlv(final ByteBuf buffer) {
+        return parseTlv(buffer, getParser(buffer));
+    }
+
+    public Map<QName, Object> parseSubTlvs(final ByteBuf buffer) {
+        final Map<QName, Object> tlvs = new HashMap<>();
+        while (buffer.isReadable()) {
+            final LinkstateTlvParser<?> tlvParser = getParser(buffer);
+            final Object tlvBody = parseTlv(buffer, tlvParser);
+            if (tlvBody != null) {
+                tlvs.put(tlvParser.getTlvQName(), tlvBody);
+            }
+        }
+        return tlvs;
+    }
+
+    private <T> LinkstateTlvParser<T> getParser(final ByteBuf buffer) {
+        Preconditions.checkArgument(buffer != null && buffer.isReadable());
+        final int type = buffer.readUnsignedShort();
+        final LinkstateTlvParser<T> parser = (LinkstateTlvParser<T>) this.tlvParsers.get(type);
+        if (parser == null) {
+            LOG.warn("Linkstate TLV parser for Type: {} was not found.", type);
+        }
+        return parser;
+    }
+
+    private static <T> T parseTlv(final ByteBuf buffer, final LinkstateTlvParser<T> parser) {
+        if (parser == null) {
+            return null;
+        }
+        Preconditions.checkArgument(buffer != null && buffer.isReadable());
+        final int length = buffer.readUnsignedShort();
+        return parser.parseTlvBody(buffer.readSlice(length));
+    }
+
+
+    public <T> void serializeTlv(final QName tlvQName, final T tlv, final ByteBuf buffer) {
+        if (tlv == null) {
+            return;
+        }
+        Preconditions.checkNotNull(tlvQName);
+        Preconditions.checkNotNull(buffer);
+        final LinkstateTlvSerializer<T> tlvSerializer = (LinkstateTlvSerializer<T>) this.tlvSerializers.get(tlvQName);
+        if (tlvSerializer == null) {
+            LOG.warn("Linkstate TLV serializer for QName: {} was not found.", tlvQName);
+            return;
+        }
+        final ByteBuf body = Unpooled.buffer();
+        tlvSerializer.serializeTlvBody(tlv, body);
+        TlvUtil.writeTLV(tlvSerializer.getType(), body, buffer);
     }
 }
