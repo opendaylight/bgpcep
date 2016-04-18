@@ -22,16 +22,29 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.protocol.bgp.linkstate.nlri.AreaIdTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.nlri.AsNumTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.nlri.CrouterIdTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.nlri.DomainIdTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.nlri.IsisNodeCaseSerializer;
+import org.opendaylight.protocol.bgp.linkstate.nlri.IsisPseudoNodeCaseSerializer;
 import org.opendaylight.protocol.bgp.linkstate.nlri.LinkstateNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.nlri.NodeNlriParser;
+import org.opendaylight.protocol.bgp.linkstate.nlri.OspfNodeCaseSerializer;
+import org.opendaylight.protocol.bgp.linkstate.nlri.OspfPseudoNodeCaseSerializer;
 import org.opendaylight.protocol.bgp.linkstate.nlri.SimpleNlriTypeRegistry;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.CLinkstateDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.NodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.CRouterIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.IsisNodeCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.IsisPseudonodeCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.OspfNodeCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.c.router.identifier.OspfPseudonodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
@@ -62,6 +75,12 @@ public class LinkstateRIBSupportTest {
     final LinkstateRIBSupport link = LinkstateRIBSupport.getInstance();
     final List<MapEntryNode> linkList = new ArrayList<>();
     private List<YangInstanceIdentifier> routes;
+
+    /*Node Nlri Descriptor TLVs*/
+    private static final int AS_NUMBER = 512;
+    private static final int BGP_LS_ID = 513;
+    private static final int AREA_ID = 514;
+    private static final int IGP_ROUTER_ID = 515;
 
     @Mock
     private DOMDataWriteTransaction tx;
@@ -109,8 +128,34 @@ public class LinkstateRIBSupportTest {
     public void testDestinationRoutes() {
         final YangInstanceIdentifier yangIdentifier = YangInstanceIdentifier.of(Routes.QNAME);
 
+        final SimpleNlriTypeRegistry testreg = SimpleNlriTypeRegistry.getInstance();
+
         final NodeNlriParser nodeParser = new NodeNlriParser();
-        SimpleNlriTypeRegistry.getInstance().registerNlriTypeSerializer(NodeCase.class, nodeParser);
+        testreg.registerNlriTypeSerializer(NodeCase.class, nodeParser);
+
+        final AsNumTlvParser asNumParser = new AsNumTlvParser();
+        testreg.registerNlriTlvSerializer(AS_NUMBER, NlriType.Node, asNumParser);
+
+        final DomainIdTlvParser bgpDomainIdParser = new DomainIdTlvParser();
+        testreg.registerNlriTlvSerializer(BGP_LS_ID, NlriType.Node, bgpDomainIdParser);
+
+        final AreaIdTlvParser areaIdParser = new AreaIdTlvParser();
+        testreg.registerNlriTlvSerializer(AREA_ID, NlriType.Node, areaIdParser);
+
+        final CrouterIdTlvParser bgpCrouterIdParser = new CrouterIdTlvParser();
+        testreg.registerNlriTlvSerializer(IGP_ROUTER_ID, NlriType.Node, bgpCrouterIdParser);
+
+        final IsisNodeCaseSerializer isisNcaseSerializer = new IsisNodeCaseSerializer();
+        testreg.registerRouterIdSerializer(IsisNodeCase.class, isisNcaseSerializer);
+
+        final IsisPseudoNodeCaseSerializer isisPNcaseSerializer = new IsisPseudoNodeCaseSerializer();
+        testreg.registerRouterIdSerializer(IsisPseudonodeCase.class, isisPNcaseSerializer);
+
+        final OspfNodeCaseSerializer ospfNcaseSerializer = new OspfNodeCaseSerializer();
+        testreg.registerRouterIdSerializer(OspfNodeCase.class, ospfNcaseSerializer);
+
+        final OspfPseudoNodeCaseSerializer ospfPNcaseSerializer = new OspfPseudoNodeCaseSerializer();
+        testreg.registerRouterIdSerializer(OspfPseudonodeCase.class, ospfPNcaseSerializer);
 
         final DataContainerNodeAttrBuilder<NodeIdentifier, UnkeyedListEntryNode> linkstateBI = ImmutableUnkeyedListEntryNodeBuilder.create();
         linkstateBI.withNodeIdentifier(new NodeIdentifier(CLinkstateDestination.QNAME));

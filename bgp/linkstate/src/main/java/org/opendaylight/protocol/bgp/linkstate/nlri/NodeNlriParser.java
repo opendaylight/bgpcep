@@ -11,12 +11,10 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.primitives.UnsignedInteger;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -25,7 +23,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.DomainIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.OspfInterfaceIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.isis.lan.identifier.IsIsRouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.isis.lan.identifier.IsIsRouterIdentifierBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.ObjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.destination.CLinkstateDestination;
@@ -63,21 +60,12 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgum
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @VisibleForTesting
-public final class NodeNlriParser implements NlriTypeCaseParser, NlriTypeCaseSerializer {
-
-    private static final Logger LOG = LoggerFactory.getLogger(NodeNlriParser.class);
+public final class NodeNlriParser implements NlriTypeCaseParser, NlriTypeCaseSerializer, NodeDescriptorsTlvBuilderParser {
 
     public NodeNlriParser() {
     }
-
-    private static final int OSPF_PSEUDONODE_ROUTER_ID_LENGTH = 8;
-    private static final int OSPF_ROUTER_ID_LENGTH = 4;
-    private static final int ISO_SYSTEM_ID_LENGTH = 6;
-    private static final int PSN_LENGTH = 1;
 
     /* Node Descriptor TLVs */
     private static final int AS_NUMBER = 512;
@@ -123,91 +111,31 @@ public final class NodeNlriParser implements NlriTypeCaseParser, NlriTypeCaseSer
     public static final NodeIdentifier OSPF_ROUTER_NID = new NodeIdentifier(QName.create(NodeDescriptors.QNAME, "ospf-router-id").intern());
     private static final NodeIdentifier LAN_IFACE_NID = new NodeIdentifier(QName.create(NodeDescriptors.QNAME, "lan-interface").intern());
 
-    static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier parseNodeDescriptors(final ByteBuf buffer, final NlriType nlriType, final boolean local) throws BGPParsingException {
-        AsNumber asnumber = null;
-        DomainIdentifier bgpId = null;
-        AreaIdentifier ai = null;
-        CRouterIdentifier routerId = null;
-        AsNumber memberAsn = null;
-        Ipv4Address bgpRouterId = null;
-        while (buffer.isReadable()) {
-            final int type = buffer.readUnsignedShort();
-            final int length = buffer.readUnsignedShort();
-            final ByteBuf value = buffer.readSlice(length);
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Parsing Node Descriptor: {}", ByteBufUtil.hexDump(value));
-            }
-            switch (type) {
-            case AS_NUMBER:
-                asnumber = new AsNumber(value.readUnsignedInt());
-                LOG.debug("Parsed {}", asnumber);
-                break;
-            case BGP_LS_ID:
-                bgpId = new DomainIdentifier(value.readUnsignedInt());
-                LOG.debug("Parsed {}", bgpId);
-                break;
-            case AREA_ID:
-                ai = new AreaIdentifier(value.readUnsignedInt());
-                LOG.debug("Parsed area identifier {}", ai);
-                break;
-            case IGP_ROUTER_ID:
-                routerId = parseRouterId(value);
-                LOG.debug("Parsed Router Identifier {}", routerId);
-                break;
-            case BGP_ROUTER_ID:
-                bgpRouterId = Ipv4Util.addressForByteBuf(value);
-                LOG.debug("Parsed BGP Router Identifier {}", bgpRouterId);
-                break;
-            case MEMBER_AS_NUMBER:
-                memberAsn = new AsNumber(value.readUnsignedInt());
-                LOG.debug("Parsed Member AsNumber {}", memberAsn);
-                break;
-            default:
-                throw new BGPParsingException("Node Descriptor not recognized, type: " + type);
-            }
-        }
-        LOG.trace("Finished parsing Node descriptors.");
-        return correctType(nlriType, local, asnumber, ai, routerId, bgpId, bgpRouterId, memberAsn);
+    @Override
+    public void setAsNumBuilder(AsNumber asNum, NlriTlvTypeBuilderContext context) {
+        context.getNodeDescriptorsBuilder().setAsNumber(asNum);
     }
 
-    private static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier correctType(final NlriType nlriType, final boolean local, final AsNumber asnumber, final AreaIdentifier ai, final CRouterIdentifier routerId, final DomainIdentifier bgpId, final Ipv4Address bgpRouterId, final AsNumber memberAsn) {
-        switch (nlriType) {
-        case Link:
-            if (local) {
-                return new LocalNodeDescriptorsBuilder().setAsNumber(asnumber).setAreaId(ai).setCRouterIdentifier(routerId).setDomainId(bgpId).setBgpRouterId(bgpRouterId).setMemberAsn(memberAsn).build();
-            } else {
-                return new RemoteNodeDescriptorsBuilder().setAsNumber(asnumber).setAreaId(ai).setCRouterIdentifier(routerId).setDomainId(bgpId).setBgpRouterId(bgpRouterId).setMemberAsn(memberAsn).build();
-            }
-        case Node:
-            return new NodeDescriptorsBuilder().setAsNumber(asnumber).setAreaId(ai).setCRouterIdentifier(routerId).setDomainId(bgpId).build();
-        case Ipv4Prefix:
-        case Ipv6Prefix:
-            return new AdvertisingNodeDescriptorsBuilder().setAsNumber(asnumber).setAreaId(ai).setCRouterIdentifier(routerId).setDomainId(bgpId).build();
-        default:
-            throw new IllegalStateException("NLRI type not recognized.");
-        }
+    @Override
+    public void setAreaIdBuilder(AreaIdentifier ai, NlriTlvTypeBuilderContext context) {
+        context.getNodeDescriptorsBuilder().setAreaId(ai);
     }
 
-    private static CRouterIdentifier parseRouterId(final ByteBuf value) throws BGPParsingException {
-        if (value.readableBytes() == ISO_SYSTEM_ID_LENGTH || (value.readableBytes() == ISO_SYSTEM_ID_LENGTH + PSN_LENGTH && value.getByte(ISO_SYSTEM_ID_LENGTH) == 0)) {
-            return new IsisNodeCaseBuilder().setIsisNode(
-                new IsisNodeBuilder().setIsoSystemId(new IsoSystemIdentifier(ByteArray.readBytes(value, ISO_SYSTEM_ID_LENGTH))).build()).build();
-        }
-        if (value.readableBytes() == ISO_SYSTEM_ID_LENGTH + PSN_LENGTH) {
-            final IsIsRouterIdentifier iri = new IsIsRouterIdentifierBuilder().setIsoSystemId(
-                new IsoSystemIdentifier(ByteArray.readBytes(value, ISO_SYSTEM_ID_LENGTH))).build();
-            return new IsisPseudonodeCaseBuilder().setIsisPseudonode(new IsisPseudonodeBuilder().setIsIsRouterIdentifier(iri).setPsn((short) value.readByte()).build()).build();
-        }
-        if (value.readableBytes() == OSPF_ROUTER_ID_LENGTH) {
-            return new OspfNodeCaseBuilder().setOspfNode(
-                new OspfNodeBuilder().setOspfRouterId(value.readUnsignedInt()).build()).build();
-        }
-        if (value.readableBytes() == OSPF_PSEUDONODE_ROUTER_ID_LENGTH) {
-            return new OspfPseudonodeCaseBuilder().setOspfPseudonode(
-                new OspfPseudonodeBuilder().setOspfRouterId(value.readUnsignedInt()).setLanInterface(new OspfInterfaceIdentifier(value.readUnsignedInt())).build()).build();
-        }
-        throw new BGPParsingException("Router Id of invalid length " + value.readableBytes());
+    @Override
+    public void setCRouterIdBuilder(CRouterIdentifier CRouterId, NlriTlvTypeBuilderContext context) {
+        context.getNodeDescriptorsBuilder().setCRouterIdentifier(CRouterId);
     }
+
+    @Override
+    public void setDomainIdBuilder(DomainIdentifier bgpId, NlriTlvTypeBuilderContext context) {
+        context.getNodeDescriptorsBuilder().setDomainId(bgpId);
+    }
+
+    @Override
+    public org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier buildNodeDescriptors(NlriTlvTypeBuilderContext context) {
+        return context.getNodeDescriptorsBuilder().build();
+    }
+
 
     static void serializeNodeIdentifier(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier descriptors, final ByteBuf buffer) {
         if (descriptors.getAsNumber() != null) {
@@ -413,8 +341,8 @@ public final class NodeNlriParser implements NlriTypeCaseParser, NlriTypeCaseSer
 
     @Override
     public NlriType serializeTypeNlri(final CLinkstateDestination destination, final ByteBuf localdescs, final ByteBuf byteAggregator) {
-        final NodeCase nCase = ((NodeCase)destination.getObjectType());
-        NodeNlriParser.serializeNodeIdentifier(nCase.getNodeDescriptors(), localdescs);
+        final ObjectType nCase = destination.getObjectType();
+        SimpleNlriTypeRegistry.getInstance().serializeNodeTlvObject(nCase, NlriType.Node, localdescs);
         TlvUtil.writeTLV(LOCAL_NODE_DESCRIPTORS_TYPE, localdescs, byteAggregator);
         return NlriType.Node;
     }

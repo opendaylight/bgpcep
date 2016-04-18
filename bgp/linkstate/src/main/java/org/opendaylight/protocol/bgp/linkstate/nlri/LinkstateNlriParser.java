@@ -73,7 +73,6 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     private static final int LENGTH_SIZE = 2;
 
     private static final int LOCAL_NODE_DESCRIPTORS_TYPE = 256;
-    private static final int REMOTE_NODE_DESCRIPTORS_TYPE = 257;
 
     @VisibleForTesting
     public static final NodeIdentifier OBJECT_TYPE_NID = new NodeIdentifier(ObjectType.QNAME);
@@ -114,6 +113,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
      */
     public static List<CLinkstateDestination> parseNlri(final ByteBuf nlri, final boolean isVpn) throws BGPParsingException {
         final List<CLinkstateDestination> dests = new ArrayList<>();
+        final SimpleNlriTypeRegistry nlriTypeReg = SimpleNlriTypeRegistry.getInstance();
         while (nlri.isReadable()) {
             final CLinkstateDestinationBuilder builder = new CLinkstateDestinationBuilder();
             final NlriType type = NlriType.forValue(nlri.readUnsignedShort());
@@ -141,7 +141,9 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
                 final int localtype = nlri.readUnsignedShort();
                 final int locallength = nlri.readUnsignedShort();
                 if (localtype == LOCAL_NODE_DESCRIPTORS_TYPE) {
-                    localDescriptor = NodeNlriParser.parseNodeDescriptors(nlri.readSlice(locallength), type, true);
+                    NlriTlvTypeBuilderContext builderctx = new NlriTlvTypeBuilderContext(true);
+                    nlriTypeReg.parseTlvObject(nlri.readSlice(locallength), type, builderctx);
+                    localDescriptor = nlriTypeReg.nodeDescriptorTlvBuilder(builderctx, type);
                 }
                 final int restLength = length - (isVpn ? ROUTE_DISTINGUISHER_LENGTH : 0) - PROTOCOL_ID_LENGTH -
                     IDENTIFIER_LENGTH - TYPE_LENGTH - LENGTH_SIZE - locallength;

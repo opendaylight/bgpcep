@@ -13,7 +13,10 @@ import io.netty.buffer.ByteBufUtil;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.Ipv4Util;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.AreaIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.DomainIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.OspfRouteType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.TopologyIdentifier;
@@ -23,13 +26,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.AdvertisingNodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.PrefixDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.object.type.prefix._case.PrefixDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.node.identifier.CRouterIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @VisibleForTesting
-public final class PrefixIpv4NlriParser implements NlriTypeCaseParser  {
+public final class PrefixIpv4NlriParser implements NlriTypeCaseParser, NodeDescriptorsTlvBuilderParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(PrefixIpv4NlriParser.class);
 
@@ -81,11 +85,42 @@ public final class PrefixIpv4NlriParser implements NlriTypeCaseParser  {
     }
 
     @Override
+    public void setAsNumBuilder(AsNumber asNum, NlriTlvTypeBuilderContext context) {
+        context.getAdvertisingNodeDescriptorsBuilder().setAsNumber(asNum);
+
+    }
+
+    @Override
+    public void setAreaIdBuilder(AreaIdentifier ai, NlriTlvTypeBuilderContext context) {
+        context.getAdvertisingNodeDescriptorsBuilder().setAreaId(ai);
+
+    }
+
+    @Override
+    public void setCRouterIdBuilder(CRouterIdentifier CRouterId, NlriTlvTypeBuilderContext context) {
+        context.getAdvertisingNodeDescriptorsBuilder().setCRouterIdentifier(CRouterId);
+
+    }
+
+    @Override
+    public void setDomainIdBuilder(DomainIdentifier bgpId, NlriTlvTypeBuilderContext context) {
+        context.getAdvertisingNodeDescriptorsBuilder().setDomainId(bgpId);
+
+    }
+
+    @Override
+    public org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier buildNodeDescriptors(NlriTlvTypeBuilderContext context) {
+        return context.getAdvertisingNodeDescriptorsBuilder().build();
+    }
+
+    @Override
     public ObjectType parseTypeNlri(final ByteBuf nlri, final NlriType type, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.NodeIdentifier localdescriptor, final ByteBuf restNlri) throws BGPParsingException {
-        PrefixCaseBuilder prefixbuilder = new PrefixCaseBuilder();
-        PrefixDescriptors prefdesc = parseIpv4PrefixDescriptors(restNlri);
+        final PrefixCaseBuilder prefixbuilder = new PrefixCaseBuilder();
+        final SimpleNlriTypeRegistry nlriTypeReg = SimpleNlriTypeRegistry.getInstance();
+        final NlriTlvTypeBuilderContext context = new NlriTlvTypeBuilderContext();
+        nlriTypeReg.parseTlvObject(restNlri, type, context);
+        PrefixDescriptors prefdesc = context.getPrefixDescriptorsBuilder().build();
         PrefixCase prefixcase = prefixbuilder.setAdvertisingNodeDescriptors((AdvertisingNodeDescriptors) localdescriptor).setPrefixDescriptors(prefdesc).build();
         return prefixcase;
     }
-
 }
