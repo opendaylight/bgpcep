@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_23cc7835",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/cli/utils/BgpCliUtils.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 3500
+      },
+      "writtenOn": "2016-04-18T17:36:30Z",
+      "side": 1,
+      "message": "@Milos Fabian, I think this code style rule is not pertinent in this case.  \n(regexp) RegexpMultiline: Line contains console output.\nI need it to render the table with the information.",
+      "revId": "720ef4825f9a1a0ecbe7b98f442a66967e9d4227",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
