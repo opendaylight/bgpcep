@@ -28,6 +28,7 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.AggregatorAttrib
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AigpAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AtomicAggregateAttributeParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.BgpPrefixSidAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.ClusterIdAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunitiesAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.ExtendedCommunitiesAttributeParser;
@@ -67,6 +68,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Aigp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.AsPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.AtomicAggregate;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.BgpPrefixSid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.ClusterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.ExtendedCommunities;
@@ -169,6 +171,10 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     }
 
     private void registerAttributeParsers(final List<AutoCloseable> regs, final BGPExtensionProviderContext context) {
+        final BgpPrefixSidAttributeParser prefixSidAttributeParser = new BgpPrefixSidAttributeParser();
+        regs.add(context.registerAttributeSerializer(BgpPrefixSid.class, prefixSidAttributeParser));
+        regs.add(context.registerAttributeParser(BgpPrefixSidAttributeParser.TYPE, prefixSidAttributeParser));
+
         final OriginAttributeParser originAttributeParser = new OriginAttributeParser();
         regs.add(context.registerAttributeSerializer(Origin.class, originAttributeParser));
         regs.add(context.registerAttributeParser(OriginAttributeParser.TYPE, originAttributeParser));
