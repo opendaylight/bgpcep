@@ -51,26 +51,28 @@ public final class EvpnNlriParser implements NlriParser, NlriSerializer {
     private static final Logger LOG = LoggerFactory.getLogger(EvpnNlriParser.class);
     private static final NodeIdentifier EVPN_CHOICE_NID = new NodeIdentifier(EvpnChoice.QNAME);
 
+    @FunctionalInterface
+    private interface extractionInterface {
+        EvpnChoice check(EvpnRegistry reg, ChoiceNode cont);
+    }
+
     public static EvpnDestination extractEvpnDestination(final DataContainerNode<? extends PathArgument> evpnChoice) {
+        return extractDestination(evpnChoice, (reg, cont) -> reg.serializeEvpnModel(cont));
+    }
+
+    private static EvpnDestination extractDestination(final DataContainerNode<? extends PathArgument> evpnChoice, final extractionInterface extract) {
         final EvpnRegistry reg = SimpleEvpnNlriRegistry.getInstance();
-        final ChoiceNode choiceCont = (ChoiceNode) evpnChoice.getChild(EVPN_CHOICE_NID).get();
-        final EvpnChoice evpnValue = reg.serializeEvpnModel(choiceCont);
+        final ChoiceNode cont = (ChoiceNode) evpnChoice.getChild(EVPN_CHOICE_NID).get();
+        final EvpnChoice evpnValue = extract.check(reg, cont);
         if (evpnValue == null) {
-            LOG.warn("Unrecognized Nlri {}", choiceCont);
+            LOG.warn("Unrecognized Nlri {}", cont);
             return null;
         }
         return new EvpnDestinationBuilder().setRouteDistinguisher(extractRouteDistinguisher(evpnChoice)).setEvpnChoice(evpnValue).build();
     }
 
     public static EvpnDestination extractRouteKeyDestination(final DataContainerNode<? extends PathArgument> evpnChoice) {
-        final EvpnRegistry reg = SimpleEvpnNlriRegistry.getInstance();
-        final ChoiceNode choiceCont = (ChoiceNode) evpnChoice.getChild(EVPN_CHOICE_NID).get();
-        final EvpnChoice evpnValue = reg.serializeEvpnRouteKey(choiceCont);
-        if (evpnValue == null) {
-            LOG.warn("Unrecognized Nlri {}", choiceCont);
-            return null;
-        }
-        return new EvpnDestinationBuilder().setRouteDistinguisher(extractRouteDistinguisher(evpnChoice)).setEvpnChoice(evpnValue).build();
+        return extractDestination(evpnChoice, (reg, cont) -> reg.serializeEvpnRouteKey(cont));
     }
 
     @Override
