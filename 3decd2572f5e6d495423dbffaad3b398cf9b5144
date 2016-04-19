@@ -22,6 +22,30 @@
       "revId": "3decd2572f5e6d495423dbffaad3b398cf9b5144",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_efba6109",
+        "filename": "bgp/inet/src/main/yang/bgp-inet.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-04-19T13:04:47Z",
+      "side": 1,
+      "message": "I was importing inet to the other extension. but yes, its a better approach",
+      "parentUuid": "fa57193c_cf403d38",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 5
+      },
+      "revId": "3decd2572f5e6d495423dbffaad3b398cf9b5144",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
