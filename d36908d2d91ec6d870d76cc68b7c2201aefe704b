@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_4feeed8c",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled/unicast/LuBgpPrefixSidParser.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-19T13:53:15Z",
+      "side": 1,
+      "message": "You will probably need some API for the attribute TLV codecs.",
+      "range": {
+        "startLine": 22,
+        "startChar": 19,
+        "endLine": 22,
+        "endChar": 39
+      },
+      "revId": "d36908d2d91ec6d870d76cc68b7c2201aefe704b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
