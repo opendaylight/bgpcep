@@ -9,6 +9,7 @@
 package org.opendaylight.protocol.bgp.mode.api;
 
 import com.google.common.primitives.UnsignedInteger;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
@@ -37,7 +38,7 @@ public interface RouteEntry {
      * @param remotePathId remote path Id received
      * @return return true if it was the last route on entry
      */
-    boolean removeRoute(UnsignedInteger routerId, long remotePathId);
+    boolean removeRoute(UnsignedInteger routerId, @Nullable Long remotePathId);
 
     /**
      * Create value

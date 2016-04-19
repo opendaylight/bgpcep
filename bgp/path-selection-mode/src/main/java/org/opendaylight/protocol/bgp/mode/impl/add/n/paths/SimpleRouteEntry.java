@@ -24,7 +24,7 @@ final class SimpleRouteEntry extends AbstractNPathsRouteEntry {
     }
 
     @Override
-    public boolean removeRoute(final UnsignedInteger routerId, final long remotePathId) {
+    public boolean removeRoute(final UnsignedInteger routerId, final Long remotePathId) {
         final RouteKey key = new RouteKey(routerId, remotePathId);
         return removeRoute(key, getOffsets().offsetOf(key));
     }
