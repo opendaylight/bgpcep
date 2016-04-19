@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_01e2099f",
+        "filename": "bgp/evpn/src/main/java/org/opendaylight/protocol/bgp/evpn/impl/nlri/EthSegRParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-19T16:44:13Z",
+      "side": 1,
+      "message": "placeholder",
+      "range": {
+        "startLine": 38,
+        "startChar": 57,
+        "endLine": 38,
+        "endChar": 79
+      },
+      "revId": "c2ff49c60eabd8e5f77bb29aacbbf470a7e158a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_a19fdd02",
+        "filename": "bgp/evpn/src/main/java/org/opendaylight/protocol/bgp/evpn/impl/nlri/MACIpAdvRParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-19T16:44:13Z",
+      "side": 1,
+      "message": "final",
+      "revId": "c2ff49c60eabd8e5f77bb29aacbbf470a7e158a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_019049eb",
+        "filename": "bgp/evpn/src/main/java/org/opendaylight/protocol/bgp/evpn/impl/nlri/MACIpAdvRParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-19T16:44:13Z",
+      "side": 1,
+      "message": "alternatively: \nfinal MplsLabel label2;\nif (buffer.readableBytes() \u003e 0) {\n    label2 \u003d mplsLabelForByteBuf(buffer);\n} else {\n    label \u003d null;\n}",
+      "range": {
+        "startLine": 56,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 9
+      },
+      "revId": "c2ff49c60eabd8e5f77bb29aacbbf470a7e158a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
