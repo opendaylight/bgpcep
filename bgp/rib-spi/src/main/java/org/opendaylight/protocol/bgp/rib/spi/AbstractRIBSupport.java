@@ -53,6 +53,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     private static final NodeIdentifier WITHDRAWN_ROUTES = new NodeIdentifier(WithdrawnRoutes.QNAME);
     private static final NodeIdentifier DESTINATION_TYPE = new NodeIdentifier(DestinationType.QNAME);
     private static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
+    private static final long NON_PATH_ID = 0;
 
     private final NodeIdentifier routesContainerIdentifier;
     private final NodeIdentifier routesListIdentifier;
@@ -289,7 +290,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     }
 
     @Override
-    public long extractPathId(final NormalizedNode<?, ?> data) {
-        return 0;
+    public Long extractPathId(final NormalizedNode<?, ?> data) {
+        return NON_PATH_ID;
     }
 }

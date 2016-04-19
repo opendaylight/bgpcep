@@ -37,7 +37,7 @@ public interface RouteEntry {
      * @param remotePathId remote path Id received
      * @return return true if it was the last route on entry
      */
-    boolean removeRoute(UnsignedInteger routerId, long remotePathId);
+    boolean removeRoute(UnsignedInteger routerId, Long remotePathId);
 
     /**
      * Create value

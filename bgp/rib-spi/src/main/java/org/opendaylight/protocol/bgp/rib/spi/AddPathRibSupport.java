@@ -23,7 +23,7 @@ public interface AddPathRibSupport {
      * @param normalizedNode
      * @return pathId  The path identifier from data change, in case its not provided or supported return 0 by default
      */
-    long extractPathId(NormalizedNode<?, ?> normalizedNode);
+    Long extractPathId(NormalizedNode<?, ?> normalizedNode);
 
     /**
      * Construct a PathArgument to an AddPathRoute

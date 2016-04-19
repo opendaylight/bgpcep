@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -16,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nonnull;
+import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.DestinationIpv4;
@@ -42,10 +42,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 
@@ -68,7 +66,7 @@ final class IPv4RIBSupport extends AbstractIPRIBSupport {
     private final NodeIdentifier ipv4Route = new NodeIdentifier(Ipv4Route.QNAME);
     private final NodeIdentifier nlriRoutesList = new NodeIdentifier(Ipv4Prefixes.QNAME);
     private final NodeIdentifier routeKeyLeaf = new NodeIdentifier(PREFIX_QNAME);
-    private final NodeIdentifier pathIdLeaf = new NodeIdentifier(PATHID_QNAME);
+    private static final NodeIdentifier PATH_ID_LEAF = new NodeIdentifier(PATHID_QNAME);
 
     private IPv4RIBSupport() {
         super(Ipv4RoutesCase.class, Ipv4Routes.class, Ipv4Route.class);
@@ -128,12 +126,8 @@ final class IPv4RIBSupport extends AbstractIPRIBSupport {
     }
 
     @Override
-    public long extractPathId(final NormalizedNode<?, ?> data) {
-        final NormalizedNode<?, ?> pathId = NormalizedNodes.findNode(data, pathIdLeaf).orNull();
-        if (pathId == null) {
-            return 0;
-        }
-        return (Long) pathId.getValue();
+    public Long extractPathId(final NormalizedNode<?, ?> data) {
+        return PathIdUtil.extractPathId(data, PATH_ID_LEAF);
     }
 
     private List<Ipv4Prefixes> extractPrefixes(final Collection<MapEntryNode> routes) {
@@ -141,10 +135,7 @@ final class IPv4RIBSupport extends AbstractIPRIBSupport {
         for (final MapEntryNode route : routes) {
             final String prefix = (String) route.getChild(this.routeKeyLeaf).get().getValue();
             final Ipv4PrefixesBuilder prefixBuilder = new Ipv4PrefixesBuilder().setPrefix(new Ipv4Prefix(prefix));
-            final Optional<DataContainerChild<? extends PathArgument, ?>> pathIdChild = route.getChild(this.pathIdLeaf);
-            if(pathIdChild.isPresent()) {
-                prefixBuilder.setPathId(new PathId((Long) pathIdChild.get().getValue()));
-            }
+            prefixBuilder.setPathId(new PathId(PathIdUtil.extractPathId(route, PATH_ID_LEAF)));
             prefs.add(prefixBuilder.build());
         }
         return prefs;
