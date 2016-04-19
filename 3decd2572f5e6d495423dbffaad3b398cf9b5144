@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_cf403d38",
+        "filename": "bgp/inet/src/main/yang/bgp-inet.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-19T12:38:49Z",
+      "side": 1,
+      "message": "Would not be better to keep the grouping in bgp-message yang data model, so it can be used in other BGP extensions?",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 5
+      },
+      "revId": "3decd2572f5e6d495423dbffaad3b398cf9b5144",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
