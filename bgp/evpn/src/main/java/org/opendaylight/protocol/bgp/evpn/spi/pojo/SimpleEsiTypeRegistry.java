@@ -9,6 +9,7 @@
 package org.opendaylight.protocol.bgp.evpn.spi.pojo;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.evpn.spi.EsiParser;
 import org.opendaylight.protocol.bgp.evpn.spi.EsiRegistry;
@@ -20,10 +21,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,12 +68,12 @@ public final class SimpleEsiTypeRegistry implements EsiRegistry {
     @Override
     public Esi parseEsiModel(final ChoiceNode esiChoice) {
         Preconditions.checkArgument(esiChoice != null && !esiChoice.getValue().isEmpty(), "ESI is mandatory. Can't be null or empty.");
-        for (final DataContainerChild<? extends PathArgument, ?> entry : esiChoice.getValue()) {
-            final EsiSerializer serializer = this.modelHandlers.get((NodeIdentifier) entry.getIdentifier());
-            if (serializer != null) {
-                return serializer.serializeEsi((ContainerNode) entry);
-            }
+        final ContainerNode cont = (ContainerNode) Iterables.getOnlyElement(esiChoice.getValue());
+        final EsiSerializer serializer = this.modelHandlers.get(cont.getIdentifier());
+        if (serializer != null) {
+            return serializer.serializeEsi(cont);
         }
+
         LOG.warn("Unrecognized ESI {}", esiChoice);
         return null;
     }
