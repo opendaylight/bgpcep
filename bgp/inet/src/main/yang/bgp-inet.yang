@@ -28,13 +28,17 @@ module bgp-inet {
                     "Initial revision.";
     }
 
+    grouping path-id {
+        leaf path-id {
+            type bgp-msg:path-id;
+        }
+    }
+
     grouping ipv4-prefix {
         leaf prefix {
             type inet:ipv4-prefix;
         }
-        leaf path-id {
-            type bgp-msg:path-id;
-        }
+        uses path-id;
     }
 
     grouping ipv6-prefix {
