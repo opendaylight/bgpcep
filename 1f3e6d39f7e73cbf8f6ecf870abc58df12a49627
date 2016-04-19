@@ -22,6 +22,30 @@
       "revId": "1f3e6d39f7e73cbf8f6ecf870abc58df12a49627",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_ce24c3c8",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/NlriParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-19T06:13:07Z",
+      "side": 1,
+      "message": "Did not want to break current implementations unless it is really unnecessary.",
+      "parentUuid": "fa57193c_ae0fcf2d",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 106
+      },
+      "revId": "1f3e6d39f7e73cbf8f6ecf870abc58df12a49627",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
