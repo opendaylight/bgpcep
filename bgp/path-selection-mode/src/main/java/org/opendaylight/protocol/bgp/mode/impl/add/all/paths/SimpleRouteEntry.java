@@ -20,7 +20,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContaine
 
 final class SimpleRouteEntry extends AbstractAllPathsRouteEntry {
     @Override
-    public boolean removeRoute(final UnsignedInteger routerId, final long remotePathId) {
+    public boolean removeRoute(final UnsignedInteger routerId, final Long remotePathId) {
         final RouteKey key = new RouteKey(routerId, remotePathId);
         return removeRoute(key, getOffsets().offsetOf(key));
     }

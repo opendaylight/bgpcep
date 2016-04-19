@@ -99,7 +99,7 @@ public class AbstractRIBSupportTest {
         }
 
         @Override
-        public long extractPathId(final NormalizedNode<?, ?> normalizedNode) {
+        public Long extractPathId(final NormalizedNode<?, ?> normalizedNode) {
             throw new UnsupportedOperationException();
         }
 

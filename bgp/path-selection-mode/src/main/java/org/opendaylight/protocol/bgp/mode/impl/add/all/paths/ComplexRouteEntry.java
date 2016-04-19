@@ -22,7 +22,7 @@ final class ComplexRouteEntry extends AbstractAllPathsRouteEntry {
     private MapEntryNode[] values = EMPTY_VALUES;
 
     @Override
-    public boolean removeRoute(final UnsignedInteger routerId, final long remotePathId) {
+    public boolean removeRoute(final UnsignedInteger routerId, final Long remotePathId) {
         final RouteKey key = new RouteKey(routerId, remotePathId);
         final OffsetMap<RouteKey> map = getOffsets();
         final int offset = map.offsetOf(key);

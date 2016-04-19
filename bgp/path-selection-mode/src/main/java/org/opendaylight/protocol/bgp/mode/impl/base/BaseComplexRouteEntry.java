@@ -40,7 +40,7 @@ final class BaseComplexRouteEntry extends BaseAbstractRouteEntry {
     }
 
     @Override
-    public boolean removeRoute(final UnsignedInteger routerId, final long remotePathId) {
+    public boolean removeRoute(final UnsignedInteger routerId, final Long remotePathId) {
         final OffsetMap<UnsignedInteger> map = getOffsets();
         final int offset = map.offsetOf(routerId);
         final boolean ret = removeRoute(routerId, offset);
