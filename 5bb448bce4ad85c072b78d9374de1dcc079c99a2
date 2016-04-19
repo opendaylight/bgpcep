@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_a46d2b07",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/cli/impl/ShowBGPStatsCommandProvider.java",
+        "patchSetId": 33
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 3500
+      },
+      "writtenOn": "2016-04-19T23:40:46Z",
+      "side": 1,
+      "message": "@Milos, I\u0027m calling the MBean as you said, but I\u0027m getting this error when this line is executed.\nError executing command: javax.management.openmbean.CompositeDataSupport cannot be cast to org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState",
+      "revId": "5bb448bce4ad85c072b78d9374de1dcc079c99a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
