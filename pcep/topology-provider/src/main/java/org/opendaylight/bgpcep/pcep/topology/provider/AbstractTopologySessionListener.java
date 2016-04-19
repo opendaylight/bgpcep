@@ -270,6 +270,8 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
         if (onMessage(ctx, message)) {
             LOG.info("Unhandled message {} on session {}", message, session);
+            //cancel not supported, submit empty transaction
+            ctx.trans.submit();
             return;
         }
 
