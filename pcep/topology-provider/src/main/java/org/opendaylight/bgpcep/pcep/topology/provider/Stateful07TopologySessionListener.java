@@ -25,6 +25,7 @@ import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.PeerCapabilities;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
+import org.opendaylight.protocol.pcep.spi.PSTUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.PathComputationClient1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.PathComputationClient1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.lsp.db.version.tlv.LspDbVersion;
@@ -399,7 +400,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         if (tlvs != null) {
             if (tlvs.getLspIdentifiers() != null) {
                 pb.setLspId(tlvs.getLspIdentifiers().getLspId());
-            } else if (!isDefaultPST(pst)) {
+            } else if (!PSTUtil.isDefaultPST(pst)) {
                 pb.setLspId(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId(lsp.getPlspId().getValue()));
             }
         }
@@ -470,7 +471,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             final SrpBuilder srpBuilder = new SrpBuilder();
             srpBuilder.setOperationId(nextRequest());
             srpBuilder.setProcessingRule(Boolean.TRUE);
-            if (!isDefaultPST(args.getPathSetupType())) {
+            if (!PSTUtil.isDefaultPST(args.getPathSetupType())) {
                 srpBuilder.setTlvs(
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder()
                             .setPathSetupType(args.getPathSetupType()).build());
@@ -562,7 +563,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             srpBuilder.setOperationId(nextRequest());
             srpBuilder.setProcessingRule(Boolean.TRUE);
             if (args != null && args.getPathSetupType() != null) {
-                if (!isDefaultPST(args.getPathSetupType())) {
+                if (!PSTUtil.isDefaultPST(args.getPathSetupType())) {
                     srpBuilder.setTlvs(
                             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder()
                                 .setPathSetupType(args.getPathSetupType()).build());
@@ -688,19 +689,12 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             final Path1 path1 = rep.get().getPath().get(0).getAugmentation(Path1.class);
             if (path1 != null) {
                 final PathSetupType pst = path1.getPathSetupType();
-                if (!isDefaultPST(pst)) {
+                if (!PSTUtil.isDefaultPST(pst)) {
                     return Optional.of(pst);
                 }
             }
         }
         return Optional.absent();
-    }
-
-    private static boolean isDefaultPST(final PathSetupType pst) {
-        if (pst != null && pst.getPst() != null && pst.getPst().shortValue() != 0) {
-            return false;
-        }
-        return true;
     }
 
     private static PeerCapabilities getCapabilities(final Stateful stateful) {
