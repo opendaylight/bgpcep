@@ -40,10 +40,17 @@ module bgp-message {
 
     typedef path-id {
         type uint32;
+        default 0;
         description
             "Identifier of a single path. The identifier does not
              carry any semantic meaning beyond uniquely identifying
              a path.";
+    }
+
+    grouping path-id-grouping {
+        leaf path-id {
+            type path-id;
+        }
     }
 
     grouping originator-id {
