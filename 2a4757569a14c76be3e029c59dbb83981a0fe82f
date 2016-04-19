@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_e947014a",
+        "filename": "bgp/evpn/src/main/java/org/opendaylight/protocol/bgp/evpn/spi/pojo/SimpleEvpnNlriRegistry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-04-19T14:26:22Z",
+      "side": 1,
+      "message": "Iterables.getOnlyElement(routes)",
+      "range": {
+        "startLine": 74,
+        "startChar": 8,
+        "endLine": 74,
+        "endChar": 97
+      },
+      "revId": "2a4757569a14c76be3e029c59dbb83981a0fe82f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
