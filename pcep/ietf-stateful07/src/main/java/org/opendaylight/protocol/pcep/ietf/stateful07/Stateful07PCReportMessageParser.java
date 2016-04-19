@@ -18,6 +18,7 @@ import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
+import org.opendaylight.protocol.pcep.spi.PSTUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcrpt;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcrptBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.Lsp;
@@ -27,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.pcrpt.message.reports.Path;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.pcrpt.message.reports.PathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.Bandwidth;
@@ -103,13 +105,26 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
     protected Reports getValidReports(final List<Object> objects, final List<Message> errors) {
         boolean isValid = true;
         final ReportsBuilder builder = new ReportsBuilder();
+        boolean lspViaSR = false;
         if (objects.get(0) instanceof Srp) {
-            builder.setSrp((Srp) objects.get(0));
+            final Srp srp = (Srp) objects.get(0);
+            final Tlvs tlvs = srp.getTlvs();
+            if (tlvs != null) {
+                lspViaSR = PSTUtil.isDefaultPST(tlvs.getPathSetupType());
+            }
+            builder.setSrp(srp);
             objects.remove(0);
         }
+
         if (objects.get(0) instanceof Lsp) {
-            builder.setLsp((Lsp) objects.get(0));
-            objects.remove(0);
+            final Lsp lsp = (Lsp) objects.get(0);
+            if(!lspViaSR && lsp.getTlvs().getLspIdentifiers() == null && lsp.getPlspId().getValue() != 0) {
+                errors.add(createErrorMsg(PCEPErrors.LSP_IDENTIFIERS_TLV_MISSING, Optional.<Rp>absent()));
+                isValid = false;
+            } else {
+                builder.setLsp(lsp);
+                objects.remove(0);
+            }
         } else {
             errors.add(createErrorMsg(PCEPErrors.LSP_MISSING, Optional.<Rp>absent()));
             isValid = false;
