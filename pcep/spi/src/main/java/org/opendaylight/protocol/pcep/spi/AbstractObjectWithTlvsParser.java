@@ -23,8 +23,6 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractObjectWithTlvsParser.class);
 
-    public static final int PADDED_TO = 4;
-
     private final TlvRegistry tlvReg;
 
     private final VendorInformationTlvRegistry viTlvReg;
