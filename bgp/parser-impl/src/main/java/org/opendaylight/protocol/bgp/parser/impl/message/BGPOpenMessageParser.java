@@ -50,7 +50,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 
     private static final int BGP_VERSION = 4;
 
-    private static final int AS_TRANS = 2345;
+    public static final int AS_TRANS = 23456;
 
     private final ParameterRegistry reg;
 
