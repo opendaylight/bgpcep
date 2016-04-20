@@ -148,10 +148,12 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>config-manager</artifactId>
+            <scope>test</scope>
             <type>test-jar</type>
         </dependency>
         <dependency>
@@ -166,6 +168,7 @@
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>mockito-configuration</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
@@ -179,6 +182,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>programming-impl</artifactId>
+            <scope>test</scope>
             <type>test-jar</type>
         </dependency>
         <dependency>
@@ -189,11 +193,13 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>pcep-topology-provider</artifactId>
+            <scope>test</scope>
             <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>pcep-impl</artifactId>
+            <scope>test</scope>
             <type>test-jar</type>
         </dependency>
         <dependency>
@@ -210,6 +216,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
