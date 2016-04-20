@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_578fa323",
+        "filename": "bgp/l3vpn/src/main/yang/bgp-vpn-ipv6.yang",
+        "patchSetId": 13
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-20T06:29:20Z",
+      "side": 1,
+      "message": "This is the same for both IPv4/6, should be extracted to a grouping and to be reused.",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 13
+      },
+      "revId": "fe9993a76364da55aab41e026048a2ecfea684ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_3794af36",
+        "filename": "bgp/l3vpn/src/main/yang/bgp-vpn-ipv6.yang",
+        "patchSetId": 13
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-20T06:29:20Z",
+      "side": 1,
+      "message": "The same as above.",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 13
+      },
+      "revId": "fe9993a76364da55aab41e026048a2ecfea684ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
