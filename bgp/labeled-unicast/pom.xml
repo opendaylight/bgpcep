@@ -125,10 +125,12 @@
          <dependency>
              <groupId>junit</groupId>
              <artifactId>junit</artifactId>
+             <scope>test</scope>
          </dependency>
          <dependency>
              <groupId>org.opendaylight.yangtools</groupId>
              <artifactId>mockito-configuration</artifactId>
+             <scope>test</scope>
          </dependency>
          <dependency>
              <groupId>org.mockito</groupId>
@@ -138,11 +140,13 @@
          <dependency>
              <groupId>${project.groupId}</groupId>
              <artifactId>bgp-parser-spi</artifactId>
+             <scope>test</scope>
              <type>test-jar</type>
          </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-rib-spi</artifactId>
+            <scope>test</scope>
             <type>test-jar</type>
         </dependency>
          <dependency>

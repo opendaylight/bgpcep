@@ -105,10 +105,12 @@
       <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.opendaylight.controller</groupId>
          <artifactId>config-manager</artifactId>
+         <scope>test</scope>
          <type>test-jar</type>
       </dependency>
       <dependency>
@@ -123,6 +125,7 @@
       <dependency>
          <groupId>org.opendaylight.yangtools</groupId>
          <artifactId>mockito-configuration</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>${project.groupId}</groupId>
