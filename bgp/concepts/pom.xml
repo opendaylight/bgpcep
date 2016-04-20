@@ -61,7 +61,10 @@
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>concepts</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>concepts</artifactId>
+        </dependency>
         <!--
              FIXME: these are IETF models which are pre-generated in SAL infra.
                     This should not be here, but rather should somehow be
