@@ -16,6 +16,24 @@
       "revId": "5bb448bce4ad85c072b78d9374de1dcc079c99a2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_5a37cab0",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/cli/impl/ShowBGPStatsCommandProvider.java",
+        "patchSetId": 33
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-20T11:49:30Z",
+      "side": 1,
+      "message": "Mea Culpa - JMX.newMXBeanProxy() must be used.\n\nhttps://docs.oracle.com/javase/7/docs/api/javax/management/JMX.html#newMXBeanProxy%28javax.management.MBeanServerConnection,%20javax.management.ObjectName,%20java.lang.Class%29",
+      "parentUuid": "fa57193c_a46d2b07",
+      "revId": "5bb448bce4ad85c072b78d9374de1dcc079c99a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
