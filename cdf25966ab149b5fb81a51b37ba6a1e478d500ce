@@ -1,0 +1,262 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_30c83574",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 35
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-20T19:02:25Z",
+      "side": 1,
+      "message": "Missing commit message.",
+      "revId": "cdf25966ab149b5fb81a51b37ba6a1e478d500ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_b0260567",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/cli/impl/ResetBGPStatsCommandProvider.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-20T19:02:25Z",
+      "side": 1,
+      "message": "Please, follow package naming convention used in other bgp components.",
+      "range": {
+        "startLine": 9,
+        "startChar": 8,
+        "endLine": 9,
+        "endChar": 33
+      },
+      "revId": "cdf25966ab149b5fb81a51b37ba6a1e478d500ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_902b0130",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/cli/impl/ResetBGPStatsCommandProvider.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-20T19:02:25Z",
+      "side": 1,
+      "message": "final",
+      "revId": "cdf25966ab149b5fb81a51b37ba6a1e478d500ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_1017f1ee",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/cli/impl/ResetBGPStatsCommandProvider.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-20T19:02:25Z",
+      "side": 1,
+      "message": "Not very useful now, as peer module name is hardcoded.\nI think your original idea to get statistics for a specific peer (based on IP address) was good.\nYou could also provide a command which lists all peer stats.",
+      "range": {
+        "startLine": 27,
+        "startChar": 8,
+        "endLine": 27,
+        "endChar": 81
+      },
+      "revId": "cdf25966ab149b5fb81a51b37ba6a1e478d500ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_b0dd6545",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/cli/impl/ResetBGPStatsCommandProvider.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-20T19:02:25Z",
+      "side": 1,
+      "message": "Move into the try block.",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 41
+      },
+      "revId": "cdf25966ab149b5fb81a51b37ba6a1e478d500ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_70d3cd38",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/cli/impl/ResetBGPStatsCommandProvider.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-20T19:02:25Z",
+      "side": 1,
+      "message": "one line",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 63
+      },
+      "revId": "cdf25966ab149b5fb81a51b37ba6a1e478d500ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_90b941ec",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/cli/impl/ResetBGPStatsCommandProvider.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-20T19:02:25Z",
+      "side": 1,
+      "message": "final",
+      "revId": "cdf25966ab149b5fb81a51b37ba6a1e478d500ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_50bfa9d0",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/cli/impl/ResetBGPStatsCommandProvider.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-20T19:02:25Z",
+      "side": 1,
+      "message": "Is necessary to use EOL when \"println\" is invoked?",
+      "range": {
+        "startLine": 36,
+        "startChar": 61,
+        "endLine": 36,
+        "endChar": 63
+      },
+      "revId": "cdf25966ab149b5fb81a51b37ba6a1e478d500ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_b0b445f3",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/cli/impl/ResetBGPStatsCommandProvider.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-20T19:02:25Z",
+      "side": 1,
+      "message": "Use println.",
+      "range": {
+        "startLine": 42,
+        "startChar": 12,
+        "endLine": 42,
+        "endChar": 17
+      },
+      "revId": "cdf25966ab149b5fb81a51b37ba6a1e478d500ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_d0e3b903",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/cli/impl/ResetBGPStatsCommandProvider.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-20T19:02:25Z",
+      "side": 1,
+      "message": "Move into the try block.",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 45
+      },
+      "revId": "cdf25966ab149b5fb81a51b37ba6a1e478d500ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_f0cd1d88",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/cli/utils/BgpCliUtils.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-20T19:02:25Z",
+      "side": 1,
+      "message": "You can find useful ObjectNameUtil from config-api module.",
+      "range": {
+        "startLine": 18,
+        "startChar": 4,
+        "endLine": 18,
+        "endChar": 153
+      },
+      "revId": "cdf25966ab149b5fb81a51b37ba6a1e478d500ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_d0ca996d",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/cli/utils/BgpCliUtils.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-20T19:02:25Z",
+      "side": 1,
+      "message": "Create constants for duplicated string literals.",
+      "range": {
+        "startLine": 30,
+        "startChar": 35,
+        "endLine": 30,
+        "endChar": 48
+      },
+      "revId": "cdf25966ab149b5fb81a51b37ba6a1e478d500ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
