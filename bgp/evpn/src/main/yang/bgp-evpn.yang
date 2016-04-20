@@ -343,6 +343,33 @@ module odl-bgp-evpn {
         }
     }
 
+    grouping layer-2-attributes-extended-community {
+        container layer-2-attributes-extended-community {
+            reference "https://tools.ietf.org/html/draft-ietf-bess-evpn-vpws-02#section-3.1";
+            description
+                "The EVPN Layer 2 attributes extended community is a extended community
+                to be included with Ethernet A-D per EVI route.
+                This attribute is mandatory if multihoming is enabled.";
+
+                leaf primary-pe {
+                   type boolean;
+                   default false;
+                }
+                leaf backup-pe {
+                   type boolean;
+                   default false;
+                }
+                leaf control-word {
+                   type boolean;
+                   default false;
+                }
+                leaf l2-mtu {
+                    type uint16;
+                    mandatory true;
+                }
+        }
+    }
+
     grouping evpn-destination {
         list evpn-destination {
             uses evpn;
@@ -370,6 +397,9 @@ module odl-bgp-evpn {
                         }
                         case default-gateway-extended-community-case {
                             uses default-gateway-extended-community;
+                        }
+                        case layer-2-attributes-extended-community-case {
+                            uses layer-2-attributes-extended-community;
                         }
                     }
                 }
@@ -472,6 +502,9 @@ module odl-bgp-evpn {
         }
         case default-gateway-extended-community-case {
             uses default-gateway-extended-community;
+        }
+        case layer-2-attributes-extended-community-case {
+            uses layer-2-attributes-extended-community;
         }
     }
 }
