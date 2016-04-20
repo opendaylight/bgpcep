@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_7a81ee49",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPDispatcherImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-20T11:26:56Z",
+      "side": 1,
+      "message": "I think, the event loop group should be set based on a socket channel type set above. I guess, EpollSocketChannel will not work with NioEventLoopGroup.",
+      "range": {
+        "startLine": 98,
+        "startChar": 12,
+        "endLine": 98,
+        "endChar": 46
+      },
+      "revId": "660d8fa1b29167b5f7ce20aa67d8691f34eb0023",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
