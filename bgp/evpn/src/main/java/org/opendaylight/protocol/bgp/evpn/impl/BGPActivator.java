@@ -14,6 +14,7 @@ import org.opendaylight.protocol.bgp.evpn.impl.esi.types.ESIActivator;
 import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.DefaultGatewayExtCom;
 import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.ESILabelExtCom;
 import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.ESImpRouteTargetExtCom;
+import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.Layer2AttributesExtCom;
 import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.MACMobExtCom;
 import org.opendaylight.protocol.bgp.evpn.impl.nlri.NlriActivator;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
@@ -21,6 +22,7 @@ import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.EvpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.L2vpnAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.evpn.routes.evpn.routes.evpn.route.attributes.extended.communities.extended.community.DefaultGatewayExtendedCommunityCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.evpn.routes.evpn.routes.evpn.route.attributes.extended.communities.extended.community.Layer2AttributesExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.update.attributes.extended.communities.extended.community.EsImportRouteExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.update.attributes.extended.communities.extended.community.EsiLabelExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.update.attributes.extended.communities.extended.community.MacMobilityExtendedCommunityCase;
@@ -58,6 +60,10 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         final MACMobExtCom macEC = new MACMobExtCom();
         regs.add(context.registerExtendedCommunityParser(macEC.getType(true), macEC.getSubType(), macEC));
         regs.add(context.registerExtendedCommunitySerializer(MacMobilityExtendedCommunityCase.class, macEC));
+
+        final Layer2AttributesExtCom l2a = new Layer2AttributesExtCom();
+        regs.add(context.registerExtendedCommunityParser(l2a.getType(false), l2a.getSubType(), l2a));
+        regs.add(context.registerExtendedCommunitySerializer(Layer2AttributesExtendedCommunityCase.class, l2a));
     }
 
 
