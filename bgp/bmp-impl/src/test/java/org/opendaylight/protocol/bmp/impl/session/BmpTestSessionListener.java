@@ -34,7 +34,7 @@ public class BmpTestSessionListener implements BmpSessionListener {
     }
 
     @Override
-    public void onMessage(final BmpSession session, final Notification message) {
+    public void onMessage(final Notification message) {
         LOG.debug("Received message: {} {}", message.getClass(), message);
         this.messages.add(message);
     }
@@ -46,7 +46,7 @@ public class BmpTestSessionListener implements BmpSessionListener {
     }
 
     @Override
-    public void onSessionDown(final BmpSession session, final Exception e) {
+    public void onSessionDown(final Exception e) {
         LOG.debug("Session down.", e);
         this.up = false;
     }

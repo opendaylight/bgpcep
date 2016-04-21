@@ -77,7 +77,7 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
     public BmpRouterImpl(final RouterSessionManager sessionManager) {
         this.sessionManager = Preconditions.checkNotNull(sessionManager);
         this.domDataBroker = sessionManager.getDomDataBroker();
-        this.domTxChain = sessionManager.getDomDataBroker().createTransactionChain(this);
+        this.domTxChain = this.domDataBroker.createTransactionChain(this);
         this.extensions = sessionManager.getExtensions();
         this.tree = sessionManager.getCodecTree();
     }
@@ -85,23 +85,30 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
     @Override
     public void onSessionUp(final BmpSession session) {
         this.session = session;
-        this.routerIp = InetAddresses.toAddrString(session.getRemoteAddress());
-        this.routerId = new RouterId(Ipv4Util.getIpAddress(session.getRemoteAddress()));
-        this.routerYangIId = YangInstanceIdentifier.builder(this.sessionManager.getRoutersYangIId()).nodeWithKey(Router.QNAME,
+        this.routerIp = InetAddresses.toAddrString(this.session.getRemoteAddress());
+        this.routerId = new RouterId(Ipv4Util.getIpAddress(this.session.getRemoteAddress()));
+        // check if this session is redundant
+        if (!this.sessionManager.addSessionListener(this)) {
+            LOG.warn("Redundant BMP session with remote router {} ({}) detected. This BMP session will be abandoned.", this.routerIp, this.session);
+            this.close();
+        } else {
+            this.routerYangIId = YangInstanceIdentifier.builder(this.sessionManager.getRoutersYangIId()).nodeWithKey(Router.QNAME,
                 ROUTER_ID_QNAME, this.routerIp).build();
-        this.peersYangIId = YangInstanceIdentifier.builder(routerYangIId).node(Peer.QNAME).build();
-        createRouterEntry();
-        this.sessionManager.addSessionListener(this);
+            this.peersYangIId = YangInstanceIdentifier.builder(routerYangIId).node(Peer.QNAME).build();
+            createRouterEntry();
+            LOG.info("BMP session with remote router {} ({}) is up now.", this.routerIp, this.session);
+        }
     }
 
     @Override
-    public void onSessionDown(final BmpSession session, final Exception e) {
-        LOG.info("Session {} went down.", session);
+    public void onSessionDown(final Exception e) {
+        // we want to tear down as we want to do clean up like closing the transaction chain, etc.
+        // even when datastore is not writable (routerYangIId == null / redundant session)
         tearDown();
     }
 
     @Override
-    public void onMessage(final BmpSession session, final Notification message) {
+    public void onMessage(final Notification message) {
         if (message instanceof InitiationMessage) {
             onInitiate((InitiationMessage) message);
         } else if (message instanceof PeerUpNotification) {
@@ -117,14 +124,25 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
     }
 
     @Override
-    public synchronized void close() throws Exception {
+    public synchronized void close() {
         if (this.session != null) {
-            this.session.close();
+            try {
+                this.session.close();
+            } catch (Exception e) {
+                LOG.error("Fail to close session.", e);
+            }
         }
     }
 
     @GuardedBy("this")
     private synchronized void tearDown() {
+        if (this.session == null) {   // the session has been teared down before
+            return;
+        }
+        // we want to display remote router's IP here, as sometimes this.session.close() is already
+        // invoked before tearDown(), and session channel is null in this case, which leads to unuseful
+        // log information
+        LOG.info("BMP Session with remote router {} ({}) went down.", this.routerIp, this.session);
         this.session = null;
         final Iterator<BmpRouterPeer> it = this.peers.values().iterator();
         try {
@@ -136,15 +154,21 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
         } catch(final Exception e) {
             LOG.error("Failed to properly close BMP application.", e);
         } finally {
-            try {
-                final DOMDataWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
-                wTx.delete(LogicalDatastoreType.OPERATIONAL, this.routerYangIId);
-                wTx.submit().checkedGet();
-            } catch (final TransactionCommitFailedException e) {
-                LOG.error("Failed to remove BMP router data from DS.", e);
+            // remove session only when session is valid, otherwise
+            // we would remove the original valid session when a redundant connection happens
+            // as the routerId is the same for both connection
+            if (isDatastoreWritable()) {
+                try {
+                    // it means the session was closed before it was written to datastore
+                    final DOMDataWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
+                    wTx.delete(LogicalDatastoreType.OPERATIONAL, this.routerYangIId);
+                    wTx.submit().checkedGet();
+                } catch (final TransactionCommitFailedException e) {
+                    LOG.error("Failed to remove BMP router data from DS.", e);
+                }
+                this.sessionManager.removeSessionListener(this);
             }
         }
-        this.sessionManager.removeSessionListener(this);
     }
 
     @Override
@@ -154,10 +178,15 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
 
     @Override
     public void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
-        LOG.debug("Transaction chain {} successfull.", chain);
+        LOG.debug("Transaction chain {} successfully.", chain);
+    }
+
+    private boolean isDatastoreWritable() {
+        return (this.routerYangIId != null);
     }
 
     private void createRouterEntry() {
+        Preconditions.checkState(isDatastoreWritable());
         final DOMDataWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, this.routerYangIId,
                 Builders.mapEntryBuilder()
@@ -169,6 +198,7 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
     }
 
     private void onInitiate(final InitiationMessage initiation) {
+        Preconditions.checkState(isDatastoreWritable());
         final DOMDataWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
         wTx.merge(LogicalDatastoreType.OPERATIONAL, this.routerYangIId,
                 Builders.mapEntryBuilder()
