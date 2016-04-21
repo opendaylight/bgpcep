@@ -10,11 +10,17 @@ package org.opendaylight.protocol.bmp.mock;
 
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
 import org.opendaylight.protocol.bmp.impl.BmpHandlerFactory;
@@ -26,9 +32,13 @@ public final class BmpMockDispatcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(BmpMockDispatcher.class);
     private static final int CONNECT_TIMEOUT = 2000;
+    private static final int MAX_CONNECTIONS_COUNT = 128;
 
     final BmpHandlerFactory hf;
     private final BmpSessionFactory sessionFactory;
+
+    private final EventLoopGroup bossGroup = new NioEventLoopGroup();
+    private final EventLoopGroup workerGroup = new NioEventLoopGroup();
 
     public BmpMockDispatcher(final BmpMessageRegistry registry, final BmpSessionFactory sessionFactory) {
         this.sessionFactory = Preconditions.checkNotNull(sessionFactory);
@@ -36,7 +46,7 @@ public final class BmpMockDispatcher {
         this.hf = new BmpHandlerFactory(registry);
     }
 
-    public ChannelFuture createClient(final SocketAddress localAddress, final SocketAddress remoteAddress) {
+    private Bootstrap createClientInstance(final SocketAddress localAddress) {
         final NioEventLoopGroup workergroup = new NioEventLoopGroup();
         final Bootstrap b = new Bootstrap();
 
@@ -53,8 +63,43 @@ public final class BmpMockDispatcher {
             }
         });
         b.localAddress(localAddress);
-        b.remoteAddress(remoteAddress);
+        return b;
+    }
+
+    public ChannelFuture createClient(final SocketAddress localAddress, final SocketAddress remoteAddress) {
+        Preconditions.checkNotNull(localAddress);
+        Preconditions.checkNotNull(remoteAddress);
+
+        // ideally we should use Bootstrap clones here
+        Bootstrap b = createClientInstance(localAddress);
+        final ChannelFuture f = b.connect(remoteAddress);
         LOG.debug("BMP client {} <--> {} deployed", localAddress, remoteAddress);
-        return b.connect();
+        return f;
+    }
+
+    private ServerBootstrap createServerInstance() {
+        final ServerBootstrap b = new ServerBootstrap();
+        b.childHandler(new ChannelInitializer<Channel>() {
+            @Override
+            protected void initChannel(final Channel ch) throws Exception {
+                ch.pipeline().addLast(BmpMockDispatcher.this.sessionFactory.getSession(ch, null));
+                ch.pipeline().addLast(BmpMockDispatcher.this.hf.getEncoders());
+            }
+        });
+
+        b.option(ChannelOption.SO_BACKLOG, MAX_CONNECTIONS_COUNT);
+        b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
+        b.channel(NioServerSocketChannel.class);
+        b.group(bossGroup, workerGroup);
+        return b;
+    }
+
+    public ChannelFuture createServer(final InetSocketAddress localAddress) {
+        Preconditions.checkNotNull(localAddress);
+
+        ServerBootstrap b = createServerInstance();
+        final ChannelFuture f = b.bind(localAddress);
+        LOG.debug("Initiated BMP server {} at {}.", f, localAddress);
+        return f;
     }
 }

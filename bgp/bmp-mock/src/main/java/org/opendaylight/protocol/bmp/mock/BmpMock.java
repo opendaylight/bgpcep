@@ -73,6 +73,16 @@ public final class BmpMock {
         }
     }
 
+    private static void deployServers(final BmpMockDispatcher dispatcher, final BmpMockArguments arguments) {
+        final InetSocketAddress localAddress = arguments.getLocalAddress();
+        InetAddress currentLocal = localAddress.getAddress();
+        final int port = localAddress.getPort();
+        for (int i = 0; i < arguments.getRoutersCount(); i++) {
+            dispatcher.createServer(new InetSocketAddress(currentLocal, port));
+            currentLocal = InetAddresses.increment(currentLocal);
+        }
+    }
+
     private static ch.qos.logback.classic.Logger getRootLogger(final LoggerContext lc) {
         return Iterables.find(lc.getLoggerList(), new Predicate<Logger>() {
             @Override

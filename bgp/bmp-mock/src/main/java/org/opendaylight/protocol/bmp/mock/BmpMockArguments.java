@@ -38,6 +38,10 @@ public final class BmpMockArguments {
     private static final String LOCAL_ADDRESS_DST = "local_address";
     private static final String REMOTE_ADDRESS_DST = "remote_address";
     private static final String LOG_LEVEL_DST = "log_level";
+    private static final String LOCAL_PORT_DST = "local_port";
+    private static final String REMOTE_PORT_DST = "remote_port";
+    // when set to true, the mock will operate as a server listening for incoming active monitoring request
+    private static final String IS_ACTIVE_DST = "passive_mode";
 
     private static final ArgumentParser ARGUMENT_PARSER = initializeArgumentParser();
 
