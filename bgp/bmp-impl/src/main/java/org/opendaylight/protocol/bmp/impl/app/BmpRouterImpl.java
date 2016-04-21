@@ -83,20 +83,26 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
     }
 
     @Override
-    public void onSessionUp(final BmpSession session) {
+    public boolean onSessionUp(final BmpSession session) {
         this.session = session;
         this.routerIp = InetAddresses.toAddrString(session.getRemoteAddress());
         this.routerId = new RouterId(Ipv4Util.getIpAddress(session.getRemoteAddress()));
+        // check if this session is redundant
+        if (sessionManager.isSessionExist(this)) {
+            LOG.warn("Redundant session (local <-> {}) detected. Connection will be abandoned.", session.getRemoteAddress().getHostAddress());
+            return false;
+        }
         this.routerYangIId = YangInstanceIdentifier.builder(this.sessionManager.getRoutersYangIId()).nodeWithKey(Router.QNAME,
                 ROUTER_ID_QNAME, this.routerIp).build();
         this.peersYangIId = YangInstanceIdentifier.builder(routerYangIId).node(Peer.QNAME).build();
         createRouterEntry();
         this.sessionManager.addSessionListener(this);
+        return true;
     }
 
     @Override
     public void onSessionDown(final BmpSession session, final Exception e) {
-        LOG.info("Session {} went down.", session);
+        LOG.info("Session {} went down. Exception captured. ", session, e);
         tearDown();
     }
 
