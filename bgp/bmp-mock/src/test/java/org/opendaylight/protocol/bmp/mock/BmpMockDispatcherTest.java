@@ -42,6 +42,23 @@ public class BmpMockDispatcherTest {
         final Channel channel = channelFuture.sync().channel();
 
         Assert.assertTrue(channel.isActive());
+        channel.close();
+        serverDispatcher.close();
+    }
+
+    @Test
+    public void testCreateServer() throws InterruptedException {
+        final BmpMockDispatcher dispatcher = new BmpMockDispatcher(this.registry, this.sessionFactory);
+        final int port = getRandomPort();
+        final BmpDispatcherImpl serverDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
+                this.registry, this.sessionFactory);
+        dispatcher.createServer(new InetSocketAddress(InetAddresses.forString("0.0.0.0"), port));
+
+        final ChannelFuture channelFuture = serverDispatcher.createClient(new InetSocketAddress(InetAddresses.forString("127.0.0.3"), port), this.slf, Optional.<KeyMapping>absent());
+        final Channel channel = channelFuture.sync().channel();
+
+        Assert.assertTrue(channel.isActive());
+        channel.close();
         serverDispatcher.close();
     }
 
