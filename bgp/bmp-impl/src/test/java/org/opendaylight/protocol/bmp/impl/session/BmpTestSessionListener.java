@@ -40,9 +40,10 @@ public class BmpTestSessionListener implements BmpSessionListener {
     }
 
     @Override
-    public synchronized void onSessionUp(final BmpSession session) {
+    public synchronized boolean onSessionUp(final BmpSession session) {
         LOG.debug("Session up.");
         this.up = true;
+        return true;
     }
 
     @Override

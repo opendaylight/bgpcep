@@ -46,6 +46,7 @@ public final class BmpMockSession extends SimpleChannelInboundHandler<Notificati
 
     @Override
     public void close() throws InterruptedException {
+        LOG.info("BMP session {} is closed.", BmpMockSession.this.channel);
         this.channel.close().sync();
     }
 
@@ -68,7 +69,7 @@ public final class BmpMockSession extends SimpleChannelInboundHandler<Notificati
                 LOG.info("BMP session {} final successfully established.", BmpMockSession.this.channel);
             }
         });
-        LOG.info("BMP session {} sucesfully established.", this.channel);
+        LOG.info("BMP session {} successfully established.", this.channel);
         final InetSocketAddress localAddress = (InetSocketAddress) this.channel.localAddress();
         this.remoteAddress = (InetSocketAddress) this.channel.remoteAddress();
         advertizePeers(this.channel, localAddress);
