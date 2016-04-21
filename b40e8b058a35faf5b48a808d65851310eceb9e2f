@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_4b3417de",
+        "filename": "bgp/inet/src/main/java/org/opendaylight/protocol/bgp/inet/Ipv6BgpPrefixSidParser.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-04-21T15:41:03Z",
+      "side": 1,
+      "message": "package-local",
+      "range": {
+        "startLine": 22,
+        "startChar": 4,
+        "endLine": 22,
+        "endChar": 10
+      },
+      "revId": "b40e8b058a35faf5b48a808d65851310eceb9e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_2b1a836e",
+        "filename": "bgp/inet/src/main/yang/bgp-inet.yang",
+        "patchSetId": 10
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-04-21T15:41:03Z",
+      "side": 1,
+      "message": "some default value?",
+      "range": {
+        "startLine": 74,
+        "startChar": 4,
+        "endLine": 76,
+        "endChar": 9
+      },
+      "revId": "b40e8b058a35faf5b48a808d65851310eceb9e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_0b133f5d",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled/unicast/LuBgpPrefixSidParser.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-04-21T15:41:03Z",
+      "side": 1,
+      "message": "package-local",
+      "range": {
+        "startLine": 31,
+        "startChar": 4,
+        "endLine": 31,
+        "endChar": 10
+      },
+      "revId": "b40e8b058a35faf5b48a808d65851310eceb9e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_eb0feb2c",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled/unicast/LuBgpPrefixSidParser.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-04-21T15:41:03Z",
+      "side": 1,
+      "message": "package-local",
+      "range": {
+        "startLine": 36,
+        "startChar": 4,
+        "endLine": 36,
+        "endChar": 10
+      },
+      "revId": "b40e8b058a35faf5b48a808d65851310eceb9e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_482ffda1",
+        "filename": "bgp/labeled-unicast/src/main/yang/bgp-labeled-unicast.yang",
+        "patchSetId": 10
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-04-21T15:41:03Z",
+      "side": 1,
+      "message": "add mandatory where need it",
+      "range": {
+        "startLine": 156,
+        "startChar": 0,
+        "endLine": 171,
+        "endChar": 5
+      },
+      "revId": "b40e8b058a35faf5b48a808d65851310eceb9e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_2b31e3ec",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/BgpPrefixSidTlvParser.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-04-21T15:41:03Z",
+      "side": 1,
+      "message": "missing javadoc on interfaces",
+      "revId": "b40e8b058a35faf5b48a808d65851310eceb9e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
