@@ -244,7 +244,7 @@ public class PCEPValidatorTest {
         iroBuilder.setIgnore(false);
         iroBuilder.setProcessingRule(false);
         final List<Subobject> iroSubs = Lists.newArrayList();
-        iroSubs.add(new SubobjectBuilder().setSubobjectType(this.eroASSubobject).build());
+        iroSubs.add(new SubobjectBuilder().setSubobjectType(this.eroASSubobject).setLoose(false).build());
         iroBuilder.setSubobject(iroSubs);
         this.iro = iroBuilder.build();
 
