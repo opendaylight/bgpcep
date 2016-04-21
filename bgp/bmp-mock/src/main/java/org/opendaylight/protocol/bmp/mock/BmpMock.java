@@ -38,8 +38,12 @@ public final class BmpMock {
         final BmpMockArguments arguments = BmpMockArguments.parseArguments(args);
         initiateLogger(arguments);
         final BmpMockDispatcher dispatcher = initiateMock(arguments);
-        deployClients(dispatcher, arguments);
-
+        // now start the server / client
+        if (arguments.isOnPassiveMode()) {
+            deployServers(dispatcher, arguments);
+        } else {
+            deployClients(dispatcher, arguments);
+        }
     }
 
     private static void initiateLogger(final BmpMockArguments arguments) {
@@ -69,6 +73,16 @@ public final class BmpMock {
         final int port = localAddress.getPort();
         for (int i = 0; i < arguments.getRoutersCount(); i++) {
             dispatcher.createClient(new InetSocketAddress(currentLocal, port), remoteAddress);
+            currentLocal = InetAddresses.increment(currentLocal);
+        }
+    }
+
+    private static void deployServers(final BmpMockDispatcher dispatcher, final BmpMockArguments arguments) {
+        final InetSocketAddress localAddress = arguments.getLocalAddress();
+        InetAddress currentLocal = localAddress.getAddress();
+        final int port = localAddress.getPort();
+        for (int i = 0; i < arguments.getRoutersCount(); i++) {
+            dispatcher.createServer(new InetSocketAddress(currentLocal, port));
             currentLocal = InetAddresses.increment(currentLocal);
         }
     }
