@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bmp.impl.app;
 
+import com.google.common.base.Preconditions;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
@@ -46,8 +47,13 @@ final class RouterSessionManager implements BmpSessionListenerFactory, AutoClose
         return new BmpRouterImpl(this);
     }
 
+    synchronized boolean isSessionExist(final BmpRouter sessionListener) {
+        Preconditions.checkNotNull(sessionListener);
+        return sessionListeners.containsKey(Preconditions.checkNotNull(sessionListener.getRouterId()));
+    }
+
     synchronized void addSessionListener(final BmpRouter sessionListener) {
-        if (this.sessionListeners.containsKey(sessionListener.getRouterId())) {
+        if (isSessionExist(sessionListener)) {
             LOG.warn("Session listener for router {} already added.", sessionListener.getRouterId());
             return;
         }
@@ -55,7 +61,7 @@ final class RouterSessionManager implements BmpSessionListenerFactory, AutoClose
     }
 
     synchronized void removeSessionListener(final BmpRouter sessionListener) {
-        if (!this.sessionListeners.containsKey(sessionListener.getRouterId())) {
+        if (!isSessionExist(sessionListener)) {
             LOG.warn("Session listener for router {} was already removed.", sessionListener.getRouterId());
             return;
         }

@@ -109,14 +109,16 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 
 public class BmpMonitorImplTest extends AbstractDataBrokerTest {
-
-    private static final int PORT = 12345;
-    private static final String LOCAL_ADDRESS = "127.0.0.10";
-    private static final InetSocketAddress CLIENT_REMOTE = new InetSocketAddress("127.0.0.10", PORT);
-    private static final InetSocketAddress CLIENT_LOCAL = new InetSocketAddress(LOCAL_ADDRESS, 0);
+    // the local port and address where the monitor (ODL) will listen for incoming BMP request
+    private static final int MONITOR_LOCAL_PORT = 12345;
+    private static final String MONITOR_LOCAL_ADDRESS = "127.0.0.10";
+    private static final String MONITOR_LOCAL_ADDRESS_2 = "127.0.0.11";
+    // the router (monitee) address where we are going to simulate a BMP request from
+    private static final String REMOTE_ROUTER_ADDRESS_1 = "127.0.0.12";
+    private static final String REMOTE_ROUTER_ADDRESS_2 = "127.0.0.13";
     private static final Ipv4Address PEER1 = new Ipv4Address("20.20.20.20");
     private static final MonitorId MONITOR_ID = new MonitorId("monitor");
-    private static final RouterId ROUTER_ID = new RouterId(new IpAddress(new Ipv4Address(LOCAL_ADDRESS)));
+    private static final KeyedInstanceIdentifier<Monitor, MonitorKey> MONITOR_IID = InstanceIdentifier.create(BmpMonitor.class).child(Monitor.class, new MonitorKey(MONITOR_ID));
     private static final PeerId PEER_ID = new PeerId(PEER1.getValue());
     private static final String MD5_PASSWORD = "abcdef";
 
@@ -152,7 +154,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
         this.mappingService.onGlobalContextUpdated(this.moduleInfoBackedContext.tryToCreateSchemaContext().get());
 
         final KeyMapping keys = new KeyMapping();
-        keys.put(InetAddresses.forString(LOCAL_ADDRESS), MD5_PASSWORD.getBytes(Charsets.US_ASCII));
+        keys.put(InetAddresses.forString(MONITOR_LOCAL_ADDRESS), MD5_PASSWORD.getBytes(Charsets.US_ASCII));
 
         Mockito.doReturn(this.mockKeyAccess).when(this.kaf).getKeyAccess(Mockito.any(java.nio.channels.Channel.class));
         Mockito.doReturn(keys).when(this.mockKeyAccess).getKeys();
@@ -178,7 +180,7 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
                 Optional.<MD5ServerChannelFactory<?>>of(this.scfServerMd5));
 
         this.bmpApp = BmpMonitoringStationImpl.createBmpMonitorInstance(ribExtension, this.dispatcher, getDomBroker(),
-                MONITOR_ID, new InetSocketAddress(InetAddresses.forString("127.0.0.10"), PORT), Optional.of(keys),
+                MONITOR_ID, new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS), MONITOR_LOCAL_PORT), Optional.of(keys),
                 this.mappingService.getCodecFactory(), moduleInfoBackedContext.getSchemaContext(), this.mrs);
 
         final BmpMonitor monitor = getBmpData(InstanceIdentifier.create(BmpMonitor.class)).get();
@@ -201,34 +203,85 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
     }
 
     @Test
-    public void testMonitoringStation() throws InterruptedException {
-        final Channel channel = connectTestClient(this.msgRegistry).channel();
+    public void testSingleRouterMonitoring() throws Exception {
+        // first test if a single router monitoring is working
+        Channel channel1 = testMonitoringStation(REMOTE_ROUTER_ADDRESS_1);
+        assertEquals(1, getBmpData(MONITOR_IID).get().getRouter().size());
+
+        Channel channel2 = testMonitoringStation(REMOTE_ROUTER_ADDRESS_2);
+        assertEquals(2, getBmpData(MONITOR_IID).get().getRouter().size());
+
+        // initiate another BMP request from router 1, create a redundant connection
+        // we expect the connection to be closed
+        Channel channel3 = connectTestClient(REMOTE_ROUTER_ADDRESS_1, this.msgRegistry).channel();
+
+        Thread.sleep(500);
+        // channel 1 should still be open, while channel3 should be closed
+        assertTrue(channel1.isOpen());
+        assertFalse(channel3.isOpen());
+        // now if we close the channel 1 and try it again, it should succeed
+        channel1.close().await();
+        Thread.sleep(500);
+
+        // channel 2 is still open
+        assertEquals(1, getBmpData(MONITOR_IID).get().getRouter().size());
+
+        Channel channel4 = testMonitoringStation(REMOTE_ROUTER_ADDRESS_1);
+        assertEquals(2, getBmpData(MONITOR_IID).get().getRouter().size());
+
+        // close all channel altogether
+        channel2.close().await();
+
+        // sleep for a while to avoid intermittent InMemoryDataTree modification conflict
+        Thread.sleep(500);
+        channel4.close().await();
+
+        Thread.sleep(500);
+        assertEquals(0, getBmpData(MONITOR_IID).get().getRouter().size());
+    }
+
+    private Channel testMonitoringStation(String remoteRouterIpAddr) throws InterruptedException {
+        final Channel channel = connectTestClient(remoteRouterIpAddr, this.msgRegistry).channel();
+        final RouterId routerId = getRouterId(remoteRouterIpAddr);
         try {
             Thread.sleep(500);
-            final KeyedInstanceIdentifier<Monitor, MonitorKey> monitorIId = InstanceIdentifier.create(BmpMonitor.class).child(Monitor.class, new MonitorKey(MONITOR_ID));
 
-            final Monitor monitor = getBmpData(monitorIId).get();
-            assertEquals(1, monitor.getRouter().size());
-            final Router router = monitor.getRouter().get(0);
-            assertEquals(ROUTER_ID, router.getRouterId());
+            final Monitor monitor = getBmpData(MONITOR_IID).get();
+            assertFalse(monitor.getRouter().isEmpty());
+            // now find the current router instance
+            Router router = null;
+            for (Router r : monitor.getRouter()) {
+                if (routerId.equals(r.getRouterId())) {
+                    router = r;
+                    break;
+                }
+            }
+            assertNotNull(router);
             assertEquals(Status.Down, router.getStatus());
             assertTrue(router.getPeer().isEmpty());
 
             channel.writeAndFlush(TestUtil.createInitMsg("description", "name", "some info"));
             Thread.sleep(500);
-            final Monitor monitorInit = getBmpData(monitorIId).get();
-            assertEquals(1, monitorInit.getRouter().size());
-            final Router routerInit = monitorInit.getRouter().get(0);
+            final Monitor monitorInit = getBmpData(MONITOR_IID).get();
+            assertFalse(monitorInit.getRouter().isEmpty());
+            Router routerInit = null;
+            for (Router r : monitorInit.getRouter()) {
+                if (routerId.equals(r.getRouterId())) {
+                    routerInit = r;
+                    break;
+                }
+            }
+            assertNotNull(routerInit);
             assertEquals("some info;", routerInit.getInfo());
             assertEquals("name", routerInit.getName());
             assertEquals("description", routerInit.getDescription());
-            assertEquals(ROUTER_ID, routerInit.getRouterId());
+            assertEquals(routerId, routerInit.getRouterId());
             assertTrue(routerInit.getPeer().isEmpty());
             assertEquals(Status.Up, routerInit.getStatus());
 
             channel.writeAndFlush(TestUtil.createPeerUpNotification(PEER1, true));
             Thread.sleep(500);
-            final KeyedInstanceIdentifier<Router, RouterKey> routerIId = monitorIId.child(Router.class, new RouterKey(ROUTER_ID));
+            final KeyedInstanceIdentifier<Router, RouterKey> routerIId = MONITOR_IID.child(Router.class, new RouterKey(routerId));
             final List<Peer> peers = getBmpData(routerIId).get().getPeer();
             assertEquals(1, peers.size());
             final Peer peer = peers.get(0);
@@ -309,32 +362,28 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
             Thread.sleep(500);
             final List<Peer> peersAfterDown = getBmpData(routerIId).get().getPeer();
             assertTrue(peersAfterDown.isEmpty());
-
-            channel.close().await();
-            Thread.sleep(500);
-            final Monitor monitorAfterClose = getBmpData(monitorIId).get();
-            assertTrue(monitorAfterClose.getRouter().isEmpty());
         } catch (final Exception e) {
             final StringBuffer ex = new StringBuffer();
             ex.append(e.getMessage() + "\n");
-            for (final StackTraceElement element: e.getStackTrace()) {
+            for (final StackTraceElement element : e.getStackTrace()) {
                 ex.append(element.toString() + "\n");
-            };
+            }
             fail(ex.toString());
         }
+        return channel;
     }
 
     @Test
     public void deploySecondInstance() throws Exception {
         final BmpMonitoringStation monitoringStation2 = BmpMonitoringStationImpl.createBmpMonitorInstance(new SimpleRIBExtensionProviderContext(), this.dispatcher, getDomBroker(),
-                new MonitorId("monitor2"), new InetSocketAddress(InetAddresses.forString("127.0.0.11"), PORT), Optional.of(new KeyMapping()),
+                new MonitorId("monitor2"), new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS_2), MONITOR_LOCAL_PORT), Optional.of(new KeyMapping()),
                 this.mappingService.getCodecFactory(), this.moduleInfoBackedContext.getSchemaContext(), this.mrs);
         final BmpMonitor monitor = getBmpData(InstanceIdentifier.create(BmpMonitor.class)).get();
         Assert.assertEquals(2, monitor.getMonitor().size());
         monitoringStation2.close();
     }
 
-    private ChannelFuture connectTestClient(final BmpMessageRegistry msgRegistry) throws InterruptedException {
+    private ChannelFuture connectTestClient(final String routerIp, final BmpMessageRegistry msgRegistry) throws InterruptedException {
         final BmpHandlerFactory hf = new BmpHandlerFactory(msgRegistry);
         final Bootstrap b = new Bootstrap();
         b.group(new NioEventLoopGroup());
@@ -347,14 +396,18 @@ public class BmpMonitorImplTest extends AbstractDataBrokerTest {
                 ch.pipeline().addLast(hf.getEncoders());
             }
         });
-        b.localAddress(CLIENT_LOCAL);
+        b.localAddress(new InetSocketAddress(routerIp, 0));
         b.option(ChannelOption.SO_REUSEADDR, true);
-        return b.connect(CLIENT_REMOTE).sync();
+        return b.connect(new InetSocketAddress(MONITOR_LOCAL_ADDRESS, MONITOR_LOCAL_PORT)).sync();
     }
 
     private <T extends DataObject> Optional<T> getBmpData(final InstanceIdentifier<T> iid) throws ReadFailedException {
         try (final ReadOnlyTransaction tx = getDataBroker().newReadOnlyTransaction()) {
             return tx.read(LogicalDatastoreType.OPERATIONAL, iid).checkedGet();
         }
+    }
+
+    private RouterId getRouterId(String routerIp) {
+        return new RouterId(new IpAddress(new Ipv4Address(routerIp)));
     }
 }

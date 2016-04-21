@@ -13,7 +13,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 
 public interface BmpSessionListener extends EventListener {
 
-    void onSessionUp(BmpSession session);
+    boolean onSessionUp(BmpSession session);
 
     void onSessionDown(BmpSession session, Exception e);
 
