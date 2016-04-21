@@ -63,8 +63,14 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
     @Override
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         this.channel = ctx.channel();
+        LOG.info("Starting session {} <-> {}.", channel.localAddress(), channel.remoteAddress());
         sessionUp();
-        LOG.info("Session {} <-> {} started.", channel.localAddress(), channel.remoteAddress());
+        if (State.UP == state) {
+            LOG.info("Established session {} <-> {}.", channel.localAddress(), channel.remoteAddress());
+        } else {
+            LOG.error("Unable to establish session {} <-> {}.", channel.localAddress(), channel.remoteAddress());
+            close();
+        }
     }
 
     @Override
@@ -140,8 +146,8 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
     }
 
     private void sessionUp() {
-        this.state = State.UP;
-        this.listener.onSessionUp(this);
+        if (this.listener.onSessionUp(this))
+            this.state = State.UP;
     }
 
     protected enum State {
