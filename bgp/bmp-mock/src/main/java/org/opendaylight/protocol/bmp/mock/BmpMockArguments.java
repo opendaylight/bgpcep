@@ -14,6 +14,7 @@ import com.google.common.net.InetAddresses;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.Argument;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
@@ -38,6 +39,8 @@ public final class BmpMockArguments {
     private static final String LOCAL_ADDRESS_DST = "local_address";
     private static final String REMOTE_ADDRESS_DST = "remote_address";
     private static final String LOG_LEVEL_DST = "log_level";
+    // when set to true, the mock will operate as a server listening for incoming active monitoring request
+    private static final String PASSIVE_MODE_DST = "passive";
 
     private static final ArgumentParser ARGUMENT_PARSER = initializeArgumentParser();
 
@@ -84,12 +87,17 @@ public final class BmpMockArguments {
         return this.parseArgs.get(LOG_LEVEL_DST);
     }
 
+    public boolean isOnPassiveMode() {
+        return this.parseArgs.get(PASSIVE_MODE_DST);
+    }
+
     private static ArgumentParser initializeArgumentParser() {
         final ArgumentParser parser = ArgumentParsers.newArgumentParser(PROGRAM_NAME);
         parser.addArgument(toArgName(ROUTERS_COUNT_DST)).type(Integer.class).setDefault(1);
         parser.addArgument(toArgName(PEERS_COUNT_DST)).type(Integer.class).setDefault(0);
         parser.addArgument(toArgName(PRE_POLICY_ROUTES_COUNT_DST)).type(Integer.class).setDefault(0);
         parser.addArgument(toArgName(POST_POLICY_ROUTES_COUNT_DST)).type(Integer.class).setDefault(0);
+        parser.addArgument(toArgName(PASSIVE_MODE_DST)).action(Arguments.storeTrue());
         parser.addArgument(toArgName(LOCAL_ADDRESS_DST)).type(new ArgumentType<InetSocketAddress>() {
             @Override
             public InetSocketAddress convert(final ArgumentParser parser, final Argument arg, final String value)
@@ -101,7 +109,7 @@ public final class BmpMockArguments {
             @Override
             public InetSocketAddress convert(final ArgumentParser parser, final Argument arg, final String value)
                     throws ArgumentParserException {
-                return getInetSocketAddress(value, DEFAULT_LOCAL_PORT);
+                return getInetSocketAddress(value, DEFAULT_REMOTE_PORT);
             }
         }).setDefault(REMOTE_ADDRESS);
         parser.addArgument(toArgName(LOG_LEVEL_DST)).type(new ArgumentType<Level>(){
