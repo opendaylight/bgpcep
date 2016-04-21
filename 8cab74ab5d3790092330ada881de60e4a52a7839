@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_68bbe1c4",
+        "filename": "bgp/cli/src/main/resources/OSGI-INF/blueprint/commands.xml",
+        "patchSetId": 36
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-21T14:03:08Z",
+      "side": 1,
+      "message": "Fix package name.",
+      "range": {
+        "startLine": 16,
+        "startChar": 27,
+        "endLine": 16,
+        "endChar": 80
+      },
+      "revId": "8cab74ab5d3790092330ada881de60e4a52a7839",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
