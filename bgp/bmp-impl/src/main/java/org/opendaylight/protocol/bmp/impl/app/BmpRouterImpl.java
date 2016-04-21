@@ -83,20 +83,26 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
     }
 
     @Override
-    public void onSessionUp(final BmpSession session) {
+    public boolean onSessionUp(final BmpSession session) {
         this.session = session;
         this.routerIp = InetAddresses.toAddrString(session.getRemoteAddress());
         this.routerId = new RouterId(Ipv4Util.getIpAddress(session.getRemoteAddress()));
+        // check if this session is redundant
+        if (sessionManager.isSessionExist(this)) {
+            LOG.warn("Redundant session (local <-> {}) detected. Connection will be abandoned.", session.getRemoteAddress().getHostAddress());
+            return false;
+        }
         this.routerYangIId = YangInstanceIdentifier.builder(this.sessionManager.getRoutersYangIId()).nodeWithKey(Router.QNAME,
                 ROUTER_ID_QNAME, this.routerIp).build();
         this.peersYangIId = YangInstanceIdentifier.builder(routerYangIId).node(Peer.QNAME).build();
         createRouterEntry();
         this.sessionManager.addSessionListener(this);
+        return true;
     }
 
     @Override
     public void onSessionDown(final BmpSession session, final Exception e) {
-        LOG.info("Session {} went down.", session);
+        LOG.debug("Session {} went down. Exception captured. ", session, e);
         tearDown();
     }
 
@@ -136,15 +142,21 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
         } catch(final Exception e) {
             LOG.error("Failed to properly close BMP application.", e);
         } finally {
-            try {
-                final DOMDataWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
-                wTx.delete(LogicalDatastoreType.OPERATIONAL, this.routerYangIId);
-                wTx.submit().checkedGet();
-            } catch (final TransactionCommitFailedException e) {
-                LOG.error("Failed to remove BMP router data from DS.", e);
+            if (this.routerYangIId != null) {
+                try {
+                    // it means the session was closed before it was written to datastore
+                    final DOMDataWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
+                    wTx.delete(LogicalDatastoreType.OPERATIONAL, this.routerYangIId);
+                    wTx.submit().checkedGet();
+                } catch (final TransactionCommitFailedException e) {
+                    LOG.error("Failed to remove BMP router data from DS.", e);
+                }
+                // remove session only when routeYangIId is valid, otherwise
+                // we would remove the original valid session when a redundant connection happens
+                // as the routerId is the same for both connection
+                this.sessionManager.removeSessionListener(this);
             }
         }
-        this.sessionManager.removeSessionListener(this);
     }
 
     @Override
