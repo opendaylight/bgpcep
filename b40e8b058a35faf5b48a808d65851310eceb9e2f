@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_eefed937",
+        "filename": "bgp/inet/src/main/java/org/opendaylight/protocol/bgp/inet/Ipv6BgpPrefixSidParser.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-22T06:57:09Z",
+      "side": 1,
+      "message": "Why not using builder to create DTO instance?",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 10
+      },
+      "revId": "b40e8b058a35faf5b48a808d65851310eceb9e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_2b1a836e",
         "filename": "bgp/inet/src/main/yang/bgp-inet.yang",
         "patchSetId": 10
@@ -87,6 +110,29 @@
         "startChar": 4,
         "endLine": 36,
         "endChar": 10
+      },
+      "revId": "b40e8b058a35faf5b48a808d65851310eceb9e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_2ef9f14d",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled/unicast/LuBgpPrefixSidParser.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-22T06:57:09Z",
+      "side": 1,
+      "message": "Split codecs - create separate for each TLV.",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 51,
+        "endChar": 20
       },
       "revId": "b40e8b058a35faf5b48a808d65851310eceb9e2f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
