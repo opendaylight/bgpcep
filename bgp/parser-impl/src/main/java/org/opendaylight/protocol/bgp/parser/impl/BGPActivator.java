@@ -50,6 +50,9 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communi
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.RouteOriginIpv4EcHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.RouteTargetAsTwoOctetEcHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.RouteTargetIpv4EcHandler;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.four.octect.as.specific.Generic4OctASEcHandler;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.four.octect.as.specific.RouteOrigin4OctectASEcHandler;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.four.octect.as.specific.RouteTarget4OctectASEcHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.next.hop.Ipv4NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.next.hop.Ipv6NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
@@ -90,6 +93,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.NextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.As4GenericSpecExtendedCommunityCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.As4RouteOriginExtendedCommunityCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.As4RouteTargetExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.AsSpecificExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.Inet4SpecificExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.LinkBandwidthCase;
@@ -315,5 +321,18 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerExtendedCommunityParser(linkBandwidthECHandler.getType(false), linkBandwidthECHandler.getSubType(),
             linkBandwidthECHandler));
         regs.add(context.registerExtendedCommunitySerializer(LinkBandwidthCase.class, linkBandwidthECHandler));
+
+        final Generic4OctASEcHandler gen4OctASEcHandler = new Generic4OctASEcHandler();
+        regs.add(context.registerExtendedCommunityParser(gen4OctASEcHandler.getType(true), gen4OctASEcHandler.getSubType(), gen4OctASEcHandler));
+        regs.add(context.registerExtendedCommunityParser(gen4OctASEcHandler.getType(false), gen4OctASEcHandler.getSubType(), gen4OctASEcHandler));
+        regs.add(context.registerExtendedCommunitySerializer(As4GenericSpecExtendedCommunityCase.class, gen4OctASEcHandler));
+
+        final RouteTarget4OctectASEcHandler rt4ASHandler = new RouteTarget4OctectASEcHandler();
+        regs.add(context.registerExtendedCommunityParser(rt4ASHandler.getType(true), rt4ASHandler.getSubType(), rt4ASHandler));
+        regs.add(context.registerExtendedCommunitySerializer(As4RouteTargetExtendedCommunityCase.class, rt4ASHandler));
+
+        final RouteOrigin4OctectASEcHandler rOrig4Oct = new RouteOrigin4OctectASEcHandler();
+        regs.add(context.registerExtendedCommunityParser(rOrig4Oct.getType(true), rOrig4Oct.getSubType(), rOrig4Oct));
+        regs.add(context.registerExtendedCommunitySerializer(As4RouteOriginExtendedCommunityCase.class, rOrig4Oct));
     }
 }
