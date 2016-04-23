@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_e291c853",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/MultiPathSupportImpl.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2016-04-23T11:16:01Z",
+      "side": 1,
+      "message": "precondition?\nmissing javadocs\nconstructor/factory method should be reordered",
+      "revId": "451a548d97f4cacfabe3eced8b212f019e7c53a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
