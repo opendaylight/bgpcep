@@ -8,12 +8,18 @@
 package org.opendaylight.controller.config.yang.programming.impl;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.contains;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Resources;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.util.Timer;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -23,6 +29,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.List;
+import java.util.Set;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectName;
@@ -33,6 +40,8 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
 import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
 import org.opendaylight.controller.config.spi.ModuleFactory;
@@ -52,7 +61,15 @@ import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomInmemoryDataBr
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomInmemoryDataBrokerModuleMXBean;
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.SchemaServiceImplSingletonModuleFactory;
 import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleFactory;
+import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodecFactory;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
+import org.opendaylight.controller.md.sal.dom.api.DOMMountPointService;
+import org.opendaylight.controller.md.sal.dom.api.DOMNotificationPublishService;
+import org.opendaylight.controller.md.sal.dom.api.DOMNotificationService;
+import org.opendaylight.controller.md.sal.dom.api.DOMRpcImplementation;
+import org.opendaylight.controller.md.sal.dom.api.DOMRpcImplementationRegistration;
+import org.opendaylight.controller.md.sal.dom.api.DOMRpcProviderService;
+import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
 import org.opendaylight.controller.sal.dom.broker.GlobalBundleScanningSchemaServiceImpl;
 import org.opendaylight.yangtools.sal.binding.generator.api.ClassLoadingStrategy;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
@@ -85,6 +102,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
     @Mock
     private RpcResult<TransactionStatus> mockedResult;
 
+    @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -92,14 +110,20 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         final List<ModuleFactory> moduleFactories = getModuleFactories();
         super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, moduleFactories.toArray(new ModuleFactory[moduleFactories.size()])));
 
-        final Filter mockedFilter = mock(Filter.class);
+        doAnswer(new Answer<Filter>() {
+            @Override
+            public Filter answer(InvocationOnMock invocation) {
+                String str = invocation.getArgumentAt(0, String.class);
+                Filter mockFilter = mock(Filter.class);
+                doReturn(str).when(mockFilter).toString();
+                return mockFilter;
+            }
+        }).when(mockedContext).createFilter(anyString());
 
         Mockito.doReturn(new ServiceReference[] {}).when(mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
 
         final ServiceReference<?> classLoadingStrategySR = mock(ServiceReference.class, "ClassLoadingStrategy");
         final ServiceReference<?> emptyServiceReference = mock(ServiceReference.class, "Empty");
-
-        Mockito.doReturn(mockedFilter).when(mockedContext).createFilter(Mockito.anyString());
 
         Mockito.doNothing().when(mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
         Mockito.doNothing().when(mockedContext).removeServiceListener(any(ServiceListener.class));
@@ -135,6 +159,30 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         modifiersField.setInt(contextResolverField, contextResolverField.getModifiers() & ~Modifier.FINAL);
 
         contextResolverField.set(schemaService, mockedContextResolver);
+
+        BindingToNormalizedNodeCodecFactory.getOrCreateInstance(
+                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), schemaService);
+
+        setupMockService(Timer.class, mock(Timer.class));
+        setupMockService(EventLoopGroup.class, new NioEventLoopGroup());
+        setupMockService(DOMNotificationService.class, mock(DOMNotificationService.class));
+        setupMockService(DOMNotificationPublishService.class, mock(DOMNotificationPublishService.class));
+        setupMockService(DOMRpcService.class, mock(DOMRpcService.class));
+        setupMockService(DOMMountPointService.class, mock(DOMMountPointService.class));
+
+        DOMRpcProviderService mockRpcProvider = mock(DOMRpcProviderService.class);
+        doReturn(mock(DOMRpcImplementationRegistration.class)).when(mockRpcProvider).registerRpcImplementation(
+                any(DOMRpcImplementation.class), any(Set.class));
+        setupMockService(DOMRpcProviderService.class, mockRpcProvider);
+    }
+
+    private void setupMockService(Class<?> serviceInterface, Object instance) throws Exception {
+        ServiceReference<?> mockServiceRef = mock(ServiceReference.class);
+        doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
+                getServiceReferences(anyString(), contains(serviceInterface.getName()));
+        doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
+                getServiceReferences(serviceInterface.getName(), null);
+        doReturn(instance).when(mockedContext).getService(mockServiceRef);
     }
 
     @After

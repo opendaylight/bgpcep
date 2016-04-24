@@ -9,11 +9,20 @@ package org.opendaylight.controller.config.yang.pcep.impl;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.contains;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import io.netty.channel.EventLoopGroup;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.ObjectName;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
@@ -25,6 +34,9 @@ import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProvi
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleMXBean;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.impl.rev130627.PathType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.impl.rev130627.StoreType;
+import org.osgi.framework.Filter;
+import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
 
 public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 
@@ -45,6 +57,26 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
     @Before
     public void setUp() throws Exception {
         super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.mockedContext, new PCEPDispatcherImplModuleFactory(), new PCEPSessionProposalFactoryImplModuleFactory(), new NettyThreadgroupModuleFactory(), new SimplePCEPExtensionProviderContextModuleFactory()));
+
+        doAnswer(new Answer<Filter>() {
+            @Override
+            public Filter answer(InvocationOnMock invocation) {
+                String str = invocation.getArgumentAt(0, String.class);
+                Filter mockFilter = mock(Filter.class);
+                doReturn(str).when(mockFilter).toString();
+                return mockFilter;
+            }
+        }).when(mockedContext).createFilter(anyString());
+        doNothing().when(mockedContext).addServiceListener(any(ServiceListener.class), anyString());
+
+        setupMockService(EventLoopGroup.class);
+    }
+
+    private void setupMockService(Class<?> serviceInterface) throws Exception {
+        ServiceReference<?> mockServiceRef = mock(ServiceReference.class);
+        doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
+                getServiceReferences(anyString(), contains(serviceInterface.getName()));
+        doReturn(mock(serviceInterface)).when(mockedContext).getService(mockServiceRef);
     }
 
     @Test
