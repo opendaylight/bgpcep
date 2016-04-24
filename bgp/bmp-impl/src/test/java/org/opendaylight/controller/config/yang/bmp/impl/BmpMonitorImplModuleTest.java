@@ -8,13 +8,18 @@
 package org.opendaylight.controller.config.yang.bmp.impl;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.contains;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Resources;
 import com.google.common.util.concurrent.CheckedFuture;
+import io.netty.channel.EventLoopGroup;
+import io.netty.util.concurrent.EventExecutor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.URL;
@@ -32,6 +37,8 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
 import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
@@ -45,10 +52,13 @@ import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomInmemoryDataBr
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomInmemoryDataBrokerModuleMXBean;
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.SchemaServiceImplSingletonModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.SchemaServiceImplSingletonModuleMXBean;
+import org.opendaylight.controller.config.yang.netty.eventexecutor.AutoCloseableEventExecutor;
 import org.opendaylight.controller.config.yang.netty.eventexecutor.GlobalEventExecutorModuleFactory;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
+import org.opendaylight.controller.config.yang.netty.threadgroup.NioEventLoopGroupCloseable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodecFactory;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -99,15 +109,20 @@ public class BmpMonitorImplModuleTest extends AbstractConfigTest {
             new GlobalEventExecutorModuleFactory(),
             new SchemaServiceImplSingletonModuleFactory()));
 
-        final Filter mockedFilter = mock(Filter.class);
-        Mockito.doReturn(mockedFilter).when(this.mockedContext).createFilter(Mockito.anyString());
+        doAnswer(new Answer<Filter>() {
+            @Override
+            public Filter answer(InvocationOnMock invocation) {
+                String str = invocation.getArgumentAt(0, String.class);
+                Filter mockFilter = mock(Filter.class);
+                doReturn(str).when(mockFilter).toString();
+                return mockFilter;
+            }
+        }).when(mockedContext).createFilter(anyString());
 
         final ServiceReference<?> emptyServiceReference = mock(ServiceReference.class, "Empty");
         final ServiceReference<?> classLoadingStrategySR = mock(ServiceReference.class, "ClassLoadingStrategy");
         final ServiceReference<?> dataProviderServiceReference = mock(ServiceReference.class, "Data Provider");
         final ServiceReference<?> schemaServiceReference = mock(ServiceReference.class, "schemaServiceReference");
-
-        Mockito.doReturn(mockedFilter).when(this.mockedContext).createFilter(Mockito.anyString());
 
         Mockito.doNothing().when(this.mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
         Mockito.doNothing().when(this.mockedContext).removeServiceListener(any(ServiceListener.class));
@@ -159,6 +174,19 @@ public class BmpMonitorImplModuleTest extends AbstractConfigTest {
         modifiersField.setInt(contextResolverField, contextResolverField.getModifiers() & ~Modifier.FINAL);
 
         contextResolverField.set(schemaService, mockedContextResolver);
+
+        BindingToNormalizedNodeCodecFactory.getOrCreateInstance(
+                GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy(), schemaService);
+
+        setupMockService(EventLoopGroup.class, NioEventLoopGroupCloseable.newInstance(0));
+        setupMockService(EventExecutor.class, AutoCloseableEventExecutor.CloseableEventExecutorMixin.globalEventExecutor());
+    }
+
+    private void setupMockService(Class<?> serviceInterface, Object instance) throws Exception {
+        ServiceReference<?> mockServiceRef = mock(ServiceReference.class);
+        doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
+                getServiceReferences(anyString(), contains(serviceInterface.getName()));
+        doReturn(instance).when(mockedContext).getService(mockServiceRef);
     }
 
     private List<String> getYangModelsPaths() {

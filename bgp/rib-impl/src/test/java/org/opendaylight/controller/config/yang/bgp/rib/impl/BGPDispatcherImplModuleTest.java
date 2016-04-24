@@ -9,20 +9,15 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.ObjectName;
-import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
-import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
-import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.controller.config.yang.bgp.parser.spi.SimpleBGPExtensionProviderContextModuleFactory;
 import org.opendaylight.controller.config.yang.bgp.parser.spi.SimpleBGPExtensionProviderContextModuleMXBean;
-import org.opendaylight.controller.config.yang.bgp.rib.spi.RIBExtensionsImplModuleFactory;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleMXBean;
-import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleFactory;
 
-public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
+public class BGPDispatcherImplModuleTest extends AbstractRIBImplModuleTest {
 
     private static final String INSTANCE_NAME = "bgp-message-fct";
     private static final String FACTORY_NAME = BGPDispatcherImplModuleFactory.NAME;
@@ -30,11 +25,6 @@ public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
     private static final String BGP_EXTENSION_INSTANCE_NAME = "bgp-extension-impl";
     private static final String BOSS_TG_INSTANCE_NAME = "boss-threadgroup-impl";
     private static final String WORKER_TG_INSTANCE_NAME = "worker-threadgroup-impl";
-
-    @Before
-    public void setUp() throws Exception {
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.mockedContext, new BGPDispatcherImplModuleFactory(), new NettyThreadgroupModuleFactory(), new RIBExtensionsImplModuleFactory(), new SimpleBGPExtensionProviderContextModuleFactory(), new HashedWheelTimerModuleFactory()));
-    }
 
     @Test
     public void testCreateBean() throws Exception {
@@ -53,7 +43,8 @@ public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
         assertStatus(status, 0, 0, 4);
     }
 
-    private CommitStatus createInstance() throws Exception {
+    @Override
+    protected CommitStatus createInstance() throws Exception {
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         createInstance(transaction);
         return transaction.commit();
