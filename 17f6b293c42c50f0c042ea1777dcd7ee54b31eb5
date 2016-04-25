@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_af9b38c8",
+        "filename": "bgp/inet/src/main/java/org/opendaylight/protocol/bgp/inet/Ipv6BgpPrefixSidParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-25T13:14:40Z",
+      "side": 1,
+      "message": "private",
+      "range": {
+        "startLine": 21,
+        "startChar": 4,
+        "endLine": 21,
+        "endChar": 39
+      },
+      "revId": "17f6b293c42c50f0c042ea1777dcd7ee54b31eb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
