@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_5da699c2",
+        "filename": "bgp/l3vpn/src/main/java/org/opendaylight/protocol/bgp/l3vpn/AbstractVpnNextHopParserSerializer.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-25T09:01:18Z",
+      "side": 1,
+      "message": "The CamelCase style should be used for \"non-constant\" variable names.",
+      "range": {
+        "startLine": 22,
+        "startChar": 22,
+        "endLine": 22,
+        "endChar": 36
+      },
+      "revId": "da55ec3a002208c19b55dcc71f118177c311ec33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
