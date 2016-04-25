@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_3d4e45c2",
+        "filename": "bgp/inet/src/main/yang/bgp-inet.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-25T10:32:06Z",
+      "side": 1,
+      "message": "https://tools.ietf.org/html/draft-ietf-idr-bgp-prefix-sid-02#section-4.2",
+      "range": {
+        "startLine": 73,
+        "startChar": 19,
+        "endLine": 73,
+        "endChar": 79
+      },
+      "revId": "22b9a5fd9421e28f060ca3bac6d531ee126a8c61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_1d4b81b1",
+        "filename": "bgp/inet/src/main/yang/bgp-inet.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-25T10:32:06Z",
+      "side": 1,
+      "message": "Add a description.",
+      "range": {
+        "startLine": 74,
+        "startChar": 13,
+        "endLine": 74,
+        "endChar": 38
+      },
+      "revId": "22b9a5fd9421e28f060ca3bac6d531ee126a8c61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_fd532d6a",
+        "filename": "bgp/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled/unicast/LabelIndexTlvParser.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-25T10:32:06Z",
+      "side": 1,
+      "message": "Better now..but still, this line is repeated in each serializer.",
+      "range": {
+        "startLine": 34,
+        "startChar": 8,
+        "endLine": 34,
+        "endChar": 90
+      },
+      "revId": "22b9a5fd9421e28f060ca3bac6d531ee126a8c61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_bdd1b5cf",
+        "filename": "bgp/labeled-unicast/src/main/yang/bgp-labeled-unicast.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-25T10:32:06Z",
+      "side": 1,
+      "message": "Missing references and descriptions.",
+      "range": {
+        "startLine": 156,
+        "startChar": 0,
+        "endLine": 172,
+        "endChar": 5
+      },
+      "revId": "22b9a5fd9421e28f060ca3bac6d531ee126a8c61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
