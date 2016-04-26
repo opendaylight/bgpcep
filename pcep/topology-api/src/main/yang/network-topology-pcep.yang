@@ -147,9 +147,10 @@ module network-topology-pcep {
             }
             enum no-ack {
                 description
-                    "The request has been sent to the PCC, but the session
-                    went down before we have received confirmation of the
-                    request being received by the PCC. PCC's state is
+                    "The request has been sent to the PCC, but either the
+                    session went down before we have received confirmation
+                    of the request being received by the PCC, or the request
+                    timed-out waiting for response from PCC. PCC's state is
                     unknown -- the request may or may not be reflected
                     in its internal state. The caller should not make
                     any hard assumptions about PCC state until it reconnects
