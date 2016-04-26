@@ -62,13 +62,15 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
     private final DataBroker broker;
     private final PCEPStatefulPeerProposal peerProposal;
     private Optional<PCEPTopologyProviderRuntimeRegistration> runtimeRootRegistration = Optional.absent();
+    private final int rpcTimeout;
 
     public ServerSessionManager(final DataBroker broker, final InstanceIdentifier<Topology> topology,
-            final TopologySessionListenerFactory listenerFactory) throws ReadFailedException, TransactionCommitFailedException {
+            final TopologySessionListenerFactory listenerFactory, final int rpcTimeout) throws ReadFailedException, TransactionCommitFailedException {
         this.broker = Preconditions.checkNotNull(broker);
         this.topology = Preconditions.checkNotNull(topology);
         this.listenerFactory = Preconditions.checkNotNull(listenerFactory);
         this.peerProposal = PCEPStatefulPeerProposal.createStatefulPeerProposal(this.broker, this.topology);
+        this.rpcTimeout = rpcTimeout;
 
         // Now create the base topology
         final TopologyKey k = InstanceIdentifier.keyOf(topology);
@@ -182,5 +184,9 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, AutoClos
     public void setPeerSpecificProposal(final InetSocketAddress address, final TlvsBuilder openBuilder) {
         Preconditions.checkNotNull(address);
         peerProposal.setPeerProposal(createNodeId(address.getAddress()), openBuilder);
+    }
+
+    public int getRpcTimeout() {
+        return this.rpcTimeout;
     }
 }
