@@ -432,7 +432,7 @@ module odl-bgp-rib-impl-cfg {
             container rpc-registry {
                 uses config:service-ref {
                     refine type {
-                        mandatory true;
+                        mandatory false;
                         config:required-identity mdsb:binding-rpc-registry;
                     }
                 }
