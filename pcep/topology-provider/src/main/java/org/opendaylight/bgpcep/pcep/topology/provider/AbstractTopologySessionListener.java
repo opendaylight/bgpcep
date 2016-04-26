@@ -7,6 +7,7 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
@@ -20,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeMXBean;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeRegistration;
@@ -103,6 +106,9 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologySessionListener.class);
 
     protected static final String MISSING_XML_TAG = "Mandatory XML tags are missing.";
+
+    @VisibleForTesting
+    protected static final int PCC_RESPONSE_TIMEOUT = 30_000;
 
     @GuardedBy("this")
     private final Map<S, PCEPRequest> requests = new HashMap<>();
@@ -319,6 +325,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         this.listenerState.updateStatefulSentMsg(message);
         final PCEPRequest req = new PCEPRequest(metadata);
         this.requests.put(requestId, req);
+        setupTimeoutHandler(requestId, req);
 
         f.addListener(new FutureListener<Void>() {
             @Override
@@ -337,6 +344,21 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         });
 
         return req.getFuture();
+    }
+
+    private void setupTimeoutHandler(final S requestId, final PCEPRequest req) {
+        final Timer timer = req.getTimer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                synchronized (AbstractTopologySessionListener.this) {
+                    AbstractTopologySessionListener.this.requests.remove(requestId);
+                }
+                req.done();
+                LOG.info("Request {} timed-out waiting for response", requestId);
+            }
+        }, PCC_RESPONSE_TIMEOUT);
+        LOG.trace("Set up response timeout handler for request {}", requestId);
     }
 
     /**
