@@ -96,6 +96,7 @@ public final class PCEPTopologyProviderModule extends
         JmxAttributeValidationException.checkNotNull(getListenAddress(), IS_NOT_SET, listenAddressJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getListenPort(), IS_NOT_SET, listenPortJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getStatefulPlugin(), IS_NOT_SET, statefulPluginJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getRpcTimeout(), IS_NOT_SET, rpcTimeoutJmxAttribute);
 
         final Optional<KeyMapping> keys = contructKeys();
         if (keys.isPresent()) {
@@ -135,7 +136,7 @@ public final class PCEPTopologyProviderModule extends
         try {
             return PCEPTopologyProvider.create(getDispatcherDependency(), address, contructKeys(), getSchedulerDependency(),
                     getDataProviderDependency(), getRpcRegistryDependency(), topology, getStatefulPluginDependency(),
-                    Optional.of(getRootRuntimeBeanRegistratorWrapper()));
+                    Optional.of(getRootRuntimeBeanRegistratorWrapper()), getRpcTimeout());
         } catch (InterruptedException | ExecutionException | TransactionCommitFailedException | ReadFailedException e) {
             LOG.error("Failed to instantiate topology provider at {}", address, e);
             throw new IllegalStateException("Failed to instantiate provider", e);
