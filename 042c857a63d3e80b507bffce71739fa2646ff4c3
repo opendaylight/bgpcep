@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_c0949246",
+        "filename": "bgp/inet/src/main/yang/bgp-inet.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-04-26T17:12:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_7d41f30a",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 9
+      },
+      "revId": "042c857a63d3e80b507bffce71739fa2646ff4c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_1d3c3793",
         "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateRIBSupport.java",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2016-04-18T08:48:39Z",
       "side": 1,
       "message": "should be default behavior",
+      "range": {
+        "startLine": 214,
+        "startChar": 0,
+        "endLine": 223,
+        "endChar": 5
+      },
+      "revId": "042c857a63d3e80b507bffce71739fa2646ff4c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_a0919e54",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateRIBSupport.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-04-26T17:12:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_1d3c3793",
       "range": {
         "startLine": 214,
         "startChar": 0,
