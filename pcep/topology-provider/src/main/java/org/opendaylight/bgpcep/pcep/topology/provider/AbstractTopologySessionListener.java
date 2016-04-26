@@ -20,6 +20,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
+
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeMXBean;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.ListenerStateRuntimeRegistration;
@@ -319,6 +323,11 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         this.listenerState.updateStatefulSentMsg(message);
         final PCEPRequest req = new PCEPRequest(metadata);
         this.requests.put(requestId, req);
+        final int rpcTimeout = serverSessionManager.getRpcTimeout();
+        LOG.trace("RPC response timeout value is {} seconds", rpcTimeout);
+        if (rpcTimeout > 0) {
+            setupTimeoutHandler(requestId, req, rpcTimeout);
+        }
 
         f.addListener(new FutureListener<Void>() {
             @Override
@@ -337,6 +346,21 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         });
 
         return req.getFuture();
+    }
+
+    private void setupTimeoutHandler(final S requestId, final PCEPRequest req, final int timeout) {
+        final Timer timer = req.getTimer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                synchronized (AbstractTopologySessionListener.this) {
+                    AbstractTopologySessionListener.this.requests.remove(requestId);
+                }
+                req.done();
+                LOG.info("Request {} timed-out waiting for response", requestId);
+            }
+        }, TimeUnit.SECONDS.toMillis(timeout));
+        LOG.trace("Set up response timeout handler for request {}", requestId);
     }
 
     /**
