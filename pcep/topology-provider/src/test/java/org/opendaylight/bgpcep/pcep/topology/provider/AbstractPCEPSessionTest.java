@@ -77,6 +77,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     protected static final String DST_IP_PREFIX = NEW_DESTINATION_ADDRESS + IPV4_MASK;
     protected static final short DEAD_TIMER = 30;
     protected static final short KEEP_ALIVE = 10;
+    protected static final int RPC_TIMEOUT = 4;
 
     protected List<Notification> receivedMsgs;
 
@@ -131,7 +132,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         doReturn(mock(ChannelFuture.class)).when(this.clientListener).close();
 
         this.listenerFactory = (T) ((Class)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
-        this.manager = new ServerSessionManager(getDataBroker(), TOPO_IID, this.listenerFactory);
+        this.manager = new ServerSessionManager(getDataBroker(), TOPO_IID, this.listenerFactory, RPC_TIMEOUT);
 
         this.neg = new DefaultPCEPSessionNegotiator(mock(Promise.class), this.clientListener, this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
         this.topologyRpcs = new TopologyRPCs(this.manager);
