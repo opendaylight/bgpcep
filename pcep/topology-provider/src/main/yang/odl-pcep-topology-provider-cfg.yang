@@ -146,6 +146,11 @@ module odl-pcep-topology-provider-cfg {
                     description "RFC2385 shared secret";
                 }
             }
+
+            leaf rpc-timeout {
+                type int16;
+                default 30;
+            }
         }
     }
 

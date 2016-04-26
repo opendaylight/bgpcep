@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
+import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.lsp.metadata.Metadata;
@@ -28,12 +29,14 @@ final class PCEPRequest {
     private final Metadata metadata;
     private volatile State state;
     private final Stopwatch stopwatch;
+    private final Timer timer;
 
     PCEPRequest(final Metadata metadata) {
         this.future = SettableFuture.create();
         this.metadata = metadata;
         this.state = State.UNSENT;
         this.stopwatch = Stopwatch.createStarted();
+        this.timer = new Timer();
     }
 
     protected ListenableFuture<OperationResult> getFuture() {
@@ -48,12 +51,32 @@ final class PCEPRequest {
         return state;
     }
 
+    public Timer getTimer() {
+        return timer;
+    }
+
     public synchronized void done(final OperationResult result) {
         if (state != State.DONE) {
             LOG.debug("Request went from {} to {}", state, State.DONE);
             state = State.DONE;
+            timer.cancel();
             future.set(result);
         }
+    }
+
+    public synchronized void done() {
+        OperationResult result = null;
+        switch (state) {
+        case UNSENT:
+            result = OperationResults.UNSENT;
+            break;
+        case UNACKED:
+            result = OperationResults.NOACK;
+            break;
+        case DONE:
+            return;
+        }
+        done(result);
     }
 
     public synchronized void sent() {
