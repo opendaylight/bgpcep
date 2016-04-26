@@ -13,8 +13,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.opendaylight.protocol.pcep.pcc.mock.MsgBuilderUtil.createLspTlvs;
-
+import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createLspTlvs;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import java.net.UnknownHostException;
@@ -22,6 +23,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.yang.pcep.topology.provider.SessionState;
@@ -361,6 +364,22 @@ public class Stateful07TopologySessionListenerTest extends AbstractPCEPSessionTe
         final ErrorObject errorObject = result.getError().get(0).getErrorObject();
         assertNotNull(errorObject);
         assertEquals(PCEPErrors.USED_SYMBOLIC_PATH_NAME, PCEPErrors.forValue(errorObject.getType(), errorObject.getValue()));
+    }
+
+    @Test
+    public void testPccResponseTimeout() throws InterruptedException, ExecutionException {
+        this.listener.onSessionUp(this.session);
+        Future<RpcResult<AddLspOutput>> addLspResult = this.topologyRpcs.addLsp(createAddLspInput());
+        try {
+            addLspResult.get(2, TimeUnit.SECONDS);
+            fail();
+        } catch (Exception e) {
+            assertTrue(e instanceof TimeoutException);
+        }
+        Thread.sleep(AbstractPCEPSessionTest.RPC_TIMEOUT);
+        RpcResult<AddLspOutput> rpcResult = addLspResult.get();
+        assertNotNull(rpcResult);
+        assertEquals(rpcResult.getResult().getFailure(), FailureType.Unsent);
     }
 
     @Override

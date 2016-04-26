@@ -52,10 +52,10 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
     public static PCEPTopologyProvider create(final PCEPDispatcher dispatcher, final InetSocketAddress address, final Optional<KeyMapping> keys,
             final InstructionScheduler scheduler, final DataBroker dataBroker, final RpcProviderRegistry rpcRegistry,
             final InstanceIdentifier<Topology> topology, final TopologySessionListenerFactory listenerFactory,
-            final Optional<PCEPTopologyProviderRuntimeRegistrator> runtimeRootRegistrator) throws InterruptedException,
+            final Optional<PCEPTopologyProviderRuntimeRegistrator> runtimeRootRegistrator, final int rpcTimeout) throws InterruptedException,
             ExecutionException, ReadFailedException, TransactionCommitFailedException {
 
-        final ServerSessionManager manager = new ServerSessionManager(dataBroker, topology, listenerFactory);
+        final ServerSessionManager manager = new ServerSessionManager(dataBroker, topology, listenerFactory, rpcTimeout);
         if (runtimeRootRegistrator.isPresent()) {
             manager.registerRuntimeRootRegistartion(runtimeRootRegistrator.get());
         }
