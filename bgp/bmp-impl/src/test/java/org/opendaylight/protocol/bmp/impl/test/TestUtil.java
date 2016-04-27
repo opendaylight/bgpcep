@@ -56,10 +56,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.AListCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.AListBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequence;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequenceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.AdjRibInType;
@@ -296,20 +292,10 @@ public final class TestUtil {
     }
 
     private static Attributes createAttributes() {
-        final AsSequenceBuilder asSeqBuilder = new AsSequenceBuilder();
-        asSeqBuilder.setAs(new AsNumber(72L));
-        asSeqBuilder.build();
-        final AsSequenceBuilder asSeqBuilder2 = new AsSequenceBuilder();
-        asSeqBuilder.setAs(new AsNumber(82L));
-        asSeqBuilder.build();
-        final AsSequenceBuilder asSeqBuilder3 = new AsSequenceBuilder();
-        asSeqBuilder.setAs(new AsNumber(92L));
-        asSeqBuilder.build();
-
-        final List<AsSequence> asSequences = Lists.newArrayList(asSeqBuilder.build(), asSeqBuilder2.build(), asSeqBuilder3.build());
+        final List<AsNumber> asSequences = Lists.newArrayList(new AsNumber(72L), new AsNumber(82L), new AsNumber(92L));
         final List<Segments> segments = Lists.newArrayList();
         final SegmentsBuilder segmentsBuild = new SegmentsBuilder();
-        segmentsBuild.setCSegment(new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asSequences).build()).build());
+        segmentsBuild.setAsSequence(asSequences).build();
 
         final AttributesBuilder attribBuilder = new AttributesBuilder()
             .setAggregator(new AggregatorBuilder().setAsNumber(new AsNumber(72L)).setNetworkAddress(new Ipv4Address(IPV4_ADDRESS_20)).build())
