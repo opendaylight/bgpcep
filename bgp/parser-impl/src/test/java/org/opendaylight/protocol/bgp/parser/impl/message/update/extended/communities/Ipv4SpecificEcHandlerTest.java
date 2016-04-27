@@ -30,7 +30,7 @@ public class Ipv4SpecificEcHandlerTest {
     public void testHandler() throws BGPDocumentedException, BGPParsingException {
         final Ipv4SpecificEcHandler handler = new Ipv4SpecificEcHandler();
         final Inet4SpecificExtendedCommunityCase expected = new Inet4SpecificExtendedCommunityCaseBuilder().setInet4SpecificExtendedCommunity(
-                new Inet4SpecificExtendedCommunityBuilder().setTransitive(true).setGlobalAdministrator(new Ipv4Address("12.51.2.5")).setLocalAdministrator(
+                new Inet4SpecificExtendedCommunityBuilder().setGlobalAdministrator(new Ipv4Address("12.51.2.5")).setLocalAdministrator(
                         new byte[] { 21, 45 }).build()).build();
 
         final ExtendedCommunity exComm = handler.parseExtendedCommunity(Unpooled.copiedBuffer(INPUT));
