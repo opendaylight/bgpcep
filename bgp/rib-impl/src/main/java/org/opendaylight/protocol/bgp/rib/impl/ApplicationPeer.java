@@ -60,6 +60,8 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     private final DOMTransactionChain writerChain;
     private final BGPConfigModuleTracker moduleTracker;
     private final EffectiveRibInWriter effectiveRibInWriter;
+    private final ExportPolicyPeerTracker exportPolicyPeerTracker;
+    private final YangInstanceIdentifier peerIId;
 
     private AdjRibInWriter writer;
 
@@ -68,9 +70,11 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         this.targetRib = Preconditions.checkNotNull(targetRib);
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
         final NodeIdentifierWithPredicates peerId = IdentifierUtils.domPeerId(RouterIds.createPeerId(ipAddress));
-        final YangInstanceIdentifier peerIId = this.targetRib.getYangRibId().node(Peer.QNAME).node(peerId);
-        this.adjRibsInId = peerIId.node(AdjRibIn.QNAME).node(Tables.QNAME);
+        this.peerIId = this.targetRib.getYangRibId().node(Peer.QNAME).node(peerId);
+        this.adjRibsInId = this.peerIId.node(AdjRibIn.QNAME).node(Tables.QNAME);
         this.chain = this.targetRib.createPeerChain(this);
+        this.exportPolicyPeerTracker = targetRib.getExportPolicyPeerTracker();
+        this.exportPolicyPeerTracker.peerRoleChanged(this.peerIId, PeerRole.Internal);
         this.effectiveRibInWriter = EffectiveRibInWriter.create(this.targetRib.getService(), this.targetRib.createPeerChain(this), peerIId, this.targetRib.getImportPolicyPeerTracker(),
                 this.targetRib.getRibSupportContext(), PeerRole.Internal);
         this.writerChain = this.targetRib.createPeerChain(this);
@@ -181,6 +185,7 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
 
     @Override
     public void close() {
+        this.exportPolicyPeerTracker.peerRoleChanged(this.peerIId, null);
         this.effectiveRibInWriter.close();
         this.writer.removePeer();
         this.chain.close();

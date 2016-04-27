@@ -22,14 +22,12 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
+import java.util.Set;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.SupportedTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +45,7 @@ final class ExportPolicyPeerTracker extends AbstractPeerRoleTracker {
     };
 
     private final Map<YangInstanceIdentifier, PeerRole> peerRoles = new HashMap<>();
-    private final HashMultimap<PeerId, NodeIdentifierWithPredicates> peerTables = HashMultimap.create();
+    private final HashMultimap<PeerId, TablesKey> peerTables = HashMultimap.create();
     private volatile Map<PeerRole, PeerExportGroup> groups = Collections.emptyMap();
     private final PolicyDatabase policyDatabase;
 
@@ -83,7 +81,7 @@ final class ExportPolicyPeerTracker extends AbstractPeerRoleTracker {
     }
 
     @Override
-    protected void peerRoleChanged(final YangInstanceIdentifier peerPath, final PeerRole role) {
+    protected synchronized void peerRoleChanged(final YangInstanceIdentifier peerPath, final PeerRole role) {
         /*
          * This is a sledgehammer approach to the problem: modify the role map first,
          * then construct the group map from scratch.
@@ -105,22 +103,16 @@ final class ExportPolicyPeerTracker extends AbstractPeerRoleTracker {
         return this.groups.get(Preconditions.checkNotNull(role));
     }
 
-    void onTablesChanged(final PeerId peerId, final DataTreeCandidateNode node) {
-        if (node.getDataAfter().isPresent()) {
-            final NodeIdentifierWithPredicates value = (NodeIdentifierWithPredicates) node.getDataAfter().get().getIdentifier();
-            final boolean added = this.peerTables.put(peerId, value);
-            if (added) {
-                LOG.debug("Supported table {} added to peer {}", value, peerId);
-            }
+    void onTablesChanged(final PeerId peerId, final Set<TablesKey> tables) {
+        if (tables != null) {
+            this.peerTables.putAll(peerId, tables);
         } else {
-            final NodeIdentifierWithPredicates value = (NodeIdentifierWithPredicates) node.getIdentifier();
-            this.peerTables.remove(peerId,value);
-            LOG.debug("Removed tables {} from peer {}", value, peerId);
+            this.peerTables.removeAll(peerId);
         }
     }
 
     boolean isTableSupported(final PeerId peerId, final TablesKey tablesKey) {
-        return this.peerTables.get(peerId).contains(RibSupportUtils.toYangKey(SupportedTables.QNAME, tablesKey));
+        return this.peerTables.get(peerId).contains(tablesKey);
     }
 
     public PeerRole getRole(final YangInstanceIdentifier peerId) {
