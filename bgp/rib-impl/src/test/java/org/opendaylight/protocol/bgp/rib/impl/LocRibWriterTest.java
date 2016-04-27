@@ -7,157 +7,212 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.CheckedFuture;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
+import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
+import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestCustomizer;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeListener;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
-import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
-import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
+import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.Ipv4Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.Ipv4RoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4RouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4RouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRibBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.PeerKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.AdjRibOut;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.EffectiveRibIn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.SupportedTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 
-public class LocRibWriterTest {
+public class LocRibWriterTest extends AbstractDataBrokerTest implements TransactionChainListener {
 
-    @Mock
-    DOMDataWriteTransaction domTransWrite;
+    private static final Ipv4Prefix PREFIX = new Ipv4Prefix("1.1.1.0/24");
+    private static final RibId RIB_ID = new RibId("rib");
+    private static final Ipv4Address BGP_ID = new Ipv4Address("10.25.2.1");
+    private static final Ipv4Address BGP_ID2 = new Ipv4Address("10.25.2.2");
+    private static final PeerKey PEER_KEY = new PeerKey(RouterIds.createPeerId(BGP_ID));
+    private static final PeerKey PEER_KEY2 = new PeerKey(RouterIds.createPeerId(BGP_ID2));
+    private static final InstanceIdentifier<Rib> RIB_IID = InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(RIB_ID)).build();
+    private static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
 
-    private final PolicyDatabase pd = new PolicyDatabase((long) 35, new Ipv4Address("10.25.2.9"), new ClusterIdentifier(new Ipv4Address("10.25.2.9")));
+    private static final InstanceIdentifier EFF_IID = RIB_IID
+            .child(Peer.class, PEER_KEY).child(EffectiveRibIn.class).child(Tables.class, TABLES_KEY);
+    private static final InstanceIdentifier<Ipv4Routes> EFF_ROUTES_IID = EFF_IID.child(Ipv4Routes.class);
 
-    @Mock
-    private RIBSupportContextRegistry registry;
+    private static final InstanceIdentifier EFF_IID2 = RIB_IID
+            .child(Peer.class, PEER_KEY2).child(EffectiveRibIn.class).child(Tables.class, TABLES_KEY);
+    private static final InstanceIdentifier<Ipv4Routes> EFF_ROUTES_IID2 = EFF_IID2.child(Ipv4Routes.class);
+    private static final InstanceIdentifier RIB_OUT_IID = RIB_IID
+            .child(Peer.class, PEER_KEY2).child(AdjRibOut.class).child(Tables.class, TABLES_KEY);
+    private static final InstanceIdentifier<Ipv4Routes> RIB_OUT_ROUTES_IID = RIB_OUT_IID.child(Ipv4Routes.class);
 
-    @Mock
-    private DOMTransactionChain chain;
+    private static final YangInstanceIdentifier PEER1_IID = createYangIId(PEER_KEY);
+    private static final YangInstanceIdentifier PEER2_IID = createYangIId(PEER_KEY2);
 
-    @Mock
-    private DOMDataTreeChangeService service;
-
-    @Mock
-    private RIBSupportContext context;
-
-    @Mock
-    private AbstractIPRIBSupport ribSupport;
-
-    @Mock
-    CheckedFuture<?, ?> future;
+    private final PolicyDatabase pd = new PolicyDatabase((long) 35, BGP_ID, new ClusterIdentifier(BGP_ID));
 
     private LocRibWriter locRibWriter;
-
-    private final List<YangInstanceIdentifier> routes = new ArrayList<>();
-    private final TablesKey tablesKey = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    private RIBActivator ribActivator;
+    private ExportPolicyPeerTracker exportPolicyPeerTracker;
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                final NormalizedNode<?, ?> node = (NormalizedNode<?, ?>) args[2];
-                if (node.getNodeType().equals(Ipv4Route.QNAME) || node.getNodeType().equals(IPv4RIBSupport.PREFIX_QNAME)) {
-                    LocRibWriterTest.this.routes.add((YangInstanceIdentifier) args[1]);
-                }
-                return args[1];
-            }
-        }).when(this.domTransWrite).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                final NormalizedNode<?, ?> node = (NormalizedNode<?, ?>) args[2];
-                if (node.getNodeType().equals(Ipv4Route.QNAME) || node.getNodeType().equals(IPv4RIBSupport.PREFIX_QNAME)) {
-                    LocRibWriterTest.this.routes.add((YangInstanceIdentifier) args[1]);
-                }
-                return args[1];
-            }
-        }).when(this.domTransWrite).merge(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
-        Mockito.doAnswer(new Answer<Object>() {
+        final DataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
+        final BindingToNormalizedNodeCodec codecFactory = customizer.getBindingToNormalized();
 
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                LocRibWriterTest.this.routes.remove(args[1]);
-                return args[1];
-            }
-        }).when(this.domTransWrite).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class));
-        Mockito.doReturn(this.context).when(this.registry).getRIBSupportContext(this.tablesKey);
-        Mockito.doReturn(this.ribSupport).when(this.context).getRibSupport();
-        Mockito.doReturn(this.domTransWrite).when(this.chain).newWriteOnlyTransaction();
-        Mockito.doReturn(this.future).when(this.domTransWrite).submit();
-        Mockito.doReturn(null).when(this.service).registerDataTreeChangeListener(Mockito.any(DOMDataTreeIdentifier.class), Mockito.any(DOMDataTreeChangeListener.class));
-        Mockito.doReturn(Builders.choiceBuilder().withNodeIdentifier(new NodeIdentifier(Routes.QNAME)).addChild(Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(Ipv4Routes.QNAME)).withChild(ImmutableNodes.mapNodeBuilder(Ipv4Route.QNAME).build()).build()).build()).when(this.ribSupport).emptyRoutes();
-        this.locRibWriter = LocRibWriter.create(this.registry, this.tablesKey, this.chain, YangInstanceIdentifier.of(BgpRib.QNAME),
-            new AsNumber((long) 35), this.service, this.pd, new CacheDisconnectedPeersImpl());
+        final SimpleRIBExtensionProviderContext extensions = new SimpleRIBExtensionProviderContext();
+        this.ribActivator = new RIBActivator();
+        this.ribActivator.startRIBExtensionProvider(extensions);
+        final RIBSupportContextRegistry registry = RIBSupportContextRegistryImpl.create(
+                extensions, CodecsRegistryImpl.create(codecFactory, extensions.getClassLoadingStrategy()));
+
+        final LocRib locRib = new LocRibBuilder().setTables(Collections.<Tables>emptyList()).build();
+        final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
+        wTx.put(LogicalDatastoreType.OPERATIONAL, RIB_IID.child(LocRib.class), locRib, true);
+        wTx.submit().checkedGet();
+
+        final DOMTransactionChain txChain = getDomBroker().createTransactionChain(this);
+        final DOMDataTreeChangeService service = (DOMDataTreeChangeService) getDomBroker().getSupportedExtensions().get(DOMDataTreeChangeService.class);
+        this.exportPolicyPeerTracker = new ExportPolicyPeerTracker(this.pd);
+        this.exportPolicyPeerTracker.peerRoleChanged(PEER1_IID, PeerRole.Ibgp);
+        this.exportPolicyPeerTracker.onTablesChanged(PEER_KEY.getPeerId(), Collections.singleton(TABLES_KEY));
+        this.locRibWriter = LocRibWriter.create(registry, TABLES_KEY, txChain,
+                YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME).nodeWithKey(Rib.QNAME, RIBImpl.RIB_ID_QNAME, RIB_ID.getValue()).build(),
+            new AsNumber((long) 35), service, this.exportPolicyPeerTracker, new CacheDisconnectedPeersImpl());
     }
 
-    private DataTreeCandidate prepareUpdate() {
-        final DataTreeCandidate candidate = Mockito.mock(DataTreeCandidate.class);
-        Mockito.doReturn("candidate").when(candidate).toString();
-        final YangInstanceIdentifier rootPath = YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Peer.QNAME).nodeWithKey(Peer.QNAME, AdjRibInWriter.PEER_ID_QNAME, "12.12.12.12").build();
-        Mockito.doReturn(rootPath).when(candidate).getRootPath();
-        return candidate;
+    @After
+    public void tearDown() {
+        this.locRibWriter.close();
+        this.ribActivator.close();
     }
 
     @Test
-    public void testUpdateSupportedTables() {
-        final DataTreeCandidate candidate = prepareUpdate();
-        final DataTreeCandidateNode node = Mockito.mock(DataTreeCandidateNode.class);
-        Mockito.doReturn("node").when(node).toString();
-        final DataTreeCandidateNode tableChange = Mockito.mock(DataTreeCandidateNode.class);
-        // add
-        final DataTreeCandidateNode table = Mockito.mock(DataTreeCandidateNode.class);
-        final NormalizedNode<?, ?> dataAfter = Mockito.mock(NormalizedNode.class);
-        Mockito.doReturn(RibSupportUtils.toYangTablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)).when(dataAfter).getIdentifier();
-        Mockito.doReturn(Optional.of(dataAfter)).when(table).getDataAfter();
-        Mockito.doReturn(Lists.newArrayList(table)).when(tableChange).getChildNodes();
-        Mockito.doReturn("table change").when(tableChange).toString();
-        Mockito.doReturn(tableChange).when(node).getModifiedChild(YangInstanceIdentifier.of(SupportedTables.QNAME).getLastPathArgument());
-        Mockito.doReturn(null).when(node).getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
-        Mockito.doReturn(null).when(node).getModifiedChild(YangInstanceIdentifier.of(EffectiveRibIn.QNAME).getLastPathArgument());
-        Mockito.doReturn(node).when(candidate).getRootNode();
-        Mockito.doReturn(ModificationType.SUBTREE_MODIFIED).when(node).getModificationType();
-        this.locRibWriter.onDataTreeChanged(Lists.newArrayList(candidate));
-        // delete
-        final DataTreeCandidateNode tableDelete = Mockito.mock(DataTreeCandidateNode.class);
-        Mockito.doReturn(Optional.absent()).when(tableDelete).getDataAfter();
-        Mockito.doReturn(Lists.newArrayList(tableDelete)).when(tableChange).getChildNodes();
-        Mockito.doReturn("table change").when(tableChange).toString();
-        Mockito.doReturn(node).when(candidate).getRootNode();
-        this.locRibWriter.onDataTreeChanged(Lists.newArrayList(candidate));
-        Mockito.verify(node, Mockito.times(2)).getModifiedChild(YangInstanceIdentifier.of(SupportedTables.QNAME).getLastPathArgument());
+    public void testSingleRouteWrite() throws TransactionCommitFailedException, ReadFailedException, InterruptedException {
+        writeIpv4RouteToEffRib(PREFIX, BGP_ID);
+        final Ipv4Route locRibRoute = getLocRibIpv4Routes(getLocRibRoutes().getTables().get(0).getRoutes()).get(0);
+        Assert.assertEquals(PREFIX, locRibRoute.getPrefix());
+    }
+
+    @Test
+    public void testSingleRouteRemove() throws TransactionCommitFailedException, ReadFailedException, InterruptedException {
+        writeIpv4RouteToEffRib(PREFIX, BGP_ID);
+        removeRouteFromEffRib(PREFIX);
+        final List<Ipv4Route> locRibIpv4Routes = getLocRibIpv4Routes(getLocRibRoutes().getTables().get(0).getRoutes());
+        Assert.assertTrue(locRibIpv4Routes.isEmpty());
+    }
+
+    @Test
+    public void testSingleRouteReadvertise() throws TransactionCommitFailedException, ReadFailedException, InterruptedException {
+        createSecondPeer();
+        writeIpv4RouteToEffRib(PREFIX, BGP_ID);
+        final Ipv4Route ipv4Route = getRibOutIpv4Routes(getPeerRibOut(PEER_KEY2).getTables().get(0).getRoutes()).get(0);
+        Assert.assertEquals(PREFIX, ipv4Route.getPrefix());
+    }
+
+    @Test
+    public void testInitialRoutesDump() throws TransactionCommitFailedException, ReadFailedException, InterruptedException {
+        writeIpv4RouteToEffRib(PREFIX, BGP_ID);
+        createSecondPeer();
+        final Ipv4Route ipv4Route = getRibOutIpv4Routes(getPeerRibOut(PEER_KEY2).getTables().get(0).getRoutes()).get(0);
+        Assert.assertEquals(PREFIX, ipv4Route.getPrefix());
+    }
+
+    private void writeIpv4RouteToEffRib(final Ipv4Prefix prefix, final Ipv4Address nextHop) throws TransactionCommitFailedException {
+        final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
+        final Ipv4Route ipv4Route = new Ipv4RouteBuilder().setPrefix(prefix).setAttributes(new AttributesBuilder().setCNextHop(
+                new Ipv4NextHopCaseBuilder().setIpv4NextHop(
+                        new Ipv4NextHopBuilder().setGlobal(nextHop).build()).build()).build()).build();
+        wTx.put(LogicalDatastoreType.OPERATIONAL, EFF_ROUTES_IID.child(Ipv4Route.class, ipv4Route.getKey()), ipv4Route, true);
+        wTx.submit().checkedGet();
+    }
+
+    private void removeRouteFromEffRib(final Ipv4Prefix prefix) throws TransactionCommitFailedException {
+        final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
+        wTx.delete(LogicalDatastoreType.OPERATIONAL, EFF_ROUTES_IID.child(Ipv4Route.class, new Ipv4RouteKey(prefix)));
+        wTx.submit().checkedGet();
+    }
+
+    private void createSecondPeer() throws TransactionCommitFailedException {
+        this.exportPolicyPeerTracker.peerRoleChanged(PEER2_IID, PeerRole.Ebgp);
+        this.exportPolicyPeerTracker.onTablesChanged(PEER_KEY2.getPeerId(), Collections.singleton(TABLES_KEY));
+        final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
+        wTx.put(LogicalDatastoreType.OPERATIONAL, EFF_ROUTES_IID2, new Ipv4RoutesBuilder().setIpv4Route(Collections.<Ipv4Route>emptyList()).build(), true);
+        wTx.put(LogicalDatastoreType.OPERATIONAL, RIB_OUT_ROUTES_IID, new Ipv4RoutesBuilder().setIpv4Route(Collections.<Ipv4Route>emptyList()).build(), true);
+        wTx.submit().checkedGet();
+    }
+
+    private static List<Ipv4Route> getLocRibIpv4Routes(final Routes routes) {
+        return ((Ipv4RoutesCase)routes).getIpv4Routes().getIpv4Route();
+    }
+
+    private static List<Ipv4Route> getRibOutIpv4Routes(final Routes routes) {
+        return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.bgp.rib.rib.peer.adj.rib.out.tables.routes.Ipv4RoutesCase)
+                routes).getIpv4Routes().getIpv4Route();
+    }
+
+    private LocRib getLocRibRoutes() throws ReadFailedException, InterruptedException {
+        Thread.sleep(500);
+        try (final ReadOnlyTransaction rTx = getDataBroker().newReadOnlyTransaction()) {
+            return rTx.read(LogicalDatastoreType.OPERATIONAL, RIB_IID.child(LocRib.class)).checkedGet().get();
+        }
+    }
+
+    private AdjRibOut getPeerRibOut(final PeerKey peerKey) throws ReadFailedException, InterruptedException {
+        Thread.sleep(500);
+        try (final ReadOnlyTransaction rTx = getDataBroker().newReadOnlyTransaction()) {
+            return rTx.read(LogicalDatastoreType.OPERATIONAL, RIB_IID.child(Peer.class, peerKey).child(AdjRibOut.class)).checkedGet().get();
+        }
+    }
+
+    private static YangInstanceIdentifier createYangIId(final PeerKey peerKey) {
+        return YangInstanceIdentifier.builder().node(BgpRib.QNAME).node(Rib.QNAME)
+                .nodeWithKey(Rib.QNAME, RIBImpl.RIB_ID_QNAME, RIB_ID.getValue()).node(Peer.QNAME).node(IdentifierUtils.domPeerId(peerKey.getPeerId())).build();
+    }
+
+    @Override
+    public void onTransactionChainFailed(final TransactionChain<?, ?> chain, final AsyncTransaction<?, ?> transaction,
+            final Throwable cause) {
+        Assert.fail(cause.getMessage());
+    }
+
+    @Override
+    public void onTransactionChainSuccessful(final TransactionChain<?, ?> chain) {
     }
 }
