@@ -82,6 +82,8 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     private AdjRibInWriter ribWriter;
     @GuardedBy("this")
     private EffectiveRibInWriter effRibInWriter;
+    @GuardedBy("this")
+    private YangInstanceIdentifier peerIId;
 
     private final RIB rib;
     private final String name;
@@ -90,6 +92,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     private long sessionEstablishedCounter = 0L;
     private final Set<AdjRibOutListener> adjRibOutListenerSet = new HashSet<>();
     private final PeerRole peerRole;
+    private final ExportPolicyPeerTracker exportPolicyPeerTracker;
 
     public BGPPeer(final String name, final RIB rib) {
         this(name, rib, PeerRole.Ibgp);
@@ -101,6 +104,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         this.chain = rib.createPeerChain(this);
         this.peerRole = role;
         this.ribWriter = AdjRibInWriter.create(rib.getYangRibId(), role, this.chain);
+        this.exportPolicyPeerTracker = ((RIBImpl)this.rib).getExportPolicyPeerTracker();
     }
 
     @Override
@@ -202,15 +206,21 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         this.session = session;
         this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
         final PeerId peerId = RouterIds.createPeerId(session.getBgpId());
-        final YangInstanceIdentifier peerIId = this.rib.getYangRibId().node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer.QNAME).node(IdentifierUtils.domPeerId(peerId));
+        this.peerIId = this.rib.getYangRibId().node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer.QNAME).node(IdentifierUtils.domPeerId(peerId));
         createAdjRibOutListener(peerId);
-        this.effRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this), peerIId, ((RIBImpl)this.rib).getImportPolicyPeerTracker(),
-                this.rib.getRibSupportContext(), this.peerRole);
+        this.effRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this), this.peerIId,
+                ((RIBImpl)this.rib).getImportPolicyPeerTracker(), this.rib.getRibSupportContext(), this.peerRole);
         this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, false);
+        addToExportPolicies(peerId);
         this.sessionEstablishedCounter++;
         if (this.registrator != null) {
             this.runtimeReg = this.registrator.register(this);
         }
+    }
+
+    private void addToExportPolicies(final PeerId peerId) {
+        this.exportPolicyPeerTracker.peerRoleChanged(this.peerIId, this.peerRole);
+        this.exportPolicyPeerTracker.onTablesChanged(peerId, this.tables);
     }
 
     private void createAdjRibOutListener(final PeerId peerId) {
@@ -243,6 +253,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     }
 
     private synchronized void cleanup() {
+        removeFromExportPolicies();
         // FIXME: BUG-196: support graceful
         for (final AdjRibOutListener adjRibOutListener : this.adjRibOutListenerSet) {
             adjRibOutListener.close();
@@ -253,6 +264,14 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         }
         this.ribWriter.removePeer();
         this.tables.clear();
+    }
+
+    private void removeFromExportPolicies() {
+        if (this.peerIId != null) {
+            this.exportPolicyPeerTracker.peerRoleChanged(this.peerIId, null);
+            this.exportPolicyPeerTracker.onTablesChanged(IdentifierUtils.peerId(IdentifierUtils.peerKey(this.peerIId)), null);
+            this.peerIId = null;
+        }
     }
 
     @Override
