@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_94d3e337",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/SimpleFlowspecIpv4NlriParser.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-27T12:30:27Z",
+      "side": 1,
+      "message": "Called twice, cache to local variable.",
+      "range": {
+        "startLine": 74,
+        "startChar": 26,
+        "endLine": 74,
+        "endChar": 63
+      },
+      "revId": "c3134137dc300383d09a29446f57ec5a278fc901",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_b42b872f",
+        "filename": "bgp/flowspec/src/main/yang/bgp-flowspec.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-27T12:30:27Z",
+      "side": 1,
+      "message": "already imported",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 68
+      },
+      "revId": "c3134137dc300383d09a29446f57ec5a278fc901",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_7431efa1",
+        "filename": "bgp/flowspec/src/main/yang/bgp-flowspec.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-27T12:30:27Z",
+      "side": 1,
+      "message": "not used.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 66
+      },
+      "revId": "c3134137dc300383d09a29446f57ec5a278fc901",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
