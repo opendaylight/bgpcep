@@ -16,7 +16,6 @@ import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.concurrent.ThreadSafe;
@@ -42,7 +41,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
-import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -67,12 +65,10 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
 import org.slf4j.Logger;
@@ -83,8 +79,6 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
     @VisibleForTesting
     public static final QName RIB_ID_QNAME = QName.create(Rib.QNAME, "id").intern();
-    @VisibleForTesting
-    public static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes.QNAME);
 
     private final ReconnectStrategyFactory tcpStrategyFactory;
     private final ReconnectStrategyFactory sessionStrategyFactory;
@@ -107,6 +101,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final BGPOpenConfigProvider openConfigProvider;
     private final CacheDisconnectedPeers cacheDisconnectedPeers;
     private final ImportPolicyPeerTracker importPolicyPeerTracker;
+    private final ExportPolicyPeerTracker exportPolicyPeerTracker;
 
     public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final Ipv4Address clusterId, final RIBExtensionConsumerContext extensions,
         final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory, final BindingCodecTreeFactory codecFactory,
@@ -161,6 +156,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         final ClusterIdentifier cId = (clusterId == null) ? new ClusterIdentifier(localBgpId) : new ClusterIdentifier(clusterId);
         final PolicyDatabase policyDatabase  = new PolicyDatabase(localAs.getValue(), localBgpId, cId);
         this.importPolicyPeerTracker = new ImportPolicyPeerTracker(policyDatabase);
+        this.exportPolicyPeerTracker = new ExportPolicyPeerTracker(policyDatabase);
 
         final DOMDataBrokerExtension domDatatreeChangeService = this.domDataBroker.getSupportedExtensions().get(DOMDataTreeChangeService.class);
         this.service = domDatatreeChangeService;
@@ -169,7 +165,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         for (final BgpTableType t : this.localTables) {
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
             this.localTablesKeys.add(key);
-            startLocRib(key, policyDatabase);
+            startLocRib(key, getExportPolicyPeerTracker());
         }
 
         if (this.configModuleTracker != null) {
@@ -185,32 +181,10 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
                 dps, domDataBroker, localTables, classStrategy, null, null);
     }
 
-    private void startLocRib(final TablesKey key, final PolicyDatabase pd) {
+    private void startLocRib(final TablesKey key, final ExportPolicyPeerTracker exportPolicyPeerTracker) {
         LOG.debug("Creating LocRib table for {}", key);
         // create locRibWriter for each table
-        final DOMDataWriteTransaction tx = this.domChain.newWriteOnlyTransaction();
-
-        final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> table = ImmutableNodes.mapEntryBuilder();
-        table.withNodeIdentifier(RibSupportUtils.toYangTablesKey(key));
-        table.withChild(EMPTY_TABLE_ATTRIBUTES);
-
-        final NodeIdentifierWithPredicates tableKey = RibSupportUtils.toYangTablesKey(key);
-        final InstanceIdentifierBuilder tableId = YangInstanceIdentifier.builder(this.yangRibId.node(LocRib.QNAME).node(Tables.QNAME));
-        tableId.nodeWithKey(tableKey.getNodeType(), tableKey.getKeyValues());
-        for (final Entry<QName, Object> e : tableKey.getKeyValues().entrySet()) {
-            table.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
-        }
-
-        final ChoiceNode routes = this.ribContextRegistry.getRIBSupportContext(key).getRibSupport().emptyRoutes();
-        table.withChild(routes);
-
-        tx.put(LogicalDatastoreType.OPERATIONAL, tableId.build(), table.build());
-        try {
-            tx.submit().checkedGet();
-        } catch (final TransactionCommitFailedException e1) {
-            LOG.error("Failed to initiate LocRIB for key {}", key, e1);
-        }
-        this.locRibs.add(LocRibWriter.create(this.ribContextRegistry, key, createPeerChain(this), getYangRibId(), this.localAs, getService(), pd,
+        this.locRibs.add(LocRibWriter.create(this.ribContextRegistry, key, createPeerChain(this), getYangRibId(), this.localAs, getService(), exportPolicyPeerTracker,
             this.cacheDisconnectedPeers));
     }
 
@@ -362,5 +336,9 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
     public ImportPolicyPeerTracker getImportPolicyPeerTracker() {
         return this.importPolicyPeerTracker;
+    }
+
+    public ExportPolicyPeerTracker getExportPolicyPeerTracker() {
+        return this.exportPolicyPeerTracker;
     }
 }
