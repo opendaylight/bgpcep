@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_394652c0",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-27T08:55:32Z",
+      "side": 1,
+      "message": "Would be nice to have this value configurable (i.e. zero will disable the timer \u003d infinite waiting for a response).",
+      "range": {
+        "startLine": 111,
+        "startChar": 54,
+        "endLine": 111,
+        "endChar": 60
+      },
+      "revId": "f83e6e8ae29c446321e9d97eaf4e91a7bd30e8da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_d95ab682",
+        "filename": "pcep/topology-provider/src/test/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListenerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-27T08:55:32Z",
+      "side": 1,
+      "message": "Because the request was sent from ODL PCE to PCC, the result here should be \"NoAck\" - truly, this case does not fit to the FailureType.NoAck description, thus the description should be updated too.",
+      "range": {
+        "startLine": 382,
+        "startChar": 69,
+        "endLine": 382,
+        "endChar": 75
+      },
+      "revId": "f83e6e8ae29c446321e9d97eaf4e91a7bd30e8da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
