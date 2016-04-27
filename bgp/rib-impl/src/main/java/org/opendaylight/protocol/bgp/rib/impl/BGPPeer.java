@@ -82,6 +82,8 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     private AdjRibInWriter ribWriter;
     @GuardedBy("this")
     private EffectiveRibInWriter effRibInWriter;
+    @GuardedBy("this")
+    private YangInstanceIdentifier peerIId;
 
     private final RIB rib;
     private final String name;
@@ -90,6 +92,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     private long sessionEstablishedCounter = 0L;
     private final Set<AdjRibOutListener> adjRibOutListenerSet = new HashSet<>();
     private final PeerRole peerRole;
+    private final ExportPolicyPeerTracker exportPolicyPeerTracker;
 
     public BGPPeer(final String name, final RIB rib) {
         this(name, rib, PeerRole.Ibgp);
@@ -101,6 +104,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         this.chain = rib.createPeerChain(this);
         this.peerRole = role;
         this.ribWriter = AdjRibInWriter.create(rib.getYangRibId(), role, this.chain);
+        this.exportPolicyPeerTracker = ((RIBImpl)this.rib).getExportPolicyPeerTracker();
     }
 
     @Override
@@ -161,10 +165,10 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
             prefixes.add(new Ipv4PrefixesBuilder().setPrefix(p).build());
         }
         final MpReachNlriBuilder b = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
-            UnicastSubsequentAddressFamily.class).setAdvertizedRoutes(
-                new AdvertizedRoutesBuilder().setDestinationType(
-                    new DestinationIpv4CaseBuilder().setDestinationIpv4(
-                        new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build());
+                UnicastSubsequentAddressFamily.class).setAdvertizedRoutes(
+                        new AdvertizedRoutesBuilder().setDestinationType(
+                                new DestinationIpv4CaseBuilder().setDestinationIpv4(
+                                        new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build());
         if (message.getAttributes() != null) {
             b.setCNextHop(message.getAttributes().getCNextHop());
         }
@@ -192,8 +196,8 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         }
         return new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setWithdrawnRoutes(
                 new WithdrawnRoutesBuilder().setDestinationType(
-                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
-                        new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build()).build();
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
+                                new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build()).build();
     }
 
     @Override
@@ -202,11 +206,12 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         this.session = session;
         this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
         final PeerId peerId = RouterIds.createPeerId(session.getBgpId());
-        final YangInstanceIdentifier peerIId = this.rib.getYangRibId().node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer.QNAME).node(IdentifierUtils.domPeerId(peerId));
+        this.peerIId = this.rib.getYangRibId().node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer.QNAME).node(IdentifierUtils.domPeerId(peerId));
         createAdjRibOutListener(peerId);
-        this.effRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this), peerIId, ((RIBImpl)this.rib).getImportPolicyPeerTracker(),
-                this.rib.getRibSupportContext(), this.peerRole);
+        this.effRibInWriter = EffectiveRibInWriter.create(this.rib.getService(), this.rib.createPeerChain(this), this.peerIId,
+                ((RIBImpl)this.rib).getImportPolicyPeerTracker(), this.rib.getRibSupportContext(), this.peerRole);
         this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, false);
+        this.exportPolicyPeerTracker.addToExportPolicies(peerId, this.peerIId, this.peerRole, this.tables);
         this.sessionEstablishedCounter++;
         if (this.registrator != null) {
             this.runtimeReg = this.registrator.register(this);
@@ -214,7 +219,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     }
 
     private void createAdjRibOutListener(final PeerId peerId) {
-        for (final BgpTableType t : session.getAdvertisedTableTypes()) {
+        for (final BgpTableType t : this.session.getAdvertisedTableTypes()) {
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
             if (this.tables.add(key)) {
                 createAdjRibOutListener(peerId, key, true);
@@ -238,11 +243,12 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         // not particularly nice
         if (context != null && this.session instanceof BGPSessionImpl) {
             this.adjRibOutListenerSet.add(AdjRibOutListener.create(peerId, key, this.rib.getYangRibId(), this.rib.getCodecsRegistry(),
-                context.getRibSupport(), this.rib.getService(), ((BGPSessionImpl) this.session).getLimiter(), mpSupport));
+                    context.getRibSupport(), this.rib.getService(), ((BGPSessionImpl) this.session).getLimiter(), mpSupport));
         }
     }
 
     private synchronized void cleanup() {
+        removeFromExportPolicies();
         // FIXME: BUG-196: support graceful
         for (final AdjRibOutListener adjRibOutListener : this.adjRibOutListenerSet) {
             adjRibOutListener.close();
@@ -253,6 +259,13 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         }
         this.ribWriter.removePeer();
         this.tables.clear();
+    }
+
+    private void removeFromExportPolicies() {
+        if (this.peerIId != null) {
+            this.exportPolicyPeerTracker.removeFromExportPolicies(this.peerIId);
+            this.peerIId = null;
+        }
     }
 
     @Override
