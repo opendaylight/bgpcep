@@ -29,7 +29,7 @@ public final class Ipv4SpecificEcHandler extends AbstractIpv4ExtendedCommunity {
     @Override
     public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
         return new Inet4SpecificExtendedCommunityCaseBuilder().setInet4SpecificExtendedCommunity(
-                new Inet4SpecificExtendedCommunityBuilder().setTransitive(true).setGlobalAdministrator(
+                new Inet4SpecificExtendedCommunityBuilder().setGlobalAdministrator(
                         Ipv4Util.addressForByteBuf(buffer)).setLocalAdministrator(
                         ByteArray.readBytes(buffer, INET_LOCAL_ADMIN_LENGTH)).build()).build();
     }

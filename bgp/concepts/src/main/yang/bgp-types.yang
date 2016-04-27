@@ -165,24 +165,12 @@ module bgp-types {
     }
 
     grouping extended-community {
-        leaf comm-type {
-            status deprecated;
-            type uint8;
-        }
-        leaf comm-sub-type {
-            status deprecated;
-            type uint8;
-        }
         leaf transitive {
             type boolean;
         }
         choice extended-community {
             case as-specific-extended-community-case {
                 container as-specific-extended-community {
-                    leaf transitive {
-                        status deprecated;
-                        type boolean;
-                    }
                     leaf global-administrator {
                         type short-as-number;
                     }
@@ -195,10 +183,6 @@ module bgp-types {
             }
             case inet4-specific-extended-community-case {
                 container inet4-specific-extended-community {
-                    leaf transitive {
-                        status deprecated;
-                        type boolean;
-                    }
                     leaf global-administrator {
                         type inet:ipv4-address;
                     }
@@ -211,10 +195,6 @@ module bgp-types {
             }
             case opaque-extended-community-case {
                 container opaque-extended-community {
-                    leaf transitive {
-                        status deprecated;
-                        type boolean;
-                    }
                     leaf value {
                         type binary {
                             length "6";
@@ -292,26 +272,6 @@ module bgp-types {
 
     grouping as-path-segment {
         reference "http://tools.ietf.org/html/rfc4271#section-5.1.2";
-        choice c-segment {
-        description "This model is obsolete and please use just leaf-lists as-sequence and as-set nested directly under as-path-segment.";
-            status obsolete;
-            case a-set-case {
-                container a-set {
-                    leaf-list as-set {
-                        type inet:as-number;
-                    }
-                }
-            }
-            case a-list-case {
-                container a-list {
-                    list as-sequence {
-                        leaf as {
-                            type inet:as-number;
-                        }
-                    }
-                }
-            }
-        }
         leaf-list as-sequence {
             type inet:as-number;
             ordered-by user;
