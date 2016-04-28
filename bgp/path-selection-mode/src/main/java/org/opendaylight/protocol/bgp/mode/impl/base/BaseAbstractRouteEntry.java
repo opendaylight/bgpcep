@@ -179,9 +179,6 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
          * multiple times.
          */
         for (final PeerRole role : PeerRole.values()) {
-            if (PeerRole.Internal.equals(role)) {
-                continue;
-            }
             final PeerExportGroup peerGroup = peerPT.getPeerGroup(role);
             if (peerGroup != null) {
                 final ContainerNode effAttrib = peerGroup.effectiveAttributes(routePeerId, attributes);

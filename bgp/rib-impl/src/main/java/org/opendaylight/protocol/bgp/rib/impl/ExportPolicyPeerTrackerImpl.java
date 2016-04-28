@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
@@ -44,7 +46,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class ExportPolicyPeerTrackerImpl extends AbstractPeerRoleTracker implements ExportPolicyPeerTracker {
+final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
     private static final Logger LOG = LoggerFactory.getLogger(ExportPolicyPeerTrackerImpl.class);
     private static final Function<YangInstanceIdentifier, Entry<PeerId, YangInstanceIdentifier>> GENERATE_PEER_ID = new Function<YangInstanceIdentifier, Entry<PeerId, YangInstanceIdentifier>>() {
         @Override
@@ -54,7 +56,7 @@ final class ExportPolicyPeerTrackerImpl extends AbstractPeerRoleTracker implemen
         }
     };
     private static final QName SEND_RECEIVE = QName.create(SupportedTables.QNAME, "send-receive").intern();
-    private static final NodeIdentifier SEND_RECEIVE_NID = new YangInstanceIdentifier.NodeIdentifier(SEND_RECEIVE);
+    private static final NodeIdentifier SEND_RECEIVE_NID = new NodeIdentifier(SEND_RECEIVE);
     private final Map<YangInstanceIdentifier, PeerRole> peerRoles = new HashMap<>();
     private final Set<PeerId> peerTables = Sets.newHashSet();
     private final PolicyDatabase policyDatabase;
@@ -95,7 +97,7 @@ final class ExportPolicyPeerTrackerImpl extends AbstractPeerRoleTracker implemen
     }
 
     @Override
-    protected void peerRoleChanged(final YangInstanceIdentifier peerPath, final PeerRole role) {
+    public void peerRoleChanged(@Nonnull final YangInstanceIdentifier peerPath, @Nullable final PeerRole role) {
         /*
          * This is a sledgehammer approach to the problem: modify the role map first,
          * then construct the group map from scratch.

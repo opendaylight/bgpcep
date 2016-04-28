@@ -7,6 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static org.opendaylight.protocol.bgp.rib.impl.AdjRibInWriter.SIMPLE_ROUTING_POLICY_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.PeerRoleUtil.PEER_ROLE_NID;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
@@ -28,20 +31,24 @@ import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
+import org.opendaylight.protocol.bgp.rib.spi.PeerRoleUtil;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.SimpleRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.EffectiveRibIn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.SupportedTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.BindingMapping;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -64,6 +71,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     private static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_TRUE = ImmutableNodes.leafNode(QName.create(Attributes.QNAME, "uptodate"), Boolean.TRUE);
     private static final NodeIdentifier EFFRIBIN_NID = new NodeIdentifier(EffectiveRibIn.QNAME);
     private static final NodeIdentifier TABLES_NID = new NodeIdentifier(Tables.QNAME);
+    private static final NodeIdentifier PEER_TABLES = new NodeIdentifier(SupportedTables.QNAME);
 
     private final Map<PathArgument, RouteEntry> routeEntries = new HashMap<>();
     private final YangInstanceIdentifier locRibTarget;
@@ -177,7 +185,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     }
 
     private void filterOutChangesToSupportedTables(final PeerId peerIdOfNewPeer, final DataTreeCandidateNode rootNode) {
-        final DataTreeCandidateNode tablesChange = rootNode.getModifiedChild(AbstractPeerRoleTracker.PEER_TABLES);
+        final DataTreeCandidateNode tablesChange = rootNode.getModifiedChild(PEER_TABLES);
         if (tablesChange != null) {
             this.peerPolicyTracker.onTablesChanged(peerIdOfNewPeer, tablesChange);
         }
@@ -195,13 +203,35 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     }
 
     private void filterOutPeerRole(final PeerId peerId, final DataTreeCandidateNode rootNode, final YangInstanceIdentifier rootPath) {
-        final DataTreeCandidateNode roleChange = rootNode.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
+        final DataTreeCandidateNode roleChange = rootNode.getModifiedChild(PEER_ROLE_NID);
         if (roleChange != null) {
-            if (!rootNode.getModificationType().equals(ModificationType.DELETE)) {
+            if (rootNode.getModificationType() != ModificationType.DELETE) {
                 this.cacheDisconnectedPeers.reconnected(peerId);
             }
-            this.peerPolicyTracker.onDataTreeChanged(roleChange, IdentifierUtils.peerPath(rootPath));
+
+            // Check for removal
+            final Optional<NormalizedNode<?, ?>> maybePeerRole = roleChange.getDataAfter();
+            final YangInstanceIdentifier peerPath = IdentifierUtils.peerPath(rootPath);
+            LOG.debug("Data Changed for Peer role {} path {}, dataBefore {}, dataAfter {}", roleChange.getIdentifier(),
+                peerPath , roleChange.getDataBefore(), maybePeerRole);
+            final PeerRole role = PeerRoleUtil.roleForChange(maybePeerRole);
+            SimpleRoutingPolicy srp = getSimpleRoutingPolicy(rootNode);
+            if(PeerRole.Internal == role || SimpleRoutingPolicy.AnnounceNone == srp) {
+                return;
+            }
+            this.peerPolicyTracker.peerRoleChanged(peerPath, role);
         }
+    }
+
+    private SimpleRoutingPolicy getSimpleRoutingPolicy(final DataTreeCandidateNode rootNode) {
+        final DataTreeCandidateNode statusChange = rootNode.getModifiedChild(SIMPLE_ROUTING_POLICY_NID);
+        if (statusChange != null) {
+            final Optional<NormalizedNode<?, ?>> maybePeerStatus = statusChange.getDataAfter();
+            if (maybePeerStatus.isPresent()) {
+                return SimpleRoutingPolicy.valueOf(BindingMapping.getClassName((String) (maybePeerStatus.get()).getValue()));
+            }
+        }
+        return null;
     }
 
     private void updateNodes(final DataTreeCandidateNode table, final PeerId peerId, final DOMDataWriteTransaction tx,

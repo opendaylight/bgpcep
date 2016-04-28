@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Tracks import policy corresponding to a particular peer.
  */
-final class ImportPolicyPeerTracker extends AbstractPeerRoleTracker {
+final class ImportPolicyPeerTracker {
     private static final Logger LOG = LoggerFactory.getLogger(ImportPolicyPeerTracker.class);
 
     private final Map<PeerId, AbstractImportPolicy> policies = new ConcurrentHashMap<>();
@@ -32,7 +32,12 @@ final class ImportPolicyPeerTracker extends AbstractPeerRoleTracker {
         this.policyDatabase = Preconditions.checkNotNull(policyDatabase);
     }
 
-    @Override
+    /**
+     * Invoked whenever a peer role changes.
+     *
+     * @param peerPath Peer's path
+     * @param role Peer's new role, null indicates the peer has disappeared.
+     */
     protected void peerRoleChanged(final YangInstanceIdentifier peerPath, final PeerRole role) {
         final PeerId peer = IdentifierUtils.peerId((NodeIdentifierWithPredicates) peerPath.getLastPathArgument());
 

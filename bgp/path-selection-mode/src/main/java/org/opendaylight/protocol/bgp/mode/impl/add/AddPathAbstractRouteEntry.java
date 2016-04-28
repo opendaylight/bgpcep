@@ -158,9 +158,6 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
          * multiple times.
          */
         for (final PeerRole role : PeerRole.values()) {
-            if (PeerRole.Internal.equals(role)) {
-                continue;
-            }
             final PeerExportGroup peerGroup = peerPT.getPeerGroup(role);
             if (peerGroup != null) {
                 final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(routePeerId, attributes);

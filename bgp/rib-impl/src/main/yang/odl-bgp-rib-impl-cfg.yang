@@ -367,6 +367,10 @@ module odl-bgp-rib-impl-cfg {
                 default ibgp;
             }
 
+            leaf simple-routing-policy {
+                type rib:simple-routing-policy;
+            }
+
             leaf initiate-connection {
                 description "If true, connection will be initiated right away from current device.
                     If not, the peer will only be registered to peer registry and available for incomming bgp connections.";

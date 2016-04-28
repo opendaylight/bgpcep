@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -26,6 +27,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
+import org.opendaylight.protocol.bgp.rib.spi.PeerRoleUtil;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamilies;
@@ -33,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.SimpleRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.AdjRibIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.peer.AdjRibOut;
@@ -78,6 +81,7 @@ final class AdjRibInWriter {
     private static final NodeIdentifier PEER_TABLES = new NodeIdentifier(SupportedTables.QNAME);
     private static final NodeIdentifier TABLES = new NodeIdentifier(Tables.QNAME);
     private static final QName SEND_RECEIVE = QName.create(SupportedTables.QNAME, "send-receive").intern();
+    static final NodeIdentifier SIMPLE_ROUTING_POLICY_NID = new NodeIdentifier(QName.create(Peer.QNAME, "simple-routing-policy").intern());
 
     // FIXME: is there a utility method to construct this?
     private static final ContainerNode EMPTY_ADJRIBIN = Builders.containerBuilder().withNodeIdentifier(ADJRIBIN).addChild(ImmutableNodes.mapNodeBuilder(Tables.QNAME).build()).build();
@@ -88,43 +92,29 @@ final class AdjRibInWriter {
     private final YangInstanceIdentifier peerPath;
     private final YangInstanceIdentifier ribPath;
     private final DOMTransactionChain chain;
-    private final PeerId peerId;
-    private final String role;
+    private final PeerRole role;
+    private final Optional<SimpleRoutingPolicy> simpleRoutingPolicy;
 
-    private AdjRibInWriter(final YangInstanceIdentifier ribPath, final DOMTransactionChain chain, final PeerId peerId, final String role, final YangInstanceIdentifier peerPath, final Map<TablesKey, TableContext> tables) {
+    private AdjRibInWriter(final YangInstanceIdentifier ribPath, final DOMTransactionChain chain, final PeerRole role,
+        final Optional<SimpleRoutingPolicy> simpleRoutingPolicy, final YangInstanceIdentifier peerPath, final Map<TablesKey, TableContext> tables) {
         this.ribPath = Preconditions.checkNotNull(ribPath);
         this.chain = Preconditions.checkNotNull(chain);
         this.tables = Preconditions.checkNotNull(tables);
         this.role = Preconditions.checkNotNull(role);
+        this.simpleRoutingPolicy = simpleRoutingPolicy;
         this.peerPath = peerPath;
-        this.peerId = peerId;
-    }
-
-    // We could use a codec, but this should be fine, too
-    private static String roleString(final PeerRole role) {
-        switch (role) {
-        case Ebgp:
-            return "ebgp";
-        case Ibgp:
-            return "ibgp";
-        case RrClient:
-            return "rr-client";
-        case Internal:
-            return "internal";
-        default:
-            throw new IllegalArgumentException("Unhandled role " + role);
-        }
     }
 
     /**
      * Create a new writer using a transaction chain.
      *
      * @param role peer's role
-     * @param chain transaction chain
-     * @return A fresh writer instance
+     * @param simpleRoutingPolicy simple Routing Policy {@link SimpleRoutingPolicy}
+     *@param chain transaction chain  @return A fresh writer instance
      */
-    static AdjRibInWriter create(@Nonnull final YangInstanceIdentifier ribId, @Nonnull final PeerRole role, @Nonnull final DOMTransactionChain chain) {
-        return new AdjRibInWriter(ribId, chain, null, roleString(role), null, Collections.<TablesKey, TableContext>emptyMap());
+    static AdjRibInWriter create(@Nonnull final YangInstanceIdentifier ribId, @Nonnull final PeerRole role, final Optional<SimpleRoutingPolicy> simpleRoutingPolicy,
+        @Nonnull final DOMTransactionChain chain) {
+        return new AdjRibInWriter(ribId, chain, role, simpleRoutingPolicy, null, Collections.emptyMap());
     }
 
     /**
@@ -139,28 +129,27 @@ final class AdjRibInWriter {
      * @return New writer
      */
     AdjRibInWriter transform(final PeerId newPeerId, final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes,
-        final List<AddressFamilies> addPathTablesType, final boolean isAppPeer) {
+        final List<AddressFamilies> addPathTablesType) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
 
         final YangInstanceIdentifier newPeerPath;
-        newPeerPath = createEmptyPeerStructure(newPeerId, isAppPeer, tx);
-        final ImmutableMap<TablesKey, TableContext> tb = createNewTableInstances(newPeerPath, isAppPeer, registry, tableTypes, addPathTablesType, tx);
+        newPeerPath = createEmptyPeerStructure(newPeerId, tx);
+        final ImmutableMap<TablesKey, TableContext> tb = createNewTableInstances(newPeerPath, registry, tableTypes, addPathTablesType, tx);
         tx.submit();
 
-        return new AdjRibInWriter(this.ribPath, this.chain, newPeerId, this.role, newPeerPath, tb);
+        return new AdjRibInWriter(this.ribPath, this.chain, this.role, this.simpleRoutingPolicy, newPeerPath, tb);
     }
 
     /**
      * Create new table instances, potentially creating their empty entries
      * @param newPeerPath
-     * @param isAppPeer
      * @param registry
      * @param tableTypes
      * @param addPathTablesType
      * @param tx
      * @return
      */
-    private ImmutableMap<TablesKey, TableContext> createNewTableInstances(final YangInstanceIdentifier newPeerPath, final boolean isAppPeer,
+    private ImmutableMap<TablesKey, TableContext> createNewTableInstances(final YangInstanceIdentifier newPeerPath,
         final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes, final List<AddressFamilies> addPathTablesType,
         final DOMDataWriteTransaction tx) {
 
@@ -174,7 +163,7 @@ final class AdjRibInWriter {
                 LOG.warn("No support for table type {}, skipping it", tableKey);
                 continue;
             }
-            installAdjRibsOutTables(isAppPeer, newPeerPath, rs, instanceIdentifierKey, tableKey, addPathTableMaps.get(tableKey), tx);
+            installAdjRibsOutTables(newPeerPath, rs, instanceIdentifierKey, tableKey, addPathTableMaps.get(tableKey), tx);
             installAdjRibInTables(newPeerPath, tableKey, rs, instanceIdentifierKey, tx, tb);
         }
         return tb.build();
@@ -199,10 +188,10 @@ final class AdjRibInWriter {
         tb.put(tableKey, ctx);
     }
 
-    private void installAdjRibsOutTables(final boolean isAppPeer, final YangInstanceIdentifier newPeerPath, final RIBSupportContext rs,
+    private void installAdjRibsOutTables(final YangInstanceIdentifier newPeerPath, final RIBSupportContext rs,
         final NodeIdentifierWithPredicates instanceIdentifierKey, final TablesKey tableKey, final SendReceive sendReceive,
         final DOMDataWriteTransaction tx) {
-        if (!isAppPeer) {
+        if (!isAnnounceNone(this.simpleRoutingPolicy)) {
             final NodeIdentifierWithPredicates supTablesKey = RibSupportUtils.toYangKey(SupportedTables.QNAME, tableKey);
             final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> tt = Builders.mapEntryBuilder().withNodeIdentifier(supTablesKey);
             for (final Entry<QName, Object> e : supTablesKey.getKeyValues().entrySet()) {
@@ -216,25 +205,30 @@ final class AdjRibInWriter {
         }
     }
 
-    private YangInstanceIdentifier createEmptyPeerStructure(final PeerId newPeerId, final boolean isAppPeer, final DOMDataWriteTransaction tx) {
+    private YangInstanceIdentifier createEmptyPeerStructure(final PeerId newPeerId, final DOMDataWriteTransaction tx) {
         final NodeIdentifierWithPredicates peerKey = IdentifierUtils.domPeerId(newPeerId);
         final YangInstanceIdentifier newPeerPath = this.ribPath.node(Peer.QNAME).node(peerKey);
 
-        tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath, peerSkeleton(peerKey, newPeerId.getValue(), isAppPeer));
+        tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath, peerSkeleton(peerKey, newPeerId.getValue()));
         LOG.debug("New peer {} structure installed.", newPeerPath);
         return newPeerPath;
     }
 
     @VisibleForTesting
-    MapEntryNode peerSkeleton(final NodeIdentifierWithPredicates peerKey, final String peerId, final boolean isAppPeer) {
+    MapEntryNode peerSkeleton(final NodeIdentifierWithPredicates peerKey, final String peerId) {
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> pb = Builders.mapEntryBuilder();
         pb.withNodeIdentifier(peerKey);
         pb.withChild(ImmutableNodes.leafNode(PEER_ID, peerId));
-        pb.withChild(ImmutableNodes.leafNode(PEER_ROLE, this.role));
+        pb.withChild(ImmutableNodes.leafNode(PEER_ROLE, PeerRoleUtil.roleForString(this.role)));
+        if (this.simpleRoutingPolicy.isPresent() && this.role != PeerRole.Internal) {
+            pb.withChild(ImmutableNodes.leafNode(SIMPLE_ROUTING_POLICY_NID, simpleRoutingPolicyString(this.simpleRoutingPolicy.get())));
+        }
         pb.withChild(ImmutableMapNodeBuilder.create().withNodeIdentifier(PEER_TABLES).build());
         pb.withChild(EMPTY_ADJRIBIN);
-        pb.withChild(EMPTY_EFFRIBIN);
-        if (!isAppPeer) {
+        if(!isLearnNone(this.simpleRoutingPolicy)) {
+            pb.withChild(EMPTY_EFFRIBIN);
+        }
+        if (!isAnnounceNone(this.simpleRoutingPolicy)) {
             pb.withChild(EMPTY_ADJRIBOUT);
         }
         return pb.build();
@@ -255,10 +249,8 @@ final class AdjRibInWriter {
 
     void markTableUptodate(final TablesKey tableTypes) {
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
-
         final TableContext ctx = this.tables.get(tableTypes);
         tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME).node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
-
         tx.submit();
     }
 
@@ -289,4 +281,22 @@ final class AdjRibInWriter {
         tx.submit();
     }
 
+    static boolean isAnnounceNone(final java.util.Optional<SimpleRoutingPolicy> peerStatus) {
+        return peerStatus.isPresent() && peerStatus.get() == SimpleRoutingPolicy.AnnounceNone;
+    }
+
+    static boolean isLearnNone(final java.util.Optional<SimpleRoutingPolicy> peerStatus) {
+        return peerStatus.isPresent() && peerStatus.get() == SimpleRoutingPolicy.LearnNone;
+    }
+
+    private static String simpleRoutingPolicyString(final SimpleRoutingPolicy simpleRoutingPolicy) {
+        switch (simpleRoutingPolicy) {
+        case AnnounceNone:
+            return "announce-none";
+        case LearnNone:
+            return "learn-none";
+        default:
+            throw new IllegalArgumentException("Unhandled Simple Routing Policy " + simpleRoutingPolicy);
+        }
+    }
 }

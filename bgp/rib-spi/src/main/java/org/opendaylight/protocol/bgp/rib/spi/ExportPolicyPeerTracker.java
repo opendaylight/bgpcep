@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -45,15 +47,17 @@ public interface ExportPolicyPeerTracker {
     PeerRole getRole(YangInstanceIdentifier peerId);
 
     /**
-     * @param change data change
-     * @param peerPath YII of peer
-     */
-    void onDataTreeChanged(DataTreeCandidateNode change, YangInstanceIdentifier peerPath);
-
-    /**
      * Check whether Peer supports Add Path
      * @param peerId
      * @return true if add-path is supported
      */
     boolean isAddPathSupportedByPeer(PeerId peerId);
+
+    /**
+     * Invoked whenever a peer role changes.
+     *
+     * @param peerPath Peer's path
+     * @param role Peer's new role, null indicates the peer has disappeared.
+     */
+    void peerRoleChanged(@Nonnull YangInstanceIdentifier peerPath,  @Nullable PeerRole role);
 }

@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static org.opendaylight.protocol.bgp.rib.spi.PeerRoleUtil.PEER_ROLE_NID;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.CheckedFuture;
@@ -147,7 +149,7 @@ public class LocRibWriterTest {
         Mockito.doReturn(Lists.newArrayList(table)).when(tableChange).getChildNodes();
         Mockito.doReturn("table change").when(tableChange).toString();
         Mockito.doReturn(tableChange).when(node).getModifiedChild(YangInstanceIdentifier.of(SupportedTables.QNAME).getLastPathArgument());
-        Mockito.doReturn(null).when(node).getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
+        Mockito.doReturn(null).when(node).getModifiedChild(PEER_ROLE_NID);
         Mockito.doReturn(null).when(node).getModifiedChild(YangInstanceIdentifier.of(EffectiveRibIn.QNAME).getLastPathArgument());
         Mockito.doReturn(node).when(candidate).getRootNode();
         Mockito.doReturn(ModificationType.SUBTREE_MODIFIED).when(node).getModificationType();
