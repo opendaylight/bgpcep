@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_e579c4fd",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/session/BmpSessionImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-29T18:25:41Z",
+      "side": 0,
+      "message": "The session state change should be done after the onSessionUp is called.",
+      "range": {
+        "startLine": 143,
+        "startChar": 8,
+        "endLine": 143,
+        "endChar": 30
+      },
+      "revId": "37870a0af84ce9e14c109762db0f716ace03a98f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

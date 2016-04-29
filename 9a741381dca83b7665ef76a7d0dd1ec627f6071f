@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_a5f22c98",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpRouterImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-29T18:25:41Z",
+      "side": 1,
+      "message": "Exception throwing should not be declared here.",
+      "range": {
+        "startLine": 139,
+        "startChar": 37,
+        "endLine": 139,
+        "endChar": 53
+      },
+      "revId": "9a741381dca83b7665ef76a7d0dd1ec627f6071f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_a5498cd2",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpRouterImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-29T18:25:41Z",
+      "side": 1,
+      "message": "If the session is not valid, whole execution can be skipped.",
+      "range": {
+        "startLine": 147,
+        "startChar": 0,
+        "endLine": 174,
+        "endChar": 9
+      },
+      "revId": "9a741381dca83b7665ef76a7d0dd1ec627f6071f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_c5300059",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/BmpRouterImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-29T18:25:41Z",
+      "side": 1,
+      "message": "I think variable \"session\" is more suitable here.",
+      "range": {
+        "startLine": 188,
+        "startChar": 7,
+        "endLine": 188,
+        "endChar": 44
+      },
+      "revId": "9a741381dca83b7665ef76a7d0dd1ec627f6071f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_e51264b3",
+        "filename": "bgp/bmp-impl/src/main/java/org/opendaylight/protocol/bmp/impl/app/RouterSessionManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-29T18:25:41Z",
+      "side": 1,
+      "message": "private",
+      "revId": "9a741381dca83b7665ef76a7d0dd1ec627f6071f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_25ff3c69",
+        "filename": "bgp/bmp-spi/src/main/java/org/opendaylight/protocol/bmp/api/BmpSessionListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-04-29T18:25:41Z",
+      "side": 1,
+      "message": "Is the change really needed here?",
+      "range": {
+        "startLine": 16,
+        "startChar": 4,
+        "endLine": 16,
+        "endChar": 11
+      },
+      "revId": "9a741381dca83b7665ef76a7d0dd1ec627f6071f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
