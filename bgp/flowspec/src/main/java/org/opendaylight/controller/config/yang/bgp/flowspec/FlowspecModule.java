@@ -9,8 +9,8 @@ package org.opendaylight.controller.config.yang.bgp.flowspec;
 
 import org.opendaylight.protocol.bgp.flowspec.BGPActivator;
 import org.opendaylight.protocol.bgp.flowspec.FlowspecActivator;
-import org.opendaylight.protocol.bgp.flowspec.RIBActivator;
 import org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecExtensionProviderContext;
+import org.opendaylight.protocol.bgp.flowspec.RIBActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
