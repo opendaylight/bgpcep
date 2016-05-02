@@ -38,6 +38,14 @@ module bgp-flowspec {
     }
 
     identity flowspec-subsequent-address-family {
+        description "SAFI 133 for dissemination of unicast flow specification rules.";
+        reference "http://tools.ietf.org/html/rfc5575#section-11";
+
+        base bgp-t:subsequent-address-family;
+    }
+
+    identity flowspec-l3vpn-subsequent-address-family {
+        description "SAFI 134 for dissemination of L3VPN flow specification rules";
         reference "http://tools.ietf.org/html/rfc5575#section-11";
 
         base bgp-t:subsequent-address-family;
