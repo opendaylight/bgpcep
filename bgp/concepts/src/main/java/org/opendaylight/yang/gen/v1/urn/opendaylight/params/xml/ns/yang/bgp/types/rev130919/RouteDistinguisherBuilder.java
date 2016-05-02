@@ -7,7 +7,11 @@
  */
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919;
 
+import com.google.common.base.Preconditions;
+import io.netty.buffer.ByteBuf;
+import java.nio.ByteBuffer;
 import java.util.regex.Pattern;
+import org.opendaylight.protocol.util.ByteBufWriteUtil;
 
 
 /**
@@ -55,6 +59,27 @@ public class RouteDistinguisherBuilder {
         } else {
             throw new IllegalArgumentException("Cannot create Route Distinguisher from " + defaultValue);
         }
+    }
+
+    /**
+     * RFC https://tools.ietf.org/html/rfc4364#section-4.2
+     * @param buff
+     * @return
+     */
+    public static RouteDistinguisher fromRawByte(final ByteBuf buff) {
+        Preconditions.checkArgument(buff != null && buff.isReadable(ByteBufWriteUtil.LONG_BYTES_LENGTH));
+        final int type = buff.readUnsignedShort();
+        String val = null;
+        if (type == 0) {
+
+        } else if (type == 1) {
+
+        } else if (type == 2) {
+
+        } else {
+            throw new IllegalArgumentException("Invalid Route Distinguisher type. Available values for type are 0,1,2.  Type value found is "+ type);
+        }
+        return getDefaultInstance(val);
     }
 
 }
