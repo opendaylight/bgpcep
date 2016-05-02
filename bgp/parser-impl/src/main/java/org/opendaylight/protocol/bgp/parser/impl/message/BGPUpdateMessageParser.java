@@ -15,6 +15,9 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathAttributeParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.NextHopAttributeParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
@@ -31,6 +34,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.NlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,7 +133,55 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
             builder.setNlri(new NlriBuilder().setNlri(nlri).build());
         }
         final Update msg = builder.build();
+        // Check if mandatory path attributes are present
+        // More checks are done in BGPPeer application
+        checkMandatoryAttributesPresence(msg);
         LOG.debug("BGP Update message was parsed {}.", msg);
         return msg;
+    }
+
+    /**
+     * Check for presence of well known mandatory path attributes
+     * ORIGIN, AS_PATH and NEXT_HOP in Update message
+     *
+     * @param message Update message
+     * @throws BGPDocumentedException
+     */
+    private void checkMandatoryAttributesPresence(final Update message) throws BGPDocumentedException {
+        final boolean isAnyNlriPresent = message.getNlri() != null;
+
+        final Attributes attrs = message.getAttributes();
+
+        boolean isMpNlriPresent = false;
+        if (attrs != null && attrs.getAugmentation(Attributes1.class) != null) {
+            final MpReachNlri mpReachNlri = attrs.getAugmentation(Attributes1.class).getMpReachNlri();
+            isMpNlriPresent = mpReachNlri != null;
+        }
+
+        final boolean isNextHopAttributePresent = attrs.getCNextHop() != null;
+        if (isAnyNlriPresent && !isNextHopAttributePresent) {
+            LOG.info("Mandatory attribute NEXT_HOP is not present");
+            throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG,
+                    BGPError.WELL_KNOWN_ATTR_MISSING,
+                    new byte[] { NextHopAttributeParser.TYPE });
+        }
+
+        if (isAnyNlriPresent || isMpNlriPresent) {
+            final boolean isOriginAttributePresent = attrs.getOrigin() != null;
+            if (!isOriginAttributePresent) {
+                LOG.info("Mandatory attribute ORIGIN is not present");
+                throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG,
+                        BGPError.WELL_KNOWN_ATTR_MISSING,
+                        new byte[] { OriginAttributeParser.TYPE });
+            }
+
+            final boolean isAsPathAttributePresent = attrs.getAsPath() != null;
+            if (!isAsPathAttributePresent) {
+                LOG.info("Mandatory attribute AS_PATH is not present");
+                throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG,
+                        BGPError.WELL_KNOWN_ATTR_MISSING,
+                        new byte[] { AsPathAttributeParser.TYPE });
+            }
+        }
     }
 }

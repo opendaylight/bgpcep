@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Verify;
 import com.google.common.net.InetAddresses;
@@ -21,9 +22,15 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BGPError;
+import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
+import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.Peer;
@@ -32,7 +39,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.slf4j.Logger;
@@ -57,6 +67,7 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
 
     private final byte[] rawIdentifier;
     private final String name;
+    private final RIBImpl targetRib;
     private final YangInstanceIdentifier adjRibsInId;
     private final DOMTransactionChain chain;
     private final DOMTransactionChain writerChain;
@@ -66,7 +77,7 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
     public ApplicationPeer(final ApplicationRibId applicationRibId, final Ipv4Address ipAddress, final RIBImpl rib, final BGPConfigModuleTracker
         moduleTracker) {
         this.name = applicationRibId.getValue().toString();
-        final RIBImpl targetRib = Preconditions.checkNotNull(rib);
+        this.targetRib = Preconditions.checkNotNull(rib);
         this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
         final NodeIdentifierWithPredicates peerId = IdentifierUtils.domPeerId(RouterIds.createPeerId(ipAddress));
         this.adjRibsInId = targetRib.getYangRibId().node(Peer.QNAME).node(peerId).node(AdjRibIn.QNAME).node(Tables.QNAME);
@@ -101,36 +112,131 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
             final PathArgument lastArg = path.getLastPathArgument();
             Verify.verify(lastArg instanceof NodeIdentifierWithPredicates, "Unexpected type %s in path %s", lastArg.getClass(), path);
             final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) lastArg;
+            final RIBSupportContext ribContext = this.targetRib.getRibSupportContext().getRIBSupportContext(tableKey);
+            Verify.verifyNotNull(ribContext);
+            final RIBSupport ribSupport = ribContext.getRibSupport();
             for (final DataTreeCandidateNode child : tc.getRootNode().getChildNodes()) {
                 final PathArgument childIdentifier = child.getIdentifier();
                 final YangInstanceIdentifier tableId = this.adjRibsInId.node(tableKey).node(childIdentifier);
                 switch (child.getModificationType()) {
                 case DELETE:
-                    LOG.trace("App peer -> AdjRibsIn path delete: {}", childIdentifier);
+                case DISAPPEARED:
+                    LOG.trace("App peer -> AdjRibsIn path delete: {}", tableId);
                     tx.delete(LogicalDatastoreType.OPERATIONAL, tableId);
                     break;
                 case UNMODIFIED:
                     // No-op
                     break;
+                case APPEARED:
                 case SUBTREE_MODIFIED:
-                    if (EffectiveRibInWriter.TABLE_ROUTES.equals(childIdentifier)) {
-                        processRoutesTable(child, tableId, tx, tableId);
-                        break;
-                    }
                 case WRITE:
-                    if (child.getDataAfter().isPresent()) {
-                        final NormalizedNode<?,?> dataAfter = child.getDataAfter().get();
-                        LOG.trace("App peer -> AdjRibsIn path : {}", tableId);
-                        LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
-                        tx.put(LogicalDatastoreType.OPERATIONAL, tableId, dataAfter);
+                    if (EffectiveRibInWriter.TABLE_ROUTES.equals(childIdentifier)) {
+                        processRoutesTable(child, tableId, tx, ribSupport);
+                    } else {
+                        if (child.getDataAfter().isPresent()) {
+                            final NormalizedNode<?,?> dataAfter = child.getDataAfter().get();
+                            LOG.trace("App peer -> AdjRibsIn path : {}", tableId);
+                            LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
+                            tx.put(LogicalDatastoreType.OPERATIONAL, tableId, dataAfter);
+                        }
                     }
                     break;
                 default:
+                    LOG.warn("Ignoring unhandled child {}", child);
                     break;
                 }
             }
         }
         tx.submit();
+    }
+
+    private void processRoutesTable(final DataTreeCandidateNode child, final YangInstanceIdentifier tableId, final DOMDataWriteTransaction tx, final RIBSupport ribSupport) {
+        final Collection<DataTreeCandidateNode> changedRoutes = ribSupport.changedRoutes(child);
+        if (!changedRoutes.isEmpty()) {
+            tx.put(LogicalDatastoreType.OPERATIONAL, tableId, child.getDataAfter().get());
+            for (final DataTreeCandidateNode route : changedRoutes) {
+                processRoute(route, tableId, tx, ribSupport);
+            }
+        }
+    }
+
+    private void processRoute(final DataTreeCandidateNode route, final YangInstanceIdentifier tableId, final DOMDataWriteTransaction tx, final RIBSupport ribSupport) {
+        LOG.debug("Process route {}", route.getIdentifier());
+        final YangInstanceIdentifier routeId = ribSupport.routePath(tableId, route.getIdentifier());
+        switch (route.getModificationType()) {
+        case DELETE:
+        case DISAPPEARED:
+            tx.delete(LogicalDatastoreType.OPERATIONAL, routeId);
+            break;
+        case UNMODIFIED:
+            // No-op
+            break;
+        case APPEARED:
+        case SUBTREE_MODIFIED:
+        case WRITE:
+            if (route.getDataAfter().isPresent()) {
+                final NormalizedNode<?,?> dataAfter = route.getDataAfter().get();
+                boolean keep = false;
+                try {
+                    final Attributes attrs = routeAttributes((MapEntryNode) dataAfter, ribSupport);
+                    LOG.trace("Attributes received are {}", attrs);
+                    checkMandatoryAttributesPresence(attrs);
+                    LOG.trace("Validation of attributes succeeded");
+                    keep = true;
+                }  catch (IllegalStateException e) {
+                    LOG.info("Exception encountered while parsing attributes", e);
+                } catch (BGPDocumentedException e) {
+                    LOG.info("Validation of attributes failed", e);
+                }
+
+                if (!keep) {
+                    LOG.debug("Skipping invalid route: {}", routeId);
+                    tx.delete(LogicalDatastoreType.OPERATIONAL, routeId);
+                }
+            }
+            break;
+        default:
+            LOG.warn("Ignoring unhandled route {}", route);
+            break;
+        }
+    }
+
+    private Attributes routeAttributes(final MapEntryNode route, RIBSupport ribSupport) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("App peer parsing route {}", NormalizedNodes.toStringTree(route));
+        }
+        final ContainerNode attrs = (ContainerNode) NormalizedNodes.findNode(route, ribSupport.routeAttributesIdentifier()).orNull();
+        final Codecs codecs = this.targetRib.getCodecsRegistry().getCodecs(ribSupport);
+        return codecs.deserializeAttributes(attrs);
+    }
+
+    /**
+     * Check for presence of well known path attributes
+     *
+     * @param attrs Path attributes
+     * @throws BGPDocumentedException
+     */
+    @VisibleForTesting
+    protected void checkMandatoryAttributesPresence(final Attributes attrs) throws BGPDocumentedException {
+        if (attrs == null) {
+            LOG.info("Mandatory attributes are not present");
+            throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG, BGPError.WELL_KNOWN_ATTR_MISSING);
+        }
+
+        String missingAttr = null;
+        if (attrs.getCNextHop() == null) {
+            missingAttr = "NEXT_HOP";
+        } else if (attrs.getOrigin() == null) {
+            missingAttr = "ORIGIN";
+        } else if (attrs.getAsPath() == null) {
+            missingAttr = "AS_PATH";
+        } else if (attrs.getLocalPref() == null) {
+            missingAttr = "LOCAL_PREF";
+        }
+        if (missingAttr != null) {
+            LOG.info("Mandatory attribute {} is not present", missingAttr);
+            throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG, BGPError.WELL_KNOWN_ATTR_MISSING);
+        }
     }
 
     /**
