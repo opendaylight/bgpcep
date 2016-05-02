@@ -28,7 +28,7 @@ public final class SimpleFlowspecIpv4NlriParser extends AbstractFlowspecNlriPars
     }
 
     @Override
-    protected DestinationType createWithdrawnDestinationType(@Nonnull final Object[] nlriFields, @Nullable final PathId pathId) {
+    public DestinationType createWithdrawnDestinationType(@Nonnull final Object[] nlriFields, @Nullable final PathId pathId) {
         final List<Flowspec> flowspecList = (List<Flowspec>) nlriFields[0];
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecCaseBuilder()
             .setDestinationFlowspec(
@@ -40,7 +40,7 @@ public final class SimpleFlowspecIpv4NlriParser extends AbstractFlowspecNlriPars
     }
 
     @Override
-    protected DestinationType createAdvertizedRoutesDestinationType(@Nonnull final Object[] nlriFields, @Nullable final PathId pathId) {
+    public DestinationType createAdvertizedRoutesDestinationType(@Nonnull final Object[] nlriFields, @Nullable final PathId pathId) {
         final List<Flowspec> flowspecList = (List<Flowspec>) nlriFields[0];
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecCaseBuilder()
             .setDestinationFlowspec(
