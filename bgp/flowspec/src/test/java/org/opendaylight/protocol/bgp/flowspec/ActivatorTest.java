@@ -12,10 +12,12 @@ import static org.junit.Assert.assertNull;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.FlowspecL3vpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.FlowspecSubsequentAddressFamily;
 
 public class ActivatorTest {
-
+    private static final int FLOWSPEC_SAFI = 133;
+    private static final int FLOWSPEC_VPN_SAFI = 134;
 
     @Test
     public void testActivator() throws Exception {
@@ -23,9 +25,11 @@ public class ActivatorTest {
         final FlowspecActivator activator = new FlowspecActivator(fs_context);
         final BGPActivator act = new BGPActivator(fs_context, activator);
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
-        assertNull(context.getSubsequentAddressFamilyRegistry().classForFamily(133));
+        assertNull(context.getSubsequentAddressFamilyRegistry().classForFamily(FLOWSPEC_SAFI));
+        assertNull(context.getSubsequentAddressFamilyRegistry().classForFamily(FLOWSPEC_VPN_SAFI));
         act.start(context);
-        assertEquals(FlowspecSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry().classForFamily(133));
+        assertEquals(FlowspecSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry().classForFamily(FLOWSPEC_SAFI));
+        assertEquals(FlowspecL3vpnSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry().classForFamily(FLOWSPEC_VPN_SAFI));
         act.close();
     }
 }

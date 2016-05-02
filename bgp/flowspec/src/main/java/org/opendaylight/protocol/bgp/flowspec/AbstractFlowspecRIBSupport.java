@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.flowspec;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -16,12 +17,12 @@ import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.MultiPathAbstractRIBSupport;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -30,21 +31,36 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgum
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public abstract class AbstractFlowspecRIBSupport extends MultiPathAbstractRIBSupport {
-    protected AbstractFlowspecRIBSupport(final Class<? extends Routes> cazeClass, final Class<? extends DataObject> containerClass,
-        final Class<? extends Route> listClass, final Class<? extends AddressFamily> afiClass, final QName destinationQname) {
-        super(cazeClass, containerClass, listClass, afiClass, FlowspecSubsequentAddressFamily.class, "route-key", destinationQname);
+public abstract class AbstractFlowspecRIBSupport<T extends AbstractFlowspecNlriParser> extends MultiPathAbstractRIBSupport {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractFlowspecRIBSupport.class);
+
+    protected final T nlriParser;
+
+    protected AbstractFlowspecRIBSupport(
+        final Class<? extends Routes> cazeClass,
+        final Class<? extends DataObject> containerClass,
+        final Class<? extends Route> listClass,
+        final Class<? extends AddressFamily> afiClass,
+        final Class<? extends SubsequentAddressFamily> safiClass,
+        final QName dstContainerClassQName,
+        final T nlriParser
+    ) {
+        super(cazeClass, containerClass, listClass, afiClass, safiClass, "route-key", dstContainerClassQName);
+
+        this.nlriParser = Preconditions.checkNotNull(nlriParser);
     }
 
-    protected abstract AbstractFlowspecNlriParser getParser();
-
     @Override
+    @Nonnull
     public final ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
         return ImmutableSet.of();
     }
 
     @Override
+    @Nonnull
     public final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects() {
         return ImmutableSet.of();
     }
@@ -59,7 +75,7 @@ public abstract class AbstractFlowspecRIBSupport extends MultiPathAbstractRIBSup
     protected DestinationType buildDestination(@Nonnull final Collection<MapEntryNode> routes) {
         final MapEntryNode routesCont = Iterables.getOnlyElement(routes);
         final PathId pathId = PathIdUtil.buildPathId(routesCont, routePathIdNid());
-        return getParser().createAdvertizedRoutesDestinationType(getParser().extractFlowspec(routesCont), pathId);
+        return nlriParser.createAdvertizedRoutesDestinationType(nlriParser.extractFlowspec(routesCont), pathId);
     }
 
     @Nonnull
@@ -67,16 +83,16 @@ public abstract class AbstractFlowspecRIBSupport extends MultiPathAbstractRIBSup
     protected DestinationType buildWithdrawnDestination(@Nonnull final Collection<MapEntryNode> routes) {
         final MapEntryNode routesCont = Iterables.getOnlyElement(routes);
         final PathId pathId = PathIdUtil.buildPathId(routesCont, routePathIdNid());
-        return getParser().createWithdrawnDestinationType(getParser().extractFlowspec(Iterables.getOnlyElement(routes)), pathId);
+        return nlriParser.createWithdrawnDestinationType(nlriParser.extractFlowspec(Iterables.getOnlyElement(routes)), pathId);
     }
 
     @Override
     protected final void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
-        final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
+                                            final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
             final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeQName());
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf = destination.getChild(routePathIdNid());
-            final String routeKeyValue = getParser().stringNlri(destination);
+            final String routeKeyValue = nlriParser.stringNlri(destination);
             final NodeIdentifierWithPredicates routeKey = PathIdUtil.createNidKey(routeQName(), routeKeyQName(), pathIdQName(), routeKeyValue, maybePathIdLeaf);
             function.apply(tx, base, routeKey, destination, attributes);
         }

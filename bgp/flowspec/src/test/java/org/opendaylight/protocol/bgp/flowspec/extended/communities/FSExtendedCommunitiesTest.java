@@ -199,9 +199,15 @@ public class FSExtendedCommunitiesTest {
     @Test
     public void testRedirectIpv6Serializer() {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.route.attributes.extended.communities.extended.community.RedirectIpv6ExtendedCommunityCase redirect = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.route.attributes.extended.communities.extended.community.RedirectIpv6ExtendedCommunityCaseBuilder()
+<<<<<<< HEAD
                 .setRedirectIpv6(new RedirectIpv6Builder()
                         .setGlobalAdministrator(new Ipv6Address("102:304:506:708:90a:b0c:d0e:f10"))
                         .setLocalAdministrator(258).build()).build();
+=======
+            .setRedirectIpv6(new RedirectIpv6Builder()
+                .setGlobalAdministrator(new Ipv6Address("102:304:506:708:90a:b0c:d0e:f10"))
+                .setLocalAdministrator(258).build()).build();
+>>>>>>> Support for dissemination of L3VPN flow spec
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect).setTransitive(true).build();
 
         final ByteBuf output = Unpooled.buffer(REDIRECT_IPV6.length);
