@@ -32,6 +32,12 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListen
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RoutedRpcRegistration;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BGPError;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathAttributeParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.LocalPreferenceAttributeParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.NextHopAttributeParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginAttributeParser;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionStatistics;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
@@ -119,7 +125,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     }
 
     @Override
-    public void onMessage(final BGPSession session, final Notification msg) {
+    public void onMessage(final BGPSession session, final Notification msg) throws BGPDocumentedException {
         if (!(msg instanceof Update) && !(msg instanceof RouteRefresh)) {
             LOG.info("Ignoring unhandled message class {}", msg.getClass());
             return;
@@ -146,7 +152,62 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         }
     }
 
-    private void onUpdateMessage(final Update message) {
+    /**
+     * Check for presence of mandatory path attributes in Update message
+     *
+     * @param message Update message
+     * @throws BGPDocumentedException
+     */
+    private void checkMandatoryAttributesPresence(final Update message) throws BGPDocumentedException {
+        final boolean isAnyNlriPresent = message.getNlri() != null;
+
+        final Attributes attrs = message.getAttributes();
+
+        boolean isMpNlriPresent = false;
+        if (attrs != null && attrs.getAugmentation(Attributes1.class) != null) {
+            final MpReachNlri mpReachNlri = attrs.getAugmentation(Attributes1.class).getMpReachNlri();
+            isMpNlriPresent = mpReachNlri != null;
+        }
+
+        final boolean isNextHopAttributePresent = attrs.getCNextHop() != null;
+        if (isAnyNlriPresent && !isNextHopAttributePresent) {
+            final String error = "Mandatory attribute NEXT_HOP is not present";
+            LOG.info(error);
+            throw new BGPDocumentedException(error, BGPError.WELL_KNOWN_ATTR_MISSING,
+                    new byte[] { NextHopAttributeParser.TYPE });
+        }
+
+        if (isAnyNlriPresent || isMpNlriPresent) {
+            final boolean isOriginAttributePresent = attrs.getOrigin() != null;
+            if (!isOriginAttributePresent) {
+                final String error = "Mandatory attribute ORIGIN is not present";
+                LOG.info(error);
+                throw new BGPDocumentedException(error, BGPError.WELL_KNOWN_ATTR_MISSING,
+                        new byte[] { OriginAttributeParser.TYPE });
+            }
+
+            final boolean isAsPathAttributePresent = attrs.getAsPath() != null;
+            if (!isAsPathAttributePresent) {
+                final String error = "Mandatory attribute AS_PATH is not present";
+                LOG.info(error);
+                throw new BGPDocumentedException(error, BGPError.WELL_KNOWN_ATTR_MISSING,
+                        new byte[] { AsPathAttributeParser.TYPE });
+            }
+
+            final boolean isLocalPrefAttributePresent = attrs.getLocalPref() != null;
+            if (this.peerRole == PeerRole.Ibgp && !isLocalPrefAttributePresent) {
+                final String error = "Mandatory attribute LOCAL_PREF is not present";
+                LOG.info(error);
+                throw new BGPDocumentedException(error, BGPError.WELL_KNOWN_ATTR_MISSING,
+                        new byte[] { LocalPreferenceAttributeParser.TYPE });
+            }
+        }
+    }
+
+    private void onUpdateMessage(final Update message) throws BGPDocumentedException {
+        // check if mandatory path attributes are present
+        checkMandatoryAttributesPresence(message);
+
         // update AdjRibs
         final Attributes attrs = message.getAttributes();
         MpReachNlri mpReach = null;

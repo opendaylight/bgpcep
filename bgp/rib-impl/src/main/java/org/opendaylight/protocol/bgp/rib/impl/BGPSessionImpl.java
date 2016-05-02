@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -213,35 +214,50 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         this.lastMessageReceivedAt = System.nanoTime();
         this.sessionStats.updateReceivedMsgTotal();
 
-        if (msg instanceof Open) {
-            // Open messages should not be present here
-            this.terminate(BGPError.FSM_ERROR);
-        } else if (msg instanceof Notify) {
-            // Notifications are handled internally
-            LOG.info("Session closed because Notification message received: {} / {}", ((Notify) msg).getErrorCode(),
-                    ((Notify) msg).getErrorSubcode());
-            this.closeWithoutMessage();
-            this.listener.onSessionTerminated(this, new BGPTerminationReason(BGPError.forValue(((Notify) msg).getErrorCode(),
-                    ((Notify) msg).getErrorSubcode())));
-            this.sessionStats.updateReceivedMsgErr((Notify) msg);
-        } else if (msg instanceof Keepalive) {
-            // Keepalives are handled internally
-            LOG.trace("Received KeepAlive messsage.");
-            this.kaCounter++;
-            this.sessionStats.updateReceivedMsgKA();
-            if (this.kaCounter >= 2) {
-                this.sync.kaReceived();
+        try {
+            if (msg instanceof Open) {
+                // Open messages should not be present here
+                this.terminate(BGPError.FSM_ERROR);
+            } else if (msg instanceof Notify) {
+                // Notifications are handled internally
+                LOG.info("Session closed because Notification message received: {} / {}", ((Notify) msg).getErrorCode(),
+                        ((Notify) msg).getErrorSubcode());
+                this.closeWithoutMessage();
+                this.listener.onSessionTerminated(this, new BGPTerminationReason(
+                        BGPError.forValue(((Notify) msg).getErrorCode(), ((Notify) msg).getErrorSubcode())));
+                this.sessionStats.updateReceivedMsgErr((Notify) msg);
+            } else if (msg instanceof Keepalive) {
+                // Keepalives are handled internally
+                LOG.trace("Received KeepAlive messsage.");
+                this.kaCounter++;
+                this.sessionStats.updateReceivedMsgKA();
+                if (this.kaCounter >= 2) {
+                    this.sync.kaReceived();
+                }
+            } else if (msg instanceof RouteRefresh) {
+                this.listener.onMessage(this, msg);
+                this.sessionStats.updateReceivedMsgRR();
+            } else if (msg instanceof Update) {
+                this.listener.onMessage(this, msg);
+                this.sync.updReceived((Update) msg);
+                this.sessionStats.updateReceivedMsgUpd();
+            } else {
+                LOG.warn("Ignoring unhandled message: {}.", msg.getClass());
             }
-        } else if (msg instanceof RouteRefresh) {
-            this.listener.onMessage(this, msg);
-            this.sessionStats.updateReceivedMsgRR();
-        } else if (msg instanceof Update) {
-            this.listener.onMessage(this, msg);
-            this.sync.updReceived((Update) msg);
-            this.sessionStats.updateReceivedMsgUpd();
-        } else {
-            LOG.warn("Ignoring unhandled message: {}.", msg.getClass());
+        } catch (final BGPDocumentedException e) {
+            this.notifyAndClose(e);
         }
+    }
+
+    private synchronized void notifyAndClose(final BGPDocumentedException e) {
+        final BGPError err = e.getError();
+        final byte[] data = e.getData();
+        final NotifyBuilder builder = new NotifyBuilder().setErrorCode(err.getCode()).setErrorSubcode(err.getSubcode());
+        if (data != null && data.length != 0) {
+            builder.setData(data);
+        }
+        this.writeAndFlush(builder.build());
+        this.closeWithoutMessage();
     }
 
     public synchronized void endOfInput() {
@@ -298,7 +314,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     }
 
     /**
-     * Closes PCEP session from the parent with given reason. A message needs to be sent, but parent doesn't have to be
+     * Closes BGP session from the parent with given reason. A message needs to be sent, but parent doesn't have to be
      * modified, because he initiated the closing. (To prevent concurrent modification exception).
      *
      * @param error
