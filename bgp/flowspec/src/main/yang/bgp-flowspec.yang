@@ -38,6 +38,14 @@ module bgp-flowspec {
     }
 
     identity flowspec-subsequent-address-family {
+        description "SAFI 133 for dissemination of unicast flow specification rules.";
+        reference "http://tools.ietf.org/html/rfc5575#section-11";
+
+        base bgp-t:subsequent-address-family;
+    }
+
+    identity flowspec-l3vpn-subsequent-address-family {
+        description "SAFI 134 for dissemination of L3VPN flow specification rules";
         reference "http://tools.ietf.org/html/rfc5575#section-11";
 
         base bgp-t:subsequent-address-family;
@@ -157,6 +165,16 @@ module bgp-flowspec {
         }
     }
 
+    grouping flow-label-value {
+        reference "https://tools.ietf.org/html/draft-ietf-idr-flow-spec-v6-06#section-3";
+        leaf op {
+            type numeric-operand;
+        }
+        leaf value {
+            type uint32;
+        }
+    }
+
     grouping flowspec-destination {
         reference "http://tools.ietf.org/html/rfc5575#section-4";
         list flowspec {
@@ -211,7 +229,7 @@ module bgp-flowspec {
         uses bgp-msg:path-id-grouping;
     }
 
-    grouping flowspec-destination-ipv4 {
+    grouping flowspec-destination-group-ipv4 {
         reference "http://tools.ietf.org/html/rfc5575#section-4";
         uses flowspec-destination {
             augment "flowspec/flowspec-type" {
@@ -234,17 +252,7 @@ module bgp-flowspec {
         }
     }
 
-    grouping flow-label-value {
-        reference "https://tools.ietf.org/html/draft-ietf-idr-flow-spec-v6-06#section-3";
-        leaf op {
-            type numeric-operand;
-        }
-        leaf value {
-            type uint32;
-        }
-    }
-
-    grouping flowspec-destination-ipv6 {
+    grouping flowspec-destination-group-ipv6 {
         reference "https://tools.ietf.org/html/draft-ietf-idr-flow-spec-v6-06#section-3.1";
         uses flowspec-destination {
             augment "flowspec/flowspec-type" {
@@ -272,29 +280,57 @@ module bgp-flowspec {
         }
     }
 
+    grouping flowspec-destination-ipv4 {
+        container destination-flowspec-ipv4 {
+            uses flowspec-destination-group-ipv4;
+        }
+    }
+
+    grouping flowspec-destination-ipv6 {
+        container destination-flowspec-ipv6 {
+            uses flowspec-destination-group-ipv6;
+        }
+    }
+
+    grouping flowspec-l3vpn-destination-ipv4 {
+        container destination-flowspec-l3vpn-ipv4 {
+            uses flowspec-destination-group-ipv4;
+        }
+    }
+
+    grouping flowspec-l3vpn-destination-ipv6 {
+        container destination-flowspec-l3vpn-ipv6 {
+            uses flowspec-destination-group-ipv6;
+        }
+    }
+
     augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
-        case destination-flowspec-case {
-            container destination-flowspec {
-                uses flowspec-destination-ipv4;
-            }
+        case destination-flowspec-ipv4-case {
+            uses flowspec-destination-ipv4;
         }
         case destination-flowspec-ipv6-case {
-            container destination-flowspec {
-                uses flowspec-destination-ipv6;
-            }
+            uses flowspec-destination-ipv6;
+        }
+        case destination-flowspec-l3vpn-ipv4-case {
+            uses flowspec-l3vpn-destination-ipv4;
+        }
+        case destination-flowspec-l3vpn-ipv6-case {
+            uses flowspec-l3vpn-destination-ipv6;
         }
     }
 
     augment "/bgp-msg:update/bgp-msg:attributes/bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type" {
-        case destination-flowspec-case {
-            container destination-flowspec {
-                uses flowspec-destination-ipv4;
-            }
+        case destination-flowspec-ipv4-case {
+            uses flowspec-destination-ipv4;
         }
         case destination-flowspec-ipv6-case {
-            container destination-flowspec {
-                uses flowspec-destination-ipv6;
-            }
+            uses flowspec-destination-ipv6;
+        }
+        case destination-flowspec-l3vpn-ipv4-case {
+            uses flowspec-l3vpn-destination-ipv4;
+        }
+        case destination-flowspec-l3vpn-ipv6-case {
+            uses flowspec-l3vpn-destination-ipv6;
         }
     }
 
@@ -385,97 +421,94 @@ module bgp-flowspec {
         }
     }
 
-    grouping flowspec-routes {
-        container flowspec-routes {
-            list flowspec-route {
-                leaf route-key {
-                    description
-                        "The sole function of this leaf
-                        to act as the key in the list.
-                        Its format does not form the
-                        API contract of this model.";
-                    type string;
+    grouping bgp-rib-route {
+        uses bgp-rib:route {
+            augment "attributes/extended-communities/extended-community" {
+                case traffic-rate-extended-community-case {
+                    uses traffic-rate-extended-community;
                 }
-                key "route-key path-id";
-
-                uses flowspec-destination-ipv4;
-
-                uses bgp-rib:route {
-                    augment "attributes/extended-communities/extended-community" {
-                        case traffic-rate-extended-community-case {
-                            uses traffic-rate-extended-community;
-                        }
-                        case traffic-action-extended-community-case {
-                            uses traffic-action-extended-community;
-                        }
-                        case redirect-extended-community-case {
-                            uses redirect-extended-community;
-                        }
-                        case traffic-marking-extended-community-case {
-                            uses traffic-marking-extended-community;
-                        }
-                        case redirect-ipv4-extended-community-case {
-                            uses redirect-ipv4-extended-community;
-                        }
-                        case redirect-ipv6-extended-community-case {
-                            uses redirect-ipv6-extended-community;
-                        }
-                        case redirect-as4-extended-community-case {
-                            uses redirect-as4-extended-community;
-                        }
-                        case redirect-ip-nh-extended-community-case {
-                            uses redirect-ip-nh-extended-community;
-                        }
-                    }
+                case traffic-action-extended-community-case {
+                    uses traffic-action-extended-community;
+                }
+                case redirect-extended-community-case {
+                    uses redirect-extended-community;
+                }
+                case traffic-marking-extended-community-case {
+                    uses traffic-marking-extended-community;
+                }
+                case redirect-ipv4-extended-community-case {
+                    uses redirect-ipv4-extended-community;
+                }
+                case redirect-ipv6-extended-community-case {
+                    uses redirect-ipv6-extended-community;
+                }
+                case redirect-as4-extended-community-case {
+                    uses redirect-as4-extended-community;
+                }
+                case redirect-ip-nh-extended-community-case {
+                    uses redirect-ip-nh-extended-community;
                 }
             }
         }
     }
 
+    grouping flowspec-ipv4-route {
+        list flowspec-route {
+            leaf route-key {
+                description
+                    "The sole function of this leaf
+                    to act as the key in the list.
+                    Its format does not form the
+                    API contract of this model.";
+                type string;
+            }
+            key "route-key path-id";
+
+            uses flowspec-destination-group-ipv4;
+
+            uses bgp-rib-route;
+        }
+    }
+
+    grouping flowspec-ipv6-route {
+        list flowspec-route {
+            leaf route-key {
+                description
+                    "The sole function of this leaf
+                    to act as the key in the list.
+                    Its format does not form the
+                    API contract of this model.";
+                type string;
+            }
+            key "route-key path-id";
+
+            uses flowspec-destination-group-ipv6;
+
+            uses bgp-rib-route;
+        }
+    }
+
+    grouping flowspec-routes {
+        container flowspec-routes {
+            uses flowspec-ipv4-route;
+        }
+    }
+
     grouping flowspec-ipv6-routes {
         container flowspec-ipv6-routes {
-            list flowspec-route {
-                leaf route-key {
-                    description
-                        "The sole function of this leaf
-                        to act as the key in the list.
-                        Its format does not form the
-                        API contract of this model.";
-                    type string;
-                }
-                key "route-key path-id";
+            uses flowspec-ipv6-route;
+        }
+    }
 
-                uses flowspec-destination-ipv6;
+    grouping flowspec-l3vpn-ipv4-routes {
+        container flowspec-l3vpn-ipv4-routes {
+            uses flowspec-ipv4-route;
+        }
+    }
 
-                uses bgp-rib:route {
-                    augment "attributes/extended-communities/extended-community" {
-                        case traffic-rate-extended-community-case {
-                            uses traffic-rate-extended-community;
-                        }
-                        case traffic-action-extended-community-case {
-                            uses traffic-action-extended-community;
-                        }
-                        case redirect-extended-community-case {
-                            uses redirect-extended-community;
-                        }
-                        case traffic-marking-extended-community-case {
-                            uses traffic-marking-extended-community;
-                        }
-                        case redirect-ipv4-extended-community-case {
-                            uses redirect-ipv4-extended-community;
-                        }
-                        case redirect-ipv6-extended-community-case {
-                            uses redirect-ipv6-extended-community;
-                        }
-                        case redirect-as4-extended-community-case {
-                            uses redirect-as4-extended-community;
-                        }
-                        case redirect-ip-nh-extended-community-case {
-                            uses redirect-ip-nh-extended-community;
-                        }
-                    }
-                }
-            }
+    grouping flowspec-l3vpn-ipv6-routes {
+        container flowspec-l3vpn-ipv6-routes {
+            uses flowspec-ipv6-route;
         }
     }
 
@@ -514,6 +547,12 @@ module bgp-flowspec {
         case flowspec-ipv6-routes-case {
             uses flowspec-ipv6-routes;
         }
+        case flowspec-l3vpn-ipv4-routes-case {
+            uses flowspec-l3vpn-ipv4-routes;
+        }
+        case flowspec-l3vpn-ipv6-routes-case {
+            uses flowspec-l3vpn-ipv6-routes;
+        }
     }
 
     augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:loc-rib/bgp-rib:tables/bgp-rib:routes" {
@@ -522,6 +561,12 @@ module bgp-flowspec {
         }
         case flowspec-ipv6-routes-case {
             uses flowspec-ipv6-routes;
+        }
+        case flowspec-l3vpn-ipv4-routes-case {
+            uses flowspec-l3vpn-ipv4-routes;
+        }
+        case flowspec-l3vpn-ipv6-routes-case {
+            uses flowspec-l3vpn-ipv6-routes;
         }
     }
 
@@ -532,6 +577,12 @@ module bgp-flowspec {
         case flowspec-ipv6-routes-case {
             uses flowspec-ipv6-routes;
         }
+        case flowspec-l3vpn-ipv4-routes-case {
+            uses flowspec-l3vpn-ipv4-routes;
+        }
+        case flowspec-l3vpn-ipv6-routes-case {
+            uses flowspec-l3vpn-ipv6-routes;
+        }
     }
 
     augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:peer/bgp-rib:effective-rib-in/bgp-rib:tables/bgp-rib:routes" {
@@ -540,6 +591,12 @@ module bgp-flowspec {
         }
         case flowspec-ipv6-routes-case {
             uses flowspec-ipv6-routes;
+        }
+        case flowspec-l3vpn-ipv4-routes-case {
+            uses flowspec-l3vpn-ipv4-routes;
+        }
+        case flowspec-l3vpn-ipv6-routes-case {
+            uses flowspec-l3vpn-ipv6-routes;
         }
     }
 
@@ -550,6 +607,12 @@ module bgp-flowspec {
         case flowspec-ipv6-routes-case {
             uses flowspec-ipv6-routes;
         }
+        case flowspec-l3vpn-ipv4-routes-case {
+            uses flowspec-l3vpn-ipv4-routes;
+        }
+        case flowspec-l3vpn-ipv6-routes-case {
+            uses flowspec-l3vpn-ipv6-routes;
+        }
     }
 
     augment "/bmp-mon:bmp-monitor/bmp-mon:monitor/bmp-mon:router/bmp-mon:peer/bmp-mon:pre-policy-rib/bmp-mon:tables/bmp-mon:routes" {
@@ -559,6 +622,12 @@ module bgp-flowspec {
         case flowspec-ipv6-routes-case {
             uses flowspec-ipv6-routes;
         }
+        case flowspec-l3vpn-ipv4-routes-case {
+            uses flowspec-l3vpn-ipv4-routes;
+        }
+        case flowspec-l3vpn-ipv6-routes-case {
+            uses flowspec-l3vpn-ipv6-routes;
+        }
     }
 
     augment "/bmp-mon:bmp-monitor/bmp-mon:monitor/bmp-mon:router/bmp-mon:peer/bmp-mon:post-policy-rib/bmp-mon:tables/bmp-mon:routes" {
@@ -567,6 +636,12 @@ module bgp-flowspec {
         }
         case flowspec-ipv6-routes-case {
             uses flowspec-ipv6-routes;
+        }
+        case flowspec-l3vpn-ipv4-routes-case {
+            uses flowspec-l3vpn-ipv4-routes;
+        }
+        case flowspec-l3vpn-ipv6-routes-case {
+            uses flowspec-l3vpn-ipv6-routes;
         }
     }
 

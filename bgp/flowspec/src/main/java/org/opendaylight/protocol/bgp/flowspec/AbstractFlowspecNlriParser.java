@@ -71,8 +71,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.flowspec.type.source.port._case.SourcePortsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.flowspec.type.tcp.flags._case.TcpFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.flowspec.type.tcp.flags._case.TcpFlagsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.ipv4.flowspec.flowspec.type.DestinationPrefixCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.ipv4.flowspec.flowspec.type.SourcePrefixCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.group.ipv4.flowspec.flowspec.type.DestinationPrefixCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.group.ipv4.flowspec.flowspec.type.SourcePrefixCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
@@ -99,11 +99,11 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     @VisibleForTesting
     static final NodeIdentifier FLOWSPEC_NID = new NodeIdentifier(Flowspec.QNAME);
     @VisibleForTesting
-    protected static final NodeIdentifier FLOWSPEC_TYPE_NID = new NodeIdentifier(FlowspecType.QNAME);
+    static final NodeIdentifier FLOWSPEC_TYPE_NID = new NodeIdentifier(FlowspecType.QNAME);
     @VisibleForTesting
-    static final NodeIdentifier DEST_PREFIX_NID = new NodeIdentifier(QName.create(DestinationPrefixCase.QNAME, "destination-prefix").intern());
+    protected static final NodeIdentifier DEST_PREFIX_NID = new NodeIdentifier(QName.create(DestinationPrefixCase.QNAME, "destination-prefix").intern());
     @VisibleForTesting
-    static final NodeIdentifier SOURCE_PREFIX_NID = new NodeIdentifier(QName.create(SourcePrefixCase.QNAME, "source-prefix").intern());
+    protected static final NodeIdentifier SOURCE_PREFIX_NID = new NodeIdentifier(QName.create(SourcePrefixCase.QNAME, "source-prefix").intern());
     @VisibleForTesting
     static final NodeIdentifier PORTS_NID = new NodeIdentifier(Ports.QNAME);
     @VisibleForTesting
@@ -123,9 +123,9 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     @VisibleForTesting
     static final NodeIdentifier FRAGMENT_NID = new NodeIdentifier(Fragments.QNAME);
     @VisibleForTesting
-    static final NodeIdentifier OP_NID = new NodeIdentifier(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-flowspec","2015-08-07","op"));
+    protected static final NodeIdentifier OP_NID = new NodeIdentifier(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-flowspec","2015-08-07","op"));
     @VisibleForTesting
-    static final NodeIdentifier VALUE_NID = new NodeIdentifier(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-flowspec","2015-08-07","value"));
+    protected static final NodeIdentifier VALUE_NID = new NodeIdentifier(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-flowspec","2015-08-07","value"));
 
     protected static final int NLRI_LENGTH = 1;
     protected static final int NLRI_LENGTH_EXTENDED = 2;
@@ -158,9 +158,9 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
     protected abstract void stringSpecificFSNlriType(final FlowspecType value, final StringBuilder buffer);
 
-    abstract DestinationType createWithdrawnDestinationType(final List<Flowspec> dst, @Nullable final PathId pathId);
+    protected abstract DestinationType createWithdrawnDestinationType(final List<Flowspec> dst, @Nullable final PathId pathId);
 
-    abstract DestinationType createAdvertizedRoutesDestinationType(final List<Flowspec> dst, @Nullable final PathId pathId);
+    protected abstract DestinationType createAdvertizedRoutesDestinationType(final List<Flowspec> dst, @Nullable final PathId pathId);
 
     @Override
     public final void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
@@ -424,7 +424,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         return new Fragment(data.contains(DO_NOT_VALUE), data.contains(FIRST_VALUE), data.contains(IS_A_VALUE), data.contains(LAST_VALUE));
     }
 
-    final String stringNlri(final List<Flowspec> flows) {
+    protected final String stringNlri(final List<Flowspec> flows) {
         final StringBuilder buffer = new StringBuilder("all packets ");
         final Joiner joiner = Joiner.on(FLOW_SEPARATOR);
         joiner.appendTo(buffer, Iterables.transform(flows, new Function<Flowspec, String>() {

@@ -8,51 +8,30 @@
 package org.opendaylight.protocol.bgp.flowspec;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.rib.loc.rib.tables.routes.FlowspecRoutesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.ipv4.DestinationFlowspecIpv4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv4.route.FlowspecRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.routes.FlowspecRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.routes.flowspec.routes.FlowspecRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.flowspec._case.DestinationFlowspec;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 
-final class FlowspecIpv4RIBSupport extends AbstractFlowspecRIBSupport {
+public final class FlowspecIpv4RIBSupport extends AbstractFlowspecRIBSupport {
+    // define route related classes
+    private static final Class<? extends DataObject> CONTAINER_CLASS = FlowspecRoutes.class;
+    private static final Class<? extends Route> LIST_CLASS = FlowspecRoute.class;
+    private static final Class<? extends Routes> ROUTES_CASE_CLASS = FlowspecRoutesCase.class;
 
     private SimpleFlowspecIpv4NlriParser FS_PARSER;
 
-    private final NodeIdentifier destinationNid = new NodeIdentifier(DestinationFlowspec.QNAME);
-    private final NodeIdentifier routeNid = new NodeIdentifier(FlowspecRoute.QNAME);
-    private final ChoiceNode emptyRoutes = Builders.choiceBuilder()
-        .withNodeIdentifier(new NodeIdentifier(Routes.QNAME))
-        .addChild(Builders.containerBuilder()
-            .withNodeIdentifier(new NodeIdentifier(FlowspecRoutes.QNAME))
-            .addChild(ImmutableNodes.mapNodeBuilder(FlowspecRoute.QNAME).build()).build()).build();
-
     public FlowspecIpv4RIBSupport(SimpleFlowspecExtensionProviderContext context) {
-        super(FlowspecRoutesCase.class, FlowspecRoutes.class, FlowspecRoute.class);
+        super(ROUTES_CASE_CLASS, CONTAINER_CLASS, LIST_CLASS, DestinationFlowspecIpv4.QNAME);
         FS_PARSER = new SimpleFlowspecIpv4NlriParser(context.getFlowspecIpv4TypeRegistry());
     }
 
     static FlowspecIpv4RIBSupport getInstance(SimpleFlowspecExtensionProviderContext context) {
         return new FlowspecIpv4RIBSupport(context);
-    }
-
-    @Override
-    public ChoiceNode emptyRoutes() {
-        return this.emptyRoutes;
-    }
-
-    @Override
-    protected NodeIdentifier destinationContainerIdentifier() {
-        return this.destinationNid;
-    }
-
-    @Override
-    protected NodeIdentifier routeIdentifier() {
-        return this.routeNid;
     }
 
     @Override
