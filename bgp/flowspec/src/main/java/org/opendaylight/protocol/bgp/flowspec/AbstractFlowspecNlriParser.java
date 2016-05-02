@@ -97,15 +97,15 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSerializer {
 
     @VisibleForTesting
-    static final NodeIdentifier FLOWSPEC_NID = new NodeIdentifier(Flowspec.QNAME);
+    protected static final NodeIdentifier FLOWSPEC_NID = new NodeIdentifier(Flowspec.QNAME);
     @VisibleForTesting
     protected static final NodeIdentifier FLOWSPEC_TYPE_NID = new NodeIdentifier(FlowspecType.QNAME);
     @VisibleForTesting
-    static final NodeIdentifier DEST_PREFIX_NID = new NodeIdentifier(QName.create(DestinationPrefixCase.QNAME, "destination-prefix").intern());
+    protected static final NodeIdentifier DEST_PREFIX_NID = new NodeIdentifier(QName.create(DestinationPrefixCase.QNAME, "destination-prefix").intern());
     @VisibleForTesting
-    static final NodeIdentifier SOURCE_PREFIX_NID = new NodeIdentifier(QName.create(SourcePrefixCase.QNAME, "source-prefix").intern());
+    protected static final NodeIdentifier SOURCE_PREFIX_NID = new NodeIdentifier(QName.create(SourcePrefixCase.QNAME, "source-prefix").intern());
     @VisibleForTesting
-    static final NodeIdentifier PORTS_NID = new NodeIdentifier(Ports.QNAME);
+    protected static final NodeIdentifier PORTS_NID = new NodeIdentifier(Ports.QNAME);
     @VisibleForTesting
     static final NodeIdentifier DEST_PORT_NID = new NodeIdentifier(DestinationPorts.QNAME);
     @VisibleForTesting
@@ -123,9 +123,9 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     @VisibleForTesting
     static final NodeIdentifier FRAGMENT_NID = new NodeIdentifier(Fragments.QNAME);
     @VisibleForTesting
-    static final NodeIdentifier OP_NID = new NodeIdentifier(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-flowspec","2015-08-07","op"));
+    protected static final NodeIdentifier OP_NID = new NodeIdentifier(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-flowspec","2015-08-07","op"));
     @VisibleForTesting
-    static final NodeIdentifier VALUE_NID = new NodeIdentifier(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-flowspec","2015-08-07","value"));
+    protected static final NodeIdentifier VALUE_NID = new NodeIdentifier(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-flowspec","2015-08-07","value"));
 
     protected static final int NLRI_LENGTH = 1;
     protected static final int NLRI_LENGTH_EXTENDED = 2;
@@ -158,9 +158,9 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
     protected abstract void stringSpecificFSNlriType(final FlowspecType value, final StringBuilder buffer);
 
-    abstract DestinationType createWithdrawnDestinationType(final List<Flowspec> dst, @Nullable final PathId pathId);
+    protected abstract DestinationType createWithdrawnDestinationType(final List<Flowspec> dst, @Nullable final PathId pathId);
 
-    abstract DestinationType createAdvertizedRoutesDestinationType(final List<Flowspec> dst, @Nullable final PathId pathId);
+    protected abstract DestinationType createAdvertizedRoutesDestinationType(final List<Flowspec> dst, @Nullable final PathId pathId);
 
     @Override
     public final void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {

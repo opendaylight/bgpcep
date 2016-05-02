@@ -76,10 +76,11 @@
                      connection will not be established.
                      If peer role is not present, default value "ibgp" will be used (allowed values are also "ebgp" and
                      "rr-client").
+                -->
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-peer</type>
                     <name>example-bgp-peer</name>
-                    <host>192.0.2.1</host>
+                    <host>127.0.0.3</host>
                     <holdtimer>180</holdtimer>
                     <retrytimer>10</retrytimer>
                     <peer-role>ibgp</peer-role>
@@ -117,6 +118,14 @@
                     </advertized-table>
                     <advertized-table>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+                        <name>ipv4-flowspec-l3vpn</name>
+                    </advertized-table>
+                    <advertized-table>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+                        <name>ipv6-flowspec-l3vpn</name>
+                    </advertized-table>
+                    <advertized-table>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
                         <name>labeled-unicast</name>
                     </advertized-table>
                     <advertized-table>
@@ -140,14 +149,13 @@
                         <name>ipv6-unicast-both</name>
                     </add-path>
                 </module>
-                -->
 
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:rib-impl</type>
                     <name>example-bgp-rib</name>
                     <rib-id>example-bgp-rib</rib-id>
                     <local-as>64496</local-as>
-                    <bgp-rib-id>192.0.2.2</bgp-rib-id>
+                    <bgp-rib-id>127.0.0.1</bgp-rib-id>
                     <!-- if cluster-id is not present, it's value is the same as bgp-id -->
                     <!-- <cluster-id>192.0.2.3</cluster-id> -->
                     <local-table>

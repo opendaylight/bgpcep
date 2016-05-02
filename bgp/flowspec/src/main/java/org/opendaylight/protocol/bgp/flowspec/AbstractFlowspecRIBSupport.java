@@ -36,7 +36,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -67,10 +66,7 @@ public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
             final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = ImmutableNodes.mapEntryBuilder();
             b.withNodeIdentifier(routeKey);
 
-            // FIXME: All route children, there should be a utility somewhere to do this
-            for (final DataContainerChild<? extends PathArgument, ?> child : route.getValue()) {
-                b.withChild(child);
-            }
+            route.getValue().forEach(b::withChild);
             // Add attributes
             final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> cb = Builders.containerBuilder(attributes);
             cb.withNodeIdentifier(routeAttributesIdentifier());
