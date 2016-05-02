@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.flowspec;
+package org.opendaylight.protocol.bgp.flowspec.handlers;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
@@ -19,32 +19,32 @@ import org.opendaylight.protocol.bgp.flowspec.handlers.NumericTwoByteOperandPars
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.NumericOperand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.FlowspecType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.flowspec.type.DestinationPortCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.flowspec.type.DestinationPortCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.flowspec.type.destination.port._case.DestinationPorts;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.flowspec.type.destination.port._case.DestinationPortsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.flowspec.type.SourcePortCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.flowspec.type.SourcePortCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.flowspec.type.source.port._case.SourcePorts;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.flowspec.type.source.port._case.SourcePortsBuilder;
 
-public final class FSDestinationPortHandler implements FlowspecTypeParser, FlowspecTypeSerializer {
-    public static final int DESTINATION_PORT_VALUE = 5;
+public final class FSSourcePortHandler implements FlowspecTypeParser, FlowspecTypeSerializer {
+    public static final int SOURCE_PORT_VALUE = 6;
 
     @Override
     public void serializeType(FlowspecType fsType, ByteBuf output) {
-        Preconditions.checkArgument(fsType instanceof DestinationPortCase, "DestinationPortCase class is mandatory!");
-        output.writeByte(DESTINATION_PORT_VALUE);
-        NumericTwoByteOperandParser.INSTANCE.serialize(((DestinationPortCase) fsType).getDestinationPorts(), output);
+        Preconditions.checkArgument(fsType instanceof SourcePortCase, "SourcePortCase class is mandatory!");
+        output.writeByte(SOURCE_PORT_VALUE);
+        NumericTwoByteOperandParser.INSTANCE.serialize(((SourcePortCase) fsType).getSourcePorts(), output);
     }
 
     @Override
     public FlowspecType parseType(ByteBuf buffer) {
         Preconditions.checkNotNull(buffer, "input buffer is null, missing data to parse.");
-        return new DestinationPortCaseBuilder().setDestinationPorts(parseDestinationPort(buffer)).build();
+        return new SourcePortCaseBuilder().setSourcePorts(parseSourcePort(buffer)).build();
     }
 
-    private static List<DestinationPorts> parseDestinationPort(final ByteBuf nlri) {
-        final List<DestinationPorts> ports = new ArrayList<>();
+    private static List<SourcePorts> parseSourcePort(final ByteBuf nlri) {
+        final List<SourcePorts> ports = new ArrayList<>();
         boolean end = false;
         // we can do this as all fields will be rewritten in the cycle
-        final DestinationPortsBuilder builder = new DestinationPortsBuilder();
+        final SourcePortsBuilder builder = new SourcePortsBuilder();
         while (!end) {
             final byte b = nlri.readByte();
             final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
