@@ -164,8 +164,8 @@ module bgp-types {
         }
     }
 
-    grouping as-4-generic-spec-common-ec {
-        container as-4-generic-spec-extended-community {
+    grouping as-4-spec-common {
+        container as-4-specific-common {
             leaf as-number {
                 description "Carries a 4-octet Autonomous System (AS) number";
                 reference "https://tools.ietf.org/html/rfc5668#section-2";
@@ -176,6 +176,7 @@ module bgp-types {
 
             leaf local-administrator {
                 type uint16;
+                mandatory true;
             }
         }
     }
@@ -262,19 +263,19 @@ module bgp-types {
             case as-4-generic-spec-extended-community-case {
                 container as-4-generic-spec-extended-community {
                     reference "https://www.ietf.org/archive/id/draft-ietf-idr-as4octet-extcomm-generic-subtype-08.txt";
-                    uses as-4-generic-spec-common-ec;
+                    uses as-4-spec-common;
                 }
             }
             case as-4-route-target-extended-community-case {
                 container as-4-route-target-extended-community {
                     reference "https://tools.ietf.org/html/rfc5668";
-                    uses as-4-generic-spec-common-ec;
+                    uses as-4-spec-common;
                 }
             }
             case as-4-route-origin-extended-community-case {
                 container as-4-route-origin-extended-community {
                     reference "https://tools.ietf.org/html/rfc5668";
-                    uses as-4-generic-spec-common-ec;
+                    uses as-4-spec-common;
                 }
             }
         }

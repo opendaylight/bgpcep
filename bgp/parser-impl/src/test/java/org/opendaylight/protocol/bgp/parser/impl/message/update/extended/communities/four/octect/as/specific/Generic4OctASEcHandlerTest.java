@@ -36,7 +36,7 @@ public final class Generic4OctASEcHandlerTest {
     public void testHandler() throws BGPDocumentedException, BGPParsingException {
         final As4GenericSpecExtendedCommunityCase expected = new As4GenericSpecExtendedCommunityCaseBuilder()
             .setAs4GenericSpecExtendedCommunity(new As4GenericSpecExtendedCommunityBuilder()
-                .setAs4GenericSpecExtendedCommunity(AS_COMMON).build()).build();
+                .setAs4SpecificCommon(AS_COMMON).build()).build();
 
         final ExtendedCommunity exComm = this.handler.parseExtendedCommunity(Unpooled.copiedBuffer(INPUT));
         Assert.assertEquals(expected, exComm);
