@@ -7,27 +7,28 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.rib.loc.rib.tables.routes.FlowspecIpv6RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.ipv6.DestinationFlowspec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.route.FlowspecRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.FlowspecIpv6Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 
-public final class FlowspecIpv6RIBSupport extends AbstractFlowspecRIBSupport {
-
-    private SimpleFlowspecIpv6NlriParser FS_PARSER;
+public final class FlowspecIpv6RIBSupport extends AbstractFlowspecRIBSupport<SimpleFlowspecIpv6NlriParser> {
 
     public FlowspecIpv6RIBSupport(SimpleFlowspecExtensionProviderContext context) {
-        super(FlowspecIpv6RoutesCase.class, FlowspecIpv6Routes.class, FlowspecRoute.class, Ipv6AddressFamily.class, DestinationFlowspec.QNAME);
-        FS_PARSER = new SimpleFlowspecIpv6NlriParser(context.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV6, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+        super(
+            FlowspecIpv6RoutesCase.class,
+            FlowspecIpv6Routes.class,
+            FlowspecRoute.class,
+            Ipv6AddressFamily.class,
+            FlowspecSubsequentAddressFamily.class,
+            DestinationFlowspec.QNAME,
+            new SimpleFlowspecIpv6NlriParser(context.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV6, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC))
+        );
     }
 
     static FlowspecIpv6RIBSupport getInstance(SimpleFlowspecExtensionProviderContext context) {
         return new FlowspecIpv6RIBSupport(context);
-    }
-
-    @Override
-    protected AbstractFlowspecNlriParser getParser() {
-        return FS_PARSER;
     }
 }

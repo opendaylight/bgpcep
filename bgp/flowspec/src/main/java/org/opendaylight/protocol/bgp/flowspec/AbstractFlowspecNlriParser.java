@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.flowspec;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -80,7 +79,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
@@ -93,17 +94,18 @@ import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSerializer {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractFlowspecNlriParser.class);
 
     @VisibleForTesting
     static final NodeIdentifier FLOWSPEC_NID = new NodeIdentifier(Flowspec.QNAME);
     @VisibleForTesting
-    protected static final NodeIdentifier FLOWSPEC_TYPE_NID = new NodeIdentifier(FlowspecType.QNAME);
-    @VisibleForTesting
-    static final NodeIdentifier DEST_PREFIX_NID = new NodeIdentifier(QName.create(DestinationPrefixCase.QNAME, "destination-prefix").intern());
-    @VisibleForTesting
-    static final NodeIdentifier SOURCE_PREFIX_NID = new NodeIdentifier(QName.create(SourcePrefixCase.QNAME, "source-prefix").intern());
+    static final NodeIdentifier FLOWSPEC_TYPE_NID = new NodeIdentifier(FlowspecType.QNAME);
+    public static final NodeIdentifier DEST_PREFIX_NID = new NodeIdentifier(QName.create(DestinationPrefixCase.QNAME, "destination-prefix").intern());
+    public static final NodeIdentifier SOURCE_PREFIX_NID = new NodeIdentifier(QName.create(SourcePrefixCase.QNAME, "source-prefix").intern());
     @VisibleForTesting
     static final NodeIdentifier PORTS_NID = new NodeIdentifier(Ports.QNAME);
     @VisibleForTesting
@@ -123,9 +125,9 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     @VisibleForTesting
     static final NodeIdentifier FRAGMENT_NID = new NodeIdentifier(Fragments.QNAME);
     @VisibleForTesting
-    static final NodeIdentifier OP_NID = new NodeIdentifier(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-flowspec","2015-08-07","op"));
+    public static final NodeIdentifier OP_NID = new NodeIdentifier(QName.create(Flowspec.QNAME.getNamespace(), Flowspec.QNAME.getRevision(), "op"));
     @VisibleForTesting
-    static final NodeIdentifier VALUE_NID = new NodeIdentifier(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-flowspec","2015-08-07","value"));
+    public static final NodeIdentifier VALUE_NID = new NodeIdentifier(QName.create(Flowspec.QNAME.getNamespace(), Flowspec.QNAME.getRevision(), "value"));
 
     protected static final int NLRI_LENGTH = 1;
     protected static final int NLRI_LENGTH_EXTENDED = 2;
@@ -135,9 +137,9 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     /**
      * Add this constant to length value to achieve all ones in the leftmost nibble.
      */
-    private static final int LENGTH_MAGIC = 61440;
-    private static final int MAX_NLRI_LENGTH = 4095;
-    private static final int MAX_NLRI_LENGTH_ONE_BYTE = 240;
+    protected static final int LENGTH_MAGIC = 61440;
+    protected static final int MAX_NLRI_LENGTH = 4095;
+    protected static final int MAX_NLRI_LENGTH_ONE_BYTE = 240;
 
     @VisibleForTesting
     static final String DO_NOT_VALUE = "do-not";
@@ -150,17 +152,21 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
     private static final String FLOW_SEPARATOR = " AND ";
 
-    protected abstract void serializeMpReachNlri(final Attributes1 pathAttributes, final ByteBuf byteAggregator);
+    public AbstractFlowspecNlriParser(SimpleFlowspecTypeRegistry flowspecTypeRegistry) {
+        this.flowspecTypeRegistry = Preconditions.checkNotNull(flowspecTypeRegistry);
+    }
 
-    protected abstract void serializeMpUnreachNlri(final Attributes2 pathAttributes, final ByteBuf byteAggregator);
+    protected abstract void serializeMpReachNlri(final DestinationType dstType, final ByteBuf byteAggregator);
+
+    protected abstract void serializeMpUnreachNlri(final DestinationType dstType, final ByteBuf byteAggregator);
 
     public abstract void extractSpecificFlowspec(final ChoiceNode fsType, final FlowspecBuilder fsBuilder);
 
     protected abstract void stringSpecificFSNlriType(final FlowspecType value, final StringBuilder buffer);
 
-    abstract DestinationType createWithdrawnDestinationType(final List<Flowspec> dst, @Nullable final PathId pathId);
+    protected abstract DestinationType createWithdrawnDestinationType(final List<Flowspec> dst, @Nullable final PathId pathId);
 
-    abstract DestinationType createAdvertizedRoutesDestinationType(final List<Flowspec> dst, @Nullable final PathId pathId);
+    protected abstract DestinationType createAdvertizedRoutesDestinationType(final List<Flowspec> dst, @Nullable final PathId pathId);
 
     @Override
     public final void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
@@ -168,8 +174,20 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         final Attributes pathAttributes = (Attributes) attribute;
         final Attributes1 pathAttributes1 = pathAttributes.getAugmentation(Attributes1.class);
         final Attributes2 pathAttributes2 = pathAttributes.getAugmentation(Attributes2.class);
-        serializeMpReachNlri(pathAttributes1, byteAggregator);
-        serializeMpUnreachNlri(pathAttributes2, byteAggregator);
+
+        if (pathAttributes1 != null) {
+            final AdvertizedRoutes routes = (pathAttributes1.getMpReachNlri()).getAdvertizedRoutes();
+            if (routes != null) {
+                serializeMpReachNlri(routes.getDestinationType(), byteAggregator);
+            }
+        }
+
+        if (pathAttributes2 != null) {
+            final WithdrawnRoutes routes = pathAttributes2.getMpUnreachNlri().getWithdrawnRoutes();
+            if (routes != null) {
+                serializeMpUnreachNlri(routes.getDestinationType(), byteAggregator);
+            }
+        }
     }
 
     @Override
@@ -184,11 +202,12 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
     /**
      * Serializes Flowspec NLRI to ByteBuf.
-     *  @param flows flowspec NLRI to be serialized
+     *
+     * @param flows  flowspec NLRI to be serialized
      * @param pathId
      * @param buffer where flowspec NLRI will be serialized
      */
-    public final void serializeNlri(final List<Flowspec> flows, final PathId pathId, final ByteBuf buffer) {
+    protected final void serializeNlri(final List<Flowspec> flows, @Nullable final PathId pathId, final ByteBuf buffer) {
         final ByteBuf nlriByteBuf = Unpooled.buffer();
         PathIdUtil.writePathId(pathId, buffer);
 
@@ -204,15 +223,16 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         buffer.writeBytes(nlriByteBuf);
     }
 
-    public final String stringNlri(final DataContainerNode<?> flowspec) {
+    public String stringNlri(final DataContainerNode<?> flowspec) {
         return stringNlri(extractFlowspec(flowspec));
     }
 
     public final List<Flowspec> extractFlowspec(final DataContainerNode<?> route) {
+        Preconditions.checkNotNull(route, "Cannot extract flowspec from null route.");
         final List<Flowspec> fsList = new ArrayList<>();
         final Optional<DataContainerChild<? extends PathArgument, ?>> flowspecs = route.getChild(FLOWSPEC_NID);
         if (flowspecs.isPresent()) {
-            for (final UnkeyedListEntryNode flowspec : ((UnkeyedListNode)flowspecs.get()).getValue()) {
+            for (final UnkeyedListEntryNode flowspec : ((UnkeyedListNode) flowspecs.get()).getValue()) {
                 final FlowspecBuilder fsBuilder = new FlowspecBuilder();
                 final Optional<DataContainerChild<?, ?>> flowspecType = flowspec.getChild(FLOWSPEC_TYPE_NID);
                 if (flowspecType.isPresent()) {
@@ -424,15 +444,10 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         return new Fragment(data.contains(DO_NOT_VALUE), data.contains(FIRST_VALUE), data.contains(IS_A_VALUE), data.contains(LAST_VALUE));
     }
 
-    final String stringNlri(final List<Flowspec> flows) {
+    protected final String stringNlri(final List<Flowspec> flows) {
         final StringBuilder buffer = new StringBuilder("all packets ");
         final Joiner joiner = Joiner.on(FLOW_SEPARATOR);
-        joiner.appendTo(buffer, Iterables.transform(flows, new Function<Flowspec, String>() {
-            @Override
-            public String apply(final Flowspec input) {
-                return encodeFlow(input);
-            }
-        }));
+        joiner.appendTo(buffer, Iterables.transform(flows, fs -> encodeFlow(fs)));
         return buffer.toString().replace("  ", " ");
     }
 
@@ -534,16 +549,11 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
      * @param nlri byte representation of NLRI which will be parsed
      * @return list of Flowspec
      */
-    public final List<Flowspec> parseNlri(final ByteBuf nlri) throws BGPParsingException {
+    protected final List<Flowspec> parseNlri(final ByteBuf nlri) throws BGPParsingException {
         if (!nlri.isReadable()) {
             return null;
         }
         final List<Flowspec> fss = new ArrayList<>();
-
-        // length field can be one or two bytes (if needed)
-        // check the length of nlri to see how many bytes we can skip
-        final int length = nlri.readableBytes();
-        nlri.skipBytes(length > MAX_NLRI_LENGTH_ONE_BYTE ? NLRI_LENGTH_EXTENDED : NLRI_LENGTH);
 
         while (nlri.isReadable()) {
             final FlowspecBuilder builder = new FlowspecBuilder();
@@ -553,6 +563,25 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         return fss;
     }
 
+    /**
+     * This step is used to verify the NLRI length we read from BGP message
+     *
+     * @param nlri
+     */
+    protected void verifyNlriLength(final ByteBuf nlri) {
+        // length field can be one or two bytes (if needed)
+        // check the length of nlri to see how many bytes we can skip
+        int readableLength = nlri.readableBytes();
+        final int expectedLength;    // read the length from field
+        if (readableLength > MAX_NLRI_LENGTH_ONE_BYTE) {
+            expectedLength = nlri.readUnsignedShort();
+            readableLength -= NLRI_LENGTH_EXTENDED;    // deduct the two bytes of the NLRI length field
+        } else {
+            expectedLength = nlri.readUnsignedByte();
+            readableLength -= NLRI_LENGTH;    // deduct the one byte of the NLRI length field
+        }
+        Preconditions.checkState(readableLength == expectedLength, "NLRI length read from message doesn't match. Length expected (read from NLRI) is %s, length readable is %s", expectedLength, readableLength);
+    }
 
     @Override
     public void parseNlri(@Nonnull final ByteBuf nlri, @Nonnull final MpReachNlriBuilder builder, @Nullable final PeerSpecificParserConstraint constraint) throws BGPParsingException {
@@ -560,19 +589,23 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
             return;
         }
         final PathId pathId = readPathId(nlri, builder.getAfi(), builder.getSafi(), constraint);
+        verifyNlriLength(nlri);
         final List<Flowspec> dst = parseNlri(nlri);
-        builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder()
-            .setDestinationType(createAdvertizedRoutesDestinationType(dst, pathId)).build());
+        builder.setAdvertizedRoutes(
+            new AdvertizedRoutesBuilder()
+                .setDestinationType(
+                    createAdvertizedRoutesDestinationType(dst, pathId)
+                ).build()
+        );
     }
 
-    private PathId readPathId(final ByteBuf nlri, final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi,
-        final PeerSpecificParserConstraint constraint) {
+    protected final PathId readPathId(final ByteBuf nlri, final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi,
+                                      final PeerSpecificParserConstraint constraint) {
         if (MultiPathSupportUtil.isTableTypeSupported(constraint, new BgpTableTypeImpl(afi, safi))) {
             return PathIdUtil.readPathId(nlri);
         }
         return null;
     }
-
 
     @Override
     public void parseNlri(@Nonnull final ByteBuf nlri, @Nonnull final MpUnreachNlriBuilder builder, @Nullable final PeerSpecificParserConstraint constraint) throws BGPParsingException {
@@ -580,7 +613,13 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
             return;
         }
         final PathId pathId = readPathId(nlri, builder.getAfi(), builder.getSafi(), constraint);
+        verifyNlriLength(nlri);
         final List<Flowspec> dst = parseNlri(nlri);
-        builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(createWithdrawnDestinationType(dst, pathId)).build());
+        builder.setWithdrawnRoutes(
+            new WithdrawnRoutesBuilder()
+                .setDestinationType(
+                    createWithdrawnDestinationType(dst, pathId)
+                ).build()
+        );
     }
 }
