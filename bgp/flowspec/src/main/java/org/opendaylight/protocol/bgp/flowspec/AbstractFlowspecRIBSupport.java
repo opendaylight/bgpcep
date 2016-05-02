@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -16,8 +17,6 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.FlowspecSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.flowspec.ipv6.routes.FlowspecRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
@@ -28,15 +27,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.RouteDistinguisher;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
+import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -46,31 +48,73 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContaine
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 
 public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
-    private static final QName PATHID_QNAME = QName.create(FlowspecRoute.QNAME, "path-id").intern();
-    private static final NodeIdentifier PATH_ID_NII = new NodeIdentifier(PATHID_QNAME);
+    private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
+
+    private final QName ROUTE_KEY;
+    private final NodeIdentifier ROUTE;
+    private final QName CONTAINER_CLASS_QNAME;
+    private final QName LIST_CLASS_QNAME;
+    private final ChoiceNode EMPTY_ROUTES;
+    private final NodeIdentifier DESTINATION;
+    private final QName PATHID_QNAME;
+    private final NodeIdentifier PATH_ID_NII;
+//    private final NodeIdentifier RD_NII;
+    private final Class<? extends AddressFamily> AFI_CLASS;
+    private final Class<? extends SubsequentAddressFamily> SAFI_CLASS;
+
+    private final ApplyRoute putRoute = new PutRoute();
+    private final AbstractFlowspecNlriParser flowspecNlriParser;
+
+    protected AbstractFlowspecRIBSupport(
+        final Class<? extends Routes> cazeClass,
+        final Class<? extends DataObject> containerClass,
+        final Class<? extends Route> listClass,
+        final QName dstContainerClassQName,
+        final Class<? extends AddressFamily> afiClass,
+        final Class<? extends SubsequentAddressFamily> safiClass,
+        final AbstractFlowspecNlriParser flowspecNlriParser
+    ) {
+        super(cazeClass, containerClass, listClass);
+
+        CONTAINER_CLASS_QNAME = BindingReflections.findQName(containerClass).intern();
+        LIST_CLASS_QNAME =
+            QName.create(
+                CONTAINER_CLASS_QNAME.getNamespace(), CONTAINER_CLASS_QNAME.getRevision(), BindingReflections.findQName(listClass).intern().getLocalName()
+            );
+        ROUTE = NodeIdentifier.create(LIST_CLASS_QNAME);
+        ROUTE_KEY = QName.create(LIST_CLASS_QNAME, "route-key").intern();
+        EMPTY_ROUTES = Builders.choiceBuilder()
+            .withNodeIdentifier(YangInstanceIdentifier.NodeIdentifier.create(Routes.QNAME))
+            .addChild(
+                Builders.containerBuilder()
+                    .withNodeIdentifier(YangInstanceIdentifier.NodeIdentifier.create(CONTAINER_CLASS_QNAME))
+                    .addChild(
+                        ImmutableNodes.mapNodeBuilder(
+                            LIST_CLASS_QNAME
+                        ).build()
+                    ).build()
+            ).build();
+        DESTINATION = NodeIdentifier.create(dstContainerClassQName);
+        PATHID_QNAME = QName.create(LIST_CLASS_QNAME, "path-id").intern();
+        PATH_ID_NII = new NodeIdentifier(PATHID_QNAME);
+
+        AFI_CLASS = Preconditions.checkNotNull(afiClass);
+        SAFI_CLASS = Preconditions.checkNotNull(safiClass);
+        this.flowspecNlriParser = Preconditions.checkNotNull(flowspecNlriParser);
+    }
 
     protected abstract static class ApplyRoute {
         abstract void apply(DOMDataWriteTransaction tx, YangInstanceIdentifier base, NodeIdentifierWithPredicates routeKey, DataContainerNode<?> route, final ContainerNode attributes);
     }
 
-    protected static final class DeleteRoute extends ApplyRoute {
-        @Override
-        void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final NodeIdentifierWithPredicates routeKey, final DataContainerNode<?> route, final ContainerNode attributes) {
-            tx.delete(LogicalDatastoreType.OPERATIONAL, base.node(routeKey));
-        }
-    }
-
     protected final class PutRoute extends ApplyRoute {
         @Override
         void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final NodeIdentifierWithPredicates routeKey,
-            final DataContainerNode<?> route, final ContainerNode attributes) {
+                   final DataContainerNode<?> route, final ContainerNode attributes) {
             final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = ImmutableNodes.mapEntryBuilder();
             b.withNodeIdentifier(routeKey);
 
-            // FIXME: All route children, there should be a utility somewhere to do this
-            for (final DataContainerChild<? extends PathArgument, ?> child : route.getValue()) {
-                b.withChild(child);
-            }
+            route.getValue().forEach(b::withChild);
             // Add attributes
             final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> cb = Builders.containerBuilder(attributes);
             cb.withNodeIdentifier(routeAttributesIdentifier());
@@ -79,20 +123,12 @@ public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
         }
     }
 
-    private static final QName ROUTE_KEY = QName.create(FlowspecRoute.QNAME, "route-key").intern();
-    private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
-    private final ApplyRoute putRoute = new PutRoute();
-
-    protected AbstractFlowspecRIBSupport(final Class<? extends Routes> cazeClass, final Class<? extends DataObject> containerClass,
-        final Class<? extends Route> listClass) {
-        super(cazeClass, containerClass, listClass);
+    protected static final class DeleteRoute extends ApplyRoute {
+        @Override
+        void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final NodeIdentifierWithPredicates routeKey, final DataContainerNode<?> route, final ContainerNode attributes) {
+            tx.delete(LogicalDatastoreType.OPERATIONAL, base.node(routeKey));
+        }
     }
-
-    protected abstract NodeIdentifier routeIdentifier();
-
-    protected abstract AbstractFlowspecNlriParser getParser();
-
-    protected abstract Class<? extends AddressFamily> getAfiClass();
 
     @Override
     public final ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
@@ -111,58 +147,82 @@ public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
 
     @Override
     protected final void putDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
-        final ContainerNode destination, final ContainerNode attributes, final NodeIdentifier routesNodeId) {
+                                              final ContainerNode destination, final ContainerNode attributes, final NodeIdentifier routesNodeId) {
         processDestination(tx, tablePath.node(routesNodeId), destination, attributes, this.putRoute);
     }
 
     @Override
     protected final void deleteDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
-        final ContainerNode destination, final NodeIdentifier routesNodeId) {
+                                                 final ContainerNode destination, final NodeIdentifier routesNodeId) {
         processDestination(tx, tablePath.node(routesNodeId), destination, null, DELETE_ROUTE);
     }
 
     private void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
-        final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
+                                    final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
-            final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeIdentifier());
-            final NodeIdentifierWithPredicates routeKey = new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, ROUTE_KEY, getParser().stringNlri(destination));
-            function.apply(tx, base, routeKey,  destination, attributes);
+            final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(ROUTE);
+            final NodeIdentifierWithPredicates routeKey = new NodeIdentifierWithPredicates(LIST_CLASS_QNAME, ROUTE_KEY, flowspecNlriParser.stringNlri(destination));
+            function.apply(tx, base, routeKey, destination, attributes);
         }
+    }
+
+    @Override
+    protected NodeIdentifier destinationContainerIdentifier() {
+        return DESTINATION;
+    }
+
+    @Override
+    public ChoiceNode emptyRoutes() {
+        return EMPTY_ROUTES;
     }
 
     @Override
     protected final MpReachNlri buildReach(final Collection<MapEntryNode> routes, final CNextHop hop) {
         final MpReachNlriBuilder mb = new MpReachNlriBuilder();
-        mb.setAfi(getAfiClass());
-        mb.setSafi(FlowspecSubsequentAddressFamily.class);
+        mb.setAfi(AFI_CLASS);
+        mb.setSafi(SAFI_CLASS);
         mb.setCNextHop(hop);
 
         final MapEntryNode routesCont = Iterables.getOnlyElement(routes);
         final PathId pathId = PathIdUtil.buildPathId(routesCont, PATH_ID_NII);
+        final RouteDistinguisher rd = null;
 
-        mb.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(getParser().createAdvertizedRoutesDestinationType(
-            getParser().extractFlowspec(routesCont), pathId)).build());
+        mb.setAdvertizedRoutes(
+            new AdvertizedRoutesBuilder()
+                .setDestinationType(
+                    flowspecNlriParser.createAdvertizedRoutesDestinationType(
+                        flowspecNlriParser.extractFlowspec(routesCont), rd, pathId
+                    )
+                ).build()
+        );
         return mb.build();
     }
 
     @Override
     protected final MpUnreachNlri buildUnreach(final Collection<MapEntryNode> routes) {
         final MpUnreachNlriBuilder mb = new MpUnreachNlriBuilder();
-        mb.setAfi(getAfiClass());
-        mb.setSafi(FlowspecSubsequentAddressFamily.class);
+        mb.setAfi(AFI_CLASS);
+        mb.setSafi(SAFI_CLASS);
 
         final MapEntryNode routesCont = Iterables.getOnlyElement(routes);
         final PathId pathId = PathIdUtil.buildPathId(routesCont, PATH_ID_NII);
+        final RouteDistinguisher rd = null;
 
-        mb.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(getParser().createWithdrawnDestinationType(
-            getParser().extractFlowspec(Iterables.getOnlyElement(routes)), pathId)).build());
+        mb.setWithdrawnRoutes(
+            new WithdrawnRoutesBuilder()
+                .setDestinationType(
+                    flowspecNlriParser.createWithdrawnDestinationType(
+                        flowspecNlriParser.extractFlowspec(routesCont), rd, pathId
+                    )
+                ).build()
+        );
         return mb.build();
     }
 
     @Nullable
     @Override
     public PathArgument getRouteIdAddPath(final long pathId, final PathArgument routeId) {
-        return PathIdUtil.createNiiKey(pathId, routeId, FlowspecRoute.QNAME, PATHID_QNAME, ROUTE_KEY);
+        return PathIdUtil.createNiiKey(pathId, routeId, LIST_CLASS_QNAME, PATHID_QNAME, ROUTE_KEY);
     }
 
     @Override
