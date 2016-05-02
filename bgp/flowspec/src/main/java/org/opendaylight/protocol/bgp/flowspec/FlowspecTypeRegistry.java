@@ -17,9 +17,9 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SimpleFlowspecTypeRegistry {
+public class FlowspecTypeRegistry {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SimpleFlowspecTypeRegistry.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FlowspecTypeRegistry.class);
 
     private final HandlerRegistry<DataContainer, FlowspecTypeParser, FlowspecTypeSerializer> handlers = new HandlerRegistry<>();
 
@@ -32,15 +32,15 @@ public class SimpleFlowspecTypeRegistry {
     }
 
     public void serializeFlowspecType(final FlowspecType fsType, final ByteBuf output) {
-        final FlowspecTypeSerializer serializer = this.handlers.getSerializer(fsType.getImplementedInterface());
-        Preconditions.checkNotNull(serializer, "serializer for flowspec type {} is not registered.", fsType);
+        final FlowspecTypeSerializer serializer = getFlowspecTypeSerializer(fsType);
+        Preconditions.checkNotNull(serializer, "serializer for flowspec type %s is not registered.", fsType);
         serializer.serializeType(fsType, output);
     }
 
     public FlowspecType parseFlowspecType(ByteBuf buffer) {
         final short type = buffer.readUnsignedByte();
-        final FlowspecTypeParser parser = this.handlers.getParser(type);
-        Preconditions.checkNotNull(parser, "parser for flowspec type {} is not registered", type);
+        final FlowspecTypeParser parser = getFlowspecTypeParser(type);
+        Preconditions.checkNotNull(parser, "parser for flowspec type %s is not registered", type);
         return parser.parseType(buffer);
     }
 
