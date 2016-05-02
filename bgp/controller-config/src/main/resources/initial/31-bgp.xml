@@ -305,6 +305,60 @@
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:add-path-impl</type>
+                    <name>ipv4-flowspec-l3vpn-receive</name>
+                    <address-family>
+                        <type xmlns:ribimpl="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">ribimpl:bgp-table-type</type>
+                        <name>ipv4-flowspec-l3vpn</name>
+                    </address-family>
+                    <send-receive>receive</send-receive>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:add-path-impl</type>
+                    <name>ipv4-flowspec-l3vpn-send</name>
+                    <address-family>
+                        <type xmlns:ribimpl="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">ribimpl:bgp-table-type</type>
+                        <name>ipv4-flowspec-l3vpn</name>
+                    </address-family>
+                    <send-receive>send</send-receive>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:add-path-impl</type>
+                    <name>ipv4-flowspec-l3vpn-both</name>
+                    <address-family>
+                        <type xmlns:ribimpl="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">ribimpl:bgp-table-type</type>
+                        <name>ipv4-flowspec-l3vpn</name>
+                    </address-family>
+                    <send-receive>both</send-receive>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:add-path-impl</type>
+                    <name>ipv6-flowspec-l3vpn-receive</name>
+                    <address-family>
+                        <type xmlns:ribimpl="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">ribimpl:bgp-table-type</type>
+                        <name>ipv6-flowspec-l3vpn</name>
+                    </address-family>
+                    <send-receive>receive</send-receive>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:add-path-impl</type>
+                    <name>ipv6-flowspec-l3vpn-send</name>
+                    <address-family>
+                        <type xmlns:ribimpl="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">ribimpl:bgp-table-type</type>
+                        <name>ipv6-flowspec-l3vpn</name>
+                    </address-family>
+                    <send-receive>send</send-receive>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:add-path-impl</type>
+                    <name>ipv6-flowspec-l3vpn-both</name>
+                    <address-family>
+                        <type xmlns:ribimpl="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">ribimpl:bgp-table-type</type>
+                        <name>ipv6-flowspec-l3vpn</name>
+                    </address-family>
+                    <send-receive>both</send-receive>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:add-path-impl</type>
                     <name>labeled-unicast-receive</name>
                     <address-family>
                         <type xmlns:ribimpl="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">ribimpl:bgp-table-type</type>
@@ -360,6 +414,18 @@
                     <name>ipv6-flowspec</name>
                     <afi xmlns:bgp="urn:opendaylight:params:xml:ns:yang:bgp-types">bgp:ipv6-address-family</afi>
                     <safi xmlns:flowspec="urn:opendaylight:params:xml:ns:yang:bgp-flowspec">flowspec:flowspec-subsequent-address-family</safi>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type-impl</type>
+                    <name>ipv4-flowspec-l3vpn</name>
+                    <afi xmlns:bgp="urn:opendaylight:params:xml:ns:yang:bgp-types">bgp:ipv4-address-family</afi>
+                    <safi xmlns:flowspec="urn:opendaylight:params:xml:ns:yang:bgp-flowspec">flowspec:flowspec-l3vpn-subsequent-address-family</safi>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type-impl</type>
+                    <name>ipv6-flowspec-l3vpn</name>
+                    <afi xmlns:bgp="urn:opendaylight:params:xml:ns:yang:bgp-types">bgp:ipv6-address-family</afi>
+                    <safi xmlns:flowspec="urn:opendaylight:params:xml:ns:yang:bgp-flowspec">flowspec:flowspec-l3vpn-subsequent-address-family</safi>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type-impl</type>
@@ -454,6 +520,14 @@
                     <instance>
                         <name>ipv6-flowspec</name>
                         <provider>/modules/module[type='bgp-table-type-impl'][name='ipv6-flowspec']</provider>
+                    </instance>
+                    <instance>
+                        <name>ipv4-flowspec-l3vpn</name>
+                        <provider>/modules/module[type='bgp-table-type-impl'][name='ipv4-flowspec-l3vpn']</provider>
+                    </instance>
+                    <instance>
+                        <name>ipv6-flowspec-l3vpn</name>
+                        <provider>/modules/module[type='bgp-table-type-impl'][name='ipv6-flowspec-l3vpn']</provider>
                     </instance>
                     <instance>
                         <name>labeled-unicast</name>

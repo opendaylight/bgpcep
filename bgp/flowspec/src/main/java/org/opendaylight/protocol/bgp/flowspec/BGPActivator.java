@@ -21,6 +21,7 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.next.hop.Ipv4Nex
 import org.opendaylight.protocol.bgp.parser.impl.message.update.next.hop.Ipv6NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.FlowspecL3vpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.FlowspecIpv6Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.routes.FlowspecRoutes;
@@ -40,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
     private static final int FLOWSPEC_SAFI = 133;
+    private static final int FLOWSPEC_L3VPN_SAFI = 134;
 
     private final SimpleFlowspecExtensionProviderContext flowspecContext;
     private final FlowspecActivator fsActivator;
@@ -55,6 +57,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         final List<AutoCloseable> regs = new ArrayList<>();
 
         regs.add(context.registerSubsequentAddressFamily(FlowspecSubsequentAddressFamily.class, FLOWSPEC_SAFI));
+        regs.add(context.registerSubsequentAddressFamily(FlowspecL3vpnSubsequentAddressFamily.class, FLOWSPEC_L3VPN_SAFI));
 
         final SimpleFlowspecIpv4NlriParser fsIpv4Handler = new SimpleFlowspecIpv4NlriParser(this.flowspecContext.getFlowspecIpv4TypeRegistry());
         final SimpleFlowspecIpv6NlriParser fsIpv6Handler = new SimpleFlowspecIpv6NlriParser(this.flowspecContext.getFlowspecIpv6TypeRegistry());
@@ -68,6 +71,11 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
             fsIpv6Handler, ipv6NextHopParser, Ipv6NextHopCase.class));
         regs.add(context.registerNlriSerializer(FlowspecRoutes.class, fsIpv4Handler));
         regs.add(context.registerNlriSerializer(FlowspecIpv6Routes.class, fsIpv6Handler));
+
+        regs.add(context.registerNlriParser(Ipv4AddressFamily.class, FlowspecL3vpnSubsequentAddressFamily.class,
+            fsIpv4Handler, ipv4NextHopParser, Ipv4NextHopCase.class));
+        regs.add(context.registerNlriParser(Ipv6AddressFamily.class, FlowspecL3vpnSubsequentAddressFamily.class,
+            fsIpv6Handler, ipv6NextHopParser, Ipv6NextHopCase.class));
 
         final RedirectAsTwoOctetEcHandler redirect2bHandler = new RedirectAsTwoOctetEcHandler();
         regs.add(context.registerExtendedCommunityParser(redirect2bHandler.getType(true), redirect2bHandler.getSubType(), redirect2bHandler));
