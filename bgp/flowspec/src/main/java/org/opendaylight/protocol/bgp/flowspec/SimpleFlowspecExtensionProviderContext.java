@@ -7,38 +7,40 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
-import org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecTypeRegistry;
-import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeParser;
-import org.opendaylight.protocol.bgp.flowspec.handlers.FlowspecTypeSerializer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.flowspec.FlowspecType;
-
 public class SimpleFlowspecExtensionProviderContext {
+    public enum AFI {
+        IPV4(0),
+        IPV6(1);
 
-    private final SimpleFlowspecTypeRegistry flowspecIpv4TypeRegistry = new SimpleFlowspecTypeRegistry();
+        public final int index;
 
-    private final SimpleFlowspecTypeRegistry flowspecIpv6TypeRegistry = new SimpleFlowspecTypeRegistry();
-
-    public AutoCloseable registerFlowspecIpv4TypeParser(final int type, final FlowspecTypeParser parser) {
-        return this.flowspecIpv4TypeRegistry.registerFlowspecTypeParser(type, parser);
+        AFI(int i) {
+            index = i;
+        }
     }
 
-    public AutoCloseable registerFlowspecIpv4TypeSerializer(final Class<? extends FlowspecType> typeClass, final FlowspecTypeSerializer serializer) {
-        return this.flowspecIpv4TypeRegistry.registerFlowspecTypeSerializer(typeClass, serializer);
+    public enum SAFI {
+        FLOWSPEC(0),
+        FLOWSPEC_VPN(1);
+
+        public final int index;
+
+        SAFI(int i) {
+            index = i;
+        }
     }
 
-    public AutoCloseable registerFlowspecIpv6TypeParser(final int type, final FlowspecTypeParser parser) {
-        return this.flowspecIpv6TypeRegistry.registerFlowspecTypeParser(type, parser);
+    private final SimpleFlowspecTypeRegistry flowspecTypeRegistries[][] = new SimpleFlowspecTypeRegistry[2][2];
+
+    public SimpleFlowspecExtensionProviderContext() {
+        for (AFI afi : AFI.values()) {
+            for (SAFI safi : SAFI.values()) {
+                flowspecTypeRegistries[afi.index][safi.index] = new SimpleFlowspecTypeRegistry();
+            }
+        }
     }
 
-    public AutoCloseable registerFlowspecIpv6TypeSerializer(final Class<? extends FlowspecType> typeClass, final FlowspecTypeSerializer serializer) {
-        return this.flowspecIpv6TypeRegistry.registerFlowspecTypeSerializer(typeClass, serializer);
-    }
-
-    public SimpleFlowspecTypeRegistry getFlowspecIpv4TypeRegistry() {
-        return this.flowspecIpv4TypeRegistry;
-    }
-
-    public SimpleFlowspecTypeRegistry getFlowspecIpv6TypeRegistry() {
-        return this.flowspecIpv6TypeRegistry;
+    public SimpleFlowspecTypeRegistry getFlowspecTypeRegistry(AFI afi, SAFI safi) {
+        return flowspecTypeRegistries[afi.index][safi.index];
     }
 }
