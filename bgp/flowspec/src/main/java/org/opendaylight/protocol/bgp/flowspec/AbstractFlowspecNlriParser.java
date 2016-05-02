@@ -171,7 +171,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
      * @param pathId     associated path id with given NLRI
      * @return created destination type
      */
-    protected abstract DestinationType createWithdrawnDestinationType(@Nonnull final Object[] nlriFields, @Nullable final PathId pathId);
+    public abstract DestinationType createWithdrawnDestinationType(@Nonnull final Object[] nlriFields, @Nullable final PathId pathId);
 
     /**
      * Create advertized destination type
@@ -180,7 +180,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
      * @param pathId     associated path id with given NLRI
      * @return created destination type
      */
-    protected abstract DestinationType createAdvertizedRoutesDestinationType(@Nonnull final Object[] nlriFields, @Nullable final PathId pathId);
+    public abstract DestinationType createAdvertizedRoutesDestinationType(@Nonnull final Object[] nlriFields, @Nullable final PathId pathId);
 
     @Override
     public final void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
