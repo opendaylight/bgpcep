@@ -25,7 +25,7 @@ public final class RouteTarget4OctectASEcHandler extends Abstract4OctetAsExtende
     @Override
     public ExtendedCommunity parseExtendedCommunity(final ByteBuf body) throws BGPDocumentedException, BGPParsingException {
         return new As4RouteTargetExtendedCommunityCaseBuilder().setAs4RouteTargetExtendedCommunity(new As4RouteTargetExtendedCommunityBuilder()
-            .setAs4GenericSpecExtendedCommunity(FourOctAsCommonECUtil.parseCommon(body)).build()).build();
+            .setAs4SpecificCommon(FourOctAsCommonECUtil.parseCommon(body)).build()).build();
     }
 
     @Override
@@ -33,7 +33,7 @@ public final class RouteTarget4OctectASEcHandler extends Abstract4OctetAsExtende
         Preconditions.checkArgument(extendedCommunity instanceof As4RouteTargetExtendedCommunityCase,
             "The extended community %s is not As4RouteTargetExtendedCommunityCase type.", extendedCommunity);
         FourOctAsCommonECUtil.serializeCommon(((As4RouteTargetExtendedCommunityCase) extendedCommunity).getAs4RouteTargetExtendedCommunity()
-            .getAs4GenericSpecExtendedCommunity(), body);
+            .getAs4SpecificCommon(), body);
     }
 
     @Override

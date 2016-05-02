@@ -16,8 +16,8 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as._4.generic.spec.common.ec.As4GenericSpecExtendedCommunity;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as._4.generic.spec.common.ec.As4GenericSpecExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as._4.spec.common.As4SpecificCommon;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as._4.spec.common.As4SpecificCommonBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.As4GenericSpecExtendedCommunityCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.As4RouteOriginExtendedCommunityCase;
@@ -29,7 +29,7 @@ public final class RouteOrigin4OctectASEcHandlerTest {
     static final byte[] INPUT = {
         0, 0, 0, 20, 0, 100
     };
-    static final As4GenericSpecExtendedCommunity AS_COMMON = new As4GenericSpecExtendedCommunityBuilder().setAsNumber(new AsNumber(20L))
+    static final As4SpecificCommon AS_COMMON = new As4SpecificCommonBuilder().setAsNumber(new AsNumber(20L))
         .setLocalAdministrator(100).build();
     RouteOrigin4OctectASEcHandler handler;
 
@@ -43,7 +43,7 @@ public final class RouteOrigin4OctectASEcHandlerTest {
 
         final As4RouteOriginExtendedCommunityCase expected = new As4RouteOriginExtendedCommunityCaseBuilder()
             .setAs4RouteOriginExtendedCommunity(new As4RouteOriginExtendedCommunityBuilder()
-                .setAs4GenericSpecExtendedCommunity(AS_COMMON).build()).build();
+                .setAs4SpecificCommon(AS_COMMON).build()).build();
 
         final ExtendedCommunity exComm = this.handler.parseExtendedCommunity(Unpooled.copiedBuffer(INPUT));
         Assert.assertEquals(expected, exComm);

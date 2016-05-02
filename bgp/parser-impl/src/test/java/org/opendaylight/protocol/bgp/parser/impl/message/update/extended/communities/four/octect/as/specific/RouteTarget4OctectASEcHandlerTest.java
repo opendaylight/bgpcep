@@ -36,7 +36,7 @@ public class RouteTarget4OctectASEcHandlerTest {
     public void testHandler() throws BGPDocumentedException, BGPParsingException {
         final As4RouteTargetExtendedCommunityCase expected = new As4RouteTargetExtendedCommunityCaseBuilder()
             .setAs4RouteTargetExtendedCommunity(new As4RouteTargetExtendedCommunityBuilder()
-                .setAs4GenericSpecExtendedCommunity(AS_COMMON).build()).build();
+                .setAs4SpecificCommon(AS_COMMON).build()).build();
 
         final ExtendedCommunity exComm = this.handler.parseExtendedCommunity(Unpooled.copiedBuffer(INPUT));
         Assert.assertEquals(expected, exComm);
