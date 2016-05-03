@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_f3998b6f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPByteToMessageDecoder.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-03T10:33:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_333ae3cd",
+      "range": {
+        "startLine": 32,
+        "startChar": 4,
+        "endLine": 32,
+        "endChar": 22
+      },
+      "revId": "c3ddbcaab90233107b45f96aaee87f84aab4247d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_1337dfe4",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPByteToMessageDecoder.java",
         "patchSetId": 12
