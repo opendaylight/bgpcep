@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -28,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
  * Util class for creating generated Ipv4Address.
  */
 public final class Ipv4Util {
+    private static final String SLASH = "/";
     public static final int IP4_LENGTH = 4;
     public static final int IP4_BITS_LENGTH = 32;
     private static final Ipv4Prefix EMPTY_PREFIX = new Ipv4Prefix("0.0.0.0/0");
@@ -225,5 +227,30 @@ public final class Ipv4Util {
             ipString = ipAddress.getIpv6Address().getValue();
         }
         return new InetSocketAddress(InetAddresses.forString(ipString), port.getValue());
+    }
+
+    /**
+     * Increment Address
+     *
+     * @param ipv4Address String containing Ipv4Address
+     * @return String containing Ipv4Address incremented by 1
+     */
+    public static String incrementIpv4Address(final String ipv4Address) {
+        return InetAddresses.increment(InetAddresses.forString(ipv4Address)).getHostAddress();
+    }
+
+    /**
+     * Increment Address
+     *
+     * @param ipv4Address ipv4 address to be augmented
+     * @return new ipv4 address
+     */
+    public static Ipv4Address incrementIpv4Address(final Ipv4Address ipv4Address) {
+        return new Ipv4Address(incrementIpv4Address(ipv4Address.getValue()));
+    }
+
+    public static Ipv4Prefix incrementIpv4Prefix(final Ipv4Prefix ipv4Prefix) {
+        final Map.Entry<Ipv4Address, Integer> splitIpv4Prefix = IetfInetUtil.INSTANCE.splitIpv4Prefix(ipv4Prefix);
+        return IetfInetUtil.INSTANCE.ipv4PrefixFor(incrementIpv4Address(splitIpv4Prefix.getKey()), splitIpv4Prefix.getValue());
     }
 }
