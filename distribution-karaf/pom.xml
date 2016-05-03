@@ -90,6 +90,14 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
+        <groupId>org.opendaylight.bgpcep</groupId>
+        <artifactId>features-util</artifactId>
+        <classifier>features</classifier>
+        <version>${project.version}</version>
+        <type>xml</type>
+        <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>org.opendaylight.netconf</groupId>
       <artifactId>features-restconf</artifactId>
       <classifier>features</classifier>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
+  ~
+  ~ This program and the accompanying materials are made available under the
+  ~ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+  ~ and is available at http://www.eclipse.org/legal/epl-v10.html
+  -->
+
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+
+
+<features name="odl-bgpcep-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
+    <repository>mvn:org.opendaylight.mdsal.model/features-mdsal-model/{{VERSION}}/xml/features</repository>
+
+    <feature name='odl-bgpcep-util' version='${project.version}'>
+        <!--  concepts -->
+        <bundle>mvn:com.google.guava/guava/{{VERSION}}</bundle>
+        <feature version='${mdsal.binding.base}'>odl-mdsal-models</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/concepts/{{VERSION}}</bundle>
+        <!-- util -->
+        <bundle>mvn:ch.qos.logback/logback-core/1.1.7</bundle>
+        <bundle>mvn:ch.qos.logback/logback-classic/1.1.7</bundle>
+        <bundle>mvn:org.slf4j/slf4j-simple/1.7.21</bundle>
+        <bundle>mvn:org.slf4j/slf4j-api/1.7.21</bundle>
+        <bundle>mvn:io.netty/netty-common/{{VERSION}}</bundle>
+        <bundle>mvn:io.netty/netty-buffer/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/util/{{VERSION}}</bundle>
+    </feature>
+</features>
+

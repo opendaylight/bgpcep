@@ -11,27 +11,16 @@
 <features name="odl-bgpcep-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
-
+    <repository>mvn:org.opendaylight.bgpcep/features-util/{{VERSION}}/xml/features</repository>
     <repository>mvn:org.opendaylight.mdsal.model/features-mdsal-model/{{VERSION}}/xml/features</repository>
 
     <feature name='odl-bgpcep-rsvp' version='${project.version}'>
-        <feature version='${project.version}'>odl-bgpcep-rsvp-dependencies</feature>
+        <feature version='${project.version}'>odl-bgpcep-util</feature>
+        <bundle>mvn:org.opendaylight.controller/config-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/rsvp-api/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/rsvp-spi/{{VERSION}}</bundle>
         <bundle>mvn:org.opendaylight.bgpcep/rsvp-impl/{{VERSION}}</bundle>
         <configfile finalname="etc/opendaylight/karaf/27-rsvp.xml">mvn:org.opendaylight.bgpcep/rsvp-controller-config/{{VERSION}}/xml/config</configfile>
-    </feature>
-
-    <feature name='odl-bgpcep-rsvp-dependencies' version='${project.version}'>
-        <!--  concepts -->
-        <bundle>mvn:com.google.guava/guava/{{VERSION}}</bundle>
-        <feature version='${mdsal.binding.base}'>odl-mdsal-models</feature>
-        <bundle>mvn:org.opendaylight.bgpcep/concepts/{{VERSION}}</bundle>
-        <!-- util -->
-        <bundle>mvn:io.netty/netty-common/{{VERSION}}</bundle>
-        <bundle>mvn:io.netty/netty-buffer/{{VERSION}}</bundle>
-        <bundle>mvn:org.opendaylight.controller/config-api/{{VERSION}}</bundle>
-        <bundle>mvn:org.opendaylight.bgpcep/util/{{VERSION}}</bundle>
     </feature>
 </features>
 

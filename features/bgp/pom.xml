@@ -171,6 +171,12 @@
             <classifier>features</classifier>
             <type>xml</type>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>features-util</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
       <dependency>
           <groupId>${project.groupId}</groupId>
           <artifactId>bgp-concepts</artifactId>

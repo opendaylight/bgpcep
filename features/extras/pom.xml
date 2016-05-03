@@ -48,8 +48,6 @@
                 <type>pom</type>
             </dependency>
 
-
-
             <!-- Controller infrastructure -->
             <dependency>
                 <groupId>org.opendaylight.controller</groupId>
@@ -93,6 +91,12 @@
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>features-config</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>features-util</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
         </dependency>
