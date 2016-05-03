@@ -8,6 +8,9 @@
 
 package org.opendaylight.protocol.bmp.mock;
 
+import static org.opendaylight.protocol.util.Ipv4Util.incrementIpv4Address;
+import static org.opendaylight.protocol.util.Ipv4Util.incrementIpv4Prefix;
+
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -83,7 +86,7 @@ public final class BmpMockSession extends SimpleChannelInboundHandler<Notificati
             LOG.debug("BMP router {} advertized peer {}", channel.localAddress(), peerAddress);
             advertizeRoutes(this.prePolicyRoutesCount, AdjRibInType.PrePolicy, channel, peerAddress);
             advertizeRoutes(this.postPolicyRoutesCount, AdjRibInType.PostPolicy, channel, peerAddress);
-            peerAddress = BmpMockUtil.incrementIpv4Address(peerAddress);
+            peerAddress = incrementIpv4Address(peerAddress);
         }
     }
 
@@ -92,7 +95,7 @@ public final class BmpMockSession extends SimpleChannelInboundHandler<Notificati
         Ipv4Prefix prefix = PREFIX;
         for (int i = 0; i < count; i++) {
             channel.writeAndFlush(BmpMockUtil.createRouteMonitoring(peerAddress, type, prefix));
-            prefix = BmpMockUtil.incrementIpv4Prefix(prefix);
+            prefix = incrementIpv4Prefix(prefix);
         }
     }
 

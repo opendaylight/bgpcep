@@ -378,6 +378,11 @@
 
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>testtool-util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>rsvp-api</artifactId>
                 <version>${project.version}</version>
             </dependency>

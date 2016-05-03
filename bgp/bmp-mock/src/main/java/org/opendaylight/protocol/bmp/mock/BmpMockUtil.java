@@ -8,7 +8,6 @@
 
 package org.opendaylight.protocol.bmp.mock;
 
-import com.google.common.net.InetAddresses;
 import java.net.InetAddress;
 import java.util.Collections;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -46,9 +45,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.route.monitoring.message.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev150512.route.monitoring.message.UpdateBuilder;
 
-public final class BmpMockUtil {
+final class BmpMockUtil {
 
-    private static final String SLASH = "/";
     private static final String DESCRIPTION = "OpenDaylight";
     private static final String NAME = "BMP mock";
     private static final int HOLD_TIMER = 180;
@@ -66,10 +64,10 @@ public final class BmpMockUtil {
     public static InitiationMessage createInitiation() {
         final InitiationMessageBuilder msgBuilder = new InitiationMessageBuilder();
         msgBuilder.setTlvs(
-                new TlvsBuilder()
-                    .setDescriptionTlv(new DescriptionTlvBuilder().setDescription(DESCRIPTION).build())
-                    .setNameTlv(new NameTlvBuilder().setName(NAME).build())
-                    .build());
+            new TlvsBuilder()
+                .setDescriptionTlv(new DescriptionTlvBuilder().setDescription(DESCRIPTION).build())
+                .setNameTlv(new NameTlvBuilder().setName(NAME).build())
+                .build());
         return msgBuilder.build();
     }
 
@@ -95,13 +93,13 @@ public final class BmpMockUtil {
 
     private static PeerHeader createPeerHeader(final Ipv4Address bgpId, final AdjRibInType ribType) {
         return new PeerHeaderBuilder()
-        .setAddress(new IpAddress(bgpId))
-        .setAdjRibInType(AdjRibInType.PrePolicy)
-        .setAs(new AsNumber(ASN))
-        .setBgpId(bgpId)
-        .setIpv4(true)
-        .setType(PeerType.Global)
-        .build();
+            .setAddress(new IpAddress(bgpId))
+            .setAdjRibInType(AdjRibInType.PrePolicy)
+            .setAs(new AsNumber(ASN))
+            .setBgpId(bgpId)
+            .setIpv4(true)
+            .setType(PeerType.Global)
+            .build();
     }
 
     public static RouteMonitoringMessage createRouteMonitoring(final Ipv4Address bgpId, final AdjRibInType ribType, final Ipv4Prefix prefix) {
@@ -114,23 +112,8 @@ public final class BmpMockUtil {
     private static Update createUpdate(final Ipv4Prefix prefix) {
         final UpdateBuilder updateBuilder = new UpdateBuilder()
             .setAttributes(new AttributesBuilder().setOrigin(ORIGIN).setAsPath(AS_PATH).setCNextHop(
-                    new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(NEXT_HOP).build()).build()).build())
+                new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(NEXT_HOP).build()).build()).build())
             .setNlri(new NlriBuilder().setNlri(Collections.singletonList(prefix)).build());
         return updateBuilder.build();
     }
-
-    private static String incrementIpv4Address(final String ipv4Address) {
-        return InetAddresses.increment(InetAddresses.forString(ipv4Address)).getHostAddress();
-    }
-
-    public static Ipv4Address incrementIpv4Address(final Ipv4Address ipv4Address) {
-        return new Ipv4Address(incrementIpv4Address(ipv4Address.getValue()));
-    }
-
-    public static Ipv4Prefix incrementIpv4Prefix(final Ipv4Prefix ipv4Prefix) {
-        final String prefixStringValue = ipv4Prefix.getValue();
-        final String[] split = prefixStringValue.split(SLASH);
-        return new Ipv4Prefix(incrementIpv4Address(split[0]) + SLASH + split[1]);
-    }
-
 }
