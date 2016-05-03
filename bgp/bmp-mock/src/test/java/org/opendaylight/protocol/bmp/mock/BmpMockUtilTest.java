@@ -11,6 +11,8 @@ package org.opendaylight.protocol.bmp.mock;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.opendaylight.protocol.util.Ipv4Util.incrementIpv4Address;
+import static org.opendaylight.protocol.util.Ipv4Util.incrementIpv4Prefix;
 
 import com.google.common.net.InetAddresses;
 import java.lang.reflect.Constructor;
@@ -82,13 +84,13 @@ public class BmpMockUtilTest {
 
     @Test
     public void testIncrementIpv4Address() {
-        final Ipv4Address incremented = BmpMockUtil.incrementIpv4Address(PEER_IP);
+        final Ipv4Address incremented = incrementIpv4Address(PEER_IP);
         assertEquals("127.0.0.2", incremented.getValue());
     }
 
     @Test
     public void testIncrementIpv4Prefix() {
-        final Ipv4Prefix incremented = BmpMockUtil.incrementIpv4Prefix(new Ipv4Prefix("1.2.3.4/32"));
+        final Ipv4Prefix incremented = incrementIpv4Prefix(new Ipv4Prefix("1.2.3.4/32"));
         assertEquals("1.2.3.5/32", incremented.getValue());
     }
 

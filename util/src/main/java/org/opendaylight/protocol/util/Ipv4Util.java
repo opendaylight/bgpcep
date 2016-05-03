@@ -28,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
  * Util class for creating generated Ipv4Address.
  */
 public final class Ipv4Util {
+    private static final String SLASH = "/";
     public static final int IP4_LENGTH = 4;
     private static final Ipv4Prefix EMPTY_PREFIX = new Ipv4Prefix("0.0.0.0/0");
 
@@ -224,5 +225,31 @@ public final class Ipv4Util {
             ipString = ipAddress.getIpv6Address().getValue();
         }
         return new InetSocketAddress(InetAddresses.forString(ipString), port.getValue());
+    }
+
+    /**
+     * Increment Address
+     *
+     * @param ipv4Address String containing Ipv4Address
+     * @return String containing Ipv4Address incremented by 1
+     */
+    public static String incrementIpv4Address(final String ipv4Address) {
+        return InetAddresses.increment(InetAddresses.forString(ipv4Address)).getHostAddress();
+    }
+
+    /**
+     * Increment Address
+     *
+     * @param ipv4Address ipv4 address to be augmented
+     * @return new ipv4 address
+     */
+    public static Ipv4Address incrementIpv4Address(final Ipv4Address ipv4Address) {
+        return new Ipv4Address(incrementIpv4Address(ipv4Address.getValue()));
+    }
+
+    public static Ipv4Prefix incrementIpv4Prefix(final Ipv4Prefix ipv4Prefix) {
+        final String prefixStringValue = ipv4Prefix.getValue();
+        final String[] split = prefixStringValue.split(SLASH);
+        return new Ipv4Prefix(incrementIpv4Address(split[0]) + SLASH + split[1]);
     }
 }

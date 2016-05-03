@@ -445,7 +445,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         this.sessionStats.resetStats();
     }
 
-    ChannelOutputLimiter getLimiter() {
+    public ChannelOutputLimiter getLimiter() {
         return this.limiter;
     }
 

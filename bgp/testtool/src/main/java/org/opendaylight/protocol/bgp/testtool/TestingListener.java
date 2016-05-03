@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.testtool;
 
+import java.util.List;
+import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
@@ -18,17 +20,35 @@ import org.slf4j.LoggerFactory;
 /**
  * Testing BGP Listener.
  */
-public class TestingListener implements BGPSessionListener {
+final class TestingListener implements BGPSessionListener {
     private static final Logger LOG = LoggerFactory.getLogger(TestingListener.class);
+    private final int nPrefixes;
+    private final List<String> extCom;
+    private final boolean mulipathSupport;
+    private int messageCounter = 0;
+
+    TestingListener(final int nPrefixes, final List<String> extCom, final boolean mulipathSupport) {
+        this.nPrefixes = nPrefixes;
+        this.extCom = extCom;
+        this.mulipathSupport = mulipathSupport;
+    }
 
     @Override
-    public void onMessage(final BGPSession session, final Notification message) {
-        LOG.info("Client Listener: message received: {}", message.toString());
+    public boolean isSessionActive() {
+        return true;
+    }
+
+    @Override
+    public void markUptodate(final TablesKey tablesKey) {
+        LOG.debug("Table marked as up-to-date {}", tablesKey);
     }
 
     @Override
     public void onSessionUp(final BGPSession session) {
         LOG.info("Client Listener: Session Up.");
+        if (this.nPrefixes > 0) {
+            PrefixesBuilder.AdvertiseIpv4Prefixes(((BGPSessionImpl) session).getLimiter(), this.nPrefixes, this.extCom, this.mulipathSupport);
+        }
     }
 
     @Override
@@ -47,17 +67,17 @@ public class TestingListener implements BGPSessionListener {
     }
 
     @Override
+    public void onMessage(final BGPSession session, final Notification message) {
+        messageCounter++;
+        LOG.debug("Message received: {}", message.toString());
+    }
+
+    @Override
     public void releaseConnection() {
         LOG.info("Client Listener: Connection released.");
     }
 
-    @Override
-    public boolean isSessionActive() {
-        return true;
-    }
-
-    @Override
-    public void markUptodate(final TablesKey tablesKey) {
-        LOG.debug("Table marked as up-to-date {}", tablesKey);
+    void printCount(final String localAddress) {
+        LOG.info("Client Listener {}: message received, total of message received {}",localAddress, messageCounter);
     }
 }
