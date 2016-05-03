@@ -45,6 +45,10 @@
             <artifactId>ietf-yang-types-20130715</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.opendaylight.mdsal.model</groupId>
+            <artifactId>ietf-interfaces</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
             <artifactId>yang-binding</artifactId>
         </dependency>
