@@ -4,6 +4,8 @@ module bgp-openconfig-extensions {
     prefix "odl-oc-ext";
 
     import openconfig-bgp-types { prefix bgp-types; revision-date 2015-10-09; }
+    import openconfig-network-instance { prefix netinst; }
+    import openconfig-bgp { prefix openconfig-bgp; }
 
     organization "Cisco Systems, Inc.";
     contact "Milos Fabian <milfabia@cisco.com>";
@@ -42,6 +44,10 @@ module bgp-openconfig-extensions {
         description
           "Link-State (AFI,SAFI = 16388,71)";
         reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03";
+    }
+
+    augment /netinst:network-instances/netinst:network-instance/netinst:protocols/netinst:protocol {
+        uses openconfig-bgp:bgp-top;
     }
 
 }
