@@ -80,18 +80,6 @@ public class BmpMockUtilTest {
         assertEquals(AdjRibInType.PrePolicy, routeMonitoring.getPeerHeader().getAdjRibInType());
     }
 
-    @Test
-    public void testIncrementIpv4Address() {
-        final Ipv4Address incremented = BmpMockUtil.incrementIpv4Address(PEER_IP);
-        assertEquals("127.0.0.2", incremented.getValue());
-    }
-
-    @Test
-    public void testIncrementIpv4Prefix() {
-        final Ipv4Prefix incremented = BmpMockUtil.incrementIpv4Prefix(new Ipv4Prefix("1.2.3.4/32"));
-        assertEquals("1.2.3.5/32", incremented.getValue());
-    }
-
     @Test(expected=UnsupportedOperationException.class)
     public void testPrivateConstructor() throws Throwable {
         final Constructor<BmpMockUtil> c = BmpMockUtil.class.getDeclaredConstructor();

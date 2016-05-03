@@ -8,8 +8,9 @@
 
 package org.opendaylight.protocol.bmp.mock;
 
+import static org.opendaylight.protocol.util.InetSocketAddressUtil.getInetSocketAddress;
+
 import ch.qos.logback.classic.Level;
-import com.google.common.net.HostAndPort;
 import com.google.common.net.InetAddresses;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -20,8 +21,9 @@ import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.ArgumentType;
 import net.sourceforge.argparse4j.inf.Namespace;
+import org.opendaylight.protocol.util.ArgumentsInput;
 
-public final class BmpMockArguments {
+public final class BmpMockArguments implements ArgumentsInput {
 
     private static final int DEFAULT_LOCAL_PORT = 0;
     private static final int DEFAULT_REMOTE_PORT = 12345;
@@ -83,6 +85,7 @@ public final class BmpMockArguments {
         return this.parseArgs.get(REMOTE_ADDRESS_DST);
     }
 
+    @Override
     public Level getLogLevel() {
         return this.parseArgs.get(LOG_LEVEL_DST);
     }
@@ -118,11 +121,6 @@ public final class BmpMockArguments {
                 return Level.toLevel(value);
             }}).setDefault(Level.INFO);
         return parser;
-    }
-
-    private static InetSocketAddress getInetSocketAddress(final String hostPortString, final int defaultPort) {
-        final HostAndPort hostAndPort = HostAndPort.fromString(hostPortString).withDefaultPort(defaultPort);
-        return new InetSocketAddress(hostAndPort.getHostText(), hostAndPort.getPort());
     }
 
     private static String toArgName(final String dst) {

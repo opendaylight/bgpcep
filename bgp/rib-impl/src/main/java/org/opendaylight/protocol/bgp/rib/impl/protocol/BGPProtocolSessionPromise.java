@@ -34,9 +34,9 @@ public class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultProm
     @GuardedBy("this")
     private Future<?> pending;
 
-    public BGPProtocolSessionPromise(InetSocketAddress address, int retryTimer, Bootstrap bootstrap) {
+    public BGPProtocolSessionPromise(InetSocketAddress remoteAddress, int retryTimer, Bootstrap bootstrap) {
         super(GlobalEventExecutor.INSTANCE);
-        this.address = Preconditions.checkNotNull(address);
+        this.address = Preconditions.checkNotNull(remoteAddress);
         this.retryTimer = retryTimer;
         this.bootstrap = Preconditions.checkNotNull(bootstrap);
     }
