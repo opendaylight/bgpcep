@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * for a sessions' channel.
  */
 @ThreadSafe
-final class ChannelOutputLimiter extends ChannelInboundHandlerAdapter {
+public final class ChannelOutputLimiter extends ChannelInboundHandlerAdapter {
     private static final Logger LOG = LoggerFactory.getLogger(ChannelOutputLimiter.class);
     private final BGPSessionImpl session;
     private volatile boolean blocked;
@@ -48,7 +48,7 @@ final class ChannelOutputLimiter extends ChannelInboundHandlerAdapter {
         }
     }
 
-    void write(final Notification msg) {
+    public void write(final Notification msg) {
         ensureWritable();
         this.session.write(msg);
     }
@@ -58,7 +58,7 @@ final class ChannelOutputLimiter extends ChannelInboundHandlerAdapter {
         return this.session.writeAndFlush(msg);
     }
 
-    void flush() {
+    public void flush() {
         this.session.flush();
     }
 

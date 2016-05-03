@@ -7,9 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.testtool;
 
+import java.util.List;
+import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
@@ -18,17 +21,35 @@ import org.slf4j.LoggerFactory;
 /**
  * Testing BGP Listener.
  */
-public class TestingListener implements BGPSessionListener {
+final class TestingListener implements BGPSessionListener {
     private static final Logger LOG = LoggerFactory.getLogger(TestingListener.class);
+    private final int nPrefixes;
+    private final List<String> extCom;
+    private final boolean multiPathSupport;
+    private int messageCounter = 0;
+
+    TestingListener(final int nPrefixes, final List<String> extCom, final boolean multiPathSupport) {
+        this.nPrefixes = nPrefixes;
+        this.extCom = extCom;
+        this.multiPathSupport = multiPathSupport;
+    }
 
     @Override
-    public void onMessage(final BGPSession session, final Notification message) {
-        LOG.info("Client Listener: message received: {}", message.toString());
+    public boolean isSessionActive() {
+        return true;
+    }
+
+    @Override
+    public void markUptodate(final TablesKey tablesKey) {
+        LOG.debug("Table marked as up-to-date {}", tablesKey);
     }
 
     @Override
     public void onSessionUp(final BGPSession session) {
         LOG.info("Client Listener: Session Up.");
+        if (this.nPrefixes > 0) {
+            PrefixesBuilder.AdvertiseIpv4Prefixes(((BGPSessionImpl) session).getLimiter(), this.nPrefixes, this.extCom, this.multiPathSupport);
+        }
     }
 
     @Override
@@ -47,17 +68,19 @@ public class TestingListener implements BGPSessionListener {
     }
 
     @Override
+    public void onMessage(final BGPSession session, final Notification message) {
+        if (message instanceof Update) {
+            messageCounter++;
+        }
+        LOG.debug("Message received: {}", message.toString());
+    }
+
+    @Override
     public void releaseConnection() {
         LOG.info("Client Listener: Connection released.");
     }
 
-    @Override
-    public boolean isSessionActive() {
-        return true;
-    }
-
-    @Override
-    public void markUptodate(final TablesKey tablesKey) {
-        LOG.debug("Table marked as up-to-date {}", tablesKey);
+    void printCount(final String localAddress) {
+        LOG.info("Peer {} received {} update messages.", localAddress, messageCounter);
     }
 }

@@ -10,23 +10,21 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.net.HostAndPort;
 import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.ietf.stateful07.PCEPStatefulCapability;
+import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,9 +68,9 @@ public final class Main {
         int argIdx = 0;
         while (argIdx < args.length) {
             if (args[argIdx].equals("--local-address")) {
-                localAddress = getInetSocketAddress(args[++argIdx], DEFAULT_LOCAL_PORT);
+                localAddress = InetSocketAddressUtil.getInetSocketAddress(args[++argIdx], DEFAULT_LOCAL_PORT);
             } else if (args[argIdx].equals("--remote-address")) {
-                remoteAddress = parseAddresses(args[++argIdx], DEFAULT_REMOTE_PORT);
+                remoteAddress = InetSocketAddressUtil.parseAddresses(args[++argIdx], DEFAULT_REMOTE_PORT);
             } else if (args[argIdx].equals("--pcc")) {
                 pccCount = Integer.valueOf(args[++argIdx]);
             } else if (args[argIdx].equals("--lsp")) {
@@ -149,19 +147,4 @@ public final class Main {
             }
         });
     }
-
-    private static List<InetSocketAddress> parseAddresses(final String address, final int defaultPort) {
-        return Lists.transform(Arrays.asList(address.split(",")), new Function<String, InetSocketAddress>() {
-            @Override
-            public InetSocketAddress apply(final String input) {
-                return getInetSocketAddress(input, defaultPort);
-            }
-        });
-    }
-
-    private static InetSocketAddress getInetSocketAddress(final String hostPortString, final int defaultPort) {
-        final HostAndPort hostAndPort = HostAndPort.fromString(hostPortString).withDefaultPort(defaultPort);
-        return new InetSocketAddress(hostAndPort.getHostText(), hostAndPort.getPort());
-    }
-
 }
