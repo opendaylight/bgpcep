@@ -22,32 +22,32 @@ public interface BGPDispatcher{
     /**
      * Creates BGP client.
      *
-     * @param address Peer address
+     * @param remoteAddress remote Peer address
      * @param peerRegistry BGP peer registry
      * @param retryTimer Retry timer
      * @return Future promising a client session
      */
-    Future<? extends BGPSession> createClient(InetSocketAddress address, BGPPeerRegistry peerRegistry, int retryTimer);
+    Future<? extends BGPSession> createClient(InetSocketAddress remoteAddress, BGPPeerRegistry peerRegistry, int retryTimer);
 
     /**
      * Creates Reconnecting client.
      *
-     * @param address Peer address
+     * @param remoteAddress remote Peer Address
      * @param peerRegistry BGP peer registry
      * @param retryTimer Retry timer
      * @param keys for TCPMD5
      * @return Future promising a client session
      */
-    Future<Void> createReconnectingClient(InetSocketAddress address,
+    Future<Void> createReconnectingClient(InetSocketAddress remoteAddress,
         BGPPeerRegistry peerRegistry, int retryTimer, Optional<KeyMapping> keys);
 
     /**
-     * Create new BGP server to accept incoming bgp connections (bound to provided socket address).
+     * Create new BGP server to accept incoming bgp connections (bound to provided socket localAddress).
      *
      * @param peerRegistry BGP peer registry
-     * @param address Peer address
+     * @param localAddress Peer localAddress
      *
      * @return ChannelFuture promising a client session
      */
-    ChannelFuture createServer(BGPPeerRegistry peerRegistry, InetSocketAddress address);
+    ChannelFuture createServer(BGPPeerRegistry peerRegistry, InetSocketAddress localAddress);
 }
