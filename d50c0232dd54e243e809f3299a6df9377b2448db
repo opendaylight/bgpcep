@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_e73a6135",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-04T08:05:41Z",
+      "side": 1,
+      "message": "Should be constant.",
+      "range": {
+        "startLine": 174,
+        "startChar": 12,
+        "endLine": 174,
+        "endChar": 79
+      },
+      "revId": "d50c0232dd54e243e809f3299a6df9377b2448db",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_c760fd37",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-04T08:05:41Z",
+      "side": 1,
+      "message": "Almost the same like #terminate",
+      "range": {
+        "startLine": 253,
+        "startChar": 0,
+        "endLine": 260,
+        "endChar": 35
+      },
+      "revId": "d50c0232dd54e243e809f3299a6df9377b2448db",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
