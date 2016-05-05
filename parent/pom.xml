@@ -39,8 +39,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <nexusproxy>http://nexus.opendaylight.org/content</nexusproxy>
-        <sitedeploy>dav:http://nexus.opendaylight.org/content/sites/site</sitedeploy>
 
         <maven.info.reports.version>2.7</maven.info.reports.version>
 
