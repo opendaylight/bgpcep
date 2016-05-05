@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_cde2db9e",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/spi/RouteEntryUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-05T15:17:39Z",
+      "side": 1,
+      "message": "final",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 6
+      },
+      "revId": "95e5881d61819d1b2ac0eb3e3aa511d635c22929",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
