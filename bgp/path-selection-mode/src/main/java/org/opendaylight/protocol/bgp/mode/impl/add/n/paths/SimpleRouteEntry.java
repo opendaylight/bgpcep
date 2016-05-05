@@ -10,13 +10,11 @@ package org.opendaylight.protocol.bgp.mode.impl.add.n.paths;
 import com.google.common.primitives.UnsignedInteger;
 import org.opendaylight.protocol.bgp.mode.api.BestPath;
 import org.opendaylight.protocol.bgp.mode.impl.add.RouteKey;
+import org.opendaylight.protocol.bgp.mode.spi.RouteEntryUtil;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
 
 final class SimpleRouteEntry extends AbstractNPathsRouteEntry {
     public SimpleRouteEntry(final Long nBestPaths) {
@@ -31,10 +29,7 @@ final class SimpleRouteEntry extends AbstractNPathsRouteEntry {
 
     @Override
     public MapEntryNode createValue(final PathArgument routeId, final BestPath path) {
-        final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = Builders.mapEntryBuilder();
-        b.withNodeIdentifier((NodeIdentifierWithPredicates) routeId);
-        b.addChild(path.getAttributes());
-        return b.build();
+        return RouteEntryUtil.createSimpleRouteValue(routeId, path);
     }
 
     @Override

@@ -9,11 +9,9 @@ package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import com.google.common.primitives.UnsignedInteger;
 import org.opendaylight.protocol.bgp.mode.api.BestPath;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.opendaylight.protocol.bgp.mode.spi.RouteEntryUtil;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
 
 final class BaseSimpleRouteEntry extends BaseAbstractRouteEntry {
     @Override
@@ -23,9 +21,6 @@ final class BaseSimpleRouteEntry extends BaseAbstractRouteEntry {
 
     @Override
     public MapEntryNode createValue(final PathArgument routeId, final BestPath path) {
-        final DataContainerNodeAttrBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = Builders.mapEntryBuilder();
-        b.withNodeIdentifier((NodeIdentifierWithPredicates) routeId);
-        b.addChild(path.getAttributes());
-        return b.build();
+        return RouteEntryUtil.createSimpleRouteValue(routeId, path);
     }
 }
