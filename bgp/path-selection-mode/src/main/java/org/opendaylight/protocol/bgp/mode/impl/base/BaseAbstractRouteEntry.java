@@ -90,7 +90,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
         final boolean modified = !newBestPath.equals(this.bestPath);
         if (modified) {
             this.removedBestPath = this.bestPath;
-            LOG.trace("Previous best {}, current best {}, result {}", this.bestPath, newBestPath, modified);
+            LOG.trace("Previous best {}, current best {}", this.bestPath, newBestPath);
             this.bestPath = newBestPath;
         }
         return modified;

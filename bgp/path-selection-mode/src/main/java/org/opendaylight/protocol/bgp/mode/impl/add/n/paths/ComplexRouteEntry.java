@@ -12,6 +12,7 @@ import org.opendaylight.protocol.bgp.mode.api.BestPath;
 import org.opendaylight.protocol.bgp.mode.impl.OffsetMap;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathBestPath;
 import org.opendaylight.protocol.bgp.mode.impl.add.RouteKey;
+import org.opendaylight.protocol.bgp.mode.spi.RouteEntryUtil;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
@@ -30,16 +31,15 @@ final class ComplexRouteEntry extends AbstractNPathsRouteEntry {
         final RouteKey key = new RouteKey(routerId, remotePathId);
         final OffsetMap<RouteKey> map = getOffsets();
         final int offset = map.offsetOf(key);
-        final boolean ret = removeRoute(key, offset);
         this.values = map.removeValue(this.values, offset);
-        return ret;
+        return removeRoute(key, offset);
     }
 
     @Override
     public MapEntryNode createValue(final PathArgument routeId, final BestPath path) {
         final OffsetMap<RouteKey> map = getOffsets();
-        final int offset = map.offsetOf(((AddPathBestPath) path).getRouteKey());
-        return map.getValue(this.values, offset);
+        final MapEntryNode mapValues = map.getValue(this.values, map.offsetOf(((AddPathBestPath) path).getRouteKey()));
+        return RouteEntryUtil.createComplexRouteValue(routeId, path, mapValues);
     }
 
     @Override
