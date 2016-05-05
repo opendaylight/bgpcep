@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_ed907f97",
+        "filename": "bgp/benchmark-app/pom.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-05T12:36:06Z",
+      "side": 1,
+      "message": "I think it is not needed change - the dependencies are managed with test scope and the scope is inherited in child pom.",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 95,
+        "endChar": 21
+      },
+      "revId": "d43c6f8d75c00d19666c1d8ec56339314566270f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
