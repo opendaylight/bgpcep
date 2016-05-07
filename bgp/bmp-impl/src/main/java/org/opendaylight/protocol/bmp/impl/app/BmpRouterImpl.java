@@ -8,13 +8,13 @@
 
 package org.opendaylight.protocol.bmp.impl.app;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -136,7 +136,8 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
 
     @GuardedBy("this")
     private synchronized void tearDown() {
-        if (this.session == null) {   // the session has been teared down before
+        // the session has been teared down before
+        if (this.session == null) {
             return;
         }
         // we want to display remote router's IP here, as sometimes this.session.close() is already
@@ -236,7 +237,7 @@ public class BmpRouterImpl implements BmpRouter, TransactionChainListener {
     }
 
     private Optional<BmpRouterPeer> getPeer(final PeerId peerId) {
-        return Optional.fromNullable(this.peers.get(peerId));
+        return Optional.ofNullable(this.peers.get(peerId));
     }
 
     private static PeerId getPeerId(final PeerHeader peerHeader) {

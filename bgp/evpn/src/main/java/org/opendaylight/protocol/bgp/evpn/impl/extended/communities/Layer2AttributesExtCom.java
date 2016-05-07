@@ -21,7 +21,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
 
 public class Layer2AttributesExtCom extends AbstractExtendedCommunities {
-    private static final int SUBTYPE = 4; // TODO: TBD BY IANA
+    // TODO: TBD BY IANA
+    private static final int SUBTYPE = 4;
     private static final int FLAGS_SIZE = 16;
     private static final int PRIMARY_PE_OFFSET = 15;
     private static final int CONTROL_WORD_OFFSET = 13;

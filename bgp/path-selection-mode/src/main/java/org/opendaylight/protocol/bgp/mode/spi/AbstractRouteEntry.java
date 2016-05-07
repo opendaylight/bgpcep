@@ -27,7 +27,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract public class AbstractRouteEntry implements RouteEntry {
+public abstract class AbstractRouteEntry implements RouteEntry {
     protected static final NodeIdentifier ROUTES_IDENTIFIER = new NodeIdentifier(Routes.QNAME);
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRouteEntry.class);
 
