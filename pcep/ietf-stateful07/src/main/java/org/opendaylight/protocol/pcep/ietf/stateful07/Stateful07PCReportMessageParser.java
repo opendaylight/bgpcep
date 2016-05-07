@@ -64,7 +64,7 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
         MessageUtil.formatMessage(TYPE, buffer, out);
     }
 
-    protected void serializeReport(final Reports report, final ByteBuf buffer) {
+    private void serializeReport(final Reports report, final ByteBuf buffer) {
         if (report.getSrp() != null) {
             serializeObject(report.getSrp(), buffer);
         }
@@ -103,48 +103,66 @@ public class Stateful07PCReportMessageParser extends AbstractMessageParser {
     }
 
     protected Reports getValidReports(final List<Object> objects, final List<Message> errors) {
-        boolean isValid = true;
         final ReportsBuilder builder = new ReportsBuilder();
+
         boolean lspViaSR = false;
-        if (objects.get(0) instanceof Srp) {
-            final Srp srp = (Srp) objects.get(0);
+        Object object = objects.remove(0);
+        if (object instanceof Srp) {
+            final Srp srp = (Srp) object;
             final Tlvs tlvs = srp.getTlvs();
             if (tlvs != null) {
                 lspViaSR = PSTUtil.isDefaultPST(tlvs.getPathSetupType());
             }
             builder.setSrp(srp);
-            objects.remove(0);
+            if(objects.isEmpty()) {
+                object = null;
+            } else {
+                object = objects.remove(0);
+            }
         }
 
-        if (objects.get(0) instanceof Lsp) {
-            final Lsp lsp = (Lsp) objects.get(0);
-            if(!lspViaSR && lsp.getTlvs().getLspIdentifiers() == null && lsp.getPlspId().getValue() != 0) {
-                errors.add(createErrorMsg(PCEPErrors.LSP_IDENTIFIERS_TLV_MISSING, Optional.<Rp>absent()));
-                isValid = false;
-            } else {
-                builder.setLsp(lsp);
-                objects.remove(0);
+        if(validateLsp(object, lspViaSR, errors, builder)) {
+            if(!objects.isEmpty()) {
+                object = objects.remove(0);
+                if(!validateEmpty(object, objects, errors, builder)) {
+                    return null;
+                }
             }
-        } else {
-            errors.add(createErrorMsg(PCEPErrors.LSP_MISSING, Optional.<Rp>absent()));
-            isValid = false;
-        }
-        if (!objects.isEmpty()) {
-            final PathBuilder pBuilder = new PathBuilder();
-            if (objects.get(0) instanceof Ero) {
-                pBuilder.setEro((Ero) objects.get(0));
-                objects.remove(0);
-            } else {
-                errors.add(createErrorMsg(PCEPErrors.ERO_MISSING, Optional.<Rp>absent()));
-                isValid = false;
-            }
-            parsePath(objects, pBuilder);
-            builder.setPath(pBuilder.build());
-        }
-        if(isValid) {
+
             return builder.build();
         }
         return null;
+    }
+
+    private boolean validateEmpty(final Object object, final List<Object> objects, final List<Message> errors, final ReportsBuilder builder) {
+        final PathBuilder pBuilder = new PathBuilder();
+        if (object instanceof Ero) {
+            pBuilder.setEro((Ero) object);
+        } else {
+            errors.add(createErrorMsg(PCEPErrors.ERO_MISSING, Optional.<Rp>absent()));
+            return false;
+        }
+        parsePath(objects, pBuilder);
+        builder.setPath(pBuilder.build());
+        return true;
+    }
+
+    private boolean validateLsp(final Object object, final boolean lspViaSR, final List<Message> errors, final ReportsBuilder builder) {
+        if (object instanceof Lsp) {
+            final Lsp lsp = (Lsp) object;
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.Tlvs tlvs = lsp.getTlvs();
+            if(!lspViaSR && lsp.getPlspId().getValue() != 0 && (tlvs == null || tlvs.getLspIdentifiers() == null)) {
+                final Message errorMsg = createErrorMsg(PCEPErrors.LSP_IDENTIFIERS_TLV_MISSING, Optional.<Rp>absent());
+                errors.add(errorMsg);
+                return false;
+            } else {
+                builder.setLsp(lsp);
+            }
+        } else {
+            errors.add(createErrorMsg(PCEPErrors.LSP_MISSING, Optional.<Rp>absent()));
+            return false;
+        }
+        return true;
     }
 
     private void parsePath(final List<Object> objects, final PathBuilder builder) {

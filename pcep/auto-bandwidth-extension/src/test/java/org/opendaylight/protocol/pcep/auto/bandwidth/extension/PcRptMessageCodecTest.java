@@ -9,11 +9,13 @@
 package org.opendaylight.protocol.pcep.auto.bandwidth.extension;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.xml.bind.DatatypeConverter;
@@ -32,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controll
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.auto.bandwidth.rev160109.bandwidth.usage.object.BandwidthUsageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcrpt;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.lsp.identifiers.AddressFamily;
@@ -87,12 +90,27 @@ public class PcRptMessageCodecTest {
         final LspId lspId = new LspId(1L);
         final TunnelId tunnelId = new TunnelId(1);
         final LspIdentifiers identifier = new LspIdentifiersBuilder().setAddressFamily(afiLsp).setLspId(lspId).setTunnelId(tunnelId).build();
-        final Lsp lsp = new LspBuilder().setTlvs(new TlvsBuilder().setLspIdentifiers(identifier).build()).build();
+        final Lsp lsp = new LspBuilder().setPlspId(new PlspId(1L)).setTlvs(new TlvsBuilder().setLspIdentifiers(identifier).build()).build();
         final Ero ero = new EroBuilder().build();
         final List<Object> objects = Lists.<Object>newArrayList(lsp, ero, bw);
         final Reports validReports = codec.getValidReports(objects, Collections.<Message>emptyList());
         assertNotNull(validReports.getPath().getBandwidth().getAugmentation(Bandwidth1.class));
         assertTrue(objects.isEmpty());
+    }
+
+    @Test
+    public void testGetValidReportsNegative() {
+        final PcRptMessageCodec codec = new PcRptMessageCodec(this.ctx.getObjectHandlerRegistry());
+        final BandwidthUsage bw = new BandwidthUsageBuilder().setBwSample(Lists.newArrayList(new Bandwidth(new byte[] {0, 0, 0, 1}))).build();
+        final Ipv4Builder builder = new Ipv4Builder();
+        builder.setIpv4TunnelSenderAddress(new Ipv4Address("127.0.1.1"));
+        builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(new Ipv4Address("127.0.1.2")));
+        builder.setIpv4TunnelEndpointAddress(new Ipv4Address("127.0.1.3"));
+        final Lsp lsp = new LspBuilder().setPlspId(new PlspId(1L)).build();
+        final Ero ero = new EroBuilder().build();
+        final List<Object> objects = Lists.newArrayList(lsp, ero, bw);
+        final Reports validReports = codec.getValidReports(objects, new ArrayList<>());
+        assertNull(validReports);
     }
 
     @Test

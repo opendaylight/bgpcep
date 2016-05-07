@@ -20,7 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
  *
  * @param <N> numeric operand type
  */
-abstract public class AbstractNumericOperandParser<N> extends AbstractOperandParser<NumericOperand> {
+public abstract class AbstractNumericOperandParser<N> extends AbstractOperandParser<NumericOperand> {
 
     @VisibleForTesting
     public static final String EQUALS_VALUE = "equals";

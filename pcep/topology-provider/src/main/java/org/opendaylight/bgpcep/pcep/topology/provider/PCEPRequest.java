@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class PCEPRequest {
-    static enum State {
+    enum State {
         UNSENT,
         UNACKED,
         DONE,
@@ -51,11 +51,11 @@ final class PCEPRequest {
         return state;
     }
 
-    public Timer getTimer() {
+    Timer getTimer() {
         return timer;
     }
 
-    public synchronized void done(final OperationResult result) {
+    synchronized void done(final OperationResult result) {
         if (state != State.DONE) {
             LOG.debug("Request went from {} to {}", state, State.DONE);
             state = State.DONE;
@@ -64,8 +64,8 @@ final class PCEPRequest {
         }
     }
 
-    public synchronized void done() {
-        OperationResult result = null;
+    synchronized void done() {
+        OperationResult result;
         switch (state) {
         case UNSENT:
             result = OperationResults.UNSENT;
@@ -75,18 +75,20 @@ final class PCEPRequest {
             break;
         case DONE:
             return;
+        default:
+            return;
         }
         done(result);
     }
 
-    public synchronized void sent() {
+    synchronized void sent() {
         if (state == State.UNSENT) {
             LOG.debug("Request went from {} to {}", state, State.UNACKED);
             state = State.UNACKED;
         }
     }
 
-    public long getElapsedMillis() {
+    long getElapsedMillis() {
         return this.stopwatch.elapsed(TimeUnit.MILLISECONDS);
     }
 }

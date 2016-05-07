@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
-import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 /**
  * Invoked on routes which we get from our Internal peers. This is a special-case of
@@ -18,12 +17,5 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 final class FromInternalReflectorClientImportPolicy extends FromInternalImportPolicy {
     FromInternalReflectorClientImportPolicy(final Ipv4Address bgpIdentifier, final ClusterIdentifier clusterIdentifier) {
         super(bgpIdentifier, clusterIdentifier);
-    }
-
-    @Override
-    ContainerNode effectiveAttributes(final ContainerNode attributes) {
-        // TODO: (defensiveness) verify ORIGINATOR_ID (should have been set)
-
-        return super.effectiveAttributes(attributes);
     }
 }
