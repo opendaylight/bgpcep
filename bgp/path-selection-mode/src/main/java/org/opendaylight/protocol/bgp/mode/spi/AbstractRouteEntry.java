@@ -11,7 +11,6 @@ package org.opendaylight.protocol.bgp.mode.spi;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
-import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
@@ -53,9 +52,8 @@ abstract public class AbstractRouteEntry implements RouteEntry {
         return false;
     }
 
-    protected final boolean filterRoutes(final PeerId rootPeer, final PeerId destPeer, final ExportPolicyPeerTracker peerPT,
-        final TablesKey localTK, final CacheDisconnectedPeers discPeers) {
-        return !rootPeer.equals(destPeer) && isTableSupported(destPeer, peerPT, localTK) && !discPeers.isPeerDisconnected(destPeer);
+    protected final boolean filterRoutes(final PeerId rootPeer, final PeerId destPeer, final ExportPolicyPeerTracker peerPT, final TablesKey localTK) {
+        return !rootPeer.equals(destPeer) && isTableSupported(destPeer, peerPT, localTK);
     }
 
     private boolean isTableSupported(final PeerId destPeer, final ExportPolicyPeerTracker peerPT, final TablesKey localTK) {

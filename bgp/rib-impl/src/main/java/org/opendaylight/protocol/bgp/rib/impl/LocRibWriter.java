@@ -24,7 +24,6 @@ import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
-import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
@@ -51,7 +50,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,12 +73,10 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     private final NodeIdentifierWithPredicates tableKey;
     private final TablesKey localTablesKey;
     private final ListenerRegistration<LocRibWriter> reg;
-    private final CacheDisconnectedPeers cacheDisconnectedPeers;
     private final PathSelectionMode pathSelectionMode;
 
     private LocRibWriter(final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier target, final Long ourAs,
-        final DOMDataTreeChangeService service, final PolicyDatabase pd, final TablesKey tablesKey, final CacheDisconnectedPeers cacheDisconnectedPeers,
-        @Nonnull final PathSelectionMode pathSelectionMode) {
+        final DOMDataTreeChangeService service, final PolicyDatabase pd, final TablesKey tablesKey, @Nonnull final PathSelectionMode pathSelectionMode) {
         this.chain = Preconditions.checkNotNull(chain);
         this.tableKey = RibSupportUtils.toYangTablesKey(tablesKey);
         this.localTablesKey = tablesKey;
@@ -89,7 +85,6 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         this.ribSupport = registry.getRIBSupportContext(tablesKey).getRibSupport();
         this.attributesIdentifier = this.ribSupport.routeAttributesIdentifier();
         this.peerPolicyTracker = new ExportPolicyPeerTrackerImpl(pd, this.localTablesKey);
-        this.cacheDisconnectedPeers = cacheDisconnectedPeers;
         this.pathSelectionMode = pathSelectionMode;
 
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
@@ -104,8 +99,8 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
 
     public static LocRibWriter create(@Nonnull final RIBSupportContextRegistry registry, @Nonnull final TablesKey tablesKey, @Nonnull final DOMTransactionChain chain,
         @Nonnull final YangInstanceIdentifier target, @Nonnull final AsNumber ourAs, @Nonnull final DOMDataTreeChangeService service, @Nonnull final PolicyDatabase pd,
-        final CacheDisconnectedPeers cacheDisconnectedPeers, @Nonnull final PathSelectionMode pathSelectionStrategy) {
-        return new LocRibWriter(registry, chain, target, ourAs.getValue(), service, pd, tablesKey, cacheDisconnectedPeers, pathSelectionStrategy);
+        @Nonnull final PathSelectionMode pathSelectionStrategy) {
+        return new LocRibWriter(registry, chain, target, ourAs.getValue(), service, pd, tablesKey, pathSelectionStrategy);
     }
 
     @Override
@@ -152,7 +147,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             final DataTreeCandidateNode rootNode = tc.getRootNode();
             final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(rootPath);
             final PeerId peerId = IdentifierUtils.peerId(peerKey);
-            filterOutPeerRole(peerId, rootNode, rootPath);
+            filterOutPeerRole(rootNode, rootPath);
             filterOutChangesToSupportedTables(peerId, rootNode);
             filterOutAnyChangeOutsideEffRibsIn(peerId, rootNode, ret, rootPath, tx);
         }
@@ -190,16 +185,13 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             final PeerRole newPeerRole = this.peerPolicyTracker.getRole(IdentifierUtils.peerPath(rootPath));
             final PeerExportGroup peerGroup = this.peerPolicyTracker.getPeerGroup(newPeerRole);
             this.routeEntries.entrySet().forEach(entry -> entry.getValue().writeRoute(peerIdOfNewPeer, entry.getKey(), rootPath, peerGroup,
-                this.localTablesKey, this.peerPolicyTracker, this.ribSupport, this.cacheDisconnectedPeers, tx));
+                this.localTablesKey, this.peerPolicyTracker, this.ribSupport, tx));
         }
     }
 
-    private void filterOutPeerRole(final PeerId peerId, final DataTreeCandidateNode rootNode, final YangInstanceIdentifier rootPath) {
+    private void filterOutPeerRole(final DataTreeCandidateNode rootNode, final YangInstanceIdentifier rootPath) {
         final DataTreeCandidateNode roleChange = rootNode.getModifiedChild(AbstractPeerRoleTracker.PEER_ROLE_NID);
         if (roleChange != null) {
-            if (!rootNode.getModificationType().equals(ModificationType.DELETE)) {
-                this.cacheDisconnectedPeers.reconnected(peerId);
-            }
             this.peerPolicyTracker.onDataTreeChanged(roleChange, IdentifierUtils.peerPath(rootPath));
         }
     }
@@ -252,8 +244,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
                 LOG.trace("Best path has not changed, continuing");
                 continue;
             }
-            entry.updateRoute(this.localTablesKey, this.peerPolicyTracker, this.locRibTarget, this.ribSupport, this.cacheDisconnectedPeers,
-                tx, e.getKey().getRouteId());
+            entry.updateRoute(this.localTablesKey, this.peerPolicyTracker, this.locRibTarget, this.ribSupport, tx, e.getKey().getRouteId());
         }
     }
 }

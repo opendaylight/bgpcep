@@ -336,15 +336,8 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         if (this.rpcRegistration != null) {
             this.rpcRegistration.close();
         }
-        addPeerToDisconnectedSharedList();
         cleanup();
         dropConnection();
-    }
-
-    private void addPeerToDisconnectedSharedList() {
-        if(this.session != null) {
-            this.rib.getCacheDisconnectedPeers().insertDesconectedPeer(this.session.getBgpId());
-        }
     }
 
     @GuardedBy("this")

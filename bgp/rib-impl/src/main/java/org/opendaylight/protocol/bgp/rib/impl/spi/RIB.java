@@ -15,7 +15,6 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
 import org.opendaylight.protocol.bgp.rib.RibReference;
-import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -83,14 +82,6 @@ public interface RIB  extends RibReference {
      * not available.
      */
     Optional<BGPOpenConfigProvider> getOpenConfigProvider();
-
-    /**
-     * Return cache disconnected peers which allows us to avoid update
-     * DS from a peer already disconnected, when multiple peers are disconnected
-     * at the same time and their own exportPolicy has not been updated yet.
-     * @return
-     */
-    CacheDisconnectedPeers getCacheDisconnectedPeers();
 
     /**
      * Return instance of DOMDataTreeChangeService, where consumer can register to

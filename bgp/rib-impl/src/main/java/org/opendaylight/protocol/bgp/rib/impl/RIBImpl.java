@@ -44,7 +44,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
-import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -105,7 +104,6 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final List<LocRibWriter> locRibs = new ArrayList<>();
     private final BGPConfigModuleTracker configModuleTracker;
     private final BGPOpenConfigProvider openConfigProvider;
-    private final CacheDisconnectedPeers cacheDisconnectedPeers;
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
     private final ImportPolicyPeerTracker importPolicyPeerTracker;
 
@@ -130,7 +128,6 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         this.yangRibId = yangRibIdBuilder.nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
         this.configModuleTracker = moduleTracker;
         this.openConfigProvider = openConfigProvider;
-        this.cacheDisconnectedPeers = new CacheDisconnectedPeersImpl();
         this.bestPathSelectionStrategies = Preconditions.checkNotNull(bestPathSelectionStrategies);
 
         LOG.debug("Instantiating RIB table {} at {}", ribId, this.yangRibId);
@@ -217,7 +214,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy();
         }
         this.locRibs.add(LocRibWriter.create(this.ribContextRegistry, key, createPeerChain(this), getYangRibId(), this.localAs, getService(), pd,
-            this.cacheDisconnectedPeers, pathSelectionStrategy));
+            pathSelectionStrategy));
     }
 
     @Override
@@ -351,10 +348,6 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         return Optional.fromNullable(this.openConfigProvider);
     }
 
-    @Override
-    public CacheDisconnectedPeers getCacheDisconnectedPeers() {
-        return this.cacheDisconnectedPeers;
-    }
 
     public ImportPolicyPeerTracker getImportPolicyPeerTracker() {
         return this.importPolicyPeerTracker;
