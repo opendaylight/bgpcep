@@ -52,15 +52,15 @@ public final class EvpnNlriParser implements NlriParser, NlriSerializer {
     private static final NodeIdentifier EVPN_CHOICE_NID = new NodeIdentifier(EvpnChoice.QNAME);
 
     @FunctionalInterface
-    private interface extractionInterface {
+    private interface ExtractionInterface {
         EvpnChoice check(EvpnRegistry reg, ChoiceNode cont);
     }
 
     public static EvpnDestination extractEvpnDestination(final DataContainerNode<? extends PathArgument> evpnChoice) {
-        return extractDestination(evpnChoice, (reg, cont) -> reg.serializeEvpnModel(cont));
+        return extractDestination(evpnChoice, EvpnRegistry::serializeEvpnModel);
     }
 
-    private static EvpnDestination extractDestination(final DataContainerNode<? extends PathArgument> evpnChoice, final extractionInterface extract) {
+    private static EvpnDestination extractDestination(final DataContainerNode<? extends PathArgument> evpnChoice, final ExtractionInterface extract) {
         final EvpnRegistry reg = SimpleEvpnNlriRegistry.getInstance();
         final ChoiceNode cont = (ChoiceNode) evpnChoice.getChild(EVPN_CHOICE_NID).get();
         final EvpnChoice evpnValue = extract.check(reg, cont);
@@ -72,7 +72,7 @@ public final class EvpnNlriParser implements NlriParser, NlriSerializer {
     }
 
     public static EvpnDestination extractRouteKeyDestination(final DataContainerNode<? extends PathArgument> evpnChoice) {
-        return extractDestination(evpnChoice, (reg, cont) -> reg.serializeEvpnRouteKey(cont));
+        return extractDestination(evpnChoice, EvpnRegistry::serializeEvpnRouteKey);
     }
 
     @Override

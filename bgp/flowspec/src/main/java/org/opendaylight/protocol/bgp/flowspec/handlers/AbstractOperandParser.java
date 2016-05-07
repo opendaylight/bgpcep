@@ -16,7 +16,7 @@ import java.util.Set;
  *
  * @param <T> operand Type
  */
-abstract public class AbstractOperandParser<T> {
+public abstract class AbstractOperandParser<T> {
 
     @VisibleForTesting
     public static final String AND_BIT_VALUE = "and-bit";
