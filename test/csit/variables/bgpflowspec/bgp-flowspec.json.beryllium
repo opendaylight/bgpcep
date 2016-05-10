@@ -2,7 +2,6 @@
     "bgp-flowspec:flowspec-routes": {
         "flowspec-route": [
             {
-                "path-id": 0,
                 "route-key": "all packets to 192.168.0.1/32 AND from 10.0.0.1/32 AND where IP protocol equals to 6 AND where port equals to 80 AND where destination port is greater than 8080 and is less than 8088 AND where source port is greater than 1024 AND where ICMP type equals to 0 AND where ICMP code equals to 0 AND where TCP flags does match 32 AND where packet length is greater than 400 and is less than 500 AND where DSCP equals to 20 AND where fragment does match 'IS FIRST' ",
                 "attributes": {
                     "extended-communities": [

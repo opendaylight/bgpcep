@@ -2,7 +2,6 @@
     "bgp-flowspec:flowspec-routes": {
         "flowspec-route": [
             {
-                "path-id": 0,
                 "route-key": "all packets to 192.168.0.2/32 AND from 10.0.0.2/32",
                 "attributes": {
                     "extended-communities": [
@@ -35,7 +34,6 @@
                 ]
             },
             {
-                "path-id": 0,
                 "route-key": "all packets to 192.168.0.1/32 AND from 10.0.0.1/32",
                 "attributes": {
                     "extended-communities": [
@@ -65,7 +63,6 @@
                 ]
             },
             {
-                "path-id": 0,
                 "route-key": "all packets to 192.168.0.4/32 AND from 10.0.0.4/32",
                 "attributes": {
                     "extended-communities": [
