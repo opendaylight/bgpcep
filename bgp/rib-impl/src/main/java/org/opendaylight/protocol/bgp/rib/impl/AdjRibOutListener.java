@@ -164,4 +164,8 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener {
     public void close() {
         this.registerDataTreeChangeListener.close();
     }
+
+    boolean isMpSupported() {
+        return this.mpSupport;
+    }
 }
