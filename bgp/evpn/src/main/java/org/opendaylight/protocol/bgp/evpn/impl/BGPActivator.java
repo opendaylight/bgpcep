@@ -16,16 +16,21 @@ import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.ESILabelExtC
 import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.ESImpRouteTargetExtCom;
 import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.Layer2AttributesExtCom;
 import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.MACMobExtCom;
+import org.opendaylight.protocol.bgp.evpn.impl.nlri.EvpnNlriParser;
 import org.opendaylight.protocol.bgp.evpn.impl.nlri.NlriActivator;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.NextHopParserSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.EvpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.L2vpnAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.evpn.routes.EvpnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.evpn.routes.evpn.routes.evpn.route.attributes.extended.communities.extended.community.DefaultGatewayExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.evpn.routes.evpn.routes.evpn.route.attributes.extended.communities.extended.community.Layer2AttributesExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.update.attributes.extended.communities.extended.community.EsImportRouteExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.update.attributes.extended.communities.extended.community.EsiLabelExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.update.attributes.extended.communities.extended.community.MacMobilityExtendedCommunityCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCase;
 
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     private static final int L2VPN_AFI = 25;
@@ -38,10 +43,19 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerSubsequentAddressFamily(EvpnSubsequentAddressFamily.class, EVPN_SAFI));
         regs.add(context.registerAddressFamily(L2vpnAddressFamily.class, L2VPN_AFI));
 
+        registerNlriHandler(context, regs);
         NlriActivator.registerNlriParsers(regs);
         registerExtendedCommunities(context, regs);
         ESIActivator.registerEsiTypeParsers(regs);
         return regs;
+    }
+
+    private void registerNlriHandler(final BGPExtensionProviderContext context, final List<AutoCloseable> regs) {
+        final NextHopParserSerializer nextHopParser = new NextHopParserSerializer() {};
+        final EvpnNlriParser nlriHandler = new EvpnNlriParser();
+        regs.add(context.registerNlriParser(L2vpnAddressFamily.class, EvpnSubsequentAddressFamily.class,
+            nlriHandler, nextHopParser, Ipv4NextHopCase.class, Ipv6NextHopCase.class));
+        regs.add(context.registerNlriSerializer(EvpnRoutes.class, nlriHandler));
     }
 
     private void registerExtendedCommunities(final BGPExtensionProviderContext context, final List<AutoCloseable> regs) {

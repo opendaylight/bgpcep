@@ -42,6 +42,7 @@ final class SimpleNlriRegistry implements NlriRegistry {
 
     private static final int RESERVED = 1;
     private static final int NEXT_HOP_LENGHT = 1;
+    private static final String PARSER_NOT_FOUND = "Nlri parser not found for table type {}";
     private static final Logger LOG = LoggerFactory.getLogger(SimpleNlriRegistry.class);
 
     private final ConcurrentMap<BgpTableType, NlriParser> handlers = new ConcurrentHashMap<>();
@@ -154,7 +155,11 @@ final class SimpleNlriRegistry implements NlriRegistry {
         final ByteBuf nlri = buffer.slice();
         final BgpTableType key = createKey(builder.getAfi(), builder.getSafi());
         final NlriParser parser = this.handlers.get(key);
-        parser.parseNlri(nlri, builder, constraint);
+        if (parser == null) {
+            LOG.warn(PARSER_NOT_FOUND, key);
+        } else {
+            parser.parseNlri(nlri, builder, constraint);
+        }
         return builder.build();
     }
 
@@ -228,7 +233,11 @@ final class SimpleNlriRegistry implements NlriRegistry {
 
         final ByteBuf nlri = buffer.slice();
         final NlriParser parser = this.handlers.get(key);
-        parser.parseNlri(nlri, builder, constraint);
+        if (parser == null) {
+            LOG.warn(PARSER_NOT_FOUND, key);
+        } else {
+            parser.parseNlri(nlri, builder, constraint);
+        }
         return builder.build();
     }
 }

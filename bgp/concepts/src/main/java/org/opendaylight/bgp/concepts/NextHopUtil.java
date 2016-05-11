@@ -45,6 +45,8 @@ public final class NextHopUtil {
             if (nextHop.getLinkLocal() != null) {
                 byteAggregator.writeBytes(Ipv6Util.bytesForAddress(nextHop.getLinkLocal()));
             }
+        } else {
+            throw new IllegalArgumentException("Cannot serialize NEXT_HOP. Class not supported: " + cnextHop);
         }
     }
 

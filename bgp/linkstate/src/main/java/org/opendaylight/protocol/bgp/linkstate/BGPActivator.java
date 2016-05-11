@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.linkstate;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.bgp.linkstate.attribute.LinkstateAttributeParser;
-import org.opendaylight.protocol.bgp.linkstate.attribute.next.hop.LinkstateNextHopParser;
 import org.opendaylight.protocol.bgp.linkstate.nlri.LinkNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.nlri.LinkstateNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.nlri.NodeNlriParser;
@@ -23,6 +22,7 @@ import org.opendaylight.protocol.bgp.linkstate.nlri.TeLspIpv6NlriParser;
 import org.opendaylight.protocol.bgp.linkstate.nlri.TeLspNlriSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.NextHopParserSerializer;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPTeObjectRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
@@ -71,7 +71,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerAddressFamily(LinkstateAddressFamily.class, LINKSTATE_AFI));
         regs.add(context.registerSubsequentAddressFamily(LinkstateSubsequentAddressFamily.class, LINKSTATE_SAFI));
 
-        LinkstateNextHopParser linkstateNextHopParser = new LinkstateNextHopParser();
+        final NextHopParserSerializer linkstateNextHopParser = new NextHopParserSerializer(){};
         regs.add(context.registerNlriParser(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,
             new LinkstateNlriParser(false), linkstateNextHopParser, Ipv4NextHopCase.class, Ipv6NextHopCase.class));
 
