@@ -158,8 +158,8 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         for (final DataTreeCandidate tc : changes) {
             final YangInstanceIdentifier rootPath = tc.getRootPath();
             final DataTreeCandidateNode rootNode = tc.getRootNode();
-            final NodeIdentifierWithPredicates peerKey = IdentifierUtils.peerKey(rootPath);
-            final PeerId peerId = IdentifierUtils.peerId(peerKey);
+            final PeerId peerId = IdentifierUtils.peerKeyToPeerId(rootPath);
+
             filterOutPeerRole(peerId, rootNode, rootPath);
             filterOutChangesToSupportedTables(peerId, rootNode);
             filterOutAnyChangeOutsideEffRibsIn(peerId, rootNode, ret, rootPath, tx);
@@ -215,8 +215,8 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             LOG.debug("Data Changed for Peer role {} path {}, dataBefore {}, dataAfter {}", roleChange.getIdentifier(),
                 peerPath , roleChange.getDataBefore(), maybePeerRole);
             final PeerRole role = PeerRoleUtil.roleForChange(maybePeerRole);
-            SimpleRoutingPolicy srp = getSimpleRoutingPolicy(rootNode);
-            if(PeerRole.Internal == role || SimpleRoutingPolicy.AnnounceNone == srp) {
+            final SimpleRoutingPolicy srp = getSimpleRoutingPolicy(rootNode);
+            if(SimpleRoutingPolicy.AnnounceNone == srp) {
                 return;
             }
             this.peerPolicyTracker.peerRoleChanged(peerPath, role);
