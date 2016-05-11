@@ -7,28 +7,25 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Function;
+import static java.util.stream.Collectors.toMap;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
-import java.util.AbstractMap;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
+import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup.PeerExporTuple;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
@@ -48,13 +45,6 @@ import org.slf4j.LoggerFactory;
 
 final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
     private static final Logger LOG = LoggerFactory.getLogger(ExportPolicyPeerTrackerImpl.class);
-    private static final Function<YangInstanceIdentifier, Entry<PeerId, YangInstanceIdentifier>> GENERATE_PEER_ID = new Function<YangInstanceIdentifier, Entry<PeerId, YangInstanceIdentifier>>() {
-        @Override
-        public Entry<PeerId, YangInstanceIdentifier> apply(final YangInstanceIdentifier input) {
-            final PeerId peerId = IdentifierUtils.peerId((NodeIdentifierWithPredicates) input.getLastPathArgument());
-            return new AbstractMap.SimpleImmutableEntry<>(peerId, input);
-        }
-    };
     private static final QName SEND_RECEIVE = QName.create(SupportedTables.QNAME, "send-receive").intern();
     private static final NodeIdentifier SEND_RECEIVE_NID = new NodeIdentifier(SEND_RECEIVE);
     private final Map<YangInstanceIdentifier, PeerRole> peerRoles = new HashMap<>();
@@ -74,26 +64,17 @@ final class ExportPolicyPeerTrackerImpl implements ExportPolicyPeerTracker {
             return Collections.emptyMap();
         }
 
-        // Index things nicely for easy access
-        final Multimap<PeerRole, YangInstanceIdentifier> roleToIds = ArrayListMultimap.create(PeerRole.values().length, 2);
-        final Map<PeerId, PeerRole> idToRole = new HashMap<>();
-        for (final Entry<YangInstanceIdentifier, PeerRole> e : peerPathRoles.entrySet()) {
-            roleToIds.put(e.getValue(), e.getKey());
-            idToRole.put(IdentifierUtils.peerId((NodeIdentifierWithPredicates) e.getKey().getLastPathArgument()), e.getValue());
-        }
+        final Map<PeerId, PeerExporTuple> immutablePeers = ImmutableMap.copyOf(peerPathRoles.entrySet().stream()
+            .collect(toMap(peer -> IdentifierUtils.peerKeyToPeerId(peer.getKey()), peer-> new PeerExporTuple(peer.getKey(), peer.getValue()))));
 
-        // Optimized immutable copy, reused for all PeerGroups
-        final Map<PeerId, PeerRole> allPeerRoles = ImmutableMap.copyOf(idToRole);
+        final Map<PeerRole, PeerExportGroup> ret = peerPathRoles.values().stream().collect(Collectors.toSet())
+            .stream().filter(role -> !role.equals(PeerRole.Internal))
+            .collect(toMap(Function.identity(), role -> new PeerExportGroupImpl(immutablePeers, this.policyDatabase.exportPolicyForRole(role))));
 
-        final Map<PeerRole, PeerExportGroup> ret = new EnumMap<>(PeerRole.class);
-        for (final Entry<PeerRole, Collection<YangInstanceIdentifier>> e : roleToIds.asMap().entrySet()) {
-            final AbstractExportPolicy policy = this.policyDatabase.exportPolicyForRole(e.getKey());
-            final Collection<Entry<PeerId, YangInstanceIdentifier>> peers = ImmutableList.copyOf(Collections2.transform(e.getValue(), GENERATE_PEER_ID));
+        final EnumMap<PeerRole, PeerExportGroup> enumMap = new EnumMap<>(PeerRole.class);
+        enumMap.putAll(ret);
 
-            ret.put(e.getKey(), new PeerExportGroupImpl(peers, allPeerRoles, policy));
-        }
-
-        return ret;
+        return enumMap;
     }
 
     @Override

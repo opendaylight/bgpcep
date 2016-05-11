@@ -184,7 +184,7 @@ abstract class BaseAbstractRouteEntry extends AbstractRouteEntry {
                 final ContainerNode effAttrib = peerGroup.effectiveAttributes(routePeerId, attributes);
                 peerGroup.getPeers().stream()
                     .filter(pid -> filterRoutes(routePeerId, pid.getKey(), peerPT, localTK, discPeers))
-                    .forEach(pid -> update(pid.getKey(), getAdjRibOutYII(ribSup, pid.getValue(), routeId, localTK), effAttrib, value, ribSup, tx));
+                    .forEach(pid -> update(pid.getKey(), getAdjRibOutYII(ribSup, pid.getValue().getYii(), routeId, localTK), effAttrib, value, ribSup, tx));
             }
         }
     }
