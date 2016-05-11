@@ -20,6 +20,7 @@ import org.opendaylight.protocol.bgp.mode.spi.AbstractRouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup;
+import org.opendaylight.protocol.bgp.rib.spi.PeerExportGroup.PeerExporTuple;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
@@ -161,15 +162,16 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
             final PeerExportGroup peerGroup = peerPT.getPeerGroup(role);
             if (peerGroup != null) {
                 final ContainerNode effectiveAttributes = peerGroup.effectiveAttributes(routePeerId, attributes);
-                for (final Map.Entry<PeerId, YangInstanceIdentifier> pid : peerGroup.getPeers()) {
+                for (final Map.Entry<PeerId, PeerExporTuple> pid : peerGroup.getPeers()) {
                     final PeerId destPeer = pid.getKey();
                     final boolean destPeerSupAddPath = peerPT.isAddPathSupportedByPeer(destPeer);
                     if (filterRoutes(routePeerId, destPeer, peerPT, localTK, discPeers) && peersSupportsAddPathOrIsFirstBestPath(destPeerSupAddPath, isFirstBestPath)) {
                         if (destPeerSupAddPath) {
-                            update(destPeer, getAdjRibOutYII(ribSup, pid.getValue(), routeIdAddPath, localTK), effectiveAttributes, addPathValue,
+                            update(destPeer, getAdjRibOutYII(ribSup, pid.getValue().getYii(), routeIdAddPath, localTK), effectiveAttributes,
+                                addPathValue,
                                 ribSup, tx);
                         } else {
-                            update(destPeer, getAdjRibOutYII(ribSup, pid.getValue(), routeId, localTK), effectiveAttributes, value, ribSup, tx);
+                            update(destPeer, getAdjRibOutYII(ribSup, pid.getValue().getYii(), routeId, localTK), effectiveAttributes, value, ribSup, tx);
                         }
                     }
                 }

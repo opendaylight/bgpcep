@@ -11,16 +11,11 @@ package org.opendaylight.protocol.bgp.mode.impl;
 import static org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectorTest.ATTRS_EXTENSION_Q;
 import static org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectorTest.SEGMENTS_NID;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.UnsignedInteger;
-import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.mockito.Mock;
@@ -82,8 +77,6 @@ public class AbstractRouteEntryTest {
     private static final NodeIdentifier ORIGIN_VALUE_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, "value").intern());
     private static final NodeIdentifier AS_PATH_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, AsPath.QNAME.getLocalName()).intern());
     private static final NodeIdentifier ATOMIC_NID = new NodeIdentifier(QName.create(ATTRS_EXTENSION_Q, AtomicAggregate.QNAME.getLocalName()));
-    private static final Function<YangInstanceIdentifier, Map.Entry<PeerId, YangInstanceIdentifier>> GENERATE_PEER_ID =
-        input -> PEER_YII.equals(input) ? new AbstractMap.SimpleImmutableEntry<>(PEER_ID, input) : new AbstractMap.SimpleImmutableEntry<>(PEER_ID2, input);
     private static final QName Q_NAME = BindingReflections.findQName(Ipv4Routes.class).intern();
     private static final NodeIdentifier ROUTE_ATTRIBUTES_IDENTIFIER = new NodeIdentifier(QName.create(Q_NAME, Attributes.QNAME.getLocalName().intern()));
     private static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
@@ -179,11 +172,14 @@ public class AbstractRouteEntryTest {
     private void mockExportGroup() {
         Mockito.doReturn(this.attributes).when(this.peg).effectiveAttributes(Mockito.any(PeerId.class), Mockito.any(ContainerNode.class));
         Mockito.doReturn(null).when(this.pegNot).effectiveAttributes(Mockito.any(PeerId.class), Mockito.any(ContainerNode.class));
-        Collection<YangInstanceIdentifier> value = Arrays.asList(PEER_YII, PEER_YII2);
-        final Collection<Map.Entry<PeerId, YangInstanceIdentifier>> peers = ImmutableList.copyOf(Collections2.transform(value, GENERATE_PEER_ID));
-        final Collection<Map.Entry<PeerId, YangInstanceIdentifier>> peersEmpty = ImmutableList.copyOf(Collections2.transform(Collections.<YangInstanceIdentifier>emptyList(), GENERATE_PEER_ID));
-        Mockito.doReturn(peers).when(this.peg).getPeers();
-        Mockito.doReturn(peersEmpty).when(this.pegNot).getPeers();
+
+        Map<PeerId, PeerExportGroup.PeerExporTuple> peers = new HashMap<>();
+        Mockito.doReturn(ImmutableList.copyOf(peers.entrySet())).when(this.pegNot).getPeers();
+
+        peers.put(PEER_ID, new PeerExportGroup.PeerExporTuple(PEER_YII, PeerRole.Ibgp));
+        peers.put(PEER_ID2, new PeerExportGroup.PeerExporTuple(PEER_YII2, PeerRole.Ibgp));
+
+        Mockito.doReturn(ImmutableList.copyOf(peers.entrySet())).when(this.peg).getPeers();
     }
 
     private void mockExportPolicies() {

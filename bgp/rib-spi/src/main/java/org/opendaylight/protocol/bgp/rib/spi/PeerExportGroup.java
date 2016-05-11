@@ -11,6 +11,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import java.util.Collection;
 import java.util.Map;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
@@ -18,8 +19,27 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
  * A collection of peers sharing the same export policy.
  */
 public interface PeerExportGroup {
+    final class PeerExporTuple {
+        private final YangInstanceIdentifier yii;
+        private final PeerRole role;
+
+        public PeerExporTuple(final YangInstanceIdentifier yii, final PeerRole role) {
+            this.yii = yii;
+            this.role = role;
+        }
+
+        public YangInstanceIdentifier getYii() {
+            return yii;
+        }
+
+        public PeerRole getRole() {
+            return role;
+        }
+    }
+
     /**
      * Transform outgoing attributes according to policy per Peer
+     *
      * @param sourcePeerId root Peer
      * @param attributes attributes container
      * @return return attributes container after apply policy
@@ -27,8 +47,7 @@ public interface PeerExportGroup {
     ContainerNode effectiveAttributes(PeerId sourcePeerId, ContainerNode attributes);
 
     /**
-     *
      * @return map of peer
      */
-    Collection<Map.Entry<PeerId, YangInstanceIdentifier>> getPeers();
+    Collection<Map.Entry<PeerId, PeerExporTuple>> getPeers();
 }
