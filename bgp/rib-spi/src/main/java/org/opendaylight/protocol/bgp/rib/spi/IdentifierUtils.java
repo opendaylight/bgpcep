@@ -19,18 +19,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 
 public final class IdentifierUtils {
-    private static final Predicate<PathArgument> IS_PEER = new Predicate<PathArgument>() {
-        @Override
-        public boolean apply(final PathArgument input) {
-            return input instanceof NodeIdentifierWithPredicates && Peer.QNAME.equals(input.getNodeType());
-        }
-    };
-    private static final Predicate<PathArgument> IS_TABLES = new Predicate<PathArgument>() {
-        @Override
-        public boolean apply(final PathArgument input) {
-            return Tables.QNAME.equals(input.getNodeType());
-        }
-    };
+    private static final Predicate<PathArgument> IS_PEER = input -> input instanceof NodeIdentifierWithPredicates && Peer.QNAME.equals(input.getNodeType());
+    private static final Predicate<PathArgument> IS_TABLES = input -> Tables.QNAME.equals(input.getNodeType());
     private static final QName PEER_ID = QName.create(Peer.QNAME, "peer-id").intern();
 
     private IdentifierUtils() {
@@ -63,6 +53,11 @@ public final class IdentifierUtils {
         // We could use a codec, but this is simple enough
         return new PeerId((String) peerKey.getKeyValues().get(PEER_ID));
     }
+
+    public static PeerId peerKeyToPeerId(final YangInstanceIdentifier id) {
+        return peerId(firstKeyOf(id, IS_PEER));
+    }
+
 
     static NodeIdentifierWithPredicates tableKey(final YangInstanceIdentifier id) {
         return firstKeyOf(id, IS_TABLES);

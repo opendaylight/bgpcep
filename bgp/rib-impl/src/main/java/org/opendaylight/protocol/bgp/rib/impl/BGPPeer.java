@@ -155,7 +155,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         if (listener != null) {
             listener.close();
             this.adjRibOutListenerSet.remove(listener);
-            createAdjRibOutListener(RouterIds.createPeerId(session.getBgpId()), key, true);
+            createAdjRibOutListener(RouterIds.createPeerId(session.getBgpId()), key, listener.isMpSupported());
         } else {
             LOG.info("Ignoring RouteRefresh message. Afi/Safi is not supported: {}, {}.", rrAfi, rrSafi);
         }
@@ -284,8 +284,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     //try to add a support for old-school BGP-4, if peer did not advertise IPv4-Unicast MP capability
     private void addBgp4Support(final PeerId peerId, final boolean announceNone) {
         final TablesKey key = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-        this.tables.add(key);
-        if (!announceNone) {
+        if (this.tables.add(key) && !announceNone) {
             createAdjRibOutListener(peerId, key, false);
         }
     }
