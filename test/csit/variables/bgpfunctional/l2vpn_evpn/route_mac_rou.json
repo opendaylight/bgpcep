@@ -1,0 +1,35 @@
+{
+  "odl-bgp-evpn:evpn-routes": {
+    "evpn-route": [
+      {
+        "attributes": {
+          "origin": {
+            "value": "igp"
+          },
+          "ipv4-next-hop": {
+            "global": "199.20.166.41"
+          },
+          "local-pref": {
+            "pref": 100
+          },
+          "as-path": {}
+        },
+        "route-key": "AhgAAhmZmZkAAQAAAAow8gzdgJ/3ICsrKys=",
+        "route-distinguisher": "429496729:1",
+        "mac-ip-adv-route": {
+          "router-id-generated": {
+            "local-discriminator": 2000,
+            "router-id": "43.43.43.43"
+          },
+          "mpls-label1": 24002,
+          "mpls-label2": 24003,
+          "ip-address": "43.43.43.43",
+          "ethernet-tag-id": {
+            "vlan-id": 10
+          },
+          "mac-address": "f2:0c:dd:80:9f:f7"
+        }
+      }
+    ]
+  }
+}

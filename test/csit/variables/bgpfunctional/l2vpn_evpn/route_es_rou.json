@@ -1,0 +1,29 @@
+{
+  "odl-bgp-evpn:evpn-routes": {
+    "evpn-route": [
+      {
+        "es-route": {
+          "router-id-generated": {
+            "local-discriminator": 2000,
+            "router-id": "43.43.43.43"
+          },
+          "orig-route-ip": "43.43.43.43"
+        },
+        "attributes": {
+          "origin": {
+            "value": "igp"
+          },
+          "ipv4-next-hop": {
+            "global": "199.20.166.41"
+          },
+          "local-pref": {
+            "pref": 100
+          },
+          "as-path": {}
+        },
+        "route-key": "BBcAAhmZmZkAAQQrKysrAAAH0AAgKysrKw==",
+        "route-distinguisher": "429496729:1"
+      }
+    ]
+  }
+}

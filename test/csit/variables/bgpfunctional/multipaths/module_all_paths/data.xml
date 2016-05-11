@@ -1,0 +1,4 @@
+<module xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+    <type xmlns:x="urn:opendaylight:params:xml:ns:yang:controller:bgp:path:selection:mode">x:advertise-all-paths</type>
+    <name>all-paths</name>
+</module>

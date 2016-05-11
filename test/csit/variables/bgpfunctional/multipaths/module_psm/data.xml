@@ -1,0 +1,12 @@
+<module xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+    <type xmlns:x="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">x:bgp-psm-impl</type>
+    <name>ipv4-unicast-path-selection-mode</name>
+    <path-address-family xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">
+        <name>ipv4-unicast</name>
+        <type>bgp-table-type</type>
+    </path-address-family>
+    <path-selection-mode xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">
+        <name>$PATHSELMODE</name>
+        <type xmlns:x="urn:opendaylight:params:xml:ns:yang:controller:bgp:path:selection:mode">x:path-selection-mode-factory</type>
+    </path-selection-mode>
+</module>

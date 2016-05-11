@@ -1,0 +1,38 @@
+{
+  "odl-bgp-evpn:evpn-routes": {
+    "evpn-route": [
+      {
+        "attributes": {
+          "origin": {
+            "value": "igp"
+          },
+          "ipv4-next-hop": {
+            "global": "199.20.166.41"
+          },
+          "extended-communities": [
+            {
+              "transitive": true,
+              "default-gateway-extended-community": {}
+            }
+          ],
+          "local-pref": {
+            "pref": 100
+          },
+          "as-path": {}
+        },
+        "route-key": "ARYAAhmZmZkAAQHyDN2An/cAFgAAAAAK",
+        "route-distinguisher": "429496729:1",
+        "ethernet-a-d-route": {
+          "lacp-auto-generated": {
+            "ce-lacp-port-key": 22,
+            "ce-lacp-mac-address": "f2:0c:dd:80:9f:f7"
+          },
+          "mpls-label": 24001,
+          "ethernet-tag-id": {
+            "vlan-id": 10
+          }
+        }
+      }
+    ]
+  }
+}

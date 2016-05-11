@@ -1,0 +1,7 @@
+<service xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+  <type xmlns:x="urn:opendaylight:params:xml:ns:yang:controller:bgp:path:selection:mode">x:path-selection-mode-factory</type>
+  <instance>
+    <name>n-paths</name>
+    <provider>/modules/module[type='advertise-n-paths'][name='n-paths']</provider>
+  </instance>
+</service>

@@ -1,0 +1,5 @@
+<module xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+  <type xmlns:x="urn:opendaylight:params:xml:ns:yang:controller:bgp:path:selection:mode">x:advertise-n-paths</type>
+  <name>n-paths</name>
+  <n-best-paths xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:path:selection:mode">$NPATHS</n-best-paths>
+</module>

@@ -1,0 +1,20 @@
+{
+ "update": {
+  "announce": {
+   "ipv4 mpls-vpn": {
+    "199.20.166.41": {
+     "2.2.2.2/32": {
+      "label": [
+       123
+      ],
+      "route-distinguisher": "429496729:1"
+     }
+    }
+   }
+  },
+  "attribute": {
+   "local-preference": 100,
+   "origin": "igp"
+  }
+ }
+}

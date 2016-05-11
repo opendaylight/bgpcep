@@ -1,0 +1,7 @@
+<service xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+  <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:path:selection:mode">prefix:path-selection-mode-factory</type>
+  <instance>
+    <name>all-paths</name>
+    <provider>/config/modules/module[name='advertise-all-paths']/instance[name='all-paths']</provider>
+  </instance>
+</service>

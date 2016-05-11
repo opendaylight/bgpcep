@@ -1,0 +1,7 @@
+<service xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+    <type xmlns:x="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">x:bgp-path-selection-mode</type>
+    <instance>
+        <name>ipv4-unicast-path-selection-mode</name>
+        <provider>/modules/module[type='bgp-psm-impl'][name='ipv4-unicast-path-selection-mode']</provider>
+    </instance>
+</service>
