@@ -27,7 +27,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public class NextHopUtilTest {
 
@@ -58,14 +57,6 @@ public class NextHopUtilTest {
         assertArrayEquals(ipv6lB, ByteArray.readAllBytes(buffer));
 
         buffer.clear();
-        NextHopUtil.serializeNextHop(new CNextHop() {
-
-            @Override
-            public Class<? extends DataContainer> getImplementedInterface() {
-                return null;
-            }
-        }, buffer);
-        assertEquals(0, buffer.readableBytes());
 
         hop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().setLinkLocal(ipv6l).build()).build();
         buffer.clear();
@@ -75,6 +66,11 @@ public class NextHopUtilTest {
         } catch (final IllegalArgumentException e) {
             assertEquals("Ipv6 Next Hop is missing Global address.", e.getMessage());
         }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSerializeNextHopException() {
+        NextHopUtil.serializeNextHop(() -> null, null);
     }
 
     @Test
