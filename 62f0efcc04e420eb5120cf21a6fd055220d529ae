@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_77642a49",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ApplicationPeer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-12T08:19:27Z",
+      "side": 1,
+      "message": "Validation should be done by yangtools/md-sal when validating the user input against the yang schema. To enforce a presence of \"MUST\" attributes, the \"mandatory\" statement should be used in yang data models.",
+      "revId": "62f0efcc04e420eb5120cf21a6fd055220d529ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
