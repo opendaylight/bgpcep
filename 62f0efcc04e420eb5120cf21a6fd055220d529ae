@@ -16,6 +16,24 @@
       "revId": "62f0efcc04e420eb5120cf21a6fd055220d529ae",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_96cbb6a4",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ApplicationPeer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2016-05-13T21:47:34Z",
+      "side": 1,
+      "message": "I tried using \"mandatory true\" statement in yang model, but for some reason it is not complaining even if corresponding values are missing from input data. I have sent email to yangtools alias (CC\u0027ed you on it) asking them if this is an issue or any further change is required in the model",
+      "parentUuid": "fa57193c_77642a49",
+      "revId": "62f0efcc04e420eb5120cf21a6fd055220d529ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
