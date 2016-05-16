@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_044accc4",
+        "filename": "bgp/openconfig-api/src/main/java/org/opendaylight/yang/gen/v1/http/openconfig/net/yang/local/routing/rev151009/LocalStaticConfigNextHopBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-16T09:42:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_c1aa9f18",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 2
+      },
+      "revId": "bfa27184e979a6ecfab6921c7cd0b7b32d33e932",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_81b0a78c",
         "filename": "bgp/openconfig-api/src/main/java/org/opendaylight/yang/gen/v1/http/openconfig/net/yang/local/routing/rev151009/LocalStaticConfigNextHopBuilder.java",
         "patchSetId": 1
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_10edffc3",
+        "filename": "bgp/openconfig-api/src/main/java/org/opendaylight/yang/gen/v1/http/openconfig/net/yang/local/routing/rev151009/LocalStaticConfigNextHopBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-16T09:42:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_81b0a78c",
+      "revId": "bfa27184e979a6ecfab6921c7cd0b7b32d33e932",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_61ad9331",
         "filename": "bgp/openconfig-api/src/main/java/org/opendaylight/yang/gen/v1/http/openconfig/net/yang/local/routing/rev151009/LocalStaticConfigNextHopBuilder.java",
         "patchSetId": 1
@@ -53,6 +95,30 @@
       "writtenOn": "2016-05-09T08:08:50Z",
       "side": 1,
       "message": "remove",
+      "range": {
+        "startLine": 26,
+        "startChar": 51,
+        "endLine": 26,
+        "endChar": 61
+      },
+      "revId": "bfa27184e979a6ecfab6921c7cd0b7b32d33e932",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_70d1dbfa",
+        "filename": "bgp/openconfig-api/src/main/java/org/opendaylight/yang/gen/v1/http/openconfig/net/yang/local/routing/rev151009/LocalStaticConfigNextHopBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-16T09:42:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_61ad9331",
       "range": {
         "startLine": 26,
         "startChar": 51,
@@ -111,6 +177,30 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_50ce575b",
+        "filename": "bgp/openconfig-api/src/main/java/org/opendaylight/yang/gen/v1/http/openconfig/net/yang/network/instance/types/rev151018/RouteDistinguisherBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-16T09:42:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_e16883f7",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 3
+      },
+      "revId": "bfa27184e979a6ecfab6921c7cd0b7b32d33e932",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_416e8f02",
         "filename": "bgp/openconfig-api/src/main/java/org/opendaylight/yang/gen/v1/http/openconfig/net/yang/network/instance/types/rev151018/RouteDistinguisherBuilder.java",
         "patchSetId": 1
@@ -122,6 +212,24 @@
       "writtenOn": "2016-05-09T08:08:50Z",
       "side": 1,
       "message": "add private contructor",
+      "revId": "bfa27184e979a6ecfab6921c7cd0b7b32d33e932",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_b0db731a",
+        "filename": "bgp/openconfig-api/src/main/java/org/opendaylight/yang/gen/v1/http/openconfig/net/yang/network/instance/types/rev151018/RouteDistinguisherBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-16T09:42:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_416e8f02",
       "revId": "bfa27184e979a6ecfab6921c7cd0b7b32d33e932",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
