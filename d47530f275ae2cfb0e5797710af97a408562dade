@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_2a51990e",
+        "filename": "bgp/openconfig-api/src/main/java/org/opendaylight/yang/gen/v1/http/openconfig/net/yang/network/instance/types/rev151018/RouteDistinguisherBuilder.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-05-16T15:40:32Z",
+      "side": 1,
+      "message": "Arrays.stream(PATTERNS).anyMatch(pattern -\u003e pattern.matcher(defaultValue).matches());",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 21
+      },
+      "revId": "d47530f275ae2cfb0e5797710af97a408562dade",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
