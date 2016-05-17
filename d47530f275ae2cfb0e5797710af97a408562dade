@@ -22,6 +22,30 @@
       "revId": "d47530f275ae2cfb0e5797710af97a408562dade",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_65162257",
+        "filename": "bgp/openconfig-api/src/main/java/org/opendaylight/yang/gen/v1/http/openconfig/net/yang/network/instance/types/rev151018/RouteDistinguisherBuilder.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-05-17T06:35:08Z",
+      "side": 1,
+      "message": "I take back what I said. stream is slower than the for",
+      "parentUuid": "fa57193c_2a51990e",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 21
+      },
+      "revId": "d47530f275ae2cfb0e5797710af97a408562dade",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
