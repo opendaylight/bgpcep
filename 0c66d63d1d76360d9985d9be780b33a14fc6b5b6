@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_57ed9524",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-17T07:15:36Z",
+      "side": 1,
+      "message": "Duplicated code - the same like in Update message parser and very similar function is also located in #onUpdateMessage.",
+      "range": {
+        "startLine": 159,
+        "startChar": 0,
+        "endLine": 167,
+        "endChar": 9
+      },
+      "revId": "0c66d63d1d76360d9985d9be780b33a14fc6b5b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
