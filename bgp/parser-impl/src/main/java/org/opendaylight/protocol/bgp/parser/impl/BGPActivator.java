@@ -41,6 +41,7 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.MultiExitDiscrim
 import org.opendaylight.protocol.bgp.parser.impl.message.update.NextHopAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginatorIdAttributeParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.UnrecognizedAttributesSerializer;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.WithdrawnRoutesSerializer;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.AsTwoOctetSpecificEcHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.Ipv4SpecificEcHandler;
@@ -79,6 +80,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.MultiExitDisc;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.OriginatorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.UnrecognizedAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.RouteRefresh;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.AddPathCapability;
@@ -241,6 +243,8 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
         regs.add(context.registerAttributeParser(AS4AggregatorAttributeParser.TYPE, new AS4AggregatorAttributeParser()));
         regs.add(context.registerAttributeParser(AS4PathAttributeParser.TYPE, new AS4PathAttributeParser()));
+
+        regs.add(context.registerAttributeSerializer(UnrecognizedAttributes.class, new UnrecognizedAttributesSerializer()));
     }
 
     private void registerMessageParsers(final List<AutoCloseable> regs, final BGPExtensionProviderContext context) {
