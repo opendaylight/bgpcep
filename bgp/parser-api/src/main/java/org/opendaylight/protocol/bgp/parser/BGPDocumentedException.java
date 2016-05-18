@@ -31,6 +31,15 @@ public final class BGPDocumentedException extends Exception {
     /**
      * Used when an error occurred that is described in an RFC or a draft.
      *
+     * @param error specific documented error
+     */
+    public BGPDocumentedException(final BGPError error) {
+        this(null, error, null, null);
+    }
+
+    /**
+     * Used when an error occurred that is described in an RFC or a draft.
+     *
      * @param message message bound with this exception
      * @param error specific documented error
      */

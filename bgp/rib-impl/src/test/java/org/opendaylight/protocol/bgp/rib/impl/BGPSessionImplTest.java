@@ -39,6 +39,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -147,7 +148,7 @@ public class BGPSessionImplTest {
     }
 
     @Test
-    public void testBGPSession() {
+    public void testBGPSession() throws BGPDocumentedException {
         this.bgpSession.sessionUp();
         assertEquals(BGPSessionImpl.State.UP, this.bgpSession.getState());
         assertEquals(AS_NUMBER, this.bgpSession.getAsNumber());
@@ -207,7 +208,7 @@ public class BGPSessionImplTest {
     }
 
     @Test
-    public void testHandleOpenMsg() {
+    public void testHandleOpenMsg() throws BGPDocumentedException {
         this.bgpSession.handleMessage(this.classicOpen);
         Assert.assertEquals(BGPSessionImpl.State.IDLE, this.bgpSession.getState());
         Assert.assertEquals(1, this.receivedMsgs.size());
@@ -219,7 +220,7 @@ public class BGPSessionImplTest {
     }
 
     @Test
-    public void testHandleNotifyMsg() {
+    public void testHandleNotifyMsg() throws BGPDocumentedException {
         this.bgpSession.handleMessage(new NotifyBuilder().setErrorCode(BGPError.BAD_BGP_ID.getCode()).setErrorSubcode(BGPError.BAD_BGP_ID.getSubcode()).build());
         assertEquals(1, this.bgpSession.getBgpSesionState().getMessagesStats().getErrorMsgs().getErrorReceived().getCount().longValue());
         assertEquals(BGPError.BAD_BGP_ID.getCode(), this.bgpSession.getBgpSesionState().getMessagesStats().getErrorMsgs().getErrorReceived().getCode().shortValue());
