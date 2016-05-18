@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import java.util.EventListener;
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
@@ -58,7 +59,7 @@ public interface BGPSessionListener extends EventListener {
      *
      * @param notification Protocol message
      */
-    void onMessage(BGPSession session, Notification notification);
+    void onMessage(BGPSession session, Notification notification) throws BGPDocumentedException;
 
     void releaseConnection();
 }
