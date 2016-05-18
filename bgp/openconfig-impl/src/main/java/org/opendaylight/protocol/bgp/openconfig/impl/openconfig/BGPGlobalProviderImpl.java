@@ -36,7 +36,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 final class BGPGlobalProviderImpl extends AbstractBGPOpenConfigMapper<BGPRibInstanceConfiguration, Bgp> {
 
     private static final PeerGroup APP_PEER_GROUP = new PeerGroupBuilder().setPeerGroupName(APPLICATION_PEER_GROUP_NAME)
-            .setKey(new PeerGroupKey(APPLICATION_PEER_GROUP_NAME)).build();
+        .setKey(new PeerGroupKey(APPLICATION_PEER_GROUP_NAME)).build();
 
     public BGPGlobalProviderImpl(final BindingTransactionChain txChain, final BGPConfigStateStore stateHolders) {
         super(txChain, stateHolders, Bgp.class);
@@ -71,12 +71,9 @@ final class BGPGlobalProviderImpl extends AbstractBGPOpenConfigMapper<BGPRibInst
         final BgpBuilder bgpBuilder = new BgpBuilder();
         bgpBuilder.setNeighbors(new NeighborsBuilder().build());
         bgpBuilder.setPeerGroups(new PeerGroupsBuilder().setPeerGroup(Collections.singletonList(APP_PEER_GROUP)).build());
-        final Global global = new GlobalBuilder()
-            .setAfiSafis(new AfiSafisBuilder().setAfiSafi(OpenConfigUtil.toAfiSafis(config.getTableTypes(),
-                    (afiSafi, tableType) -> OpenConfigUtil.toGlobalAfiSafiMultiPath(afiSafi, tableType, config.getPathSelectionModes()))).build())
-            .setConfig(new ConfigBuilder()
-                .setAs(config.getLocalAs())
-                .setRouterId(config.getBgpRibId()).build()).build();
+        final Global global = new GlobalBuilder().setAfiSafis(new AfiSafisBuilder().setAfiSafi(OpenConfigUtil.toAfiSafis(config.getTableTypes(),
+            (afiSafi, tableType) -> OpenConfigUtil.toGlobalAfiSafiMultiPath(afiSafi, tableType, config.getPathSelectionModes()))).build())
+            .setConfig(new ConfigBuilder().setAs(config.getLocalAs()).setRouterId(config.getBgpRibId()).build()).build();
         bgpBuilder.setGlobal(global);
         return bgpBuilder.build();
     }
