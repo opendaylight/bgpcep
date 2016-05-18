@@ -29,6 +29,7 @@ import org.opendaylight.protocol.pcep.spi.PSTUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.PathComputationClient1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.PathComputationClient1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.lsp.db.version.tlv.LspDbVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Lsp1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.PcinitiateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1Builder;
@@ -557,6 +558,16 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             if (reportedLsp == null) {
                 return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
             }
+
+            if (!reportedLsp.isDelegate()) {
+                Lsp1 lspCreateFlag = reportedLsp.getAugmentation(Lsp1.class);
+                // we only retake delegation for PCE initiated tunnels
+                if (lspCreateFlag != null && !lspCreateFlag.isCreate()) {
+                    LOG.error("Unable to retake delegation of PCC-initiated tunnel.");
+                    return OperationResults.createUnsent(PCEPErrors.UPDATE_REQ_FOR_NON_LSP).future();
+                }
+            }
+
             // create mandatory objects
             final Arguments3 args = this.input.getArguments().getAugmentation(Arguments3.class);
             final SrpBuilder srpBuilder = new SrpBuilder();
@@ -590,6 +601,7 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
         // the D bit that was reported decides the type of PCE message sent
         Preconditions.checkNotNull(isDelegate);
         if (isDelegate) {
+            LOG.debug("LSP was already delegated. Trying to send update.");
             // we already have delegation, send update
             final UpdatesBuilder rb = new UpdatesBuilder();
             rb.setSrp(srp);
@@ -601,6 +613,8 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             ub.setUpdates(Collections.singletonList(rb.build()));
             return new PcupdBuilder().setPcupdMessage(ub.build()).build();
         }
+
+        LOG.info("LSP was not delegated.  Trying to retake delegation from PCC.");
         // we want to revoke delegation, different type of message
         // is sent because of specification by Siva
         // this message is also sent, when input delegate bit is set to 0
