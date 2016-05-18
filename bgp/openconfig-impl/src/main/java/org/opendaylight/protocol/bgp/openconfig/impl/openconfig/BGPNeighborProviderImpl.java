@@ -33,11 +33,6 @@ final class BGPNeighborProviderImpl extends AbstractBGPNeighborProvider<BGPPeerI
     }
 
     @Override
-    public Class<BGPPeerInstanceConfiguration> getInstanceConfigurationType() {
-        return BGPPeerInstanceConfiguration.class;
-    }
-
-    @Override
     public Neighbor apply(final BGPPeerInstanceConfiguration config) {
         return toNeighborConfiguration(config);
     }
@@ -47,38 +42,42 @@ final class BGPNeighborProviderImpl extends AbstractBGPNeighborProvider<BGPPeerI
         return new ModuleKey(instanceName, BgpPeer.class);
     }
 
+    @Override
+    public Class<BGPPeerInstanceConfiguration> getInstanceConfigurationType() {
+        return BGPPeerInstanceConfiguration.class;
+    }
+
     private static Neighbor toNeighborConfiguration(final BGPPeerInstanceConfiguration config) {
         return new NeighborBuilder()
             .setNeighborAddress(config.getHost())
             .setKey(new NeighborKey(config.getHost()))
             .setTransport(new TransportBuilder().setConfig(
-                    new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.transport.ConfigBuilder()
+                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.transport.ConfigBuilder()
                     .setPassiveMode(!config.isActive())
                     .build()).build())
             .setConfig(
-                    new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ConfigBuilder()
-                    .setAuthPassword(getPasswor(config.getPassword()))
+                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ConfigBuilder()
+                    .setAuthPassword(getPassword(config.getPassword()))
                     .setPeerAs(config.getAsNumber())
                     .setPeerType(toPeerTye(config.getPeerRole()))
                     .build())
             .setAfiSafis(
-                    new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AfiSafisBuilder()
+                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AfiSafisBuilder()
                     .setAfiSafi(OpenConfigUtil.toAfiSafis(config.getAdvertizedTables(),
-                            (afiSAfi, tableType) -> OpenConfigUtil.toNeigborAfiSafiMultiPath(afiSAfi, tableType, config.getAddPathCapabilities())))
+                        (afiSAfi, tableType) -> OpenConfigUtil.toNeigborAfiSafiMultiPath(afiSAfi, tableType, config.getAddPathCapabilities())))
                     .build())
             .setTimers(new TimersBuilder().setConfig(
-                    new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers.ConfigBuilder()
+                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers.ConfigBuilder()
                     .setHoldTime(BigDecimal.valueOf(config.getHoldTimer()))
                     .build()).build())
             .setRouteReflector(new RouteReflectorBuilder().setConfig(
-                    new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.route.reflector.ConfigBuilder()
-                    .setRouteReflectorClient(config.getPeerRole() == PeerRole.RrClient)
-                    .build()).build())
+                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.route.reflector.ConfigBuilder()
+                    .setRouteReflectorClient(config.getPeerRole() == PeerRole.RrClient).build()).build())
             .build();
     }
 
     private static PeerType toPeerTye(final PeerRole peerRole) {
-        switch(peerRole) {
+        switch (peerRole) {
         case Ibgp:
         case RrClient:
             return PeerType.INTERNAL;
@@ -92,7 +91,7 @@ final class BGPNeighborProviderImpl extends AbstractBGPNeighborProvider<BGPPeerI
         return null;
     }
 
-    private static String getPasswor(final Optional<Rfc2385Key> maybePassword) {
+    private static String getPassword(final Optional<Rfc2385Key> maybePassword) {
         if (maybePassword.isPresent()) {
             return maybePassword.get().getValue();
         }
