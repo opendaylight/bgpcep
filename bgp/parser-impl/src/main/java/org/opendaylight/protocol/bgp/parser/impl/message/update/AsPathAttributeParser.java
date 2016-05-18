@@ -94,12 +94,15 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
         Preconditions.checkArgument(attribute instanceof Attributes, "Attribute parameter is not a PathAttribute object.");
         final Attributes pathAttributes = (Attributes) attribute;
         final AsPath asPath = pathAttributes.getAsPath();
-        if (asPath == null) {
-            return;
+        final List<Segments> segmentsList;
+        if (asPath != null) {
+            segmentsList = asPath.getSegments();
+        } else {
+            segmentsList = null;
         }
         final ByteBuf segmentsBuffer = Unpooled.buffer();
-        if (asPath.getSegments() != null) {
-            for (final Segments segments : asPath.getSegments()) {
+        if (segmentsList != null) {
+            for (final Segments segments : segmentsList) {
                 if (segments.getAsSequence() != null) {
                     AsPathSegmentParser.serializeAsList(segments.getAsSequence(), SegmentType.AS_SEQUENCE, segmentsBuffer);
                 } else if (segments.getAsSet() != null) {

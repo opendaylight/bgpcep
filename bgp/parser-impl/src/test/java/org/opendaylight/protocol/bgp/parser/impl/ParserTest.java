@@ -22,6 +22,8 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.NextHopAttributeParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
@@ -33,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.ProtocolVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.RouteRefresh;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.RouteRefreshBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
@@ -64,6 +67,38 @@ public class ParserTest {
         (byte) 0x43, (byte) 0x40, (byte) 0x01, (byte) 0x01, (byte) 0x00, (byte) 0x40, (byte) 0x02, (byte) 0x00, (byte) 0x40, (byte) 0x05, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte)0x64,
         (byte) 0x00, (byte) 0x63, (byte) 0x19, (byte) 0x04, (byte) 0x02, (byte) 0x00, (byte) 0x08, (byte) 0x4f, (byte) 0x66, (byte) 0x2d, (byte) 0x39, (byte) 0x6b, (byte) 0x2d, (byte) 0x30, (byte)0x33,
         (byte) 0x04, (byte) 0x03, (byte) 0x00, (byte) 0x01, (byte) 0x72, (byte) 0x04, (byte) 0x04, (byte) 0x00, (byte) 0x04, (byte) 0x2b, (byte) 0x2b, (byte) 0x2b, (byte) 0x2b
+    };
+
+    // Update message with one IPv4 prefix NLRI and all mandatory path attributes present
+    private static final byte[] updMsgWithMandatoryAttributesPresent = new byte[] {
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0x00, (byte) 0x38, (byte) 0x02, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x1c, (byte) 0x40,
+        (byte) 0x01, (byte) 0x01, (byte) 0x00, (byte) 0x40, (byte) 0x02, (byte) 0x00, (byte) 0x40, (byte) 0x03,
+        (byte) 0x04, (byte) 0x0a, (byte) 0x12, (byte) 0xa2, (byte) 0xf1, (byte) 0x80, (byte) 0x04, (byte) 0x04,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x40, (byte) 0x05, (byte) 0x04, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x64, (byte) 0x20, (byte) 0xc0, (byte) 0xa8, (byte) 0xfe, (byte) 0x03
+    };
+
+    // Update message with one IPv4 prefix NLRI and all mandatory path attributes except ORIGIN present
+    private static final byte[] updMsgWithOneMandatoryAttributeNotPresent = new byte[] {
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0x00, (byte) 0x34, (byte) 0x02, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x18, (byte) 0x40,
+        (byte) 0x02, (byte) 0x00, (byte) 0x40, (byte) 0x03, (byte) 0x04, (byte) 0x0a, (byte) 0x12, (byte) 0xa2,
+        (byte) 0xf1, (byte) 0x80, (byte) 0x04, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x40, (byte) 0x05, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x64, (byte) 0x20,
+        (byte) 0xc0, (byte) 0xa8, (byte) 0xfe, (byte) 0x03
+    };
+
+    // Update message with one IPv4 prefix NLRI and ORIGIN, AS_PATH and NEXT_HOP mandatory path attributes not present
+    private static final byte[] updMsgWithMultipleMandatoryAttributesNotPresent = new byte[] {
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0x00, (byte) 0x2a, (byte) 0x02, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0e, (byte) 0x80,
+        (byte) 0x04, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x40, (byte) 0x05,
+        (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x64, (byte) 0x20, (byte) 0xc0, (byte) 0xa8,
+        (byte) 0xfe, (byte) 0x03
     };
 
     private static final byte[] RR_MSG = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
@@ -273,6 +308,44 @@ public class ParserTest {
         } catch (final BGPDocumentedException e) {
             assertEquals("Well known attribute not recognized.", e.getMessage());
             assertEquals(BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED, e.getError());
+            return;
+        }
+        fail();
+    }
+
+    @Test
+    public void testParseUpdMsgWithMandatoryAttributesPresent() throws BGPDocumentedException, BGPParsingException {
+        try {
+            Notification msg = reg.parseMessage(Unpooled.copiedBuffer(updMsgWithMandatoryAttributesPresent));
+            assertTrue(msg instanceof Update);
+        } catch (final BGPDocumentedException e) {
+            fail("Exception should not have occured.");
+        }
+    }
+
+    @Test
+    public void testParseUpdMsgWithOneMandatoryAttributeNotPresent() throws BGPDocumentedException, BGPParsingException {
+        try {
+            reg.parseMessage(Unpooled.copiedBuffer(updMsgWithOneMandatoryAttributeNotPresent));
+            fail("Exception should have occured.");
+        } catch (final BGPDocumentedException e) {
+            assertEquals(BGPError.MANDATORY_ATTR_MISSING_MSG + "ORIGIN", e.getMessage());
+            assertEquals(BGPError.WELL_KNOWN_ATTR_MISSING, e.getError());
+            assertArrayEquals(new byte[] { OriginAttributeParser.TYPE }, e.getData());
+            return;
+        }
+        fail();
+    }
+
+    @Test
+    public void testParseUpdMsgWithMultipleMandatoryAttributesNotPresent() throws BGPDocumentedException, BGPParsingException {
+        try {
+            reg.parseMessage(Unpooled.copiedBuffer(updMsgWithMultipleMandatoryAttributesNotPresent));
+            fail("Exception should have occured.");
+        } catch (final BGPDocumentedException e) {
+            assertEquals(BGPError.MANDATORY_ATTR_MISSING_MSG + "NEXT_HOP", e.getMessage());
+            assertEquals(BGPError.WELL_KNOWN_ATTR_MISSING, e.getError());
+            assertArrayEquals(new byte[] { NextHopAttributeParser.TYPE }, e.getData());
             return;
         }
         fail();

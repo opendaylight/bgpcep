@@ -12,6 +12,7 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.EmptyNextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCase;
@@ -45,7 +46,7 @@ public final class NextHopUtil {
             if (nextHop.getLinkLocal() != null) {
                 byteAggregator.writeBytes(Ipv6Util.bytesForAddress(nextHop.getLinkLocal()));
             }
-        } else {
+        } else if (!(cnextHop instanceof EmptyNextHopCase)) {
             throw new IllegalArgumentException("Cannot serialize NEXT_HOP. Class not supported: " + cnextHop);
         }
     }
