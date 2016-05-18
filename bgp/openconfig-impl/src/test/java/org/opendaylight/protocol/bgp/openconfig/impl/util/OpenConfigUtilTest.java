@@ -56,8 +56,7 @@ public class OpenConfigUtilTest {
 
     @Test
     public void testToAfiSafi() {
-        assertEquals(toAfiSafi(BGP_TABLE_TYPE_IPV4).get(),
-                AFISAFI_IPV4);
+        assertEquals(toAfiSafi(BGP_TABLE_TYPE_IPV4).get(), AFISAFI_IPV4);
     }
 
     @Test
@@ -68,15 +67,14 @@ public class OpenConfigUtilTest {
 
     @Test
     public void testToAfiSafis() {
-        final List<AfiSafi> afiSafis = OpenConfigUtil.toAfiSafis(Lists.<BgpTableType>newArrayList(BGP_TABLE_TYPE_IPV4),
-                (afisafi, tableType) -> afisafi);
+        final List<AfiSafi> afiSafis = OpenConfigUtil.toAfiSafis(Lists.newArrayList(BGP_TABLE_TYPE_IPV4), (afisafi, tableType) -> afisafi);
         Assert.assertEquals(Collections.singletonList(AFISAFI_IPV4), afiSafis);
     }
 
     @Test
     public void toNeigborAfiSafiMultiPathMatch() {
         final AfiSafi afiSafi = OpenConfigUtil.toNeigborAfiSafiMultiPath(AFISAFI_IPV4, BGP_TABLE_TYPE_IPV4,
-                Lists.newArrayList(new AddressFamiliesBuilder(BGP_TABLE_TYPE_IPV4).setSendReceive(SendReceive.Both).build()));
+            Lists.newArrayList(new AddressFamiliesBuilder(BGP_TABLE_TYPE_IPV4).setSendReceive(SendReceive.Both).build()));
         Assert.assertTrue(afiSafi.getAugmentation(AfiSafi2.class).getUseMultiplePaths().getConfig().isEnabled());
     }
 
@@ -89,7 +87,7 @@ public class OpenConfigUtilTest {
     @Test
     public void toGlobalAfiSafiMultiPathNPaths() {
         final AfiSafi afiSafi = OpenConfigUtil.toGlobalAfiSafiMultiPath(AFISAFI_IPV4, BGP_TABLE_TYPE_IPV4,
-                Collections.singletonMap(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class), new AddPathBestNPathSelection(5L)));
+            Collections.singletonMap(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class), new AddPathBestNPathSelection(5L)));
         final UseMultiplePaths multiplePaths = afiSafi.getAugmentation(AfiSafi1.class).getUseMultiplePaths();
         Assert.assertTrue(multiplePaths.getConfig().isEnabled());
         Assert.assertEquals(5, multiplePaths.getIbgp().getConfig().getMaximumPaths().intValue());
@@ -99,7 +97,7 @@ public class OpenConfigUtilTest {
     @Test
     public void toGlobalAfiSafiMultiPathAllPaths() {
         final AfiSafi afiSafi = OpenConfigUtil.toGlobalAfiSafiMultiPath(AFISAFI_IPV4, BGP_TABLE_TYPE_IPV4,
-                Collections.singletonMap(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class), new AllPathSelection()));
+            Collections.singletonMap(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class), new AllPathSelection()));
         final UseMultiplePaths multiplePaths = afiSafi.getAugmentation(AfiSafi1.class).getUseMultiplePaths();
         Assert.assertTrue(multiplePaths.getConfig().isEnabled());
         Assert.assertNull(multiplePaths.getIbgp());
@@ -108,12 +106,11 @@ public class OpenConfigUtilTest {
 
     @Test
     public void toGlobalAfiSafiMultiPathNoMatch() {
-        final AfiSafi afiSafi = OpenConfigUtil.toGlobalAfiSafiMultiPath(AFISAFI_IPV4, BGP_TABLE_TYPE_IPV4,
-                Collections.emptyMap());
+        final AfiSafi afiSafi = OpenConfigUtil.toGlobalAfiSafiMultiPath(AFISAFI_IPV4, BGP_TABLE_TYPE_IPV4, Collections.emptyMap());
         Assert.assertEquals(AFISAFI_IPV4, afiSafi);
     }
 
-    @Test(expected=UnsupportedOperationException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testPrivateConstructor() throws Throwable {
         final Constructor<OpenConfigUtil> c = OpenConfigUtil.class.getDeclaredConstructor();
         c.setAccessible(true);
@@ -123,5 +120,4 @@ public class OpenConfigUtilTest {
             throw e.getCause();
         }
     }
-
 }
