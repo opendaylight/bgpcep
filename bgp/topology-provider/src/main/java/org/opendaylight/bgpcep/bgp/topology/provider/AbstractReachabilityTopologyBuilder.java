@@ -22,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.EmptyNextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHop;
@@ -50,6 +51,7 @@ import org.slf4j.LoggerFactory;
  */
 abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends AbstractTopologyBuilder<T> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractReachabilityTopologyBuilder.class);
+    private static final NodeId EMPTY_NODE_ID = new NodeId("empty");
     private final Map<NodeId, NodeUsage> nodes = new HashMap<>();
 
     private static final class NodeUsage {
@@ -76,6 +78,8 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
             final Ipv6NextHop ipv6 = ((Ipv6NextHopCase) nh).getIpv6NextHop();
 
             return new NodeId(ipv6.getGlobal().getValue());
+        } else if (nh == null || nh instanceof EmptyNextHopCase) {
+            return EMPTY_NODE_ID;
         } else {
             LOG.warn("Unhandled next hop class {}", nh.getImplementedInterface());
             return null;
