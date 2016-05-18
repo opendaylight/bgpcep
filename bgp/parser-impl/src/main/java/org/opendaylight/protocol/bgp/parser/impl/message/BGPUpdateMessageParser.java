@@ -15,6 +15,9 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathAttributeParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.NextHopAttributeParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
@@ -31,6 +34,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.NlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,7 +135,96 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
             builder.setNlri(new NlriBuilder().setNlri(nlri).build());
         }
         final Update msg = builder.build();
+        // Check if mandatory path attributes are present
+        // More checks are done in BGPPeer application
+        checkMandatoryAttributesPresence(msg);
         LOG.debug("BGP Update message was parsed {}.", msg);
         return msg;
+    }
+
+    /**
+     * Check for presence of well known mandatory path attributes
+     * ORIGIN, AS_PATH and NEXT_HOP in Update message
+     *
+     * @param message Update message
+     * @throws BGPDocumentedException
+     */
+    private void checkMandatoryAttributesPresence(final Update message) throws BGPDocumentedException {
+        Preconditions.checkArgument(message != null, "Update message cannot be null");
+
+        final Attributes attrs = message.getAttributes();
+
+        if (message.getNlri() != null) {
+            final boolean isNextHopAttributePresent = (attrs != null && attrs.getCNextHop() != null);
+            if (!isNextHopAttributePresent) {
+                LOG.info("Mandatory attribute NEXT_HOP is not present");
+                throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG,
+                        BGPError.WELL_KNOWN_ATTR_MISSING,
+                        new byte[] { NextHopAttributeParser.TYPE });
+            }
+        }
+
+        if (isAnyNlriPresent(message)) {
+            final boolean isOriginAttributePresent = (attrs != null && attrs.getOrigin() != null);
+            if (!isOriginAttributePresent) {
+                LOG.info("Mandatory attribute ORIGIN is not present");
+                throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG,
+                        BGPError.WELL_KNOWN_ATTR_MISSING,
+                        new byte[] { OriginAttributeParser.TYPE });
+            }
+
+            final boolean isAsPathAttributePresent = (attrs != null && attrs.getAsPath() != null);
+            if (!isAsPathAttributePresent) {
+                LOG.info("Mandatory attribute AS_PATH is not present");
+                throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG,
+                        BGPError.WELL_KNOWN_ATTR_MISSING,
+                        new byte[] { AsPathAttributeParser.TYPE });
+            }
+        }
+    }
+
+    /**
+     * Check for NLRI attribute in Update message
+     *
+     * @param message Update message
+     * @return true if any prefix or MP-REACH-NLRI attribute is present, false otherwise
+     */
+    public static boolean isAnyNlriPresent(final Update message) {
+        if (message == null || message.getAttributes() == null) {
+            return false;
+        }
+        if (message.getNlri() != null || getMpReachNlri(message.getAttributes()) != null) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Finds MP-REACH-NLRI in Update message attributes
+     *
+     * @param attrs Update message attributes
+     * @return MP-REACH-NLRI if present in the attributes, null otherwise
+     */
+    public static MpReachNlri getMpReachNlri(final Attributes attrs) {
+        if (attrs != null && attrs.getAugmentation(Attributes1.class) != null) {
+            return attrs.getAugmentation(Attributes1.class).getMpReachNlri();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Finds MP-UNREACH-NLRI in Update message attributes
+     *
+     * @param attrs Update message attributes
+     * @return MP-UNREACH-NLRI if present in the attributes, null otherwise
+     */
+    public static MpUnreachNlri getMpUnreachNlri(final Attributes attrs) {
+        if (attrs != null && attrs.getAugmentation(Attributes2.class) != null) {
+            return attrs.getAugmentation(Attributes2.class).getMpUnreachNlri();
+        } else {
+            return null;
+        }
     }
 }

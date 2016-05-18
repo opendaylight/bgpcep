@@ -15,6 +15,7 @@ import io.netty.channel.ChannelHandlerContext;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
@@ -95,7 +96,11 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
             }
             activateSession(listener, tts);
         } else if (!(message instanceof Keepalive)) {
-            listener.onMessage(null, message);
+            try {
+                listener.onMessage(null, message);
+            } catch (BGPDocumentedException e) {
+                LOG.warn("Exception encountered while handling message", e);
+            }
         }
     }
 
