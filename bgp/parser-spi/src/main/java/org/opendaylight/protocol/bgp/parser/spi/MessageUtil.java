@@ -11,6 +11,12 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import java.util.Arrays;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
 
 public final class MessageUtil {
 
@@ -40,5 +46,50 @@ public final class MessageUtil {
         buffer.writeShort(body.writerIndex() + COMMON_HEADER_LENGTH);
         buffer.writeByte(type);
         buffer.writeBytes(body);
+    }
+
+    /**
+     * Check for NLRI attribute in Update message
+     *
+     * @param message Update message
+     * @return true if any prefix or MP-REACH-NLRI attribute is present, false otherwise
+     */
+    public static boolean isAnyNlriPresent(final Update message) {
+        if (message == null || message.getAttributes() == null) {
+            return false;
+        }
+        if (message.getNlri() != null || getMpReachNlri(message.getAttributes()) != null) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Finds MP-REACH-NLRI in Update message attributes
+     *
+     * @param attrs Update message attributes
+     * @return MP-REACH-NLRI if present in the attributes, null otherwise
+     */
+    public static MpReachNlri getMpReachNlri(final Attributes attrs) {
+        if (attrs != null && attrs.getAugmentation(Attributes1.class) != null) {
+            return attrs.getAugmentation(Attributes1.class).getMpReachNlri();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Finds MP-UNREACH-NLRI in Update message attributes
+     *
+     * @param attrs Update message attributes
+     * @return MP-UNREACH-NLRI if present in the attributes, null otherwise
+     */
+    public static MpUnreachNlri getMpUnreachNlri(final Attributes attrs) {
+        if (attrs != null && attrs.getAugmentation(Attributes2.class) != null) {
+            return attrs.getAugmentation(Attributes2.class).getMpUnreachNlri();
+        } else {
+            return null;
+        }
     }
 }

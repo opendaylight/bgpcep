@@ -15,6 +15,9 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathAttributeParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.NextHopAttributeParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
@@ -128,7 +131,48 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
             builder.setNlri(new NlriBuilder().setNlri(nlri).build());
         }
         final Update msg = builder.build();
+        // Check if mandatory path attributes are present
+        // More checks are done in BGPPeer application
+        checkMandatoryAttributesPresence(msg);
         LOG.debug("BGP Update message was parsed {}.", msg);
         return msg;
+    }
+
+    /**
+     * Check for presence of well known mandatory path attributes
+     * ORIGIN, AS_PATH and NEXT_HOP in Update message
+     *
+     * @param message Update message
+     * @throws BGPDocumentedException
+     */
+    private void checkMandatoryAttributesPresence(final Update message) throws BGPDocumentedException {
+        Preconditions.checkNotNull(message, "Update message cannot be null");
+
+        final Attributes attrs = message.getAttributes();
+
+        if (message.getNlri() != null) {
+            if (attrs == null || attrs.getCNextHop() == null) {
+                LOG.info("Mandatory attribute NEXT_HOP is not present");
+                throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG,
+                        BGPError.WELL_KNOWN_ATTR_MISSING,
+                        new byte[] { NextHopAttributeParser.TYPE });
+            }
+        }
+
+        if (MessageUtil.isAnyNlriPresent(message)) {
+            if (attrs == null || attrs.getOrigin() == null) {
+                LOG.info("Mandatory attribute ORIGIN is not present");
+                throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG,
+                        BGPError.WELL_KNOWN_ATTR_MISSING,
+                        new byte[] { OriginAttributeParser.TYPE });
+            }
+
+            if (attrs == null || attrs.getAsPath() == null) {
+                LOG.info("Mandatory attribute AS_PATH is not present");
+                throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG,
+                        BGPError.WELL_KNOWN_ATTR_MISSING,
+                        new byte[] { AsPathAttributeParser.TYPE });
+            }
+        }
     }
 }

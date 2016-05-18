@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -218,21 +219,21 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
      *
      * @param msg incoming message
      */
-    public synchronized void handleMessage(final Notification msg) {
+    public synchronized void handleMessage(final Notification msg) throws BGPDocumentedException {
         // Update last reception time
         this.lastMessageReceivedAt = System.nanoTime();
         this.sessionStats.updateReceivedMsgTotal();
 
         if (msg instanceof Open) {
             // Open messages should not be present here
-            this.terminate(BGPError.FSM_ERROR);
+            this.terminate(new BGPDocumentedException(null, BGPError.FSM_ERROR));
         } else if (msg instanceof Notify) {
             // Notifications are handled internally
             LOG.info("Session closed because Notification message received: {} / {}", ((Notify) msg).getErrorCode(),
                     ((Notify) msg).getErrorSubcode());
             this.closeWithoutMessage();
-            this.listener.onSessionTerminated(this, new BGPTerminationReason(BGPError.forValue(((Notify) msg).getErrorCode(),
-                    ((Notify) msg).getErrorSubcode())));
+            this.listener.onSessionTerminated(this, new BGPTerminationReason(
+                    BGPError.forValue(((Notify) msg).getErrorCode(), ((Notify) msg).getErrorSubcode())));
             this.sessionStats.updateReceivedMsgErr((Notify) msg);
         } else if (msg instanceof Keepalive) {
             // Keepalives are handled internally
@@ -308,13 +309,19 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     }
 
     /**
-     * Closes PCEP session from the parent with given reason. A message needs to be sent, but parent doesn't have to be
+     * Closes BGP session from the parent with given reason. A message needs to be sent, but parent doesn't have to be
      * modified, because he initiated the closing. (To prevent concurrent modification exception).
      *
-     * @param error
+     * @param e BGPDocumentedException
      */
-    private void terminate(final BGPError error) {
-        this.writeAndFlush(new NotifyBuilder().setErrorCode(error.getCode()).setErrorSubcode(error.getSubcode()).build());
+    private synchronized void terminate(final BGPDocumentedException e) {
+        final BGPError error = e.getError();
+        final byte[] data = e.getData();
+        final NotifyBuilder builder = new NotifyBuilder().setErrorCode(error.getCode()).setErrorSubcode(error.getSubcode());
+        if (data != null && data.length != 0) {
+            builder.setData(data);
+        }
+        this.writeAndFlush(builder.build());
         this.closeWithoutMessage();
 
         this.listener.onSessionTerminated(this, new BGPTerminationReason(error));
@@ -342,7 +349,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
 
         if (ct >= nextHold) {
             LOG.debug("HoldTimer expired. {}", new Date());
-            this.terminate(BGPError.HOLD_TIMER_EXPIRED);
+            this.terminate(new BGPDocumentedException(null, BGPError.HOLD_TIMER_EXPIRED));
         } else {
             this.channel.eventLoop().schedule(new Runnable() {
                 @Override
@@ -464,11 +471,25 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     @Override
     protected final void channelRead0(final ChannelHandlerContext ctx, final Notification msg) {
         LOG.debug("Message was received: {}", msg);
-        this.handleMessage(msg);
+        try {
+            this.handleMessage(msg);
+        } catch (final BGPDocumentedException e) {
+            this.terminate(e);
+        }
     }
 
     @Override
     public final void handlerAdded(final ChannelHandlerContext ctx) {
         this.sessionUp();
+    }
+
+    @Override
+    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
+        LOG.info("BGP session encountered error", cause);
+        if (cause.getCause() instanceof BGPDocumentedException) {
+            this.terminate((BGPDocumentedException) cause.getCause());
+        } else {
+            this.close();
+        }
     }
 }

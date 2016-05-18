@@ -37,6 +37,10 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListen
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RoutedRpcRegistration;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BGPError;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.LocalPreferenceAttributeParser;
+import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionStatistics;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
@@ -54,8 +58,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.RouteRefresh;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
@@ -134,7 +136,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     }
 
     @Override
-    public void onMessage(final BGPSession session, final Notification msg) {
+    public void onMessage(final BGPSession session, final Notification msg) throws BGPDocumentedException {
         if (!(msg instanceof Update) && !(msg instanceof RouteRefresh)) {
             LOG.info("Ignoring unhandled message class {}", msg.getClass());
             return;
@@ -161,15 +163,37 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         }
     }
 
-    private void onUpdateMessage(final Update message) {
+    /**
+     * Check for presence of well known mandatory attribute LOCAL_PREF in Update message
+     *
+     * @param message Update message
+     * @throws BGPDocumentedException
+     */
+    private void checkMandatoryAttributesPresence(final Update message) throws BGPDocumentedException {
+        if (MessageUtil.isAnyNlriPresent(message)) {
+            final Attributes attrs = message.getAttributes();
+            if (this.peerRole == PeerRole.Ibgp && (attrs == null || attrs.getLocalPref() == null)) {
+                LOG.info("Mandatory attribute LOCAL_PREF is not present");
+                throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG,
+                        BGPError.WELL_KNOWN_ATTR_MISSING,
+                        new byte[] { LocalPreferenceAttributeParser.TYPE });
+            }
+        }
+    }
+
+    private void onUpdateMessage(final Update message) throws BGPDocumentedException {
+        // check if mandatory path attributes are present
+        // more checks are done in BGPUpdateMessageParser codec
+        checkMandatoryAttributesPresence(message);
+
         // update AdjRibs
         final Attributes attrs = message.getAttributes();
         MpReachNlri mpReach = null;
         final boolean isAnyNlriAnnounced = message.getNlri() != null;
         if (isAnyNlriAnnounced) {
             mpReach = prefixesToMpReach(message);
-        } else if (attrs != null && attrs.getAugmentation(Attributes1.class) != null) {
-            mpReach = attrs.getAugmentation(Attributes1.class).getMpReachNlri();
+        } else {
+            mpReach = MessageUtil.getMpReachNlri(attrs);
         }
         if (mpReach != null) {
             this.ribWriter.updateRoutes(mpReach, nextHopToAttribute(attrs, mpReach));
@@ -177,8 +201,8 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         MpUnreachNlri mpUnreach = null;
         if (message.getWithdrawnRoutes() != null) {
             mpUnreach = prefixesToMpUnreach(message, isAnyNlriAnnounced);
-        } else if (attrs != null && attrs.getAugmentation(Attributes2.class) != null) {
-            mpUnreach = attrs.getAugmentation(Attributes2.class).getMpUnreachNlri();
+        } else {
+            mpUnreach = MessageUtil.getMpUnreachNlri(attrs);
         }
         if (mpUnreach != null) {
             this.ribWriter.removeRoutes(mpUnreach);
