@@ -29,6 +29,7 @@ import org.opendaylight.protocol.pcep.spi.PSTUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.PathComputationClient1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.PathComputationClient1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev150714.lsp.db.version.tlv.LspDbVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Lsp1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.PcinitiateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1Builder;
@@ -581,15 +582,15 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             final Lsp lsp = (inputLsp != null) ?
                 new LspBuilder().setPlspId(reportedLsp.getPlspId()).setDelegate((inputLsp.isDelegate() != null) ? inputLsp.isDelegate() : false).setTlvs(inputLsp.getTlvs()).setAdministrative((inputLsp.isAdministrative() != null) ? inputLsp.isAdministrative() : false).build()
                 : new LspBuilder().setPlspId(reportedLsp.getPlspId()).build();
-            final Message msg = redelegate(reportedLsp.isDelegate(), srp, lsp, this.input);
-            return sendMessage(msg, srp.getOperationId(), this.input.getArguments().getMetadata());
+            return redelegate(reportedLsp, srp, lsp, this.input);
         }
     }
 
-    private Message redelegate(final Boolean isDelegate, final Srp srp, final Lsp lsp, final UpdateLspArgs input) {
+    private ListenableFuture<OperationResult> redelegate(final Lsp reportedLsp, final Srp srp, final Lsp lsp, final UpdateLspArgs input) {
         // the D bit that was reported decides the type of PCE message sent
-        Preconditions.checkNotNull(isDelegate);
-        if (isDelegate) {
+        Preconditions.checkNotNull(reportedLsp.isDelegate());
+        final Message msg;
+        if (reportedLsp.isDelegate()) {
             // we already have delegation, send update
             final UpdatesBuilder rb = new UpdatesBuilder();
             rb.setSrp(srp);
@@ -599,17 +600,25 @@ class Stateful07TopologySessionListener extends AbstractTopologySessionListener<
             rb.setPath(pb.build());
             final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
             ub.setUpdates(Collections.singletonList(rb.build()));
-            return new PcupdBuilder().setPcupdMessage(ub.build()).build();
+            msg = new PcupdBuilder().setPcupdMessage(ub.build()).build();
+        } else {
+            final Lsp1 lspCreateFlag = reportedLsp.getAugmentation(Lsp1.class);
+            // we only retake delegation for PCE initiated tunnels
+            if (lspCreateFlag != null && !lspCreateFlag.isCreate()) {
+                LOG.warn("Unable to retake delegation of PCC-initiated tunnel: {}", reportedLsp);
+                return OperationResults.createUnsent(PCEPErrors.UPDATE_REQ_FOR_NON_LSP).future();
+            }
+            // we want to revoke delegation, different type of message
+            // is sent because of specification by Siva
+            // this message is also sent, when input delegate bit is set to 0
+            // generating an error in PCC
+            final List<Requests> reqs = new ArrayList<>();
+            reqs.add(new RequestsBuilder().setSrp(srp).setLsp(lsp).build());
+            final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder();
+            ib.setRequests(reqs);
+            msg = new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build();
         }
-        // we want to revoke delegation, different type of message
-        // is sent because of specification by Siva
-        // this message is also sent, when input delegate bit is set to 0
-        // generating an error in PCC
-        final List<Requests> reqs = new ArrayList<>();
-        reqs.add(new RequestsBuilder().setSrp(srp).setLsp(lsp).build());
-        final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder();
-        ib.setRequests(reqs);
-        return new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build();
+        return sendMessage(msg, srp.getOperationId(), input.getArguments().getMetadata());
     }
 
     @Override
