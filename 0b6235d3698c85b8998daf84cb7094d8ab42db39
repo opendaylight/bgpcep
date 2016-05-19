@@ -2,6 +2,144 @@
   "comments": [
     {
       "key": {
+        "uuid": "fa57193c_47d678c6",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-05-19T09:48:53Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 138,
+        "startChar": 0,
+        "endLine": 139,
+        "endChar": 54
+      },
+      "revId": "0b6235d3698c85b8998daf84cb7094d8ab42db39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_c7f8c84b",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-05-19T09:48:53Z",
+      "side": 1,
+      "message": "Preconditions.checkNotNull",
+      "range": {
+        "startLine": 153,
+        "startChar": 7,
+        "endLine": 153,
+        "endChar": 86
+      },
+      "revId": "0b6235d3698c85b8998daf84cb7094d8ab42db39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_47edd88a",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-05-19T09:48:53Z",
+      "side": 1,
+      "message": "Exception does the Log print.",
+      "range": {
+        "startLine": 160,
+        "startChar": 16,
+        "endLine": 160,
+        "endChar": 72
+      },
+      "revId": "0b6235d3698c85b8998daf84cb7094d8ab42db39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_279704ee",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-05-19T09:48:53Z",
+      "side": 1,
+      "message": "is used in any other place?",
+      "range": {
+        "startLine": 168,
+        "startChar": 26,
+        "endLine": 168,
+        "endChar": 50
+      },
+      "revId": "0b6235d3698c85b8998daf84cb7094d8ab42db39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_079ac013",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-05-19T09:48:53Z",
+      "side": 1,
+      "message": "same as before",
+      "range": {
+        "startLine": 170,
+        "startChar": 16,
+        "endLine": 170,
+        "endChar": 70
+      },
+      "revId": "0b6235d3698c85b8998daf84cb7094d8ab42db39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_67a1fc46",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-05-19T09:48:53Z",
+      "side": 1,
+      "message": "same as before",
+      "range": {
+        "startLine": 178,
+        "startChar": 16,
+        "endLine": 178,
+        "endChar": 71
+      },
+      "revId": "0b6235d3698c85b8998daf84cb7094d8ab42db39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_e7c98c79",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
         "patchSetId": 12
@@ -18,6 +156,115 @@
         "startChar": 0,
         "endLine": 229,
         "endChar": 5
+      },
+      "revId": "0b6235d3698c85b8998daf84cb7094d8ab42db39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_2765441e",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ApplicationPeer.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-05-19T09:48:53Z",
+      "side": 1,
+      "message": "final",
+      "revId": "0b6235d3698c85b8998daf84cb7094d8ab42db39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_076800f4",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ApplicationPeer.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-05-19T09:48:53Z",
+      "side": 1,
+      "message": "not required",
+      "range": {
+        "startLine": 211,
+        "startChar": 8,
+        "endLine": 211,
+        "endChar": 35
+      },
+      "revId": "0b6235d3698c85b8998daf84cb7094d8ab42db39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_a77834c5",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ApplicationPeer.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-05-19T09:48:53Z",
+      "side": 1,
+      "message": "BGPDocumentedException",
+      "range": {
+        "startLine": 228,
+        "startChar": 12,
+        "endLine": 228,
+        "endChar": 61
+      },
+      "revId": "0b6235d3698c85b8998daf84cb7094d8ab42db39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_4772f8e5",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ApplicationPeer.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-05-19T09:48:53Z",
+      "side": 1,
+      "message": "BGPDocumentedException",
+      "range": {
+        "startLine": 243,
+        "startChar": 12,
+        "endLine": 243,
+        "endChar": 75
+      },
+      "revId": "0b6235d3698c85b8998daf84cb7094d8ab42db39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_47bb1872",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-05-19T09:48:53Z",
+      "side": 1,
+      "message": "BGPDocumentedException",
+      "range": {
+        "startLine": 177,
+        "startChar": 16,
+        "endLine": 177,
+        "endChar": 74
       },
       "revId": "0b6235d3698c85b8998daf84cb7094d8ab42db39",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
