@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_84fece36",
+        "filename": "bgp/controller-config/src/main/resources/initial/31-bgp.xml",
+        "patchSetId": 11
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-19T08:06:02Z",
+      "side": 1,
+      "message": "not needed",
+      "range": {
+        "startLine": 306,
+        "startChar": 0,
+        "endLine": 359,
+        "endChar": 25
+      },
+      "revId": "814ff72bdb9cc75fe8ec4d2b6c27eca86604f53f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_e407ca1a",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/AbstractFlowspecNlriParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-19T08:06:02Z",
+      "side": 1,
+      "message": "If possible, RD processing should be moved to specific implementation of this abstract class.",
+      "revId": "814ff72bdb9cc75fe8ec4d2b6c27eca86604f53f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_24338215",
+        "filename": "bgp/flowspec/src/main/yang/bgp-flowspec.yang",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-19T08:06:02Z",
+      "side": 1,
+      "message": "Please, try to minimize changes in existing model.\nEvery node renaming and moving is reflected as unwanted API change.",
+      "revId": "814ff72bdb9cc75fe8ec4d2b6c27eca86604f53f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
