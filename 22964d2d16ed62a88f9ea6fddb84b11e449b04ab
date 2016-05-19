@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_24df020f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ExportPolicyPeerTrackerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-19T07:42:27Z",
+      "side": 1,
+      "message": "Try to avoid a moving of unchanged code as it complicates cherry-picking, merging and changes tracking,...",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 134,
+        "endChar": 9
+      },
+      "revId": "22964d2d16ed62a88f9ea6fddb84b11e449b04ab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_64373a4f",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/IdentifierUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-19T07:42:27Z",
+      "side": 1,
+      "message": "duplicated code - compose #peerKey(...) and #peerId(..)",
+      "range": {
+        "startLine": 58,
+        "startChar": 8,
+        "endLine": 58,
+        "endChar": 88
+      },
+      "revId": "22964d2d16ed62a88f9ea6fddb84b11e449b04ab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
