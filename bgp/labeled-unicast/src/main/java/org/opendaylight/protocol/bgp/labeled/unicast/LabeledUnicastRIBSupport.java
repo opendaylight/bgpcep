@@ -17,7 +17,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
@@ -63,8 +62,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +75,6 @@ public final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
     private static final NodeIdentifier LV_NID = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-value").intern());
 
     private static final QName ROUTE_KEY = QName.create(LabeledUnicastRoute.QNAME, "route-key").intern();
-    private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
 
     private static final ChoiceNode EMPTY_ROUTES = Builders.choiceBuilder()
         .withNodeIdentifier(NodeIdentifier.create(Routes.QNAME))
@@ -88,41 +84,6 @@ public final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
     private static final NodeIdentifier DESTINATION = NodeIdentifier.create(DestinationLabeledUnicast.QNAME);
     private static final NodeIdentifier ROUTE = NodeIdentifier.create(LabeledUnicastRoute.QNAME);
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(CLabeledUnicastDestination.QNAME);
-
-    private final ApplyRoute putRoute = new PutRoute();
-
-    private abstract static class ApplyRoute {
-        abstract void apply(DOMDataWriteTransaction tx, YangInstanceIdentifier base, NodeIdentifierWithPredicates routeKey, DataContainerNode<?> route, final ContainerNode attributes);
-    }
-
-    private static final class DeleteRoute extends ApplyRoute {
-        @Override
-        void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base,
-            final NodeIdentifierWithPredicates routeKey,
-            final DataContainerNode<?> route, final ContainerNode attributes) {
-            tx.delete(LogicalDatastoreType.OPERATIONAL, base.node(routeKey));
-        }
-    }
-
-    private final class PutRoute extends ApplyRoute {
-        @Override
-        void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base,
-            final NodeIdentifierWithPredicates routeKey,
-            final DataContainerNode<?> route, final ContainerNode attributes) {
-            // Build the DataContainer data
-            final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = ImmutableNodes.mapEntryBuilder();
-            b.withNodeIdentifier(routeKey);
-
-            for (final DataContainerChild<? extends PathArgument, ?> child : route.getValue()) {
-                b.withChild(child);
-            }
-            // Add attributes
-            final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> cb = Builders.containerBuilder(attributes);
-            cb.withNodeIdentifier(routeAttributesIdentifier());
-            b.withChild(cb.build());
-            tx.put(LogicalDatastoreType.OPERATIONAL, base.node(routeKey), b.build());
-        }
-    }
 
     private final Class<? extends AddressFamily> afiType;
 

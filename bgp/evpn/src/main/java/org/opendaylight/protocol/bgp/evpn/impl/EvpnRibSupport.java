@@ -18,7 +18,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.evpn.impl.nlri.EvpnNlriParser;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
@@ -48,14 +47,11 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgum
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,46 +63,12 @@ final class EvpnRibSupport extends AbstractRIBSupport {
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(EvpnDestination.QNAME);
     private static final NodeIdentifier ROUTE = NodeIdentifier.create(EvpnRoute.QNAME);
 
-    private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
-    private static final ApplyRoute PUT_ROUTE = new PutRoute();
     private static final ChoiceNode EMPTY_ROUTES = Builders.choiceBuilder().withNodeIdentifier(NodeIdentifier.create(Routes.QNAME))
         .addChild(Builders.containerBuilder().withNodeIdentifier(NodeIdentifier.create(EvpnRoutes.QNAME))
             .addChild(ImmutableNodes.mapNodeBuilder(EvpnRoute.QNAME).build()).build()).build();
 
     private EvpnRibSupport() {
         super(EvpnRoutesCase.class, EvpnRoutes.class, EvpnRoute.class);
-    }
-
-    private interface ApplyRoute {
-        void apply(DOMDataWriteTransaction tx, YangInstanceIdentifier base, NodeIdentifierWithPredicates routeKey, DataContainerNode<?> route,
-            ContainerNode attributes, NodeIdentifier nodeIdentifier);
-    }
-
-    private static class DeleteRoute implements ApplyRoute {
-        @Override
-        public void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final NodeIdentifierWithPredicates routeKey,
-            final DataContainerNode<?> route, final ContainerNode attributes, final NodeIdentifier nodeIdentifier) {
-            tx.delete(LogicalDatastoreType.OPERATIONAL, base.node(routeKey));
-        }
-    }
-
-    private static final class PutRoute implements ApplyRoute {
-        private ContainerNode addAttributes(final ContainerNode attributes, final NodeIdentifier routeAttII) {
-            final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> cb = Builders.containerBuilder(attributes);
-            cb.withNodeIdentifier(routeAttII);
-            return cb.build();
-        }
-
-        @Override
-        public void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final NodeIdentifierWithPredicates routeKey,
-            final DataContainerNode<?> route, final ContainerNode attributes, final NodeIdentifier routeAttII) {
-            final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = ImmutableNodes.mapEntryBuilder();
-            b.withNodeIdentifier(routeKey);
-
-            route.getValue().forEach(b::withChild);
-            b.withChild(addAttributes(attributes, routeAttII));
-            tx.put(LogicalDatastoreType.OPERATIONAL, base.node(routeKey), b.build());
-        }
     }
 
     static EvpnRibSupport getInstance() {
@@ -151,7 +113,7 @@ final class EvpnRibSupport extends AbstractRIBSupport {
     @Override
     protected void putDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode destination,
         final ContainerNode attributes, final NodeIdentifier routesNodeId) {
-        processDestination(tx, tablePath.node(routesNodeId), destination, attributes, PUT_ROUTE);
+        processDestination(tx, tablePath.node(routesNodeId), destination, attributes, putRoute);
     }
 
     @Nonnull
@@ -195,7 +157,7 @@ final class EvpnRibSupport extends AbstractRIBSupport {
                     final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(ROUTE);
                     for (final UnkeyedListEntryNode e : ((UnkeyedListNode) routes).getValue()) {
                         final NodeIdentifierWithPredicates routeKey = createRouteKey(e);
-                        function.apply(tx, base, routeKey, e, attributes, routeAttributesIdentifier());
+                        function.apply(tx, base, routeKey, e, attributes);
                     }
                 } else {
                     LOG.warn("Routes {} are not a map", routes);

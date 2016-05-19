@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
@@ -36,13 +37,19 @@ import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +60,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     private static final NodeIdentifier WITHDRAWN_ROUTES = new NodeIdentifier(WithdrawnRoutes.QNAME);
     private static final NodeIdentifier DESTINATION_TYPE = new NodeIdentifier(DestinationType.QNAME);
     private static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
+    protected static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
     private static final long NON_PATH_ID = 0;
 
     private final NodeIdentifier routesContainerIdentifier;
@@ -61,7 +69,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     private final Class<? extends Routes> cazeClass;
     private final Class<? extends DataObject> containerClass;
     private final Class<? extends Route> listClass;
-
+    protected final ApplyRoute putRoute = new PutRoute();
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -296,5 +304,31 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     @Override
     public Long extractPathId(final NormalizedNode<?, ?> data) {
         return NON_PATH_ID;
+    }
+
+
+    private static class DeleteRoute implements ApplyRoute {
+        @Override
+        public void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final NodeIdentifierWithPredicates routeKey,
+            final DataContainerNode<?> route, final ContainerNode attributes) {
+            tx.delete(LogicalDatastoreType.OPERATIONAL, base.node(routeKey));
+        }
+    }
+
+    private final class PutRoute implements ApplyRoute {
+        @Override
+        public void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final NodeIdentifierWithPredicates routeKey,
+            final DataContainerNode<?> route, final ContainerNode attributes) {
+            // Build the DataContainer data
+            final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = ImmutableNodes.mapEntryBuilder();
+            b.withNodeIdentifier(routeKey);
+
+            route.getValue().forEach(b::withChild);
+            // Add attributes
+            final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> cb = Builders.containerBuilder(attributes);
+            cb.withNodeIdentifier(routeAttributesIdentifier());
+            b.withChild(cb.build());
+            tx.put(LogicalDatastoreType.OPERATIONAL, base.node(routeKey), b.build());
+        }
     }
 }
