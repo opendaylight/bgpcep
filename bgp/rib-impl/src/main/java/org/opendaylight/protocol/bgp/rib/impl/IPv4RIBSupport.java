@@ -54,10 +54,8 @@ final class IPv4RIBSupport extends AbstractIPRIBSupport {
     private static final IPv4RIBSupport SINGLETON = new IPv4RIBSupport();
     private static final ImmutableCollection<Class<? extends DataObject>> CACHEABLE_NLRI_OBJECTS =
             ImmutableSet.of(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.Ipv4Prefix.class);
-    private final ChoiceNode emptyRoutes = Builders.choiceBuilder()
-            .withNodeIdentifier(new NodeIdentifier(Routes.QNAME))
-            .addChild(Builders.containerBuilder()
-                .withNodeIdentifier(new NodeIdentifier(Ipv4Routes.QNAME))
+    private final ChoiceNode emptyRoutes = Builders.choiceBuilder().withNodeIdentifier(new NodeIdentifier(Routes.QNAME))
+            .addChild(Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(Ipv4Routes.QNAME))
                 .withChild(ImmutableNodes.mapNodeBuilder(Ipv4Route.QNAME).build()).build()).build();
     private final NodeIdentifier destination = new NodeIdentifier(DestinationIpv4.QNAME);
     private final NodeIdentifier ipv4Route = new NodeIdentifier(Ipv4Route.QNAME);

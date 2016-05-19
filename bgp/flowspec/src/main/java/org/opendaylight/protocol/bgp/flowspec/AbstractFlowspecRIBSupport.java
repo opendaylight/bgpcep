@@ -12,7 +12,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import java.util.Collection;
 import javax.annotation.Nullable;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
@@ -36,52 +35,14 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 
 public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
     private static final QName PATHID_QNAME = QName.create(FlowspecRoute.QNAME, "path-id").intern();
     private static final NodeIdentifier PATH_ID_NII = new NodeIdentifier(PATHID_QNAME);
 
-    protected abstract static class ApplyRoute {
-        abstract void apply(DOMDataWriteTransaction tx, YangInstanceIdentifier base, NodeIdentifierWithPredicates routeKey, DataContainerNode<?> route, final ContainerNode attributes);
-    }
-
-    protected static final class DeleteRoute extends ApplyRoute {
-        @Override
-        void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final NodeIdentifierWithPredicates routeKey, final DataContainerNode<?> route, final ContainerNode attributes) {
-            tx.delete(LogicalDatastoreType.OPERATIONAL, base.node(routeKey));
-        }
-    }
-
-    protected final class PutRoute extends ApplyRoute {
-        @Override
-        void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final NodeIdentifierWithPredicates routeKey,
-            final DataContainerNode<?> route, final ContainerNode attributes) {
-            final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = ImmutableNodes.mapEntryBuilder();
-            b.withNodeIdentifier(routeKey);
-
-            // FIXME: All route children, there should be a utility somewhere to do this
-            for (final DataContainerChild<? extends PathArgument, ?> child : route.getValue()) {
-                b.withChild(child);
-            }
-            // Add attributes
-            final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> cb = Builders.containerBuilder(attributes);
-            cb.withNodeIdentifier(routeAttributesIdentifier());
-            b.withChild(cb.build());
-            tx.put(LogicalDatastoreType.OPERATIONAL, base.node(routeKey), b.build());
-        }
-    }
-
     private static final QName ROUTE_KEY = QName.create(FlowspecRoute.QNAME, "route-key").intern();
-    private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
-    private final ApplyRoute putRoute = new PutRoute();
 
     protected AbstractFlowspecRIBSupport(final Class<? extends Routes> cazeClass, final Class<? extends DataObject> containerClass,
         final Class<? extends Route> listClass) {

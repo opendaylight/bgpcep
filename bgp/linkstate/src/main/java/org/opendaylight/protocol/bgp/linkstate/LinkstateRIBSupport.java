@@ -15,7 +15,6 @@ import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.linkstate.nlri.LinkstateNlriParser;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
@@ -46,54 +45,19 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgum
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class LinkstateRIBSupport extends AbstractRIBSupport {
-    private abstract static class ApplyRoute {
-        abstract void apply(DOMDataWriteTransaction tx, YangInstanceIdentifier base, NodeIdentifierWithPredicates routeKey, DataContainerNode<?> route, final ContainerNode attributes);
-    }
-
-    private static final class DeleteRoute extends ApplyRoute {
-        @Override
-        void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final NodeIdentifierWithPredicates routeKey, final DataContainerNode<?> route, final ContainerNode attributes) {
-            tx.delete(LogicalDatastoreType.OPERATIONAL, base.node(routeKey));
-        }
-    }
-
-    private final class PutRoute extends ApplyRoute {
-        @Override
-        void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base, final NodeIdentifierWithPredicates routeKey,
-            final DataContainerNode<?> route, final ContainerNode attributes) {
-            final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = ImmutableNodes.mapEntryBuilder();
-            b.withNodeIdentifier(routeKey);
-
-            // FIXME: All route children, there should be a utility somewhere to do this
-            for (final DataContainerChild<? extends PathArgument, ?> child : route.getValue()) {
-                b.withChild(child);
-            }
-            // Add attributes
-            final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> cb = Builders.containerBuilder(attributes);
-            cb.withNodeIdentifier(routeAttributesIdentifier());
-            b.withChild(cb.build());
-            tx.put(LogicalDatastoreType.OPERATIONAL, base.node(routeKey), b.build());
-        }
-    }
-
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateRIBSupport.class);
 
     private static final QName ROUTE_KEY = QName.create(LinkstateRoute.QNAME, "route-key").intern();
     private static final LinkstateRIBSupport SINGLETON = new LinkstateRIBSupport();
-    private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
-
     private final ChoiceNode emptyRoutes = Builders.choiceBuilder()
         .withNodeIdentifier(new NodeIdentifier(Routes.QNAME))
         .addChild(Builders.containerBuilder()
@@ -102,7 +66,6 @@ final class LinkstateRIBSupport extends AbstractRIBSupport {
     private final NodeIdentifier destination = new NodeIdentifier(DestinationLinkstate.QNAME);
     private final NodeIdentifier route = new NodeIdentifier(LinkstateRoute.QNAME);
     private final NodeIdentifier nlriRoutesList = new NodeIdentifier(CLinkstateDestination.QNAME);
-    private final ApplyRoute putRoute = new PutRoute();
 
     private LinkstateRIBSupport() {
        super(LinkstateRoutesCase.class, LinkstateRoutes.class, LinkstateRoute.class);

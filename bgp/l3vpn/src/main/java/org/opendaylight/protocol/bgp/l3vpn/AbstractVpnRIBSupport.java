@@ -18,7 +18,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.labeled.unicast.LabeledUnicastRIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
@@ -55,8 +54,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +62,6 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractVpnRIBSupport.class);
-    private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
     private final NodeIdentifier NLRI_ROUTES_LIST;
     private final NodeIdentifier PREFIX_TYPE_NID;
     private final NodeIdentifier LABEL_STACK_NID;
@@ -74,7 +70,6 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport {
     private final NodeIdentifier DESTINATION;
     private final QName ROUTE_KEY;
     private final NodeIdentifier ROUTE;
-    private final ApplyRoute PUT_ROUTE = new PutRoute();
     private final Class<? extends AddressFamily> ADDRESS_FAMILY_CLAZZ;
     private final QName CONTAINER_CLASS_QNAME;
     private final QName LIST_CLASS_QNAME;
@@ -164,7 +159,7 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport {
 
     @Override
     protected void putDestinationRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tablePath, ContainerNode destination, ContainerNode attributes, YangInstanceIdentifier.NodeIdentifier routesNodeId) {
-        processDestination(tx, tablePath.node(routesNodeId), destination, attributes, PUT_ROUTE);
+        processDestination(tx, tablePath.node(routesNodeId), destination, attributes, putRoute);
     }
 
     protected abstract DestinationType getAdvertizedDestinationType(List<VpnDestination> dests);
@@ -254,36 +249,5 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport {
         final VpnDestination dest = extractVpnDestination(l3vpn);
         AbstractVpnNlriParser.serializeNlri(Collections.singletonList(dest), buffer);
         return new NodeIdentifierWithPredicates(LIST_CLASS_QNAME, ROUTE_KEY, ByteArray.readAllBytes(buffer));
-    }
-
-    private abstract static class ApplyRoute {
-        abstract void apply(DOMDataWriteTransaction tx, YangInstanceIdentifier base, YangInstanceIdentifier.NodeIdentifierWithPredicates routeKey, DataContainerNode<?> route, final ContainerNode attributes);
-    }
-
-    private static final class DeleteRoute extends ApplyRoute {
-        @Override
-        void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base,
-                   final NodeIdentifierWithPredicates routeKey,
-                   final DataContainerNode<?> route, final ContainerNode attributes) {
-            tx.delete(LogicalDatastoreType.OPERATIONAL, base.node(routeKey));
-        }
-    }
-
-    private final class PutRoute extends ApplyRoute {
-        @Override
-        void apply(final DOMDataWriteTransaction tx, final YangInstanceIdentifier base,
-                   final NodeIdentifierWithPredicates routeKey,
-                   final DataContainerNode<?> route, final ContainerNode attributes) {
-            // Build the DataContainer data
-            final DataContainerNodeBuilder<YangInstanceIdentifier.NodeIdentifierWithPredicates, MapEntryNode> b = ImmutableNodes.mapEntryBuilder();
-            b.withNodeIdentifier(routeKey);
-
-            route.getValue().forEach(b::withChild);
-            // Add attributes
-            final DataContainerNodeAttrBuilder<NodeIdentifier, ContainerNode> cb = Builders.containerBuilder(attributes);
-            cb.withNodeIdentifier(routeAttributesIdentifier());
-            b.withChild(cb.build());
-            tx.put(LogicalDatastoreType.OPERATIONAL, base.node(routeKey), b.build());
-        }
     }
 }
