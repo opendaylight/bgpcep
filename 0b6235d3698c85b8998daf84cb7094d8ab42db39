@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_e7c98c79",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-19T09:18:10Z",
+      "side": 1,
+      "message": "The \"rib-impl\" module should not depend on \"parser-impl\" module. Move this utility functions to some more suitable place like MessageUtil from \"parser-spi\" module.",
+      "range": {
+        "startLine": 186,
+        "startChar": 0,
+        "endLine": 229,
+        "endChar": 5
+      },
+      "revId": "0b6235d3698c85b8998daf84cb7094d8ab42db39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_07092095",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-19T09:18:10Z",
+      "side": 1,
+      "message": "Throw exception and catch when invoking this method.",
+      "range": {
+        "startLine": 222,
+        "startChar": 29,
+        "endLine": 222,
+        "endChar": 42
+      },
+      "revId": "0b6235d3698c85b8998daf84cb7094d8ab42db39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
