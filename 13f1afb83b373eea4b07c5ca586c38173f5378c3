@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_886edc2d",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-05-20T10:35:30Z",
+      "side": 1,
+      "message": "not required, we can not the missing attribute from the attribute type -\u003eNextHopAttributeParser.TYPE.\nSame for other cases",
+      "range": {
+        "startLine": 155,
+        "startChar": 15,
+        "endLine": 155,
+        "endChar": 72
+      },
+      "revId": "13f1afb83b373eea4b07c5ca586c38173f5378c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_88dc1ce6",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/MessageUtil.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-05-20T10:35:30Z",
+      "side": 1,
+      "message": "final Nlri nlri \u003d message.getNlri();\nif (nlri !\u003d null \u0026\u0026 nlri.getNlri() !\u003dnull ..",
+      "range": {
+        "startLine": 61,
+        "startChar": 12,
+        "endLine": 61,
+        "endChar": 29
+      },
+      "revId": "13f1afb83b373eea4b07c5ca586c38173f5378c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_c8fd743c",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ApplicationPeer.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-05-20T10:35:30Z",
+      "side": 1,
+      "message": "else if",
+      "range": {
+        "startLine": 141,
+        "startChar": 22,
+        "endLine": 142,
+        "endChar": 26
+      },
+      "revId": "13f1afb83b373eea4b07c5ca586c38173f5378c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_c89454e4",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ApplicationPeer.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-05-20T10:35:30Z",
+      "side": 1,
+      "message": "warn",
+      "range": {
+        "startLine": 240,
+        "startChar": 16,
+        "endLine": 240,
+        "endChar": 20
+      },
+      "revId": "13f1afb83b373eea4b07c5ca586c38173f5378c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_e8c038e2",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-05-20T10:35:30Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 176,
+        "startChar": 16,
+        "endLine": 176,
+        "endChar": 74
+      },
+      "revId": "13f1afb83b373eea4b07c5ca586c38173f5378c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_28bb5073",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-05-20T10:35:30Z",
+      "side": 1,
+      "message": "remove comment or add to javadoc",
+      "range": {
+        "startLine": 185,
+        "startChar": 0,
+        "endLine": 186,
+        "endChar": 63
+      },
+      "revId": "13f1afb83b373eea4b07c5ca586c38173f5378c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_687388e7",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-05-20T10:35:30Z",
+      "side": 1,
+      "message": "better create a constructor with one parameter and from there call using null",
+      "range": {
+        "startLine": 352,
+        "startChar": 27,
+        "endLine": 352,
+        "endChar": 58
+      },
+      "revId": "13f1afb83b373eea4b07c5ca586c38173f5378c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_88789cc5",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-05-20T10:35:30Z",
+      "side": 1,
+      "message": "warn",
+      "range": {
+        "startLine": 488,
+        "startChar": 12,
+        "endLine": 488,
+        "endChar": 16
+      },
+      "revId": "13f1afb83b373eea4b07c5ca586c38173f5378c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
