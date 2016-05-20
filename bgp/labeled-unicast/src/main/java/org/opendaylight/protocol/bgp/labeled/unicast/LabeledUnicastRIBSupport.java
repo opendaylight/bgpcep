@@ -234,7 +234,7 @@ public final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
     @Nonnull
     @Override
     public PathArgument getRouteIdAddPath(final long pathId, final PathArgument routeId) {
-        return PathIdUtil.createNiiKey(pathId, routeId, LabeledUnicastRoute.QNAME, PATHID_QNAME, ROUTE_KEY);
+        return PathIdUtil.createNidKey(pathId, routeId, LabeledUnicastRoute.QNAME, PATHID_QNAME, ROUTE_KEY);
     }
 
     @Override

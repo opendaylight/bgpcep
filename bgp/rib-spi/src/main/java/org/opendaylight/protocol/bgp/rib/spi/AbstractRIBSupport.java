@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
+
 import com.google.common.annotations.Beta;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -59,12 +61,11 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     private static final NodeIdentifier ADVERTIZED_ROUTES = new NodeIdentifier(AdvertizedRoutes.QNAME);
     private static final NodeIdentifier WITHDRAWN_ROUTES = new NodeIdentifier(WithdrawnRoutes.QNAME);
     private static final NodeIdentifier DESTINATION_TYPE = new NodeIdentifier(DestinationType.QNAME);
-    private static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
+    protected static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
     protected static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
-    private static final long NON_PATH_ID = 0;
 
     private final NodeIdentifier routesContainerIdentifier;
-    private final NodeIdentifier routesListIdentifier;
+    protected final NodeIdentifier routesListIdentifier;
     private final NodeIdentifier routeAttributesIdentifier;
     private final Class<? extends Routes> cazeClass;
     private final Class<? extends DataObject> containerClass;

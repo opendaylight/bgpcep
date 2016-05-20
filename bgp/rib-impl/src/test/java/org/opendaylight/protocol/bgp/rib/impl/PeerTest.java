@@ -85,7 +85,7 @@ public class PeerTest extends AbstractRIBTestSetup {
             public Object answer(final InvocationOnMock invocation) throws Throwable {
                 final Object[] args = invocation.getArguments();
                 final NormalizedNode<?,?>node = (NormalizedNode<?,?>)args[2];
-                if (node.getIdentifier().getNodeType().equals(Ipv4Route.QNAME) || node.getNodeType().equals(IPv4RIBSupport.PREFIX_QNAME)) {
+                if (node.getIdentifier().getNodeType().equals(Ipv4Route.QNAME) || node.getNodeType().equals(PREFIX_QNAME)) {
                     PeerTest.this.routes.put((YangInstanceIdentifier) args[1], node);
                 }
                 return args[1];
