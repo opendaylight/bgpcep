@@ -123,7 +123,7 @@ public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
     @Nullable
     @Override
     public PathArgument getRouteIdAddPath(final long pathId, final PathArgument routeId) {
-        return PathIdUtil.createNiiKey(pathId, routeId, FlowspecRoute.QNAME, PATHID_QNAME, ROUTE_KEY);
+        return PathIdUtil.createNidKey(pathId, routeId, FlowspecRoute.QNAME, PATHID_QNAME, ROUTE_KEY);
     }
 
     @Override

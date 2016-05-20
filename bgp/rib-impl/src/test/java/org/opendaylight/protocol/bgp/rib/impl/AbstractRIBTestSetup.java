@@ -69,6 +69,7 @@ import org.opendaylight.yangtools.sal.binding.generator.util.JavassistUtils;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
+import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -94,6 +95,7 @@ public class AbstractRIBTestSetup {
     private BindingCodecTreeFactory codecFactory;
     private RIBActivator a1;
     RIBSupport ribSupport;
+    static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
 
     @Mock
     private BGPDispatcher dispatcher;
@@ -208,10 +210,10 @@ public class AbstractRIBTestSetup {
         Mockito.doCallRealMethod().when(candidate).toString();
         final Collection<DataTreeCandidateNode> children = new HashSet<>();
         for (final Ipv4Prefix p : prefix) {
-            final NodeIdentifierWithPredicates routekey = new NodeIdentifierWithPredicates(Ipv4Route.QNAME, IPv4RIBSupport.PREFIX_QNAME, p);
+            final NodeIdentifierWithPredicates routekey = new NodeIdentifierWithPredicates(Ipv4Route.QNAME, PREFIX_QNAME, p);
             final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b = ImmutableNodes.mapEntryBuilder();
             b.withNodeIdentifier(routekey);
-            b.addChild(Builders.leafBuilder().withNodeIdentifier(new NodeIdentifier(IPv4RIBSupport.PREFIX_QNAME)).withValue(p).build());
+            b.addChild(Builders.leafBuilder().withNodeIdentifier(new NodeIdentifier(PREFIX_QNAME)).withValue(p).build());
 
             final DataTreeCandidateNode child = Mockito.mock(DataTreeCandidateNode.class);
             Mockito.doReturn(createIdentifier(target, p)).when(child).getIdentifier();
@@ -225,8 +227,8 @@ public class AbstractRIBTestSetup {
     }
 
     public PathArgument createIdentifier(final YangInstanceIdentifier base, final Ipv4Prefix prefix) {
-        final NodeIdentifierWithPredicates routekey = new NodeIdentifierWithPredicates(Ipv4Route.QNAME, IPv4RIBSupport.PREFIX_QNAME, prefix);
-        return YangInstanceIdentifier.of(IPv4RIBSupport.PREFIX_QNAME).node(routekey).getLastPathArgument();
+        final NodeIdentifierWithPredicates routekey = new NodeIdentifierWithPredicates(Ipv4Route.QNAME, PREFIX_QNAME, prefix);
+        return YangInstanceIdentifier.of(PREFIX_QNAME).node(routekey).getLastPathArgument();
     }
 
     public RIBImpl getRib() {
