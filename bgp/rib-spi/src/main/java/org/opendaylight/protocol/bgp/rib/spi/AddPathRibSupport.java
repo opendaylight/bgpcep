@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
+
 import javax.annotation.Nullable;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -15,15 +17,19 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 /**
  * Interface implemented to be extended by RibSupport.
  * This interface exposes methods to access to Add Path information
+ * By default we implement non supported Multiple Path therefore
+ * 0 Path Id is returned and null PathArgument
  */
-public interface AddPathRibSupport {
+interface AddPathRibSupport {
     /**
      * Extract PathId from route change received
      *
-     * @param normalizedNode
-     * @return pathId  The path identifier from data change, in case its not provided or supported return 0 by default
+     * @param normalizedNode Path Id Container
+     * @return pathId  The path identifier value
      */
-    Long extractPathId(NormalizedNode<?, ?> normalizedNode);
+    default Long extractPathId(NormalizedNode<?, ?> normalizedNode) {
+        return NON_PATH_ID;
+    }
 
     /**
      * Construct a PathArgument to an AddPathRoute
@@ -32,5 +38,7 @@ public interface AddPathRibSupport {
      * @param routeId PathArgument leaf path
      * @return routeId PathArgument + pathId or Null in case Add-path is not supported
      */
-    @Nullable PathArgument getRouteIdAddPath(long pathId, PathArgument routeId);
+    @Nullable default PathArgument getRouteIdAddPath(long pathId, PathArgument routeId) {
+        return null;
+    }
 }
