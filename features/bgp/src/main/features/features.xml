@@ -91,6 +91,7 @@
     <feature name='odl-bgpcep-bgp-rib-api' version='${project.version}'>
         <feature version='${project.version}'>odl-bgpcep-bgp-dependencies</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-api/{{VERSION}}</bundle>
+        <bundle>mvn:org.opendaylight.bgpcep/bgp-parser-spi/{{VERSION}}</bundle>
         <feature version='${config.version}'>odl-config-netty-config-api</feature>
         <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
         <bundle>mvn:org.opendaylight.bgpcep/bgp-rib-api/{{VERSION}}</bundle>
