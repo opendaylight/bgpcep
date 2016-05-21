@@ -46,7 +46,7 @@ final class IPv4RIBSupport extends AbstractIPRIBSupport {
         for (final MapEntryNode route : routes) {
             final String prefix = (String) route.getChild(this.routePrefixIdentifier()).get().getValue();
             final Ipv4PrefixesBuilder prefixBuilder = new Ipv4PrefixesBuilder().setPrefix(new Ipv4Prefix(prefix));
-            prefixBuilder.setPathId(PathIdUtil.buildPathId(route, this.routePathIdIdentifier()));
+            prefixBuilder.setPathId(PathIdUtil.buildPathId(route, this.routePathIdNid()));
             prefs.add(prefixBuilder.build());
         }
         return prefs;

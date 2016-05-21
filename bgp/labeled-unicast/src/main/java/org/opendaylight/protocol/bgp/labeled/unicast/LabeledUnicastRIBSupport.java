@@ -16,10 +16,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
-import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
+import org.opendaylight.protocol.bgp.rib.spi.MultiPathAbstractRIBSupport;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
@@ -36,15 +37,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labe
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLabeledUnicastCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.labeled.unicast._case.DestinationLabeledUnicast;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.labeled.unicast._case.DestinationLabeledUnicastBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -52,49 +46,26 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
+public final class LabeledUnicastRIBSupport extends MultiPathAbstractRIBSupport {
 
-    private static final QName PATHID_QNAME = QName.create(LabeledUnicastRoute.QNAME, "path-id").intern();
     private static final Logger LOG = LoggerFactory.getLogger(LabeledUnicastRIBSupport.class);
     private static final NodeIdentifier PREFIX_TYPE_NID = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "prefix").intern());
-    private static final NodeIdentifier PATH_ID_LEAF = new NodeIdentifier(PATHID_QNAME);
     private static final NodeIdentifier LABEL_STACK_NID = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-stack").intern());
     private static final NodeIdentifier LV_NID = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-value").intern());
-
-    private static final QName ROUTE_KEY = QName.create(LabeledUnicastRoute.QNAME, "route-key").intern();
-
-    private static final ChoiceNode EMPTY_ROUTES = Builders.choiceBuilder()
-        .withNodeIdentifier(NodeIdentifier.create(Routes.QNAME))
-        .addChild(Builders.containerBuilder()
-            .withNodeIdentifier(NodeIdentifier.create(LabeledUnicastRoutes.QNAME))
-            .addChild(ImmutableNodes.mapNodeBuilder(LabeledUnicastRoute.QNAME).build()).build()).build();
-    private static final NodeIdentifier DESTINATION = NodeIdentifier.create(DestinationLabeledUnicast.QNAME);
-    private static final NodeIdentifier ROUTE = NodeIdentifier.create(LabeledUnicastRoute.QNAME);
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(CLabeledUnicastDestination.QNAME);
 
-    private final Class<? extends AddressFamily> afiType;
-
     public LabeledUnicastRIBSupport(final Class<? extends AddressFamily> afiType) {
-        super(LabeledUnicastRoutesCase.class, LabeledUnicastRoutes.class, LabeledUnicastRoute.class);
-        this.afiType = afiType;
-    }
-
-    @Override
-    public ChoiceNode emptyRoutes() {
-        return EMPTY_ROUTES;
+        super(LabeledUnicastRoutesCase.class, LabeledUnicastRoutes.class, LabeledUnicastRoute.class, afiType, LabeledUnicastSubsequentAddressFamily
+            .class, "route-key", DestinationLabeledUnicast.QNAME);
     }
 
     @Override
@@ -113,18 +84,14 @@ public final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
     }
 
     @Override
-    protected NodeIdentifier destinationContainerIdentifier() {
-        return DESTINATION;
-    }
-
-    private void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
+    protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
         final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination.getChild(NLRI_ROUTES_LIST);
             if (maybeRoutes.isPresent()) {
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof UnkeyedListNode) {
-                    final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(ROUTE);
+                    final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeNid());
                     for (final UnkeyedListEntryNode e : ((UnkeyedListNode)routes).getValue()) {
                         final NodeIdentifierWithPredicates routeKey = createRouteKey(e);
                         function.apply(tx, base, routeKey, e, attributes);
@@ -141,63 +108,42 @@ public final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
 
         final CLabeledUnicastDestination dest = extractCLabeledUnicastDestination(labeledUnicast);
         LUNlriParser.serializeNlri(Collections.singletonList(dest), buffer);
-        return new NodeIdentifierWithPredicates(LabeledUnicastRoute.QNAME, ROUTE_KEY, ByteArray.readAllBytes(buffer));
+        final byte[] routeKeyValue = ByteArray.readAllBytes(buffer);
+        final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf = labeledUnicast.getChild(routePathIdNid());
+        final NodeIdentifierWithPredicates routeKey = PathIdUtil.createNidKey(routeQName(), routeKeyQName(), pathIdQName(), routeKeyValue, maybePathIdLeaf);
+        return routeKey;
     }
 
+    @Nonnull
     @Override
-    protected void deleteDestinationRoutes(final DOMDataWriteTransaction tx,
-        final YangInstanceIdentifier tablePath, final ContainerNode destination, final NodeIdentifier routesNodeId) {
-        processDestination(tx, tablePath.node(routesNodeId), destination, null, DELETE_ROUTE);
+    protected DestinationType buildDestination(@Nonnull final Collection<MapEntryNode> routes) {
+        return new DestinationLabeledUnicastCaseBuilder().setDestinationLabeledUnicast(
+            new DestinationLabeledUnicastBuilder().setCLabeledUnicastDestination(extractRoutes(routes)).build()).build();
     }
 
+    @Nonnull
     @Override
-    protected void putDestinationRoutes(final DOMDataWriteTransaction tx,
-        final YangInstanceIdentifier tablePath, final ContainerNode destination,
-        final ContainerNode attributes, final NodeIdentifier routesNodeId) {
-        processDestination(tx, tablePath.node(routesNodeId), destination, attributes, this.putRoute);
+    protected DestinationType buildWithdrawnDestination(@Nonnull final Collection<MapEntryNode> routes) {
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLabeledUnicastCaseBuilder().setDestinationLabeledUnicast(
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.labeled.unicast._case.DestinationLabeledUnicastBuilder().setCLabeledUnicastDestination(
+                extractRoutes(routes)).build()).build();
     }
 
-    @Override
-    protected MpReachNlri buildReach(final Collection<MapEntryNode> routes,
-        final CNextHop hop) {
-        final MpReachNlriBuilder mb = new MpReachNlriBuilder();
-        mb.setAfi(this.afiType);
-        mb.setSafi(LabeledUnicastSubsequentAddressFamily.class);
-        mb.setCNextHop(hop);
-
-        final List<CLabeledUnicastDestination> dests = new ArrayList<>(routes.size());
-        for (final MapEntryNode route : routes) {
-            dests.add(extractCLabeledUnicastDestination(route));
-        }
-        mb.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-            new DestinationLabeledUnicastCaseBuilder().setDestinationLabeledUnicast(
-                new DestinationLabeledUnicastBuilder().setCLabeledUnicastDestination(dests).build()).build()).build());
-        return mb.build();
+    private List<CLabeledUnicastDestination> extractRoutes(final Collection<MapEntryNode> routes) {
+        return routes.stream().map(this::extractCLabeledUnicastDestination).collect(Collectors.toList());
     }
 
-    @Override
-    protected MpUnreachNlri buildUnreach(final Collection<MapEntryNode> routes) {
-        final MpUnreachNlriBuilder mb = new MpUnreachNlriBuilder();
-        mb.setAfi(this.afiType);
-        mb.setSafi(LabeledUnicastSubsequentAddressFamily.class);
-
-        final List<CLabeledUnicastDestination> dests = new ArrayList<>(routes.size());
-        for (final MapEntryNode route : routes) {
-            dests.add(extractCLabeledUnicastDestination(route));
-        }
-        mb.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLabeledUnicastCaseBuilder().setDestinationLabeledUnicast(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.labeled.unicast._case.DestinationLabeledUnicastBuilder().setCLabeledUnicastDestination(
-                    dests).build()).build()).build());
-        return mb.build();
-    }
-
-    // Conversion from DataContainer to LabeledUnicastDestination Object
-    private static CLabeledUnicastDestination extractCLabeledUnicastDestination(final DataContainerNode<? extends PathArgument> route) {
+    /**
+     * Conversion from DataContainer to LabeledUnicastDestination Object
+     *
+     * @param route DataContainer
+     * @return LabeledUnicastDestination Object
+     */
+    private CLabeledUnicastDestination extractCLabeledUnicastDestination(final DataContainerNode<? extends PathArgument> route) {
         final CLabeledUnicastDestinationBuilder builder = new CLabeledUnicastDestinationBuilder();
         builder.setPrefix(extractPrefix(route, PREFIX_TYPE_NID));
         builder.setLabelStack(extractLabel(route, LABEL_STACK_NID, LV_NID));
-        builder.setPathId(PathIdUtil.buildPathId(route, PATH_ID_LEAF));
+        builder.setPathId(PathIdUtil.buildPathId(route, routePathIdNid()));
         return builder.build();
     }
 
@@ -229,16 +175,5 @@ public final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
             }
         }
         return labels;
-    }
-
-    @Nonnull
-    @Override
-    public PathArgument getRouteIdAddPath(final long pathId, final PathArgument routeId) {
-        return PathIdUtil.createNidKey(pathId, routeId, LabeledUnicastRoute.QNAME, PATHID_QNAME, ROUTE_KEY);
-    }
-
-    @Override
-    public Long extractPathId(final NormalizedNode<?, ?> data) {
-        return PathIdUtil.extractPathId(data, PATH_ID_LEAF);
     }
 }
