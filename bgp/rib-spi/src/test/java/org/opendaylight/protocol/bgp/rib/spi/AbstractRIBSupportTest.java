@@ -55,12 +55,6 @@ public class AbstractRIBSupportTest {
     static ContainerNode dest;
 
     private final RIBSupport testSupport = new AbstractRIBSupport(Ipv4RoutesCase.class, Ipv4Routes.class, Ipv4Route.class) {
-
-        @Override
-        public ChoiceNode emptyRoutes() {
-            return null;
-        }
-
         @Override
         public ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
             return null;

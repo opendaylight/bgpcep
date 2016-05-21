@@ -61,17 +61,18 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     private static final NodeIdentifier ADVERTIZED_ROUTES = new NodeIdentifier(AdvertizedRoutes.QNAME);
     private static final NodeIdentifier WITHDRAWN_ROUTES = new NodeIdentifier(WithdrawnRoutes.QNAME);
     private static final NodeIdentifier DESTINATION_TYPE = new NodeIdentifier(DestinationType.QNAME);
-    protected static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
+    private static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
     protected static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
 
     private final NodeIdentifier routesContainerIdentifier;
-    protected final NodeIdentifier routesListIdentifier;
+    private final NodeIdentifier routesListIdentifier;
     private final NodeIdentifier routeAttributesIdentifier;
     private final Class<? extends Routes> cazeClass;
     private final Class<? extends DataObject> containerClass;
     private final Class<? extends Route> listClass;
     protected final ApplyRoute putRoute = new PutRoute();
-
+    private final ChoiceNode emptyRoutes;
+    private final QName routeQname;
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
      * node in instantiations of the rib grouping. It is assumed that this container is defined by
@@ -89,11 +90,10 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         this.cazeClass = Preconditions.checkNotNull(cazeClass);
         this.containerClass = Preconditions.checkNotNull(containerClass);
         this.listClass = Preconditions.checkNotNull(listClass);
-        this.routesListIdentifier = new NodeIdentifier(
-            QName.create(
-                qname.getNamespace(), qname.getRevision(), BindingReflections.findQName(listClass).intern().getLocalName()
-            )
-        );
+        this.routeQname = QName.create(qname, BindingReflections.findQName(listClass).intern().getLocalName());
+        this.routesListIdentifier = new NodeIdentifier(this.routeQname);
+        this.emptyRoutes = Builders.choiceBuilder().withNodeIdentifier(ROUTES).addChild(Builders.containerBuilder()
+            .withNodeIdentifier(routesContainerIdentifier()).withChild(ImmutableNodes.mapNodeBuilder(this.routeQname).build()).build()).build();
     }
 
     @Override
@@ -111,6 +111,19 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         return this.listClass;
     }
 
+    @Nonnull
+    @Override
+    public final ChoiceNode emptyRoutes() {
+        return this.emptyRoutes;
+    }
+
+    protected final QName routeQName() {
+        return this.routeQname;
+    }
+
+    protected final NodeIdentifier routeNid() {
+        return this.routesListIdentifier;
+    }
     /**
      * Return the {@link NodeIdentifier} of the AFI/SAFI-specific container under
      * the RIB routes.
@@ -202,7 +215,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         if (myRoutes == null) {
             return Collections.emptySet();
         }
-        final DataTreeCandidateNode routesMap = myRoutes.getModifiedChild(this.routesListIdentifier);
+        final DataTreeCandidateNode routesMap = myRoutes.getModifiedChild(routeNid());
         if (routesMap == null) {
             return Collections.emptySet();
         }
@@ -213,7 +226,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
 
     @Override
     public final YangInstanceIdentifier routePath(final YangInstanceIdentifier routesPath, final PathArgument routeId) {
-        return routesPath.node(this.routesContainerIdentifier).node(this.routesListIdentifier).node(routeId);
+        return routesPath.node(this.routesContainerIdentifier).node(routeNid()).node(routeId);
     }
 
     @Override
