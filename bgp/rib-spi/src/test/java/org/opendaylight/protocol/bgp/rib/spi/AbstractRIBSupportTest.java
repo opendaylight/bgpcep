@@ -7,60 +7,17 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import static org.junit.Assert.assertEquals;
-
-import com.google.common.collect.ImmutableCollection;
-import java.util.Collection;
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.DestinationIpv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.destination.ipv4.Ipv4Prefixes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.Ipv4Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.message.Nlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.DestinationType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.common.QName;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
-import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.LeafSetEntryNode;
-import org.opendaylight.yangtools.yang.data.api.schema.LeafSetNode;
-import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableChoiceNodeBuilder;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableContainerNodeBuilder;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableLeafSetEntryNodeBuilder;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableLeafSetNodeBuilder;
-
+/**
+ * TODO: Remove, instead use Common Rib Support test
+ */
 public class AbstractRIBSupportTest {
-    private final ContainerNode ipv4p = ImmutableContainerNodeBuilder.create().withNodeIdentifier(new NodeIdentifier(Ipv4Prefixes.QNAME)).build();
+   /* private final ContainerNode ipv4p = ImmutableContainerNodeBuilder.create().withNodeIdentifier(new NodeIdentifier(Ipv4Prefixes.QNAME)).build();
     private final ContainerNode destination = ImmutableContainerNodeBuilder.create().withNodeIdentifier(new NodeIdentifier(DestinationIpv4.QNAME)).addChild(this.ipv4p).build();
     private final ChoiceNode choiceNode = ImmutableChoiceNodeBuilder.create().withNodeIdentifier(new NodeIdentifier(DestinationType.QNAME)).addChild(this.destination).build();
     static ContainerNode dest;
 
-    private final RIBSupport testSupport = new AbstractRIBSupport(Ipv4RoutesCase.class, Ipv4Routes.class, Ipv4Route.class) {
-
-        @Override
-        public ChoiceNode emptyRoutes() {
-            return null;
-        }
-
+    private final RIBSupport testSupport = new AbstractRIBSupport(Ipv4RoutesCase.class, Ipv4Routes.class, Ipv4Route.class,
+        Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, DestinationIpv4.QNAME) {
         @Override
         public ImmutableCollection<Class<? extends DataObject>> cacheableAttributeObjects() {
             return null;
@@ -71,46 +28,26 @@ public class AbstractRIBSupportTest {
             return null;
         }
 
+        @Nonnull
         @Override
-        public PathArgument getRouteIdAddPath(final long pathId, final PathArgument routeId) {
-            throw new UnsupportedOperationException();
+        protected DestinationType buildDestination(@Nonnull final Collection<MapEntryNode> routes) {
+            return null;
+        }
+
+        @Nonnull
+        @Override
+        protected DestinationType buildWithdrawnDestination(@Nonnull final Collection<MapEntryNode> routes) {
+            return null;
         }
 
         @Override
-        protected NodeIdentifier destinationContainerIdentifier() {
-            return new NodeIdentifier(DestinationIpv4.QNAME);
-        }
+        protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath, final ContainerNode destination, final ContainerNode attributes, final ApplyRoute applyFunction) {
 
-        @Override
-        protected void deleteDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
-            final ContainerNode destination, final NodeIdentifier routesNodeId) {
-            AbstractRIBSupportTest.dest = destination;
-        }
-
-        @Override
-        protected void putDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
-            final ContainerNode destination, final ContainerNode attributes, final NodeIdentifier routesNodeId) {
-            AbstractRIBSupportTest.dest = destination;
         }
 
         @Override
         public boolean isComplexRoute() {
             return false;
-        }
-
-        @Override
-        public Long extractPathId(final NormalizedNode<?, ?> normalizedNode) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        protected MpReachNlri buildReach(final Collection<MapEntryNode> routes, final CNextHop hop) {
-            return null;
-        }
-
-        @Override
-        protected MpUnreachNlri buildUnreach(final Collection<MapEntryNode> routes) {
-            return null;
         }
     };
 
@@ -165,5 +102,5 @@ public class AbstractRIBSupportTest {
         final ContainerNode nlri = ImmutableContainerNodeBuilder.create().addChild(advertised).withNodeIdentifier(new NodeIdentifier(Nlri.QNAME)).build();
         this.testSupport.putRoutes(null, null, nlri, null);
         assertEquals(dest, this.destination);
-    }
+    }*/
 }
