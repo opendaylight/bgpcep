@@ -42,7 +42,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
@@ -52,7 +51,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
@@ -60,8 +58,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,12 +71,6 @@ public final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
     private static final NodeIdentifier LV_NID = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-value").intern());
 
     private static final QName ROUTE_KEY = QName.create(LabeledUnicastRoute.QNAME, "route-key").intern();
-
-    private static final ChoiceNode EMPTY_ROUTES = Builders.choiceBuilder()
-        .withNodeIdentifier(NodeIdentifier.create(Routes.QNAME))
-        .addChild(Builders.containerBuilder()
-            .withNodeIdentifier(NodeIdentifier.create(LabeledUnicastRoutes.QNAME))
-            .addChild(ImmutableNodes.mapNodeBuilder(LabeledUnicastRoute.QNAME).build()).build()).build();
     private static final NodeIdentifier DESTINATION = NodeIdentifier.create(DestinationLabeledUnicast.QNAME);
     private static final NodeIdentifier ROUTE = NodeIdentifier.create(LabeledUnicastRoute.QNAME);
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(CLabeledUnicastDestination.QNAME);
@@ -90,11 +80,6 @@ public final class LabeledUnicastRIBSupport extends AbstractRIBSupport {
     public LabeledUnicastRIBSupport(final Class<? extends AddressFamily> afiType) {
         super(LabeledUnicastRoutesCase.class, LabeledUnicastRoutes.class, LabeledUnicastRoute.class);
         this.afiType = afiType;
-    }
-
-    @Override
-    public ChoiceNode emptyRoutes() {
-        return EMPTY_ROUTES;
     }
 
     @Override

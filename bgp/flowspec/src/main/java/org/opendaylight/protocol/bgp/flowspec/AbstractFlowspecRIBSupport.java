@@ -40,16 +40,16 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
     private static final QName PATHID_QNAME = QName.create(FlowspecRoute.QNAME, "path-id").intern();
-    private static final NodeIdentifier PATH_ID_NII = new NodeIdentifier(PATHID_QNAME);
-
     private static final QName ROUTE_KEY = QName.create(FlowspecRoute.QNAME, "route-key").intern();
+    private static final NodeIdentifier PATH_ID_NII = new NodeIdentifier(PATHID_QNAME);
+    private final NodeIdentifier destinationNid;
+
 
     protected AbstractFlowspecRIBSupport(final Class<? extends Routes> cazeClass, final Class<? extends DataObject> containerClass,
-        final Class<? extends Route> listClass) {
+        final Class<? extends Route> listClass, final QName destinationQname) {
         super(cazeClass, containerClass, listClass);
+        this.destinationNid = new NodeIdentifier(destinationQname);
     }
-
-    protected abstract NodeIdentifier routeIdentifier();
 
     protected abstract AbstractFlowspecNlriParser getParser();
 
@@ -85,7 +85,7 @@ public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
     private void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
         final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
-            final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeIdentifier());
+            final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeQName());
             final NodeIdentifierWithPredicates routeKey = new NodeIdentifierWithPredicates(FlowspecRoute.QNAME, ROUTE_KEY, getParser().stringNlri(destination));
             function.apply(tx, base, routeKey,  destination, attributes);
         }
@@ -118,6 +118,11 @@ public abstract class AbstractFlowspecRIBSupport extends AbstractRIBSupport {
         mb.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(getParser().createWithdrawnDestinationType(
             getParser().extractFlowspec(Iterables.getOnlyElement(routes)), pathId)).build());
         return mb.build();
+    }
+
+    @Override
+    protected  final NodeIdentifier destinationContainerIdentifier() {
+        return this.destinationNid;
     }
 
     @Nullable

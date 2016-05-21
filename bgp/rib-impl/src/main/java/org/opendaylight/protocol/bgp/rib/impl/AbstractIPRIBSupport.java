@@ -29,21 +29,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,8 +52,6 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
     private final QName pathIdQname;
     private final NodeIdentifier pathIdNii;
     private final NodeIdentifier prefixNii;
-    private final QName routeQname;
-    private final ChoiceNode emptyRoutes;
     private final NodeIdentifier destination;
     private final NodeIdentifier nlriRoutesList;
     private final ImmutableCollection<Class<? extends DataObject>> cacheableNlriObjects;
@@ -67,14 +61,11 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
         final Class<? extends Routes> cazeClass, final Class<? extends DataObject> containerClass, final Class<? extends Route> listClass,
         final QName destination, final QName prefixesQname) {
         super(cazeClass, containerClass, listClass);
-        this.routeQname = BindingReflections.findQName(listClass).intern();
         this.addressFamilyClass = addressFamilyClass;
-        this.prefixQname = QName.create(this.routeQname, "prefix").intern();
-        this.pathIdQname = QName.create(this.routeQname, "path-id").intern();
+        this.prefixQname = QName.create(routeQName(), "prefix").intern();
+        this.pathIdQname = QName.create(routeQName(), "path-id").intern();
         this.pathIdNii = new NodeIdentifier(this.pathIdQname);
         this.prefixNii = new NodeIdentifier(this.prefixQname);
-        this.emptyRoutes = Builders.choiceBuilder().withNodeIdentifier(ROUTES).addChild(Builders.containerBuilder()
-            .withNodeIdentifier(routesContainerIdentifier()).withChild(ImmutableNodes.mapNodeBuilder(this.routeQname).build()).build()).build();
         this.destination = new NodeIdentifier(destination);
         this.nlriRoutesList = new NodeIdentifier(prefixesQname);
         this.cacheableNlriObjects = ImmutableSet.of(prefixClass);
@@ -86,10 +77,6 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
 
     private QName pathIdQName() {
         return this.pathIdQname;
-    }
-
-    private QName routeQName() {
-        return this.routeQname;
     }
 
     protected final NodeIdentifier routePrefixIdentifier() {
@@ -147,12 +134,6 @@ abstract class AbstractIPRIBSupport extends AbstractRIBSupport {
     @Override
     public Long extractPathId(final NormalizedNode<?, ?> data) {
         return PathIdUtil.extractPathId(data, this.routePathIdIdentifier());
-    }
-
-    @Nonnull
-    @Override
-    public final ChoiceNode emptyRoutes() {
-        return this.emptyRoutes;
     }
 
     @Nonnull
