@@ -36,7 +36,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -44,14 +43,11 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,11 +57,6 @@ final class EvpnRibSupport extends AbstractRIBSupport {
     private static final QName ROUTE_KEY = QName.create(EvpnRoute.QNAME, "route-key").intern();
     private static final NodeIdentifier DESTINATION = NodeIdentifier.create(DestinationEvpn.QNAME);
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(EvpnDestination.QNAME);
-    private static final NodeIdentifier ROUTE = NodeIdentifier.create(EvpnRoute.QNAME);
-
-    private static final ChoiceNode EMPTY_ROUTES = Builders.choiceBuilder().withNodeIdentifier(NodeIdentifier.create(Routes.QNAME))
-        .addChild(Builders.containerBuilder().withNodeIdentifier(NodeIdentifier.create(EvpnRoutes.QNAME))
-            .addChild(ImmutableNodes.mapNodeBuilder(EvpnRoute.QNAME).build()).build()).build();
 
     private EvpnRibSupport() {
         super(EvpnRoutesCase.class, EvpnRoutes.class, EvpnRoute.class);
@@ -73,12 +64,6 @@ final class EvpnRibSupport extends AbstractRIBSupport {
 
     static EvpnRibSupport getInstance() {
         return SINGLETON;
-    }
-
-    @Nonnull
-    @Override
-    public ChoiceNode emptyRoutes() {
-        return EMPTY_ROUTES;
     }
 
     @Nonnull
@@ -154,7 +139,7 @@ final class EvpnRibSupport extends AbstractRIBSupport {
             if (maybeRoutes.isPresent()) {
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof UnkeyedListNode) {
-                    final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(ROUTE);
+                    final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(routeNid());
                     for (final UnkeyedListEntryNode e : ((UnkeyedListNode) routes).getValue()) {
                         final NodeIdentifierWithPredicates routeKey = createRouteKey(e);
                         function.apply(tx, base, routeKey, e, attributes);
@@ -170,7 +155,7 @@ final class EvpnRibSupport extends AbstractRIBSupport {
         final ByteBuf buffer = Unpooled.buffer();
         final EvpnDestination dest = EvpnNlriParser.extractRouteKeyDestination(evpn);
         EvpnNlriParser.serializeNlri(Collections.singletonList(dest), buffer);
-        return new NodeIdentifierWithPredicates(EvpnRoute.QNAME, ROUTE_KEY, ByteArray.readAllBytes(buffer));
+        return new NodeIdentifierWithPredicates(routeQName(), ROUTE_KEY, ByteArray.readAllBytes(buffer));
     }
 
 }

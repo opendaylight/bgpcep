@@ -34,7 +34,7 @@ final class VpnIpv6RIBSupport extends AbstractVpnRIBSupport {
     }
 
     @Override
-    protected DestinationType getAdvertizedDestinationType(List<VpnDestination> dests) {
+    protected DestinationType getAdvertisedDestinationType(List<VpnDestination> dests) {
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev160331.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationVpnIpv6CaseBuilder().setVpnIpv6Destination(
             new VpnIpv6DestinationBuilder().setVpnDestination(dests).build()
         ).build();
