@@ -12,9 +12,10 @@ import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.protocol.bgp.linkstate.nlri.LinkstateNlriParser;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
@@ -28,56 +29,35 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.DestinationType;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class LinkstateRIBSupport extends AbstractRIBSupport {
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateRIBSupport.class);
-
     private static final QName ROUTE_KEY = QName.create(LinkstateRoute.QNAME, "route-key").intern();
     private static final LinkstateRIBSupport SINGLETON = new LinkstateRIBSupport();
-    private final ChoiceNode emptyRoutes = Builders.choiceBuilder()
-        .withNodeIdentifier(new NodeIdentifier(Routes.QNAME))
-        .addChild(Builders.containerBuilder()
-            .withNodeIdentifier(new NodeIdentifier(LinkstateRoutes.QNAME))
-            .addChild(ImmutableNodes.mapNodeBuilder(LinkstateRoute.QNAME).build()).build()).build();
-    private final NodeIdentifier destination = new NodeIdentifier(DestinationLinkstate.QNAME);
     private final NodeIdentifier route = new NodeIdentifier(LinkstateRoute.QNAME);
     private final NodeIdentifier nlriRoutesList = new NodeIdentifier(CLinkstateDestination.QNAME);
 
     private LinkstateRIBSupport() {
-       super(LinkstateRoutesCase.class, LinkstateRoutes.class, LinkstateRoute.class);
+        super(LinkstateRoutesCase.class, LinkstateRoutes.class, LinkstateRoute.class, LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,
+            DestinationLinkstate.QNAME);
     }
 
     static LinkstateRIBSupport getInstance() {
         return SINGLETON;
-    }
-
-    @Override
-    public ChoiceNode emptyRoutes() {
-        return this.emptyRoutes;
     }
 
     @Override
@@ -91,12 +71,12 @@ final class LinkstateRIBSupport extends AbstractRIBSupport {
     }
 
     @Override
-    protected void deleteDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
-        final ContainerNode destination, final NodeIdentifier routesNodeId) {
-        processDestination(tx, tablePath.node(routesNodeId), destination, null, DELETE_ROUTE);
+    public boolean isComplexRoute() {
+        return true;
     }
 
-    private void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
+    @Override
+    protected void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath,
         final ContainerNode destination, final ContainerNode attributes, final ApplyRoute function) {
         if (destination != null) {
             final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination.getChild(this.nlriRoutesList);
@@ -104,21 +84,15 @@ final class LinkstateRIBSupport extends AbstractRIBSupport {
                 final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
                 if (routes instanceof UnkeyedListNode) {
                     final YangInstanceIdentifier base = routesPath.node(routesContainerIdentifier()).node(this.route);
-                    for (final UnkeyedListEntryNode e : ((UnkeyedListNode)routes).getValue()) {
+                    for (final UnkeyedListEntryNode e : ((UnkeyedListNode) routes).getValue()) {
                         final NodeIdentifierWithPredicates routeKey = createRouteKey(e);
-                        function.apply(tx, base, routeKey,  e, attributes);
+                        function.apply(tx, base, routeKey, e, attributes);
                     }
                 } else {
                     LOG.warn("Routes {} are not a map", routes);
                 }
             }
         }
-    }
-
-    @Override
-    protected void putDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
-        final ContainerNode destination, final ContainerNode attributes, final NodeIdentifier routesNodeId) {
-        processDestination(tx, tablePath.node(routesNodeId), destination, attributes, this.putRoute);
     }
 
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode linkstate) {
@@ -129,46 +103,22 @@ final class LinkstateRIBSupport extends AbstractRIBSupport {
         return new NodeIdentifierWithPredicates(LinkstateRoute.QNAME, ROUTE_KEY, ByteArray.readAllBytes(buffer));
     }
 
+    @Nonnull
     @Override
-    protected NodeIdentifier destinationContainerIdentifier() {
-        return this.destination;
+    protected DestinationType buildDestination(@Nonnull final Collection<MapEntryNode> routes) {
+        return new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
+            new DestinationLinkstateBuilder().setCLinkstateDestination(extractRoutes(routes)).build()).build();
     }
 
+    @Nonnull
     @Override
-    public boolean isComplexRoute() {
-        return true;
+    protected DestinationType buildWithdrawnDestination(@Nonnull final Collection<MapEntryNode> routes) {
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder().setDestinationLinkstate(
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder().
+                setCLinkstateDestination(extractRoutes(routes)).build()).build();
     }
 
-    @Override
-    protected MpReachNlri buildReach(final Collection<MapEntryNode> routes, final CNextHop hop) {
-        final MpReachNlriBuilder mb = new MpReachNlriBuilder();
-        mb.setAfi(LinkstateAddressFamily.class);
-        mb.setSafi(LinkstateSubsequentAddressFamily.class);
-        mb.setCNextHop(hop);
-
-        final List<CLinkstateDestination> dests = new ArrayList<>(routes.size());
-        for (final MapEntryNode reachRoute : routes) {
-            dests.add(LinkstateNlriParser.extractLinkstateDestination(reachRoute));
-        }
-        mb.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-            new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
-                new DestinationLinkstateBuilder().setCLinkstateDestination(dests).build()).build()).build());
-        return mb.build();
-    }
-
-    @Override
-    protected MpUnreachNlri buildUnreach(final Collection<MapEntryNode> routes) {
-        final MpUnreachNlriBuilder mb = new MpUnreachNlriBuilder();
-        mb.setAfi(LinkstateAddressFamily.class);
-        mb.setSafi(LinkstateSubsequentAddressFamily.class);
-
-        final List<CLinkstateDestination> dests = new ArrayList<>(routes.size());
-        for (final MapEntryNode unreachRoute : routes) {
-            dests.add(LinkstateNlriParser.extractLinkstateDestination(unreachRoute));
-        }
-        mb.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder().setDestinationLinkstate(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder().setCLinkstateDestination(dests).build()).build()).build());
-        return mb.build();
+    private List<CLinkstateDestination> extractRoutes(final Collection<MapEntryNode> routes) {
+        return routes.stream().map(LinkstateNlriParser::extractLinkstateDestination).collect(Collectors.toList());
     }
 }

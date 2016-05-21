@@ -11,28 +11,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.FlowspecIpv6Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.flowspec.ipv6.routes.FlowspecRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.flowspec.ipv6._case.DestinationFlowspec;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 
 public final class FlowspecIpv6RIBSupport extends AbstractFlowspecRIBSupport {
 
     private SimpleFlowspecIpv6NlriParser FS_PARSER;
 
-    private final NodeIdentifier destinationNid = new NodeIdentifier(DestinationFlowspec.QNAME);
-    private final NodeIdentifier routeNid = new NodeIdentifier(FlowspecRoute.QNAME);
-    private final ChoiceNode emptyRoutes = Builders.choiceBuilder()
-        .withNodeIdentifier(new NodeIdentifier(Routes.QNAME))
-        .addChild(Builders.containerBuilder()
-            .withNodeIdentifier(new NodeIdentifier(FlowspecIpv6Routes.QNAME))
-            .addChild(ImmutableNodes.mapNodeBuilder(FlowspecRoute.QNAME).build()).build()).build();
-
     public FlowspecIpv6RIBSupport(SimpleFlowspecExtensionProviderContext context) {
-        super(FlowspecIpv6RoutesCase.class, FlowspecIpv6Routes.class, FlowspecRoute.class);
+        super(FlowspecIpv6RoutesCase.class, FlowspecIpv6Routes.class, FlowspecRoute.class, Ipv6AddressFamily.class, DestinationFlowspec.QNAME);
         FS_PARSER = new SimpleFlowspecIpv6NlriParser(context.getFlowspecIpv6TypeRegistry());
     }
 
@@ -41,28 +27,7 @@ public final class FlowspecIpv6RIBSupport extends AbstractFlowspecRIBSupport {
     }
 
     @Override
-    public ChoiceNode emptyRoutes() {
-        return this.emptyRoutes;
-    }
-
-    @Override
-    protected NodeIdentifier destinationContainerIdentifier() {
-        return this.destinationNid;
-    }
-
-    @Override
-    protected NodeIdentifier routeIdentifier() {
-        return this.routeNid;
-    }
-
-    @Override
     protected AbstractFlowspecNlriParser getParser() {
         return FS_PARSER;
     }
-
-    @Override
-    protected Class<? extends AddressFamily> getAfiClass() {
-        return Ipv6AddressFamily.class;
-    }
-
 }

@@ -7,15 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
-
 import com.google.common.annotations.Beta;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.Collections;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
@@ -28,11 +25,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
@@ -46,7 +49,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
@@ -58,58 +60,121 @@ import org.slf4j.LoggerFactory;
 @Beta
 public abstract class AbstractRIBSupport implements RIBSupport {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRIBSupport.class);
-    private static final NodeIdentifier ADVERTIZED_ROUTES = new NodeIdentifier(AdvertizedRoutes.QNAME);
+    private static final NodeIdentifier ADVERTISED_ROUTES = new NodeIdentifier(AdvertizedRoutes.QNAME);
     private static final NodeIdentifier WITHDRAWN_ROUTES = new NodeIdentifier(WithdrawnRoutes.QNAME);
     private static final NodeIdentifier DESTINATION_TYPE = new NodeIdentifier(DestinationType.QNAME);
-    protected static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
-    protected static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
+    private static final NodeIdentifier ROUTES = new NodeIdentifier(Routes.QNAME);
+    private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
 
     private final NodeIdentifier routesContainerIdentifier;
-    protected final NodeIdentifier routesListIdentifier;
+    private final NodeIdentifier routesListIdentifier;
     private final NodeIdentifier routeAttributesIdentifier;
     private final Class<? extends Routes> cazeClass;
     private final Class<? extends DataObject> containerClass;
     private final Class<? extends Route> listClass;
-    protected final ApplyRoute putRoute = new PutRoute();
+    private final ApplyRoute putRoute = new PutRoute();
+    private final ChoiceNode emptyRoutes;
+    private final QName routeQname;
+    private final Class<? extends AddressFamily> afiClass;
+    private final Class<? extends SubsequentAddressFamily> safiClass;
+    private final NodeIdentifier destinationNid;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
      * node in instantiations of the rib grouping. It is assumed that this container is defined by
      * the same model which populates it with route grouping instantiation, and by extension with
      * the route attributes container.
-     *
      * @param cazeClass Binding class of the AFI/SAFI-specific case statement, must not be null
      * @param containerClass Binding class of the container in routes choice, must not be null.
      * @param listClass Binding class of the route list, nust not be null;
+     * @param afiClass address Family Class
+     * @param safiClass SubsequentAddressFamily
+     * @param destinationQname destination Qname
      */
-    protected AbstractRIBSupport(final Class<? extends Routes> cazeClass, final Class<? extends DataObject> containerClass, final Class<? extends Route> listClass) {
+    protected AbstractRIBSupport(final Class<? extends Routes> cazeClass, final Class<? extends DataObject> containerClass,
+        final Class<? extends Route> listClass, final Class<? extends AddressFamily> afiClass, final Class<? extends SubsequentAddressFamily> safiClass,
+        final QName destinationQname) {
         final QName qname = BindingReflections.findQName(containerClass).intern();
         this.routesContainerIdentifier = new NodeIdentifier(qname);
         this.routeAttributesIdentifier = new NodeIdentifier(QName.create(qname, Attributes.QNAME.getLocalName().intern()));
         this.cazeClass = Preconditions.checkNotNull(cazeClass);
         this.containerClass = Preconditions.checkNotNull(containerClass);
         this.listClass = Preconditions.checkNotNull(listClass);
-        this.routesListIdentifier = new NodeIdentifier(
-            QName.create(
-                qname.getNamespace(), qname.getRevision(), BindingReflections.findQName(listClass).intern().getLocalName()
-            )
-        );
+        this.routeQname = QName.create(qname, BindingReflections.findQName(listClass).intern().getLocalName());
+        this.routesListIdentifier = new NodeIdentifier(this.routeQname);
+        this.emptyRoutes = Builders.choiceBuilder().withNodeIdentifier(ROUTES).addChild(Builders.containerBuilder()
+            .withNodeIdentifier(routesContainerIdentifier()).withChild(ImmutableNodes.mapNodeBuilder(this.routeQname).build()).build()).build();
+        this.afiClass = afiClass;
+        this.safiClass = safiClass;
+        this.destinationNid = new NodeIdentifier(destinationQname);
     }
 
+    @Nonnull
     @Override
     public final Class<? extends Routes> routesCaseClass() {
         return this.cazeClass;
     }
 
+    @Nonnull
     @Override
     public final Class<? extends DataObject> routesContainerClass() {
         return this.containerClass;
     }
 
+    @Nonnull
     @Override
     public final Class<? extends Route> routesListClass() {
         return this.listClass;
     }
+
+    @Nonnull
+    @Override
+    public final ChoiceNode emptyRoutes() {
+        return this.emptyRoutes;
+    }
+
+    protected final QName routeQName() {
+        return this.routeQname;
+    }
+
+    protected final NodeIdentifier routeNid() {
+        return this.routesListIdentifier;
+    }
+
+    /**
+     * Build MpReachNlri object from DOM representation.
+     *
+     * @param routes Collection of MapEntryNode DOM representation of routes
+     * @param hop CNextHop as it was parsed from Attributes, to be included in MpReach object
+     * @return MpReachNlri
+     */
+    private MpReachNlri buildReach(final Collection<MapEntryNode> routes, final CNextHop hop) {
+        final MpReachNlriBuilder mb = new MpReachNlriBuilder();
+        mb.setAfi(this.afiClass);
+        mb.setSafi(this.safiClass);
+        mb.setCNextHop(hop);
+        mb.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(buildDestination(routes)).build());
+        return mb.build();
+    }
+
+    /**
+     * Build MpUnReachNlri object from DOM representation.
+     *
+     * @param routes Collection of MapEntryNode DOM representation of routes
+     * @return MpUnreachNlri
+     */
+    private MpUnreachNlri buildUnreach(final Collection<MapEntryNode> routes) {
+        final MpUnreachNlriBuilder mb = new MpUnreachNlriBuilder();
+        mb.setAfi(this.afiClass);
+        mb.setSafi(this.safiClass);
+        mb.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(buildWithdrawnDestination(routes)).build());
+        return mb.build();
+    }
+
+    @Nonnull
+    protected abstract DestinationType buildDestination(@Nonnull final Collection<MapEntryNode> routes);
+    @Nonnull
+    protected abstract DestinationType buildWithdrawnDestination(@Nonnull final Collection<MapEntryNode> routes);
 
     /**
      * Return the {@link NodeIdentifier} of the AFI/SAFI-specific container under
@@ -127,7 +192,9 @@ public abstract class AbstractRIBSupport implements RIBSupport {
      *
      * @return Container identifier, may not be null.
      */
-    @Nonnull protected abstract NodeIdentifier destinationContainerIdentifier();
+    private NodeIdentifier destinationContainerIdentifier() {
+        return this.destinationNid;
+    }
 
     /**
      * Given the destination as ContainerNode, implementation needs to parse the DOM model
@@ -142,7 +209,10 @@ public abstract class AbstractRIBSupport implements RIBSupport {
      * @param destination ContainerNode DOM representation of NLRI in Update message
      * @param routesNodeId NodeIdentifier
      */
-    protected abstract void deleteDestinationRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tablePath, ContainerNode destination, NodeIdentifier routesNodeId);
+    private void deleteDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
+        final ContainerNode destination, final NodeIdentifier routesNodeId) {
+        processDestination(tx, tablePath.node(routesNodeId), destination, null, DELETE_ROUTE);
+    }
 
     /**
      * Given the destination as ContainerNode, implementation needs to parse the DOM model
@@ -158,8 +228,13 @@ public abstract class AbstractRIBSupport implements RIBSupport {
      * @param attributes ContainerNode to be passed into implementation
      * @param routesNodeId NodeIdentifier
      */
-    protected abstract void putDestinationRoutes(DOMDataWriteTransaction tx, YangInstanceIdentifier tablePath, ContainerNode destination, ContainerNode attributes,
-            NodeIdentifier routesNodeId);
+    private void putDestinationRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath,
+        final ContainerNode destination, final ContainerNode attributes, final NodeIdentifier routesNodeId) {
+        processDestination(tx, tablePath.node(routesNodeId), destination, attributes, this.putRoute);
+    }
+
+    protected abstract void processDestination(final DOMDataWriteTransaction tx, final YangInstanceIdentifier routesPath, final ContainerNode destination,
+        final ContainerNode attributes, final ApplyRoute applyFunction);
 
     private static ContainerNode getDestination(final DataContainerChild<? extends PathArgument, ?> routes, final NodeIdentifier destinationId) {
         if (routes instanceof ContainerNode) {
@@ -202,7 +277,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         if (myRoutes == null) {
             return Collections.emptySet();
         }
-        final DataTreeCandidateNode routesMap = myRoutes.getModifiedChild(this.routesListIdentifier);
+        final DataTreeCandidateNode routesMap = myRoutes.getModifiedChild(routeNid());
         if (routesMap == null) {
             return Collections.emptySet();
         }
@@ -213,7 +288,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
 
     @Override
     public final YangInstanceIdentifier routePath(final YangInstanceIdentifier routesPath, final PathArgument routeId) {
-        return routesPath.node(this.routesContainerIdentifier).node(this.routesListIdentifier).node(routeId);
+        return routesPath.node(this.routesContainerIdentifier).node(routeNid()).node(routeId);
     }
 
     @Override
@@ -226,25 +301,9 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         putRoutes(tx, tablePath, nlri, attributes, ROUTES);
     }
 
-    /**
-     * Build MpReachNlri object from DOM representation.
-     *
-     * @param routes Collection of MapEntryNode DOM representation of routes
-     * @param hop CNextHop as it was parsed from Attributes, to be included in MpReach object
-     * @return MpReachNlri
-     */
-    @Nonnull protected abstract MpReachNlri buildReach(Collection<MapEntryNode> routes, CNextHop hop);
-
-    /**
-     * Build MpUnReachNlri object from DOM representation.
-     *
-     * @param routes Collection of MapEntryNode DOM representation of routes
-     * @return MpUnreachNlri
-     */
-    @Nonnull protected abstract MpUnreachNlri buildUnreach(Collection<MapEntryNode> routes);
-
+    @Nonnull
     @Override
-    public Update buildUpdate(final Collection<MapEntryNode> advertised, final Collection<MapEntryNode> withdrawn, final Attributes attr) {
+    public final Update buildUpdate(final Collection<MapEntryNode> advertised, final Collection<MapEntryNode> withdrawn, final Attributes attr) {
         final UpdateBuilder ub = new UpdateBuilder();
         final AttributesBuilder ab = new AttributesBuilder(attr);
         final CNextHop hop = ab.getCNextHop();
@@ -282,7 +341,7 @@ public abstract class AbstractRIBSupport implements RIBSupport {
     @Override
     public final void putRoutes(final DOMDataWriteTransaction tx, final YangInstanceIdentifier tablePath, final ContainerNode nlri,
             final ContainerNode attributes, final NodeIdentifier routesNodeId) {
-        final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = nlri.getChild(ADVERTIZED_ROUTES);
+        final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = nlri.getChild(ADVERTISED_ROUTES);
         if (maybeRoutes.isPresent()) {
             final ContainerNode destination = getDestination(maybeRoutes.get(), destinationContainerIdentifier());
             if (destination != null) {
@@ -292,21 +351,6 @@ public abstract class AbstractRIBSupport implements RIBSupport {
             LOG.debug("Advertized routes are not present in NLRI {}", nlri);
         }
     }
-
-    @Nullable
-    @Override
-    /**
-     * Return null for non supporting Add path models
-     */
-    public PathArgument getRouteIdAddPath(final long pathId, final PathArgument routeId) {
-        return null;
-    }
-
-    @Override
-    public Long extractPathId(final NormalizedNode<?, ?> data) {
-        return NON_PATH_ID;
-    }
-
 
     private static class DeleteRoute implements ApplyRoute {
         @Override
