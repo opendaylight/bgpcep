@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_0c2bf930",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-23T10:22:50Z",
+      "side": 1,
+      "message": "Unrelated change.",
+      "revId": "b0f4c3c164ef37e71a5c6a50a639f9e3d1768aab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_ecd4c521",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 569,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-23T10:22:50Z",
+      "side": 1,
+      "message": "This check is not correct - if user set delegation false, it means he wants to return LSP\u0027s delegation - it is working mechanism for both PCC and PCE initiated tunnels.\nAlso, please, do not use error logging level.",
+      "range": {
+        "startLine": 562,
+        "startChar": 0,
+        "endLine": 569,
+        "endChar": 13
+      },
+      "revId": "b0f4c3c164ef37e71a5c6a50a639f9e3d1768aab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_2cdfdd3c",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 604,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-23T10:22:50Z",
+      "side": 1,
+      "message": "Not very useful log - basically, an action is already logged when the message is send to a PCC.",
+      "range": {
+        "startLine": 604,
+        "startChar": 12,
+        "endLine": 604,
+        "endChar": 75
+      },
+      "revId": "b0f4c3c164ef37e71a5c6a50a639f9e3d1768aab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_cc30e1a0",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 616,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-23T10:22:50Z",
+      "side": 1,
+      "message": "The check should go here.",
+      "revId": "b0f4c3c164ef37e71a5c6a50a639f9e3d1768aab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_4cf5f1c9",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-23T10:22:50Z",
+      "side": 1,
+      "message": "What LSP?",
+      "range": {
+        "startLine": 617,
+        "startChar": 18,
+        "endLine": 617,
+        "endChar": 21
+      },
+      "revId": "b0f4c3c164ef37e71a5c6a50a639f9e3d1768aab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_ac048dc0",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-23T10:22:50Z",
+      "side": 1,
+      "message": "What PCC?",
+      "range": {
+        "startLine": 617,
+        "startChar": 75,
+        "endLine": 617,
+        "endChar": 78
+      },
+      "revId": "b0f4c3c164ef37e71a5c6a50a639f9e3d1768aab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
