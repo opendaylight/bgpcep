@@ -60,6 +60,9 @@
         <!-- TCP-MD5 artifacts -->
         <tcpmd5.version>1.3.0-SNAPSHOT</tcpmd5.version>
 
+        <!-- EPOLL artifacts -->
+        <os.detected.classifier>linux-x86_64</os.detected.classifier>
+
         <bgpcep.version>0.6.0-SNAPSHOT</bgpcep.version>
     </properties>
 
