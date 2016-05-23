@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_6c40b5a5",
+        "filename": "bgp/evpn/src/main/java/org/opendaylight/protocol/bgp/evpn/impl/EvpnRibSupport.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-23T12:03:27Z",
+      "side": 1,
+      "message": "This pattern is repeated in all extensions, but only destination type is different. Can we do something about it?",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 133,
+        "endChar": 5
+      },
+      "revId": "2582b0de76c697a4e0493e6bb8ab2d123936f5a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_acdc8d13",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/MpAbstractRIBSupport.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-23T12:03:27Z",
+      "side": 1,
+      "message": "The \"Mp\" might be ambiguous, as MP usually refers to Multi Protocol.",
+      "range": {
+        "startLine": 24,
+        "startChar": 22,
+        "endLine": 24,
+        "endChar": 24
+      },
+      "revId": "2582b0de76c697a4e0493e6bb8ab2d123936f5a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
