@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_2c84fd0a",
+        "filename": "bgp/flowspec/src/main/yang/bgp-flowspec.yang",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-23T11:07:15Z",
+      "side": 1,
+      "message": "Please, minimize changes to existing yang data model. For a sake of simplicity make RD part of a grouping \"flowspec-destination\".",
+      "revId": "6d7a4c6a250e6f35c0479f087003831593087363",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
