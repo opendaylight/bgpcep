@@ -43,6 +43,7 @@ public class Ipv4ReachabilityTopologyBuilderModuleTest extends AbstractRIBImplMo
         paths.add("/META-INF/yang/bmp-monitor.yang");
         paths.add("/META-INF/yang/bmp-message.yang");
         paths.add("/META-INF/yang/ietf-yang-types.yang");
+        paths.add("/META-INF/yang/odl-bgp-topology-types.yang");
         return paths;
     }
 
