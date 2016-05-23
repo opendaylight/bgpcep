@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
@@ -38,7 +39,6 @@ import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCSessionListener;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator;
-import org.opendaylight.tcpmd5.api.KeyMapping;
 
 final class PCCsBuilder {
     private final int lsps;
