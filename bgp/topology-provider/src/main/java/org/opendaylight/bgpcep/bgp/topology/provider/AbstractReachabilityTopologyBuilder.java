@@ -31,7 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypesBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.Node1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.Node1Builder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributes;
@@ -62,8 +62,8 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
     }
 
     protected AbstractReachabilityTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
-            final TopologyId topologyId) {
-        super(dataProvider, locRibReference, topologyId, new TopologyTypesBuilder().build());
+            final TopologyId topologyId, final TopologyTypes topologyTypes) {
+        super(dataProvider, locRibReference, topologyId, topologyTypes);
     }
 
     private NodeId advertizingNode(final Attributes attrs) {

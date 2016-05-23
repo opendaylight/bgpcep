@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -103,6 +104,15 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         this.linkstateTopoBuilder.start(dataBroker, LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
         final InstanceIdentifier<Tables> path = this.linkstateTopoBuilder.tableInstanceIdentifier(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
         this.linkstateRouteIID = path.builder().child((Class)LinkstateRoutes.class).child(LinkstateRoute.class, new LinkstateRouteKey(LINKSTATE_ROUTE_KEY)).build();
+    }
+
+    @Test
+    public void testLinkstateTopologyBuilderTopologyTypes() {
+        final Optional<Topology> topologyMaybe = getTopology(this.linkstateTopoBuilder.getInstanceIdentifier());
+        assertTrue(topologyMaybe.isPresent());
+        final Topology topology = topologyMaybe.get();
+        assertNotNull(topology.getTopologyTypes().getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1.class));
+        assertNotNull(topology.getTopologyTypes().getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1.class).getBgpLinkstateTopology());
     }
 
     @Test
