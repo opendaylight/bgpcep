@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.opendaylight.bgpcep.bgp.topology.provider.Ipv4ReachabilityTopologyBuilderTest.PATH_ID;
 
@@ -64,6 +65,8 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         final Optional<Topology> topologyMaybe = getTopology(this.ipv6TopoBuilder.getInstanceIdentifier());
         assertTrue(topologyMaybe.isPresent());
         final Topology topology = topologyMaybe.get();
+        assertNotNull(topology.getTopologyTypes().getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.TopologyTypes1.class));
+        assertNotNull(topology.getTopologyTypes().getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.TopologyTypes1.class).getBgpIpv6ReachabilityTopology());
         assertEquals(1, topology.getNode().size());
         final Node node = topology.getNode().get(0);
         assertEquals(NEXT_HOP, node.getNodeId().getValue());

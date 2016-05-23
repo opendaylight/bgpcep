@@ -3,6 +3,7 @@ module bgp-inet {
         namespace "urn:opendaylight:params:xml:ns:yang:bgp-inet";
         prefix "bgp-inet";
 
+    import network-topology { prefix nt; revision-date 2013-10-21; }
     import bgp-rib { prefix bgp-rib; revision-date 2013-09-25; }
     import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
     import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
@@ -26,6 +27,23 @@ module bgp-inet {
     revision "2015-03-05" {
             description
                     "Initial revision.";
+    }
+
+    grouping bgp-ipv4-reachability-topology-type {
+        container bgp-ipv4-reachability-topology {
+            presence "Indicates a BGP IPv4 reachability aware topology";
+        }
+    }
+
+    grouping bgp-ipv6-reachability-topology-type {
+        container bgp-ipv6-reachability-topology {
+            presence "Indicates a BGP IPv6 reachability aware topology";
+        }
+    }
+
+    augment "/nt:network-topology/nt:topology/nt:topology-types" {
+        uses bgp-ipv4-reachability-topology-type;
+        uses bgp-ipv6-reachability-topology-type;
     }
 
     grouping ipv4-prefix {
