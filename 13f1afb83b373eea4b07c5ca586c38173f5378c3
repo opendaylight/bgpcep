@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_a0f3ec9c",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/MessageUtil.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-05-24T09:24:38Z",
+      "side": 1,
+      "message": "thanks, I just hit the bug this week making some test",
+      "parentUuid": "fa57193c_d264fa4a",
+      "range": {
+        "startLine": 61,
+        "startChar": 12,
+        "endLine": 61,
+        "endChar": 29
+      },
+      "revId": "13f1afb83b373eea4b07c5ca586c38173f5378c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_c8fd743c",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ApplicationPeer.java",
         "patchSetId": 13
