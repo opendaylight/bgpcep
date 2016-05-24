@@ -8,6 +8,7 @@
 
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import com.google.common.collect.ImmutableMap;
 import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
@@ -17,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
@@ -33,11 +35,12 @@ public abstract class MultiPathAbstractRIBSupport extends AbstractRIBSupport {
      * node in instantiations of the rib grouping. It is assumed that this container is defined by
      * the same model which populates it with route grouping instantiation, and by extension with
      * the route attributes container.
+     *
      * @param cazeClass Binding class of the AFI/SAFI-specific case statement, must not be null
      * @param containerClass Binding class of the container in routes choice, must not be null.
      * @param listClass Binding class of the route list, nust not be null;
-     * @param addressFamilyClass  address Family Class
-     * @param safiClass  SubsequentAddressFamily
+     * @param addressFamilyClass address Family Class
+     * @param safiClass SubsequentAddressFamily
      * @param routeKeyNaming Route Key name (prefix/ route-key / etc..)
      * @param destinationQname destination Qname
      */
@@ -62,6 +65,15 @@ public abstract class MultiPathAbstractRIBSupport extends AbstractRIBSupport {
         return this.routeKeyQname;
     }
 
+    @Override
+    public final Long extractPathId(final NormalizedNode<?, ?> data) {
+        final Long pathId = PathIdUtil.extractPathId(data, this.routePathIdNid());
+        if(pathId == null) {
+            return PathIdUtil.NON_PATH_ID;
+        }
+        return pathId;
+    }
+
     @Nonnull
     @Override
     public final PathArgument getRouteIdAddPath(final long pathId, final PathArgument routeId) {
@@ -69,7 +81,9 @@ public abstract class MultiPathAbstractRIBSupport extends AbstractRIBSupport {
     }
 
     @Override
-    public final Long extractPathId(final NormalizedNode<?, ?> data) {
-        return PathIdUtil.extractPathId(data, this.routePathIdNid());
+    public PathArgument createRouteKeyPathArgument(PathArgument routeKey) {
+        final ImmutableMap<QName, Object> keyValues = ImmutableMap.of(routeKeyQName(), PathIdUtil.getObjectKey(routeKey, routeKeyQName()));
+        return new NodeIdentifierWithPredicates(routeQName(), keyValues);
     }
+
 }

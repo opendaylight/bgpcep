@@ -63,7 +63,7 @@ public abstract class AddPathAbstractRouteEntry extends AbstractRouteEntry {
             this.values = newAttributes;
             this.offsets = newOffsets;
             this.pathsId = newPathsId;
-            this.offsets.setValue(this.pathsId, offset, this.pathIdCounter++);
+            this.offsets.setValue(this.pathsId, offset, ++this.pathIdCounter);
         }
         this.offsets.setValue(this.values, offset, attributes);
         LOG.trace("Added route from {} attributes {}", key.getRouteId(), attributes);

@@ -41,4 +41,14 @@ interface AddPathRibSupport {
     @Nullable default PathArgument getRouteIdAddPath(long pathId, PathArgument routeId) {
         return null;
     }
+
+    /**
+     * Create a new Path Argument for route Key removing remove Path Id from key
+     * For non extension which doesnt support Multiple Path this step is not required
+     * @param routeKeyPathArgument  routeKey Path Argument
+     * @return new route Key
+     */
+    default PathArgument createRouteKeyPathArgument(PathArgument routeKeyPathArgument) {
+        return routeKeyPathArgument;
+    }
 }

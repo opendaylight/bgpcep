@@ -62,9 +62,11 @@ public final class PathIdUtil {
      * @return The path identifier from data change
      */
     public static Long extractPathId(final NormalizedNode<?, ?> data, final NodeIdentifier pathNii) {
-        final Long pathId = (Long) NormalizedNodes.findNode(data, pathNii).get().getValue();
-        Preconditions.checkNotNull(pathId);
-        return pathId;
+        final NormalizedNode<?, ?> pathId = NormalizedNodes.findNode(data, pathNii).orNull();
+        if (pathId == null) {
+            return null;
+        }
+        return (Long) pathId.getValue();
     }
 
     /**
@@ -74,18 +76,28 @@ public final class PathIdUtil {
      * @param routeId Route Id value
      * @param routeQname route QName provided per each RibSupport
      * @param pathidQname Path Id QName provided per each RibSupport
-     * @param prefixQname Prefix QName provided per each RibSupport
+     * @param routeKeyQname Prefix QName provided per each RibSupport
      * @return Route Key Nid
      */
     public static PathArgument createNidKey(final long pathId, final PathArgument routeId, final QName routeQname, final QName pathidQname,
-        final QName prefixQname) {
-        final String prefix = (String) (((NodeIdentifierWithPredicates) routeId).getKeyValues()).get(prefixQname);
-        return createNodeIdentifierWithPredicates(routeQname, pathidQname, pathId, prefixQname, prefix);
+        final QName routeKeyQname) {
+        return createNodeIdentifierWithPredicates(routeQname, pathidQname, pathId, routeKeyQname, getObjectKey(routeId, routeKeyQname));
     }
 
-    private static NodeIdentifierWithPredicates createNodeIdentifierWithPredicates(final QName routeQname, final QName pathidQname, final Object pathId,
-        final QName prefixQname, final Object prefix) {
-        final ImmutableMap<QName, Object> keyValues = ImmutableMap.of(pathidQname, pathId, prefixQname, prefix);
+    /**
+     * Get route key object ( prefgit stat  ix / key-value/ .. )
+     *
+     * @param routeId PathArgument containing the key
+     * @param routeKeyQname routeKey Qname
+     * @return key
+     */
+    public static Object getObjectKey(final PathArgument routeId, final QName routeKeyQname) {
+        return (((NodeIdentifierWithPredicates) routeId).getKeyValues()).get(routeKeyQname);
+    }
+
+    public static NodeIdentifierWithPredicates createNodeIdentifierWithPredicates(final QName routeQname, final QName pathidQname, final Object pathId,
+        final QName routeKeyQname, final Object keyObject) {
+        final ImmutableMap<QName, Object> keyValues = ImmutableMap.of(pathidQname, pathId, routeKeyQname, keyObject);
         return new NodeIdentifierWithPredicates(routeQname, keyValues);
     }
 
@@ -98,7 +110,7 @@ public final class PathIdUtil {
      */
     public static PathId buildPathId(final DataContainerNode<? extends PathArgument> routesCont, final NodeIdentifier pathIdNii) {
         final Long pathIdVal = PathIdUtil.extractPathId(routesCont, pathIdNii);
-        return new PathId(pathIdVal);
+        return pathIdVal == null ? null : new PathId(pathIdVal);
     }
 
     /**

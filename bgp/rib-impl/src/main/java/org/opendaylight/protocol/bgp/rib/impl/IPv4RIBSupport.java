@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 
 /**
  * Class supporting IPv4 unicast RIBs.
@@ -44,7 +45,7 @@ final class IPv4RIBSupport extends AbstractIPRIBSupport {
     private List<Ipv4Prefixes> extractPrefixes(final Collection<MapEntryNode> routes) {
         final List<Ipv4Prefixes> prefs = new ArrayList<>(routes.size());
         for (final MapEntryNode route : routes) {
-            final String prefix = (String) route.getChild(this.routePrefixIdentifier()).get().getValue();
+            final String prefix = (String) NormalizedNodes.findNode(route, this.routePrefixIdentifier()).get().getValue();
             final Ipv4PrefixesBuilder prefixBuilder = new Ipv4PrefixesBuilder().setPrefix(new Ipv4Prefix(prefix));
             prefixBuilder.setPathId(PathIdUtil.buildPathId(route, this.routePathIdNid()));
             prefs.add(prefixBuilder.build());

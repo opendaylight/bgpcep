@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 
 /**
  * Class supporting IPv6 unicast RIBs.
@@ -57,9 +58,9 @@ final class IPv6RIBSupport extends AbstractIPRIBSupport {
 
     private List<Ipv6Prefixes> extractPrefixes(final Collection<MapEntryNode> routes) {
         final List<Ipv6Prefixes> prefs = new ArrayList<>(routes.size());
-        for (final MapEntryNode ipv6Route : routes) {
-            final String prefix = (String) ipv6Route.getChild(this.routePrefixIdentifier()).get().getValue();
-            prefs.add(new Ipv6PrefixesBuilder().setPathId(PathIdUtil.buildPathId(ipv6Route, this.routePathIdNid())).setPrefix(new Ipv6Prefix(prefix)).build());
+        for (final MapEntryNode route : routes) {
+            final String prefix = (String) NormalizedNodes.findNode(route, this.routePrefixIdentifier()).get().getValue();
+            prefs.add(new Ipv6PrefixesBuilder().setPathId(PathIdUtil.buildPathId(route, this.routePathIdNid())).setPrefix(new Ipv6Prefix(prefix)).build());
         }
         return prefs;
     }
