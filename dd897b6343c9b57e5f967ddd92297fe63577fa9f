@@ -117,6 +117,29 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_7b3069e8",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ApplicationPeer.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-24T09:42:39Z",
+      "side": 1,
+      "message": "This is a performance overkill, which is not worth of the validation process.\nI believe the user input validation should be done against the yang schema by yangtools.\n\nAnother thing is the NH attribute do not have to be present (equals to zero length NH) - i.e. valid use-case for BGP-FS.\nWe could consider introducing an default empty NH \"case\" in yang data model for such cases.",
+      "range": {
+        "startLine": 208,
+        "startChar": 0,
+        "endLine": 213,
+        "endChar": 5
+      },
+      "revId": "dd897b6343c9b57e5f967ddd92297fe63577fa9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_00a45855",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
         "patchSetId": 15
