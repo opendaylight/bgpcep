@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_f3f77df3",
+        "filename": "bgp/inet/src/main/yang/bgp-inet.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-24T15:27:23Z",
+      "side": 1,
+      "message": "May be it would be better to move those augmentations into the \"bgp-topology-provider\" project (create one common yang).",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 5
+      },
+      "revId": "4c181ebd8e88093c3991dd3c64b2926bd809f702",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_f3801d48",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/Ipv4ReachabilityTopologyBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-24T15:27:23Z",
+      "side": 1,
+      "message": "Create constant for this DTO as it is always the same.",
+      "range": {
+        "startLine": 28,
+        "startChar": 16,
+        "endLine": 30,
+        "endChar": 24
+      },
+      "revId": "4c181ebd8e88093c3991dd3c64b2926bd809f702",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
