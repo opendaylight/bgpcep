@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_a04c8c71",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 21
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-24T07:49:49Z",
+      "side": 1,
+      "message": "Please update commit message to briefly explain the changes and motivation behind it.",
+      "revId": "35968d1c69f065d6b1869b2cedd3ba5a71499ca4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
