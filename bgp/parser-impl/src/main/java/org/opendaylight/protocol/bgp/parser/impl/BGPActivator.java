@@ -134,11 +134,11 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
         final Ipv4NextHopParserSerializer ipv4NextHopParser = new Ipv4NextHopParserSerializer();
         regs.add(context.registerNlriParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class,
-            new Ipv4NlriParser(), ipv4NextHopParser, Ipv4NextHopCase.class));
+            new Ipv4NlriParser(), ipv4NextHopParser, Ipv4NextHopCase.class, Ipv6NextHopCase.class));
 
         final Ipv6NextHopParserSerializer ipv6NextHopParser = new Ipv6NextHopParserSerializer();
         regs.add(context.registerNlriParser(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, new
-            Ipv6NlriParser(), ipv6NextHopParser, Ipv6NextHopCase.class));
+            Ipv6NlriParser(), ipv6NextHopParser, Ipv4NextHopCase.class, Ipv6NextHopCase.class));
 
         this.registerExtendedCommunities(regs, context);
         this.registerCapabilityParsers(regs, context);
