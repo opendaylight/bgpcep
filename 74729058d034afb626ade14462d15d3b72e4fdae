@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_40d770bf",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-24T09:11:29Z",
+      "side": 1,
+      "message": "final",
+      "revId": "74729058d034afb626ade14462d15d3b72e4fdae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_a0e64cb2",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-24T09:11:29Z",
+      "side": 1,
+      "message": "final",
+      "revId": "74729058d034afb626ade14462d15d3b72e4fdae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_c0f2606e",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 608,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-24T09:11:29Z",
+      "side": 1,
+      "message": "Please, identify the tunnel in a log message.",
+      "range": {
+        "startLine": 608,
+        "startChar": 71,
+        "endLine": 608,
+        "endChar": 77
+      },
+      "revId": "74729058d034afb626ade14462d15d3b72e4fdae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
