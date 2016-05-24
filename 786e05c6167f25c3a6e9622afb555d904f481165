@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_e075e498",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/PathIdUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-24T08:08:09Z",
+      "side": 1,
+      "message": "final",
+      "revId": "786e05c6167f25c3a6e9622afb555d904f481165",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
