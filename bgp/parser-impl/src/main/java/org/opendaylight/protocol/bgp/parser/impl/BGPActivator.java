@@ -44,6 +44,7 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginatorIdAttr
 import org.opendaylight.protocol.bgp.parser.impl.message.update.UnrecognizedAttributesSerializer;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.WithdrawnRoutesSerializer;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.AsTwoOctetSpecificEcHandler;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.EncapsulationEC;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.Ipv4SpecificEcHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.LinkBandwidthEC;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities.OpaqueEcHandler;
@@ -99,6 +100,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.As4RouteOriginExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.As4RouteTargetExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.AsSpecificExtendedCommunityCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.EncapsulationCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.Inet4SpecificExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.LinkBandwidthCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.OpaqueExtendedCommunityCase;
@@ -338,5 +340,10 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         final RouteOrigin4OctectASEcHandler rOrig4Oct = new RouteOrigin4OctectASEcHandler();
         regs.add(context.registerExtendedCommunityParser(rOrig4Oct.getType(true), rOrig4Oct.getSubType(), rOrig4Oct));
         regs.add(context.registerExtendedCommunitySerializer(As4RouteOriginExtendedCommunityCase.class, rOrig4Oct));
+
+        final EncapsulationEC encapsulationECHandler = new EncapsulationEC();
+        regs.add(context.registerExtendedCommunityParser(encapsulationECHandler.getType(true), encapsulationECHandler.getSubType(),
+                encapsulationECHandler));
+        regs.add(context.registerExtendedCommunitySerializer(EncapsulationCase.class, encapsulationECHandler));
     }
 }
