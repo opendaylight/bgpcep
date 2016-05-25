@@ -181,6 +181,17 @@ module bgp-types {
         }
     }
 
+    grouping encapsulation-extended-community {
+        reference "https://tools.ietf.org/html/rfc5512#section-4.5";
+        description "BGP Encapsulation extended community";
+
+        leaf tunnel-type {
+            description "Tunnel type specifying the encapsulation protocol";
+            mandatory true;
+            type uint16;
+        }
+    }
+
     grouping extended-community {
         leaf transitive {
             type boolean;
@@ -276,6 +287,11 @@ module bgp-types {
                 container as-4-route-origin-extended-community {
                     reference "https://tools.ietf.org/html/rfc5668";
                     uses as-4-spec-common;
+                }
+            }
+            case encapsulation-case {
+                container encapsulation-extended-community {
+                    uses encapsulation-extended-community;
                 }
             }
         }
