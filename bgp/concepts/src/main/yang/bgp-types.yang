@@ -118,6 +118,57 @@ module bgp-types {
         }
     }
 
+    typedef encapsulation-tunnel-type {
+        reference "http://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#tunnel-types";
+        type enumeration {
+            enum reserved {
+                value 0;
+            }
+            enum l2tpv3-over-ip {
+                value 1;
+            }
+            enum gre {
+                value 2;
+            }
+            enum transmit-tunnel-endpoint {
+                value 3;
+            }
+            enum ipsec-tunnel-mode {
+                value 4;
+            }
+            enum ip-in-ip-ipsec-transport-mode {
+                value 5;
+            }
+            enum mpls-in-ip-tunnel-ipsec-transport-mode {
+                value 6;
+            }
+            enum ip-in-ip {
+                value 7;
+            }
+            enum vxlan {
+                value 8;
+            }
+            enum nvgre {
+                value 9;
+            }
+            enum mpls {
+                value 10;
+            }
+            enum mpls-in-gre {
+                value 11;
+            }
+            enum vxlan-gpe {
+                value 12;
+            }
+            enum mpls-in-udp {
+                value 13;
+            }
+            enum ipv6-tunnel {
+                value 14;
+            }
+        }
+    }
+
     grouping bgp-aggregator {
         reference "http://tools.ietf.org/html/rfc4271#section-5.1.7";
         description "BGP Path Attribute AGGREGATOR.";
@@ -178,6 +229,17 @@ module bgp-types {
                 type uint16;
                 mandatory true;
             }
+        }
+    }
+
+    grouping encapsulation-extended-community {
+        reference "https://tools.ietf.org/html/rfc5512#section-4.5";
+        description "BGP Encapsulation extended community";
+
+        leaf tunnel-type {
+            description "Tunnel type specifying the encapsulation protocol";
+            mandatory true;
+            type encapsulation-tunnel-type;
         }
     }
 
@@ -276,6 +338,11 @@ module bgp-types {
                 container as-4-route-origin-extended-community {
                     reference "https://tools.ietf.org/html/rfc5668";
                     uses as-4-spec-common;
+                }
+            }
+            case encapsulation-case {
+                container encapsulation-extended-community {
+                    uses encapsulation-extended-community;
                 }
             }
         }
