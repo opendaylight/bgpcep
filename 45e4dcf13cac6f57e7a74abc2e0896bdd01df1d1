@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_2747eb1e",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/bgp/concepts/RouteDistinguisherUtil.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-25T12:32:40Z",
+      "side": 1,
+      "message": "Unrelated changes, should be moved to separated commit.",
+      "revId": "45e4dcf13cac6f57e7a74abc2e0896bdd01df1d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_e713330b",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/AbstractFlowspecNlriParser.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 536,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-25T12:32:40Z",
+      "side": 1,
+      "message": "final",
+      "revId": "45e4dcf13cac6f57e7a74abc2e0896bdd01df1d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_a7093bdf",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/AbstractFlowspecNlriParser.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 559,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-25T12:32:40Z",
+      "side": 1,
+      "message": "The final modifier missing. Please do not use underscore in variable names, sonar do not like.",
+      "range": {
+        "startLine": 559,
+        "startChar": 12,
+        "endLine": 559,
+        "endChar": 19
+      },
+      "revId": "45e4dcf13cac6f57e7a74abc2e0896bdd01df1d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_27ca4b6e",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/AbstractFlowspecNlriParser.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-25T12:32:40Z",
+      "side": 1,
+      "message": "I consider this unnecessary. The nlri registry should log such information for every parsed NLRI.",
+      "range": {
+        "startLine": 580,
+        "startChar": 8,
+        "endLine": 580,
+        "endChar": 17
+      },
+      "revId": "45e4dcf13cac6f57e7a74abc2e0896bdd01df1d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
