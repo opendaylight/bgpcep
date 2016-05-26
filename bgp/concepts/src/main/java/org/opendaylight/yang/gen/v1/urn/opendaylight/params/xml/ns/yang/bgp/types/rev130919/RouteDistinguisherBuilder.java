@@ -21,6 +21,21 @@ import java.util.regex.Pattern;
  */
 public class RouteDistinguisherBuilder {
 
+    private static final Pattern RD_TWO_OCTET_AS =
+        Pattern.compile("0:"
+            + "([0-9]|[1-9][0-9]|[1-9][0-9][0-9]|[1-9][0-9][0-9][0-9]|"
+            + "[1-9][0-9][0-9][0-9][0-9]|[1-9][0-9][0-9][0-9][0-9][0-9]|"
+            + "[1-9][0-9][0-9][0-9][0-9][0-9][0-9]|[1-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]|"
+            + "[1-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]|[1-3][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]|"
+            + "4[0-1][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]|42[0-8][0-9][0-9][0-9][0-9][0-9][0-9][0-9]|"
+            + "429[0-3][0-9][0-9][0-9][0-9][0-9][0-9]|4294[0-8][0-9][0-9][0-9][0-9][0-9]|"
+            + "42949[0-5][0-9][0-9][0-9][0-9]|429496[0-6][0-9][0-9][0-9]|4294967[0-1][0-9][0-9]|"
+            + "42949672[0-8][0-9]|429496729[0-5])"
+            + ":"
+            + "([0-9]|[1-9][0-9]|[1-9][0-9][0-9]|[1-9][0-9][0-9][0-9]|"
+            + "[1-5][0-9][0-9][0-9][0-9]|6[0-4][0-9][0-9][0-9]|"
+            + "65[0-4][0-9][0-9]|655[0-2][0-9]|6553[0-5])");
+
     private static final Pattern RD_IPV4 =
         Pattern.compile("((([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}"
             + "([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]))"
@@ -48,7 +63,9 @@ public class RouteDistinguisherBuilder {
     }
 
     public static RouteDistinguisher getDefaultInstance(final java.lang.String defaultValue) {
-        if (RD_IPV4.matcher(defaultValue).matches()) {
+        if (RD_TWO_OCTET_AS.matcher(defaultValue).matches()) {
+            return new RouteDistinguisher((new RdTwoOctetAs(defaultValue)));
+        } else if (RD_IPV4.matcher(defaultValue).matches()) {
             return new RouteDistinguisher(new RdIpv4(defaultValue));
         } else if (RD_AS.matcher(defaultValue).matches()) {
             return new RouteDistinguisher(new RdAs(defaultValue));
