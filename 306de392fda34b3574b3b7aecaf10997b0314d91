@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_0a762bd7",
+        "filename": "bgp/concepts/src/main/yang/bgp-types.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-26T07:57:30Z",
+      "side": 1,
+      "message": "How about using enums?\nThey are more user-friendly however not extensible.\n\nUsing plain integer is flexible, but not very user friendly.\n\nAnother options are identities, there will a simple registry with (bi)mapping tunnel name (identity) to type (uint16)\nEvpn extension would add a new identities into the registry.\nThe encapsulation community codec will consume this registry.",
+      "range": {
+        "startLine": 188,
+        "startChar": 0,
+        "endLine": 192,
+        "endChar": 9
+      },
+      "revId": "306de392fda34b3574b3b7aecaf10997b0314d91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
