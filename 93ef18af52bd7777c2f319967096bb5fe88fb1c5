@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa57193c_0a6c6b34",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/protocol/PCCDispatcherImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-26T07:20:24Z",
+      "side": 1,
+      "message": "missing space after \"\u003d\"",
+      "revId": "93ef18af52bd7777c2f319967096bb5fe88fb1c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_4ae02396",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/protocol/PCCDispatcherImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-26T07:20:24Z",
+      "side": 1,
+      "message": "missing space \"if (\"",
+      "revId": "93ef18af52bd7777c2f319967096bb5fe88fb1c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_aaf0df67",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/protocol/PCCDispatcherImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-26T07:20:24Z",
+      "side": 1,
+      "message": "No space here.",
+      "range": {
+        "startLine": 118,
+        "startChar": 55,
+        "endLine": 118,
+        "endChar": 57
+      },
+      "revId": "93ef18af52bd7777c2f319967096bb5fe88fb1c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_0adaabe7",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/protocol/PCCDispatcherImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-26T07:20:24Z",
+      "side": 1,
+      "message": "You can use Epoll.unavailabilityCause() when throwing an exception.",
+      "range": {
+        "startLine": 118,
+        "startChar": 26,
+        "endLine": 118,
+        "endChar": 55
+      },
+      "revId": "93ef18af52bd7777c2f319967096bb5fe88fb1c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
