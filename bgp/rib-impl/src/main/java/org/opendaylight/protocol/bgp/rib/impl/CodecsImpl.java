@@ -46,8 +46,11 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class CodecsImpl implements Codecs {
+    private static final Logger LOG = LoggerFactory.getLogger(CodecsImpl.class);
 
     private static final Set<Class<? extends DataObject>> ATTRIBUTE_CACHEABLES;
     private static final InstanceIdentifier<Tables> TABLE_BASE_II = InstanceIdentifier.builder(BgpRib.class)
@@ -135,6 +138,7 @@ public final class CodecsImpl implements Codecs {
     @Override
     public ContainerNode serializeAttributes(final Attributes pathAttr) {
         Preconditions.checkState(this.attributesCodec != null, "Attributes codec not available");
+        LOG.debug("serializeAttr {}", pathAttr);
         final AttributesBuilder a = new AttributesBuilder(pathAttr);
         a.addAugmentation(Attributes1.class, null);
         a.addAugmentation(Attributes2.class, null);

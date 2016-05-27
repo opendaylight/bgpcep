@@ -6,7 +6,6 @@ module bgp-stats-peer {
     import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
     import bgp-message { prefix bgp-msg; revision-date 2013-09-19; }
     import ietf-yang-types { prefix yang; revision-date 2013-07-15; }
-    import rpc-context { prefix rpcx; revision-date 2013-06-17; }
 
     organization "Brocade Communications Systems, Inc.";
     contact "Kevin Wang <kwang@brocade.com>";

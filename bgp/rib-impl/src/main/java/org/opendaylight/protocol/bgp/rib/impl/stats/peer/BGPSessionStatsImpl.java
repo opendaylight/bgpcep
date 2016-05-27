@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.rib.impl.stats.peer;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.config.api.IdentityAttributeRef;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.AdvertisedAddPathTableTypes;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.AdvertizedTableTypes;
@@ -36,9 +37,10 @@ import org.opendaylight.controller.config.yang.bgp.rib.impl.RouteRefreshMsgs;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.Sent;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.TotalMsgs;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.UpdateMsgs;
-import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl.State;
+import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.util.StatisticsUtil;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Timestamp;
@@ -54,10 +56,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
+import org.opendaylight.yangtools.yang.common.QName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public final class BGPSessionStats {
+public final class BGPSessionStatsImpl implements BGPSessionStats {
+    private static final Logger LOG = LoggerFactory.getLogger(BGPSessionStatsImpl.class);
+
     private final Stopwatch sessionStopwatch;
     private final BgpSessionState stats;
+    private final BGPSessionImpl session;
     private final TotalMsgs totalMsgs = new TotalMsgs();
     private final KeepAliveMsgs kaMsgs = new KeepAliveMsgs();
     private final UpdateMsgs updMsgs = new UpdateMsgs();
@@ -66,8 +74,9 @@ public final class BGPSessionStats {
     private final ErrorSentTotal errMsgsSentTotal = new ErrorSentTotal();
     private final ErrorReceivedTotal errMsgsRecvTotal = new ErrorReceivedTotal();
 
-    public BGPSessionStats(final Open remoteOpen, final int holdTimerValue, final int keepAlive, final Channel channel,
-        final Optional<BGPSessionPreferences> localPreferences, final Collection<BgpTableType> tableTypes, final List<AddressFamilies> addPathTypes) {
+    public BGPSessionStatsImpl(@Nonnull final BGPSessionImpl session, @Nonnull final Open remoteOpen, final int holdTimerValue, final int keepAlive, @Nonnull final Channel channel,
+        @Nonnull final Optional<BGPSessionPreferences> localPreferences, @Nonnull final Collection<BgpTableType> tableTypes, @Nonnull final List<AddressFamilies> addPathTypes) {
+        this.session = session;
         this.sessionStopwatch = Stopwatch.createUnstarted();
         this.stats = new BgpSessionState();
         this.stats.setHoldtimeCurrent(holdTimerValue);
@@ -79,6 +88,159 @@ public final class BGPSessionStats {
         this.errMsgs.setErrorReceived(new ArrayList<>());
         this.errMsgs.setErrorSent(new ArrayList<>());
         initMsgs();
+    }
+
+    private static Received newReceivedInstance() {
+        final Received recv = new Received();
+        recv.setCount(new ZeroBasedCounter32(0L));
+        return recv;
+    }
+
+    private static Sent newSentInstance() {
+        final Sent sent = new Sent();
+        sent.setCount(new ZeroBasedCounter32(0L));
+        return sent;
+    }
+
+    private static void updateReceivedMsg(final Received received) {
+        Preconditions.checkNotNull(received);
+        final long count = received.getCount() == null ? 0L : received.getCount().getValue();
+        received.setCount(new ZeroBasedCounter32(count + 1));
+        received.setTimestamp(new Timestamp(StatisticsUtil.getCurrentTimestampInSeconds()));
+    }
+
+    private static void updateSentMsg(final Sent sent) {
+        Preconditions.checkNotNull(sent);
+        final long count = sent.getCount() == null ? 0L : sent.getCount().getValue();
+        sent.setCount(new ZeroBasedCounter32(count + 1));
+        sent.setTimestamp(new Timestamp(StatisticsUtil.getCurrentTimestampInSeconds()));
+    }
+
+    private static AdvertizedTableTypes addTableType(final BgpTableType type) {
+        Preconditions.checkNotNull(type);
+        final AdvertizedTableTypes att = new AdvertizedTableTypes();
+        final QName afi = BindingReflections.findQName(type.getAfi()).intern();
+        final QName safi = BindingReflections.findQName(type.getSafi()).intern();
+        att.setAfi(new IdentityAttributeRef(afi.toString()));
+        att.setSafi(new IdentityAttributeRef(safi.toString()));
+        return att;
+    }
+
+    private static AdvertisedAddPathTableTypes addAddPathTableType(final AddressFamilies addressFamilies) {
+        Preconditions.checkNotNull(addressFamilies);
+        final AdvertisedAddPathTableTypes att = new AdvertisedAddPathTableTypes();
+        att.setAfi(new IdentityAttributeRef(BindingReflections.findQName(addressFamilies.getAfi()).intern().toString()));
+        att.setSafi(new IdentityAttributeRef(BindingReflections.findQName(addressFamilies.getSafi()).intern().toString()));
+        att.setSendReceive(addressFamilies.getSendReceive());
+        return att;
+    }
+
+    private static RemotePeerPreferences setRemotePeerPref(final Channel channel, final Optional<BGPSessionPreferences> localPreferences) {
+        Preconditions.checkNotNull(channel);
+        final RemotePeerPreferences pref = new RemotePeerPreferences();
+        final InetSocketAddress isa = (InetSocketAddress) channel.localAddress();
+        pref.setHost(IpAddressBuilder.getDefaultInstance(isa.getAddress().getHostAddress()));
+        pref.setPort(new PortNumber(isa.getPort()));
+        final List<AdvertizedTableTypes> tt = new ArrayList<>();
+        final List<AdvertisedAddPathTableTypes> attList = new ArrayList<>();
+        if (localPreferences.isPresent()) {
+            final BGPSessionPreferences localPref = localPreferences.get();
+            pref.setBgpId(localPref.getBgpId());
+            // TODO: let BGPSessionPreferences use inet-130715
+            pref.setAs(new AsNumber(localPref.getMyAs().getValue()));
+            pref.setHoldtimer(localPref.getHoldTime());
+            if (localPref.getParams() != null) {
+                for (final BgpParameters param : localPref.getParams()) {
+                    for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
+                        final CParameters cParam = capa.getCParameters();
+                        final CParameters1 capabilities = cParam.getAugmentation(CParameters1.class);
+                        if (capabilities != null) {
+                            final MultiprotocolCapability mc = capabilities.getMultiprotocolCapability();
+                            if (mc != null) {
+                                final AdvertizedTableTypes att = new AdvertizedTableTypes();
+                                att.setAfi(new IdentityAttributeRef(BindingReflections.findQName(mc.getAfi()).intern().toString()));
+                                att.setSafi(new IdentityAttributeRef(BindingReflections.findQName(mc.getSafi()).intern().toString()));
+                                tt.add(att);
+                            }
+                            if (capabilities.getGracefulRestartCapability() != null) {
+                                pref.setGrCapability(true);
+                            }
+                            if (capabilities.getAddPathCapability() != null) {
+                                // FIXME add path capability is deprecated, replaced by addPathTableTypes
+                                pref.setAddPathCapability(true);
+
+                                final List<AdvertisedAddPathTableTypes> addPathTableTypeList = capabilities.getAddPathCapability()
+                                    .getAddressFamilies()
+                                    .stream()
+                                    .map(BGPSessionStatsImpl::addAddPathTableType)
+                                    .collect(Collectors.toList());
+                                attList.addAll(addPathTableTypeList);
+                            }
+                            if (capabilities.getRouteRefreshCapability() != null) {
+                                pref.setRouteRefreshCapability(true);
+                            }
+                        }
+                        if (cParam.getAs4BytesCapability() != null) {
+                            pref.setFourOctetAsCapability(true);
+                        }
+                        if (cParam.getBgpExtendedMessageCapability() != null) {
+                            pref.setBgpExtendedMessageCapability(true);
+                        }
+                    }
+                }
+            }
+        }
+        pref.setAdvertizedTableTypes(tt);
+        pref.setAdvertisedAddPathTableTypes(attList);
+        return pref;
+    }
+
+    private static LocalPeerPreferences setLocalPeerPref(final Open remoteOpen, final Channel channel, final Collection<BgpTableType> tableTypes,
+        final List<AddressFamilies> addPathTypes) {
+        Preconditions.checkNotNull(remoteOpen);
+        Preconditions.checkNotNull(channel);
+        final LocalPeerPreferences pref = new LocalPeerPreferences();
+        final InetSocketAddress isa = (InetSocketAddress) channel.remoteAddress();
+        pref.setHost(IpAddressBuilder.getDefaultInstance(isa.getAddress().getHostAddress()));
+        pref.setPort(new PortNumber(isa.getPort()));
+        pref.setBgpId(new BgpId(remoteOpen.getBgpIdentifier()));
+        pref.setAs(new AsNumber(remoteOpen.getMyAsNumber().longValue()));
+        pref.setHoldtimer(remoteOpen.getHoldTimer());
+
+        final List<AdvertizedTableTypes> tt = tableTypes.stream().map(BGPSessionStatsImpl::addTableType).collect(Collectors.toList());
+        final List<AdvertisedAddPathTableTypes> addPathTableTypeList = addPathTypes.stream().map(BGPSessionStatsImpl::addAddPathTableType)
+            .collect(Collectors.toList());
+
+        if (remoteOpen.getBgpParameters() != null) {
+            for (final BgpParameters param : remoteOpen.getBgpParameters()) {
+                for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
+                    final CParameters cParam = capa.getCParameters();
+                    final CParameters1 capabilities = cParam.getAugmentation(CParameters1.class);
+                    if (cParam.getAs4BytesCapability() != null) {
+                        pref.setFourOctetAsCapability(true);
+                    }
+                    if (capabilities != null) {
+                        if (capabilities.getGracefulRestartCapability() != null) {
+                            pref.setGrCapability(true);
+                        }
+                        // FIXME: add-path-capability is deprecated in Boron
+                        if (capabilities.getAddPathCapability() != null) {
+                            pref.setAddPathCapability(true);
+                        }
+                        if (capabilities.getRouteRefreshCapability() != null) {
+                            pref.setRouteRefreshCapability(true);
+                        }
+                    }
+                    if (cParam.getBgpExtendedMessageCapability() != null) {
+                        pref.setBgpExtendedMessageCapability(true);
+                    }
+                }
+
+            }
+        }
+        pref.setAdvertizedTableTypes(tt);
+        pref.setAdvertisedAddPathTableTypes(addPathTableTypeList);
+        return pref;
     }
 
     private void initMsgs() {
@@ -180,8 +342,8 @@ public final class BGPSessionStats {
         this.errMsgsSentTotal.setTimestamp(curTimestamp);
     }
 
-    public BgpSessionState getBgpSessionState(final State state) {
-        Preconditions.checkNotNull(state);
+    @Override
+    public BgpSessionState getBgpSessionState() {
         final MessagesStats msgs = new MessagesStats();
         msgs.setTotalMsgs(this.totalMsgs);
         msgs.setErrorMsgs(this.errMsgs);
@@ -189,153 +351,13 @@ public final class BGPSessionStats {
         msgs.setUpdateMsgs(this.updMsgs);
         msgs.setRouteRefreshMsgs(this.rrMsgs);
         this.stats.setSessionDuration(StatisticsUtil.formatElapsedTime(this.sessionStopwatch.elapsed(TimeUnit.SECONDS)));
-        this.stats.setSessionState(state.toString());
+        this.stats.setSessionState(this.session.getState().toString());
         this.stats.setMessagesStats(msgs);
         return this.stats;
     }
 
-    public void resetStats() {
+    @Override
+    public void resetBgpSessionStats() {
         initMsgs();
-    }
-
-    private static Received newReceivedInstance() {
-        final Received recv = new Received();
-        recv.setCount(new ZeroBasedCounter32(0L));
-        return recv;
-    }
-
-    private static Sent newSentInstance() {
-        final Sent sent = new Sent();
-        sent.setCount(new ZeroBasedCounter32(0L));
-        return sent;
-    }
-
-    private static void updateReceivedMsg(final Received received) {
-        Preconditions.checkNotNull(received);
-        final long count = received.getCount() == null ? 0L : received.getCount().getValue();
-        received.setCount(new ZeroBasedCounter32(count + 1));
-        received.setTimestamp(new Timestamp(StatisticsUtil.getCurrentTimestampInSeconds()));
-    }
-
-    private static void updateSentMsg(final Sent sent) {
-        Preconditions.checkNotNull(sent);
-        final long count = sent.getCount() == null ? 0L : sent.getCount().getValue();
-        sent.setCount(new ZeroBasedCounter32(count + 1));
-        sent.setTimestamp(new Timestamp(StatisticsUtil.getCurrentTimestampInSeconds()));
-    }
-
-    private static AdvertizedTableTypes addTableType(final BgpTableType type) {
-        Preconditions.checkNotNull(type);
-        final AdvertizedTableTypes att = new AdvertizedTableTypes();
-        att.setAfi(new IdentityAttributeRef(BindingReflections.findQName(type.getAfi()).intern().toString()));
-        att.setSafi(new IdentityAttributeRef(BindingReflections.findQName(type.getSafi()).intern().toString()));
-        return att;
-    }
-
-    private static AdvertisedAddPathTableTypes addAddPathTableType(final AddressFamilies addressFamilies) {
-        Preconditions.checkNotNull(addressFamilies);
-        final AdvertisedAddPathTableTypes att = new AdvertisedAddPathTableTypes();
-        att.setAfi(new IdentityAttributeRef(BindingReflections.findQName(addressFamilies.getAfi()).intern().toString()));
-        att.setSafi(new IdentityAttributeRef(BindingReflections.findQName(addressFamilies.getSafi()).intern().toString()));
-        att.setSendReceive(addressFamilies.getSendReceive());
-        return att;
-    }
-
-    private static RemotePeerPreferences setRemotePeerPref(final Channel channel, final Optional<BGPSessionPreferences> localPreferences) {
-        Preconditions.checkNotNull(channel);
-        final RemotePeerPreferences pref = new RemotePeerPreferences();
-        final InetSocketAddress isa = (InetSocketAddress) channel.localAddress();
-        pref.setHost(IpAddressBuilder.getDefaultInstance(isa.getAddress().getHostAddress()));
-        pref.setPort(new PortNumber(isa.getPort()));
-        final List<AdvertizedTableTypes> tt = new ArrayList<>();
-        if (localPreferences.isPresent()) {
-            final BGPSessionPreferences localPref = localPreferences.get();
-            pref.setBgpId(new BgpId(localPref.getBgpId().getValue()));
-            pref.setAs(localPref.getMyAs().getValue());
-            pref.setHoldtimer(localPref.getHoldTime());
-            if (localPref.getParams() != null) {
-                for (final BgpParameters param : localPref.getParams()) {
-                    for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
-                        final CParameters cParam = capa.getCParameters();
-                        final CParameters1 capabilities = cParam.getAugmentation(CParameters1.class);
-                        if (capabilities != null) {
-                            final MultiprotocolCapability mc = capabilities.getMultiprotocolCapability();
-                            if (mc != null) {
-                                final AdvertizedTableTypes att = new AdvertizedTableTypes();
-                                att.setAfi(new IdentityAttributeRef(BindingReflections.findQName(mc.getAfi()).intern().toString()));
-                                att.setAfi(new IdentityAttributeRef(BindingReflections.findQName(mc.getSafi()).intern().toString()));
-                                tt.add(att);
-                            }
-                            if (capabilities.getGracefulRestartCapability() != null) {
-                                pref.setGrCapability(true);
-                            }
-                            // FIXME add path capability is deprecated
-                            if (capabilities.getAddPathCapability() != null) {
-                                pref.setAddPathCapability(true);
-                            }
-                            if (capabilities.getRouteRefreshCapability() != null) {
-                                pref.setRouteRefreshCapability(true);
-                            }
-                        }
-                        if (cParam.getAs4BytesCapability() != null) {
-                            pref.setFourOctetAsCapability(true);
-                        }
-                        if (cParam.getBgpExtendedMessageCapability() != null) {
-                            pref.setBgpExtendedMessageCapability(true);
-                        }
-                    }
-                }
-            }
-        }
-        pref.setAdvertizedTableTypes(tt);
-        return pref;
-    }
-
-    private static LocalPeerPreferences setLocalPeerPref(final Open remoteOpen, final Channel channel, final Collection<BgpTableType> tableTypes,
-        final List<AddressFamilies> addPathTypes) {
-        Preconditions.checkNotNull(remoteOpen);
-        Preconditions.checkNotNull(channel);
-        final LocalPeerPreferences pref = new LocalPeerPreferences();
-        final InetSocketAddress isa = (InetSocketAddress) channel.remoteAddress();
-        pref.setHost(IpAddressBuilder.getDefaultInstance(isa.getAddress().getHostAddress()));
-        pref.setPort(new PortNumber(isa.getPort()));
-        pref.setBgpId(new BgpId(remoteOpen.getBgpIdentifier().getValue()));
-        pref.setAs(remoteOpen.getMyAsNumber().longValue());
-        pref.setHoldtimer(remoteOpen.getHoldTimer());
-
-        final List<AdvertizedTableTypes> tt = tableTypes.stream().map(BGPSessionStats::addTableType).collect(Collectors.toList());
-        final List<AdvertisedAddPathTableTypes> addPathTableTypeList = addPathTypes.stream().map(BGPSessionStats::addAddPathTableType)
-            .collect(Collectors.toList());
-
-        if (remoteOpen.getBgpParameters() != null) {
-            for (final BgpParameters param : remoteOpen.getBgpParameters()) {
-                for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
-                    final CParameters cParam = capa.getCParameters();
-                    final CParameters1 capabilities = cParam.getAugmentation(CParameters1.class);
-                    if (cParam.getAs4BytesCapability() != null) {
-                        pref.setFourOctetAsCapability(true);
-                    }
-                    if (capabilities != null) {
-                        if (capabilities.getGracefulRestartCapability() != null) {
-                            pref.setGrCapability(true);
-                        }
-                        // FIXME add path capability is deprecated
-                        if (capabilities.getAddPathCapability() != null) {
-                            pref.setAddPathCapability(true);
-                        }
-                        if (capabilities.getRouteRefreshCapability() != null) {
-                            pref.setRouteRefreshCapability(true);
-                        }
-                    }
-                    if (cParam.getBgpExtendedMessageCapability() != null) {
-                        pref.setBgpExtendedMessageCapability(true);
-                    }
-                }
-
-            }
-        }
-        pref.setAdvertizedTableTypes(tt);
-        pref.setAdvertisedAddPathTableTypes(addPathTableTypeList);
-        return pref;
     }
 }

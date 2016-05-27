@@ -25,7 +25,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -101,9 +100,6 @@ public class AbstractRIBTestSetup {
     private BGPDispatcher dispatcher;
 
     @Mock
-    private DataBroker dps;
-
-    @Mock
     private DOMDataBroker dom;
 
     @Mock
@@ -144,7 +140,7 @@ public class AbstractRIBTestSetup {
         this.a1.startRIBExtensionProvider(context);
         mockedMethods();
         this.rib = new RIBImpl(new RibId("test"), new AsNumber(5L), this.ribId,
-            this.clusterId, context , this.dispatcher, this.codecFactory, this.dps, this.dom,
+            this.clusterId, context, this.dispatcher, this.codecFactory, this.dom,
             localTables, Collections.singletonMap(new TablesKey(AFI, SAFI), BasePathSelectionModeFactory.createBestPathSelectionStrategy()),
             GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy());
         this.rib.onGlobalContextUpdated(schemaContext);
@@ -176,14 +172,12 @@ public class AbstractRIBTestSetup {
         final Map<Class<? extends DOMDataBrokerExtension>, DOMDataBrokerExtension> map = new HashMap<>();
         map.put(DOMDataTreeChangeService.class, this.service);
         Mockito.doNothing().when(readTx).close();
-        Mockito.doReturn(readTx).when(this.dps).newReadOnlyTransaction();
         final CheckedFuture<Optional<DataObject>, ReadFailedException> readFuture = Mockito.mock(CheckedFuture.class);
         Mockito.doNothing().when(this.domTransWrite).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
         Mockito.doNothing().when(this.domTransWrite).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class));
         Mockito.doNothing().when(this.domTransWrite).merge(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(YangInstanceIdentifier.class), Mockito.any(NormalizedNode.class));
         Mockito.doReturn(Optional.<DataObject>absent()).when(readFuture).checkedGet();
         Mockito.doReturn(readFuture).when(readTx).read(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.any(InstanceIdentifier.class));
-        Mockito.doReturn(this.chain).when(this.dps).createTransactionChain(Mockito.any(RIBImpl.class));
         Mockito.doNothing().when(this.domChain).close();
         Mockito.doReturn(this.domTransWrite).when(this.domChain).newWriteOnlyTransaction();
         Mockito.doNothing().when(getTransaction()).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Mockito.eq(YangInstanceIdentifier.of(BgpRib.QNAME)), Mockito.any(NormalizedNode.class));
