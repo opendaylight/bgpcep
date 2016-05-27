@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 public class RIBImplModuleTest extends AbstractRIBImplModuleTest {
     private static final String INSTANCE_NAME = "rib-impl";
@@ -73,7 +74,7 @@ public class RIBImplModuleTest extends AbstractRIBImplModuleTest {
         assertBeanCount(1, FACTORY_NAME);
         final RIBImplModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME),
                 RIBImplModuleMXBean.class);
-        mxBean.setLocalAs(100L);
+        mxBean.setLocalAs(new AsNumber(100L));
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
         assertStatus(status, 0, 1, 9);

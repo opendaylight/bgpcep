@@ -26,6 +26,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.stats.peer.route.PerTableTypeRouteCounter;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.PeerRoleUtil;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
@@ -264,7 +265,7 @@ final class AdjRibInWriter {
 
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         ctx.writeRoutes(tx, nlri, attributes);
-        LOG.trace("Write routes {}", nlri);
+        LOG.debug("Write routes {}", nlri);
         tx.submit();
     }
 
@@ -275,7 +276,7 @@ final class AdjRibInWriter {
             LOG.debug("No table for {}, not accepting NLRI {}", key, nlri);
             return;
         }
-        LOG.trace("Removing routes {}", nlri);
+        LOG.debug("Removing routes {}", nlri);
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         ctx.removeRoutes(tx, nlri);
         tx.submit();

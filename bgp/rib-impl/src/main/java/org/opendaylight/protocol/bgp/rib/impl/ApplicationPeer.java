@@ -75,6 +75,7 @@ public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol
         final YangInstanceIdentifier peerIId = targetRib.getYangRibId().node(Peer.QNAME).node(peerId);
         this.adjRibsInId = peerIId.node(AdjRibIn.QNAME).node(Tables.QNAME);
         this.chain = targetRib.createPeerChain(this);
+        //TODO need to create effective rib in writer with route counter here
         this.effectiveRibInWriter = EffectiveRibInWriter.create(targetRib.getService(), targetRib.createPeerChain(this), peerIId,
             targetRib.getImportPolicyPeerTracker(), targetRib.getRibSupportContext(), PeerRole.Internal);
         this.writerChain = targetRib.createPeerChain(this);

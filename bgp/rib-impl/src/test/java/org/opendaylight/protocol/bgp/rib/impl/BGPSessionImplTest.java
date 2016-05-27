@@ -206,7 +206,7 @@ public class BGPSessionImplTest {
         assertEquals(BGPError.CEASE.getCode(), state.getMessagesStats().getErrorMsgs().getErrorSent().get(0).getErrorCode().shortValue());
         assertEquals(BGPError.CEASE.getSubcode(), state.getMessagesStats().getErrorMsgs().getErrorSent().get(0).getErrorSubcode().shortValue());
 
-        this.bgpSession.resetSessionStats();
+        this.bgpSession.resetBgpSessionStats();
         assertEquals(0, state.getMessagesStats().getTotalMsgs().getReceived().getCount().getValue().longValue());
         assertEquals(0, state.getMessagesStats().getTotalMsgs().getSent().getCount().getValue().longValue());
         assertEquals(0, state.getMessagesStats().getErrorMsgs().getErrorSentTotal().getCount().getValue().longValue());
