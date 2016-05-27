@@ -1,0 +1,197 @@
+module bgp-peer {
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:bgp:peer";
+    prefix "bgp-peer";
+
+    import bgp-rib { prefix rib; revision-date 2013-09-25; }
+    import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
+    import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
+    import config { prefix config; revision-date 2013-04-05; }
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import odl-tcpmd5-cfg { prefix tcpmd5; revision-date 2014-04-27; }
+    import bgp-rib-impl-spi { prefix rib-impl-spi; revision-date 2016-06-06; }
+    import opendaylight-md-sal-binding {prefix mdsb; revision-date 2013-10-28; }
+
+    organization "Brocade Communications Systems, Inc.";
+    contact "Kevin Wang <kwang@brocade.com>";
+
+    description
+        "This module contains the base data model of BGP peer.
+
+        Copyright (c) 2016 Brocade Communications Systems, Inc. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision 2016-06-06 {
+        description "Initial revision";
+    }
+
+    grouping bgp-peer-config-attributes {
+        leaf host {
+            description "Host IP address of BGP connection";
+            type inet:ip-address;
+            mandatory true;
+        }
+
+        leaf port {
+            description "The port for connection between the BGP peers.";
+            type inet:port-number;
+            default 179;
+        }
+
+        leaf holdtimer {
+            description "Time interval (in seconds) for HoldTimer proposed by the peer.";
+            type uint16;
+            default 180;
+        }
+    }
+
+    grouping bgp-peer-config {
+        uses bgp-peer-config-attributes;
+
+        leaf retrytimer {
+            type uint16;
+            default 10;
+        }
+
+        leaf peer-role {
+            type rib:peer-role;
+            default ibgp;
+        }
+
+        leaf simple-routing-policy {
+            type rib:simple-routing-policy;
+        }
+
+        leaf initiate-connection {
+            description "If true, connection will be initiated right away from current device.
+                If not, the peer will only be registered to peer registry and available for incomming bgp connections.";
+            type boolean;
+            default true;
+        }
+
+        leaf route-refresh {
+            type boolean;
+            default "true";
+        }
+
+        leaf remote-as {
+            description
+                "Expected remote AS number. If not present, it is assumed
+                to be the same as our local AS number.";
+            type uint32;
+        }
+
+        leaf password {
+            type tcpmd5:rfc2385-key;
+            description "RFC2385 shared secret";
+        }
+
+        list advertized-table {
+            key "type name";
+            uses config:service-ref {
+                refine type {
+                    mandatory true;
+                    config:required-identity rib-impl-spi:bgp-table-type;
+                }
+            }
+        }
+
+        list add-path {
+            key "type name";
+            uses config:service-ref {
+                refine type {
+                    config:required-identity rib-impl-spi:add-path;
+                }
+            }
+        }
+
+        container rpc-registry {
+            uses config:service-ref {
+                refine type {
+                    mandatory false;
+                    config:required-identity mdsb:binding-rpc-registry;
+                }
+            }
+        }
+
+        container rib {
+            uses config:service-ref {
+                refine type {
+                    mandatory true;
+                    config:required-identity rib-impl-spi:rib-instance;
+                }
+            }
+        }
+
+        container peer-registry {
+            description "BGP peer registry where current instance of BGP peer will be registered.";
+            uses config:service-ref {
+                refine type {
+                    // FIXME backwards compatibility. If not configured, GLOBAL instance is used
+                    mandatory false;
+                    config:required-identity rib-impl-spi:bgp-peer-registry;
+                }
+            }
+        }
+    }
+
+    grouping bgp-peer-preferences {
+        leaf bgp-id {
+            description "The BGP Identifier.";
+            type bgp-t:bgp-id;
+            default "";
+        }
+
+        uses bgp-peer-config-attributes;
+
+        leaf as {
+            description "Autonomous system number.";
+            type uint32;
+            default 0;
+        }
+
+        leaf four-octet-as-capability {
+            description "The BGP peer 4 byte AS numbers support capability.";
+            type boolean;
+            default "false";
+        }
+
+        leaf bgp-extended-message-capability {
+            description "The bgp extended message support capability.";
+            type boolean;
+            default "false";
+        }
+
+        leaf gr-capability {
+            description "BGP graceful restart support capability.";
+            type boolean;
+            default "false";
+        }
+
+        leaf add-path-capability {
+            type boolean;
+            default "false";
+        }
+
+        leaf route-refresh-capability {
+            reference "https://tools.ietf.org/html/rfc2918";
+            type boolean;
+            default "false";
+        }
+
+        list advertized-table-types {
+            description "The BGP Table-type capabilities advertized by the BGP peer.";
+            key "afi safi";
+            uses bgp-mp:bgp-table-type;
+        }
+
+        list advertised-add-path-table-types {
+            description "The BGP Table-type capabilities advertized by the BGP peer.";
+            key "afi safi";
+            uses bgp-mp:bgp-add-path-table-type;
+        }
+    }
+}
