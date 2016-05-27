@@ -589,8 +589,20 @@ module odl-bgp-rib-impl-cfg {
                         type string;
                     }
 
-                    leaf routes-count {
-                        description "The total number of routes in table.";
+                    leaf adj-rib-in-routes-count {
+                        description "The total number of Adj-RIB-In routes in table.";
+                        type uint32;
+                        default 0;
+                    }
+
+                    leaf adj-rib-out-routes-count {
+                        description "The total number of Adj-RIB-Out routes in table.";
+                        type uint32;
+                        default 0;
+                    }
+
+                    leaf effective-rib-in-routes-count {
+                        description "The total number of Effective-RIB-In routes in table.";
                         type uint32;
                         default 0;
                     }
@@ -598,6 +610,12 @@ module odl-bgp-rib-impl-cfg {
 
                 leaf session-established-count {
                     description "The total number of time the BGP session was transitioned to Up state.";
+                    type uint32;
+                    default 0;
+                }
+
+                leaf session-configured-count {
+                    description "The total number of time the BGP session that was configured.";
                     type uint32;
                     default 0;
                 }
@@ -671,6 +689,35 @@ module odl-bgp-rib-impl-cfg {
                             uses message-state;
                             uses error;
                         }
+                    }
+                }
+            }
+        }
+
+        case rib-impl {
+            when "/config:modules/config:module/config:type = 'rib-impl'";
+
+            rpcx:rpc-context-instance "render-rpc";
+
+            container bgp-render-state {
+
+                leaf routes-count {
+                    description "The total number of routes in loc-rib.";
+                    type uint32;
+                    default 0;
+                }
+
+                list route-table {
+
+                    leaf table-type {
+                        description "The table name - composed of AFI and SAFI.";
+                        type string;
+                    }
+
+                    leaf routes-count {
+                        description "The total number of routes in table.";
+                        type uint32;
+                        default 0;
                     }
                 }
             }
