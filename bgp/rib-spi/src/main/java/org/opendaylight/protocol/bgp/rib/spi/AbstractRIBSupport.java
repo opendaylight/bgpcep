@@ -141,10 +141,14 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         return this.routesListIdentifier;
     }
 
+    @Nonnull
+    @Override
     public final Class<? extends AddressFamily> getAfi() {
         return afiClass;
     }
 
+    @Nonnull
+    @Override
     public final Class<? extends SubsequentAddressFamily> getSafi() {
         return safiClass;
     }
@@ -316,19 +320,23 @@ public abstract class AbstractRIBSupport implements RIBSupport {
         final AttributesBuilder ab = new AttributesBuilder(attr);
         final CNextHop hop = ab.getCNextHop();
 
+        LOG.debug("cnextHop before={}", hop);
         // do not preserve next hop in attributes if we are using MpReach
         ab.setCNextHop(null);
 
         if (!advertised.isEmpty()) {
             final MpReachNlri mb = buildReach(advertised, hop);
             ab.addAugmentation(Attributes1.class, new Attributes1Builder().setMpReachNlri(mb).build());
+            LOG.debug("mpreach nexthop={}", mb);
         }
         if (!withdrawn.isEmpty()) {
             final MpUnreachNlri mb = buildUnreach(withdrawn);
             ab.addAugmentation(Attributes2.class, new Attributes2Builder().setMpUnreachNlri(mb).build());
+            LOG.debug("mpunrach mb={}", mb);
         }
 
         ub.setAttributes(ab.build());
+        LOG.debug("update {}", ub.build());
         return ub.build();
     }
 

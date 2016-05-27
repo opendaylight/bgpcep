@@ -78,6 +78,9 @@ import org.opendaylight.controller.md.sal.dom.api.DOMRpcProviderService;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.controller.sal.core.api.model.YangTextSourceProvider;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.controller.sal.core.api.model.SchemaService;
+import org.opendaylight.controller.sal.core.api.model.YangTextSourceProvider;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
@@ -290,7 +293,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         mxBean.setBgpDispatcher(BGPDispatcherImplModuleTest.createInstance(transaction));
         mxBean.setExtensions(createRibExtensionsInstance(transaction));
         mxBean.setRibId(ribId);
-        mxBean.setLocalAs(localAs);
+        mxBean.setLocalAs(localAs != null ? new AsNumber(localAs) : null);
         mxBean.setBgpRibId(bgpId != null ? new BgpId(bgpId) : null);
         mxBean.setClusterId(clusterId != null ? new ClusterIdentifier(clusterId) : null);
         return nameCreated;

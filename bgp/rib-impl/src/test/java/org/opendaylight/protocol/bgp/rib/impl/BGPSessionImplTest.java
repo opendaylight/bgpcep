@@ -165,7 +165,7 @@ public class BGPSessionImplTest {
         assertEquals(1, state.getKeepaliveCurrent().intValue());
         assertEquals(BGPSessionImpl.State.UP.name(), state.getSessionState());
         assertEquals(BGP_ID.getValue(), new String(state.getLocalPeerPreferences().getHost().getValue()));
-        assertEquals(AS_NUMBER.getValue(), state.getLocalPeerPreferences().getAs());
+        assertEquals(AS_NUMBER.getValue(), state.getLocalPeerPreferences().getAs().getValue());
         assertTrue(state.getLocalPeerPreferences().getBgpExtendedMessageCapability());
         assertEquals(BGP_ID.getValue(), state.getLocalPeerPreferences().getBgpId().getValue());
         assertEquals(1, state.getLocalPeerPreferences().getAdvertizedTableTypes().size());
@@ -206,7 +206,7 @@ public class BGPSessionImplTest {
         assertEquals(BGPError.CEASE.getCode(), state.getMessagesStats().getErrorMsgs().getErrorSent().get(0).getErrorCode().shortValue());
         assertEquals(BGPError.CEASE.getSubcode(), state.getMessagesStats().getErrorMsgs().getErrorSent().get(0).getErrorSubcode().shortValue());
 
-        this.bgpSession.resetSessionStats();
+        this.bgpSession.resetBgpSessionStats();
         assertEquals(0, state.getMessagesStats().getTotalMsgs().getReceived().getCount().getValue().longValue());
         assertEquals(0, state.getMessagesStats().getTotalMsgs().getSent().getCount().getValue().longValue());
         assertEquals(0, state.getMessagesStats().getErrorMsgs().getErrorSentTotal().getCount().getValue().longValue());
