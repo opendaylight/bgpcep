@@ -54,7 +54,6 @@ import org.opendaylight.controller.config.yang.md.sal.binding.impl.BindingBroker
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.ForwardedCompatibleDataBrokerImplModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.ForwardedCompatibleDataBrokerImplModuleMXBean;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.NotificationBrokerImplModuleFactory;
-import org.opendaylight.controller.config.yang.md.sal.binding.impl.RpcBrokerImplModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.RuntimeMappingModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomBrokerImplModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomBrokerImplModuleMXBean;
@@ -330,7 +329,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
 
     public List<ModuleFactory> getModuleFactories() {
         return Lists.newArrayList(new InstructionSchedulerImplModuleFactory(), new HashedWheelTimerModuleFactory(),
-                new NotificationBrokerImplModuleFactory(), new RpcBrokerImplModuleFactory(), new DomBrokerImplModuleFactory(),
+                new NotificationBrokerImplModuleFactory(), new DomBrokerImplModuleFactory(),
                 new RuntimeMappingModuleFactory(), new BindingBrokerImplModuleFactory(), new BindingAsyncDataBrokerImplModuleFactory(),
                 new DomInmemoryDataBrokerModuleFactory(), new SchemaServiceImplSingletonModuleFactory(),
                 new ForwardedCompatibleDataBrokerImplModuleFactory());

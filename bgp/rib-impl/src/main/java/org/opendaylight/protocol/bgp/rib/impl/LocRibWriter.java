@@ -27,6 +27,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.stats.peer.route.RouteCounter;
 import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
@@ -85,6 +86,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     private final ListenerRegistration<LocRibWriter> reg;
     private final CacheDisconnectedPeers cacheDisconnectedPeers;
     private final PathSelectionMode pathSelectionMode;
+    private final RouteCounter routeCounter = new RouteCounter();
 
     private LocRibWriter(final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier target, final Long ourAs,
         final DOMDataTreeChangeService service, final PolicyDatabase pd, final TablesKey tablesKey, final CacheDisconnectedPeers cacheDisconnectedPeers,
@@ -261,11 +263,15 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             if (maybeData.isPresent()) {
                 if (entry == null) {
                     entry = createEntry(routeId);
+                    // increase route count
+                    routeCounter.increaseCount();
                 }
                 entry.addRoute(routerId, this.ribSupport.extractPathId(maybeData.get()), this.attributesIdentifier, maybeData.get());
             } else if (entry != null && entry.removeRoute(routerId, this.ribSupport.extractPathId(maybeDataBefore.get()))) {
                 this.routeEntries.remove(routeId);
                 LOG.trace("Removed route from {}", routerId);
+                // decrease route count
+                routeCounter.decreaseCount();
             }
             final RouteUpdateKey routeUpdateKey = new RouteUpdateKey(peerId, routeId);
             LOG.debug("Updated route {} entry {}", routeId, entry);

@@ -26,6 +26,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.stats.peer.route.PerTableTypeRouteCounter;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.PeerRoleUtil;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
@@ -94,6 +95,8 @@ final class AdjRibInWriter {
     private final DOMTransactionChain chain;
     private final PeerRole role;
     private final Optional<SimpleRoutingPolicy> simpleRoutingPolicy;
+    private final PerTableTypeRouteCounter adjRibInRouteCounter = new PerTableTypeRouteCounter();
+    private final PerTableTypeRouteCounter adjRibOutRouteCounter = new PerTableTypeRouteCounter();
 
     private AdjRibInWriter(final YangInstanceIdentifier ribPath, final DOMTransactionChain chain, final PeerRole role,
         final Optional<SimpleRoutingPolicy> simpleRoutingPolicy, final YangInstanceIdentifier peerPath, final Map<TablesKey, TableContext> tables) {
@@ -186,6 +189,8 @@ final class AdjRibInWriter {
         tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(Attributes.QNAME).node(ATTRIBUTES_UPTODATE_FALSE.getNodeType()), ATTRIBUTES_UPTODATE_FALSE);
         LOG.debug("Created table instance {}", ctx.getTableId());
         tb.put(tableKey, ctx);
+
+        adjRibInRouteCounter.init(tableKey);
     }
 
     private void installAdjRibsOutTables(final YangInstanceIdentifier newPeerPath, final RIBSupportContext rs,
@@ -202,6 +207,8 @@ final class AdjRibInWriter {
             }
             tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath.node(PEER_TABLES).node(supTablesKey), tt.build());
             rs.createEmptyTableStructure(tx, newPeerPath.node(EMPTY_ADJRIBOUT.getIdentifier()).node(TABLES).node(instanceIdentifierKey));
+
+            adjRibOutRouteCounter.init(tableKey);
         }
     }
 
