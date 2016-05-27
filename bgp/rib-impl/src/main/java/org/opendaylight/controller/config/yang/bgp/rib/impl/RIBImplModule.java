@@ -69,9 +69,11 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
     public java.lang.AutoCloseable createInstance() {
         final Map<TablesKey, PathSelectionMode> pathSelectionStrategies = mapBestPathSelectionStrategyByFamily(getRibPathSelectionModeDependency());
         final RIBImpl rib = new RIBImpl(getRibId(), getLocalAs(), getBgpRibId(), getClusterId(), getExtensionsDependency(),
-            getBgpDispatcherDependency(), getCodecTreeFactoryDependency(), getDataProviderDependency(), getDomDataProviderDependency(), getLocalTableDependency(), pathSelectionStrategies, classLoadingStrategy(),
+            getBgpDispatcherDependency(), getCodecTreeFactoryDependency(), getDomDataProviderDependency(), getLocalTableDependency(), pathSelectionStrategies, classLoadingStrategy(),
             new RIBImplModuleTracker(getGlobalWriter()), getOpenconfigProviderDependency());
         registerSchemaContextListener(rib);
+
+        rib.registerRootRuntimeBean(getRootRuntimeBeanRegistratorWrapper());
         return rib;
     }
 
