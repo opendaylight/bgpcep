@@ -48,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.MultiprotocolCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.slf4j.LoggerFactory;
@@ -154,7 +155,7 @@ public class BGPDispatcherImplTest {
             .build()).build());
         capas.add(new OptionalCapabilitiesBuilder().setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
-        return new BGPSessionPreferences(AS_NUMBER, (short) 4, new Ipv4Address(socketAddress.getAddress().getHostAddress()), AS_NUMBER, tlvs);
+        return new BGPSessionPreferences(AS_NUMBER, (short) 4, new BgpId(socketAddress.getAddress().getHostAddress()), AS_NUMBER, tlvs);
     }
 
 }

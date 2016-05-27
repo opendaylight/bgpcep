@@ -225,7 +225,7 @@ final class BGPPeerProvider {
                 bgpPeerBuilder.setPassword(new Rfc2385Key(neighbor.getConfig().getAuthPassword()));
             }
             if (neighbor.getConfig().getPeerAs() != null) {
-                bgpPeerBuilder.setRemoteAs(neighbor.getConfig().getPeerAs().getValue());
+                bgpPeerBuilder.setRemoteAs(neighbor.getConfig().getPeerAs());
             }
             if (neighbor.getConfig().getPeerType() != null) {
                 bgpPeerBuilder.setPeerRole(toPeerRole(neighbor));

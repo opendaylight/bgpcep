@@ -27,6 +27,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.stats.UnsignedInt32Counter;
 import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
 import org.opendaylight.protocol.bgp.rib.spi.ExportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
@@ -85,10 +86,11 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
     private final ListenerRegistration<LocRibWriter> reg;
     private final CacheDisconnectedPeers cacheDisconnectedPeers;
     private final PathSelectionMode pathSelectionMode;
+    private final UnsignedInt32Counter routeCounter;
 
     private LocRibWriter(final RIBSupportContextRegistry registry, final DOMTransactionChain chain, final YangInstanceIdentifier target, final Long ourAs,
         final DOMDataTreeChangeService service, final PolicyDatabase pd, final TablesKey tablesKey, final CacheDisconnectedPeers cacheDisconnectedPeers,
-        @Nonnull final PathSelectionMode pathSelectionMode) {
+        @Nonnull final PathSelectionMode pathSelectionMode, final UnsignedInt32Counter routeCounter) {
         this.chain = Preconditions.checkNotNull(chain);
         this.tableKey = RibSupportUtils.toYangTablesKey(tablesKey);
         this.localTablesKey = tablesKey;
@@ -99,6 +101,7 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
         this.peerPolicyTracker = new ExportPolicyPeerTrackerImpl(pd, this.localTablesKey);
         this.cacheDisconnectedPeers = cacheDisconnectedPeers;
         this.pathSelectionMode = pathSelectionMode;
+        this.routeCounter = routeCounter;
 
         final DOMDataWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         tx.merge(LogicalDatastoreType.OPERATIONAL, this.locRibTarget.node(Routes.QNAME), this.ribSupport.emptyRoutes());
@@ -112,8 +115,8 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
 
     public static LocRibWriter create(@Nonnull final RIBSupportContextRegistry registry, @Nonnull final TablesKey tablesKey, @Nonnull final DOMTransactionChain chain,
         @Nonnull final YangInstanceIdentifier target, @Nonnull final AsNumber ourAs, @Nonnull final DOMDataTreeChangeService service, @Nonnull final PolicyDatabase pd,
-        final CacheDisconnectedPeers cacheDisconnectedPeers, @Nonnull final PathSelectionMode pathSelectionStrategy) {
-        return new LocRibWriter(registry, chain, target, ourAs.getValue(), service, pd, tablesKey, cacheDisconnectedPeers, pathSelectionStrategy);
+        final CacheDisconnectedPeers cacheDisconnectedPeers, @Nonnull final PathSelectionMode pathSelectionStrategy, @Nonnull final UnsignedInt32Counter routeCounter) {
+        return new LocRibWriter(registry, chain, target, ourAs.getValue(), service, pd, tablesKey, cacheDisconnectedPeers, pathSelectionStrategy, routeCounter);
     }
 
     @Override
@@ -271,6 +274,14 @@ final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
             LOG.debug("Updated route {} entry {}", routeId, entry);
             routes.put(routeUpdateKey, entry);
         }
+        updateRouteCounter();
+    }
+
+    /**
+     * Update the statistic of loc-rib route
+     */
+    private void updateRouteCounter() {
+        routeCounter.setCount(this.routeEntries.size());
     }
 
     private void walkThrough(final DOMDataWriteTransaction tx, final Map<RouteUpdateKey, RouteEntry> toUpdate) {

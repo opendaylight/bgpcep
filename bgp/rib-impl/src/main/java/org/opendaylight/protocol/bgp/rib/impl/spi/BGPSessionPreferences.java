@@ -11,6 +11,7 @@ import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 
 /**
  * DTO for BGP Session preferences, that contains BGP Open message.
@@ -21,7 +22,7 @@ public final class BGPSessionPreferences {
 
     private final int hold;
 
-    private final Ipv4Address bgpId;
+    private final BgpId bgpId;
 
     private final List<BgpParameters> params;
 
@@ -36,11 +37,11 @@ public final class BGPSessionPreferences {
      * @param remoteAs expected remote As Number
      * @param params list of advertised parameters
      */
-    public BGPSessionPreferences(final AsNumber as, final int hold, final Ipv4Address bgpId, final AsNumber remoteAs,
+    public BGPSessionPreferences(final AsNumber as, final int hold, final BgpId bgpId, final AsNumber remoteAs,
         final List<BgpParameters> params) {
         this.as = as;
         this.hold = hold;
-        this.bgpId = bgpId;
+        this.bgpId = (bgpId != null) ? new BgpId(bgpId) : null;
         this.remoteAs = remoteAs;
         this.params = params;
     }
@@ -68,7 +69,7 @@ public final class BGPSessionPreferences {
      *
      * @return BGP identifier
      */
-    public Ipv4Address getBgpId() {
+    public BgpId getBgpId() {
         return this.bgpId;
     }
 
