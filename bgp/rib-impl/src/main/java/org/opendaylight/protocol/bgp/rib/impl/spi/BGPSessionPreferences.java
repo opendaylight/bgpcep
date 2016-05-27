@@ -41,7 +41,7 @@ public final class BGPSessionPreferences {
         final List<BgpParameters> params) {
         this.as = as;
         this.hold = hold;
-        this.bgpId = bgpId;
+        this.bgpId = (bgpId != null) ? new BgpId(bgpId) : null;
         this.remoteAs = remoteAs;
         this.params = params;
     }

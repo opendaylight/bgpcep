@@ -8,6 +8,7 @@
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import com.google.common.base.Optional;
+import java.util.Collections;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
@@ -31,8 +32,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-
-import java.util.Collections;
 
 /**
  * Application peer handler which handles translation from custom RIB into local RIB

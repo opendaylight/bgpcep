@@ -318,8 +318,8 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         mxBean.setExtensions(createRibExtensionsInstance(transaction));
         mxBean.setRibId(ribId);
         mxBean.setLocalAs(localAs);
-        mxBean.setBgpRibId(bgpId != null ? new BgpId(bgpId) : null);
-        mxBean.setClusterId(clusterId != null ? new ClusterIdentifier(clusterId) : null);
+        mxBean.setBgpRibId(bgpId);
+        mxBean.setClusterId(clusterId);
         return nameCreated;
     }
 
