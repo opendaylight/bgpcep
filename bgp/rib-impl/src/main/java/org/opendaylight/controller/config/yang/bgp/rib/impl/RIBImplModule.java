@@ -31,8 +31,6 @@ import org.opendaylight.protocol.bgp.openconfig.spi.InstanceConfigurationIdentif
 import org.opendaylight.protocol.bgp.openconfig.spi.pojo.BGPRibInstanceConfiguration;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPBestPathSelection;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
@@ -69,13 +67,13 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final AsNumber asNumber = new AsNumber(getLocalAs());
         final Map<TablesKey, PathSelectionMode> pathSelectionStrategies = mapBestPathSelectionStrategyByFamily(getRibPathSelectionModeDependency());
-        final RIBImpl rib = new RIBImpl(getRibId(), asNumber, getBgpRibId(), getClusterId(), getExtensionsDependency(),
-            getBgpDispatcherDependency(), getCodecTreeFactoryDependency(),
-            getDataProviderDependency(), getDomDataProviderDependency(), getLocalTableDependency(), pathSelectionStrategies, classLoadingStrategy(),
+        final RIBImpl rib = new RIBImpl(getRibId(), getLocalAs(), getBgpRibId(), getClusterId(), getExtensionsDependency(),
+            getBgpDispatcherDependency(), getCodecTreeFactoryDependency(), getDomDataProviderDependency(), getLocalTableDependency(), pathSelectionStrategies, classLoadingStrategy(),
             new RIBImplModuleTracker(getGlobalWriter()), getOpenconfigProviderDependency());
         registerSchemaContextListener(rib);
+
+        rib.registerRootRuntimeBean(getRootRuntimeBeanRegistratorWrapper());
         return rib;
     }
 
@@ -119,10 +117,7 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
             this.globalWriter = globalWriter;
             final InstanceConfigurationIdentifier identifier = new InstanceConfigurationIdentifier(getIdentifier().getInstanceName());
             final List<BgpTableType> tableDependency = getLocalTableDependency();
-            final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber as = Rev130715Util.getASNumber(getLocalAs());
-            final Ipv4Address bgpRibId = Rev130715Util.getIpv4Address(getBgpRibId());
-            final Ipv4Address clusterId = Rev130715Util.getIpv4Address(getClusterId());
-            this.bgpRibConfig = new BGPRibInstanceConfiguration(identifier, as, bgpRibId, clusterId, tableDependency,
+            this.bgpRibConfig = new BGPRibInstanceConfiguration(identifier, getLocalAs(), getBgpRibId(), getClusterId(), tableDependency,
                     mapBestPathSelectionStrategyByFamily(getRibPathSelectionModeDependency()));
         }
 

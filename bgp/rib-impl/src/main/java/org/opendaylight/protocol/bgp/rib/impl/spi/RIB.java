@@ -15,12 +15,14 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigProvider;
 import org.opendaylight.protocol.bgp.rib.RibReference;
+import org.opendaylight.protocol.bgp.rib.impl.stats.rib.impl.BGPRenderStats;
 import org.opendaylight.protocol.bgp.rib.spi.CacheDisconnectedPeers;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 /**
@@ -29,7 +31,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 public interface RIB  extends RibReference {
     AsNumber getLocalAs();
 
-    Ipv4Address getBgpIdentifier();
+    BgpId getBgpIdentifier();
 
     /**
      * Return the set of table identifiers which are accepted and advertised
@@ -40,8 +42,6 @@ public interface RIB  extends RibReference {
     @Nonnull Set<? extends BgpTableType> getLocalTables();
 
     BGPDispatcher getDispatcher();
-
-    long getRoutesCount(TablesKey key);
 
     /**
      * Allocate a new transaction chain for use with a peer.
@@ -98,4 +98,6 @@ public interface RIB  extends RibReference {
      * @return DOMDataTreeChangeService
      */
     DOMDataTreeChangeService getService();
+
+    BGPRenderStats getRenderStats();
 }

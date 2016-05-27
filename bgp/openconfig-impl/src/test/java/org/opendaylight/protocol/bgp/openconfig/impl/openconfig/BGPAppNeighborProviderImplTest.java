@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.n
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.BgpApplicationPeer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.ModuleKey;
 
@@ -55,7 +56,7 @@ public class BGPAppNeighborProviderImplTest {
 
     @Test
     public void testApply() {
-        final Neighbor neighbor = neighborProvider.apply(new BGPAppPeerInstanceConfiguration(new InstanceConfigurationIdentifier("instanceName"), "app-rib", new Ipv4Address("1.2.3.4")));
+        final Neighbor neighbor = neighborProvider.apply(new BGPAppPeerInstanceConfiguration(new InstanceConfigurationIdentifier("instanceName"), "app-rib", new BgpId("1.2.3.4")));
         final Neighbor expectedNeighbor = new NeighborBuilder()
             .setNeighborAddress(new IpAddress(new Ipv4Address("1.2.3.4")))
             .setKey(new NeighborKey(new IpAddress(new Ipv4Address("1.2.3.4"))))
