@@ -443,7 +443,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     }
 
     @Override
-    public synchronized BgpSessionState getBgpSesionState() {
+    public synchronized BgpSessionState getBgpSessionState() {
         return this.sessionStats.getBgpSessionState(this.state);
     }
 

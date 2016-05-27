@@ -222,7 +222,7 @@ final class BGPPeerProvider {
         bgpPeerBuilder.setHost(ipAdress);
         final Timers timers = neighbor.getTimers();
         if (timers != null && timers.getConfig() != null && timers.getConfig().getHoldTime() != null) {
-            bgpPeerBuilder.setHoldtimer(neighbor.getTimers().getConfig().getHoldTime().shortValue());
+            bgpPeerBuilder.setHoldtimer(neighbor.getTimers().getConfig().getHoldTime().intValue());
         }
         final Transport transport = neighbor.getTransport();
         if (transport != null && transport.getConfig() != null && transport.getConfig().isPassiveMode() != null) {
