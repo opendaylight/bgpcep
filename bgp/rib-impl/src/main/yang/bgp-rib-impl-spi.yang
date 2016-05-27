@@ -1,0 +1,75 @@
+module bgp-rib-impl-spi {
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl:spi";
+    prefix "bgp-rib-impl-spi";
+
+    import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
+    import bgp-rib { prefix rib; revision-date 2013-09-25; }
+    import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
+    import config { prefix config; revision-date 2013-04-05; }
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import ietf-yang-types { prefix yang; revision-date 2013-07-15; }
+    import opendaylight-md-sal-binding {prefix mdsb; revision-date 2013-10-28; }
+    import rpc-context { prefix rpcx; revision-date 2013-06-17; }
+
+    organization "Brocade Communications Systems, Inc.";
+    contact "Kevin Wang <kwang@brocade.com>";
+
+    description
+        "This module contains the base data model of BGP RIB SPI implementation.
+
+        Copyright (c) 2016 Brocade Communications Systems, Inc. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision 2016-06-06 {
+        description "Initial revision";
+    }
+
+    identity bgp-dispatcher {
+        description
+            "Service representing a BGP Dispatcher.";
+
+        base "config:service-type";
+        config:java-class "org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher";
+    }
+
+    identity rib-instance {
+        description
+            "Service representing a RIB instance";
+
+        base "config:service-type";
+        config:java-class "org.opendaylight.protocol.bgp.rib.impl.spi.RIB";
+    }
+
+    identity bgp-peer-registry {
+        description
+            "Registry of BGP peers. Every new BGP in/out connection looks for peers to handle bgp messages in this registry";
+
+        base "config:service-type";
+        config:java-class "org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry";
+    }
+
+    identity bgp-table-type {
+        description
+            "Service representing a AFI/SAFI pair";
+
+        base "config:service-type";
+        config:java-class "org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType";
+    }
+
+    identity add-path {
+        base "config:service-type";
+        config:java-class "org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamilies";
+    }
+
+    identity bgp-path-selection-mode {
+        description
+            "Service representing an address family + path selection mode.";
+
+        base "config:service-type";
+        config:java-class "org.opendaylight.protocol.bgp.rib.impl.spi.BGPBestPathSelection";
+    }
+}

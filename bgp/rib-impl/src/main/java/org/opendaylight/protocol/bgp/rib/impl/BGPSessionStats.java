@@ -36,6 +36,10 @@ import org.opendaylight.controller.config.yang.bgp.rib.impl.UpdateMsgs;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl.State;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.util.StatisticsUtil;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.PortNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.ZeroBasedCounter32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.message.BgpParameters;
@@ -45,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.MultiprotocolCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.mp.capabilities.add.path.capability.AddressFamilies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 
 final class BGPSessionStats {
     private final Stopwatch sessionStopwatch;
@@ -118,8 +123,8 @@ final class BGPSessionStats {
     public void updateReceivedMsgErr(final Notify error) {
         Preconditions.checkNotNull(error);
         final ErrorReceived received = this.errMsgs.getErrorReceived();
-        received.setCount(received.getCount() + 1);
-        received.setTimestamp(StatisticsUtil.getCurrentTimestampInSeconds());
+        received.setCount(new ZeroBasedCounter32(received.getCount().getValue() + 1));
+        received.setTimestamp(new ZeroBasedCounter32(StatisticsUtil.getCurrentTimestampInSeconds()));
         received.setCode(error.getErrorCode());
         received.setSubCode(error.getErrorSubcode());
     }
@@ -127,8 +132,8 @@ final class BGPSessionStats {
     public void updateSentMsgErr(final Notify error) {
         Preconditions.checkNotNull(error);
         final ErrorSent sent = this.errMsgs.getErrorSent();
-        sent.setCount(sent.getCount() + 1);
-        sent.setTimestamp(StatisticsUtil.getCurrentTimestampInSeconds());
+        sent.setCount(new ZeroBasedCounter32(sent.getCount().getValue() + 1));
+        sent.setTimestamp(new ZeroBasedCounter32(StatisticsUtil.getCurrentTimestampInSeconds()));
         sent.setCode(error.getErrorCode());
         sent.setSubCode(error.getErrorSubcode());
     }
@@ -153,30 +158,32 @@ final class BGPSessionStats {
 
     private static void updateReceivedMsg(final Received received) {
         Preconditions.checkNotNull(received);
-        received.setCount(received.getCount() + 1);
-        received.setTimestamp(StatisticsUtil.getCurrentTimestampInSeconds());
+        received.setCount(new ZeroBasedCounter32(received.getCount().getValue() + 1));
+        received.setTimestamp(new ZeroBasedCounter32(StatisticsUtil.getCurrentTimestampInSeconds()));
     }
 
     private static void updateSentMsg(final Sent sent) {
         Preconditions.checkNotNull(sent);
-        sent.setCount(sent.getCount() + 1);
-        sent.setTimestamp(StatisticsUtil.getCurrentTimestampInSeconds());
+        sent.setCount(new ZeroBasedCounter32(sent.getCount().getValue() + 1));
+        sent.setTimestamp(new ZeroBasedCounter32(StatisticsUtil.getCurrentTimestampInSeconds()));
     }
 
     private static AdvertizedTableTypes addTableType(final BgpTableType type) {
         Preconditions.checkNotNull(type);
         final AdvertizedTableTypes att = new AdvertizedTableTypes();
-        att.setAfi(type.getAfi().getSimpleName());
-        att.setSafi(type.getSafi().getSimpleName());
+        //FIXME
+//        att.setAfi(type.getAfi().getSimpleName());
+//        att.setSafi(type.getSafi().getSimpleName());
         return att;
     }
 
     private static AdvertisedAddPathTableTypes addAddPathTableType(final AddressFamilies addressFamilies) {
         Preconditions.checkNotNull(addressFamilies);
         final AdvertisedAddPathTableTypes att = new AdvertisedAddPathTableTypes();
-        att.setAfi(addressFamilies.getAfi().getSimpleName());
-        att.setSafi(addressFamilies.getSafi().getSimpleName());
-        att.setSendReceive(addressFamilies.getSendReceive().toString());
+        //FIXME
+//        att.setAfi(addressFamilies.getAfi().getSimpleName());
+//        att.setSafi(addressFamilies.getSafi().getSimpleName());
+        att.setSendReceive(addressFamilies.getSendReceive());
         return att;
     }
 
@@ -184,14 +191,14 @@ final class BGPSessionStats {
         Preconditions.checkNotNull(channel);
         final SpeakerPreferences pref = new SpeakerPreferences();
         final InetSocketAddress isa = (InetSocketAddress) channel.localAddress();
-        pref.setAddress(isa.getAddress().getHostAddress());
-        pref.setPort(isa.getPort());
+        pref.setHost(IpAddressBuilder.getDefaultInstance(isa.getAddress().getHostAddress()));
+        pref.setPort(new PortNumber(isa.getPort()));
         final List<AdvertizedTableTypes> tt = new ArrayList<>();
         if (localPreferences.isPresent()) {
             final BGPSessionPreferences localPref = localPreferences.get();
-            pref.setBgpId(localPref.getBgpId().getValue());
+            pref.setBgpId(new BgpId(localPref.getBgpId()));
             pref.setAs(localPref.getMyAs().getValue());
-            pref.setHoldtime(localPref.getHoldTime());
+            pref.setHoldtimer(localPref.getHoldTime());
             if (localPref.getParams() != null) {
                 for (final BgpParameters param : localPref.getParams()) {
                     for (final OptionalCapabilities capa : param.getOptionalCapabilities()) {
@@ -200,8 +207,9 @@ final class BGPSessionStats {
                             final MultiprotocolCapability mc = cParam.getAugmentation(CParameters1.class).getMultiprotocolCapability();
                             if (mc != null) {
                                 final AdvertizedTableTypes att = new AdvertizedTableTypes();
-                                att.setAfi(mc.getAfi().getSimpleName());
-                                att.setSafi(mc.getSafi().getSimpleName());
+                                //FIXME
+//                                att.setAfi(mc.getAfi());
+//                                att.setSafi(mc.getSafi());
                                 tt.add(att);
                             }
                             if (cParam.getAs4BytesCapability() != null) {
@@ -237,11 +245,11 @@ final class BGPSessionStats {
         Preconditions.checkNotNull(channel);
         final PeerPreferences pref = new PeerPreferences();
         final InetSocketAddress isa = (InetSocketAddress) channel.remoteAddress();
-        pref.setAddress(isa.getAddress().getHostAddress());
-        pref.setPort(isa.getPort());
-        pref.setBgpId(remoteOpen.getBgpIdentifier().getValue());
+        pref.setHost(IpAddressBuilder.getDefaultInstance(isa.getAddress().getHostAddress()));
+        pref.setPort(new PortNumber(isa.getPort()));
+        pref.setBgpId(new BgpId(remoteOpen.getBgpIdentifier().getValue()));
         pref.setAs(remoteOpen.getMyAsNumber().longValue());
-        pref.setHoldtime(remoteOpen.getHoldTimer());
+        pref.setHoldtimer(remoteOpen.getHoldTimer());
 
         final List<AdvertizedTableTypes> tt = tableTypes.stream().map(BGPSessionStats::addTableType).collect(Collectors.toList());
         final List<AdvertisedAddPathTableTypes> addPathTableTypeList = addPathTypes.stream().map(BGPSessionStats::addAddPathTableType)

@@ -289,7 +289,7 @@
                         <Export-Package>
                             org.opendaylight.protocol.bgp.rib.impl.*,
                             org.opendaylight.controller.config.yang.bgp.rib.impl,
-                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.*
+                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.*
                         </Export-Package>
                     </instructions>
                 </configuration>

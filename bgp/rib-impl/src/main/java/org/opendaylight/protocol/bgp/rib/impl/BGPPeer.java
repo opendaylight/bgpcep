@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.concurrent.GuardedBy;
+import org.opendaylight.controller.config.api.IdentityAttributeRef;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeMXBean;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeRegistration;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeRegistrator;
@@ -51,6 +52,7 @@ import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.ZeroBasedCounter32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.DestinationIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.destination.ipv4.Ipv4Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.prefixes.destination.ipv4.Ipv4PrefixesBuilder;
@@ -79,6 +81,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.binding.util.BindingReflections;
+import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -445,11 +449,14 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         for (final TablesKey tablesKey : this.tables) {
             final RouteTable routeTable = new RouteTable();
             routeTable.setTableType("afi=" + tablesKey.getAfi().getSimpleName() + ",safi=" + tablesKey.getSafi().getSimpleName());
-            routeTable.setRoutesCount(this.rib.getRoutesCount(tablesKey));
+            final QName afiQName = BindingReflections.findQName(tablesKey.getAfi()).intern();
+            final QName safiQName = BindingReflections.findQName(tablesKey.getSafi()).intern();
+            routeTable.setAfi(new IdentityAttributeRef(afiQName.toString()));
+            routeTable.setSafi(new IdentityAttributeRef(safiQName.toString()));
             routes.add(routeTable);
         }
         peerState.setRouteTable(routes);
-        peerState.setSessionEstablishedCount(this.sessionEstablishedCounter);
+        peerState.setSessionEstablishedCount(new ZeroBasedCounter32(this.sessionEstablishedCounter));
         return peerState;
     }
 
