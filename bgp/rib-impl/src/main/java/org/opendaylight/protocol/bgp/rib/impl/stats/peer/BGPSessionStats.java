@@ -6,24 +6,24 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.bgp.rib.impl.spi;
+package org.opendaylight.protocol.bgp.rib.impl.stats.peer;
 
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
 
 /**
  * Serves to expose BGP session statistics to the BGP Peer, to which the session is related.
  */
-public interface BGPSessionStatistics {
+public interface BGPSessionStats {
 
     /**
      * Retrieves actual BGP session state. Containing all information collected from the session.
      *
      * @return State of the BGP session.
      */
-    BgpSessionState getBgpSesionState();
+    BgpSessionState getBgpSessionState();
 
     /**
      * Resets BGP session statistics. Sets counters values to zero.
      */
-    void resetSessionStats();
+    void resetBgpSessionStats();
 }
