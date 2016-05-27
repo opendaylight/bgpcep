@@ -7,13 +7,6 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.contains;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Resources;
@@ -82,6 +75,7 @@ import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
@@ -102,6 +96,14 @@ import org.osgi.framework.BundleListener;
 import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.contains;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
@@ -300,7 +302,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         mxBean.setBgpDispatcher(BGPDispatcherImplModuleTest.createInstance(transaction));
         mxBean.setExtensions(createRibExtensionsInstance(transaction));
         mxBean.setRibId(ribId);
-        mxBean.setLocalAs(localAs);
+        mxBean.setLocalAs(localAs != null ? new AsNumber(localAs) : null);
         mxBean.setBgpRibId(bgpId != null ? new BgpId(bgpId) : null);
         mxBean.setClusterId(clusterId != null ? new ClusterIdentifier(clusterId) : null);
         return nameCreated;
