@@ -37,7 +37,8 @@ import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.MultiPathSupportImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionStatistics;
+import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPSessionStats;
+import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPSessionStatsImpl;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
@@ -64,7 +65,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @VisibleForTesting
-public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> implements BGPSession, BGPSessionStatistics, AutoCloseable {
+public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> implements BGPSession, BGPSessionStats, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(BGPSessionImpl.class);
 
@@ -127,12 +128,12 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     private final BGPPeerRegistry peerRegistry;
     private final ChannelOutputLimiter limiter;
 
-    private BGPSessionStats sessionStats;
+    private BGPSessionStatsImpl sessionStats;
 
     public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen, final BGPSessionPreferences localPreferences,
             final BGPPeerRegistry peerRegistry) {
         this(listener, channel, remoteOpen, localPreferences.getHoldTime(), peerRegistry);
-        this.sessionStats = new BGPSessionStats(remoteOpen, this.holdTimerValue, this.keepAlive, channel, Optional.of(localPreferences), this.tableTypes, this.addPathTypes);
+        this.sessionStats = new BGPSessionStatsImpl(this, remoteOpen, this.holdTimerValue, this.keepAlive, channel, Optional.of(localPreferences), this.tableTypes, this.addPathTypes);
     }
 
     public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen, final int localHoldTimer,
@@ -202,7 +203,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
             }, this.keepAlive, TimeUnit.SECONDS);
         }
         this.bgpId = remoteOpen.getBgpIdentifier();
-        this.sessionStats = new BGPSessionStats(remoteOpen, this.holdTimerValue, this.keepAlive, channel, Optional.<BGPSessionPreferences>absent(),
+        this.sessionStats = new BGPSessionStatsImpl(this, remoteOpen, this.holdTimerValue, this.keepAlive, channel, Optional.<BGPSessionPreferences>absent(),
                 this.tableTypes, this.addPathTypes);
     }
 
@@ -452,12 +453,12 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
 
     @Override
     public synchronized BgpSessionState getBgpSessionState() {
-        return this.sessionStats.getBgpSessionState(this.state);
+        return this.sessionStats.getBgpSessionState();
     }
 
     @Override
-    public synchronized void resetSessionStats() {
-        this.sessionStats.resetStats();
+    public synchronized void resetBgpSessionStats() {
+        this.sessionStats.resetBgpSessionStats();
     }
 
     public ChannelOutputLimiter getLimiter() {

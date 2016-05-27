@@ -21,6 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 /**
@@ -29,7 +30,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 public interface RIB  extends RibReference {
     AsNumber getLocalAs();
 
-    Ipv4Address getBgpIdentifier();
+    BgpId getBgpIdentifier();
 
     /**
      * Return the set of table identifiers which are accepted and advertised
@@ -40,8 +41,6 @@ public interface RIB  extends RibReference {
     @Nonnull Set<? extends BgpTableType> getLocalTables();
 
     BGPDispatcher getDispatcher();
-
-    long getRoutesCount(TablesKey key);
 
     /**
      * Allocate a new transaction chain for use with a peer.
