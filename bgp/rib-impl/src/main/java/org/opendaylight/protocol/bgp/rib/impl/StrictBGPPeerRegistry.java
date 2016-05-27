@@ -176,7 +176,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         }
 
         // https://tools.ietf.org/html/rfc6286#section-2.2
-        if (openObj.getBgpIdentifier() != null && openObj.getBgpIdentifier().equals(localPref.getBgpId())) {
+        if (openObj.getBgpIdentifier() != null && openObj.getBgpIdentifier().getValue().equals(localPref.getBgpId().getValue())) {
             LOG.warn("Remote and local BGP Identifiers are the same: {}", openObj.getBgpIdentifier());
             throw new BGPDocumentedException("Remote and local BGP Identifiers are the same.", BGPError.BAD_BGP_ID);
         }

@@ -5,10 +5,8 @@ module bgp-peer {
     import bgp-rib { prefix rib; revision-date 2013-09-25; }
     import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
     import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
-    import config { prefix config; revision-date 2013-04-05; }
     import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
     import odl-tcpmd5-cfg { prefix tcpmd5; revision-date 2014-04-27; }
-    import opendaylight-md-sal-binding {prefix mdsb; revision-date 2013-10-28; }
 
     organization "Brocade Communications Systems, Inc.";
     contact "Kevin Wang <kwang@brocade.com>";
@@ -80,7 +78,7 @@ module bgp-peer {
             description
                 "Expected remote AS number. If not present, it is assumed
                 to be the same as our local AS number.";
-            type uint32;
+            type inet:as-number;
         }
 
         leaf password {
@@ -99,7 +97,7 @@ module bgp-peer {
 
         leaf as {
             description "Autonomous system number.";
-            type uint32;
+            type inet:as-number;
             default 0;
         }
 
