@@ -417,7 +417,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         for (final TablesKey tablesKey : this.tables) {
             final RouteTable routeTable = new RouteTable();
             routeTable.setTableType("afi=" + tablesKey.getAfi().getSimpleName() + ",safi=" + tablesKey.getSafi().getSimpleName());
-            routeTable.setRoutesCount(this.rib.getRoutesCount(tablesKey));
+//            routeTable.setRoutesCount(this.rib.getRoutesCount(tablesKey));
             routes.add(routeTable);
         }
         peerState.setRouteTable(routes);
