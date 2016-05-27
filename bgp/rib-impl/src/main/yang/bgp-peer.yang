@@ -1,0 +1,115 @@
+module bgp-peer {
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:bgp:peer";
+    prefix "bgp-peer";
+
+    import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+
+    organization "Brocade Communications Systems, Inc.";
+    contact "Kevin Wang <kwang@brocade.com>";
+
+    description
+        "This module contains the base data model of BGP peer.
+
+        Copyright (c) 2016 Brocade Communications Systems, Inc. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision 2016-06-06 {
+        description "Initial revision";
+    }
+
+    grouping bgp-peer-config {
+        leaf host {
+            description "Host IP address of BGP connection";
+            type inet:ip-address;
+            mandatory true;
+        }
+
+        leaf port {
+            description "The port for connection between the BGP peers.";
+            type inet:port-number;
+            default 179;
+        }
+
+        leaf holdtimer {
+            description "Time interval (in seconds) for HoldTimer proposed by the peer.";
+            type uint16;
+            default 180;
+        }
+    }
+
+    grouping bgp-peer-preferences {
+        leaf bgp-id {
+            description "The BGP Identifier.";
+            type string;
+            default "";
+        }
+
+        uses bgp-peer-config;
+
+        leaf address {
+            description "The IP address of BGP connection.
+            Deprecated in Boron. Use host instead";
+            type string;
+            default "";
+            status deprecated;
+        }
+
+        leaf as {
+            description "Autonomous system number.";
+            type uint32;
+            default 0;
+        }
+
+        leaf holdtime {
+            description "Deprecated. Use holdtimer instead.";
+            type uint16;
+            default 0;
+        }
+
+        leaf four-octet-as-capability {
+            description "The BGP peer 4 byte AS numbers support capability.";
+            type boolean;
+            default "false";
+        }
+
+        leaf bgp-extended-message-capability {
+            description "The bgp extended message support capability.";
+            type boolean;
+            default "false";
+        }
+
+        leaf gr-capability {
+            description "BGP graceful restart support capability.";
+            type boolean;
+            default "false";
+        }
+
+        leaf add-path-capability {
+            type boolean;
+            default "false";
+        }
+
+        leaf route-refresh-capability {
+            reference "https://tools.ietf.org/html/rfc2918";
+            type boolean;
+            default "false";
+        }
+
+        list advertized-table-types {
+            description "The BGP Table-type capabilities advertized by the BGP peer.";
+            key "afi safi";
+            uses bgp-mp:bgp-table-type;
+        }
+
+        list advertised-add-path-table-types {
+            description "The BGP Table-type capabilities advertized by the BGP peer.";
+            key "afi safi";
+            uses bgp-mp:bgp-add-path-table-type;
+        }
+    }
+}

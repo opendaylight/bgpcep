@@ -1,0 +1,54 @@
+module bgp-rib-impl {
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl";
+    prefix "bgp-rib-impl";
+
+    import bgp-rib { prefix rib; revision-date 2013-09-25; }
+    import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
+    import config { prefix config; revision-date 2013-04-05; }
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import ietf-yang-types { prefix yang; revision-date 2013-07-15; }
+    import rpc-context { prefix rpcx; revision-date 2013-06-17; }
+
+    organization "Brocade Communications Systems, Inc.";
+    contact "Kevin Wang <kwang@brocade.com>";
+
+    description
+        "This module contains the base data model of BGP RIB implementation.
+
+        Copyright (c) 2016 Brocade Communications Systems, Inc. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision 2016-06-06 {
+        description "Initial revision";
+    }
+
+    grouping bgp-rib-impl-identifiers {
+        leaf local-as {
+            description "Our local AS number. Needed by best selection path attribute.";
+            type uint32;
+            mandatory true;
+        }
+
+        leaf bgp-rib-id {
+            description "Our local BGP identifier. Needed by best selection path attribute.";
+            mandatory true;
+            type inet:ipv4-address;
+        }
+
+        leaf rib-id {
+            description "Identifier of this RIB in local data store.";
+            type rib:rib-id;
+            mandatory true;
+        }
+
+        leaf cluster-id {
+            description "IBGP identifier. Needed by route reflection.";
+            reference "https://tools.ietf.org/html/rfc4456#section-7";
+            type inet:ipv4-address;
+        }
+    }
+}

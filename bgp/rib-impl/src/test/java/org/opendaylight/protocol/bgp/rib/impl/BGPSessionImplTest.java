@@ -170,22 +170,22 @@ public class BGPSessionImplTest {
         assertTrue(state.getPeerPreferences().getBgpExtendedMessageCapability().booleanValue());
         assertTrue(state.getPeerPreferences().getGrCapability());
         assertEquals(LOCAL_IP, state.getSpeakerPreferences().getAddress());
-        assertEquals(LOCAL_PORT, state.getSpeakerPreferences().getPort().intValue());
-        assertEquals(0, state.getMessagesStats().getTotalMsgs().getReceived().getCount().longValue());
-        assertEquals(0, state.getMessagesStats().getTotalMsgs().getSent().getCount().longValue());
+        assertEquals(LOCAL_PORT, state.getSpeakerPreferences().getPort().getValue().intValue());
+        assertEquals(0, state.getMessagesStats().getTotalMsgs().getReceived().getCount().getValue().longValue());
+        assertEquals(0, state.getMessagesStats().getTotalMsgs().getSent().getCount().getValue().longValue());
 
         this.bgpSession.handleMessage(new UpdateBuilder().build());
         assertEquals(1, this.listener.getListMsg().size());
         assertTrue(this.listener.getListMsg().get(0) instanceof Update);
-        assertEquals(1, state.getMessagesStats().getTotalMsgs().getReceived().getCount().longValue());
-        assertEquals(1, state.getMessagesStats().getUpdateMsgs().getReceived().getCount().longValue());
-        assertEquals(0, state.getMessagesStats().getUpdateMsgs().getSent().getCount().longValue());
+        assertEquals(1, state.getMessagesStats().getTotalMsgs().getReceived().getCount().getValue().longValue());
+        assertEquals(1, state.getMessagesStats().getUpdateMsgs().getReceived().getCount().getValue().longValue());
+        assertEquals(0, state.getMessagesStats().getUpdateMsgs().getSent().getCount().getValue().longValue());
 
         this.bgpSession.handleMessage(new KeepaliveBuilder().build());
         this.bgpSession.handleMessage(new KeepaliveBuilder().build());
-        assertEquals(3, state.getMessagesStats().getTotalMsgs().getReceived().getCount().longValue());
-        assertEquals(2, state.getMessagesStats().getKeepAliveMsgs().getReceived().getCount().longValue());
-        assertEquals(0, state.getMessagesStats().getKeepAliveMsgs().getSent().getCount().longValue());
+        assertEquals(3, state.getMessagesStats().getTotalMsgs().getReceived().getCount().getValue().longValue());
+        assertEquals(2, state.getMessagesStats().getKeepAliveMsgs().getReceived().getCount().getValue().longValue());
+        assertEquals(0, state.getMessagesStats().getKeepAliveMsgs().getSent().getCount().getValue().longValue());
 
         this.bgpSession.close();
         assertEquals(BGPSessionImpl.State.IDLE, this.bgpSession.getState());
@@ -195,16 +195,16 @@ public class BGPSessionImplTest {
         assertEquals(BGPError.CEASE.getCode(), error.getErrorCode().shortValue());
         assertEquals(BGPError.CEASE.getSubcode(), error.getErrorSubcode().shortValue());
         Mockito.verify(this.speakerListener).close();
-        assertEquals(3, state.getMessagesStats().getTotalMsgs().getReceived().getCount().longValue());
-        assertEquals(1, state.getMessagesStats().getTotalMsgs().getSent().getCount().longValue());
-        assertEquals(1, state.getMessagesStats().getErrorMsgs().getErrorSent().getCount().longValue());
+        assertEquals(3, state.getMessagesStats().getTotalMsgs().getReceived().getCount().getValue().longValue());
+        assertEquals(1, state.getMessagesStats().getTotalMsgs().getSent().getCount().getValue().longValue());
+        assertEquals(1, state.getMessagesStats().getErrorMsgs().getErrorSent().getCount().getValue().longValue());
         assertEquals(BGPError.CEASE.getCode(), state.getMessagesStats().getErrorMsgs().getErrorSent().getCode().shortValue());
         assertEquals(BGPError.CEASE.getSubcode(), state.getMessagesStats().getErrorMsgs().getErrorSent().getSubCode().shortValue());
 
         this.bgpSession.resetSessionStats();
-        assertEquals(0, state.getMessagesStats().getTotalMsgs().getReceived().getCount().longValue());
-        assertEquals(0, state.getMessagesStats().getTotalMsgs().getSent().getCount().longValue());
-        assertEquals(0, state.getMessagesStats().getErrorMsgs().getErrorSent().getCount().longValue());
+        assertEquals(0, state.getMessagesStats().getTotalMsgs().getReceived().getCount().getValue().longValue());
+        assertEquals(0, state.getMessagesStats().getTotalMsgs().getSent().getCount().getValue().longValue());
+        assertEquals(0, state.getMessagesStats().getErrorMsgs().getErrorSent().getCount().getValue().longValue());
     }
 
     @Test
@@ -222,7 +222,7 @@ public class BGPSessionImplTest {
     @Test
     public void testHandleNotifyMsg() throws BGPDocumentedException {
         this.bgpSession.handleMessage(new NotifyBuilder().setErrorCode(BGPError.BAD_BGP_ID.getCode()).setErrorSubcode(BGPError.BAD_BGP_ID.getSubcode()).build());
-        assertEquals(1, this.bgpSession.getBgpSesionState().getMessagesStats().getErrorMsgs().getErrorReceived().getCount().longValue());
+        assertEquals(1, this.bgpSession.getBgpSesionState().getMessagesStats().getErrorMsgs().getErrorReceived().getCount().getValue().longValue());
         assertEquals(BGPError.BAD_BGP_ID.getCode(), this.bgpSession.getBgpSesionState().getMessagesStats().getErrorMsgs().getErrorReceived().getCode().shortValue());
         assertEquals(BGPError.BAD_BGP_ID.getSubcode(), this.bgpSession.getBgpSesionState().getMessagesStats().getErrorMsgs().getErrorReceived().getSubCode().shortValue());
         Assert.assertEquals(BGPSessionImpl.State.IDLE, this.bgpSession.getState());
