@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fa57193c_7fd96321",
+        "filename": "bgp/concepts/src/main/yang/bgp-types.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2016-05-27T17:19:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_7e2de9a7",
+      "range": {
+        "startLine": 124,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 13
+      },
+      "revId": "3f89f057b8a249309c7d73685fe0d5ea69e1c5ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_fe10d95a",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/extended/communities/EncapsulationEC.java",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2016-05-27T08:23:35Z",
       "side": 1,
       "message": "Should extend AbstractOpaqueExtendedCommunity",
+      "range": {
+        "startLine": 31,
+        "startChar": 29,
+        "endLine": 31,
+        "endChar": 92
+      },
+      "revId": "3f89f057b8a249309c7d73685fe0d5ea69e1c5ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa57193c_1fd027f5",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/extended/communities/EncapsulationEC.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2016-05-27T17:19:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa57193c_fe10d95a",
       "range": {
         "startLine": 31,
         "startChar": 29,
