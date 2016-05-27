@@ -1,0 +1,168 @@
+module bgp-stats-peer {
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:bgp:stats:peer";
+    prefix "bgp-stats-peer";
+
+    import bgp-peer { prefix peer; revision-date 2016-06-06; }
+    import bgp-stats { prefix stats; revision-date 2016-06-06; }
+    import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
+    import ietf-yang-types { prefix yang; revision-date 2013-07-15; }
+    import rpc-context { prefix rpcx; revision-date 2013-06-17; }
+
+    organization "Brocade Communications Systems, Inc.";
+    contact "Kevin Wang <kwang@brocade.com>";
+
+    description
+        "This module contains the base data model of BGP peer statistic.
+
+        Copyright (c) 2016 Brocade Communications Systems, Inc. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision 2016-06-06 {
+        description "Initial revision";
+    }
+
+    grouping bgp-peer-state {
+        container bgp-peer-state {
+            list route-table {
+                key "afi safi";
+                uses bgp-mp:bgp-table-type;
+
+                leaf table-type {
+                    description "The table name - composed of AFI and SAFI.
+                    Deprecated in Boron.  Use afi/safi fields instead";
+                    type string;
+                    status deprecated;
+                }
+
+                leaf adj-rib-in-routes-count {
+                    description "The total number of Adj-RIB-In routes in table.";
+                    type yang:zero-based-counter32;
+                }
+
+                leaf adj-rib-out-routes-count {
+                    description "The total number of Adj-RIB-Out routes in table.";
+                    type yang:zero-based-counter32;
+                }
+
+                leaf effective-rib-in-routes-count {
+                    description "The total number of Effective-RIB-In routes in table.";
+                    type yang:zero-based-counter32;
+                }
+            }
+
+            leaf session-established-count {
+                description "The total number of time the BGP session was transitioned to Up state.";
+                type yang:zero-based-counter32;
+            }
+        }
+    }
+
+    grouping bgp-session-state {
+        container bgp-session-state {
+
+            leaf session-state {
+                description "The BGP peer connection state.";
+                type string;
+            }
+
+            leaf session-duration {
+                description "The session duration (time formated d:HH:mm:ss).";
+                type string;
+            }
+
+            leaf holdtime-current {
+                description "Time interval (in seconds) for HoldTimer established with the peer.";
+                type uint16;
+                default 0;
+            }
+
+            leaf keepalive-current {
+                description "Time interval (in seconds) for KeepAlive established with the peer.";
+                type uint16;
+                default 0;
+            }
+
+            container remote-peer-preferences {
+                description "The BGP remote peer preferences, to which this BGP peer is connected.";
+                uses peer:bgp-peer-preferences;
+            }
+
+            container local-peer-preferences {
+                description "The BGP local peer preferences.";
+                uses peer:bgp-peer-preferences;
+            }
+
+            container messages-stats {
+                description "The BGP messages statistics.";
+                container total-msgs {
+                    description "The statistics for all received/sent BGP messages.";
+                    uses stats:bgp-message-stats;
+                }
+
+                container keep-alive-msgs {
+                    description "The statistics for received/sent BGP Keep-Alive messages.";
+                    uses stats:bgp-message-stats;
+                }
+
+                container update-msgs {
+                    description "The statistics for received/sent BGP Update messages.";
+                    uses stats:bgp-message-stats;
+                }
+
+                container route-refresh-msgs {
+                    description "The statistics for received/sent BGP Route Refresh messages.";
+                    uses stats:bgp-message-stats;
+                }
+
+                container error-msgs {
+                    container error-received {
+                        description "The received BGP Error (notification) messages statistics.";
+                        uses stats:bgp-message-state;
+                        uses stats:bgp-error;
+                    }
+
+                    container error-sent {
+                        description "The sent BGP Error (notification) messages statistics.";
+                        uses stats:bgp-message-state;
+                        uses stats:bgp-error;
+                    }
+                }
+            }
+        }
+    }
+
+    identity peer-rpc;
+
+    grouping bgp-peer-stats {
+        rpcx:rpc-context-instance "peer-rpc";
+
+        uses bgp-peer-state;
+        uses bgp-session-state;
+    }
+
+    rpc reset-session {
+        description "Restart the session between BGP peers";
+        input {
+            uses rpcx:rpc-context-ref {
+                refine context-instance {
+                    rpcx:rpc-context-instance peer-rpc;
+                }
+            }
+        }
+    }
+
+    rpc reset-stats {
+        description "Reset the BGP peer statistics.";
+        input {
+            uses rpcx:rpc-context-ref {
+                refine context-instance {
+                    rpcx:rpc-context-instance peer-rpc;
+                }
+            }
+        }
+    }
+}

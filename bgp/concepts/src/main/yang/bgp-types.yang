@@ -41,6 +41,11 @@ module bgp-types {
         }
     }
 
+    typedef bgp-id {
+        description "BGP identifier";
+        type inet:ipv4-address;
+    }
+
     identity address-family {
         reference "http://www.iana.org/assignments/address-family-numbers/address-family-numbers.xhtml#address-family-numbers-2";
     }
