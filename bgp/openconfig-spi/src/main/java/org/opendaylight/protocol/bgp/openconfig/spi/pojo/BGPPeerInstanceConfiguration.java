@@ -28,7 +28,7 @@ public final class BGPPeerInstanceConfiguration extends AbstractInstanceConfigur
 
     private final IpAddress host;
     private final PortNumber port;
-    private final short holdTimer;
+    private final int holdTimer;
     private final PeerRole peerRole;
     private final boolean active;
     private final List<BgpTableType> advertizedTables;
@@ -36,7 +36,7 @@ public final class BGPPeerInstanceConfiguration extends AbstractInstanceConfigur
     private final Optional<Rfc2385Key> password;
     private final List<AddressFamilies> addPathCapabilities;
 
-    public BGPPeerInstanceConfiguration(final InstanceConfigurationIdentifier identifier, final IpAddress host, final PortNumber port, final short holdTimer, final PeerRole peerRole,
+    public BGPPeerInstanceConfiguration(final InstanceConfigurationIdentifier identifier, final IpAddress host, final PortNumber port, final int holdTimer, final PeerRole peerRole,
             final boolean active, final List<BgpTableType> advertizedTables, final AsNumber asNumber, final Optional<Rfc2385Key> password,
             final List<AddressFamilies> addPathCapabilities) {
         super(identifier);
@@ -59,7 +59,7 @@ public final class BGPPeerInstanceConfiguration extends AbstractInstanceConfigur
         return port;
     }
 
-    public short getHoldTimer() {
+    public int getHoldTimer() {
         return holdTimer;
     }
 

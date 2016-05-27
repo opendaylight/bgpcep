@@ -170,7 +170,7 @@ public class PeerTest extends AbstractRIBTestSetup {
         try (final BGPPeer testingPeer = new BGPPeer("testingPeer", getRib(), PeerRole.Ibgp, null)) {
             testingPeer.onSessionUp(this.session);
             assertEquals(3, this.routes.size());
-            assertEquals(1, testingPeer.getBgpPeerState().getSessionEstablishedCount().intValue());
+            assertEquals(1, testingPeer.getBgpPeerState().getSessionEstablishedCount().getValue().intValue());
             assertEquals(1, testingPeer.getBgpPeerState().getRouteTable().size());
             assertNotNull(testingPeer.getBgpSessionState());
         }
