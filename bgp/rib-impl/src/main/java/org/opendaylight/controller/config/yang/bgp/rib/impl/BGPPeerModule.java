@@ -88,7 +88,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
         JmxAttributeValidationException.checkNotNull(getPort(), "value is not set.", portJmxAttribute);
 
-        if (getOptionaPassword(getPassword()).isPresent()) {
+        if (getOptionalPassword(getPassword()).isPresent()) {
             /*
              *  This is a nasty hack, but we don't have another clean solution. We cannot allow
              *  password being set if the injected dispatcher does not have the optional
@@ -157,7 +157,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
         // Initiate connection
         if(getInitiateConnection()) {
-            final Future<Void> cf = initiateConnection(createAddress(), getOptionaPassword(getPassword()), getPeerRegistryBackwards());
+            final Future<Void> cf = initiateConnection(createAddress(), getOptionalPassword(getPassword()), getPeerRegistryBackwards());
             return new CloseableNoEx() {
                 @Override
                 public void close() {
@@ -279,7 +279,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
             this.bgpPeerInstanceConfiguration = new BGPPeerInstanceConfiguration(identifier, Rev130715Util.getIpvAddress(getNormalizedHost()),
                     Rev130715Util.getPort(getPort().getValue()), getHoldtimer(), getPeerRole(), getInitiateConnection(),
                         getAdvertizedTableDependency(), Rev130715Util.getASNumber(getAsOrDefault(getRibDependency()).getValue()),
-                        getOptionaPassword(getPassword()), getAddPathDependency());
+                        getOptionalPassword(getPassword()), getAddPathDependency());
         }
 
         @Override
@@ -298,7 +298,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
     }
 
-    private Optional<Rfc2385Key> getOptionaPassword(final Rfc2385Key password) {
+    private Optional<Rfc2385Key> getOptionalPassword(final Rfc2385Key password) {
         return password != null && ! password.getValue().isEmpty() ? Optional.of(password) : Optional.<Rfc2385Key>absent();
     }
 

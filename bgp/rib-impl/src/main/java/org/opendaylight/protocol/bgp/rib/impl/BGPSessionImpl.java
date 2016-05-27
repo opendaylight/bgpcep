@@ -37,6 +37,7 @@ import org.opendaylight.protocol.bgp.parser.spi.pojo.MultiPathSupportImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionStatistics;
+import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPSessionStats;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
@@ -443,12 +444,12 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     }
 
     @Override
-    public synchronized BgpSessionState getBgpSesionState() {
+    public synchronized BgpSessionState getBgpSessionState() {
         return this.sessionStats.getBgpSessionState(this.state);
     }
 
     @Override
-    public synchronized void resetSessionStats() {
+    public synchronized void resetBgpSessionStats() {
         this.sessionStats.resetStats();
     }
 

@@ -21,6 +21,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.n
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.RibInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.BgpApplicationPeer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.modules.module.configuration.BgpApplicationPeerBuilder;
@@ -151,8 +152,8 @@ final class BGPAppPeerProvider {
         final BgpApplicationPeerBuilder bgpAppPeerBuilder = new BgpApplicationPeerBuilder();
         bgpAppPeerBuilder.setTargetRib(rib);
         final Ipv4Address address = neighbor.getNeighborAddress().getIpv4Address();
-        bgpAppPeerBuilder.setBgpPeerId(new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.
-            Ipv4Address(address.getValue()));
+        bgpAppPeerBuilder.setBgpPeerId(new BgpId(new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.
+            Ipv4Address(address.getValue())));
         bgpAppPeerBuilder.setApplicationRibId(new ApplicationRibId(createAppRibName(address)));
         return bgpAppPeerBuilder;
     }
