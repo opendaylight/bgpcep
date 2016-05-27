@@ -37,6 +37,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.stats.UnsignedInt32Counter;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -81,6 +82,7 @@ public class LocRibWriterTest {
 
     private final List<YangInstanceIdentifier> routes = new ArrayList<>();
     private final TablesKey tablesKey = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    private final UnsignedInt32Counter routeCounter = new UnsignedInt32Counter("loc-rib");
 
     @Before
     public void setUp() throws Exception {
@@ -114,7 +116,8 @@ public class LocRibWriterTest {
         doReturn(this.future).when(this.domTransWrite).submit();
         doReturn(null).when(this.service).registerDataTreeChangeListener(any(DOMDataTreeIdentifier.class), any(DOMDataTreeChangeListener.class));
         this.locRibWriter = LocRibWriter.create(this.registry, this.tablesKey, this.chain, YangInstanceIdentifier.of(BgpRib.QNAME),
-            new AsNumber((long) 35), this.service, this.pd, new CacheDisconnectedPeersImpl(), BasePathSelectionModeFactory.createBestPathSelectionStrategy());
+            new AsNumber((long) 35), this.service, this.pd, new CacheDisconnectedPeersImpl(), BasePathSelectionModeFactory.createBestPathSelectionStrategy(),
+            routeCounter);
     }
 
     private DataTreeCandidate prepareUpdate() {

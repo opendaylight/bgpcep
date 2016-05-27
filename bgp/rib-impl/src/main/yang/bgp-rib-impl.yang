@@ -4,12 +4,8 @@ module bgp-rib-impl {
 
     import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
     import bgp-rib { prefix rib; revision-date 2013-09-25; }
-    import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
-    import config { prefix config; revision-date 2013-04-05; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
-    import ietf-yang-types { prefix yang; revision-date 2013-07-15; }
     import opendaylight-md-sal-binding {prefix mdsb; revision-date 2013-10-28; }
-    import rpc-context { prefix rpcx; revision-date 2013-06-17; }
 
     organization "Brocade Communications Systems, Inc.";
     contact "Kevin Wang <kwang@brocade.com>";
@@ -31,7 +27,7 @@ module bgp-rib-impl {
     grouping bgp-rib-impl-identifiers {
         leaf local-as {
             description "Our local AS number. Needed by best selection path attribute.";
-            type uint32;
+            type inet:as-number;
             mandatory true;
         }
 

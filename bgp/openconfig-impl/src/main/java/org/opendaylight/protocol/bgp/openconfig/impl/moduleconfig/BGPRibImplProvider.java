@@ -21,6 +21,7 @@ import org.opendaylight.protocol.bgp.openconfig.impl.util.GlobalIdentifier;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.BgpBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.BgpPathSelectionMode;
@@ -114,8 +115,8 @@ final class BGPRibImplProvider {
         final RibImpl ribImpl = (RibImpl) module.getConfiguration();
         final RibImplBuilder ribImplBuilder = new RibImplBuilder();
         if (globalConfig.getConfig() != null) {
-            ribImplBuilder.setBgpRibId(new BgpId(new Ipv4Address(globalConfig.getConfig().getRouterId().getValue())));
-            ribImplBuilder.setLocalAs(globalConfig.getConfig().getAs().getValue());
+            ribImplBuilder.setBgpRibId(new BgpId(globalConfig.getConfig().getRouterId()));
+            ribImplBuilder.setLocalAs(globalConfig.getConfig().getAs());
         }
         ribImplBuilder.setLocalTable(tableTypes);
         ribImplBuilder.setBgpDispatcher(ribImpl.getBgpDispatcher());

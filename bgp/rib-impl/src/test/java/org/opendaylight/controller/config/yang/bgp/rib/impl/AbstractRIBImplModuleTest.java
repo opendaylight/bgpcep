@@ -7,13 +7,6 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.contains;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Resources;
@@ -82,6 +75,7 @@ import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
@@ -103,6 +97,14 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.contains;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+
 public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
     private static final String INSTANCE_NAME = "rib-impl";
@@ -110,8 +112,8 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     private static final String TRANSACTION_NAME = "testTransaction";
 
     protected static final RibId RIB_ID = new RibId("test");
-    protected static final Ipv4Address BGP_ID = new Ipv4Address("192.168.1.1");
-    protected static final Ipv4Address CLUSTER_ID = new Ipv4Address("192.168.1.2");
+    protected static final BgpId BGP_ID = new BgpId("192.168.1.1");
+    protected static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier("192.168.1.2");
 
     private static final String SESSION_RS_INSTANCE_NAME = "session-reconnect-strategy-factory";
     private static final String TCP_RS_INSTANCE_NAME = "tcp-reconnect-strategy-factory";
@@ -284,14 +286,14 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         return transaction.commit();
     }
 
-    protected CommitStatus createRIBImplModuleInstance(final RibId ribId, final Long localAs, final Ipv4Address bgpId, final Ipv4Address clusterId) throws Exception {
+    protected CommitStatus createRIBImplModuleInstance(final RibId ribId, final AsNumber localAs, final BgpId bgpId, final ClusterIdentifier clusterId) throws Exception {
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         createRIBImplModuleInstance(transaction, ribId, localAs, bgpId, clusterId, createAsyncDataBrokerInstance(transaction));
         return transaction.commit();
     }
 
-    private ObjectName createRIBImplModuleInstance(final ConfigTransactionJMXClient transaction, final RibId ribId, final Long localAs,
-            final Ipv4Address bgpId, final Ipv4Address clusterId, final ObjectName dataBroker) throws Exception {
+    private ObjectName createRIBImplModuleInstance(final ConfigTransactionJMXClient transaction, final RibId ribId, final AsNumber localAs,
+            final BgpId bgpId, final ClusterIdentifier clusterId, final ObjectName dataBroker) throws Exception {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final RIBImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, RIBImplModuleMXBean.class);
         mxBean.setDataProvider(dataBroker);
@@ -301,19 +303,19 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         mxBean.setExtensions(createRibExtensionsInstance(transaction));
         mxBean.setRibId(ribId);
         mxBean.setLocalAs(localAs);
-        mxBean.setBgpRibId(bgpId != null ? new BgpId(bgpId) : null);
-        mxBean.setClusterId(clusterId != null ? new ClusterIdentifier(clusterId) : null);
+        mxBean.setBgpRibId(bgpId);
+        mxBean.setClusterId(clusterId);
         return nameCreated;
     }
 
     protected ObjectName createRIBImplModuleInstance(final ConfigTransactionJMXClient transaction) throws Exception {
-        return createRIBImplModuleInstance(transaction, RIB_ID, 5000L, BGP_ID, CLUSTER_ID,
+        return createRIBImplModuleInstance(transaction, RIB_ID, new AsNumber(5000L), BGP_ID, CLUSTER_ID,
                 createAsyncDataBrokerInstance(transaction));
     }
 
     public ObjectName createRIBImplModuleInstance(final ConfigTransactionJMXClient transaction, final ObjectName dataBroker)
             throws Exception {
-        return createRIBImplModuleInstance(transaction, RIB_ID, 5000L, BGP_ID, CLUSTER_ID, dataBroker);
+        return createRIBImplModuleInstance(transaction, RIB_ID, new AsNumber(5000L), BGP_ID, CLUSTER_ID, dataBroker);
     }
 
     public ObjectName createAsyncDataBrokerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException, InstanceNotFoundException {

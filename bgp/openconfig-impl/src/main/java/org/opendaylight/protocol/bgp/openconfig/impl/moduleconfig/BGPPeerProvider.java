@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.n
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.PeerType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.bgp.rib.impl.rev160330.BgpPeer;
@@ -225,7 +226,7 @@ final class BGPPeerProvider {
                 bgpPeerBuilder.setPassword(new Rfc2385Key(neighbor.getConfig().getAuthPassword()));
             }
             if (neighbor.getConfig().getPeerAs() != null) {
-                bgpPeerBuilder.setRemoteAs(neighbor.getConfig().getPeerAs().getValue());
+                bgpPeerBuilder.setRemoteAs(neighbor.getConfig().getPeerAs());
             }
             if (neighbor.getConfig().getPeerType() != null) {
                 bgpPeerBuilder.setPeerRole(toPeerRole(neighbor));
