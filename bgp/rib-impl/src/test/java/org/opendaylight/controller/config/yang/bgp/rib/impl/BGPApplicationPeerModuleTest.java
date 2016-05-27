@@ -23,6 +23,7 @@ import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.spi.ModuleFactory;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.ApplicationRibId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 
 public class BGPApplicationPeerModuleTest extends AbstractRIBImplModuleTest {
 
@@ -98,7 +99,7 @@ public class BGPApplicationPeerModuleTest extends AbstractRIBImplModuleTest {
         final BGPApplicationPeerModuleMXBean mxBean = transaction.newMXBeanProxy(objName, BGPApplicationPeerModuleMXBean.class);
         final ObjectName dataBrokerON = lookupDomAsyncDataBroker(transaction);
         mxBean.setDataBroker(dataBrokerON);
-        mxBean.setBgpPeerId(BGP_ID);
+        mxBean.setBgpPeerId(new BgpId(BGP_ID));
         mxBean.setApplicationRibId(APP_RIB_ID);
         if (this.dataBroker == null) {
             this.dataBroker = createAsyncDataBrokerInstance(transaction);

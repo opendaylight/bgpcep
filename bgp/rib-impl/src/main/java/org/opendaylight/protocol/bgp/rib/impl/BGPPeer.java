@@ -433,7 +433,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     @Override
     public BgpSessionState getBgpSessionState() {
         if (this.session instanceof BGPSessionStatistics) {
-            return ((BGPSessionStatistics) this.session).getBgpSesionState();
+            return ((BGPSessionStatistics) this.session).getBgpSessionState();
         }
         return new BgpSessionState();
     }

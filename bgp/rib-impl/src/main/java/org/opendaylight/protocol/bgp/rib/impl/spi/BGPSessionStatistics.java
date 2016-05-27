@@ -20,7 +20,7 @@ public interface BGPSessionStatistics {
      *
      * @return State of the BGP session.
      */
-    BgpSessionState getBgpSesionState();
+    BgpSessionState getBgpSessionState();
 
     /**
      * Resets BGP session statistics. Sets counters values to zero.
