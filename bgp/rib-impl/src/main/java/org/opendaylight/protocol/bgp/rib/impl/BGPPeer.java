@@ -12,7 +12,6 @@ import static org.opendaylight.protocol.bgp.rib.impl.AdjRibInWriter.isLearnNone;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +29,6 @@ import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeRegist
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerRuntimeRegistrator;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpPeerState;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.BgpSessionState;
-import org.opendaylight.controller.config.yang.bgp.rib.impl.RouteTable;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
@@ -41,9 +39,11 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.LocalPreferenceAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
+import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPPeerStats;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionStatistics;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
+import org.opendaylight.protocol.bgp.rib.impl.stats.peer.BGPPeerStatsImpl;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
@@ -111,12 +111,12 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     private final String name;
     private BGPPeerRuntimeRegistrator registrator;
     private BGPPeerRuntimeRegistration runtimeReg;
-    private long sessionEstablishedCounter = 0L;
     private final Map<TablesKey, AdjRibOutListener> adjRibOutListenerSet = new HashMap();
     private final RpcProviderRegistry rpcRegistry;
     private RoutedRpcRegistration<BgpPeerRpcService> rpcRegistration;
     private final PeerRole peerRole;
     private final Optional<SimpleRoutingPolicy> simpleRoutingPolicy;
+    private final BGPPeerStats peerStats;
 
     public BGPPeer(final String name, final RIB rib, final PeerRole role, final SimpleRoutingPolicy peerStatus, final RpcProviderRegistry rpcRegistry) {
         this.peerRole = role;
@@ -126,6 +126,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
         this.chain = rib.createPeerChain(this);
         this.ribWriter = AdjRibInWriter.create(rib.getYangRibId(), this.peerRole, this.simpleRoutingPolicy, this.chain);
         this.rpcRegistry = rpcRegistry;
+        this.peerStats = new BGPPeerStatsImpl(this.tables);
     }
 
     public BGPPeer(final String name, final RIB rib, final PeerRole role, final RpcProviderRegistry rpcRegistry) {
@@ -295,7 +296,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
                 this.rib.getRibSupportContext(), this.peerRole);
         }
         this.ribWriter = this.ribWriter.transform(peerId, this.rib.getRibSupportContext(), this.tables, addPathTablesType);
-        this.sessionEstablishedCounter++;
+        this.peerStats.increaseSessionEstablishedCounter();
         if (this.registrator != null) {
             this.runtimeReg = this.registrator.register(this);
         }
@@ -425,7 +426,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
     @Override
     public void resetStats() {
         if (this.session instanceof BGPSessionStatistics) {
-            ((BGPSessionStatistics) this.session).resetSessionStats();
+            ((BGPSessionStatistics) this.session).resetBgpSessionStats();
         }
     }
 
@@ -443,21 +444,7 @@ public class BGPPeer implements BGPSessionListener, Peer, AutoCloseable, BGPPeer
 
     @Override
     public synchronized BgpPeerState getBgpPeerState() {
-        final BgpPeerState peerState = new BgpPeerState();
-        final List<RouteTable> routes = Lists.newArrayList();
-        for (final TablesKey tablesKey : this.tables) {
-            final RouteTable routeTable = new RouteTable();
-            // FIXME: DEPRECATED, use setAfi() and setSafi() instead
-            routeTable.setTableType("afi=" + tablesKey.getAfi().getSimpleName() + ",safi=" + tablesKey.getSafi().getSimpleName());
-            final QName afiQName = BindingReflections.findQName(tablesKey.getAfi()).intern();
-            final QName safiQName = BindingReflections.findQName(tablesKey.getSafi()).intern();
-            routeTable.setAfi(new IdentityAttributeRef(afiQName.toString()));
-            routeTable.setSafi(new IdentityAttributeRef(safiQName.toString()));
-            routes.add(routeTable);
-        }
-        peerState.setRouteTable(routes);
-        peerState.setSessionEstablishedCount(new ZeroBasedCounter32(this.sessionEstablishedCounter));
-        return peerState;
+        return peerStats.getBgpPeerState();
     }
 
     @Override

@@ -25,5 +25,5 @@ public interface BGPSessionStatistics {
     /**
      * Resets BGP session statistics. Sets counters values to zero.
      */
-    void resetSessionStats();
+    void resetBgpSessionStats();
 }

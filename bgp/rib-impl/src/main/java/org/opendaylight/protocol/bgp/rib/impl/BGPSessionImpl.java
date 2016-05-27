@@ -448,7 +448,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     }
 
     @Override
-    public synchronized void resetSessionStats() {
+    public synchronized void resetBgpSessionStats() {
         this.sessionStats.resetStats();
     }
 
