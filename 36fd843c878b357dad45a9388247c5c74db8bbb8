@@ -1,0 +1,199 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_1f042b14",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/protocol/bgp/cli/ResetBGPStatsCommandProvider.java",
+        "patchSetId": 40
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-30T10:40:28Z",
+      "side": 1,
+      "message": "This implementation is almost identical to ShowBGPStatsCommandProvider, consider moving common code to the abstract class.",
+      "revId": "36fd843c878b357dad45a9388247c5c74db8bbb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_bc76edd6",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/protocol/bgp/cli/ResetBGPStatsCommandProvider.java",
+        "patchSetId": 40
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-30T10:40:28Z",
+      "side": 1,
+      "message": "Should be filed variable.",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 63
+      },
+      "revId": "36fd843c878b357dad45a9388247c5c74db8bbb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_5c7231e6",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/protocol/bgp/cli/ResetBGPStatsCommandProvider.java",
+        "patchSetId": 40
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-30T10:40:28Z",
+      "side": 1,
+      "message": "The pattern is always the same - should be constant.",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 116
+      },
+      "revId": "36fd843c878b357dad45a9388247c5c74db8bbb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_7f20c79b",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/protocol/bgp/cli/ResetBGPStatsCommandProvider.java",
+        "patchSetId": 40
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-30T10:40:28Z",
+      "side": 1,
+      "message": "Unnecessary check - by the API contract, #queryNames is not returning null.",
+      "range": {
+        "startLine": 38,
+        "startChar": 16,
+        "endLine": 38,
+        "endChar": 61
+      },
+      "revId": "36fd843c878b357dad45a9388247c5c74db8bbb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_7c129563",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/protocol/bgp/cli/ResetBGPStatsCommandProvider.java",
+        "patchSetId": 40
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-30T10:40:28Z",
+      "side": 1,
+      "message": "not needed",
+      "range": {
+        "startLine": 50,
+        "startChar": 12,
+        "endLine": 50,
+        "endChar": 24
+      },
+      "revId": "36fd843c878b357dad45a9388247c5c74db8bbb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_5f2503aa",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/protocol/bgp/cli/ShowBGPStatsCommandProvider.java",
+        "patchSetId": 40
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-30T10:40:28Z",
+      "side": 1,
+      "message": "An execution should not end in such case, rather continue.",
+      "range": {
+        "startLine": 51,
+        "startChar": 24,
+        "endLine": 51,
+        "endChar": 36
+      },
+      "revId": "36fd843c878b357dad45a9388247c5c74db8bbb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_9f367be6",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/protocol/bgp/cli/utils/BgpCliUtils.java",
+        "patchSetId": 40
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-30T10:40:28Z",
+      "side": 1,
+      "message": "Repeated literals in peer and speaker preferences",
+      "range": {
+        "startLine": 45,
+        "startChar": 60,
+        "endLine": 45,
+        "endChar": 77
+      },
+      "revId": "36fd843c878b357dad45a9388247c5c74db8bbb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_ff4a1754",
+        "filename": "bgp/cli/src/test/java/org/opendaylight/protocol/bgp/cli/utils/BgpCliUtilsTests.java",
+        "patchSetId": 40
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-30T10:40:28Z",
+      "side": 1,
+      "message": "No white-space between non-static imports.",
+      "revId": "36fd843c878b357dad45a9388247c5c74db8bbb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_7f572703",
+        "filename": "bgp/cli/src/test/java/org/opendaylight/protocol/bgp/cli/utils/BgpCliUtilsTests.java",
+        "patchSetId": 40
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-30T10:40:28Z",
+      "side": 1,
+      "message": "The test should have at least one assertion check.",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 5
+      },
+      "revId": "36fd843c878b357dad45a9388247c5c74db8bbb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
