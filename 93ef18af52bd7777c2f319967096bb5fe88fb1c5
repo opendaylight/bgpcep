@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "da5c1566_2de2a5d5",
+        "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/PCCsBuilder.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-05-31T07:46:23Z",
+      "side": 1,
+      "message": "Should be utilized (static \"factory\" method) as this piece of code is repeated in other bgpcep\u0027s modules.",
+      "range": {
+        "startLine": 113,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 30
+      },
+      "revId": "93ef18af52bd7777c2f319967096bb5fe88fb1c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa57193c_0a6c6b34",
         "filename": "pcep/pcc-mock/src/main/java/org/opendaylight/protocol/pcep/pcc/mock/protocol/PCCDispatcherImpl.java",
         "patchSetId": 6
