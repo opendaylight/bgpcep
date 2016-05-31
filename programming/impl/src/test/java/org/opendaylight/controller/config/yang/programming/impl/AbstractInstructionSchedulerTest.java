@@ -13,6 +13,7 @@ import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
@@ -76,10 +77,10 @@ import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadi
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
-import org.opendaylight.yangtools.yang.model.parser.api.YangContextParser;
-import org.opendaylight.yangtools.yang.model.parser.api.YangSyntaxErrorException;
-import org.opendaylight.yangtools.yang.parser.impl.YangParserImpl;
 import org.opendaylight.yangtools.yang.parser.repo.URLSchemaContextResolver;
+import org.opendaylight.yangtools.yang.parser.spi.meta.ReactorException;
+import org.opendaylight.yangtools.yang.parser.stmt.reactor.CrossSourceStatementReactor;
+import org.opendaylight.yangtools.yang.parser.stmt.rfc6020.YangInferencePipeline;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.Filter;
@@ -112,9 +113,9 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
 
         doAnswer(new Answer<Filter>() {
             @Override
-            public Filter answer(InvocationOnMock invocation) {
-                String str = invocation.getArgumentAt(0, String.class);
-                Filter mockFilter = mock(Filter.class);
+            public Filter answer(final InvocationOnMock invocation) {
+                final String str = invocation.getArgumentAt(0, String.class);
+                final Filter mockFilter = mock(Filter.class);
                 doReturn(str).when(mockFilter).toString();
                 return mockFilter;
             }
@@ -146,8 +147,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         Mockito.doReturn(null).when(mockedContext).getService(emptyServiceReference);
 
         final GlobalBundleScanningSchemaServiceImpl schemaService = GlobalBundleScanningSchemaServiceImpl.createInstance(this.mockedContext);
-        final YangContextParser parser = new YangParserImpl();
-        final SchemaContext context = parser.parseSources(getFilesAsByteSources(getYangModelsPaths()));
+        final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
         final URLSchemaContextResolver mockedContextResolver = Mockito.mock(URLSchemaContextResolver.class);
         Mockito.doReturn(Optional.of(context)).when(mockedContextResolver).getSchemaContext();
 
@@ -170,14 +170,14 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         setupMockService(DOMRpcService.class, mock(DOMRpcService.class));
         setupMockService(DOMMountPointService.class, mock(DOMMountPointService.class));
 
-        DOMRpcProviderService mockRpcProvider = mock(DOMRpcProviderService.class);
+        final DOMRpcProviderService mockRpcProvider = mock(DOMRpcProviderService.class);
         doReturn(mock(DOMRpcImplementationRegistration.class)).when(mockRpcProvider).registerRpcImplementation(
                 any(DOMRpcImplementation.class), any(Set.class));
         setupMockService(DOMRpcProviderService.class, mockRpcProvider);
     }
 
-    private void setupMockService(Class<?> serviceInterface, Object instance) throws Exception {
-        ServiceReference<?> mockServiceRef = mock(ServiceReference.class);
+    private void setupMockService(final Class<?> serviceInterface, final Object instance) throws Exception {
+        final ServiceReference<?> mockServiceRef = mock(ServiceReference.class);
         doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
                 getServiceReferences(anyString(), contains(serviceInterface.getName()));
         doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
@@ -314,13 +314,8 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
                 @Override
                 public void handleServiceRegistration(final Class<?> clazz, final Object serviceInstance, final Dictionary<String, ?> props) {
                     final SchemaContextListener listener = (SchemaContextListener) serviceInstance;
-                    final YangContextParser parser = new YangParserImpl();
-                    SchemaContext context;
-                    try {
-                        context = parser.parseSources(getFilesAsByteSources(getYangModelsPaths()));
-                    } catch (final IOException | YangSyntaxErrorException e) {
-                        throw new IllegalStateException("Failed to parse models", e);
-                    }
+                    final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
+                    listener.onGlobalContextUpdated(context);
                     listener.onGlobalContextUpdated(context);
                 }
             };
@@ -356,6 +351,16 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         Assert.assertEquals("Some files were not found", Collections.<String> emptyList(), failedToFind);
 
         return resources;
+    }
+
+    private static SchemaContext parseYangStreams(final Collection<ByteSource> streams) {
+        final CrossSourceStatementReactor.BuildAction reactor = YangInferencePipeline.RFC6020_REACTOR
+                .newBuild();
+        try {
+            return reactor.buildEffective(streams);
+        } catch (final ReactorException | IOException e) {
+            throw new RuntimeException("Unable to build schema context from " + streams, e);
+        }
     }
 
 }

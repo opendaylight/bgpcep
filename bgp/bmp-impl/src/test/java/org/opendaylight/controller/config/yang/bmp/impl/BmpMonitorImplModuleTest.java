@@ -13,6 +13,7 @@ import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
@@ -20,6 +21,7 @@ import com.google.common.io.Resources;
 import com.google.common.util.concurrent.CheckedFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.EventExecutor;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.URL;
@@ -71,9 +73,10 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
-import org.opendaylight.yangtools.yang.model.parser.api.YangContextParser;
-import org.opendaylight.yangtools.yang.parser.impl.YangParserImpl;
 import org.opendaylight.yangtools.yang.parser.repo.URLSchemaContextResolver;
+import org.opendaylight.yangtools.yang.parser.spi.meta.ReactorException;
+import org.opendaylight.yangtools.yang.parser.stmt.reactor.CrossSourceStatementReactor;
+import org.opendaylight.yangtools.yang.parser.stmt.rfc6020.YangInferencePipeline;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.Filter;
@@ -112,9 +115,9 @@ public class BmpMonitorImplModuleTest extends AbstractConfigTest {
 
         doAnswer(new Answer<Filter>() {
             @Override
-            public Filter answer(InvocationOnMock invocation) {
-                String str = invocation.getArgumentAt(0, String.class);
-                Filter mockFilter = mock(Filter.class);
+            public Filter answer(final InvocationOnMock invocation) {
+                final String str = invocation.getArgumentAt(0, String.class);
+                final Filter mockFilter = mock(Filter.class);
                 doReturn(str).when(mockFilter).toString();
                 return mockFilter;
             }
@@ -163,8 +166,7 @@ public class BmpMonitorImplModuleTest extends AbstractConfigTest {
 
         Mockito.doReturn(null).when(this.mockedFuture).get();
 
-        final YangContextParser parser = new YangParserImpl();
-        final SchemaContext context = parser.parseSources(getFilesAsByteSources(getYangModelsPaths()));
+        final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
         final URLSchemaContextResolver mockedContextResolver = Mockito.mock(URLSchemaContextResolver.class);
         Mockito.doReturn(Optional.of(context)).when(mockedContextResolver).getSchemaContext();
 
@@ -184,11 +186,21 @@ public class BmpMonitorImplModuleTest extends AbstractConfigTest {
         setupMockService(EventExecutor.class, AutoCloseableEventExecutor.CloseableEventExecutorMixin.globalEventExecutor());
     }
 
-    private void setupMockService(Class<?> serviceInterface, Object instance) throws Exception {
-        ServiceReference<?> mockServiceRef = mock(ServiceReference.class);
+    private void setupMockService(final Class<?> serviceInterface, final Object instance) throws Exception {
+        final ServiceReference<?> mockServiceRef = mock(ServiceReference.class);
         doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
                 getServiceReferences(anyString(), contains(serviceInterface.getName()));
         doReturn(instance).when(mockedContext).getService(mockServiceRef);
+    }
+
+    private static SchemaContext parseYangStreams(final Collection<ByteSource> streams) {
+        final CrossSourceStatementReactor.BuildAction reactor = YangInferencePipeline.RFC6020_REACTOR
+                .newBuild();
+        try {
+            return reactor.buildEffective(streams);
+        } catch (final ReactorException | IOException e) {
+            throw new RuntimeException("Unable to build schema context from " + streams, e);
+        }
     }
 
     private List<String> getYangModelsPaths() {

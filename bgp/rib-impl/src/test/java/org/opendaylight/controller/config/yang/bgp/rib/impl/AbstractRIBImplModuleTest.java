@@ -89,10 +89,10 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
-import org.opendaylight.yangtools.yang.model.parser.api.YangContextParser;
-import org.opendaylight.yangtools.yang.model.parser.api.YangSyntaxErrorException;
-import org.opendaylight.yangtools.yang.parser.impl.YangParserImpl;
 import org.opendaylight.yangtools.yang.parser.repo.URLSchemaContextResolver;
+import org.opendaylight.yangtools.yang.parser.spi.meta.ReactorException;
+import org.opendaylight.yangtools.yang.parser.stmt.reactor.CrossSourceStatementReactor;
+import org.opendaylight.yangtools.yang.parser.stmt.rfc6020.YangInferencePipeline;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.Filter;
@@ -141,9 +141,9 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
         doAnswer(new Answer<Filter>() {
             @Override
-            public Filter answer(InvocationOnMock invocation) {
-                String str = invocation.getArgumentAt(0, String.class);
-                Filter mockFilter = mock(Filter.class);
+            public Filter answer(final InvocationOnMock invocation) {
+                final String str = invocation.getArgumentAt(0, String.class);
+                final Filter mockFilter = mock(Filter.class);
                 doReturn(str).when(mockFilter).toString();
                 return mockFilter;
             }
@@ -188,8 +188,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         Mockito.doReturn(null).when(this.mockedFuture).get();
 
         final GlobalBundleScanningSchemaServiceImpl schemaService = GlobalBundleScanningSchemaServiceImpl.createInstance(this.mockedContext);
-        final YangContextParser parser = new YangParserImpl();
-        final SchemaContext context = parser.parseSources(getFilesAsByteSources(getYangModelsPaths()));
+        final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
         final URLSchemaContextResolver mockedContextResolver = Mockito.mock(URLSchemaContextResolver.class);
         Mockito.doReturn(Optional.of(context)).when(mockedContextResolver).getSchemaContext();
 
@@ -215,13 +214,23 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         setupMockService(DOMMountPointService.class, mock(DOMMountPointService.class));
     }
 
-    private void setupMockService(Class<?> serviceInterface, Object instance) throws Exception {
-        ServiceReference<?> mockServiceRef = mock(ServiceReference.class);
+    private void setupMockService(final Class<?> serviceInterface, final Object instance) throws Exception {
+        final ServiceReference<?> mockServiceRef = mock(ServiceReference.class);
         doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
                 getServiceReferences(anyString(), contains(serviceInterface.getName()));
         doReturn(new ServiceReference[]{mockServiceRef}).when(mockedContext).
                 getServiceReferences(serviceInterface.getName(), null);
         doReturn(instance).when(mockedContext).getService(mockServiceRef);
+    }
+
+    private static SchemaContext parseYangStreams(final Collection<ByteSource> streams) {
+        final CrossSourceStatementReactor.BuildAction reactor = YangInferencePipeline.RFC6020_REACTOR
+                .newBuild();
+        try {
+            return reactor.buildEffective(streams);
+        } catch (final ReactorException | IOException e) {
+            throw new RuntimeException("Unable to build schema context from " + streams, e);
+        }
     }
 
     protected List<ModuleFactory> getModuleFactories() {
@@ -242,13 +251,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
                 @Override
                 public void handleServiceRegistration(final Class<?> clazz, final Object serviceInstance, final Dictionary<String, ?> props) {
                     final SchemaContextListener listener = (SchemaContextListener) serviceInstance;
-                    final YangContextParser parser = new YangParserImpl();
-                    final SchemaContext context;
-                    try {
-                        context = parser.parseSources(getFilesAsByteSources(getYangModelsPaths()));
-                    } catch (IOException | YangSyntaxErrorException e) {
-                        throw new IllegalStateException("Failed to parse models", e);
-                    }
+                    final SchemaContext context = parseYangStreams(getFilesAsByteSources(getYangModelsPaths()));
                     listener.onGlobalContextUpdated(context);
                 }
             };
