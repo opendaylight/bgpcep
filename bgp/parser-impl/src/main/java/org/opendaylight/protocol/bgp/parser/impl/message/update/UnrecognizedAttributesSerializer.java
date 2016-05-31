@@ -32,7 +32,7 @@ public class UnrecognizedAttributesSerializer implements AttributeSerializer {
         }
         for (final UnrecognizedAttributes unrecognizedAttr: unrecognizedAttrs) {
             LOG.trace("Serializing unrecognized attribute of type {}", unrecognizedAttr.getType());
-            int flags = 0;
+            int flags = AttributeUtil.OPTIONAL;
             if (unrecognizedAttr.isPartial()) {
                 flags |= AttributeUtil.PARTIAL;
             }
