@@ -22,6 +22,30 @@
       "revId": "3fc58b731fe865162b69f296f3005a8474b4ec7c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_33bfa8d2",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/extended/communities/EncapsulationEC.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2016-05-31T14:21:50Z",
+      "side": 1,
+      "message": "My bad - duh!",
+      "parentUuid": "da5c1566_edc42d61",
+      "range": {
+        "startLine": 27,
+        "startChar": 8,
+        "endLine": 27,
+        "endChar": 69
+      },
+      "revId": "3fc58b731fe865162b69f296f3005a8474b4ec7c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
