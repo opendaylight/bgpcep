@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
  */
 public final class Ipv6Util {
     public static final int IPV6_LENGTH = 16;
+    public static final int IPV6_BITS_LENGTH = 128;
     private static final Ipv6Prefix EMPTY_PREFIX = new Ipv6Prefix("::/0");
 
     private Ipv6Util() {

@@ -12,6 +12,7 @@ import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.EsiModelUtil.ext
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.EsiType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.esi.Esi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.esi.esi.ArbitraryCase;
@@ -40,7 +41,7 @@ final class ArbitraryParser extends AbstractEsiType {
 
 
     @Override
-    public Esi parseEsi(final ByteBuf buffer) {
-        return new ArbitraryCaseBuilder().setArbitrary(new ArbitraryBuilder().setArbitrary(buffer.readSlice(ARBITRARY_LENGTH).array()).build()).build();
+    public Esi parseEsi(final ByteBuf body) {
+        return new ArbitraryCaseBuilder().setArbitrary(new ArbitraryBuilder().setArbitrary(ByteArray.readBytes(body, ARBITRARY_LENGTH)).build()).build();
     }
 }

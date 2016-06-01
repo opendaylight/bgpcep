@@ -79,10 +79,10 @@ final class EthSegRParser extends AbstractEvpnNlri {
     }
 
     public static IpAddress parseOrigRouteIp(final ByteBuf buffer) {
-        final int ipLength = buffer.readByte();
-        if (ipLength == Ipv6Util.IPV6_LENGTH) {
+        final int ipLength = buffer.readUnsignedByte();
+        if (ipLength == Ipv6Util.IPV6_BITS_LENGTH) {
             return new IpAddress(Ipv6Util.addressForByteBuf(buffer));
-        } else if (ipLength == Ipv4Util.IP4_LENGTH) {
+        } else if (ipLength == Ipv4Util.IP4_BITS_LENGTH) {
             return new IpAddress(Ipv4Util.addressForByteBuf(buffer));
         }
         return null;
@@ -91,10 +91,10 @@ final class EthSegRParser extends AbstractEvpnNlri {
     static ByteBuf serializeOrigRouteIp(final IpAddress origRouteIp) {
         final ByteBuf body = Unpooled.buffer();
         if (origRouteIp.getIpv4Address() != null) {
-            body.writeByte(Ipv4Util.IP4_LENGTH);
+            body.writeByte(Ipv4Util.IP4_BITS_LENGTH);
             body.writeBytes(Ipv4Util.bytesForAddress(origRouteIp.getIpv4Address()));
         } else if (origRouteIp.getIpv6Address() != null) {
-            body.writeByte(Ipv6Util.IPV6_LENGTH);
+            body.writeByte(Ipv6Util.IPV6_BITS_LENGTH);
             body.writeBytes(Ipv6Util.bytesForAddress(origRouteIp.getIpv6Address()));
         } else {
             body.writeZero(ZERO_BYTE);
