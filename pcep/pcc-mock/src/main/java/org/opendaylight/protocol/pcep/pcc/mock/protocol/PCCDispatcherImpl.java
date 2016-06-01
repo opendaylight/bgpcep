@@ -8,11 +8,17 @@
 
 package org.opendaylight.protocol.pcep.pcc.mock.protocol;
 
+import com.google.common.base.Optional;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollChannelOption;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -22,20 +28,13 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPHandlerFactory;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCDispatcher;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
-import org.opendaylight.tcpmd5.api.DummyKeyAccessFactory;
-import org.opendaylight.tcpmd5.api.KeyAccessFactory;
-import org.opendaylight.tcpmd5.api.KeyMapping;
-import org.opendaylight.tcpmd5.jni.NativeKeyAccessFactory;
-import org.opendaylight.tcpmd5.jni.NativeSupportUnavailableException;
-import org.opendaylight.tcpmd5.netty.MD5ChannelFactory;
-import org.opendaylight.tcpmd5.netty.MD5ChannelOption;
-import org.opendaylight.tcpmd5.netty.MD5NioSocketChannelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,39 +45,15 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
     private static final int CONNECT_TIMEOUT = 2000;
 
     private final PCEPHandlerFactory factory;
-    private final MD5ChannelFactory<?> cf;
-    private final NioEventLoopGroup workerGroup;
+    private final EventLoopGroup workerGroup;
 
     public PCCDispatcherImpl(@Nonnull final MessageRegistry registry) {
-        this.workerGroup = new NioEventLoopGroup();
+        if(Epoll.isAvailable()){
+            this.workerGroup = new EpollEventLoopGroup();
+        } else {
+            this.workerGroup = new NioEventLoopGroup();
+        }
         this.factory = new PCEPHandlerFactory(registry);
-        this.cf = new MD5NioSocketChannelFactory(DeafultKeyAccessFactory.getKeyAccessFactory());
-    }
-
-    private static final class DeafultKeyAccessFactory {
-        private static final Logger LOG = LoggerFactory.getLogger(DeafultKeyAccessFactory.class);
-        private static final KeyAccessFactory FACTORY;
-
-        static {
-            KeyAccessFactory factory;
-
-            try {
-                factory = NativeKeyAccessFactory.getInstance();
-            } catch (final NativeSupportUnavailableException e) {
-                LOG.debug("Native key access not available, using no-op fallback", e);
-                factory = DummyKeyAccessFactory.getInstance();
-            }
-
-            FACTORY = factory;
-        }
-
-        private DeafultKeyAccessFactory() {
-            throw new UnsupportedOperationException("Utility class should never be instantiated");
-        }
-
-        public static KeyAccessFactory getKeyAccessFactory() {
-            return FACTORY;
-        }
     }
 
     @Override
@@ -95,7 +70,8 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
         final Bootstrap b = new Bootstrap();
         b.group(this.workerGroup);
         b.localAddress(localAddress);
-        setChannelFactory(b, keys);
+        final Optional<KeyMapping> optionalKey = Optional.fromNullable(keys);
+        setChannelFactory(b, optionalKey);
         b.option(ChannelOption.SO_KEEPALIVE, true);
         b.option(ChannelOption.MAX_MESSAGES_PER_READ, 1);
         final long retryTimer = reconnectTime == -1 ? 0 : reconnectTime;
@@ -129,17 +105,18 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
         return promise;
     }
 
-    private void setChannelFactory(final Bootstrap bootstrap, final KeyMapping keys) {
-        if (keys != null && !keys.isEmpty()) {
-            if (this.cf == null) {
-                throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
-            }
-
-            LOG.debug("Adding MD5 keys {} to boostrap {}", keys, bootstrap);
-            bootstrap.channelFactory(this.cf);
-            bootstrap.option(MD5ChannelOption.TCP_MD5SIG, keys);
+    private void setChannelFactory(final Bootstrap bootstrap, final Optional<KeyMapping> keys) {
+        if(Epoll.isAvailable()) {
+            bootstrap.channel(EpollSocketChannel.class);
         } else {
             bootstrap.channel(NioSocketChannel.class);
+        }
+        if (keys.isPresent()) {
+            if (Epoll.isAvailable()) {
+                bootstrap.option(EpollChannelOption.TCP_MD5SIG, keys.get());
+            } else {
+                throw new UnsupportedOperationException (Epoll.unavailabilityCause().getCause());
+            }
         }
     }
 

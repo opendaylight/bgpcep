@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
@@ -38,7 +39,6 @@ import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCSessionListener;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator;
-import org.opendaylight.tcpmd5.api.KeyMapping;
 
 final class PCCsBuilder {
     private final int lsps;
@@ -99,22 +99,13 @@ final class PCCsBuilder {
                     public PCEPSessionListener getSessionListener() {
                         return new PCCSessionListener(remoteAddress.indexOf(pceAddress), tunnelManager, pcError);
                     }
-                }, snf, getKeyMapping(pceAddress.getAddress(), password), localAddress, initialDBVersion);
+                }, snf, KeyMapping.getKeyMapping(pceAddress.getAddress(), password), localAddress, initialDBVersion);
         }
     }
 
     private PCEPSessionNegotiatorFactory<PCEPSessionImpl> getSessionNegotiatorFactory() {
         final List<PCEPCapability> capabilities = Lists.newArrayList(this.pcepCapabilities);
         return new DefaultPCEPSessionNegotiatorFactory(new BasePCEPSessionProposalFactory(this.deadTimer, this.keepAlive, capabilities), 0);
-    }
-
-    private static KeyMapping getKeyMapping(@Nonnull final InetAddress inetAddress, @Nullable final String password) {
-        if (!isNullOrEmpty(password)) {
-            final KeyMapping keyMapping = new KeyMapping();
-            keyMapping.put(inetAddress, password.getBytes(Charsets.US_ASCII));
-            return keyMapping;
-        }
-        return null;
     }
 
     private static void startActivators() {

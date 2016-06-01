@@ -7,26 +7,40 @@
  */
 package org.opendaylight.protocol.concepts;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
+import com.google.common.base.Charsets;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public final class KeyMapping extends HashMap<InetAddress, byte[]> {
     private static final long serialVersionUID = 1L;
 
-    public KeyMapping() {
+    private KeyMapping() {
         super();
     }
 
-    public KeyMapping(final int initialCapacity, final float loadFactor) {
+    private KeyMapping(final int initialCapacity, final float loadFactor) {
         super(initialCapacity, loadFactor);
     }
 
-    public KeyMapping(final int initialCapacity) {
+    private KeyMapping(final int initialCapacity) {
         super(initialCapacity);
     }
 
-    public KeyMapping(final Map<? extends InetAddress, ? extends byte[]> m) {
+    private KeyMapping(final Map<? extends InetAddress, ? extends byte[]> m) {
         super(m);
+    }
+
+    public static KeyMapping getKeyMapping(@Nonnull final InetAddress inetAddress, @Nullable final String password){
+        if (!isNullOrEmpty(password)) {
+            final KeyMapping keyMapping = new KeyMapping();
+            keyMapping.put(inetAddress, password.getBytes(Charsets.US_ASCII));
+            return keyMapping;
+        }
+        return null;
     }
 }
