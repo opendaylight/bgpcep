@@ -126,10 +126,10 @@ final class MACIpAdvRParser extends AbstractEvpnNlri {
     private static ByteBuf serializeIp(final IpAddress ipAddress) {
         final ByteBuf body = Unpooled.buffer();
         if (ipAddress.getIpv4Address() != null) {
-            body.writeByte(Ipv4Util.IP4_LENGTH * BITS_SIZE);
+            body.writeByte(Ipv4Util.IP4_BITS_LENGTH);
             body.writeBytes(Ipv4Util.bytesForAddress(ipAddress.getIpv4Address()));
         } else if (ipAddress.getIpv6Address() != null) {
-            body.writeByte(Ipv6Util.IPV6_LENGTH * BITS_SIZE);
+            body.writeByte(Ipv6Util.IPV6_BITS_LENGTH);
             body.writeBytes(Ipv6Util.bytesForAddress(ipAddress.getIpv6Address()));
         } else {
             body.writeZero(ZERO_BYTE);
@@ -139,9 +139,9 @@ final class MACIpAdvRParser extends AbstractEvpnNlri {
 
     private static IpAddress parseIp(final ByteBuf buffer) {
         final int ipLength = buffer.readUnsignedByte();
-        if (ipLength == Ipv6Util.IPV6_LENGTH * BITS_SIZE) {
+        if (ipLength == Ipv6Util.IPV6_BITS_LENGTH) {
             return new IpAddress(Ipv6Util.addressForByteBuf(buffer));
-        } else if (ipLength == Ipv4Util.IP4_LENGTH * BITS_SIZE) {
+        } else if (ipLength == Ipv4Util.IP4_BITS_LENGTH) {
             return new IpAddress(Ipv4Util.addressForByteBuf(buffer));
         }
         return null;
