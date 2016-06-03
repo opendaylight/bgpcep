@@ -27,7 +27,7 @@ import org.opendaylight.protocol.bmp.impl.session.DefaultBmpSessionFactory;
 import org.opendaylight.protocol.bmp.spi.registry.BmpExtensionProviderActivator;
 import org.opendaylight.protocol.bmp.spi.registry.BmpExtensionProviderContext;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;
-import org.opendaylight.tcpmd5.api.KeyMapping;
+import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class BmpMockTest {
