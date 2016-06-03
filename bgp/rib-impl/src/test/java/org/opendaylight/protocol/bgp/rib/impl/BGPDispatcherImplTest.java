@@ -14,6 +14,8 @@ import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
@@ -66,7 +68,12 @@ public class BGPDispatcherImplTest {
 
     @Before
     public void setUp() throws BGPDocumentedException {
-        final EventLoopGroup group = new NioEventLoopGroup();
+        final EventLoopGroup group;
+        if (Epoll.isAvailable()) {
+            group = new EpollEventLoopGroup();
+        } else {
+            group = new NioEventLoopGroup();
+        }
         this.registry = new StrictBGPPeerRegistry();
         this.registry.addPeer(new IpAddress(new Ipv4Address(CLIENT_ADDRESS.getAddress().getHostAddress())),
                 new SimpleSessionListener(), createPreferences(CLIENT_ADDRESS));

@@ -10,11 +10,13 @@ package org.opendaylight.protocol.concepts;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Optional;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.rfc2385.cfg.rev160324.Rfc2385Key;
 
 public final class KeyMapping extends HashMap<InetAddress, byte[]> {
     private static final long serialVersionUID = 1L;
@@ -47,5 +49,14 @@ public final class KeyMapping extends HashMap<InetAddress, byte[]> {
     public static KeyMapping getKeyMapping(){
         final KeyMapping keyMapping = new KeyMapping();
         return keyMapping;
+    }
+
+    public static KeyMapping getKeyMapping(@Nonnull final InetAddress inetAddress, @Nullable final Optional<Rfc2385Key> password){
+        if (password.isPresent()) {
+            final KeyMapping keyMapping = new KeyMapping();
+            keyMapping.put(inetAddress, password.get().getValue().getBytes(Charsets.US_ASCII));
+            return keyMapping;
+        }
+        return null;
     }
 }
