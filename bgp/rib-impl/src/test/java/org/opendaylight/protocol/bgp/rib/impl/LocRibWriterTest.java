@@ -29,7 +29,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeListener;
+import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -112,7 +112,7 @@ public class LocRibWriterTest {
         doReturn(IPv4RIBSupport.getInstance()).when(this.context).getRibSupport();
         doReturn(this.domTransWrite).when(this.chain).newWriteOnlyTransaction();
         doReturn(this.future).when(this.domTransWrite).submit();
-        doReturn(null).when(this.service).registerDataTreeChangeListener(any(DOMDataTreeIdentifier.class), any(DOMDataTreeChangeListener.class));
+        doReturn(null).when(this.service).registerDataTreeChangeListener(any(DOMDataTreeIdentifier.class), any(ClusteredDOMDataTreeChangeListener.class));
         this.locRibWriter = LocRibWriter.create(this.registry, this.tablesKey, this.chain, YangInstanceIdentifier.of(BgpRib.QNAME),
             new AsNumber((long) 35), this.service, this.pd, new CacheDisconnectedPeersImpl(), BasePathSelectionModeFactory.createBestPathSelectionStrategy());
     }
