@@ -15,7 +15,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeListener;
+import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
  * performs transcoding to BA form (message) and sends it down the channel.
  */
 @NotThreadSafe
-final class AdjRibOutListener implements DOMDataTreeChangeListener {
+final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibOutListener.class);
 
