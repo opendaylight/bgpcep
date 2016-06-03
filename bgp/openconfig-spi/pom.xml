@@ -68,10 +68,6 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.opendaylight.tcpmd5</groupId>
-            <artifactId>tcpmd5-api</artifactId>
-        </dependency>
         <!-- test dependencies -->
         <dependency>
             <groupId>junit</groupId>
