@@ -100,7 +100,7 @@ public class FSExtendedCommunitiesTest {
     public void testTrafficRateParser() throws BGPDocumentedException, BGPParsingException {
         final TrafficRateExtendedCommunityCase trafficRate = new TrafficRateExtendedCommunityCaseBuilder().setTrafficRateExtendedCommunity(
                 new TrafficRateExtendedCommunityBuilder().setInformativeAs(new ShortAsNumber(72L))
-                    .setLocalAdministrator(new Bandwidth(new byte[] { 0, 1, 2, 3 })).build()).build();
+                        .setLocalAdministrator(new Bandwidth(new byte[] { 0, 1, 2, 3 })).build()).build();
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(trafficRate).setTransitive(true).build();
 
         final ExtendedCommunities parsed = registry.parseExtendedCommunity(Unpooled.copiedBuffer(TRAFFIC_RATE));
@@ -109,9 +109,9 @@ public class FSExtendedCommunitiesTest {
 
     @Test
     public void testTrafficRateSerializer() throws BGPDocumentedException, BGPParsingException {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.flowspec.ipv6.routes.flowspec.route.attributes.extended.communities.extended.community.TrafficRateExtendedCommunityCase trafficRate = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.flowspec.ipv6.routes.flowspec.route.attributes.extended.communities.extended.community.TrafficRateExtendedCommunityCaseBuilder().setTrafficRateExtendedCommunity(
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.route.attributes.extended.communities.extended.community.TrafficRateExtendedCommunityCase trafficRate = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.route.attributes.extended.communities.extended.community.TrafficRateExtendedCommunityCaseBuilder().setTrafficRateExtendedCommunity(
                 new TrafficRateExtendedCommunityBuilder().setInformativeAs(new ShortAsNumber(72L))
-                    .setLocalAdministrator(new Bandwidth(new byte[] { 0, 1, 2, 3 })).build()).build();
+                        .setLocalAdministrator(new Bandwidth(new byte[] { 0, 1, 2, 3 })).build()).build();
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(trafficRate).setTransitive(true).build();
 
         final ByteBuf output = Unpooled.buffer(TRAFFIC_RATE.length);
@@ -131,7 +131,7 @@ public class FSExtendedCommunitiesTest {
 
     @Test
     public void testTrafficActionSerializer() throws BGPDocumentedException, BGPParsingException {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.routes.flowspec.routes.flowspec.route.attributes.extended.communities.extended.community.TrafficActionExtendedCommunityCase trafficAction = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.routes.flowspec.routes.flowspec.route.attributes.extended.communities.extended.community.TrafficActionExtendedCommunityCaseBuilder().setTrafficActionExtendedCommunity(
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.route.attributes.extended.communities.extended.community.TrafficActionExtendedCommunityCase trafficAction = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.route.attributes.extended.communities.extended.community.TrafficActionExtendedCommunityCaseBuilder().setTrafficActionExtendedCommunity(
                 new TrafficActionExtendedCommunityBuilder().setSample(true).setTerminalAction(true).build()).build();
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(trafficAction).setTransitive(true).build();
 
@@ -152,7 +152,7 @@ public class FSExtendedCommunitiesTest {
 
     @Test
     public void testTrafficMarkingSerializer() throws BGPDocumentedException, BGPParsingException {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.flowspec.ipv6.routes.flowspec.route.attributes.extended.communities.extended.community.TrafficMarkingExtendedCommunityCase trafficMarking = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.flowspec.ipv6.routes.flowspec.route.attributes.extended.communities.extended.community.TrafficMarkingExtendedCommunityCaseBuilder().setTrafficMarkingExtendedCommunity(
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.route.attributes.extended.communities.extended.community.TrafficMarkingExtendedCommunityCase trafficMarking = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.route.attributes.extended.communities.extended.community.TrafficMarkingExtendedCommunityCaseBuilder().setTrafficMarkingExtendedCommunity(
                 new TrafficMarkingExtendedCommunityBuilder().setGlobalAdministrator(new Dscp((short) 63)).build()).build();
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(trafficMarking).setTransitive(true).build();
 
@@ -174,7 +174,7 @@ public class FSExtendedCommunitiesTest {
 
     @Test
     public void testredirect2bSerializer() throws BGPDocumentedException, BGPParsingException {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.flowspec.ipv6.routes.flowspec.route.attributes.extended.communities.extended.community.RedirectExtendedCommunityCase redirect = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.flowspec.ipv6.routes.flowspec.route.attributes.extended.communities.extended.community.RedirectExtendedCommunityCaseBuilder().setRedirectExtendedCommunity(
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.route.attributes.extended.communities.extended.community.RedirectExtendedCommunityCase redirect = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.route.attributes.extended.communities.extended.community.RedirectExtendedCommunityCaseBuilder().setRedirectExtendedCommunity(
                 new RedirectExtendedCommunityBuilder().setGlobalAdministrator(new ShortAsNumber(35L)).setLocalAdministrator(
                         new byte[] { 4, 2, 8, 7 }).build()).build();
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect).setTransitive(true).build();
@@ -187,9 +187,9 @@ public class FSExtendedCommunitiesTest {
     @Test
     public void testRedirectIpv6Parser() throws BGPDocumentedException, BGPParsingException {
         final RedirectIpv6ExtendedCommunityCase redirect = new RedirectIpv6ExtendedCommunityCaseBuilder()
-            .setRedirectIpv6(new RedirectIpv6Builder()
-                .setGlobalAdministrator(new Ipv6Address("102:304:506:708:90a:b0c:d0e:f10"))
-                .setLocalAdministrator(258).build()).build();
+                .setRedirectIpv6(new RedirectIpv6Builder()
+                        .setGlobalAdministrator(new Ipv6Address("102:304:506:708:90a:b0c:d0e:f10"))
+                        .setLocalAdministrator(258).build()).build();
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect).setTransitive(true).build();
 
         final ExtendedCommunities parsed = this.registry.parseExtendedCommunity(Unpooled.copiedBuffer(REDIRECT_IPV6));
@@ -198,10 +198,10 @@ public class FSExtendedCommunitiesTest {
 
     @Test
     public void testRedirectIpv6Serializer() {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.flowspec.ipv6.routes.flowspec.route.attributes.extended.communities.extended.community.RedirectIpv6ExtendedCommunityCase redirect = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.flowspec.ipv6.routes.flowspec.route.attributes.extended.communities.extended.community.RedirectIpv6ExtendedCommunityCaseBuilder()
-            .setRedirectIpv6(new RedirectIpv6Builder()
-                .setGlobalAdministrator(new Ipv6Address("102:304:506:708:90a:b0c:d0e:f10"))
-                .setLocalAdministrator(258).build()).build();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.route.attributes.extended.communities.extended.community.RedirectIpv6ExtendedCommunityCase redirect = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.route.attributes.extended.communities.extended.community.RedirectIpv6ExtendedCommunityCaseBuilder()
+                .setRedirectIpv6(new RedirectIpv6Builder()
+                        .setGlobalAdministrator(new Ipv6Address("102:304:506:708:90a:b0c:d0e:f10"))
+                        .setLocalAdministrator(258).build()).build();
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect).setTransitive(true).build();
 
         final ByteBuf output = Unpooled.buffer(REDIRECT_IPV6.length);
@@ -222,7 +222,7 @@ public class FSExtendedCommunitiesTest {
 
     @Test
     public void testredirect4bSerializer() throws BGPDocumentedException, BGPParsingException {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.routes.flowspec.routes.flowspec.route.attributes.extended.communities.extended.community.RedirectAs4ExtendedCommunityCase redirect = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.routes.flowspec.routes.flowspec.route.attributes.extended.communities.extended.community.RedirectAs4ExtendedCommunityCaseBuilder().setRedirectAs4(
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.route.attributes.extended.communities.extended.community.RedirectAs4ExtendedCommunityCase redirect = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.route.attributes.extended.communities.extended.community.RedirectAs4ExtendedCommunityCaseBuilder().setRedirectAs4(
                 new RedirectAs4Builder().setGlobalAdministrator(new AsNumber(6548L)).setLocalAdministrator(126).build()).build();
 
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect).setTransitive(true).build();
@@ -245,7 +245,7 @@ public class FSExtendedCommunitiesTest {
 
     @Test
     public void testredirectIpv4Serializer() throws BGPDocumentedException, BGPParsingException {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.flowspec.ipv6.routes.flowspec.route.attributes.extended.communities.extended.community.RedirectIpv4ExtendedCommunityCase redirect = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.flowspec.ipv6.routes.flowspec.route.attributes.extended.communities.extended.community.RedirectIpv4ExtendedCommunityCaseBuilder().setRedirectIpv4(
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.route.attributes.extended.communities.extended.community.RedirectIpv4ExtendedCommunityCase redirect = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.route.attributes.extended.communities.extended.community.RedirectIpv4ExtendedCommunityCaseBuilder().setRedirectIpv4(
                 new RedirectIpv4Builder().setGlobalAdministrator(new Ipv4Address("127.0.0.1")).setLocalAdministrator(126).build()).build();
 
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect).setTransitive(true).build();
@@ -268,7 +268,7 @@ public class FSExtendedCommunitiesTest {
 
     @Test
     public void testredirectIpv4NhSerializer() throws BGPDocumentedException, BGPParsingException {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.routes.flowspec.routes.flowspec.route.attributes.extended.communities.extended.community.RedirectIpNhExtendedCommunityCase redirect = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.routes.flowspec.routes.flowspec.route.attributes.extended.communities.extended.community.RedirectIpNhExtendedCommunityCaseBuilder().setRedirectIpNhExtendedCommunity(
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.route.attributes.extended.communities.extended.community.RedirectIpNhExtendedCommunityCase redirect = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.route.attributes.extended.communities.extended.community.RedirectIpNhExtendedCommunityCaseBuilder().setRedirectIpNhExtendedCommunity(
                 new RedirectIpNhExtendedCommunityBuilder().setNextHopAddress(new IpAddress(new Ipv4Address("127.0.0.1"))).setCopy(true).build()).build();
 
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect).setTransitive(true).build();
@@ -291,7 +291,7 @@ public class FSExtendedCommunitiesTest {
 
     @Test
     public void testredirectIpv6NhSerializer() throws BGPDocumentedException, BGPParsingException {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.routes.flowspec.routes.flowspec.route.attributes.extended.communities.extended.community.RedirectIpNhExtendedCommunityCase redirect = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.routes.flowspec.routes.flowspec.route.attributes.extended.communities.extended.community.RedirectIpNhExtendedCommunityCaseBuilder().setRedirectIpNhExtendedCommunity(
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.route.attributes.extended.communities.extended.community.RedirectIpNhExtendedCommunityCase redirect = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.route.attributes.extended.communities.extended.community.RedirectIpNhExtendedCommunityCaseBuilder().setRedirectIpNhExtendedCommunity(
                 new RedirectIpNhExtendedCommunityBuilder().setNextHopAddress(new IpAddress(new Ipv6Address("2001::1"))).build()).build();
 
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder().setExtendedCommunity(redirect).setTransitive(true).build();

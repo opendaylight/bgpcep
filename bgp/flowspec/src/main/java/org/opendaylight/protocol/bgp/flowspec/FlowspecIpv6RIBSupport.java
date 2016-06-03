@@ -8,9 +8,9 @@
 package org.opendaylight.protocol.bgp.flowspec;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.rib.loc.rib.tables.routes.FlowspecIpv6RoutesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.destination.ipv6.DestinationFlowspec;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.route.FlowspecRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.FlowspecIpv6Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.flowspec.ipv6.routes.FlowspecRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.flowspec.ipv6._case.DestinationFlowspec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 
 public final class FlowspecIpv6RIBSupport extends AbstractFlowspecRIBSupport {
@@ -19,7 +19,7 @@ public final class FlowspecIpv6RIBSupport extends AbstractFlowspecRIBSupport {
 
     public FlowspecIpv6RIBSupport(SimpleFlowspecExtensionProviderContext context) {
         super(FlowspecIpv6RoutesCase.class, FlowspecIpv6Routes.class, FlowspecRoute.class, Ipv6AddressFamily.class, DestinationFlowspec.QNAME);
-        FS_PARSER = new SimpleFlowspecIpv6NlriParser(context.getFlowspecIpv6TypeRegistry());
+        FS_PARSER = new SimpleFlowspecIpv6NlriParser(context.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV6, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
     }
 
     static FlowspecIpv6RIBSupport getInstance(SimpleFlowspecExtensionProviderContext context) {
