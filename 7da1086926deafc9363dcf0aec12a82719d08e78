@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_a1b070f5",
+        "filename": "bgp/rib-impl/src/main/yang/odl-bgp-rib-impl-cfg.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-03T08:29:50Z",
+      "side": 1,
+      "message": "What should this counter express?",
+      "range": {
+        "startLine": 617,
+        "startChar": 0,
+        "endLine": 621,
+        "endChar": 17
+      },
+      "revId": "7da1086926deafc9363dcf0aec12a82719d08e78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_211740ef",
+        "filename": "bgp/rib-impl/src/main/yang/odl-bgp-rib-impl-cfg.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 722,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-03T08:29:50Z",
+      "side": 1,
+      "message": "*In a sake of readability, we should consider moving all statistic related containers/groupings to a standalone yang data model and re-use them here with \"uses\".\n*Instead of using uint32, we should consider using counter32 or zero-based-counter32 from ietf-yang-types model.\n*for rib-impl stats we should add some additional statistics information like AS number and BGP-ID",
+      "range": {
+        "startLine": 702,
+        "startChar": 0,
+        "endLine": 722,
+        "endChar": 13
+      },
+      "revId": "7da1086926deafc9363dcf0aec12a82719d08e78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
