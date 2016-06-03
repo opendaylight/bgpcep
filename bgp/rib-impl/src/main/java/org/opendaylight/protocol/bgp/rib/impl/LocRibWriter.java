@@ -19,7 +19,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeListener;
+import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -64,7 +64,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @NotThreadSafe
-final class LocRibWriter implements AutoCloseable, DOMDataTreeChangeListener {
+final class LocRibWriter implements AutoCloseable, ClusteredDOMDataTreeChangeListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(LocRibWriter.class);
 

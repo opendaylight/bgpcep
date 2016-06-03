@@ -11,8 +11,8 @@ package org.opendaylight.protocol.data.change.counter;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicLong;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
+import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
@@ -29,7 +29,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TopologyDataChangeCounter implements DataTreeChangeListener<Topology>, TransactionChainListener {
+public class TopologyDataChangeCounter implements ClusteredDataTreeChangeListener<Topology>, TransactionChainListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(TopologyDataChangeCounter.class);
 

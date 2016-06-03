@@ -14,7 +14,7 @@ import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeListener;
+import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
@@ -59,7 +59,7 @@ final class EffectiveRibInWriter implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(EffectiveRibInWriter.class);
     protected static final NodeIdentifier TABLE_ROUTES = new NodeIdentifier(Routes.QNAME);
 
-    private final class AdjInTracker implements AutoCloseable, DOMDataTreeChangeListener {
+    private final class AdjInTracker implements AutoCloseable, ClusteredDOMDataTreeChangeListener {
         private final RIBSupportContextRegistry registry;
         private final YangInstanceIdentifier peerIId;
         private final YangInstanceIdentifier effRibTables;

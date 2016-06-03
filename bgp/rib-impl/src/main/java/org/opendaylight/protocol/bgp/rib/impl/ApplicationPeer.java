@@ -18,7 +18,7 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeListener;
+import org.opendaylight.controller.md.sal.dom.api.ClusteredDOMDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPConfigModuleTracker;
@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * For purposed of import policies such as Best Path Selection, application
  * peer needs to have a BGP-ID that is configurable.
  */
-public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol.bgp.rib.spi.Peer, DOMDataTreeChangeListener, TransactionChainListener {
+public class ApplicationPeer implements AutoCloseable, org.opendaylight.protocol.bgp.rib.spi.Peer, ClusteredDOMDataTreeChangeListener, TransactionChainListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationPeer.class);
 
