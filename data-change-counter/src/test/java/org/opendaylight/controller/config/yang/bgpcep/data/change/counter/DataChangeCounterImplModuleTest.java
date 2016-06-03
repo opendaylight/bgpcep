@@ -27,6 +27,7 @@ import org.opendaylight.controller.config.manager.impl.factoriesresolver.Hardcod
 import org.opendaylight.controller.config.spi.Module;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
+import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
@@ -63,7 +64,7 @@ public class DataChangeCounterImplModuleTest extends AbstractConfigTest {
         Mockito.doNothing().when(this.registration).close();
         Mockito.doReturn(null).when(this.wTx).submit();
         Mockito.doNothing().when(this.wTx).put(Mockito.any(LogicalDatastoreType.class), Mockito.<InstanceIdentifier<DataChangeCounter>>any(), Mockito.any(DataChangeCounter.class));
-        Mockito.doReturn(this.registration).when(this.dataBroker).registerDataTreeChangeListener(Mockito.any(DataTreeIdentifier.class), Mockito.any(DataTreeChangeListener.class));
+        Mockito.doReturn(this.registration).when(this.dataBroker).registerDataTreeChangeListener(Mockito.any(DataTreeIdentifier.class), Mockito.any(ClusteredDataTreeChangeListener.class));
         Mockito.doNothing().when(this.wTx).delete(Mockito.any(LogicalDatastoreType.class), Mockito.<InstanceIdentifier<?>>any());
         Mockito.doReturn(this.chain).when(this.dataBroker).createTransactionChain(Mockito.any(TransactionChainListener.class));
         Mockito.doReturn(this.wTx).when(this.chain).newWriteOnlyTransaction();
