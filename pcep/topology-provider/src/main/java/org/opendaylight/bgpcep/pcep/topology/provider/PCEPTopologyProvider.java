@@ -21,8 +21,8 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
-import org.opendaylight.tcpmd5.api.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.rev140113.NetworkTopologyContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.NetworkTopologyPcepProgrammingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.NetworkTopologyPcepService;
@@ -59,7 +59,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
         if (runtimeRootRegistrator.isPresent()) {
             manager.registerRuntimeRootRegistartion(runtimeRootRegistrator.get());
         }
-        final ChannelFuture f = dispatcher.createServer(address, keys, manager, manager);
+        final ChannelFuture f = dispatcher.createServer(address, manager, manager);
         f.get();
 
         final BindingAwareBroker.RoutedRpcRegistration<NetworkTopologyPcepService> element = rpcRegistry.addRoutedRpcImplementation(
