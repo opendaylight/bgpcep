@@ -68,7 +68,10 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
 
     private NodeId advertizingNode(final Attributes attrs) {
         final CNextHop nh = attrs.getCNextHop();
-        if (nh instanceof Ipv4NextHopCase) {
+        if (nh == null) {
+            LOG.warn("Next hop value is null");
+            return null;
+        } else if (nh instanceof Ipv4NextHopCase) {
             final Ipv4NextHop ipv4 = ((Ipv4NextHopCase) nh).getIpv4NextHop();
 
             return new NodeId(ipv4.getGlobal().getValue());
@@ -122,6 +125,9 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
     @Override
     protected final void createObject(final ReadWriteTransaction trans, final InstanceIdentifier<T> id, final T value) {
         final NodeId ni = advertizingNode(getAttributes(value));
+        if (ni == null) {
+            return;
+        }
         final InstanceIdentifier<IgpNodeAttributes> nii = ensureNodePresent(trans, ni);
 
         final IpPrefix prefix = getPrefix(value);
@@ -134,6 +140,9 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
     @Override
     protected final void removeObject(final ReadWriteTransaction trans, final InstanceIdentifier<T> id, final T value) {
         final NodeId ni = advertizingNode(getAttributes(value));
+        if (ni == null) {
+            return;
+        }
         final NodeUsage present = this.nodes.get(ni);
         Preconditions.checkState(present != null, "Removing prefix from non-existent node %s", present);
 
