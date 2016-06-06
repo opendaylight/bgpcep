@@ -1,0 +1,279 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_58db3ded",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 43
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-06T16:24:18Z",
+      "side": 1,
+      "message": "Please, expand a commit message with some brief description/motivation.",
+      "revId": "cd957dfa893dcee956bee3983eba46653faba3d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_784601c1",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/protocol/bgp/cli/AbstractStatsCommandProvider.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-06T16:24:18Z",
+      "side": 1,
+      "message": "Checkstyle do not like this.",
+      "range": {
+        "startLine": 39,
+        "startChar": 16,
+        "endLine": 39,
+        "endChar": 36
+      },
+      "revId": "cd957dfa893dcee956bee3983eba46653faba3d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_d812adb3",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/protocol/bgp/cli/AbstractStatsCommandProvider.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-06T16:24:18Z",
+      "side": 1,
+      "message": "Why is the method throwing these exceptions?",
+      "range": {
+        "startLine": 45,
+        "startChar": 146,
+        "endLine": 45,
+        "endChar": 179
+      },
+      "revId": "cd957dfa893dcee956bee3983eba46653faba3d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_984955d3",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/protocol/bgp/cli/AbstractStatsCommandProvider.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-06T16:24:18Z",
+      "side": 1,
+      "message": "Why throwing IOException?",
+      "range": {
+        "startLine": 47,
+        "startChar": 59,
+        "endLine": 47,
+        "endChar": 70
+      },
+      "revId": "cd957dfa893dcee956bee3983eba46653faba3d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_f88851e9",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/protocol/bgp/cli/utils/BgpCliUtils.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-06T16:24:18Z",
+      "side": 1,
+      "message": "No white space between imports.",
+      "revId": "cd957dfa893dcee956bee3983eba46653faba3d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_586dfd31",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/protocol/bgp/cli/utils/BgpCliUtils.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-06T16:24:18Z",
+      "side": 1,
+      "message": "What is the reason for throwing these exceptions? Please, add javadoc.",
+      "range": {
+        "startLine": 24,
+        "startChar": 132,
+        "endLine": 24,
+        "endChar": 164
+      },
+      "revId": "cd957dfa893dcee956bee3983eba46653faba3d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_784ba1b0",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/protocol/bgp/cli/utils/BgpCliUtils.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-06T16:24:18Z",
+      "side": 1,
+      "message": "Reverse the check to avoid the huge block.",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 38
+      },
+      "revId": "cd957dfa893dcee956bee3983eba46653faba3d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_787441fd",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/protocol/bgp/cli/utils/BgpCliUtils.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-06T16:24:18Z",
+      "side": 1,
+      "message": "Cache to local variable as the same \"get\" is invoked many times.",
+      "range": {
+        "startLine": 36,
+        "startChar": 77,
+        "endLine": 36,
+        "endChar": 111
+      },
+      "revId": "cd957dfa893dcee956bee3983eba46653faba3d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_984e75c0",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/protocol/bgp/cli/utils/BgpCliUtils.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-06T16:24:18Z",
+      "side": 1,
+      "message": "Basically the same for local and peer preferences. Try to come up with some common utility method which helps to avoid duplicating the code.",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 155
+      },
+      "revId": "cd957dfa893dcee956bee3983eba46653faba3d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_982035f9",
+        "filename": "bgp/cli/src/main/java/org/opendaylight/protocol/bgp/cli/utils/BgpCliUtils.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-06T16:24:18Z",
+      "side": 1,
+      "message": "Missing AddPathCapability for speaker preferences.",
+      "revId": "cd957dfa893dcee956bee3983eba46653faba3d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_386ac91a",
+        "filename": "bgp/cli/src/test/java/org/opendaylight/protocol/bgp/cli/utils/BgpCliUtilsTests.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-06T16:24:18Z",
+      "side": 1,
+      "message": "Import statements with asterisk are prohibited.",
+      "range": {
+        "startLine": 11,
+        "startChar": 34,
+        "endLine": 11,
+        "endChar": 36
+      },
+      "revId": "cd957dfa893dcee956bee3983eba46653faba3d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_98779502",
+        "filename": "bgp/cli/src/test/java/org/opendaylight/protocol/bgp/cli/utils/BgpCliUtilsTests.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-06T16:24:18Z",
+      "side": 1,
+      "message": "Missing space.",
+      "revId": "cd957dfa893dcee956bee3983eba46653faba3d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_b87ed9e2",
+        "filename": "bgp/cli/src/test/java/org/opendaylight/protocol/bgp/cli/utils/BgpCliUtilsTests.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2016-06-06T16:24:18Z",
+      "side": 1,
+      "message": "Test is not invoked, the name must start with \"test\" prefix.\nI believe the test is not working anyway, as the BgpSessionState mock is not complete.",
+      "range": {
+        "startLine": 22,
+        "startChar": 16,
+        "endLine": 22,
+        "endChar": 26
+      },
+      "revId": "cd957dfa893dcee956bee3983eba46653faba3d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
