@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Milos Fabian <milfabia@cisco.com>
+Submitted-by: Milos Fabian <milfabia@cisco.com>
+Submitted-at: Mon, 06 Jun 2016 09:46:51 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/39872
+Project: bgpcep
+Branch: refs/heads/stable/beryllium
