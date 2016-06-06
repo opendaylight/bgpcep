@@ -184,3 +184,4 @@ public final class FlowspecActivator implements AutoCloseable {
         }
     }
 }
+

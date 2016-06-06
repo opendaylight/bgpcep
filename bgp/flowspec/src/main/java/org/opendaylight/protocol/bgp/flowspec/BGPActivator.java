@@ -17,6 +17,8 @@ import org.opendaylight.protocol.bgp.flowspec.extended.communities.RedirectIpv6E
 import org.opendaylight.protocol.bgp.flowspec.extended.communities.TrafficActionEcHandler;
 import org.opendaylight.protocol.bgp.flowspec.extended.communities.TrafficMarkingEcHandler;
 import org.opendaylight.protocol.bgp.flowspec.extended.communities.TrafficRateEcHandler;
+import org.opendaylight.protocol.bgp.flowspec.l3vpn.ipv4.FlowspecL3vpnIpv4NlriParser;
+import org.opendaylight.protocol.bgp.flowspec.l3vpn.ipv6.FlowspecL3vpnIpv6NlriParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.next.hop.Ipv4NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.next.hop.Ipv6NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
@@ -32,6 +34,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.route.attributes.extended.communities.extended.community.TrafficMarkingExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.bgp.rib.route.attributes.extended.communities.extended.community.TrafficRateExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.ipv6.routes.FlowspecIpv6Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.l3vpn.ipv4.routes.FlowspecL3vpnIpv4Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.l3vpn.ipv6.routes.FlowspecL3vpnIpv6Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev150807.flowspec.routes.FlowspecRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
@@ -72,6 +76,17 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerNlriSerializer(FlowspecRoutes.class, fsIpv4Handler));
         regs.add(context.registerNlriSerializer(FlowspecIpv6Routes.class, fsIpv6Handler));
 
+        // register handlers for flowspec l3vpn starts -------------------------------------
+        final FlowspecL3vpnIpv4NlriParser fsL3vpnIpv4Handler = new FlowspecL3vpnIpv4NlriParser(this.flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
+        final FlowspecL3vpnIpv6NlriParser fsL3vpnIpv6Handler = new FlowspecL3vpnIpv6NlriParser(this.flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV6, SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
+        regs.add(context.registerNlriParser(Ipv4AddressFamily.class, FlowspecL3vpnSubsequentAddressFamily.class,
+            fsL3vpnIpv4Handler, ipv4NextHopParser, Ipv4NextHopCase.class));
+        regs.add(context.registerNlriParser(Ipv6AddressFamily.class, FlowspecL3vpnSubsequentAddressFamily.class,
+            fsL3vpnIpv6Handler, ipv6NextHopParser, Ipv6NextHopCase.class));
+        regs.add(context.registerNlriSerializer(FlowspecL3vpnIpv4Routes.class, fsL3vpnIpv4Handler));
+        regs.add(context.registerNlriSerializer(FlowspecL3vpnIpv6Routes.class, fsL3vpnIpv6Handler));
+        // register handlers for flowspec l3vpn ends -------------------------------------
+
         final RedirectAsTwoOctetEcHandler redirect2bHandler = new RedirectAsTwoOctetEcHandler();
         regs.add(context.registerExtendedCommunityParser(redirect2bHandler.getType(true), redirect2bHandler.getSubType(), redirect2bHandler));
         regs.add(context.registerExtendedCommunitySerializer(RedirectExtendedCommunityCase.class, redirect2bHandler));
@@ -107,3 +122,4 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         return regs;
     }
 }
+
