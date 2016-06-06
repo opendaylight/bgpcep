@@ -1,0 +1,204 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5c1566_d50558c3",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/AbstractFlowspecRIBSupport.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-06-06T14:39:18Z",
+      "side": 1,
+      "message": "this.nlriParser",
+      "range": {
+        "startLine": 78,
+        "startChar": 15,
+        "endLine": 78,
+        "endChar": 25
+      },
+      "revId": "80045ff4742b88dea2b4032ab4f8acf5050af297",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_b50a64d0",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/AbstractFlowspecRIBSupport.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-06-06T14:39:18Z",
+      "side": 1,
+      "message": "fix alignment",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 44
+      },
+      "revId": "80045ff4742b88dea2b4032ab4f8acf5050af297",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_7500ccaa",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/BGPActivator.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-06-06T14:39:18Z",
+      "side": 1,
+      "message": "remove comments, you can create a method registerHandlersFor... or method with javadoc, etc.. but try to avoid to leave comments",
+      "range": {
+        "startLine": 79,
+        "startChar": 8,
+        "endLine": 79,
+        "endChar": 92
+      },
+      "revId": "80045ff4742b88dea2b4032ab4f8acf5050af297",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_15835005",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/RIBActivator.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-06-06T14:39:18Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 35,
+        "startChar": 7,
+        "endLine": 35,
+        "endChar": 38
+      },
+      "revId": "80045ff4742b88dea2b4032ab4f8acf5050af297",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_75c1ec2d",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/l3vpn/AbstractFlowspecL3vpnNlriParser.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-06-06T14:39:18Z",
+      "side": 1,
+      "message": "final",
+      "revId": "80045ff4742b88dea2b4032ab4f8acf5050af297",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_55266817",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/l3vpn/AbstractFlowspecL3vpnRIBSupport.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-06-06T14:39:18Z",
+      "side": 1,
+      "message": "this.",
+      "range": {
+        "startLine": 72,
+        "startChar": 64,
+        "endLine": 72,
+        "endChar": 74
+      },
+      "revId": "80045ff4742b88dea2b4032ab4f8acf5050af297",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_35d814ef",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/l3vpn/ipv4/FlowspecL3vpnIpv4RIBSupport.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-06-06T14:39:18Z",
+      "side": 1,
+      "message": "final",
+      "revId": "80045ff4742b88dea2b4032ab4f8acf5050af297",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_15d230d2",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/l3vpn/ipv4/FlowspecL3vpnIpv4RIBSupport.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-06-06T14:39:18Z",
+      "side": 1,
+      "message": "final",
+      "revId": "80045ff4742b88dea2b4032ab4f8acf5050af297",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_55db08ed",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/l3vpn/ipv6/FlowspecL3vpnIpv6RIBSupport.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-06-06T14:39:18Z",
+      "side": 1,
+      "message": "final",
+      "revId": "80045ff4742b88dea2b4032ab4f8acf5050af297",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da5c1566_f5d69cc4",
+        "filename": "bgp/flowspec/src/main/java/org/opendaylight/protocol/bgp/flowspec/l3vpn/ipv6/FlowspecL3vpnIpv6RIBSupport.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2016-06-06T14:39:18Z",
+      "side": 1,
+      "message": "final",
+      "revId": "80045ff4742b88dea2b4032ab4f8acf5050af297",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
