@@ -59,7 +59,7 @@ public abstract class AbstractFlowspecRIBSupport extends MultiPathAbstractRIBSup
     protected DestinationType buildDestination(@Nonnull final Collection<MapEntryNode> routes) {
         final MapEntryNode routesCont = Iterables.getOnlyElement(routes);
         final PathId pathId = PathIdUtil.buildPathId(routesCont, routePathIdNid());
-        return getParser().createAdvertizedRoutesDestinationType(getParser().extractFlowspec(routesCont), pathId);
+        return getParser().createAdvertizedRoutesDestinationType(new Object[] {getParser().extractFlowspec(routesCont)}, pathId);
     }
 
     @Nonnull
@@ -67,7 +67,7 @@ public abstract class AbstractFlowspecRIBSupport extends MultiPathAbstractRIBSup
     protected DestinationType buildWithdrawnDestination(@Nonnull final Collection<MapEntryNode> routes) {
         final MapEntryNode routesCont = Iterables.getOnlyElement(routes);
         final PathId pathId = PathIdUtil.buildPathId(routesCont, routePathIdNid());
-        return getParser().createWithdrawnDestinationType(getParser().extractFlowspec(Iterables.getOnlyElement(routes)), pathId);
+        return getParser().createWithdrawnDestinationType(new Object[] {getParser().extractFlowspec(Iterables.getOnlyElement(routes))}, pathId);
     }
 
     @Override
