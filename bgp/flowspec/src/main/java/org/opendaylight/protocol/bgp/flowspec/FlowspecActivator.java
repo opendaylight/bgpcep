@@ -42,29 +42,29 @@ public final class FlowspecActivator implements AutoCloseable {
     public FlowspecActivator(final SimpleFlowspecExtensionProviderContext context) {
         for (SimpleFlowspecExtensionProviderContext.SAFI safi : SimpleFlowspecExtensionProviderContext.SAFI.values()) {
             registerCommonFlowspecTypeHandlers(
-                    SimpleFlowspecExtensionProviderContext.AFI.IPV4,
-                    safi,
-                    registrations,
-                    context
+                SimpleFlowspecExtensionProviderContext.AFI.IPV4,
+                safi,
+                registrations,
+                context
             );
             registerIpv4FlowspecTypeHandlers(
-                    SimpleFlowspecExtensionProviderContext.AFI.IPV4,
-                    safi,
-                    registrations,
-                    context
+                SimpleFlowspecExtensionProviderContext.AFI.IPV4,
+                safi,
+                registrations,
+                context
             );
 
             registerCommonFlowspecTypeHandlers(
-                    SimpleFlowspecExtensionProviderContext.AFI.IPV6,
-                    safi,
-                    registrations,
-                    context
+                SimpleFlowspecExtensionProviderContext.AFI.IPV6,
+                safi,
+                registrations,
+                context
             );
             registerIpv6FlowspecTypeHandlers(
-                    SimpleFlowspecExtensionProviderContext.AFI.IPV6,
-                    safi,
-                    registrations,
-                    context
+                SimpleFlowspecExtensionProviderContext.AFI.IPV6,
+                safi,
+                registrations,
+                context
             );
         }
     }
@@ -76,10 +76,10 @@ public final class FlowspecActivator implements AutoCloseable {
      * @param safi
      */
     private void registerCommonFlowspecTypeHandlers(
-            final SimpleFlowspecExtensionProviderContext.AFI afi,
-            final SimpleFlowspecExtensionProviderContext.SAFI safi,
-            final List<AutoCloseable> regs,
-            final SimpleFlowspecExtensionProviderContext context
+        final SimpleFlowspecExtensionProviderContext.AFI afi,
+        final SimpleFlowspecExtensionProviderContext.SAFI safi,
+        final List<AutoCloseable> regs,
+        final SimpleFlowspecExtensionProviderContext context
     ) {
         final SimpleFlowspecTypeRegistry flowspecTypeRegistry = context.getFlowspecTypeRegistry(afi, safi);
 
@@ -117,10 +117,10 @@ public final class FlowspecActivator implements AutoCloseable {
     }
 
     protected void registerIpv4FlowspecTypeHandlers(
-            final SimpleFlowspecExtensionProviderContext.AFI afi,
-            final SimpleFlowspecExtensionProviderContext.SAFI safi,
-            final List<AutoCloseable> regs,
-            final SimpleFlowspecExtensionProviderContext context
+        final SimpleFlowspecExtensionProviderContext.AFI afi,
+        final SimpleFlowspecExtensionProviderContext.SAFI safi,
+        final List<AutoCloseable> regs,
+        final SimpleFlowspecExtensionProviderContext context
     ) {
         final SimpleFlowspecTypeRegistry flowspecTypeRegistry = context.getFlowspecTypeRegistry(afi, safi);
 
@@ -142,10 +142,10 @@ public final class FlowspecActivator implements AutoCloseable {
     }
 
     protected void registerIpv6FlowspecTypeHandlers(
-            final SimpleFlowspecExtensionProviderContext.AFI afi,
-            final SimpleFlowspecExtensionProviderContext.SAFI safi,
-            final List<AutoCloseable> regs,
-            final SimpleFlowspecExtensionProviderContext context
+        final SimpleFlowspecExtensionProviderContext.AFI afi,
+        final SimpleFlowspecExtensionProviderContext.SAFI safi,
+        final List<AutoCloseable> regs,
+        final SimpleFlowspecExtensionProviderContext context
     ) {
         final SimpleFlowspecTypeRegistry flowspecTypeRegistry = context.getFlowspecTypeRegistry(afi, safi);
 
