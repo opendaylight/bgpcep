@@ -10,6 +10,8 @@ package org.opendaylight.protocol.pcep.impl;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import java.util.ArrayList;
@@ -55,9 +57,17 @@ public final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
         if (!errors.isEmpty()) {
             // We have a bunch of messages, send them out
             for (final Object e : errors) {
-                ctx.write(e);
+                ctx.channel().writeAndFlush(e).addListener(new ChannelFutureListener() {
+                    @Override
+                    public void operationComplete(final ChannelFuture f) {
+                        if (!f.isSuccess()) {
+                            LOG.warn("Failed to send message {} to socket {}", e, f.cause(), ctx.channel());
+                        } else {
+                            LOG.trace("Message {} sent to socket {}", e, ctx.channel());
+                        }
+                    }
+                });
             }
-            ctx.flush();
         }
     }
 
