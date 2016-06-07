@@ -32,12 +32,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labe
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.labeled.unicast.LabelStackBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.labeled.unicast.destination.CLabeledUnicastDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.labeled.unicast.destination.CLabeledUnicastDestinationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv6LabeledUnicastCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLabeledUnicastCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.ipv6.labeled.unicast._case.DestinationIpv6LabeledUnicastBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.labeled.unicast._case.DestinationLabeledUnicastBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv6LabeledUnicastCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLabeledUnicastCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.attributes.MpUnreachNlriBuilder;
@@ -61,15 +65,29 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
         final Attributes2 pathAttributes2 = pathAttributes.getAugmentation(Attributes2.class);
         if (pathAttributes1 != null) {
             final AdvertizedRoutes routes = (pathAttributes1.getMpReachNlri()).getAdvertizedRoutes();
-            if ((routes != null) && (routes.getDestinationType() instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLabeledUnicastCase)) {
-                final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLabeledUnicastCase labeledUnicastCase = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLabeledUnicastCase) routes.getDestinationType();
-                serializeNlri(labeledUnicastCase.getDestinationLabeledUnicast().getCLabeledUnicastDestination(), byteAggregator);
+            if (routes != null) {
+                final DestinationType destinationType = routes.getDestinationType();
+                if ( destinationType instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
+                    .labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLabeledUnicastCase){
+                    final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLabeledUnicastCase labeledUnicastCase = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLabeledUnicastCase) routes.getDestinationType();
+                    serializeNlri(labeledUnicastCase.getDestinationLabeledUnicast().getCLabeledUnicastDestination(), byteAggregator);
+                } else if (destinationType instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
+                    .labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv6LabeledUnicastCase) {
+                    final  org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv6LabeledUnicastCase labeledUnicastCase = ( org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv6LabeledUnicastCase) routes.getDestinationType();
+                    serializeNlri(labeledUnicastCase.getDestinationIpv6LabeledUnicast().getCLabeledUnicastDestination(), byteAggregator);
+                }
             }
         } else if (pathAttributes2 != null) {
             final MpUnreachNlri mpUnreachNlri = pathAttributes2.getMpUnreachNlri();
-            if ((mpUnreachNlri.getWithdrawnRoutes() != null) && (mpUnreachNlri.getWithdrawnRoutes().getDestinationType() instanceof DestinationLabeledUnicastCase)) {
-                final DestinationLabeledUnicastCase labeledUnicastCase = (DestinationLabeledUnicastCase) mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
-                serializeNlri(labeledUnicastCase.getDestinationLabeledUnicast().getCLabeledUnicastDestination(), byteAggregator);
+            if (mpUnreachNlri.getWithdrawnRoutes() != null) {
+                final DestinationType destinationType = mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
+                if (destinationType instanceof DestinationLabeledUnicastCase) {
+                    final DestinationLabeledUnicastCase labeledUnicastCase = (DestinationLabeledUnicastCase) mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
+                    serializeNlri(labeledUnicastCase.getDestinationLabeledUnicast().getCLabeledUnicastDestination(), byteAggregator);
+                } else if(destinationType instanceof DestinationIpv6LabeledUnicastCase) {
+                    final DestinationIpv6LabeledUnicastCase labeledUnicastCase = (DestinationIpv6LabeledUnicastCase) mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
+                    serializeNlri(labeledUnicastCase.getDestinationIpv6LabeledUnicast().getCLabeledUnicastDestination(), byteAggregator);
+                }
             }
         }
     }
@@ -163,7 +181,7 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
             return null;
         }
         final List<LabelStack> labels = new ArrayList<>();
-        boolean bottomBit = false;
+        boolean bottomBit;
         do {
             final ByteBuf slice = nlri.readSlice(LABEL_LENGTH);
             bottomBit = MplsLabelUtil.getBottomBit(slice);
@@ -182,13 +200,20 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
         if (!nlri.isReadable()) {
             return;
         }
+        final Class<? extends AddressFamily> afi = builder.getAfi();
         final boolean mPathSupported = MultiPathSupportUtil.isTableTypeSupported(constraint, new BgpTableTypeImpl(builder.getAfi(), builder.getSafi()));
-        final List<CLabeledUnicastDestination> dst = parseNlri(nlri, builder.getAfi(), mPathSupported);
+        final List<CLabeledUnicastDestination> dst = parseNlri(nlri, afi, mPathSupported);
 
-        builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-            new DestinationLabeledUnicastCaseBuilder().setDestinationLabeledUnicast(
-                new DestinationLabeledUnicastBuilder().setCLabeledUnicastDestination(
-                    dst).build()).build()).build());
+        DestinationType destination = null;
+        if(afi == Ipv4AddressFamily.class){
+            destination = new DestinationLabeledUnicastCaseBuilder().setDestinationLabeledUnicast(
+                new DestinationLabeledUnicastBuilder().setCLabeledUnicastDestination(dst).build()).build();
+        } else if(afi == Ipv6AddressFamily.class) {
+            destination = new DestinationIpv6LabeledUnicastCaseBuilder().setDestinationIpv6LabeledUnicast(
+                new DestinationIpv6LabeledUnicastBuilder()
+                .setCLabeledUnicastDestination(dst).build()).build();
+        }
+        builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(destination).build());
     }
 
     @Override
@@ -196,12 +221,23 @@ public class LUNlriParser implements NlriParser, NlriSerializer {
         if (!nlri.isReadable()) {
             return;
         }
-        final boolean mPathSupported = MultiPathSupportUtil.isTableTypeSupported(constraint, new BgpTableTypeImpl(builder.getAfi(), builder.getSafi()));
-        final List<CLabeledUnicastDestination> dst = parseNlri(nlri, builder.getAfi(), mPathSupported);
+        final Class<? extends AddressFamily> afi = builder.getAfi();
 
-        builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLabeledUnicastCaseBuilder().setDestinationLabeledUnicast(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.labeled.unicast._case.DestinationLabeledUnicastBuilder().setCLabeledUnicastDestination(
-                    dst).build()).build()).build());
+        final boolean mPathSupported = MultiPathSupportUtil.isTableTypeSupported(constraint, new BgpTableTypeImpl(builder.getAfi(), builder.getSafi()));
+        final List<CLabeledUnicastDestination> dst = parseNlri(nlri, afi, mPathSupported);
+
+        DestinationType destination = null;
+        if (afi == Ipv4AddressFamily.class) {
+            destination = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp
+                .unreach.nlri.withdrawn.routes.destination.type.DestinationLabeledUnicastCaseBuilder().setDestinationLabeledUnicast(
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.labeled.unicast._case.DestinationLabeledUnicastBuilder()
+                    .setCLabeledUnicastDestination(dst).build()).build();
+        } else if (afi == Ipv6AddressFamily.class) {
+            destination = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp
+                .unreach.nlri.withdrawn.routes.destination.type.DestinationIpv6LabeledUnicastCaseBuilder().setDestinationIpv6LabeledUnicast(
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.ipv6.labeled.unicast._case.DestinationIpv6LabeledUnicastBuilder()
+                    .setCLabeledUnicastDestination(dst).build()).build();
+        }
+        builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(destination).build());
     }
 }

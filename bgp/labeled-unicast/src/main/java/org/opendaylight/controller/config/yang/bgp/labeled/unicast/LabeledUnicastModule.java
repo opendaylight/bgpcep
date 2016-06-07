@@ -15,11 +15,11 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 
 public class LabeledUnicastModule extends org.opendaylight.controller.config.yang.bgp.labeled.unicast.AbstractLabeledUnicastModule {
-    public LabeledUnicastModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+    public LabeledUnicastModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public LabeledUnicastModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, org.opendaylight.controller.config.yang.bgp.labeled.unicast.LabeledUnicastModule oldModule, java.lang.AutoCloseable oldInstance) {
+    public LabeledUnicastModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final org.opendaylight.controller.config.yang.bgp.labeled.unicast.LabeledUnicastModule oldModule, final java.lang.AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
@@ -34,8 +34,7 @@ public class LabeledUnicastModule extends org.opendaylight.controller.config.yan
             private final BGPExtensionProviderActivator bgpact = new BGPActivator();
             private final RIBExtensionProviderActivator ribact = new RIBActivator();
             @Override
-            public void startRIBExtensionProvider(
-                    RIBExtensionProviderContext context) {
+            public void startRIBExtensionProvider(final RIBExtensionProviderContext context) {
                 this.ribact.startRIBExtensionProvider(context);
             }
             @Override
@@ -43,7 +42,7 @@ public class LabeledUnicastModule extends org.opendaylight.controller.config.yan
                 this.ribact.stopRIBExtensionProvider();
             }
             @Override
-            public void start(BGPExtensionProviderContext context) {
+            public void start(final BGPExtensionProviderContext context) {
                 this.bgpact.start(context);
             }
             @Override

@@ -18,9 +18,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.protocol.bgp.labeled.unicast.LabeledUnicastRIBSupport;
+import org.opendaylight.protocol.bgp.labeled.unicast.LabeledUnicastIpv4RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Routes;
@@ -83,12 +84,14 @@ public abstract class AbstractVpnRIBSupport extends AbstractRIBSupport {
 
     private VpnDestination extractVpnDestination(DataContainerNode<? extends PathArgument> route) {
         final VpnDestination dst = new VpnDestinationBuilder()
-            .setPrefix(LabeledUnicastRIBSupport.extractPrefix(route, prefixTypeNid))
-            .setLabelStack(LabeledUnicastRIBSupport.extractLabel(route, labelStackNid, lvNid))
+            .setPrefix(extractPrefix(route, prefixTypeNid))
+            .setLabelStack(LabeledUnicastIpv4RIBSupport.extractLabel(route, labelStackNid, lvNid))
             .setRouteDistinguisher(extractRouteDistinguisher(route))
             .build();
         return dst;
     }
+
+    protected abstract IpPrefix extractPrefix(final DataContainerNode<? extends PathArgument> route, final NodeIdentifier prefixTypeNid);
 
     private RouteDistinguisher extractRouteDistinguisher(final DataContainerNode<? extends YangInstanceIdentifier.PathArgument> route) {
         if (route.getChild(rdNid).isPresent()) {
